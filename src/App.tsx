@@ -293,7 +293,7 @@ export default function App() {
   const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">("godan");
   const [targetForm, setTargetForm] = useState<TargetForm>("te");
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>("single");
-  const [answerMode, setAnswerMode] = useState<AnswerMode>("choice");
+  const [answerMode, setAnswerMode] = useState<AnswerMode>("input");
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -433,6 +433,7 @@ export default function App() {
 
   const nextQuestion = () => {
     setQuestionIndex((current) => current + 1);
+    setAnswerMode("input");
     setAnswer("");
     setSelectedChoice(null);
     setInputHint("");
@@ -443,6 +444,7 @@ export default function App() {
   const resetSession = () => {
     setAttempts([]);
     setQuestionIndex(0);
+    setAnswerMode("input");
     setAnswer("");
     setSelectedChoice(null);
     setInputHint("");
@@ -478,7 +480,7 @@ export default function App() {
     setVerbGroup(preset.verbGroup ?? "all");
     setPracticeFocus(preset.practiceFocus);
     setTargetForm(preset.targetForm);
-    setAnswerMode("choice");
+    setAnswerMode("input");
     resetSession();
     setAppView("challenge");
   };

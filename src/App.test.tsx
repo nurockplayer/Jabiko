@@ -41,7 +41,9 @@ describe("App", () => {
 
     expect(screen.getByRole("button", { name: "必要過去" })).toHaveClass("selected");
     expect(screen.getByText("学生")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "学生にならなければならなかった" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "輸入" })).toHaveClass("selected");
+    expect(screen.getByLabelText("答案")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "学生にならなければならなかった" })).not.toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("必要過去・なければならなかった")).toBeInTheDocument();
   });
 
@@ -76,7 +78,8 @@ describe("App", () => {
 
     expect(screen.getByRole("button", { name: "く/に修飾" })).toHaveClass("selected");
     expect(screen.getByText("高い")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "高く" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "輸入" })).toHaveClass("selected");
+    expect(screen.queryByRole("button", { name: "高く" })).not.toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("修飾形・く/に")).toBeInTheDocument();
   });
 
@@ -88,7 +91,8 @@ describe("App", () => {
 
     expect(screen.getByRole("button", { name: "必要過去" })).toHaveClass("selected");
     expect(screen.getByText("学生")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "学生にならなければならなかった" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "輸入" })).toHaveClass("selected");
+    expect(screen.queryByRole("button", { name: "学生にならなければならなかった" })).not.toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("必要過去・なければならなかった")).toBeInTheDocument();
   });
 
@@ -102,10 +106,22 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "否定整理" })).toBeInTheDocument();
     expect(screen.getByText("答題方式")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "選擇題" })).toBeInTheDocument();
-    expect(screen.queryByLabelText("答案")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "輸入" })).toHaveClass("selected");
+    expect(screen.getByLabelText("答案")).toBeInTheDocument();
     expect(screen.getByText("書く")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "書いて" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "書いて" })).not.toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("て形")).toBeInTheDocument();
+  });
+
+  it("shows choices when the learner asks for multiple choice help", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    await user.click(screen.getByRole("button", { name: "選擇題" }));
+
+    expect(screen.queryByLabelText("答案")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "書いて" })).toBeInTheDocument();
   });
 
   it("shows success feedback when the learner picks a correct choice", async () => {
@@ -113,6 +129,7 @@ describe("App", () => {
     render(<App />);
 
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    await user.click(screen.getByRole("button", { name: "選擇題" }));
     await user.click(screen.getByRole("button", { name: "書いて" }));
 
     expect(screen.getByRole("heading", { name: "正解" })).toBeInTheDocument();
@@ -123,6 +140,7 @@ describe("App", () => {
     render(<App />);
 
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    await user.click(screen.getByRole("button", { name: "選擇題" }));
     await user.click(screen.getByRole("button", { name: "聞いて" }));
 
     expect(screen.getByText("再想一下")).toBeInTheDocument();
@@ -135,6 +153,7 @@ describe("App", () => {
     render(<App />);
 
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    await user.click(screen.getByRole("button", { name: "選擇題" }));
     await user.click(screen.getByRole("button", { name: "聞いて" }));
 
     expect(screen.getByRole("heading", { name: "錯題複習" })).toBeInTheDocument();
@@ -146,19 +165,19 @@ describe("App", () => {
     render(<App />);
 
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    await user.click(screen.getByRole("button", { name: "選擇題" }));
     await user.click(screen.getByRole("button", { name: "書いて" }));
     await user.keyboard("{Enter}");
 
     expect(screen.getByText("聞く")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "聞いて" })).toBeInTheDocument();
+    expect(screen.getByLabelText("答案")).toBeInTheDocument();
   });
 
-  it("lets the learner switch to typed answers", async () => {
+  it("lets the learner submit typed answers", async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
-    await user.click(screen.getByRole("button", { name: "輸入" }));
     await user.type(screen.getByLabelText("答案"), "書いて");
     await user.click(screen.getByRole("button", { name: "送出" }));
 
