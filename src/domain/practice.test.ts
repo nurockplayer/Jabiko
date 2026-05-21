@@ -304,6 +304,40 @@ describe("buildChoiceOptions", () => {
     expect(options.filter((option) => option !== "書こう").every((option) => /[うよ]う?$/.test(option))).toBe(true);
   });
 
+  it("generates wrong-rule distractors for causative form, including the ichidan-style mistake", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["causative"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "帰る");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("帰らせる");
+    expect(options).toContain("帰させる");
+    expect(options.every((option) => option.startsWith("帰"))).toBe(true);
+  });
+
+  it("generates wrong-rule distractors for passive form", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["passive"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "書く");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("書かれる");
+    expect(options.every((option) => option.startsWith("書"))).toBe(true);
+    expect(options.filter((option) => option !== "書かれる").every((option) => option.endsWith("れる"))).toBe(true);
+  });
+
   it("uses other words' readings as distractors for reading questions", () => {
     const questions = buildQuestionPool(vocabulary, {
       partOfSpeech: "mixed",

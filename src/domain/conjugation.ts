@@ -76,6 +76,30 @@ const GODAN_VOLITIONAL_ENDINGS: Record<string, string> = {
   む: "もう"
 };
 
+const GODAN_CAUSATIVE_ENDINGS: Record<string, string> = {
+  る: "らせる",
+  う: "わせる",
+  く: "かせる",
+  ぐ: "がせる",
+  す: "させる",
+  つ: "たせる",
+  ぬ: "なせる",
+  ぶ: "ばせる",
+  む: "ませる"
+};
+
+const GODAN_PASSIVE_ENDINGS: Record<string, string> = {
+  る: "られる",
+  う: "われる",
+  く: "かれる",
+  ぐ: "がれる",
+  す: "される",
+  つ: "たれる",
+  ぬ: "なれる",
+  ぶ: "ばれる",
+  む: "まれる"
+};
+
 export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   dictionary: "辭書形",
   masu: "ます形",
@@ -88,6 +112,8 @@ export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   ta: "た形",
   potential: "可能形",
   volitional: "意向形",
+  causative: "使役形",
+  passive: "受身形",
   reading: "念法",
   plainPresentAffirmative: "普通形・非過去肯定",
   plainPresentNegative: "普通形・非過去否定",
@@ -105,6 +131,8 @@ export const VERB_FORMS: TargetForm[] = [
   "ta",
   "potential",
   "volitional",
+  "causative",
+  "passive",
   "plainPresentAffirmative",
   "plainPresentNegative",
   "plainPastAffirmative",
@@ -157,6 +185,10 @@ export function generateVerbRuleCandidates(surface: string, targetForm: TargetFo
     pushRuleCandidates(candidates, stem, GODAN_POTENTIAL_ENDINGS, "られる");
   } else if (targetForm === "volitional") {
     pushRuleCandidates(candidates, stem, GODAN_VOLITIONAL_ENDINGS, "よう");
+  } else if (targetForm === "causative") {
+    pushRuleCandidates(candidates, stem, GODAN_CAUSATIVE_ENDINGS, "させる");
+  } else if (targetForm === "passive") {
+    pushRuleCandidates(candidates, stem, GODAN_PASSIVE_ENDINGS, "られる");
   } else {
     const suffix = NAI_DERIVED_SUFFIX[targetForm];
     if (!suffix) {
@@ -352,6 +384,10 @@ function ichidanEnding(targetForm: TargetForm): string {
       return "られる";
     case "volitional":
       return "よう";
+    case "causative":
+      return "させる";
+    case "passive":
+      return "られる";
     default:
       return "";
   }
@@ -365,7 +401,9 @@ function irregularAnswer(surface: string, targetForm: TargetForm): string {
       te: "来て",
       ta: "来た",
       potential: "来られる",
-      volitional: "来よう"
+      volitional: "来よう",
+      causative: "来させる",
+      passive: "来られる"
     };
     return forms[targetForm] ?? surface;
   }
@@ -378,7 +416,9 @@ function irregularAnswer(surface: string, targetForm: TargetForm): string {
       te: `${stem}して`,
       ta: `${stem}した`,
       potential: `${stem}できる`,
-      volitional: `${stem}しよう`
+      volitional: `${stem}しよう`,
+      causative: `${stem}させる`,
+      passive: `${stem}される`
     };
     return forms[targetForm] ?? surface;
   }
@@ -404,7 +444,9 @@ function godanAnswer(surface: string, targetForm: TargetForm): string {
     te: GODAN_TE_ENDINGS,
     ta: GODAN_TA_ENDINGS,
     potential: GODAN_POTENTIAL_ENDINGS,
-    volitional: GODAN_VOLITIONAL_ENDINGS
+    volitional: GODAN_VOLITIONAL_ENDINGS,
+    causative: GODAN_CAUSATIVE_ENDINGS,
+    passive: GODAN_PASSIVE_ENDINGS
   };
 
   const replacement = maps[targetForm]?.[ending];
@@ -487,6 +529,12 @@ function explainVerb(item: VocabularyItem, targetForm: TargetForm): string {
     if (targetForm === "volitional") {
       return "「する」的意向形是「しよう」；「来る」變成「来よう」。";
     }
+    if (targetForm === "causative") {
+      return "「する」的使役形是「させる」；「来る」變成「来させる」。注意「させる」與受身的「される」不同。";
+    }
+    if (targetForm === "passive") {
+      return "「する」的受身形是「される」（與使役「させる」差一個假名）；「来る」變成「来られる」（與可能同形）。";
+    }
     return "三類動詞是不規則變化，要直接記住「する / 来る」以及「名詞 + する」的形式。";
   }
 
@@ -504,6 +552,14 @@ function explainVerb(item: VocabularyItem, targetForm: TargetForm): string {
 
   if (targetForm === "volitional") {
     return "一類動詞意向形把最後一個假名換成お段後接「う」，例如「書く -> 書こう」、「読む -> 読もう」。";
+  }
+
+  if (targetForm === "causative") {
+    return "一類動詞使役形把最後一個假名換成あ段後接「せる」，例如「書く -> 書かせる」、「読む -> 読ませる」。う結尾要變「わせる」。";
+  }
+
+  if (targetForm === "passive") {
+    return "一類動詞受身形把最後一個假名換成あ段後接「れる」，例如「書く -> 書かれる」、「読む -> 読まれる」。う結尾要變「われる」。注意二類動詞的受身與可能同形。";
   }
 
   return "一類動詞ます形把最後一個假名換成い段後接「ます」。";
