@@ -1,5 +1,13 @@
-import { ADJECTIVE_FORMS, conjugate, validateAnswer, VERB_FORMS } from "./conjugation";
+import {
+  ADJECTIVE_FORMS,
+  conjugate,
+  generateVerbRuleCandidates,
+  validateAnswer,
+  VERB_FORMS
+} from "./conjugation";
 import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup, VocabularyItem } from "./types";
+
+export const CHOICE_COUNT = 4;
 
 export interface QuestionOptions {
   partOfSpeech: PartOfSpeech | "mixed";
@@ -59,6 +67,76 @@ export function selectQuestion(questions: PracticeQuestion[], index: number): Pr
   }
 
   return questions[index % questions.length];
+}
+
+export function buildChoiceOptions(
+  currentQuestion: PracticeQuestion,
+  questions: PracticeQuestion[],
+  questionIndex: number
+): string[] {
+  const correctAnswer = currentQuestion.expectedAnswers[0];
+  const acceptedAnswers = new Set(currentQuestion.expectedAnswers);
+  const vocab = currentQuestion.vocabulary;
+  const targetForm = currentQuestion.targetForm;
+
+  const ruleDistractors = buildRuleVariantDistractors(vocab, targetForm, acceptedAnswers);
+  const sameWordDistractors = buildSameWordDistractors(vocab, targetForm, acceptedAnswers);
+  const fallbackDistractors = uniqueAnswers(
+    questions
+      .filter(
+        (question) =>
+          question.vocabulary.id !== vocab.id && question.vocabulary.partOfSpeech === vocab.partOfSpeech
+      )
+      .flatMap((question) => question.expectedAnswers)
+      .filter((answer) => !acceptedAnswers.has(answer) && answer !== vocab.surface)
+  );
+
+  const distractors = uniqueAnswers([...ruleDistractors, ...sameWordDistractors, ...fallbackDistractors]);
+  const options = [correctAnswer, ...distractors.slice(0, CHOICE_COUNT - 1)];
+  const offset = options.length > 0 ? (questionIndex + currentQuestion.id.length) % options.length : 0;
+
+  return [...options.slice(offset), ...options.slice(0, offset)];
+}
+
+function buildRuleVariantDistractors(
+  vocab: VocabularyItem,
+  targetForm: TargetForm,
+  acceptedAnswers: Set<string>
+): string[] {
+  if (vocab.partOfSpeech !== "verb" || vocab.group === "irregular") {
+    return [];
+  }
+
+  return generateVerbRuleCandidates(vocab.surface, targetForm).filter(
+    (candidate) => !acceptedAnswers.has(candidate) && candidate !== vocab.surface
+  );
+}
+
+function buildSameWordDistractors(
+  vocab: VocabularyItem,
+  targetForm: TargetForm,
+  acceptedAnswers: Set<string>
+): string[] {
+  const forms = vocab.partOfSpeech === "verb" ? VERB_FORMS : ADJECTIVE_FORMS;
+  const distractors: string[] = [];
+
+  for (const form of forms) {
+    if (form === targetForm) continue;
+
+    const result = conjugate(vocab, form);
+
+    for (const answer of result.answers) {
+      if (!answer || acceptedAnswers.has(answer) || distractors.includes(answer)) continue;
+      if (answer === vocab.surface) continue;
+      distractors.push(answer);
+    }
+  }
+
+  return distractors;
+}
+
+function uniqueAnswers(answers: string[]): string[] {
+  return Array.from(new Set(answers));
 }
 
 function isFormCompatible(item: VocabularyItem, targetForm: TargetForm): boolean {

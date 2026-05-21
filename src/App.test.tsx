@@ -141,7 +141,7 @@ describe("App", () => {
 
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "選擇題" }));
-    await user.click(screen.getByRole("button", { name: "聞いて" }));
+    await user.click(screen.getByRole("button", { name: "書って" }));
 
     expect(screen.getByText("再想一下")).toBeInTheDocument();
     expect(screen.getByText("正解：書いて")).toBeInTheDocument();
@@ -154,7 +154,7 @@ describe("App", () => {
 
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "選擇題" }));
-    await user.click(screen.getByRole("button", { name: "聞いて" }));
+    await user.click(screen.getByRole("button", { name: "書って" }));
 
     expect(screen.getByRole("heading", { name: "錯題複習" })).toBeInTheDocument();
     expect(screen.getByText("書く -> て形")).toBeInTheDocument();
