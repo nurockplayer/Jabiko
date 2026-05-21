@@ -67,6 +67,31 @@ describe("conjugate", () => {
     expect(conjugate(taberu, "volitional")).toEqual(expect.objectContaining({ answers: ["食べよう"] }));
   });
 
+  it("conjugates causative and passive forms across verb groups", () => {
+    const kaku = word({ surface: "書く", reading: "かく", meaningZh: "寫", partOfSpeech: "verb", group: "godan" });
+    const kau = word({ surface: "買う", reading: "かう", meaningZh: "買", partOfSpeech: "verb", group: "godan" });
+    const taberu = word({
+      surface: "食べる",
+      reading: "たべる",
+      meaningZh: "吃",
+      partOfSpeech: "verb",
+      group: "ichidan"
+    });
+    const suru = word({ surface: "する", reading: "する", meaningZh: "做", partOfSpeech: "verb", group: "irregular" });
+    const kuru = word({ surface: "来る", reading: "くる", meaningZh: "來", partOfSpeech: "verb", group: "irregular" });
+
+    expect(conjugate(kaku, "causative")).toEqual(expect.objectContaining({ answers: ["書かせる"] }));
+    expect(conjugate(kaku, "passive")).toEqual(expect.objectContaining({ answers: ["書かれる"] }));
+    expect(conjugate(kau, "causative")).toEqual(expect.objectContaining({ answers: ["買わせる"] }));
+    expect(conjugate(kau, "passive")).toEqual(expect.objectContaining({ answers: ["買われる"] }));
+    expect(conjugate(taberu, "causative")).toEqual(expect.objectContaining({ answers: ["食べさせる"] }));
+    expect(conjugate(taberu, "passive")).toEqual(expect.objectContaining({ answers: ["食べられる"] }));
+    expect(conjugate(suru, "causative")).toEqual(expect.objectContaining({ answers: ["させる"] }));
+    expect(conjugate(suru, "passive")).toEqual(expect.objectContaining({ answers: ["される"] }));
+    expect(conjugate(kuru, "causative")).toEqual(expect.objectContaining({ answers: ["来させる"] }));
+    expect(conjugate(kuru, "passive")).toEqual(expect.objectContaining({ answers: ["来られる"] }));
+  });
+
   it("conjugates potential and volitional forms across verb groups", () => {
     const kaku = word({ surface: "書く", reading: "かく", meaningZh: "寫", partOfSpeech: "verb", group: "godan" });
     const kaeru = word({ surface: "帰る", reading: "かえる", meaningZh: "回去", partOfSpeech: "verb", group: "godan" });

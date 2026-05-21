@@ -59,6 +59,8 @@ const formOptions: TargetForm[] = [
   "masu",
   "potential",
   "volitional",
+  "causative",
+  "passive",
   "reading",
   "plainPresentAffirmative",
   "plainPresentNegative",
