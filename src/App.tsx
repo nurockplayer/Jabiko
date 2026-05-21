@@ -1,4 +1,4 @@
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   BookOpen,
@@ -8,15 +8,10 @@ import {
   Languages,
   Moon,
   RotateCcw,
-  Send,
   Sun,
   XCircle
 } from "lucide-react";
-import {
-  ADJECTIVE_FORMS,
-  validateAnswer,
-  VERB_FORMS
-} from "./domain/conjugation";
+import { ADJECTIVE_FORMS, VERB_FORMS } from "./domain/conjugation";
 import {
   buildChoiceOptions,
   buildQuestionPool,
@@ -38,7 +33,6 @@ type Feedback =
   | null;
 
 type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
-type AnswerMode = "choice" | "input";
 type AppView = "learn" | "challenge";
 type Theme = "light" | "dark";
 type DrillPreset = {
@@ -299,18 +293,14 @@ export default function App() {
   const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">("godan");
   const [targetForm, setTargetForm] = useState<TargetForm>("te");
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>("single");
-  const [answerMode, setAnswerMode] = useState<AnswerMode>("input");
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
   const [questionIndex, setQuestionIndex] = useState(0);
   const [sessionSeed, setSessionSeed] = useState(0);
-  const [answer, setAnswer] = useState("");
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
-  const [inputHint, setInputHint] = useState("");
   const startedAtRef = useRef(Date.now());
-  const answerInputRef = useRef<HTMLInputElement>(null);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
   const t = copy[language];
 
@@ -359,13 +349,8 @@ export default function App() {
   useEffect(() => {
     if (feedback) {
       nextButtonRef.current?.focus({ preventScroll: true });
-      return;
     }
-
-    if (answerMode === "input" && !feedback) {
-      answerInputRef.current?.focus({ preventScroll: true });
-    }
-  }, [answerMode, feedback, questionIndex, practiceFocus, selectedForm]);
+  }, [feedback]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -398,56 +383,22 @@ export default function App() {
     resetSession();
   };
 
-  const handleAnswerModeChange = (nextMode: AnswerMode) => {
-    setAnswerMode(nextMode);
-    setAnswer("");
-    setInputHint("");
-    setSelectedChoice(null);
-  };
-
-  const submitAnswer = (submittedAnswer: string) => {
-    if (!currentQuestion || feedback) {
-      return;
-    }
-
-    const attempt = scoreAttempt(currentQuestion, submittedAnswer, startedAtRef.current);
-    setAttempts((current) => [...current, attempt]);
-    attemptStore.add(attempt);
-    setInputHint("");
-    setFeedback({ status: attempt.isCorrect ? "correct" : "incorrect", question: currentQuestion });
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!currentQuestion || feedback) {
-      return;
-    }
-
-    if (!answer.trim()) {
-      setInputHint(t.inputHint);
-      answerInputRef.current?.focus({ preventScroll: true });
-      return;
-    }
-
-    submitAnswer(answer);
-  };
-
   const handleChoiceSubmit = (choice: string) => {
     if (!currentQuestion || feedback) {
       return;
     }
 
     setSelectedChoice(choice);
-    submitAnswer(choice);
+
+    const attempt = scoreAttempt(currentQuestion, choice, startedAtRef.current);
+    setAttempts((current) => [...current, attempt]);
+    attemptStore.add(attempt);
+    setFeedback({ status: attempt.isCorrect ? "correct" : "incorrect", question: currentQuestion });
   };
 
   const nextQuestion = () => {
     setQuestionIndex((current) => current + 1);
-    setAnswerMode("input");
-    setAnswer("");
     setSelectedChoice(null);
-    setInputHint("");
     setFeedback(null);
     startedAtRef.current = Date.now();
   };
@@ -456,10 +407,7 @@ export default function App() {
     setAttempts([]);
     setQuestionIndex(0);
     setSessionSeed((seed) => seed + 1);
-    setAnswerMode("input");
-    setAnswer("");
     setSelectedChoice(null);
-    setInputHint("");
     setFeedback(null);
     startedAtRef.current = Date.now();
   };
@@ -473,7 +421,6 @@ export default function App() {
     const missedAttempt = { ...attempt, isCorrect: false, submittedAnswer: "(revealed)" };
     setAttempts((current) => [...current, missedAttempt]);
     attemptStore.add(missedAttempt);
-    setInputHint("");
     setSelectedChoice(null);
     setFeedback({ status: "revealed", question: currentQuestion });
   };
@@ -492,7 +439,6 @@ export default function App() {
     setVerbGroup(preset.verbGroup ?? "all");
     setPracticeFocus(preset.practiceFocus);
     setTargetForm(preset.targetForm);
-    setAnswerMode("input");
     resetSession();
     setAppView("challenge");
   };
@@ -676,65 +622,19 @@ export default function App() {
                 <p className="meaning">{currentQuestion.vocabulary.meaningZh}</p>
               </div>
 
-              <fieldset className="answer-mode">
-                <legend>{t.answerMode}</legend>
-                <div className="segmented answer-mode-segmented">
+              <div className="choice-grid" aria-label={t.answerOptions}>
+                {choiceOptions.map((choice) => (
                   <button
+                    key={choice}
                     type="button"
-                    className={answerMode === "choice" ? "selected" : ""}
+                    className={choiceOptionClass(choice, selectedChoice, feedback)}
                     disabled={Boolean(feedback)}
-                    onClick={() => handleAnswerModeChange("choice")}
+                    onClick={() => handleChoiceSubmit(choice)}
                   >
-                    {t.choices}
+                    {choice}
                   </button>
-                  <button
-                    type="button"
-                    className={answerMode === "input" ? "selected" : ""}
-                    disabled={Boolean(feedback)}
-                    onClick={() => handleAnswerModeChange("input")}
-                  >
-                    {t.input}
-                  </button>
-                </div>
-              </fieldset>
-
-              {answerMode === "choice" ? (
-                <div className="choice-grid" aria-label={t.answerOptions}>
-                  {choiceOptions.map((choice) => (
-                    <button
-                      key={choice}
-                      type="button"
-                      className={choiceOptionClass(choice, selectedChoice, feedback)}
-                      disabled={Boolean(feedback)}
-                      onClick={() => handleChoiceSubmit(choice)}
-                    >
-                      {choice}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <form className="answer-row" onSubmit={handleSubmit}>
-                  <label htmlFor="answer">{t.answer}</label>
-                  <input
-                    id="answer"
-                    ref={answerInputRef}
-                    value={answer}
-                    readOnly={Boolean(feedback)}
-                    aria-describedby={inputHint ? "answer-hint" : undefined}
-                    autoComplete="off"
-                    onChange={(event) => setAnswer(event.target.value)}
-                  />
-                  <button type="submit" disabled={Boolean(feedback)}>
-                    <Send aria-hidden="true" />
-                    {t.submit}
-                  </button>
-                  {inputHint ? (
-                    <p className="input-hint" id="answer-hint" role="status">
-                      {inputHint}
-                    </p>
-                  ) : null}
-                </form>
-              )}
+                ))}
+              </div>
 
               <div className="action-row">
                 <button className="ghost-button" type="button" onClick={revealAnswer} disabled={Boolean(feedback)}>
