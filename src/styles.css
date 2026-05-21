@@ -276,6 +276,12 @@ button svg {
 
 .learning-copy h2,
 .learning-copy p,
+.learning-section-copy h3,
+.learning-section-copy p,
+.learning-roadmap p,
+.rule-card h4,
+.rule-card p,
+.pipeline-card p,
 .lesson-card h3,
 .lesson-card p {
   margin: 0;
@@ -295,11 +301,195 @@ button svg {
   text-align: right;
 }
 
+.learning-roadmap {
+  counter-reset: learning;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.learning-roadmap li {
+  background: var(--field-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.38rem;
+  min-width: 0;
+  padding: 0.9rem;
+}
+
+.learning-roadmap span,
+.pipeline-card span {
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.learning-roadmap strong {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.learning-roadmap p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.learning-section {
+  border-top: 1px solid var(--rule);
+  display: grid;
+  gap: 0.95rem;
+  margin-top: 1.15rem;
+  padding-top: 1.15rem;
+}
+
+.learning-section-copy {
+  display: grid;
+  gap: 0.35rem;
+  max-width: 52rem;
+}
+
+.learning-section-copy h3 {
+  color: var(--ink);
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.learning-section-copy p:last-child {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.rule-matrix {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.rule-matrix.three-column {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.rule-card,
+.pipeline-card {
+  background: var(--field-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.95rem;
+}
+
+.rule-card h4 {
+  color: var(--ink);
+  font-size: 1.02rem;
+}
+
+.rule-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.rule-card small {
+  border-top: 1px solid var(--rule);
+  color: var(--label-text);
+  line-height: 1.5;
+  padding-top: 0.65rem;
+}
+
+.sound-table {
+  background: var(--field-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sound-row {
+  align-items: stretch;
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  gap: 0;
+  grid-template-columns: minmax(4.7rem, 0.7fr) minmax(3.7rem, 0.55fr) minmax(3.7rem, 0.55fr) minmax(0, 2fr);
+}
+
+.sound-row:last-child {
+  border-bottom: 0;
+}
+
+.sound-row > span,
+.sound-row > code {
+  align-items: center;
+  border-right: 1px solid var(--rule);
+  color: var(--ink);
+  display: flex;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 0.68rem 0.75rem;
+}
+
+.sound-row > :last-child {
+  border-right: 0;
+}
+
+.sound-row code,
+.pipeline-card code {
+  color: var(--summary-text);
+  font-family: var(--font-japanese-ui);
+  font-weight: 700;
+}
+
+.sound-head {
+  background: var(--summary-bg);
+}
+
+.sound-head span {
+  color: var(--summary-text);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.pipeline-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.pipeline-card code {
+  background: var(--summary-bg);
+  border: 1px solid var(--summary-border);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+  padding: 0.55rem 0.62rem;
+}
+
+.pipeline-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.inline-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.inline-drill-button {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: var(--selected-text);
+  font-weight: 800;
+  justify-self: start;
+  min-width: 9rem;
+}
+
 .lesson-grid {
   display: grid;
   gap: 0.8rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 1rem;
+  margin-top: 1.15rem;
 }
 
 .lesson-card {
@@ -789,6 +979,15 @@ select:disabled {
     text-align: left;
   }
 
+  .learning-roadmap,
+  .rule-matrix.three-column {
+    grid-template-columns: 1fr;
+  }
+
+  .pipeline-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .lesson-grid {
     grid-template-columns: 1fr;
   }
@@ -853,6 +1052,20 @@ select:disabled {
     grid-template-columns: 1fr;
   }
 
+  .pipeline-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sound-row {
+    grid-template-columns: minmax(3.4rem, 0.7fr) minmax(2.9rem, 0.52fr) minmax(2.9rem, 0.52fr) minmax(0, 1.8fr);
+  }
+
+  .sound-row > span,
+  .sound-row > code {
+    padding: 0.58rem 0.5rem;
+  }
+
+  .inline-action-row,
   .action-row {
     display: grid;
   }

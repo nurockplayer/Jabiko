@@ -33,6 +33,12 @@ type PracticeFocus = "single" | "teTa" | "negative" | "plain";
 type AnswerMode = "choice" | "input";
 type AppView = "learn" | "challenge";
 type Theme = "light" | "dark";
+type DrillPreset = {
+  partOfSpeech: PartOfSpeech | "mixed";
+  verbGroup?: VerbGroup | "all";
+  practiceFocus: PracticeFocus;
+  targetForm: TargetForm;
+};
 
 const THEME_STORAGE_KEY = "jabiko.theme";
 
@@ -78,6 +84,97 @@ const focusOptions: Array<{ value: PracticeFocus; label: string; targetForms: Ta
       "plainPastAffirmative",
       "plainPastNegative"
     ]
+  }
+];
+
+const learningSteps = [
+  {
+    label: "先分類",
+    title: "不要一開始就背表",
+    body: "先問：這是動詞、い形容詞、な形容詞，還是名詞？如果是動詞，再判斷一類、二類、三類。"
+  },
+  {
+    label: "選家族",
+    title: "同一組變化放一起",
+    body: "て形 / た形是一組；ない、ないで、なくて、なかった是一組。先把家族關係看懂，比硬背單字快。"
+  },
+  {
+    label: "看錯題",
+    title: "錯了就讀規則",
+    body: "挑戰時答錯會顯示正解與規則。先確認「為什麼這樣變」，再進下一題。"
+  }
+];
+
+const verbGroupGuide = [
+  {
+    group: "一類動詞",
+    rule: "最後一個假名會換段或音便。",
+    examples: ["書く -> 書きます", "読む -> 読みます", "帰る -> 帰ります"],
+    note: "像「帰る」雖然以る結尾，但仍是一類，要另外記。"
+  },
+  {
+    group: "二類動詞",
+    rule: "先去掉最後的る，再接語尾。",
+    examples: ["食べる -> 食べます", "見る -> 見ます", "起きる -> 起きます"],
+    note: "二類通常比較規則：食べる、見る、起きる。"
+  },
+  {
+    group: "三類動詞",
+    rule: "する、来る是不規則，直接記形。",
+    examples: ["する -> します", "来る -> 来ます", "勉強する -> 勉強します"],
+    note: "名詞 + する 也跟 する 一起變。"
+  }
+];
+
+const teTaRows = [
+  { ending: "く", te: "いて", ta: "いた", example: "書く -> 書いて / 書いた" },
+  { ending: "ぐ", te: "いで", ta: "いだ", example: "泳ぐ -> 泳いで / 泳いだ" },
+  { ending: "す", te: "して", ta: "した", example: "話す -> 話して / 話した" },
+  { ending: "う・つ・る", te: "って", ta: "った", example: "待つ -> 待って / 待った" },
+  { ending: "む・ぶ・ぬ", te: "んで", ta: "んだ", example: "読む -> 読んで / 読んだ" }
+];
+
+const negativePipelines = [
+  {
+    title: "ない形",
+    formula: "書く -> 書かない",
+    body: "一類動詞先把最後假名換成あ段，再接ない；う結尾要變わない。"
+  },
+  {
+    title: "否定て形・ないで",
+    formula: "書かない -> 書かないで",
+    body: "不是從て形變否定。先做ない形，再接ないで。"
+  },
+  {
+    title: "否定接續・なくて",
+    formula: "書かない -> 書かなくて",
+    body: "也是先做ない形，再把ない換成なくて。常用來接理由或狀態。"
+  },
+  {
+    title: "否定過去",
+    formula: "書かない -> 書かなかった",
+    body: "不是從た形變否定。先做ない形，再把ない換成なかった。"
+  }
+];
+
+const adjectiveRows = [
+  {
+    type: "い形容詞",
+    cue: "去い，加く或かった",
+    examples: ["高い -> 高くない", "高い -> 高かった", "高い -> 高くなかった"],
+    note: "否定過去是くなかった，不是かった再否定。"
+  },
+  {
+    type: "な形容詞",
+    cue: "像名詞句，現在肯定要だ",
+    examples: ["静かだ", "静かではない", "静かだった"],
+    note: "過去是だった，不是把な留下來加た。"
+  },
+  {
+    type: "名詞",
+    cue: "和な形容詞同一套",
+    examples: ["学生だ", "学生ではない", "学生だった"],
+    note: "名詞過去用だった；口語否定也可以用じゃない。"
   }
 ];
 
@@ -274,6 +371,15 @@ export default function App() {
 
   const themeToggleLabel = theme === "dark" ? "淺色模式" : "深色模式";
   const ThemeIcon = theme === "dark" ? Sun : Moon;
+  const startDrill = (preset: DrillPreset) => {
+    setPartOfSpeech(preset.partOfSpeech);
+    setVerbGroup(preset.verbGroup ?? "all");
+    setPracticeFocus(preset.practiceFocus);
+    setTargetForm(preset.targetForm);
+    setAnswerMode("choice");
+    resetSession();
+    setAppView("challenge");
+  };
 
   return (
     <main className="app-shell">
@@ -309,7 +415,7 @@ export default function App() {
       </nav>
 
       {appView === "learn" ? (
-        <LearningPanel onStartChallenge={() => setAppView("challenge")} />
+        <LearningPanel onStartChallenge={() => setAppView("challenge")} onStartDrill={startDrill} />
       ) : (
         <section className="practice-layout" aria-label="Jabiko practice">
         <aside className="controls-panel" aria-label="練習設定">
@@ -540,16 +646,169 @@ export default function App() {
   );
 }
 
-function LearningPanel({ onStartChallenge }: { onStartChallenge: () => void }) {
+function LearningPanel({
+  onStartChallenge,
+  onStartDrill
+}: {
+  onStartChallenge: () => void;
+  onStartDrill: (preset: DrillPreset) => void;
+}) {
   return (
     <section className="learning-panel" aria-label="學習">
       <div className="learning-copy">
         <p className="eyebrow">Study before recall</p>
         <h2>先學會，再挑戰</h2>
-        <p>第一次使用可以先把最容易卡住的變化看一輪，再進入選擇題挑戰。每張卡都對應到後面的練習設定。</p>
+        <p>第一次使用先照順序看：分辨詞類、抓同一組變化、再用選擇題確認。看懂規則後才進入輸入練習。</p>
       </div>
 
-      <div className="lesson-grid">
+      <ol className="learning-roadmap" aria-label="建議學習順序">
+        {learningSteps.map((step) => (
+          <li key={step.label}>
+            <span>{step.label}</span>
+            <strong>{step.title}</strong>
+            <p>{step.body}</p>
+          </li>
+        ))}
+      </ol>
+
+      <section className="learning-section" aria-labelledby="verb-group-title">
+        <div className="learning-section-copy">
+          <p className="eyebrow">Step 1</p>
+          <h3 id="verb-group-title">動詞先分三類</h3>
+          <p>先不要管て形或た形。動詞題第一步只做分類，分類對了，後面才知道要「換最後假名」還是「去る」。</p>
+        </div>
+        <div className="rule-matrix three-column">
+          {verbGroupGuide.map((item) => (
+            <article className="rule-card" key={item.group}>
+              <h4>{item.group}</h4>
+              <p>{item.rule}</p>
+              <div className="formula-row" aria-label={`${item.group}例子`}>
+                {item.examples.map((example) => (
+                  <code key={example}>{example}</code>
+                ))}
+              </div>
+              <small>{item.note}</small>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="learning-section" aria-labelledby="te-ta-title">
+        <div className="learning-section-copy">
+          <p className="eyebrow">Step 2</p>
+          <h3 id="te-ta-title">て形和た形是同一張表</h3>
+          <p>一類動詞最難的是音便。先背「て / た 成對」，不要分開背兩份規則。行く是例外：行って、行った。</p>
+        </div>
+        <div className="sound-table" role="table" aria-label="一類動詞て形與た形音便">
+          <div className="sound-row sound-head" role="row">
+            <span role="columnheader">結尾</span>
+            <span role="columnheader">て形</span>
+            <span role="columnheader">た形</span>
+            <span role="columnheader">例子</span>
+          </div>
+          {teTaRows.map((row) => (
+            <div className="sound-row" role="row" key={row.ending}>
+              <span role="cell">{row.ending}</span>
+              <code role="cell">{row.te}</code>
+              <code role="cell">{row.ta}</code>
+              <code role="cell">{row.example}</code>
+            </div>
+          ))}
+        </div>
+        <button
+          className="inline-drill-button"
+          type="button"
+          onClick={() =>
+            onStartDrill({ partOfSpeech: "verb", verbGroup: "godan", practiceFocus: "teTa", targetForm: "te" })
+          }
+        >
+          <ArrowRight aria-hidden="true" />
+          練一類て/た
+        </button>
+      </section>
+
+      <section className="learning-section" aria-labelledby="negative-title">
+        <div className="learning-section-copy">
+          <p className="eyebrow">Step 3</p>
+          <h3 id="negative-title">否定變化都先回到ない形</h3>
+          <p>你卡住的「て形た形的否定」其實不是從て形或た形變來。先做ない形，再往下接。</p>
+        </div>
+        <div className="pipeline-grid">
+          {negativePipelines.map((item) => (
+            <article className="pipeline-card" key={item.title}>
+              <span>{item.title}</span>
+              <code>{item.formula}</code>
+              <p>{item.body}</p>
+            </article>
+          ))}
+        </div>
+        <button
+          className="inline-drill-button"
+          type="button"
+          onClick={() =>
+            onStartDrill({ partOfSpeech: "verb", verbGroup: "all", practiceFocus: "negative", targetForm: "nai" })
+          }
+        >
+          <ArrowRight aria-hidden="true" />
+          練否定整理
+        </button>
+      </section>
+
+      <section className="learning-section" aria-labelledby="adjective-title">
+        <div className="learning-section-copy">
+          <p className="eyebrow">Step 4</p>
+          <h3 id="adjective-title">形容詞和名詞不要混在一起背</h3>
+          <p>い形容詞會去い；な形容詞和名詞比較像「名詞句」，用だ、ではない、だった這一套。</p>
+        </div>
+        <div className="rule-matrix three-column">
+          {adjectiveRows.map((row) => (
+            <article className="rule-card" key={row.type}>
+              <h4>{row.type}</h4>
+              <p>{row.cue}</p>
+              <div className="formula-row" aria-label={`${row.type}例子`}>
+                {row.examples.map((example) => (
+                  <code key={example}>{example}</code>
+                ))}
+              </div>
+              <small>{row.note}</small>
+            </article>
+          ))}
+        </div>
+        <div className="inline-action-row">
+          <button
+            className="inline-drill-button"
+            type="button"
+            onClick={() =>
+              onStartDrill({
+                partOfSpeech: "i_adjective",
+                verbGroup: "all",
+                practiceFocus: "plain",
+                targetForm: "plainPresentNegative"
+              })
+            }
+          >
+            <ArrowRight aria-hidden="true" />
+            練い形容詞
+          </button>
+          <button
+            className="inline-drill-button"
+            type="button"
+            onClick={() =>
+              onStartDrill({
+                partOfSpeech: "na_adjective",
+                verbGroup: "all",
+                practiceFocus: "plain",
+                targetForm: "plainPresentNegative"
+              })
+            }
+          >
+            <ArrowRight aria-hidden="true" />
+            練な形容詞
+          </button>
+        </div>
+      </section>
+
+      <div className="lesson-grid" aria-label="速記卡">
         {lessonCards.map((card) => (
           <article className="lesson-card" key={card.title}>
             <span>{card.focus}</span>

@@ -17,8 +17,35 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "先學會，再挑戰" })).toBeInTheDocument();
     expect(screen.getByText("ないで / なくて / なかった")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "動詞先分三類" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "て形和た形是同一張表" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "否定變化都先回到ない形" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "形容詞和名詞不要混在一起背" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "開始挑戰" })).toBeInTheDocument();
     expect(screen.queryByText("答題方式")).not.toBeInTheDocument();
+  });
+
+  it("starts a focused negative drill from the learning guide", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "練否定整理" }));
+
+    expect(screen.getByText("練習重點")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "否定整理" })).toHaveClass("selected");
+    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("ない形")).toBeInTheDocument();
+    expect(screen.getByText("書く")).toBeInTheDocument();
+  });
+
+  it("starts an adjective drill from the learning guide", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "練な形容詞" }));
+
+    expect(screen.getByRole("button", { name: "な形容詞" })).toHaveClass("selected");
+    expect(screen.getByText("静か")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("普通形・非過去肯定")).toBeInTheDocument();
   });
 
   it("starts the challenge from the learning path", async () => {
