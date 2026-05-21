@@ -27,6 +27,8 @@ type Copy = {
   negativeIntro: string;
   adjectiveTitle: string;
   adjectiveIntro: string;
+  obligationPastTitle: string;
+  obligationPastIntro: string;
   tableEnding: string;
   tableTe: string;
   tableTa: string;
@@ -37,6 +39,7 @@ type Copy = {
   drillIAdjective: string;
   drillNaAdjective: string;
   drillAdverbial: string;
+  drillObligationPast: string;
   startChallenge: string;
   settingsLabel: string;
   todayPractice: string;
@@ -70,7 +73,7 @@ type Copy = {
   focusSummaryEmpty: string;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
-  focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial", string>;
+  focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast", string>;
   targetForms: Record<TargetForm, string>;
   lessonCardFocus: string[];
 };
@@ -125,6 +128,8 @@ export const copy: Record<Language, Copy> = {
     negativeIntro: "你卡住的「て形た形的否定」其實不是從て形或た形變來。先做ない形，再往下接。",
     adjectiveTitle: "形容詞和名詞不要混在一起背",
     adjectiveIntro: "い形容詞會去い；な形容詞和名詞比較像「名詞句」，用だ、ではない、だった這一套。",
+    obligationPastTitle: "必須的過去看最後一段",
+    obligationPastIntro: "「ならなければ」不是過去。要表過去時，前面維持條件形，最後的「ならない」變成「ならなかった」。",
     tableEnding: "結尾",
     tableTe: "て形",
     tableTa: "た形",
@@ -135,6 +140,7 @@ export const copy: Record<Language, Copy> = {
     drillIAdjective: "練い形容詞",
     drillNaAdjective: "練な形容詞",
     drillAdverbial: "練く/に修飾",
+    drillObligationPast: "練必要過去",
     startChallenge: "開始挑戰",
     settingsLabel: "練習設定",
     todayPractice: "今日練習",
@@ -184,7 +190,8 @@ export const copy: Record<Language, Copy> = {
       teTa: "て/た比較",
       negative: "否定整理",
       plain: "普通形整理",
-      adverbial: "く/に修飾"
+      adverbial: "く/に修飾",
+      obligationPast: "必要過去"
     },
     targetForms: {
       dictionary: "辭書形",
@@ -193,6 +200,7 @@ export const copy: Record<Language, Copy> = {
       negativeTe: "否定て形・ないで",
       negativeContinuative: "否定接續・なくて",
       adverbial: "修飾形・く/に",
+      obligationPast: "必要過去・なければならなかった",
       te: "て形",
       ta: "た形",
       plainPresentAffirmative: "普通形・非過去肯定",
@@ -243,6 +251,8 @@ export const copy: Record<Language, Copy> = {
     negativeIntro: "Naide, nakute, and nakatta are not made from te-form or ta-form. Build nai-form first, then continue.",
     adjectiveTitle: "Keep adjectives and noun-like forms separate",
     adjectiveIntro: "I-adjectives drop い. Na-adjectives and nouns behave like nominal sentences with だ, ではない, and だった.",
+    obligationPastTitle: "Past obligation changes at the final phrase",
+    obligationPastIntro: "ならなければ is not past by itself. Keep the condition in front, then change only the final ならない to ならなかった.",
     tableEnding: "Ending",
     tableTe: "Te",
     tableTa: "Ta",
@@ -253,6 +263,7 @@ export const copy: Record<Language, Copy> = {
     drillIAdjective: "Drill i-adjectives",
     drillNaAdjective: "Drill na-adjectives",
     drillAdverbial: "Drill ku/ni modifiers",
+    drillObligationPast: "Drill past obligation",
     startChallenge: "Start challenge",
     settingsLabel: "Practice settings",
     todayPractice: "Today's practice",
@@ -302,7 +313,8 @@ export const copy: Record<Language, Copy> = {
       teTa: "Te/Ta pair",
       negative: "Negatives",
       plain: "Plain forms",
-      adverbial: "ku/ni modifiers"
+      adverbial: "ku/ni modifiers",
+      obligationPast: "Past obligation"
     },
     targetForms: {
       dictionary: "Dictionary form",
@@ -311,6 +323,7 @@ export const copy: Record<Language, Copy> = {
       negativeTe: "Negative te-form: naide",
       negativeContinuative: "Negative connector: nakute",
       adverbial: "Modifier form: ku/ni",
+      obligationPast: "Past obligation: nakereba naranakatta",
       te: "Te-form",
       ta: "Ta-form",
       plainPresentAffirmative: "Plain non-past affirmative",
@@ -361,6 +374,8 @@ export const copy: Record<Language, Copy> = {
     negativeIntro: "ないで, なくて, なかった는 て형이나 た형에서 만드는 것이 아닙니다. 먼저 ない형을 만듭니다.",
     adjectiveTitle: "형용사와 명사형은 나눠서 보기",
     adjectiveIntro: "い형용사는 い를 빼고, な형용사와 명사는 だ, ではない, だった 흐름으로 봅니다.",
+    obligationPastTitle: "필요 표현의 과거는 마지막에서 바꾸기",
+    obligationPastIntro: "ならなければ 자체는 과거가 아닙니다. 앞의 조건형은 그대로 두고 마지막 ならない만 ならなかった로 바꿉니다.",
     tableEnding: "끝",
     tableTe: "て형",
     tableTa: "た형",
@@ -371,6 +386,7 @@ export const copy: Record<Language, Copy> = {
     drillIAdjective: "い형용사 연습",
     drillNaAdjective: "な형용사 연습",
     drillAdverbial: "く/に 수식 연습",
+    drillObligationPast: "필요 과거 연습",
     startChallenge: "도전 시작",
     settingsLabel: "연습 설정",
     todayPractice: "오늘의 연습",
@@ -420,7 +436,8 @@ export const copy: Record<Language, Copy> = {
       teTa: "て/た 비교",
       negative: "부정 정리",
       plain: "보통형 정리",
-      adverbial: "く/に 수식"
+      adverbial: "く/に 수식",
+      obligationPast: "필요 과거"
     },
     targetForms: {
       dictionary: "사전형",
@@ -429,6 +446,7 @@ export const copy: Record<Language, Copy> = {
       negativeTe: "부정 て형・ないで",
       negativeContinuative: "부정 연결・なくて",
       adverbial: "수식형・く/に",
+      obligationPast: "필요 과거・なければならなかった",
       te: "て형",
       ta: "た형",
       plainPresentAffirmative: "보통형・현재 긍정",

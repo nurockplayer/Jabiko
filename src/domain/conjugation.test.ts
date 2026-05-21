@@ -33,6 +33,7 @@ describe("conjugate", () => {
     expect(conjugate(kaku, "plainPastNegative")).toEqual(expect.objectContaining({ answers: ["書かなかった"] }));
     expect(conjugate(kaku, "negativeTe")).toEqual(expect.objectContaining({ answers: ["書かないで"] }));
     expect(conjugate(kaku, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["書かなくて"] }));
+    expect(conjugate(kaku, "obligationPast")).toEqual(expect.objectContaining({ answers: ["書かなければならなかった"] }));
 
     expect(conjugate(iku, "te")).toEqual(expect.objectContaining({ answers: ["行って"] }));
     expect(conjugate(iku, "ta")).toEqual(expect.objectContaining({ answers: ["行った"] }));
@@ -61,6 +62,7 @@ describe("conjugate", () => {
     expect(conjugate(taberu, "masu")).toEqual(expect.objectContaining({ answers: ["食べます"] }));
     expect(conjugate(taberu, "negativeTe")).toEqual(expect.objectContaining({ answers: ["食べないで"] }));
     expect(conjugate(taberu, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["食べなくて"] }));
+    expect(conjugate(taberu, "obligationPast")).toEqual(expect.objectContaining({ answers: ["食べなければならなかった"] }));
   });
 
   it("conjugates irregular verbs", () => {
@@ -80,6 +82,7 @@ describe("conjugate", () => {
     expect(conjugate(suru, "masu")).toEqual(expect.objectContaining({ answers: ["します"] }));
     expect(conjugate(suru, "negativeTe")).toEqual(expect.objectContaining({ answers: ["しないで"] }));
     expect(conjugate(suru, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["しなくて"] }));
+    expect(conjugate(suru, "obligationPast")).toEqual(expect.objectContaining({ answers: ["しなければならなかった"] }));
 
     expect(conjugate(kuru, "te")).toEqual(expect.objectContaining({ answers: ["来て"] }));
     expect(conjugate(kuru, "ta")).toEqual(expect.objectContaining({ answers: ["来た"] }));
@@ -104,6 +107,7 @@ describe("conjugate", () => {
     expect(conjugate(takai, "plainPastNegative")).toEqual(expect.objectContaining({ answers: ["高くなかった"] }));
     expect(conjugate(takai, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["高くなくて"] }));
     expect(conjugate(takai, "adverbial")).toEqual(expect.objectContaining({ answers: ["高く"] }));
+    expect(conjugate(takai, "obligationPast")).toEqual(expect.objectContaining({ answers: ["高くならなければならなかった"] }));
 
     expect(conjugate(shizuka, "plainPresentAffirmative")).toEqual(expect.objectContaining({ answers: ["静かだ"] }));
     expect(conjugate(shizuka, "plainPresentNegative")).toEqual(expect.objectContaining({ answers: ["静かではない", "静かじゃない"] }));
@@ -111,12 +115,18 @@ describe("conjugate", () => {
     expect(conjugate(shizuka, "plainPastNegative")).toEqual(expect.objectContaining({ answers: ["静かではなかった", "静かじゃなかった"] }));
     expect(conjugate(shizuka, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["静かではなくて", "静かじゃなくて"] }));
     expect(conjugate(shizuka, "adverbial")).toEqual(expect.objectContaining({ answers: ["静かに"] }));
+    expect(conjugate(shizuka, "obligationPast")).toEqual(
+      expect.objectContaining({ answers: ["静かにならなければならなかった"] })
+    );
 
     expect(conjugate(gakusei, "plainPresentAffirmative")).toEqual(expect.objectContaining({ answers: ["学生だ"] }));
     expect(conjugate(gakusei, "plainPresentNegative")).toEqual(expect.objectContaining({ answers: ["学生ではない", "学生じゃない"] }));
     expect(conjugate(gakusei, "plainPastAffirmative")).toEqual(expect.objectContaining({ answers: ["学生だった"] }));
     expect(conjugate(gakusei, "plainPastNegative")).toEqual(expect.objectContaining({ answers: ["学生ではなかった", "学生じゃなかった"] }));
     expect(conjugate(gakusei, "adverbial")).toEqual(expect.objectContaining({ answers: ["学生に"] }));
+    expect(conjugate(gakusei, "obligationPast")).toEqual(
+      expect.objectContaining({ answers: ["学生にならなければならなかった"] })
+    );
   });
 });
 

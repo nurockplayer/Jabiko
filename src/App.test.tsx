@@ -25,6 +25,9 @@ describe("App", () => {
     expect(screen.getByText("静か -> 静かに")).toBeInTheDocument();
     expect(screen.getByText("学生 -> 学生に")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "練く/に修飾" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "必須的過去看最後一段" })).toBeInTheDocument();
+    expect(screen.getByText("学生 -> 学生にならなければならなかった")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "練必要過去" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "開始挑戰" })).toBeInTheDocument();
     expect(screen.queryByText("答題方式")).not.toBeInTheDocument();
   });
@@ -62,6 +65,18 @@ describe("App", () => {
     expect(screen.getByText("高い")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "高く" })).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("修飾形・く/に")).toBeInTheDocument();
+  });
+
+  it("starts an obligation past drill from the learning guide", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "練必要過去" }));
+
+    expect(screen.getByRole("button", { name: "必要過去" })).toHaveClass("selected");
+    expect(screen.getByText("学生")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "学生にならなければならなかった" })).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("必要過去・なければならなかった")).toBeInTheDocument();
   });
 
   it("starts the challenge from the learning path", async () => {

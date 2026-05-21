@@ -55,6 +55,7 @@ export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   negativeTe: "否定て形・ないで",
   negativeContinuative: "否定接續・なくて",
   adverbial: "修飾形・く/に",
+  obligationPast: "必要過去・なければならなかった",
   te: "て形",
   ta: "た形",
   plainPresentAffirmative: "普通形・非過去肯定",
@@ -74,7 +75,8 @@ export const VERB_FORMS: TargetForm[] = [
   "plainPresentAffirmative",
   "plainPresentNegative",
   "plainPastAffirmative",
-  "plainPastNegative"
+  "plainPastNegative",
+  "obligationPast"
 ];
 
 export const ADJECTIVE_FORMS: TargetForm[] = [
@@ -83,7 +85,8 @@ export const ADJECTIVE_FORMS: TargetForm[] = [
   "negativeContinuative",
   "plainPastAffirmative",
   "plainPastNegative",
-  "adverbial"
+  "adverbial",
+  "obligationPast"
 ];
 
 export function conjugate(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
@@ -135,6 +138,10 @@ function verbAnswers(item: VocabularyItem, targetForm: TargetForm): string[] {
 
   if (targetForm === "plainPastNegative") {
     return [verbAnswers(item, "nai")[0].replace(/ない$/, "なかった")];
+  }
+
+  if (targetForm === "obligationPast") {
+    return [verbAnswers(item, "nai")[0].replace(/ない$/, "なければならなかった")];
   }
 
   if (targetForm === "negativeTe") {
@@ -236,6 +243,7 @@ function conjugateIAdjective(item: VocabularyItem, targetForm: TargetForm): Conj
     plainPresentNegative: [`${stem}くない`],
     negativeContinuative: [`${stem}くなくて`],
     adverbial: [`${stem}く`],
+    obligationPast: [`${stem}くならなければならなかった`],
     plainPastAffirmative: [`${stem}かった`],
     plainPastNegative: [`${stem}くなかった`]
   };
@@ -254,6 +262,7 @@ function conjugateNominal(item: VocabularyItem, targetForm: TargetForm): Conjuga
     plainPresentNegative: [`${item.surface}ではない`, `${item.surface}じゃない`],
     negativeContinuative: [`${item.surface}ではなくて`, `${item.surface}じゃなくて`],
     adverbial: [`${item.surface}に`],
+    obligationPast: [`${item.surface}にならなければならなかった`],
     plainPastAffirmative: [`${item.surface}だった`],
     plainPastNegative: [`${item.surface}ではなかった`, `${item.surface}じゃなかった`]
   };
@@ -272,6 +281,10 @@ function explainVerb(item: VocabularyItem, targetForm: TargetForm): string {
 
   if (targetForm === "plainPastNegative") {
     return "否定過去不是從た形變來，而是先做ない形，再把最後的「ない」換成「なかった」。";
+  }
+
+  if (targetForm === "obligationPast") {
+    return "必要過去「なければならなかった」先做ない形，再把最後的「ない」換成「なければならなかった」。過去放在最後的「ならない -> ならなかった」。";
   }
 
   if (targetForm === "negativeTe") {
@@ -306,6 +319,10 @@ function explainIAdjective(targetForm: TargetForm): string {
     return "い形容詞修飾動詞時，去掉最後的「い」，接「く」。";
   }
 
+  if (targetForm === "obligationPast") {
+    return "い形容詞要先變成「くなる」的否定必要形：去い加く，再接「ならなければならなかった」。";
+  }
+
   if (targetForm === "plainPresentNegative") {
     return "い形容詞否定：去掉最後的「い」，接「くない」。";
   }
@@ -334,6 +351,10 @@ function explainNominal(item: VocabularyItem, targetForm: TargetForm): string {
 
   if (targetForm === "adverbial") {
     return `${label}修飾動詞時接「に」，例如「静かに話す」「学生になる」。`;
+  }
+
+  if (targetForm === "obligationPast") {
+    return `${label}要先接「に」進入「なる」：${label} + に + ならなければならなかった。過去只放在最後的「ならなかった」。`;
   }
 
   if (targetForm === "negativeContinuative") {

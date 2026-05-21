@@ -30,7 +30,7 @@ type Feedback =
   | { status: "revealed"; question: PracticeQuestion }
   | null;
 
-type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial";
+type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
 type AnswerMode = "choice" | "input";
 type AppView = "learn" | "challenge";
 type Theme = "light" | "dark";
@@ -54,6 +54,7 @@ const formOptions: TargetForm[] = [
   "negativeTe",
   "negativeContinuative",
   "adverbial",
+  "obligationPast",
   "masu",
   "dictionary",
   "plainPresentAffirmative",
@@ -78,6 +79,10 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
   {
     value: "adverbial",
     targetForms: ["adverbial"]
+  },
+  {
+    value: "obligationPast",
+    targetForms: ["obligationPast"]
   }
 ];
 
@@ -169,6 +174,29 @@ const adjectiveRows = [
     cue: "修飾或方向常加に",
     examples: ["学生 -> 学生に", "学生だ", "学生だった"],
     note: "名詞加に常用在變成某身分或方向；句尾過去用だった。"
+  }
+];
+
+const obligationPastRows = [
+  {
+    title: "動詞",
+    formula: "書く -> 書かなければならなかった",
+    body: "先做ない形「書かない」，再把ない換成「なければならなかった」。"
+  },
+  {
+    title: "い形容詞",
+    formula: "高い -> 高くならなければならなかった",
+    body: "先做「高くなる」，再把なる變成必要過去。"
+  },
+  {
+    title: "な形容詞",
+    formula: "静か -> 静かにならなければならなかった",
+    body: "先加に做「静かになる」，過去放在最後的ならなかった。"
+  },
+  {
+    title: "名詞",
+    formula: "学生 -> 学生にならなければならなかった",
+    body: "你卡住的型就在這裡：名詞 + に + ならなければならなかった。"
   }
 ];
 
@@ -850,6 +878,38 @@ function LearningPanel({
             {t.drillAdverbial}
           </button>
         </div>
+      </section>
+
+      <section className="learning-section" aria-labelledby="obligation-title">
+        <div className="learning-section-copy">
+          <p className="eyebrow">{t.step} 5</p>
+          <h3 id="obligation-title">{t.obligationPastTitle}</h3>
+          <p>{t.obligationPastIntro}</p>
+        </div>
+        <div className="pipeline-grid">
+          {obligationPastRows.map((item) => (
+            <article className="pipeline-card" key={item.title}>
+              <span>{item.title}</span>
+              <code>{item.formula}</code>
+              <p>{item.body}</p>
+            </article>
+          ))}
+        </div>
+        <button
+          className="inline-drill-button"
+          type="button"
+          onClick={() =>
+            onStartDrill({
+              partOfSpeech: "noun",
+              verbGroup: "all",
+              practiceFocus: "obligationPast",
+              targetForm: "obligationPast"
+            })
+          }
+        >
+          <ArrowRight aria-hidden="true" />
+          {t.drillObligationPast}
+        </button>
       </section>
 
       <div className="lesson-grid" aria-label="速記卡">

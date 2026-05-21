@@ -9,6 +9,7 @@ export type TargetForm =
   | "negativeTe"
   | "negativeContinuative"
   | "adverbial"
+  | "obligationPast"
   | "te"
   | "ta"
   | "plainPresentAffirmative"
