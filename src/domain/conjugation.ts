@@ -52,6 +52,8 @@ export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   dictionary: "辭書形",
   masu: "ます形",
   nai: "ない形",
+  negativeTe: "否定て形・ないで",
+  negativeContinuative: "否定接續・なくて",
   te: "て形",
   ta: "た形",
   plainPresentAffirmative: "普通形・非過去肯定",
@@ -64,6 +66,8 @@ export const VERB_FORMS: TargetForm[] = [
   "dictionary",
   "masu",
   "nai",
+  "negativeTe",
+  "negativeContinuative",
   "te",
   "ta",
   "plainPresentAffirmative",
@@ -75,6 +79,7 @@ export const VERB_FORMS: TargetForm[] = [
 export const ADJECTIVE_FORMS: TargetForm[] = [
   "plainPresentAffirmative",
   "plainPresentNegative",
+  "negativeContinuative",
   "plainPastAffirmative",
   "plainPastNegative"
 ];
@@ -88,7 +93,7 @@ export function conjugate(item: VocabularyItem, targetForm: TargetForm): Conjuga
     return conjugateIAdjective(item, targetForm);
   }
 
-  return conjugateNaAdjective(item, targetForm);
+  return conjugateNominal(item, targetForm);
 }
 
 export function getRuleExplanation(item: VocabularyItem, targetForm: TargetForm): string {
@@ -128,6 +133,14 @@ function verbAnswers(item: VocabularyItem, targetForm: TargetForm): string[] {
 
   if (targetForm === "plainPastNegative") {
     return [verbAnswers(item, "nai")[0].replace(/ない$/, "なかった")];
+  }
+
+  if (targetForm === "negativeTe") {
+    return [verbAnswers(item, "nai")[0].replace(/ない$/, "ないで")];
+  }
+
+  if (targetForm === "negativeContinuative") {
+    return [verbAnswers(item, "nai")[0].replace(/ない$/, "なくて")];
   }
 
   if (item.group === "ichidan") {
@@ -219,6 +232,7 @@ function conjugateIAdjective(item: VocabularyItem, targetForm: TargetForm): Conj
     dictionary: [item.surface],
     plainPresentAffirmative: [item.surface],
     plainPresentNegative: [`${stem}くない`],
+    negativeContinuative: [`${stem}くなくて`],
     plainPastAffirmative: [`${stem}かった`],
     plainPastNegative: [`${stem}くなかった`]
   };
@@ -226,15 +240,16 @@ function conjugateIAdjective(item: VocabularyItem, targetForm: TargetForm): Conj
   return {
     targetForm,
     answers: answersByForm[targetForm] ?? [item.surface],
-    explanation: `い形容詞變化：去掉最後的「い」後，依目標形接「くない」「かった」或「くなかった」。`
+    explanation: explainIAdjective(targetForm)
   };
 }
 
-function conjugateNaAdjective(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
+function conjugateNominal(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
   const answersByForm: Partial<Record<TargetForm, string[]>> = {
     dictionary: [item.surface],
     plainPresentAffirmative: [`${item.surface}だ`],
     plainPresentNegative: [`${item.surface}ではない`, `${item.surface}じゃない`],
+    negativeContinuative: [`${item.surface}ではなくて`, `${item.surface}じゃなくて`],
     plainPastAffirmative: [`${item.surface}だった`],
     plainPastNegative: [`${item.surface}ではなかった`, `${item.surface}じゃなかった`]
   };
@@ -242,13 +257,25 @@ function conjugateNaAdjective(item: VocabularyItem, targetForm: TargetForm): Con
   return {
     targetForm,
     answers: answersByForm[targetForm] ?? [item.surface],
-    explanation: `な形容詞普通形要接「だ」「ではない」「だった」「ではなかった」。口語中也常用「じゃない」「じゃなかった」。`
+    explanation: explainNominal(item, targetForm)
   };
 }
 
 function explainVerb(item: VocabularyItem, targetForm: TargetForm): string {
   if (targetForm === "dictionary" || targetForm === "plainPresentAffirmative") {
     return "辭書形本身就是普通形的非過去肯定。";
+  }
+
+  if (targetForm === "plainPastNegative") {
+    return "否定過去不是從た形變來，而是先做ない形，再把最後的「ない」換成「なかった」。";
+  }
+
+  if (targetForm === "negativeTe") {
+    return "否定て形「ないで」不是從て形變否定，而是先做ない形，再接成「ないで」。常用在「不要做...」或「不做...而...」。";
+  }
+
+  if (targetForm === "negativeContinuative") {
+    return "否定接續「なくて」也是先做ない形，再把最後的「ない」換成「なくて」。常用在說明理由或把否定狀態接到後句。";
   }
 
   if (item.group === "ichidan") {
@@ -263,9 +290,51 @@ function explainVerb(item: VocabularyItem, targetForm: TargetForm): string {
     return "一類動詞的て形 / た形會依最後一個假名產生音便，例如「く -> いて」、「む -> んで」、「す -> して」。";
   }
 
-  if (targetForm === "nai" || targetForm === "plainPresentNegative" || targetForm === "plainPastNegative") {
+  if (targetForm === "nai" || targetForm === "plainPresentNegative") {
     return "一類動詞ない形把最後一個假名換成あ段後接「ない」，但「う」要變成「わない」。";
   }
 
   return "一類動詞ます形把最後一個假名換成い段後接「ます」。";
+}
+
+function explainIAdjective(targetForm: TargetForm): string {
+  if (targetForm === "plainPresentNegative") {
+    return "い形容詞否定：去掉最後的「い」，接「くない」。";
+  }
+
+  if (targetForm === "negativeContinuative") {
+    return "い形容詞否定接續：先變「くない」，再把「ない」換成「なくて」。";
+  }
+
+  if (targetForm === "plainPastAffirmative") {
+    return "い形容詞過去：去掉最後的「い」，接「かった」。";
+  }
+
+  if (targetForm === "plainPastNegative") {
+    return "い形容詞否定過去：去掉最後的「い」，接「くなかった」。";
+  }
+
+  return "い形容詞現在肯定直接使用原形。";
+}
+
+function explainNominal(item: VocabularyItem, targetForm: TargetForm): string {
+  const label = item.partOfSpeech === "noun" ? "名詞" : "な形容詞";
+
+  if (targetForm === "plainPresentNegative") {
+    return `${label}否定像名詞句一樣接「ではない」，口語也常用「じゃない」。`;
+  }
+
+  if (targetForm === "negativeContinuative") {
+    return `${label}否定接續像名詞句一樣接「ではなくて」，口語也常用「じゃなくて」。`;
+  }
+
+  if (targetForm === "plainPastAffirmative") {
+    return `${label}過去肯定要接「だった」，不是接い形容詞的「かった」。`;
+  }
+
+  if (targetForm === "plainPastNegative") {
+    return `${label}否定過去接「ではなかった」，口語也常用「じゃなかった」。`;
+  }
+
+  return `${label}普通形現在肯定要接「だ」。`;
 }

@@ -1,4 +1,4 @@
-export type PartOfSpeech = "verb" | "i_adjective" | "na_adjective";
+export type PartOfSpeech = "verb" | "i_adjective" | "na_adjective" | "noun";
 
 export type VerbGroup = "godan" | "ichidan" | "irregular";
 
@@ -6,6 +6,8 @@ export type TargetForm =
   | "dictionary"
   | "masu"
   | "nai"
+  | "negativeTe"
+  | "negativeContinuative"
   | "te"
   | "ta"
   | "plainPresentAffirmative"

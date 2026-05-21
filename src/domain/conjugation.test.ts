@@ -31,6 +31,8 @@ describe("conjugate", () => {
     expect(conjugate(kaku, "nai")).toEqual(expect.objectContaining({ answers: ["書かない"] }));
     expect(conjugate(kaku, "masu")).toEqual(expect.objectContaining({ answers: ["書きます"] }));
     expect(conjugate(kaku, "plainPastNegative")).toEqual(expect.objectContaining({ answers: ["書かなかった"] }));
+    expect(conjugate(kaku, "negativeTe")).toEqual(expect.objectContaining({ answers: ["書かないで"] }));
+    expect(conjugate(kaku, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["書かなくて"] }));
 
     expect(conjugate(iku, "te")).toEqual(expect.objectContaining({ answers: ["行って"] }));
     expect(conjugate(iku, "ta")).toEqual(expect.objectContaining({ answers: ["行った"] }));
@@ -57,6 +59,8 @@ describe("conjugate", () => {
     expect(conjugate(taberu, "ta")).toEqual(expect.objectContaining({ answers: ["食べた"] }));
     expect(conjugate(taberu, "nai")).toEqual(expect.objectContaining({ answers: ["食べない"] }));
     expect(conjugate(taberu, "masu")).toEqual(expect.objectContaining({ answers: ["食べます"] }));
+    expect(conjugate(taberu, "negativeTe")).toEqual(expect.objectContaining({ answers: ["食べないで"] }));
+    expect(conjugate(taberu, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["食べなくて"] }));
   });
 
   it("conjugates irregular verbs", () => {
@@ -74,29 +78,42 @@ describe("conjugate", () => {
     expect(conjugate(suru, "ta")).toEqual(expect.objectContaining({ answers: ["した"] }));
     expect(conjugate(suru, "nai")).toEqual(expect.objectContaining({ answers: ["しない"] }));
     expect(conjugate(suru, "masu")).toEqual(expect.objectContaining({ answers: ["します"] }));
+    expect(conjugate(suru, "negativeTe")).toEqual(expect.objectContaining({ answers: ["しないで"] }));
+    expect(conjugate(suru, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["しなくて"] }));
 
     expect(conjugate(kuru, "te")).toEqual(expect.objectContaining({ answers: ["来て"] }));
     expect(conjugate(kuru, "ta")).toEqual(expect.objectContaining({ answers: ["来た"] }));
     expect(conjugate(kuru, "nai")).toEqual(expect.objectContaining({ answers: ["来ない"] }));
     expect(conjugate(kuru, "masu")).toEqual(expect.objectContaining({ answers: ["来ます"] }));
+    expect(conjugate(kuru, "negativeTe")).toEqual(expect.objectContaining({ answers: ["来ないで"] }));
+    expect(conjugate(kuru, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["来なくて"] }));
 
     expect(conjugate(benkyo, "te")).toEqual(expect.objectContaining({ answers: ["勉強して"] }));
     expect(conjugate(benkyo, "nai")).toEqual(expect.objectContaining({ answers: ["勉強しない"] }));
+    expect(conjugate(benkyo, "negativeTe")).toEqual(expect.objectContaining({ answers: ["勉強しないで"] }));
   });
 
-  it("conjugates i-adjectives and na-adjectives", () => {
+  it("conjugates i-adjectives, na-adjectives, and noun-like words", () => {
     const takai = word({ surface: "高い", reading: "たかい", meaningZh: "高", partOfSpeech: "i_adjective" });
     const shizuka = word({ surface: "静か", reading: "しずか", meaningZh: "安靜", partOfSpeech: "na_adjective" });
+    const gakusei = word({ surface: "学生", reading: "がくせい", meaningZh: "學生", partOfSpeech: "noun" });
 
     expect(conjugate(takai, "plainPresentAffirmative")).toEqual(expect.objectContaining({ answers: ["高い"] }));
     expect(conjugate(takai, "plainPresentNegative")).toEqual(expect.objectContaining({ answers: ["高くない"] }));
     expect(conjugate(takai, "plainPastAffirmative")).toEqual(expect.objectContaining({ answers: ["高かった"] }));
     expect(conjugate(takai, "plainPastNegative")).toEqual(expect.objectContaining({ answers: ["高くなかった"] }));
+    expect(conjugate(takai, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["高くなくて"] }));
 
     expect(conjugate(shizuka, "plainPresentAffirmative")).toEqual(expect.objectContaining({ answers: ["静かだ"] }));
     expect(conjugate(shizuka, "plainPresentNegative")).toEqual(expect.objectContaining({ answers: ["静かではない", "静かじゃない"] }));
     expect(conjugate(shizuka, "plainPastAffirmative")).toEqual(expect.objectContaining({ answers: ["静かだった"] }));
     expect(conjugate(shizuka, "plainPastNegative")).toEqual(expect.objectContaining({ answers: ["静かではなかった", "静かじゃなかった"] }));
+    expect(conjugate(shizuka, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["静かではなくて", "静かじゃなくて"] }));
+
+    expect(conjugate(gakusei, "plainPresentAffirmative")).toEqual(expect.objectContaining({ answers: ["学生だ"] }));
+    expect(conjugate(gakusei, "plainPresentNegative")).toEqual(expect.objectContaining({ answers: ["学生ではない", "学生じゃない"] }));
+    expect(conjugate(gakusei, "plainPastAffirmative")).toEqual(expect.objectContaining({ answers: ["学生だった"] }));
+    expect(conjugate(gakusei, "plainPastNegative")).toEqual(expect.objectContaining({ answers: ["学生ではなかった", "学生じゃなかった"] }));
   });
 });
 
@@ -116,5 +133,7 @@ describe("rule explanations", () => {
     const kaku = word({ surface: "書く", reading: "かく", meaningZh: "寫", partOfSpeech: "verb", group: "godan" });
 
     expect(getRuleExplanation(kaku, "te")).toContain("一類動詞");
+    expect(getRuleExplanation(kaku, "negativeTe")).toContain("ないで");
+    expect(getRuleExplanation(kaku, "negativeContinuative")).toContain("なくて");
   });
 });

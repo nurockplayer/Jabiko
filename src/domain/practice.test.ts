@@ -21,12 +21,32 @@ describe("buildQuestionPool", () => {
     const questions = buildQuestionPool(vocabulary, {
       partOfSpeech: "i_adjective",
       verbGroup: "all",
-      targetForms: ["te", "plainPastNegative"]
+      targetForms: ["negativeTe", "negativeContinuative", "plainPastNegative"]
     });
 
     expect(questions.every((question) => question.vocabulary.partOfSpeech === "i_adjective")).toBe(true);
-    expect(questions.every((question) => question.targetForm === "plainPastNegative")).toBe(true);
-    expect(questions.find((question) => question.vocabulary.surface === "高い")?.expectedAnswers).toEqual(["高くなかった"]);
+    expect(questions.some((question) => question.targetForm === "negativeTe")).toBe(false);
+    expect(questions.some((question) => question.targetForm === "negativeContinuative")).toBe(true);
+    expect(
+      questions.find((question) => question.vocabulary.surface === "高い" && question.targetForm === "plainPastNegative")
+        ?.expectedAnswers
+    ).toEqual(["高くなかった"]);
+  });
+
+  it("builds noun-like practice questions for plain and negative connective forms", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "noun",
+      verbGroup: "all",
+      targetForms: ["plainPastAffirmative", "negativeContinuative"]
+    });
+
+    expect(questions.length).toBeGreaterThan(0);
+    expect(questions.every((question) => question.vocabulary.partOfSpeech === "noun")).toBe(true);
+    expect(questions.find((question) => question.vocabulary.surface === "学生" && question.targetForm === "plainPastAffirmative")?.expectedAnswers).toEqual(["学生だった"]);
+    expect(questions.find((question) => question.vocabulary.surface === "学生" && question.targetForm === "negativeContinuative")?.expectedAnswers).toEqual([
+      "学生ではなくて",
+      "学生じゃなくて"
+    ]);
   });
 });
 

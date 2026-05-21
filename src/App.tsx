@@ -27,10 +27,13 @@ type Feedback =
   | { status: "revealed"; question: PracticeQuestion }
   | null;
 
+type PracticeFocus = "single" | "teTa" | "negative" | "plain";
+
 const partOfSpeechOptions: Array<{ value: PartOfSpeech | "mixed"; label: string }> = [
   { value: "verb", label: "動詞" },
   { value: "i_adjective", label: "い形容詞" },
   { value: "na_adjective", label: "な形容詞" },
+  { value: "noun", label: "名詞" },
   { value: "mixed", label: "混合" }
 ];
 
@@ -45,6 +48,8 @@ const formOptions: TargetForm[] = [
   "te",
   "ta",
   "nai",
+  "negativeTe",
+  "negativeContinuative",
   "masu",
   "dictionary",
   "plainPresentAffirmative",
@@ -53,12 +58,29 @@ const formOptions: TargetForm[] = [
   "plainPastNegative"
 ];
 
+const focusOptions: Array<{ value: PracticeFocus; label: string; targetForms: TargetForm[]; verbOnly?: boolean }> = [
+  { value: "single", label: "單一形", targetForms: [] },
+  { value: "teTa", label: "て/た比較", targetForms: ["te", "ta"], verbOnly: true },
+  { value: "negative", label: "否定整理", targetForms: ["nai", "negativeTe", "negativeContinuative", "plainPastNegative"] },
+  {
+    value: "plain",
+    label: "普通形整理",
+    targetForms: [
+      "plainPresentAffirmative",
+      "plainPresentNegative",
+      "plainPastAffirmative",
+      "plainPastNegative"
+    ]
+  }
+];
+
 const attemptStore = createAttemptStore();
 
 export default function App() {
   const [partOfSpeech, setPartOfSpeech] = useState<PartOfSpeech | "mixed">("verb");
   const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">("godan");
   const [targetForm, setTargetForm] = useState<TargetForm>("te");
+  const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>("single");
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -69,15 +91,27 @@ export default function App() {
 
   const compatibleForms = partOfSpeech === "verb" || partOfSpeech === "mixed" ? VERB_FORMS : ADJECTIVE_FORMS;
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
+  const targetForms = useMemo(
+    () =>
+      practiceFocus === "single"
+        ? [selectedForm]
+        : focusOptions.find((option) => option.value === practiceFocus)?.targetForms ?? [selectedForm],
+    [practiceFocus, selectedForm]
+  );
+  const activeFocusForms = targetForms.filter((form) => compatibleForms.includes(form));
+  const focusSummary =
+    practiceFocus === "single"
+      ? TARGET_FORM_LABELS[selectedForm]
+      : activeFocusForms.map((form) => TARGET_FORM_LABELS[form]).join(" / ");
 
   const questions = useMemo(
     () =>
       buildQuestionPool(vocabulary, {
         partOfSpeech,
         verbGroup,
-        targetForms: [selectedForm]
+        targetForms
       }),
-    [partOfSpeech, selectedForm, verbGroup]
+    [partOfSpeech, targetForms, verbGroup]
   );
   const currentQuestion = selectQuestion(questions, questionIndex);
   const mistakeQuestions = getMistakeQuestions(attempts, questions);
@@ -86,7 +120,19 @@ export default function App() {
 
   useEffect(() => {
     answerInputRef.current?.focus({ preventScroll: true });
-  }, [feedback, questionIndex, selectedForm]);
+  }, [feedback, questionIndex, practiceFocus, selectedForm]);
+
+  const handlePartOfSpeechChange = (nextPartOfSpeech: PartOfSpeech | "mixed") => {
+    setPartOfSpeech(nextPartOfSpeech);
+    setPracticeFocus("single");
+    setTargetForm(nextPartOfSpeech === "verb" || nextPartOfSpeech === "mixed" ? "te" : "plainPresentNegative");
+    resetSession();
+  };
+
+  const handlePracticeFocusChange = (nextFocus: PracticeFocus) => {
+    setPracticeFocus(nextFocus);
+    resetSession();
+  };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -173,15 +219,32 @@ export default function App() {
                   key={option.value}
                   type="button"
                   className={partOfSpeech === option.value ? "selected" : ""}
-                  onClick={() => {
-                    setPartOfSpeech(option.value);
-                    setTargetForm(option.value === "verb" || option.value === "mixed" ? "te" : "plainPresentNegative");
-                    resetSession();
-                  }}
+                  onClick={() => handlePartOfSpeechChange(option.value)}
                 >
                   {option.label}
                 </button>
               ))}
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>練習重點</legend>
+            <div className="segmented focus-segmented">
+              {focusOptions.map((option) => {
+                const isDisabled = option.verbOnly && partOfSpeech !== "verb" && partOfSpeech !== "mixed";
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={practiceFocus === option.value ? "selected" : ""}
+                    disabled={isDisabled}
+                    onClick={() => handlePracticeFocusChange(option.value)}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
             </div>
           </fieldset>
 
@@ -209,6 +272,7 @@ export default function App() {
             目標形
             <select
               value={selectedForm}
+              disabled={practiceFocus !== "single"}
               onChange={(event) => {
                 setTargetForm(event.target.value as TargetForm);
                 resetSession();
@@ -223,6 +287,8 @@ export default function App() {
                 ))}
             </select>
           </label>
+
+          <p className="focus-summary">{focusSummary}</p>
 
           <div className="score-strip" aria-label="本次練習成績">
             <span>
@@ -256,7 +322,7 @@ export default function App() {
               <div className="word-block">
                 <p className="word-kind">
                   <GraduationCap aria-hidden="true" />
-                  {currentQuestion.vocabulary.partOfSpeech === "verb" ? "動詞" : "形容詞"}
+                  {partOfSpeechLabel(currentQuestion.vocabulary.partOfSpeech)}
                 </p>
                 <p className="reading">{currentQuestion.vocabulary.reading}</p>
                 <p className="surface">{currentQuestion.vocabulary.surface}</p>
@@ -323,6 +389,19 @@ export default function App() {
       </section>
     </main>
   );
+}
+
+function partOfSpeechLabel(partOfSpeech: PartOfSpeech): string {
+  switch (partOfSpeech) {
+    case "verb":
+      return "動詞";
+    case "i_adjective":
+      return "い形容詞";
+    case "na_adjective":
+      return "な形容詞";
+    case "noun":
+      return "名詞";
+  }
 }
 
 function FeedbackPanel({ feedback }: { feedback: NonNullable<Feedback> }) {

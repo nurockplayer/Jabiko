@@ -8,6 +8,8 @@ describe("App", () => {
     render(<App />);
 
     expect(screen.getByRole("heading", { name: /變化訓練場/ })).toBeInTheDocument();
+    expect(screen.getByText("練習重點")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "否定整理" })).toBeInTheDocument();
     expect(screen.getByLabelText("答案")).toBeInTheDocument();
     expect(screen.getByText("書く")).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("て形")).toBeInTheDocument();
@@ -56,5 +58,28 @@ describe("App", () => {
 
     expect(screen.getByText("聞く")).toBeInTheDocument();
     expect(screen.getByLabelText("答案")).toHaveValue("");
+  });
+
+  it("lets the learner focus on negative transformations", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "否定整理" }));
+
+    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("ない形")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "下一題" }));
+
+    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("否定て形・ないで")).toBeInTheDocument();
+  });
+
+  it("lets the learner practice noun-like transformations", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "名詞" }));
+
+    expect(screen.getByText("学生")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("普通形・非過去否定")).toBeInTheDocument();
   });
 });

@@ -38,7 +38,10 @@ export const vocabulary: VocabularyItem[] = [
   naAdjective("yumei", "有名", "ゆうめい", "有名", "ここは有名だ。", "這裡很有名。"),
   naAdjective("shinsetsu", "親切", "しんせつ", "親切", "先生は親切だ。", "老師很親切。"),
   naAdjective("hima", "暇", "ひま", "有空", "明日は暇だ。", "明天有空。"),
-  naAdjective("kantan", "簡単", "かんたん", "簡單", "この問題は簡単だ。", "這個問題很簡單。")
+  naAdjective("kantan", "簡単", "かんたん", "簡單", "この問題は簡単だ。", "這個問題很簡單。"),
+  noun("gakusei", "学生", "がくせい", "學生", "私は学生だ。", "我是學生。"),
+  noun("sensei", "先生", "せんせい", "老師", "田中さんは先生だ。", "田中先生是老師。"),
+  noun("kaishain", "会社員", "かいしゃいん", "公司職員", "兄は会社員だ。", "哥哥是公司職員。")
 ];
 
 function verb(
@@ -73,6 +76,17 @@ function naAdjective(
   exampleZh: string
 ): VocabularyItem {
   return item(id, surface, reading, meaningZh, "na_adjective", null, japanese, exampleZh);
+}
+
+function noun(
+  id: string,
+  surface: string,
+  reading: string,
+  meaningZh: string,
+  japanese: string,
+  exampleZh: string
+): VocabularyItem {
+  return item(id, surface, reading, meaningZh, "noun", null, japanese, exampleZh);
 }
 
 function item(

@@ -226,6 +226,10 @@ legend,
   color: #fffdf6;
 }
 
+.focus-segmented {
+  grid-template-columns: 1fr;
+}
+
 select,
 input {
   background: #fffdf6;
@@ -248,6 +252,24 @@ button:focus-visible {
 input[readonly] {
   background: #f7f1e4;
   color: #5c5549;
+}
+
+select:disabled {
+  background: #efe8d9;
+  color: #6b6255;
+}
+
+.focus-summary {
+  background: rgba(217, 157, 49, 0.14);
+  border: 1px solid rgba(217, 157, 49, 0.32);
+  border-radius: 6px;
+  color: #6f4b08;
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.45;
+  margin: 0.6rem 0 1rem;
+  overflow-wrap: anywhere;
+  padding: 0.64rem 0.72rem;
 }
 
 .score-strip {

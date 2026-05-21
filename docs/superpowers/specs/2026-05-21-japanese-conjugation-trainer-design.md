@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Build a web app for a learner currently studying Minna no Nihongo to practice Japanese conjugation until the patterns become familiar. The first version focuses on fast, repeated recall for verbs and core adjective forms. Sentence patterns such as `てもらえますか`, `てくれますか`, and `てあげます` are designed as later practice modules that reuse the same vocabulary and conjugation data.
+Build a web app for a learner currently studying Minna no Nihongo to practice Japanese conjugation until the patterns become familiar. The first version focuses on fast, repeated recall for verbs, core adjective forms, and noun-like plain forms. Sentence patterns such as `てもらえますか`, `てくれますか`, and `てあげます` are designed as later practice modules that reuse the same vocabulary and conjugation data.
 
 The app should open directly into a usable study experience. It should not start with a marketing page.
 
@@ -43,6 +43,8 @@ This keeps the first version valuable even before lessons, accounts, or a large 
   - Dictionary form: 辭書形.
   - Masu form: ます形.
   - Nai form: ない形.
+  - Negative te form: 否定て形・ないで.
+  - Negative connective form: 否定接續・なくて.
   - Te form: て形.
   - Ta form: た形.
   - Plain non-past affirmative: 普通形・非過去肯定.
@@ -50,11 +52,14 @@ This keeps the first version valuable even before lessons, accounts, or a large 
   - Plain past affirmative: 普通形・過去肯定.
   - Plain past negative: 普通形・過去否定.
 - Adjective forms:
-  - い形容詞: 肯定、否定、過去、否定過去.
-  - な形容詞: 肯定、否定、過去、否定過去.
+  - い形容詞: 肯定、否定、否定接續、過去、否定過去.
+  - な形容詞: 肯定、否定、否定接續、過去、否定過去.
+- Noun-like forms:
+  - 名詞: 肯定、否定、否定接續、過去、否定過去.
 - Practice modes:
   - Mixed drill.
   - Focus drill by word class and target form.
+  - Focus drill by transformation family, such as て/た comparison, negative forms, and plain forms.
   - Mistake review for current session.
 - Feedback:
   - Correct or incorrect state.
@@ -162,7 +167,7 @@ Each vocabulary item should include:
 - `surface`: Japanese dictionary or base form.
 - `reading`: kana reading.
 - `meaningZh`: Traditional Chinese meaning.
-- `partOfSpeech`: `verb`, `i_adjective`, or `na_adjective`.
+- `partOfSpeech`: `verb`, `i_adjective`, `na_adjective`, or `noun`.
 - `group`: `godan`, `ichidan`, `irregular`, or null for adjectives.
 - `lesson`: optional lesson number.
 - `tags`: optional labels such as `daily`, `movement`, `giving_receiving`.
