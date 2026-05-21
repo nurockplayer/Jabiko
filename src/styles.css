@@ -1,14 +1,15 @@
 :root {
   color: var(--ink);
   background: var(--app-bg);
-  font-family:
-    "Hiragino Sans",
-    "Yu Gothic",
-    "YuGothic",
-    "Noto Sans CJK TC",
-    sans-serif;
+  font-family: var(--font-ui);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --font-ui: "PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", "Hiragino Sans",
+    sans-serif;
+  --font-title: "PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", sans-serif;
+  --font-japanese-ui: "Hiragino Sans", "Yu Gothic", "YuGothic", "Noto Sans JP", "Noto Sans CJK JP", var(--font-ui);
+  --font-japanese-display: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", "Noto Serif CJK JP",
+    "Songti TC", serif;
   --app-bg: #e7eee8;
   --paper: #fffdf6;
   --paper-deep: #eef3ea;
@@ -205,8 +206,9 @@ button svg {
 
 .app-heading h1 {
   color: var(--ink);
-  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-family: var(--font-title);
   font-size: 2rem;
+  font-weight: 700;
   line-height: 1.15;
 }
 
@@ -281,8 +283,9 @@ button svg {
 
 .learning-copy h2 {
   color: var(--ink);
-  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-family: var(--font-title);
   font-size: 2rem;
+  font-weight: 700;
   line-height: 1.15;
 }
 
@@ -312,7 +315,7 @@ button svg {
 .lesson-card span {
   color: var(--teal);
   font-size: 0.82rem;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .lesson-card h3 {
@@ -337,8 +340,8 @@ button svg {
   border: 1px solid var(--summary-border);
   border-radius: 6px;
   color: var(--summary-text);
-  font-family: inherit;
-  font-weight: 900;
+  font-family: var(--font-japanese-ui);
+  font-weight: 700;
   padding: 0.5rem 0.6rem;
 }
 
@@ -346,7 +349,7 @@ button svg {
   background: var(--vermilion);
   border-color: var(--vermilion);
   color: var(--selected-text);
-  font-weight: 900;
+  font-weight: 800;
   margin-top: 1rem;
   min-width: 11rem;
 }
@@ -402,13 +405,13 @@ button svg {
 
 .brand-lockup p {
   color: var(--muted);
-  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-family: var(--font-title);
   font-size: 0.82rem;
 }
 
 .brand-lockup h2 {
   color: var(--ink);
-  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-family: var(--font-title);
   font-size: 1.55rem;
   font-weight: 700;
   line-height: 1.2;
@@ -588,7 +591,7 @@ select:disabled {
 
 .surface {
   color: var(--surface-ink);
-  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-family: var(--font-japanese-display);
   font-size: 6rem;
   line-height: 1.05;
   margin: 0.35rem 0;
@@ -614,8 +617,9 @@ select:disabled {
   background: var(--field-bg);
   border-color: var(--field-border);
   color: var(--ink);
+  font-family: var(--font-japanese-ui);
   font-size: 1.18rem;
-  font-weight: 800;
+  font-weight: 700;
   min-height: 3.6rem;
   overflow-wrap: anywhere;
   padding: 0.7rem;
