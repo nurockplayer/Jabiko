@@ -66,6 +66,10 @@ This keeps the first version valuable even before lessons, accounts, or a large 
   - Accepted answer display.
   - Short rule explanation.
   - One example sentence.
+- Theme:
+  - Light and dark themes.
+  - Default to system preference when no local preference exists.
+  - Persist explicit user selection in LocalStorage.
 - Persistence:
   - Local browser storage for recent attempts and weak items.
   - No login in MVP.
@@ -240,6 +244,8 @@ Each question can have multiple accepted answers. For example, an item may accep
 The app should feel like a compact study tool rather than a decorative learning website. The design should be calm, legible, and fast. The visual identity can take cues from a Japanese notebook or flashcard desk: paper-like surfaces, clear ink colors, subtle ruled lines, and small accent colors for correctness and review state.
 
 Avoid a large landing hero. The first viewport should show the actual practice interface.
+
+Dark theme should preserve the same notebook-tool identity while reducing glare: deep green-black surfaces, legible light ink, restrained grid lines, and warm accent states for answer feedback.
 
 ### Main Layout
 

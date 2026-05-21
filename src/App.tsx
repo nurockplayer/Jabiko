@@ -5,8 +5,10 @@ import {
   CheckCircle2,
   Eye,
   GraduationCap,
+  Moon,
   RotateCcw,
   Send,
+  Sun,
   XCircle
 } from "lucide-react";
 import {
@@ -28,6 +30,9 @@ type Feedback =
   | null;
 
 type PracticeFocus = "single" | "teTa" | "negative" | "plain";
+type Theme = "light" | "dark";
+
+const THEME_STORAGE_KEY = "jabiko.theme";
 
 const partOfSpeechOptions: Array<{ value: PartOfSpeech | "mixed"; label: string }> = [
   { value: "verb", label: "動詞" },
@@ -81,6 +86,7 @@ export default function App() {
   const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">("godan");
   const [targetForm, setTargetForm] = useState<TargetForm>("te");
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>("single");
+  const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -121,6 +127,16 @@ export default function App() {
   useEffect(() => {
     answerInputRef.current?.focus({ preventScroll: true });
   }, [feedback, questionIndex, practiceFocus, selectedForm]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    storeTheme(nextTheme);
+  };
 
   const handlePartOfSpeechChange = (nextPartOfSpeech: PartOfSpeech | "mixed") => {
     setPartOfSpeech(nextPartOfSpeech);
@@ -191,6 +207,9 @@ export default function App() {
     }
   };
 
+  const themeToggleLabel = theme === "dark" ? "淺色模式" : "深色模式";
+  const ThemeIcon = theme === "dark" ? Sun : Moon;
+
   return (
     <main className="app-shell">
       <div className="app-heading" aria-label="應用程式介紹">
@@ -198,7 +217,13 @@ export default function App() {
           <p className="eyebrow">Minna no Nihongo practice</p>
           <h1>Jabiko 變化訓練場</h1>
         </div>
-        <p>短回合、立即訂正，把動詞與形容詞變化練到不用想太久。</p>
+        <div className="heading-actions">
+          <p>短回合、立即訂正，把動詞與形容詞變化練到不用想太久。</p>
+          <button className="theme-toggle" type="button" onClick={toggleTheme}>
+            <ThemeIcon aria-hidden="true" />
+            {themeToggleLabel}
+          </button>
+        </div>
       </div>
 
       <section className="practice-layout" aria-label="Jabiko practice">
@@ -389,6 +414,20 @@ export default function App() {
       </section>
     </main>
   );
+}
+
+function getInitialTheme(): Theme {
+  const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+
+  if (storedTheme === "dark" || storedTheme === "light") {
+    return storedTheme;
+  }
+
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function storeTheme(theme: Theme) {
+  window.localStorage.setItem(THEME_STORAGE_KEY, theme);
 }
 
 function partOfSpeechLabel(partOfSpeech: PartOfSpeech): string {

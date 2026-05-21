@@ -16,5 +16,6 @@ rtk pnpm build
 - Vite + React + TypeScript 前端。
 - 動詞與形容詞變化邏輯放在可測試的 TypeScript 模組。
 - 支援單一形、て/た比較、否定整理、普通形整理等練習重點。
+- 支援淺色 / 深色主題切換，並記住本機偏好。
 - 練習紀錄使用瀏覽器 LocalStorage。
 - 不包含登入、後端、雲端同步或 AI 解釋生成。

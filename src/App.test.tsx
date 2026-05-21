@@ -1,9 +1,14 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import App from "./App";
 
 describe("App", () => {
+  afterEach(() => {
+    localStorage.clear();
+    document.documentElement.removeAttribute("data-theme");
+  });
+
   it("renders the practice tool immediately", () => {
     render(<App />);
 
@@ -81,5 +86,27 @@ describe("App", () => {
 
     expect(screen.getByText("学生")).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("普通形・非過去否定")).toBeInTheDocument();
+  });
+
+  it("toggles dark theme and stores the preference", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(document.documentElement).toHaveAttribute("data-theme", "light");
+
+    await user.click(screen.getByRole("button", { name: "深色模式" }));
+
+    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+    expect(localStorage.getItem("jabiko.theme")).toBe("dark");
+    expect(screen.getByRole("button", { name: "淺色模式" })).toBeInTheDocument();
+  });
+
+  it("loads the stored dark theme preference", () => {
+    localStorage.setItem("jabiko.theme", "dark");
+
+    render(<App />);
+
+    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+    expect(screen.getByRole("button", { name: "淺色模式" })).toBeInTheDocument();
   });
 });
