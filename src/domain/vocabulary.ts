@@ -1,4 +1,5 @@
-import type { JlptLevel, VocabularyItem } from "./types";
+import type { VerbGroup, VocabularyItem } from "./types";
+import { jlptVocabulary } from "./vocabulary-jlpt";
 
 export const vocabulary: VocabularyItem[] = [
   verb("kaku", "書く", "かく", "寫", "godan", "私はノートに漢字を書く。", "我在筆記本寫漢字。"),
@@ -42,154 +43,116 @@ export const vocabulary: VocabularyItem[] = [
   noun("gakusei", "学生", "がくせい", "學生", "私は学生だ。", "我是學生。"),
   noun("sensei", "先生", "せんせい", "老師", "田中さんは先生だ。", "田中先生是老師。"),
   noun("kaishain", "会社員", "かいしゃいん", "公司職員", "兄は会社員だ。", "哥哥是公司職員。"),
-  ...n2Vocabulary(),
-  ...n1Vocabulary()
+  ...extraVerbs(),
+  ...jlptVocabulary
 ];
 
-function n2Vocabulary(): VocabularyItem[] {
+function extraVerbs(): VocabularyItem[] {
+  const godan: Array<[string, string, string]> = [
+    ["急ぐ", "いそぐ", "急忙、趕緊"],
+    ["泳ぐ", "およぐ", "游泳"],
+    ["脱ぐ", "ぬぐ", "脫"],
+    ["騒ぐ", "さわぐ", "吵鬧"],
+    ["押す", "おす", "推、按"],
+    ["出す", "だす", "拿出、提交"],
+    ["探す", "さがす", "找"],
+    ["直す", "なおす", "修理、修正"],
+    ["貸す", "かす", "借出"],
+    ["持つ", "もつ", "拿、擁有"],
+    ["立つ", "たつ", "站"],
+    ["勝つ", "かつ", "贏"],
+    ["取る", "とる", "拿、取"],
+    ["作る", "つくる", "做、製造"],
+    ["売る", "うる", "賣"],
+    ["走る", "はしる", "跑"],
+    ["切る", "きる", "切、剪"],
+    ["入る", "はいる", "進入"],
+    ["知る", "しる", "知道"],
+    ["要る", "いる", "需要"],
+    ["思う", "おもう", "想、覺得"],
+    ["歌う", "うたう", "唱"],
+    ["笑う", "わらう", "笑"],
+    ["使う", "つかう", "使用"],
+    ["払う", "はらう", "付錢"],
+    ["洗う", "あらう", "洗"],
+    ["手伝う", "てつだう", "幫忙"],
+    ["会う", "あう", "見面"],
+    ["違う", "ちがう", "不同"],
+    ["学ぶ", "まなぶ", "學習"],
+    ["呼ぶ", "よぶ", "呼喚、邀請"],
+    ["選ぶ", "えらぶ", "選擇"],
+    ["並ぶ", "ならぶ", "排隊"],
+    ["喜ぶ", "よろこぶ", "高興"],
+    ["飛ぶ", "とぶ", "飛"],
+    ["運ぶ", "はこぶ", "搬運"],
+    ["住む", "すむ", "居住"],
+    ["休む", "やすむ", "休息"],
+    ["進む", "すすむ", "前進"],
+    ["包む", "つつむ", "包"],
+    ["楽しむ", "たのしむ", "享受"],
+    ["頼む", "たのむ", "拜託"]
+  ];
+  const ichidan: Array<[string, string, string]> = [
+    ["開ける", "あける", "打開"],
+    ["閉める", "しめる", "關閉"],
+    ["始める", "はじめる", "開始"],
+    ["続ける", "つづける", "繼續"],
+    ["止める", "とめる", "停止"],
+    ["集める", "あつめる", "收集"],
+    ["答える", "こたえる", "回答"],
+    ["考える", "かんがえる", "思考"],
+    ["出かける", "でかける", "出門"],
+    ["忘れる", "わすれる", "忘記"],
+    ["助ける", "たすける", "幫助"],
+    ["受ける", "うける", "接受"],
+    ["比べる", "くらべる", "比較"],
+    ["調べる", "しらべる", "調查"],
+    ["育てる", "そだてる", "養育"],
+    ["別れる", "わかれる", "分別"],
+    ["疲れる", "つかれる", "疲憊"],
+    ["倒れる", "たおれる", "倒下"],
+    ["流れる", "ながれる", "流動"],
+    ["生まれる", "うまれる", "出生"],
+    ["投げる", "なげる", "投擲"],
+    ["上げる", "あげる", "舉起、給"],
+    ["下げる", "さげる", "降低"],
+    ["過ぎる", "すぎる", "通過、超過"],
+    ["着る", "きる", "穿"],
+    ["出る", "でる", "出去"]
+  ];
+  const irregular: Array<[string, string, string]> = [
+    ["結婚する", "けっこんする", "結婚"],
+    ["卒業する", "そつぎょうする", "畢業"],
+    ["利用する", "りようする", "利用"],
+    ["練習する", "れんしゅうする", "練習"],
+    ["連絡する", "れんらくする", "聯絡"],
+    ["説明する", "せつめいする", "說明"],
+    ["紹介する", "しょうかいする", "介紹"],
+    ["案内する", "あんないする", "嚮導"],
+    ["出席する", "しゅっせきする", "出席"],
+    ["散歩する", "さんぽする", "散步"],
+    ["旅行する", "りょこうする", "旅行"],
+    ["心配する", "しんぱいする", "擔心"]
+  ];
+
   return [
-    jlptNoun("n2-eikyou", "影響", "えいきょう", "影響", "N2"),
-    jlptNoun("n2-keiken", "経験", "けいけん", "經驗", "N2"),
-    jlptNoun("n2-kankyou", "環境", "かんきょう", "環境", "N2"),
-    jlptNoun("n2-seihin", "製品", "せいひん", "產品", "N2"),
-    jlptNoun("n2-bunka", "文化", "ぶんか", "文化", "N2"),
-    jlptNoun("n2-kokusai", "国際", "こくさい", "國際", "N2"),
-    jlptNoun("n2-seiji", "政治", "せいじ", "政治", "N2"),
-    jlptNoun("n2-keizai", "経済", "けいざい", "經濟", "N2"),
-    jlptNoun("n2-shakai", "社会", "しゃかい", "社會", "N2"),
-    jlptNoun("n2-senmon", "専門", "せんもん", "專業、專門", "N2"),
-    jlptNoun("n2-kaiketsu", "解決", "かいけつ", "解決", "N2"),
-    jlptNoun("n2-zouka", "増加", "ぞうか", "增加", "N2"),
-    jlptNoun("n2-genshou", "減少", "げんしょう", "減少", "N2"),
-    jlptNaAdjective("n2-juuyou", "重要", "じゅうよう", "重要", "N2"),
-    jlptNaAdjective("n2-hitsuyou", "必要", "ひつよう", "必要", "N2"),
-    jlptNaAdjective("n2-kanou", "可能", "かのう", "可能", "N2"),
-    jlptNaAdjective("n2-fuan", "不安", "ふあん", "不安、焦慮", "N2"),
-    jlptNoun("n2-kakunin", "確認", "かくにん", "確認", "N2"),
-    jlptNoun("n2-keikaku", "計画", "けいかく", "計畫", "N2"),
-    jlptNoun("n2-doryoku", "努力", "どりょく", "努力", "N2"),
-    jlptNoun("n2-kankei", "関係", "かんけい", "關係", "N2"),
-    jlptNoun("n2-heiwa", "平和", "へいわ", "和平", "N2"),
-    jlptNoun("n2-jiyuu", "自由", "じゆう", "自由", "N2"),
-    jlptNoun("n2-shurui", "種類", "しゅるい", "種類", "N2"),
-    jlptNoun("n2-joutai", "状態", "じょうたい", "狀態", "N2"),
-    jlptNoun("n2-hyougen", "表現", "ひょうげん", "表現、表達", "N2"),
-    jlptNoun("n2-teikyou", "提供", "ていきょう", "提供", "N2"),
-    jlptNoun("n2-houmon", "訪問", "ほうもん", "拜訪", "N2"),
-    jlptNoun("n2-shoutai", "招待", "しょうたい", "邀請", "N2"),
-    jlptNoun("n2-shoukai", "紹介", "しょうかい", "介紹", "N2"),
-    jlptNoun("n2-kansha", "感謝", "かんしゃ", "感謝", "N2"),
-    jlptNoun("n2-kitai", "期待", "きたい", "期待", "N2"),
-    jlptNoun("n2-inshou", "印象", "いんしょう", "印象", "N2"),
-    jlptNoun("n2-souzou", "想像", "そうぞう", "想像", "N2"),
-    jlptNoun("n2-hyoumen", "表面", "ひょうめん", "表面", "N2"),
-    jlptNoun("n2-naiyou", "内容", "ないよう", "內容", "N2"),
-    jlptNoun("n2-hani", "範囲", "はんい", "範圍", "N2"),
-    jlptNoun("n2-genkai", "限界", "げんかい", "界限、極限", "N2"),
-    jlptNaAdjective("n2-kakujitsu", "確実", "かくじつ", "確實", "N2"),
-    jlptNaAdjective("n2-konnan", "困難", "こんなん", "困難", "N2"),
-    jlptNaAdjective("n2-fukuzatsu", "複雑", "ふくざつ", "複雜", "N2"),
-    jlptNaAdjective("n2-futsuu", "普通", "ふつう", "普通", "N2"),
-    jlptNaAdjective("n2-anzen", "安全", "あんぜん", "安全", "N2"),
-    jlptNaAdjective("n2-kiken", "危険", "きけん", "危險", "N2"),
-    jlptNoun("n2-kenkou", "健康", "けんこう", "健康", "N2"),
-    jlptNoun("n2-byouki", "病気", "びょうき", "生病", "N2"),
-    jlptNoun("n2-chiryou", "治療", "ちりょう", "治療", "N2"),
-    jlptNoun("n2-kensa", "検査", "けんさ", "檢查", "N2"),
-    jlptNoun("n2-hantai", "反対", "はんたい", "反對、相反", "N2"),
-    jlptNoun("n2-sansei", "賛成", "さんせい", "贊成", "N2")
+    ...godan.map(([surface, reading, meaningZh]) => extraVerb("godan", surface, reading, meaningZh)),
+    ...ichidan.map(([surface, reading, meaningZh]) => extraVerb("ichidan", surface, reading, meaningZh)),
+    ...irregular.map(([surface, reading, meaningZh]) => extraVerb("irregular", surface, reading, meaningZh))
   ];
 }
 
-function n1Vocabulary(): VocabularyItem[] {
-  return [
-    jlptNoun("n1-haaku", "把握", "はあく", "掌握、理解", "N1"),
-    jlptNoun("n1-shoutotsu", "衝突", "しょうとつ", "衝突、相撞", "N1"),
-    jlptNoun("n1-kattou", "葛藤", "かっとう", "糾葛、糾結", "N1"),
-    jlptNaAdjective("n1-chimitsu", "緻密", "ちみつ", "精細、縝密", "N1"),
-    jlptNoun("n1-shintou", "浸透", "しんとう", "滲透", "N1"),
-    jlptNoun("n1-manen", "蔓延", "まんえん", "蔓延", "N1"),
-    jlptNoun("n1-tekkai", "撤回", "てっかい", "撤回", "N1"),
-    jlptNoun("n1-honrou", "翻弄", "ほんろう", "玩弄、擺布", "N1"),
-    jlptNoun("n1-kousoku", "拘束", "こうそく", "拘束、束縛", "N1"),
-    jlptNoun("n1-masshou", "抹消", "まっしょう", "抹消、刪除", "N1"),
-    jlptNoun("n1-funkyuu", "紛糾", "ふんきゅう", "糾紛、混亂", "N1"),
-    jlptNoun("n1-ruiseki", "累積", "るいせき", "累積", "N1"),
-    jlptNoun("n1-shousai", "詳細", "しょうさい", "詳細", "N1"),
-    jlptNoun("n1-teikan", "諦観", "ていかん", "看破、達觀", "N1"),
-    jlptNoun("n1-kunou", "苦悩", "くのう", "苦惱", "N1"),
-    jlptNoun("n1-chikuseki", "蓄積", "ちくせき", "累積、儲存", "N1"),
-    jlptNoun("n1-soushitsu", "喪失", "そうしつ", "喪失", "N1"),
-    jlptNoun("n1-jousei", "醸成", "じょうせい", "醞釀、釀成", "N1"),
-    jlptNoun("n1-kensei", "牽制", "けんせい", "牽制", "N1"),
-    jlptNaAdjective("n1-bakuzen", "漠然", "ばくぜん", "茫然、模糊", "N1"),
-    jlptNaAdjective("n1-kencho", "顕著", "けんちょ", "顯著", "N1"),
-    jlptNoun("n1-mosaku", "模索", "もさく", "摸索", "N1"),
-    jlptNoun("n1-secchuu", "折衷", "せっちゅう", "折衷", "N1"),
-    jlptNoun("n1-mohan", "模範", "もはん", "模範", "N1"),
-    jlptNoun("n1-zenji", "漸次", "ぜんじ", "逐漸、漸次", "N1"),
-    jlptNoun("n1-zenshin", "漸進", "ぜんしん", "逐步前進", "N1"),
-    jlptNoun("n1-zengen", "漸減", "ぜんげん", "逐漸減少", "N1"),
-    jlptNoun("n1-tansho", "端緒", "たんしょ", "開端、線索", "N1"),
-    jlptNaAdjective("n1-tanteki", "端的", "たんてき", "明顯、坦率", "N1"),
-    jlptNoun("n1-ishizue", "礎", "いしずえ", "基石、根基", "N1"),
-    jlptNoun("n1-shinzui", "神髄", "しんずい", "精髓", "N1"),
-    jlptNoun("n1-shushi", "趣旨", "しゅし", "主旨、宗旨", "N1"),
-    jlptNoun("n1-gaiyou", "概要", "がいよう", "概要", "N1"),
-    jlptNoun("n1-gainen", "概念", "がいねん", "概念", "N1"),
-    jlptNoun("n1-gairyaku", "概略", "がいりゃく", "概略", "N1"),
-    jlptNoun("n1-gaikan", "概観", "がいかん", "概觀", "N1"),
-    jlptNoun("n1-kyouji", "矜持", "きょうじ", "自尊、矜持", "N1"),
-    jlptNoun("n1-kiben", "詭弁", "きべん", "詭辯", "N1"),
-    jlptNaAdjective("n1-kenmei", "賢明", "けんめい", "賢明", "N1"),
-    jlptNoun("n1-tainou", "滞納", "たいのう", "滯納、拖欠", "N1"),
-    jlptNoun("n1-kenin", "牽引", "けんいん", "牽引、拖動", "N1"),
-    jlptNoun("n1-jifu", "自負", "じふ", "自負、自豪", "N1"),
-    jlptNoun("n1-junrin", "蹂躙", "じゅうりん", "蹂躪、踐踏", "N1"),
-    jlptNoun("n1-bakko", "跋扈", "ばっこ", "橫行、跋扈", "N1"),
-    jlptNoun("n1-chouraku", "凋落", "ちょうらく", "衰落、凋零", "N1"),
-    jlptNoun("n1-hinagata", "雛形", "ひながた", "雛形、模型", "N1"),
-    jlptNoun("n1-fusshoku", "払拭", "ふっしょく", "拂拭、消除", "N1"),
-    jlptNoun("n1-roubai", "狼狽", "ろうばい", "狼狽、慌張", "N1"),
-    jlptNaAdjective("n1-koukatsu", "狡猾", "こうかつ", "狡猾", "N1"),
-    jlptNoun("n1-doukoku", "慟哭", "どうこく", "慟哭、痛哭", "N1"),
-    jlptNoun("n1-yuuryo", "憂慮", "ゆうりょ", "憂慮", "N1")
-  ];
-}
-
-function jlptNoun(id: string, surface: string, reading: string, meaningZh: string, level: JlptLevel): VocabularyItem {
-  return jlptItem(id, surface, reading, meaningZh, "noun", level);
-}
-
-function jlptNaAdjective(
-  id: string,
-  surface: string,
-  reading: string,
-  meaningZh: string,
-  level: JlptLevel
-): VocabularyItem {
-  return jlptItem(id, surface, reading, meaningZh, "na_adjective", level);
-}
-
-function jlptItem(
-  id: string,
-  surface: string,
-  reading: string,
-  meaningZh: string,
-  partOfSpeech: VocabularyItem["partOfSpeech"],
-  level: JlptLevel
-): VocabularyItem {
+function extraVerb(group: VerbGroup, surface: string, reading: string, meaningZh: string): VocabularyItem {
   return {
-    id,
+    id: `verb-${surface}`,
     surface,
     reading,
     meaningZh,
-    partOfSpeech,
-    group: null,
+    partOfSpeech: "verb",
+    group,
     lesson: null,
     tags: [],
-    examples: [],
-    level
+    examples: []
   };
 }
 
