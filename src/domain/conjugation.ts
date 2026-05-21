@@ -147,6 +147,72 @@ function pushRuleCandidates(
   }
 }
 
+export function generateAdjectiveRuleCandidates(item: VocabularyItem, targetForm: TargetForm): string[] {
+  if (item.partOfSpeech === "verb") {
+    return [];
+  }
+
+  const candidates: string[] = [];
+
+  if (item.partOfSpeech === "i_adjective") {
+    const stem = item.surface.replace(/い$/, "");
+    pushNominalLikeCandidates(candidates, stem, targetForm);
+  } else {
+    pushIAdjectiveLikeCandidates(candidates, item.surface, targetForm);
+  }
+
+  return Array.from(new Set(candidates));
+}
+
+function pushIAdjectiveLikeCandidates(out: string[], base: string, targetForm: TargetForm): void {
+  switch (targetForm) {
+    case "plainPresentNegative":
+      out.push(`${base}くない`);
+      break;
+    case "plainPastAffirmative":
+      out.push(`${base}かった`);
+      break;
+    case "plainPastNegative":
+      out.push(`${base}くなかった`);
+      break;
+    case "negativeContinuative":
+      out.push(`${base}くなくて`);
+      break;
+    case "adverbial":
+      out.push(`${base}く`);
+      break;
+    case "obligationPast":
+      out.push(`${base}くならなければならなかった`);
+      break;
+  }
+}
+
+function pushNominalLikeCandidates(out: string[], base: string, targetForm: TargetForm): void {
+  switch (targetForm) {
+    case "plainPresentAffirmative":
+      out.push(`${base}だ`);
+      break;
+    case "plainPresentNegative":
+      out.push(`${base}ではない`, `${base}じゃない`);
+      break;
+    case "plainPastAffirmative":
+      out.push(`${base}だった`);
+      break;
+    case "plainPastNegative":
+      out.push(`${base}ではなかった`, `${base}じゃなかった`);
+      break;
+    case "negativeContinuative":
+      out.push(`${base}ではなくて`, `${base}じゃなくて`);
+      break;
+    case "adverbial":
+      out.push(`${base}に`);
+      break;
+    case "obligationPast":
+      out.push(`${base}にならなければならなかった`);
+      break;
+  }
+}
+
 export function conjugate(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
   if (item.partOfSpeech === "verb") {
     return conjugateVerb(item, targetForm);
