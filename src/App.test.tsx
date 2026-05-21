@@ -193,4 +193,37 @@ describe("App", () => {
     expect(document.documentElement).toHaveAttribute("data-theme", "light");
     expect(screen.getByRole("button", { name: "深色模式" })).toBeInTheDocument();
   });
+
+  it("switches the interface to English and stores the preference", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "English" }));
+
+    expect(screen.getByRole("button", { name: "Learn" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Challenge" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Learn first, then challenge yourself" })).toBeInTheDocument();
+    expect(localStorage.getItem("jabiko.language")).toBe("en");
+  });
+
+  it("switches the interface to Korean and stores the preference", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "한국어" }));
+
+    expect(screen.getByRole("button", { name: "학습" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "도전" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "먼저 배우고, 그다음 도전하세요" })).toBeInTheDocument();
+    expect(localStorage.getItem("jabiko.language")).toBe("ko");
+  });
+
+  it("loads the stored English preference", () => {
+    localStorage.setItem("jabiko.language", "en");
+
+    render(<App />);
+
+    expect(screen.getByRole("button", { name: "Learn" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Challenge" })).toBeInTheDocument();
+  });
 });

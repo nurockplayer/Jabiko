@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Eye,
   GraduationCap,
+  Languages,
   Moon,
   RotateCcw,
   Send,
@@ -13,7 +14,6 @@ import {
 } from "lucide-react";
 import {
   ADJECTIVE_FORMS,
-  TARGET_FORM_LABELS,
   validateAnswer,
   VERB_FORMS
 } from "./domain/conjugation";
@@ -21,6 +21,7 @@ import { buildQuestionPool, getMistakeQuestions, scoreAttempt, selectQuestion } 
 import { createAttemptStore } from "./domain/storage";
 import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./domain/types";
 import { vocabulary } from "./domain/vocabulary";
+import { copy, getInitialLanguage, languageOptions, storeLanguage, type Language } from "./i18n";
 import "./styles.css";
 
 type Feedback =
@@ -42,20 +43,9 @@ type DrillPreset = {
 
 const THEME_STORAGE_KEY = "jabiko.theme";
 
-const partOfSpeechOptions: Array<{ value: PartOfSpeech | "mixed"; label: string }> = [
-  { value: "verb", label: "動詞" },
-  { value: "i_adjective", label: "い形容詞" },
-  { value: "na_adjective", label: "な形容詞" },
-  { value: "noun", label: "名詞" },
-  { value: "mixed", label: "混合" }
-];
+const partOfSpeechOptions: Array<PartOfSpeech | "mixed"> = ["verb", "i_adjective", "na_adjective", "noun", "mixed"];
 
-const verbGroupOptions: Array<{ value: VerbGroup | "all"; label: string }> = [
-  { value: "godan", label: "一類" },
-  { value: "ichidan", label: "二類" },
-  { value: "irregular", label: "三類" },
-  { value: "all", label: "全部" }
-];
+const verbGroupOptions: Array<VerbGroup | "all"> = ["godan", "ichidan", "irregular", "all"];
 
 const formOptions: TargetForm[] = [
   "te",
@@ -72,13 +62,12 @@ const formOptions: TargetForm[] = [
   "plainPastNegative"
 ];
 
-const focusOptions: Array<{ value: PracticeFocus; label: string; targetForms: TargetForm[]; verbOnly?: boolean }> = [
-  { value: "single", label: "單一形", targetForms: [] },
-  { value: "teTa", label: "て/た比較", targetForms: ["te", "ta"], verbOnly: true },
-  { value: "negative", label: "否定整理", targetForms: ["nai", "negativeTe", "negativeContinuative", "plainPastNegative"] },
+const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; verbOnly?: boolean }> = [
+  { value: "single", targetForms: [] },
+  { value: "teTa", targetForms: ["te", "ta"], verbOnly: true },
+  { value: "negative", targetForms: ["nai", "negativeTe", "negativeContinuative", "plainPastNegative"] },
   {
     value: "plain",
-    label: "普通形整理",
     targetForms: [
       "plainPresentAffirmative",
       "plainPresentNegative",
@@ -88,7 +77,6 @@ const focusOptions: Array<{ value: PracticeFocus; label: string; targetForms: Ta
   },
   {
     value: "adverbial",
-    label: "く/に修飾",
     targetForms: ["adverbial"]
   }
 ];
@@ -215,6 +203,7 @@ export default function App() {
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>("single");
   const [answerMode, setAnswerMode] = useState<AnswerMode>("choice");
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
+  const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
@@ -224,6 +213,7 @@ export default function App() {
   const startedAtRef = useRef(Date.now());
   const answerInputRef = useRef<HTMLInputElement>(null);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
+  const t = copy[language];
 
   const compatibleForms =
     partOfSpeech === "mixed"
@@ -242,8 +232,8 @@ export default function App() {
   const activeFocusForms = targetForms.filter((form) => compatibleForms.includes(form));
   const focusSummary =
     practiceFocus === "single"
-      ? TARGET_FORM_LABELS[selectedForm]
-      : activeFocusForms.map((form) => TARGET_FORM_LABELS[form]).join(" / ");
+      ? t.targetForms[selectedForm]
+      : activeFocusForms.map((form) => t.targetForms[form]).join(" / ") || t.focusSummaryEmpty;
 
   const questions = useMemo(
     () =>
@@ -278,10 +268,19 @@ export default function App() {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
     storeTheme(nextTheme);
+  };
+
+  const handleLanguageChange = (nextLanguage: Language) => {
+    setLanguage(nextLanguage);
+    storeLanguage(nextLanguage);
   };
 
   const handlePartOfSpeechChange = (nextPartOfSpeech: PartOfSpeech | "mixed") => {
@@ -323,7 +322,7 @@ export default function App() {
     }
 
     if (!answer.trim()) {
-      setInputHint("請先輸入答案，再按 Enter 送出。");
+      setInputHint(t.inputHint);
       answerInputRef.current?.focus({ preventScroll: true });
       return;
     }
@@ -380,7 +379,7 @@ export default function App() {
     }
   };
 
-  const themeToggleLabel = theme === "dark" ? "淺色模式" : "深色模式";
+  const themeToggleLabel = theme === "dark" ? t.themeLight : t.themeDark;
   const ThemeIcon = theme === "dark" ? Sun : Moon;
   const startDrill = (preset: DrillPreset) => {
     setPartOfSpeech(preset.partOfSpeech);
@@ -394,13 +393,26 @@ export default function App() {
 
   return (
     <main className="app-shell">
-      <div className="app-heading" aria-label="應用程式介紹">
+      <div className="app-heading" aria-label={t.appIntroLabel}>
         <div>
           <p className="eyebrow">Minna no Nihongo practice</p>
-          <h1>Jabiko 變化訓練場</h1>
+          <h1>{t.appTitle}</h1>
         </div>
         <div className="heading-actions">
-          <p>短回合、立即訂正，把動詞與形容詞變化練到不用想太久。</p>
+          <p>{t.appTagline}</p>
+          <div className="language-switch" aria-label="Language">
+            <Languages aria-hidden="true" />
+            {languageOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={language === option.value ? "selected" : ""}
+                onClick={() => handleLanguageChange(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
           <button className="theme-toggle" type="button" onClick={toggleTheme}>
             <ThemeIcon aria-hidden="true" />
             {themeToggleLabel}
@@ -408,54 +420,54 @@ export default function App() {
         </div>
       </div>
 
-      <nav className="view-switch segmented" aria-label="學習流程">
+      <nav className="view-switch segmented" aria-label={t.flowLabel}>
         <button
           type="button"
           className={appView === "learn" ? "selected" : ""}
           onClick={() => setAppView("learn")}
         >
-          學習
+          {t.learn}
         </button>
         <button
           type="button"
           className={appView === "challenge" ? "selected" : ""}
           onClick={() => setAppView("challenge")}
         >
-          挑戰
+          {t.challenge}
         </button>
       </nav>
 
       {appView === "learn" ? (
-        <LearningPanel onStartChallenge={() => setAppView("challenge")} onStartDrill={startDrill} />
+        <LearningPanel language={language} onStartChallenge={() => setAppView("challenge")} onStartDrill={startDrill} />
       ) : (
         <section className="practice-layout" aria-label="Jabiko practice">
-        <aside className="controls-panel" aria-label="練習設定">
+        <aside className="controls-panel" aria-label={t.settingsLabel}>
           <div className="brand-lockup">
             <BookOpen aria-hidden="true" />
             <div>
               <p>Jabiko</p>
-              <h2>今日練習</h2>
+              <h2>{t.todayPractice}</h2>
             </div>
           </div>
 
           <fieldset>
-            <legend>練習類型</legend>
+            <legend>{t.practiceType}</legend>
             <div className="segmented">
               {partOfSpeechOptions.map((option) => (
                 <button
-                  key={option.value}
+                  key={option}
                   type="button"
-                  className={partOfSpeech === option.value ? "selected" : ""}
-                  onClick={() => handlePartOfSpeechChange(option.value)}
+                  className={partOfSpeech === option ? "selected" : ""}
+                  onClick={() => handlePartOfSpeechChange(option)}
                 >
-                  {option.label}
+                  {t.partOfSpeech[option]}
                 </button>
               ))}
             </div>
           </fieldset>
 
           <fieldset>
-            <legend>練習重點</legend>
+            <legend>{t.practiceFocus}</legend>
             <div className="segmented focus-segmented">
               {focusOptions.map((option) => {
                 const isDisabled =
@@ -470,7 +482,7 @@ export default function App() {
                     disabled={isDisabled}
                     onClick={() => handlePracticeFocusChange(option.value)}
                   >
-                    {option.label}
+                    {t.focusOptions[option.value]}
                   </button>
                 );
               })}
@@ -478,27 +490,27 @@ export default function App() {
           </fieldset>
 
           <fieldset>
-            <legend>動詞類別</legend>
+            <legend>{t.verbGroup}</legend>
             <div className="segmented">
               {verbGroupOptions.map((option) => (
                 <button
-                  key={option.value}
+                  key={option}
                   type="button"
-                  className={verbGroup === option.value ? "selected" : ""}
+                  className={verbGroup === option ? "selected" : ""}
                   disabled={partOfSpeech !== "verb" && partOfSpeech !== "mixed"}
                   onClick={() => {
-                    setVerbGroup(option.value);
+                    setVerbGroup(option);
                     resetSession();
                   }}
                 >
-                  {option.label}
+                  {t.verbGroups[option]}
                 </button>
               ))}
             </div>
           </fieldset>
 
           <label className="select-label">
-            目標形
+            {t.targetForm}
             <select
               value={selectedForm}
               disabled={practiceFocus !== "single"}
@@ -511,7 +523,7 @@ export default function App() {
                 .filter((form) => compatibleForms.includes(form))
                 .map((form) => (
                   <option key={form} value={form}>
-                    {TARGET_FORM_LABELS[form]}
+                    {t.targetForms[form]}
                   </option>
                 ))}
             </select>
@@ -522,36 +534,36 @@ export default function App() {
           <div className="score-strip" aria-label="本次練習成績">
             <span>
               <strong>{attempts.length}</strong>
-              已答
+              {t.answered}
             </span>
             <span>
               <strong>{correctCount}</strong>
-              正解
+              {t.correctShort}
             </span>
             <span>
               <strong>{mistakeQuestions.length}</strong>
-              複習
+              {t.reviewShort}
             </span>
           </div>
 
           <button className="ghost-button" type="button" onClick={resetSession}>
             <RotateCcw aria-hidden="true" />
-            重設本次
+            {t.resetSession}
           </button>
         </aside>
 
-        <section className="drill-panel" aria-label="目前題目" onKeyDown={handleDrillKeyDown}>
+        <section className="drill-panel" aria-label={t.currentQuestion} onKeyDown={handleDrillKeyDown}>
           {currentQuestion ? (
             <>
               <div className="prompt-header">
-                <span>第 {questionIndex + 1} 題</span>
-                <strong>{TARGET_FORM_LABELS[currentQuestion.targetForm]}</strong>
+                <span>{t.questionNumber(questionIndex + 1)}</span>
+                <strong>{t.targetForms[currentQuestion.targetForm]}</strong>
               </div>
 
               <div className="word-block">
                 <p className="word-kind">
                   <GraduationCap aria-hidden="true" />
-                  {partOfSpeechLabel(currentQuestion.vocabulary.partOfSpeech)}
+                  {partOfSpeechLabel(currentQuestion.vocabulary.partOfSpeech, language)}
                 </p>
                 <p className="reading">{currentQuestion.vocabulary.reading}</p>
                 <p className="surface">{currentQuestion.vocabulary.surface}</p>
@@ -559,7 +571,7 @@ export default function App() {
               </div>
 
               <fieldset className="answer-mode">
-                <legend>答題方式</legend>
+                <legend>{t.answerMode}</legend>
                 <div className="segmented answer-mode-segmented">
                   <button
                     type="button"
@@ -567,7 +579,7 @@ export default function App() {
                     disabled={Boolean(feedback)}
                     onClick={() => handleAnswerModeChange("choice")}
                   >
-                    選擇題
+                    {t.choices}
                   </button>
                   <button
                     type="button"
@@ -575,13 +587,13 @@ export default function App() {
                     disabled={Boolean(feedback)}
                     onClick={() => handleAnswerModeChange("input")}
                   >
-                    輸入
+                    {t.input}
                   </button>
                 </div>
               </fieldset>
 
               {answerMode === "choice" ? (
-                <div className="choice-grid" aria-label="答案選項">
+                <div className="choice-grid" aria-label={t.answerOptions}>
                   {choiceOptions.map((choice) => (
                     <button
                       key={choice}
@@ -596,7 +608,7 @@ export default function App() {
                 </div>
               ) : (
                 <form className="answer-row" onSubmit={handleSubmit}>
-                  <label htmlFor="answer">答案</label>
+                  <label htmlFor="answer">{t.answer}</label>
                   <input
                     id="answer"
                     ref={answerInputRef}
@@ -608,7 +620,7 @@ export default function App() {
                   />
                   <button type="submit" disabled={Boolean(feedback)}>
                     <Send aria-hidden="true" />
-                    送出
+                    {t.submit}
                   </button>
                   {inputHint ? (
                     <p className="input-hint" id="answer-hint" role="status">
@@ -621,36 +633,36 @@ export default function App() {
               <div className="action-row">
                 <button className="ghost-button" type="button" onClick={revealAnswer} disabled={Boolean(feedback)}>
                   <Eye aria-hidden="true" />
-                  看答案
+                  {t.revealAnswer}
                 </button>
                 <button className="next-button" type="button" ref={nextButtonRef} onClick={nextQuestion}>
                   <ArrowRight aria-hidden="true" />
-                  下一題
+                  {t.nextQuestion}
                 </button>
               </div>
 
-              {feedback ? <FeedbackPanel feedback={feedback} /> : null}
+              {feedback ? <FeedbackPanel feedback={feedback} language={language} /> : null}
             </>
           ) : (
-            <div className="empty-state">目前設定沒有可練習的題目。</div>
+            <div className="empty-state">{t.emptyState}</div>
           )}
         </section>
 
-        <aside className="review-panel" aria-label="錯題">
+        <aside className="review-panel" aria-label={t.mistakesLabel}>
           <div className="review-heading">
-            <h2>錯題複習</h2>
+            <h2>{t.mistakeReview}</h2>
             <span>{accuracy}%</span>
           </div>
           {mistakeQuestions.length > 0 ? (
             <ul>
               {mistakeQuestions.map((question) => (
                 <li key={question.id}>
-                  {question.vocabulary.surface} {"->"} {TARGET_FORM_LABELS[question.targetForm]}
+                  {question.vocabulary.surface} {"->"} {t.targetForms[question.targetForm]}
                 </li>
               ))}
             </ul>
           ) : (
-            <p>本次還沒有錯題。</p>
+            <p>{t.noMistakes}</p>
           )}
         </aside>
         </section>
@@ -660,22 +672,26 @@ export default function App() {
 }
 
 function LearningPanel({
+  language,
   onStartChallenge,
   onStartDrill
 }: {
+  language: Language;
   onStartChallenge: () => void;
   onStartDrill: (preset: DrillPreset) => void;
 }) {
+  const t = copy[language];
+
   return (
-    <section className="learning-panel" aria-label="學習">
+    <section className="learning-panel" aria-label={t.learningRegion}>
       <div className="learning-copy">
-        <p className="eyebrow">Study before recall</p>
-        <h2>先學會，再挑戰</h2>
-        <p>第一次使用先照順序看：分辨詞類、抓同一組變化、再用選擇題確認。看懂規則後才進入輸入練習。</p>
+        <p className="eyebrow">{t.studyBeforeRecall}</p>
+        <h2>{t.learnTitle}</h2>
+        <p>{t.learnIntro}</p>
       </div>
 
-      <ol className="learning-roadmap" aria-label="建議學習順序">
-        {learningSteps.map((step) => (
+      <ol className="learning-roadmap" aria-label={t.roadmapLabel}>
+        {t.learningSteps.map((step) => (
           <li key={step.label}>
             <span>{step.label}</span>
             <strong>{step.title}</strong>
@@ -686,9 +702,9 @@ function LearningPanel({
 
       <section className="learning-section" aria-labelledby="verb-group-title">
         <div className="learning-section-copy">
-          <p className="eyebrow">Step 1</p>
-          <h3 id="verb-group-title">動詞先分三類</h3>
-          <p>先不要管て形或た形。動詞題第一步只做分類，分類對了，後面才知道要「換最後假名」還是「去る」。</p>
+          <p className="eyebrow">{t.step} 1</p>
+          <h3 id="verb-group-title">{t.verbGroupTitle}</h3>
+          <p>{t.verbGroupIntro}</p>
         </div>
         <div className="rule-matrix three-column">
           {verbGroupGuide.map((item) => (
@@ -708,16 +724,16 @@ function LearningPanel({
 
       <section className="learning-section" aria-labelledby="te-ta-title">
         <div className="learning-section-copy">
-          <p className="eyebrow">Step 2</p>
-          <h3 id="te-ta-title">て形和た形是同一張表</h3>
-          <p>一類動詞最難的是音便。先背「て / た 成對」，不要分開背兩份規則。行く是例外：行って、行った。</p>
+          <p className="eyebrow">{t.step} 2</p>
+          <h3 id="te-ta-title">{t.teTaTitle}</h3>
+          <p>{t.teTaIntro}</p>
         </div>
-        <div className="sound-table" role="table" aria-label="一類動詞て形與た形音便">
+        <div className="sound-table" role="table" aria-label={t.teTaTableLabel}>
           <div className="sound-row sound-head" role="row">
-            <span role="columnheader">結尾</span>
-            <span role="columnheader">て形</span>
-            <span role="columnheader">た形</span>
-            <span role="columnheader">例子</span>
+            <span role="columnheader">{t.tableEnding}</span>
+            <span role="columnheader">{t.tableTe}</span>
+            <span role="columnheader">{t.tableTa}</span>
+            <span role="columnheader">{t.tableExample}</span>
           </div>
           {teTaRows.map((row) => (
             <div className="sound-row" role="row" key={row.ending}>
@@ -736,15 +752,15 @@ function LearningPanel({
           }
         >
           <ArrowRight aria-hidden="true" />
-          練一類て/た
+          {t.drillGodanTeTa}
         </button>
       </section>
 
       <section className="learning-section" aria-labelledby="negative-title">
         <div className="learning-section-copy">
-          <p className="eyebrow">Step 3</p>
-          <h3 id="negative-title">否定變化都先回到ない形</h3>
-          <p>你卡住的「て形た形的否定」其實不是從て形或た形變來。先做ない形，再往下接。</p>
+          <p className="eyebrow">{t.step} 3</p>
+          <h3 id="negative-title">{t.negativeTitle}</h3>
+          <p>{t.negativeIntro}</p>
         </div>
         <div className="pipeline-grid">
           {negativePipelines.map((item) => (
@@ -763,15 +779,15 @@ function LearningPanel({
           }
         >
           <ArrowRight aria-hidden="true" />
-          練否定整理
+          {t.drillNegative}
         </button>
       </section>
 
       <section className="learning-section" aria-labelledby="adjective-title">
         <div className="learning-section-copy">
-          <p className="eyebrow">Step 4</p>
-          <h3 id="adjective-title">形容詞和名詞不要混在一起背</h3>
-          <p>い形容詞會去い；な形容詞和名詞比較像「名詞句」，用だ、ではない、だった這一套。</p>
+          <p className="eyebrow">{t.step} 4</p>
+          <h3 id="adjective-title">{t.adjectiveTitle}</h3>
+          <p>{t.adjectiveIntro}</p>
         </div>
         <div className="rule-matrix three-column">
           {adjectiveRows.map((row) => (
@@ -801,7 +817,7 @@ function LearningPanel({
             }
           >
             <ArrowRight aria-hidden="true" />
-            練い形容詞
+            {t.drillIAdjective}
           </button>
           <button
             className="inline-drill-button"
@@ -816,7 +832,7 @@ function LearningPanel({
             }
           >
             <ArrowRight aria-hidden="true" />
-            練な形容詞
+            {t.drillNaAdjective}
           </button>
           <button
             className="inline-drill-button"
@@ -831,15 +847,15 @@ function LearningPanel({
             }
           >
             <ArrowRight aria-hidden="true" />
-            練く/に修飾
+            {t.drillAdverbial}
           </button>
         </div>
       </section>
 
       <div className="lesson-grid" aria-label="速記卡">
-        {lessonCards.map((card) => (
+        {lessonCards.map((card, index) => (
           <article className="lesson-card" key={card.title}>
-            <span>{card.focus}</span>
+            <span>{t.lessonCardFocus[index] ?? card.focus}</span>
             <h3>{card.title}</h3>
             <p>{card.rule}</p>
             <div className="formula-row" aria-label={`${card.title}例子`}>
@@ -853,7 +869,7 @@ function LearningPanel({
 
       <button className="start-challenge" type="button" onClick={onStartChallenge}>
         <ArrowRight aria-hidden="true" />
-        開始挑戰
+        {t.startChallenge}
       </button>
     </section>
   );
@@ -918,23 +934,15 @@ function choiceOptionClass(choice: string, selectedChoice: string | null, feedba
   return classes.join(" ");
 }
 
-function partOfSpeechLabel(partOfSpeech: PartOfSpeech): string {
-  switch (partOfSpeech) {
-    case "verb":
-      return "動詞";
-    case "i_adjective":
-      return "い形容詞";
-    case "na_adjective":
-      return "な形容詞";
-    case "noun":
-      return "名詞";
-  }
+function partOfSpeechLabel(partOfSpeech: PartOfSpeech, language: Language): string {
+  return copy[language].partOfSpeech[partOfSpeech];
 }
 
-function FeedbackPanel({ feedback }: { feedback: NonNullable<Feedback> }) {
+function FeedbackPanel({ feedback, language }: { feedback: NonNullable<Feedback>; language: Language }) {
+  const t = copy[language];
   const isCorrect = feedback.status === "correct";
   const isRevealed = feedback.status === "revealed";
-  const title = isCorrect ? "正解" : isRevealed ? "先記這題" : "再想一下";
+  const title = isCorrect ? t.correct : isRevealed ? t.revealed : t.incorrect;
   const Icon = isCorrect ? CheckCircle2 : XCircle;
 
   return (
@@ -943,7 +951,7 @@ function FeedbackPanel({ feedback }: { feedback: NonNullable<Feedback> }) {
         <Icon aria-hidden="true" />
         <h2>{title}</h2>
       </div>
-      <p className="answer-key">正解：{feedback.question.expectedAnswers.join(" / ")}</p>
+      <p className="answer-key">{t.answerKey}：{feedback.question.expectedAnswers.join(" / ")}</p>
       <p>{feedback.question.explanation}</p>
       {feedback.question.vocabulary.examples[0] ? (
         <p className="example">
