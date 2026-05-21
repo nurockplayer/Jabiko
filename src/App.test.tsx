@@ -33,6 +33,18 @@ describe("App", () => {
     expect(screen.queryByText("答題方式")).not.toBeInTheDocument();
   });
 
+  it("starts an obligation past drill from the quick-start card", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "先練必要過去" }));
+
+    expect(screen.getByRole("button", { name: "必要過去" })).toHaveClass("selected");
+    expect(screen.getByText("学生")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "学生にならなければならなかった" })).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("必要過去・なければならなかった")).toBeInTheDocument();
+  });
+
   it("starts a focused negative drill from the learning guide", async () => {
     const user = userEvent.setup();
     render(<App />);

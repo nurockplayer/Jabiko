@@ -221,6 +221,70 @@ const lessonCards = [
   }
 ];
 
+const quickStartCards: Array<{
+  kicker: string;
+  title: string;
+  body: string;
+  example: string;
+  actionLabel: string;
+  preset: DrillPreset;
+  featured?: boolean;
+}> = [
+  {
+    kicker: "最容易混亂",
+    title: "必要過去",
+    body: "把「先加に」和「過去放最後」分清楚。",
+    example: "学生 + に + ならなければならなかった",
+    actionLabel: "先練必要過去",
+    preset: {
+      partOfSpeech: "noun",
+      verbGroup: "all",
+      practiceFocus: "obligationPast",
+      targetForm: "obligationPast"
+    },
+    featured: true
+  },
+  {
+    kicker: "動詞核心",
+    title: "て形 / た形音便",
+    body: "先熟悉一類動詞尾音怎麼換。",
+    example: "読む -> 読んで / 読んだ",
+    actionLabel: "先練て/た",
+    preset: {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      practiceFocus: "teTa",
+      targetForm: "te"
+    }
+  },
+  {
+    kicker: "否定家族",
+    title: "ない形一路變下去",
+    body: "ないで、なくて、なかった都先回到ない形。",
+    example: "書かない -> 書かなかった",
+    actionLabel: "先練否定",
+    preset: {
+      partOfSpeech: "verb",
+      verbGroup: "all",
+      practiceFocus: "negative",
+      targetForm: "nai"
+    }
+  },
+  {
+    kicker: "く / に",
+    title: "形容詞與名詞修飾",
+    body: "い形容詞去い加く；な形容詞和名詞加に。",
+    example: "高く / 静かに / 学生に",
+    actionLabel: "先練く/に",
+    preset: {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      practiceFocus: "adverbial",
+      targetForm: "adverbial"
+    }
+  }
+];
+
 const attemptStore = createAttemptStore();
 
 export default function App() {
@@ -712,21 +776,79 @@ function LearningPanel({
 
   return (
     <section className="learning-panel" aria-label={t.learningRegion}>
-      <div className="learning-copy">
-        <p className="eyebrow">{t.studyBeforeRecall}</p>
-        <h2>{t.learnTitle}</h2>
-        <p>{t.learnIntro}</p>
+      <div className="learning-hero">
+        <div className="learning-copy">
+          <p className="eyebrow">{t.studyBeforeRecall}</p>
+          <h2>{t.learnTitle}</h2>
+          <p>{t.learnIntro}</p>
+          <div className="learning-hero-actions">
+            <button className="start-challenge" type="button" onClick={onStartChallenge}>
+              <ArrowRight aria-hidden="true" />
+              {t.startChallenge}
+            </button>
+            <button
+              className="priority-drill-button"
+              type="button"
+              onClick={() =>
+                onStartDrill({
+                  partOfSpeech: "noun",
+                  verbGroup: "all",
+                  practiceFocus: "obligationPast",
+                  targetForm: "obligationPast"
+                })
+              }
+            >
+              <ArrowRight aria-hidden="true" />
+              先解「にならなければ」
+            </button>
+          </div>
+        </div>
+
+        <aside className="learning-path-card" aria-label={t.roadmapLabel}>
+          <p className="eyebrow">{t.roadmapLabel}</p>
+          <ol className="learning-roadmap">
+            {t.learningSteps.map((step) => (
+              <li key={step.label}>
+                <span>{step.label}</span>
+                <strong>{step.title}</strong>
+                <p>{step.body}</p>
+              </li>
+            ))}
+          </ol>
+        </aside>
       </div>
 
-      <ol className="learning-roadmap" aria-label={t.roadmapLabel}>
-        {t.learningSteps.map((step) => (
-          <li key={step.label}>
-            <span>{step.label}</span>
-            <strong>{step.title}</strong>
-            <p>{step.body}</p>
-          </li>
-        ))}
-      </ol>
+      <section className="quick-start" aria-labelledby="quick-start-title">
+        <div className="quick-start-heading">
+          <div>
+            <p className="eyebrow">先選一個卡點</p>
+            <h3 id="quick-start-title">今天要先看懂哪一種變化？</h3>
+          </div>
+          <p>每張卡都會直接進入對應練習；不需要先讀完整規則表。</p>
+        </div>
+        <div className="quick-start-grid">
+          {quickStartCards.map((card) => (
+            <article className={`quick-start-card${card.featured ? " featured" : ""}`} key={card.title}>
+              <span>{card.kicker}</span>
+              <h4>{card.title}</h4>
+              <p>{card.body}</p>
+              <code>{card.example}</code>
+              <button className="quick-start-button" type="button" onClick={() => onStartDrill(card.preset)}>
+                <ArrowRight aria-hidden="true" />
+                {card.actionLabel}
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <div className="detail-divider">
+        <div>
+          <p className="eyebrow">規則筆記</p>
+          <h3>需要確認原因時，再往下查表</h3>
+        </div>
+        <p>下面保留完整規則、例子和專項練習入口，答錯時也可以回來對照。</p>
+      </div>
 
       <section className="learning-section" aria-labelledby="verb-group-title">
         <div className="learning-section-copy">
@@ -926,11 +1048,6 @@ function LearningPanel({
           </article>
         ))}
       </div>
-
-      <button className="start-challenge" type="button" onClick={onStartChallenge}>
-        <ArrowRight aria-hidden="true" />
-        {t.startChallenge}
-      </button>
     </section>
   );
 }

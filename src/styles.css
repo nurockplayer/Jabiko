@@ -301,17 +301,29 @@ button svg {
   padding: 1.25rem;
 }
 
-.learning-copy {
-  align-items: end;
+.learning-hero {
+  align-items: start;
   border-bottom: 1px solid var(--rule);
-  display: flex;
+  display: grid;
   gap: 1rem;
-  justify-content: space-between;
-  padding-bottom: 1rem;
+  grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.82fr);
+  padding-bottom: 1.05rem;
+}
+
+.learning-copy {
+  align-content: start;
+  display: grid;
+  gap: 1rem;
 }
 
 .learning-copy h2,
 .learning-copy p,
+.quick-start-heading h3,
+.quick-start-heading p,
+.quick-start-card h4,
+.quick-start-card p,
+.detail-divider h3,
+.detail-divider p,
 .learning-section-copy h3,
 .learning-section-copy p,
 .learning-roadmap p,
@@ -333,28 +345,50 @@ button svg {
 
 .learning-copy > p:last-child {
   color: var(--muted);
-  max-width: 34rem;
-  text-align: right;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  max-width: 44rem;
+}
+
+.learning-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.15rem;
+}
+
+.priority-drill-button {
+  background: var(--summary-bg);
+  border-color: var(--summary-border);
+  color: var(--summary-text);
+  font-weight: 800;
+}
+
+.learning-path-card {
+  background: color-mix(in srgb, var(--field-bg) 90%, transparent);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  min-width: 0;
+  padding: 0.95rem;
 }
 
 .learning-roadmap {
   counter-reset: learning;
   display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  grid-template-columns: 1fr;
   list-style: none;
-  margin: 1rem 0 0;
+  margin: 0.7rem 0 0;
   padding: 0;
 }
 
 .learning-roadmap li {
-  background: var(--field-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  background: color-mix(in srgb, var(--paper-deep) 70%, transparent);
+  border-left: 3px solid var(--teal);
   display: grid;
-  gap: 0.38rem;
+  gap: 0.2rem;
   min-width: 0;
-  padding: 0.9rem;
+  padding: 0.58rem 0 0.58rem 0.72rem;
 }
 
 .learning-roadmap span,
@@ -366,12 +400,121 @@ button svg {
 
 .learning-roadmap strong {
   color: var(--ink);
-  font-size: 1rem;
+  font-size: 0.96rem;
 }
 
 .learning-roadmap p {
   color: var(--muted);
+  display: -webkit-box;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.quick-start {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.05rem;
+}
+
+.quick-start-heading {
+  align-items: end;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.quick-start-heading h3,
+.detail-divider h3 {
+  color: var(--ink);
+  font-size: 1.28rem;
+  line-height: 1.25;
+}
+
+.quick-start-heading > p,
+.detail-divider > p {
+  color: var(--muted);
   line-height: 1.55;
+  max-width: 32rem;
+  text-align: right;
+}
+
+.quick-start-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.quick-start-card {
+  background: var(--field-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.62rem;
+  min-width: 0;
+  padding: 0.95rem;
+}
+
+.quick-start-card.featured {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--summary-bg) 68%, transparent), transparent 78%),
+    var(--field-bg);
+  border-color: var(--gold);
+}
+
+.quick-start-card span {
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.quick-start-card h4 {
+  color: var(--ink);
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+.quick-start-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.quick-start-card code {
+  align-self: end;
+  background: var(--summary-bg);
+  border: 1px solid var(--summary-border);
+  border-radius: 6px;
+  color: var(--summary-text);
+  font-family: var(--font-japanese-ui);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  padding: 0.55rem 0.62rem;
+}
+
+.quick-start-button {
+  background: var(--paper);
+  color: var(--button-text);
+  font-weight: 800;
+  justify-self: start;
+  margin-top: 0.1rem;
+}
+
+.quick-start-card.featured .quick-start-button {
+  background: var(--vermilion);
+  border-color: var(--vermilion);
+  color: var(--selected-text);
+}
+
+.detail-divider {
+  align-items: end;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-top: 1.15rem;
+  padding-top: 1.05rem;
 }
 
 .learning-section {
@@ -576,7 +719,6 @@ button svg {
   border-color: var(--vermilion);
   color: var(--selected-text);
   font-weight: 800;
-  margin-top: 1rem;
   min-width: 11rem;
 }
 
@@ -1006,20 +1148,26 @@ select:disabled {
     grid-template-columns: 1fr;
   }
 
-  .learning-copy {
+  .learning-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-start-heading,
+  .detail-divider {
     align-items: start;
     display: grid;
   }
 
-  .learning-copy > p:last-child {
+  .quick-start-heading > p,
+  .detail-divider > p {
     text-align: left;
   }
 
-  .learning-roadmap,
   .rule-matrix.three-column {
     grid-template-columns: 1fr;
   }
 
+  .quick-start-grid,
   .pipeline-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1064,9 +1212,11 @@ select:disabled {
   .heading-actions {
     align-items: stretch;
     display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .heading-actions p {
+    grid-column: 1 / -1;
     text-align: left;
   }
 
@@ -1075,10 +1225,57 @@ select:disabled {
     justify-content: center;
   }
 
+  .theme-toggle {
+    padding-inline: 0.72rem;
+  }
+
   .controls-panel,
   .drill-panel,
+  .learning-panel,
   .review-panel {
     padding: 1rem;
+  }
+
+  .learning-copy {
+    gap: 0.75rem;
+  }
+
+  .learning-copy h2 {
+    font-size: 1.55rem;
+  }
+
+  .learning-copy > p:last-child {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .learning-path-card {
+    padding: 0.75rem;
+  }
+
+  .learning-roadmap {
+    gap: 0.42rem;
+  }
+
+  .learning-roadmap li {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 0 0.5rem 0.65rem;
+  }
+
+  .learning-roadmap span {
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+  }
+
+  .learning-roadmap strong {
+    font-size: 0.9rem;
+    line-height: 1.25;
+  }
+
+  .learning-roadmap p {
+    display: none;
   }
 
   .surface {
@@ -1087,6 +1284,20 @@ select:disabled {
 
   .answer-row {
     grid-template-columns: 1fr;
+  }
+
+  .learning-hero-actions,
+  .quick-start-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .learning-hero-actions {
+    display: grid;
+  }
+
+  .learning-hero-actions button,
+  .quick-start-button {
+    justify-self: stretch;
   }
 
   .choice-grid {
