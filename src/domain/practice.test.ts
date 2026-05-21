@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { vocabulary } from "./vocabulary";
-import { buildQuestionPool, getMistakeQuestions, scoreAttempt } from "./practice";
+import { buildChoiceOptions, buildQuestionPool, getMistakeQuestions, scoreAttempt } from "./practice";
 
 describe("buildQuestionPool", () => {
   it("filters questions by part of speech, verb group, and selected forms", () => {
@@ -69,6 +69,107 @@ describe("scoreAttempt", () => {
       isCorrect: true,
       responseTimeMs: 1400
     });
+  });
+});
+
+describe("buildChoiceOptions", () => {
+  it("uses other te-form rules of the same verb as distractors", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["te"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "帰る");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("帰って");
+    expect(options).toHaveLength(4);
+    expect(options.every((option) => option.startsWith("帰"))).toBe(true);
+    expect(options.filter((option) => option !== "帰って").every((option) => /[てで]$/.test(option))).toBe(true);
+  });
+
+  it("includes the classic ichidan mistake when testing te-form of る-ending godan verbs", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["te"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "帰る");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+    const distractors = options.filter((option) => option !== "帰って");
+
+    // expect rule-based wrong attempts to dominate (not other words' answers)
+    expect(distractors.every((option) => option.startsWith("帰"))).toBe(true);
+  });
+
+  it("uses ta-form rule variants as distractors", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["ta"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "読む");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("読んだ");
+    expect(options.every((option) => option.startsWith("読"))).toBe(true);
+    expect(options.filter((option) => option !== "読んだ").every((option) => /[ただ]$/.test(option))).toBe(true);
+  });
+
+  it("falls back to same-word other-form distractors for irregular verbs", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "irregular",
+      targetForms: ["te"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "勉強する");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("勉強して");
+    expect(options.every((option) => option.startsWith("勉強"))).toBe(true);
+  });
+
+  it("does not duplicate the prompt word in choice options", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["te"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "聞く");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).not.toContain("聞く");
+  });
+
+  it("uses same-word distractors for adjective practice", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "i_adjective",
+      verbGroup: "all",
+      targetForms: ["plainPresentNegative"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "高い");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("高くない");
+    expect(options.every((option) => option.startsWith("高"))).toBe(true);
   });
 });
 

@@ -89,6 +89,64 @@ export const ADJECTIVE_FORMS: TargetForm[] = [
   "obligationPast"
 ];
 
+const NAI_DERIVED_SUFFIX: Partial<Record<TargetForm, string>> = {
+  negativeTe: "ないで",
+  negativeContinuative: "なくて",
+  plainPastNegative: "なかった",
+  obligationPast: "なければならなかった"
+};
+
+export function generateVerbRuleCandidates(surface: string, targetForm: TargetForm): string[] {
+  if (targetForm === "plainPresentNegative") {
+    return generateVerbRuleCandidates(surface, "nai");
+  }
+
+  if (targetForm === "plainPastAffirmative") {
+    return generateVerbRuleCandidates(surface, "ta");
+  }
+
+  if (targetForm === "dictionary" || targetForm === "plainPresentAffirmative") {
+    return [surface];
+  }
+
+  const stem = surface.slice(0, -1);
+  const candidates: string[] = [];
+
+  if (targetForm === "te") {
+    pushRuleCandidates(candidates, stem, GODAN_TE_ENDINGS, "て");
+  } else if (targetForm === "ta") {
+    pushRuleCandidates(candidates, stem, GODAN_TA_ENDINGS, "た");
+  } else if (targetForm === "masu") {
+    pushRuleCandidates(candidates, stem, GODAN_MASU_ENDINGS, "ます");
+  } else if (targetForm === "nai") {
+    pushRuleCandidates(candidates, stem, GODAN_NAI_ENDINGS, "ない");
+  } else {
+    const suffix = NAI_DERIVED_SUFFIX[targetForm];
+    if (!suffix) {
+      return [];
+    }
+
+    candidates.push(stem + suffix);
+    for (const transform of Object.values(GODAN_NAI_ENDINGS)) {
+      candidates.push(stem + transform.replace(/ない$/, suffix));
+    }
+  }
+
+  return Array.from(new Set(candidates));
+}
+
+function pushRuleCandidates(
+  out: string[],
+  stem: string,
+  endings: Record<string, string>,
+  ichidanSuffix: string
+): void {
+  out.push(stem + ichidanSuffix);
+  for (const transform of Object.values(endings)) {
+    out.push(stem + transform);
+  }
+}
+
 export function conjugate(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
   if (item.partOfSpeech === "verb") {
     return conjugateVerb(item, targetForm);

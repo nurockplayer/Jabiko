@@ -17,7 +17,13 @@ import {
   validateAnswer,
   VERB_FORMS
 } from "./domain/conjugation";
-import { buildQuestionPool, getMistakeQuestions, scoreAttempt, selectQuestion } from "./domain/practice";
+import {
+  buildChoiceOptions,
+  buildQuestionPool,
+  getMistakeQuestions,
+  scoreAttempt,
+  selectQuestion
+} from "./domain/practice";
 import { createAttemptStore } from "./domain/storage";
 import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./domain/types";
 import { vocabulary } from "./domain/vocabulary";
@@ -1066,29 +1072,6 @@ function getInitialTheme(): Theme {
 
 function storeTheme(theme: Theme) {
   window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-}
-
-function buildChoiceOptions(
-  currentQuestion: PracticeQuestion,
-  questions: PracticeQuestion[],
-  questionIndex: number
-): string[] {
-  const correctAnswer = currentQuestion.expectedAnswers[0];
-  const acceptedAnswers = new Set(currentQuestion.expectedAnswers);
-  const distractors = uniqueAnswers(
-    questions
-      .filter((question) => question.id !== currentQuestion.id)
-      .flatMap((question) => question.expectedAnswers)
-      .filter((answer) => !acceptedAnswers.has(answer))
-  );
-  const options = [correctAnswer, ...distractors.slice(0, 3)];
-  const offset = options.length > 0 ? (questionIndex + currentQuestion.id.length) % options.length : 0;
-
-  return [...options.slice(offset), ...options.slice(0, offset)];
-}
-
-function uniqueAnswers(answers: string[]): string[] {
-  return Array.from(new Set(answers));
 }
 
 function uniqueForms(forms: TargetForm[]): TargetForm[] {
