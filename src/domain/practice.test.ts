@@ -51,6 +51,40 @@ describe("buildQuestionPool", () => {
     expect(questions.some((question) => question.targetForm === "plainPresentAffirmative")).toBe(false);
   });
 
+  it("filters by JLPT level when one is selected", () => {
+    const n2Questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      targetForms: ["reading"],
+      level: "N2"
+    });
+    const n1Questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      targetForms: ["reading"],
+      level: "N1"
+    });
+
+    expect(n2Questions.length).toBeGreaterThan(0);
+    expect(n2Questions.every((question) => question.vocabulary.level === "N2")).toBe(true);
+    expect(n1Questions.every((question) => question.vocabulary.level === "N1")).toBe(true);
+    expect(n2Questions.some((question) => question.vocabulary.surface === "影響")).toBe(true);
+    expect(n1Questions.some((question) => question.vocabulary.surface === "蹂躙")).toBe(true);
+  });
+
+  it("supports reading questions for any part of speech", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      targetForms: ["reading"],
+      level: "N1"
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "蹂躙");
+
+    expect(target).toBeDefined();
+    expect(target!.expectedAnswers).toEqual(["じゅうりん"]);
+  });
+
   it("keeps plainPresentAffirmative for na-adjectives and nouns since they add だ", () => {
     const questions = buildQuestionPool(vocabulary, {
       partOfSpeech: "na_adjective",
@@ -268,6 +302,24 @@ describe("buildChoiceOptions", () => {
     expect(options).toContain("書こう");
     expect(options.every((option) => option.startsWith("書"))).toBe(true);
     expect(options.filter((option) => option !== "書こう").every((option) => /[うよ]う?$/.test(option))).toBe(true);
+  });
+
+  it("uses other words' readings as distractors for reading questions", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      targetForms: ["reading"],
+      level: "N2"
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "影響");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("えいきょう");
+    expect(options).toHaveLength(4);
+    expect(options.every((option) => /^[぀-ゟ]+$/.test(option))).toBe(true);
   });
 
   it("includes the cross-category wrong rule for the adverbial form", () => {

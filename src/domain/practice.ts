@@ -6,7 +6,15 @@ import {
   validateAnswer,
   VERB_FORMS
 } from "./conjugation";
-import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup, VocabularyItem } from "./types";
+import type {
+  Attempt,
+  JlptLevel,
+  PartOfSpeech,
+  PracticeQuestion,
+  TargetForm,
+  VerbGroup,
+  VocabularyItem
+} from "./types";
 
 export const CHOICE_COUNT = 4;
 
@@ -14,10 +22,14 @@ export interface QuestionOptions {
   partOfSpeech: PartOfSpeech | "mixed";
   verbGroup: VerbGroup | "all";
   targetForms: TargetForm[];
+  level?: JlptLevel | "all";
 }
 
 export function buildQuestionPool(vocabulary: VocabularyItem[], options: QuestionOptions): PracticeQuestion[] {
+  const level = options.level ?? "all";
+
   return vocabulary
+    .filter((item) => level === "all" || item.level === level)
     .filter((item) => options.partOfSpeech === "mixed" || item.partOfSpeech === options.partOfSpeech)
     .filter((item) => item.partOfSpeech !== "verb" || options.verbGroup === "all" || item.group === options.verbGroup)
     .flatMap((item) =>
@@ -91,6 +103,10 @@ export function buildChoiceOptions(
   questions: PracticeQuestion[],
   questionIndex: number
 ): string[] {
+  if (currentQuestion.targetForm === "reading") {
+    return buildReadingChoiceOptions(currentQuestion, questions, questionIndex);
+  }
+
   const correctAnswer = currentQuestion.expectedAnswers[0];
   const acceptedAnswers = new Set(currentQuestion.expectedAnswers);
   const vocab = currentQuestion.vocabulary;
@@ -109,6 +125,30 @@ export function buildChoiceOptions(
   );
 
   const distractors = uniqueAnswers([...ruleDistractors, ...sameWordDistractors, ...fallbackDistractors]);
+  const options = [correctAnswer, ...distractors.slice(0, CHOICE_COUNT - 1)];
+  const offset = options.length > 0 ? (questionIndex + currentQuestion.id.length) % options.length : 0;
+
+  return [...options.slice(offset), ...options.slice(0, offset)];
+}
+
+function buildReadingChoiceOptions(
+  currentQuestion: PracticeQuestion,
+  questions: PracticeQuestion[],
+  questionIndex: number
+): string[] {
+  const correctAnswer = currentQuestion.expectedAnswers[0];
+  const acceptedAnswers = new Set(currentQuestion.expectedAnswers);
+  const vocab = currentQuestion.vocabulary;
+
+  const distractors = uniqueAnswers(
+    questions
+      .filter(
+        (question) => question.vocabulary.id !== vocab.id && question.targetForm === "reading"
+      )
+      .flatMap((question) => question.expectedAnswers)
+      .filter((answer) => !acceptedAnswers.has(answer))
+  );
+
   const options = [correctAnswer, ...distractors.slice(0, CHOICE_COUNT - 1)];
   const offset = options.length > 0 ? (questionIndex + currentQuestion.id.length) % options.length : 0;
 
@@ -160,6 +200,10 @@ function uniqueAnswers(answers: string[]): string[] {
 }
 
 function isFormCompatible(item: VocabularyItem, targetForm: TargetForm): boolean {
+  if (targetForm === "reading") {
+    return true;
+  }
+
   if (item.partOfSpeech === "verb") {
     return VERB_FORMS.includes(targetForm);
   }

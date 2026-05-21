@@ -21,7 +21,7 @@ import {
   shuffleQuestions
 } from "./domain/practice";
 import { createAttemptStore } from "./domain/storage";
-import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./domain/types";
+import type { Attempt, JlptLevel, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./domain/types";
 import { vocabulary } from "./domain/vocabulary";
 import { copy, getInitialLanguage, languageOptions, storeLanguage, type Language } from "./i18n";
 import "./styles.css";
@@ -59,11 +59,14 @@ const formOptions: TargetForm[] = [
   "masu",
   "potential",
   "volitional",
+  "reading",
   "plainPresentAffirmative",
   "plainPresentNegative",
   "plainPastAffirmative",
   "plainPastNegative"
 ];
+
+const jlptLevels: Array<JlptLevel | "all"> = ["all", "N5", "N4", "N3", "N2", "N1"];
 
 const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; verbOnly?: boolean }> = [
   { value: "single", targetForms: [] },
@@ -297,6 +300,7 @@ export default function App() {
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>("single");
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
+  const [jlptLevel, setJlptLevel] = useState<JlptLevel | "all">("all");
   const [questionIndex, setQuestionIndex] = useState(0);
   const [sessionSeed, setSessionSeed] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
@@ -306,12 +310,13 @@ export default function App() {
   const nextButtonRef = useRef<HTMLButtonElement>(null);
   const t = copy[language];
 
-  const compatibleForms =
+  const baseCompatibleForms =
     partOfSpeech === "mixed"
       ? uniqueForms([...VERB_FORMS, ...ADJECTIVE_FORMS])
       : partOfSpeech === "verb"
         ? VERB_FORMS
         : ADJECTIVE_FORMS;
+  const compatibleForms = uniqueForms([...baseCompatibleForms, "reading"]);
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
   const targetForms = useMemo(
     () =>
@@ -333,11 +338,12 @@ export default function App() {
         buildQuestionPool(vocabulary, {
           partOfSpeech,
           verbGroup,
-          targetForms
+          targetForms,
+          level: jlptLevel
         })
       );
     },
-    [partOfSpeech, targetForms, verbGroup, sessionSeed]
+    [partOfSpeech, targetForms, verbGroup, jlptLevel, sessionSeed]
   );
   const currentQuestion = selectQuestion(questions, questionIndex);
   const choiceOptions = useMemo(
@@ -563,6 +569,25 @@ export default function App() {
             </div>
           </fieldset>
 
+          <fieldset>
+            <legend>{t.jlptLevel}</legend>
+            <div className="segmented focus-segmented">
+              {jlptLevels.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={jlptLevel === option ? "selected" : ""}
+                  onClick={() => {
+                    setJlptLevel(option);
+                    resetSession();
+                  }}
+                >
+                  {t.jlptLevels[option]}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
           <label className="select-label">
             {t.targetForm}
             <select
@@ -619,7 +644,9 @@ export default function App() {
                   <GraduationCap aria-hidden="true" />
                   {partOfSpeechLabel(currentQuestion.vocabulary.partOfSpeech, language)}
                 </p>
-                <p className="reading">{currentQuestion.vocabulary.reading}</p>
+                {currentQuestion.targetForm === "reading" ? null : (
+                  <p className="reading">{currentQuestion.vocabulary.reading}</p>
+                )}
                 <p className="surface">{currentQuestion.vocabulary.surface}</p>
                 <p className="meaning">{currentQuestion.vocabulary.meaningZh}</p>
               </div>
