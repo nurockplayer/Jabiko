@@ -57,6 +57,7 @@ This keeps the first version valuable even before lessons, accounts, or a large 
 - Noun-like forms:
   - 名詞: 肯定、否定、否定接續、過去、否定過去.
 - Practice modes:
+  - Learning path before challenge for first-time users.
   - Mixed drill.
   - Focus drill by word class and target form.
   - Focus drill by transformation family, such as て/た comparison, negative forms, and plain forms.
@@ -115,13 +116,15 @@ After enough local attempt history exists, introduce review scheduling. The MVP 
 ### Start A Drill
 
 1. User opens the app.
-2. Main screen shows practice controls and the first question area.
-3. User selects:
+2. Main screen starts on learning cards that explain the highest-friction patterns.
+3. User starts the challenge.
+4. Challenge screen shows practice controls and the first question area.
+5. User selects:
    - Word type: verbs, adjectives, or mixed.
    - Verb group: all, 一類, 二類, 三類.
    - Target forms: one or more forms.
    - Question count: 10, 20, or endless.
-4. User starts practice.
+6. User practices.
 
 ### Answer A Question
 
@@ -268,6 +271,7 @@ Mobile:
 
 Contains:
 
+- Learning/challenge switch.
 - Mode selector.
 - Form selector.
 - Question card.

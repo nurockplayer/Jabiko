@@ -9,10 +9,24 @@ describe("App", () => {
     document.documentElement.removeAttribute("data-theme");
   });
 
-  it("renders the practice tool immediately", () => {
+  it("renders the learning path before the challenge", () => {
     render(<App />);
 
     expect(screen.getByRole("heading", { name: /變化訓練場/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "學習" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "先學會，再挑戰" })).toBeInTheDocument();
+    expect(screen.getByText("ないで / なくて / なかった")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "開始挑戰" })).toBeInTheDocument();
+    expect(screen.queryByText("答題方式")).not.toBeInTheDocument();
+  });
+
+  it("starts the challenge from the learning path", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+
     expect(screen.getByText("練習重點")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "否定整理" })).toBeInTheDocument();
     expect(screen.getByText("答題方式")).toBeInTheDocument();
@@ -27,6 +41,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "書いて" }));
 
     expect(screen.getByRole("heading", { name: "正解" })).toBeInTheDocument();
@@ -36,6 +51,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "聞いて" }));
 
     expect(screen.getByText("再想一下")).toBeInTheDocument();
@@ -47,6 +63,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "聞いて" }));
 
     expect(screen.getByRole("heading", { name: "錯題複習" })).toBeInTheDocument();
@@ -57,6 +74,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "書いて" }));
     await user.keyboard("{Enter}");
 
@@ -68,6 +86,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "輸入" }));
     await user.type(screen.getByLabelText("答案"), "書いて");
     await user.click(screen.getByRole("button", { name: "送出" }));
@@ -79,6 +98,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "否定整理" }));
 
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("ない形")).toBeInTheDocument();
@@ -92,6 +112,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "名詞" }));
 
     expect(screen.getByText("学生")).toBeInTheDocument();

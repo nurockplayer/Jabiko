@@ -31,6 +31,7 @@ type Feedback =
 
 type PracticeFocus = "single" | "teTa" | "negative" | "plain";
 type AnswerMode = "choice" | "input";
+type AppView = "learn" | "challenge";
 type Theme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "jabiko.theme";
@@ -80,9 +81,31 @@ const focusOptions: Array<{ value: PracticeFocus; label: string; targetForms: Ta
   }
 ];
 
+const lessonCards = [
+  {
+    title: "一類動詞先看最後一個假名",
+    focus: "て形 / た形音便",
+    rule: "く -> いて、ぐ -> いで、す -> して；う・つ・る -> って；む・ぶ・ぬ -> んで。",
+    examples: ["書く -> 書いて", "読む -> 読んで", "行く -> 行って"]
+  },
+  {
+    title: "ない形不是把て形變否定",
+    focus: "ないで / なくて / なかった",
+    rule: "先做ない形，再分別接：ないで、なくて、なかった。這三個不是從て形或た形變來。",
+    examples: ["書かないで", "書かなくて", "書かなかった"]
+  },
+  {
+    title: "い形容詞去い，な形容詞像名詞",
+    focus: "形容詞與名詞型",
+    rule: "い形容詞：高い -> 高くない / 高かった。な形容詞與名詞：静かだ、学生だ，過去用だった。",
+    examples: ["高くなかった", "静かではない", "学生だった"]
+  }
+];
+
 const attemptStore = createAttemptStore();
 
 export default function App() {
+  const [appView, setAppView] = useState<AppView>("learn");
   const [partOfSpeech, setPartOfSpeech] = useState<PartOfSpeech | "mixed">("verb");
   const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">("godan");
   const [targetForm, setTargetForm] = useState<TargetForm>("te");
@@ -268,7 +291,27 @@ export default function App() {
         </div>
       </div>
 
-      <section className="practice-layout" aria-label="Jabiko practice">
+      <nav className="view-switch segmented" aria-label="學習流程">
+        <button
+          type="button"
+          className={appView === "learn" ? "selected" : ""}
+          onClick={() => setAppView("learn")}
+        >
+          學習
+        </button>
+        <button
+          type="button"
+          className={appView === "challenge" ? "selected" : ""}
+          onClick={() => setAppView("challenge")}
+        >
+          挑戰
+        </button>
+      </nav>
+
+      {appView === "learn" ? (
+        <LearningPanel onStartChallenge={() => setAppView("challenge")} />
+      ) : (
+        <section className="practice-layout" aria-label="Jabiko practice">
         <aside className="controls-panel" aria-label="練習設定">
           <div className="brand-lockup">
             <BookOpen aria-hidden="true" />
@@ -491,8 +534,41 @@ export default function App() {
             <p>本次還沒有錯題。</p>
           )}
         </aside>
-      </section>
+        </section>
+      )}
     </main>
+  );
+}
+
+function LearningPanel({ onStartChallenge }: { onStartChallenge: () => void }) {
+  return (
+    <section className="learning-panel" aria-label="學習">
+      <div className="learning-copy">
+        <p className="eyebrow">Study before recall</p>
+        <h2>先學會，再挑戰</h2>
+        <p>第一次使用可以先把最容易卡住的變化看一輪，再進入選擇題挑戰。每張卡都對應到後面的練習設定。</p>
+      </div>
+
+      <div className="lesson-grid">
+        {lessonCards.map((card) => (
+          <article className="lesson-card" key={card.title}>
+            <span>{card.focus}</span>
+            <h3>{card.title}</h3>
+            <p>{card.rule}</p>
+            <div className="formula-row" aria-label={`${card.title}例子`}>
+              {card.examples.map((example) => (
+                <code key={example}>{example}</code>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <button className="start-challenge" type="button" onClick={onStartChallenge}>
+        <ArrowRight aria-hidden="true" />
+        開始挑戰
+      </button>
+    </section>
   );
 }
 

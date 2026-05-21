@@ -235,11 +235,120 @@ button svg {
   font-weight: 800;
 }
 
+.view-switch {
+  margin: 0 auto 1rem;
+  max-width: 360px;
+}
+
+.view-switch button {
+  font-weight: 800;
+}
+
 .eyebrow {
   color: var(--teal);
   font-size: 0.76rem;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.learning-panel {
+  animation: panel-rise 240ms ease both;
+  background: var(--panel-bg), var(--paper);
+  border: 1px solid var(--panel-border);
+  border-top: 4px solid var(--teal);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  margin: 0 auto;
+  max-width: 1220px;
+  padding: 1.25rem;
+}
+
+.learning-copy {
+  align-items: end;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+}
+
+.learning-copy h2,
+.learning-copy p,
+.lesson-card h3,
+.lesson-card p {
+  margin: 0;
+}
+
+.learning-copy h2 {
+  color: var(--ink);
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+.learning-copy > p:last-child {
+  color: var(--muted);
+  max-width: 34rem;
+  text-align: right;
+}
+
+.lesson-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.lesson-card {
+  background: var(--field-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.7rem;
+  min-height: 17rem;
+  padding: 1rem;
+}
+
+.lesson-card span {
+  color: var(--teal);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.lesson-card h3 {
+  color: var(--ink);
+  font-size: 1.1rem;
+  line-height: 1.35;
+}
+
+.lesson-card p {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.formula-row {
+  align-self: end;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.formula-row code {
+  background: var(--summary-bg);
+  border: 1px solid var(--summary-border);
+  border-radius: 6px;
+  color: var(--summary-text);
+  font-family: inherit;
+  font-weight: 900;
+  padding: 0.5rem 0.6rem;
+}
+
+.start-challenge {
+  background: var(--vermilion);
+  border-color: var(--vermilion);
+  color: var(--selected-text);
+  font-weight: 900;
+  margin-top: 1rem;
+  min-width: 11rem;
 }
 
 .practice-layout {
@@ -664,6 +773,19 @@ select:disabled {
   }
 
   .practice-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .learning-copy {
+    align-items: start;
+    display: grid;
+  }
+
+  .learning-copy > p:last-child {
+    text-align: left;
+  }
+
+  .lesson-grid {
     grid-template-columns: 1fr;
   }
 
