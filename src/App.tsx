@@ -22,7 +22,8 @@ import {
   buildQuestionPool,
   getMistakeQuestions,
   scoreAttempt,
-  selectQuestion
+  selectQuestion,
+  shuffleQuestions
 } from "./domain/practice";
 import { createAttemptStore } from "./domain/storage";
 import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./domain/types";
@@ -303,6 +304,7 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [sessionSeed, setSessionSeed] = useState(0);
   const [answer, setAnswer] = useState("");
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -334,13 +336,17 @@ export default function App() {
       : activeFocusForms.map((form) => t.targetForms[form]).join(" / ") || t.focusSummaryEmpty;
 
   const questions = useMemo(
-    () =>
-      buildQuestionPool(vocabulary, {
-        partOfSpeech,
-        verbGroup,
-        targetForms
-      }),
-    [partOfSpeech, targetForms, verbGroup]
+    () => {
+      void sessionSeed;
+      return shuffleQuestions(
+        buildQuestionPool(vocabulary, {
+          partOfSpeech,
+          verbGroup,
+          targetForms
+        })
+      );
+    },
+    [partOfSpeech, targetForms, verbGroup, sessionSeed]
   );
   const currentQuestion = selectQuestion(questions, questionIndex);
   const choiceOptions = useMemo(
@@ -450,6 +456,7 @@ export default function App() {
   const resetSession = () => {
     setAttempts([]);
     setQuestionIndex(0);
+    setSessionSeed((seed) => seed + 1);
     setAnswerMode("input");
     setAnswer("");
     setSelectedChoice(null);
