@@ -7,6 +7,7 @@ describe("App", () => {
   afterEach(() => {
     localStorage.clear();
     document.documentElement.removeAttribute("data-theme");
+    window.history.replaceState({}, "", "/");
   });
 
   it("renders the learning path before the challenge", () => {
@@ -240,5 +241,16 @@ describe("App", () => {
 
     expect(screen.getByRole("button", { name: "Learn" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Challenge" })).toBeInTheDocument();
+  });
+
+  it("loads a supported language from the URL and stores the preference", () => {
+    localStorage.setItem("jabiko.language", "en");
+    window.history.replaceState({}, "", "/?lang=ko");
+
+    render(<App />);
+
+    expect(screen.getByRole("button", { name: "학습" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "도전" })).toBeInTheDocument();
+    expect(localStorage.getItem("jabiko.language")).toBe("ko");
   });
 });

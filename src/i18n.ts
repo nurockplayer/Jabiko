@@ -458,14 +458,65 @@ export const copy: Record<Language, Copy> = {
   }
 };
 
+function isSupportedLanguage(value: string | null | undefined): value is Language {
+  return value === "zh-Hant" || value === "en" || value === "ko";
+}
+
+function languageFromLocale(locale: string): Language | null {
+  const normalizedLocale = locale.toLowerCase();
+
+  if (normalizedLocale === "ko" || normalizedLocale.startsWith("ko-")) {
+    return "ko";
+  }
+
+  if (normalizedLocale === "en" || normalizedLocale.startsWith("en-")) {
+    return "en";
+  }
+
+  if (
+    normalizedLocale === "zh" ||
+    normalizedLocale === "zh-hant" ||
+    normalizedLocale.startsWith("zh-hant-") ||
+    normalizedLocale.startsWith("zh-tw") ||
+    normalizedLocale.startsWith("zh-hk") ||
+    normalizedLocale.startsWith("zh-mo")
+  ) {
+    return "zh-Hant";
+  }
+
+  return null;
+}
+
+function languageFromBrowser(): Language | null {
+  const browserLocales =
+    navigator.languages.length > 0 ? navigator.languages : [navigator.language];
+
+  for (const locale of browserLocales) {
+    const language = languageFromLocale(locale);
+
+    if (language) {
+      return language;
+    }
+  }
+
+  return null;
+}
+
 export function getInitialLanguage(): Language {
+  const urlLanguage = new URLSearchParams(window.location.search).get("lang");
+
+  if (isSupportedLanguage(urlLanguage)) {
+    storeLanguage(urlLanguage);
+    return urlLanguage;
+  }
+
   const storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
 
-  if (storedLanguage === "en" || storedLanguage === "ko" || storedLanguage === "zh-Hant") {
+  if (isSupportedLanguage(storedLanguage)) {
     return storedLanguage;
   }
 
-  return "zh-Hant";
+  return languageFromBrowser() ?? "zh-Hant";
 }
 
 export function storeLanguage(language: Language) {
