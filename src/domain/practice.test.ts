@@ -236,6 +236,40 @@ describe("buildChoiceOptions", () => {
     expect(options).toContain("学生くない");
   });
 
+  it("generates wrong-rule distractors for potential form", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "ichidan",
+      targetForms: ["potential"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "食べる");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("食べられる");
+    expect(options).toContain("食べれる");
+    expect(options.every((option) => option.startsWith("食べ"))).toBe(true);
+  });
+
+  it("generates wrong-rule distractors for volitional form", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["volitional"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "書く");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("書こう");
+    expect(options.every((option) => option.startsWith("書"))).toBe(true);
+    expect(options.filter((option) => option !== "書こう").every((option) => /[うよ]う?$/.test(option))).toBe(true);
+  });
+
   it("includes the cross-category wrong rule for the adverbial form", () => {
     const iAdjQuestions = buildQuestionPool(vocabulary, {
       partOfSpeech: "i_adjective",

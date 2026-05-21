@@ -1,6 +1,11 @@
 import type { ConjugationResult, TargetForm, VocabularyItem } from "./types";
 
+// Keys are ordered so る comes first. When rule candidates are generated for an
+// ichidan verb (all of which end in る) the godan-style "wrong rule" attempt --
+// the classic ら抜き / godan-as-ichidan mistake -- lands in the first distractor
+// slot.
 const GODAN_MASU_ENDINGS: Record<string, string> = {
+  る: "ります",
   う: "います",
   く: "きます",
   ぐ: "ぎます",
@@ -8,11 +13,11 @@ const GODAN_MASU_ENDINGS: Record<string, string> = {
   つ: "ちます",
   ぬ: "にます",
   ぶ: "びます",
-  む: "みます",
-  る: "ります"
+  む: "みます"
 };
 
 const GODAN_NAI_ENDINGS: Record<string, string> = {
+  る: "らない",
   う: "わない",
   く: "かない",
   ぐ: "がない",
@@ -20,11 +25,11 @@ const GODAN_NAI_ENDINGS: Record<string, string> = {
   つ: "たない",
   ぬ: "なない",
   ぶ: "ばない",
-  む: "まない",
-  る: "らない"
+  む: "まない"
 };
 
 const GODAN_TE_ENDINGS: Record<string, string> = {
+  る: "って",
   う: "って",
   く: "いて",
   ぐ: "いで",
@@ -32,11 +37,11 @@ const GODAN_TE_ENDINGS: Record<string, string> = {
   つ: "って",
   ぬ: "んで",
   ぶ: "んで",
-  む: "んで",
-  る: "って"
+  む: "んで"
 };
 
 const GODAN_TA_ENDINGS: Record<string, string> = {
+  る: "った",
   う: "った",
   く: "いた",
   ぐ: "いだ",
@@ -44,8 +49,31 @@ const GODAN_TA_ENDINGS: Record<string, string> = {
   つ: "った",
   ぬ: "んだ",
   ぶ: "んだ",
-  む: "んだ",
-  る: "った"
+  む: "んだ"
+};
+
+const GODAN_POTENTIAL_ENDINGS: Record<string, string> = {
+  る: "れる",
+  う: "える",
+  く: "ける",
+  ぐ: "げる",
+  す: "せる",
+  つ: "てる",
+  ぬ: "ねる",
+  ぶ: "べる",
+  む: "める"
+};
+
+const GODAN_VOLITIONAL_ENDINGS: Record<string, string> = {
+  る: "ろう",
+  う: "おう",
+  く: "こう",
+  ぐ: "ごう",
+  す: "そう",
+  つ: "とう",
+  ぬ: "のう",
+  ぶ: "ぼう",
+  む: "もう"
 };
 
 export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
@@ -58,6 +86,8 @@ export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   obligationPast: "必要過去・なければならなかった",
   te: "て形",
   ta: "た形",
+  potential: "可能形",
+  volitional: "意向形",
   plainPresentAffirmative: "普通形・非過去肯定",
   plainPresentNegative: "普通形・非過去否定",
   plainPastAffirmative: "普通形・過去肯定",
@@ -72,6 +102,8 @@ export const VERB_FORMS: TargetForm[] = [
   "negativeContinuative",
   "te",
   "ta",
+  "potential",
+  "volitional",
   "plainPresentAffirmative",
   "plainPresentNegative",
   "plainPastAffirmative",
@@ -120,6 +152,10 @@ export function generateVerbRuleCandidates(surface: string, targetForm: TargetFo
     pushRuleCandidates(candidates, stem, GODAN_MASU_ENDINGS, "ます");
   } else if (targetForm === "nai") {
     pushRuleCandidates(candidates, stem, GODAN_NAI_ENDINGS, "ない");
+  } else if (targetForm === "potential") {
+    pushRuleCandidates(candidates, stem, GODAN_POTENTIAL_ENDINGS, "られる");
+  } else if (targetForm === "volitional") {
+    pushRuleCandidates(candidates, stem, GODAN_VOLITIONAL_ENDINGS, "よう");
   } else {
     const suffix = NAI_DERIVED_SUFFIX[targetForm];
     if (!suffix) {
@@ -301,6 +337,10 @@ function ichidanEnding(targetForm: TargetForm): string {
       return "て";
     case "ta":
       return "た";
+    case "potential":
+      return "られる";
+    case "volitional":
+      return "よう";
     default:
       return "";
   }
@@ -312,7 +352,9 @@ function irregularAnswer(surface: string, targetForm: TargetForm): string {
       masu: "来ます",
       nai: "来ない",
       te: "来て",
-      ta: "来た"
+      ta: "来た",
+      potential: "来られる",
+      volitional: "来よう"
     };
     return forms[targetForm] ?? surface;
   }
@@ -323,7 +365,9 @@ function irregularAnswer(surface: string, targetForm: TargetForm): string {
       masu: `${stem}します`,
       nai: `${stem}しない`,
       te: `${stem}して`,
-      ta: `${stem}した`
+      ta: `${stem}した`,
+      potential: `${stem}できる`,
+      volitional: `${stem}しよう`
     };
     return forms[targetForm] ?? surface;
   }
@@ -347,7 +391,9 @@ function godanAnswer(surface: string, targetForm: TargetForm): string {
     masu: GODAN_MASU_ENDINGS,
     nai: GODAN_NAI_ENDINGS,
     te: GODAN_TE_ENDINGS,
-    ta: GODAN_TA_ENDINGS
+    ta: GODAN_TA_ENDINGS,
+    potential: GODAN_POTENTIAL_ENDINGS,
+    volitional: GODAN_VOLITIONAL_ENDINGS
   };
 
   const replacement = maps[targetForm]?.[ending];
@@ -424,6 +470,12 @@ function explainVerb(item: VocabularyItem, targetForm: TargetForm): string {
   }
 
   if (item.group === "irregular") {
+    if (targetForm === "potential") {
+      return "「する」的可能形是不規則的「できる」；「来る」變成「来られる」（と同形於受身）。";
+    }
+    if (targetForm === "volitional") {
+      return "「する」的意向形是「しよう」；「来る」變成「来よう」。";
+    }
     return "三類動詞是不規則變化，要直接記住「する / 来る」以及「名詞 + する」的形式。";
   }
 
@@ -433,6 +485,14 @@ function explainVerb(item: VocabularyItem, targetForm: TargetForm): string {
 
   if (targetForm === "nai" || targetForm === "plainPresentNegative") {
     return "一類動詞ない形把最後一個假名換成あ段後接「ない」，但「う」要變成「わない」。";
+  }
+
+  if (targetForm === "potential") {
+    return "一類動詞可能形把最後一個假名換成え段後接「る」，例如「書く -> 書ける」、「読む -> 読める」。";
+  }
+
+  if (targetForm === "volitional") {
+    return "一類動詞意向形把最後一個假名換成お段後接「う」，例如「書く -> 書こう」、「読む -> 読もう」。";
   }
 
   return "一類動詞ます形把最後一個假名換成い段後接「ます」。";

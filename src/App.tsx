@@ -57,6 +57,8 @@ const formOptions: TargetForm[] = [
   "adverbial",
   "obligationPast",
   "masu",
+  "potential",
+  "volitional",
   "plainPresentAffirmative",
   "plainPresentNegative",
   "plainPastAffirmative",

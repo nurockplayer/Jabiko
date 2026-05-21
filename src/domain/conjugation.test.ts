@@ -63,6 +63,25 @@ describe("conjugate", () => {
     expect(conjugate(taberu, "negativeTe")).toEqual(expect.objectContaining({ answers: ["食べないで"] }));
     expect(conjugate(taberu, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["食べなくて"] }));
     expect(conjugate(taberu, "obligationPast")).toEqual(expect.objectContaining({ answers: ["食べなければならなかった"] }));
+    expect(conjugate(taberu, "potential")).toEqual(expect.objectContaining({ answers: ["食べられる"] }));
+    expect(conjugate(taberu, "volitional")).toEqual(expect.objectContaining({ answers: ["食べよう"] }));
+  });
+
+  it("conjugates potential and volitional forms across verb groups", () => {
+    const kaku = word({ surface: "書く", reading: "かく", meaningZh: "寫", partOfSpeech: "verb", group: "godan" });
+    const kaeru = word({ surface: "帰る", reading: "かえる", meaningZh: "回去", partOfSpeech: "verb", group: "godan" });
+    const matsu = word({ surface: "待つ", reading: "まつ", meaningZh: "等", partOfSpeech: "verb", group: "godan" });
+    const kau = word({ surface: "買う", reading: "かう", meaningZh: "買", partOfSpeech: "verb", group: "godan" });
+
+    expect(conjugate(kaku, "potential")).toEqual(expect.objectContaining({ answers: ["書ける"] }));
+    expect(conjugate(kaeru, "potential")).toEqual(expect.objectContaining({ answers: ["帰れる"] }));
+    expect(conjugate(matsu, "potential")).toEqual(expect.objectContaining({ answers: ["待てる"] }));
+    expect(conjugate(kau, "potential")).toEqual(expect.objectContaining({ answers: ["買える"] }));
+
+    expect(conjugate(kaku, "volitional")).toEqual(expect.objectContaining({ answers: ["書こう"] }));
+    expect(conjugate(kaeru, "volitional")).toEqual(expect.objectContaining({ answers: ["帰ろう"] }));
+    expect(conjugate(matsu, "volitional")).toEqual(expect.objectContaining({ answers: ["待とう"] }));
+    expect(conjugate(kau, "volitional")).toEqual(expect.objectContaining({ answers: ["買おう"] }));
   });
 
   it("conjugates irregular verbs", () => {
@@ -94,6 +113,13 @@ describe("conjugate", () => {
     expect(conjugate(benkyo, "te")).toEqual(expect.objectContaining({ answers: ["勉強して"] }));
     expect(conjugate(benkyo, "nai")).toEqual(expect.objectContaining({ answers: ["勉強しない"] }));
     expect(conjugate(benkyo, "negativeTe")).toEqual(expect.objectContaining({ answers: ["勉強しないで"] }));
+
+    expect(conjugate(suru, "potential")).toEqual(expect.objectContaining({ answers: ["できる"] }));
+    expect(conjugate(suru, "volitional")).toEqual(expect.objectContaining({ answers: ["しよう"] }));
+    expect(conjugate(kuru, "potential")).toEqual(expect.objectContaining({ answers: ["来られる"] }));
+    expect(conjugate(kuru, "volitional")).toEqual(expect.objectContaining({ answers: ["来よう"] }));
+    expect(conjugate(benkyo, "potential")).toEqual(expect.objectContaining({ answers: ["勉強できる"] }));
+    expect(conjugate(benkyo, "volitional")).toEqual(expect.objectContaining({ answers: ["勉強しよう"] }));
   });
 
   it("conjugates i-adjectives, na-adjectives, and noun-like words", () => {

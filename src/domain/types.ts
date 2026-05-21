@@ -12,6 +12,8 @@ export type TargetForm =
   | "obligationPast"
   | "te"
   | "ta"
+  | "potential"
+  | "volitional"
   | "plainPresentAffirmative"
   | "plainPresentNegative"
   | "plainPastAffirmative"
