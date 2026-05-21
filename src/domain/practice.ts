@@ -1,6 +1,7 @@
 import {
   ADJECTIVE_FORMS,
   conjugate,
+  generateAdjectiveRuleCandidates,
   generateVerbRuleCandidates,
   validateAnswer,
   VERB_FORMS
@@ -119,11 +120,14 @@ function buildRuleVariantDistractors(
   targetForm: TargetForm,
   acceptedAnswers: Set<string>
 ): string[] {
-  if (vocab.partOfSpeech !== "verb" || vocab.group === "irregular") {
-    return [];
-  }
+  const candidates =
+    vocab.partOfSpeech === "verb"
+      ? vocab.group === "irregular"
+        ? []
+        : generateVerbRuleCandidates(vocab.surface, targetForm)
+      : generateAdjectiveRuleCandidates(vocab, targetForm);
 
-  return generateVerbRuleCandidates(vocab.surface, targetForm).filter(
+  return candidates.filter(
     (candidate) => !acceptedAnswers.has(candidate) && candidate !== vocab.surface
   );
 }

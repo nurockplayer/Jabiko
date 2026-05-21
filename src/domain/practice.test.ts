@@ -187,7 +187,7 @@ describe("buildChoiceOptions", () => {
     expect(options).not.toContain("聞く");
   });
 
-  it("uses same-word distractors for adjective practice", () => {
+  it("includes the na-adjective wrong rule when testing i-adjective negation", () => {
     const questions = buildQuestionPool(vocabulary, {
       partOfSpeech: "i_adjective",
       verbGroup: "all",
@@ -200,7 +200,60 @@ describe("buildChoiceOptions", () => {
     const options = buildChoiceOptions(target!, questions, 0);
 
     expect(options).toContain("高くない");
+    expect(options).toContain("高ではない");
     expect(options.every((option) => option.startsWith("高"))).toBe(true);
+  });
+
+  it("includes the i-adjective wrong rule when testing na-adjective negation", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "na_adjective",
+      verbGroup: "all",
+      targetForms: ["plainPresentNegative"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "静か");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("静かではない");
+    expect(options).toContain("静かくない");
+  });
+
+  it("includes the i-adjective wrong rule when testing noun negation", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "noun",
+      verbGroup: "all",
+      targetForms: ["plainPresentNegative"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "学生");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("学生ではない");
+    expect(options).toContain("学生くない");
+  });
+
+  it("includes the cross-category wrong rule for the adverbial form", () => {
+    const iAdjQuestions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "i_adjective",
+      verbGroup: "all",
+      targetForms: ["adverbial"]
+    });
+    const iAdjTarget = iAdjQuestions.find((question) => question.vocabulary.surface === "高い");
+    expect(iAdjTarget).toBeDefined();
+    expect(buildChoiceOptions(iAdjTarget!, iAdjQuestions, 0)).toContain("高に");
+
+    const naAdjQuestions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "na_adjective",
+      verbGroup: "all",
+      targetForms: ["adverbial"]
+    });
+    const naAdjTarget = naAdjQuestions.find((question) => question.vocabulary.surface === "静か");
+    expect(naAdjTarget).toBeDefined();
+    expect(buildChoiceOptions(naAdjTarget!, naAdjQuestions, 0)).toContain("静かく");
   });
 });
 
