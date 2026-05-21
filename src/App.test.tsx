@@ -88,17 +88,18 @@ describe("App", () => {
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("普通形・非過去否定")).toBeInTheDocument();
   });
 
-  it("toggles dark theme and stores the preference", async () => {
+  it("defaults to dark theme and stores a light preference when toggled", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    expect(document.documentElement).toHaveAttribute("data-theme", "light");
-
-    await user.click(screen.getByRole("button", { name: "深色模式" }));
-
     expect(document.documentElement).toHaveAttribute("data-theme", "dark");
-    expect(localStorage.getItem("jabiko.theme")).toBe("dark");
     expect(screen.getByRole("button", { name: "淺色模式" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "淺色模式" }));
+
+    expect(document.documentElement).toHaveAttribute("data-theme", "light");
+    expect(localStorage.getItem("jabiko.theme")).toBe("light");
+    expect(screen.getByRole("button", { name: "深色模式" })).toBeInTheDocument();
   });
 
   it("loads the stored dark theme preference", () => {
@@ -108,5 +109,14 @@ describe("App", () => {
 
     expect(document.documentElement).toHaveAttribute("data-theme", "dark");
     expect(screen.getByRole("button", { name: "淺色模式" })).toBeInTheDocument();
+  });
+
+  it("loads the stored light theme preference", () => {
+    localStorage.setItem("jabiko.theme", "light");
+
+    render(<App />);
+
+    expect(document.documentElement).toHaveAttribute("data-theme", "light");
+    expect(screen.getByRole("button", { name: "深色模式" })).toBeInTheDocument();
   });
 });

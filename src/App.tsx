@@ -423,7 +423,7 @@ function getInitialTheme(): Theme {
     return storedTheme;
   }
 
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "dark";
 }
 
 function storeTheme(theme: Theme) {

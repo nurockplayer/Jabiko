@@ -68,7 +68,7 @@ This keeps the first version valuable even before lessons, accounts, or a large 
   - One example sentence.
 - Theme:
   - Light and dark themes.
-  - Default to system preference when no local preference exists.
+  - Default to dark theme when no local preference exists.
   - Persist explicit user selection in LocalStorage.
 - Persistence:
   - Local browser storage for recent attempts and weak items.
