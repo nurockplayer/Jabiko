@@ -19,3 +19,6 @@ coverage/
 # Local environment
 .env
 .env.local
+
+# Local visual brainstorming previews
+.superpowers/
