@@ -5,10 +5,10 @@ Jabiko 是給《大家的日本語》學習者使用的日文變化練習網站�
 ## 開發
 
 ```bash
-rtk npm install
-rtk npm run dev
-rtk npm test
-rtk npm run build
+rtk pnpm install
+rtk pnpm dev
+rtk pnpm test
+rtk pnpm build
 ```
 
 ## 第一版範圍

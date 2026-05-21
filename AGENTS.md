@@ -18,9 +18,11 @@ Jabiko 是給《大家的日本語》學習者使用的日文變化練習網站�
 
 ```bash
 rtk git --no-optional-locks status
-rtk npm run build
-rtk npm test
+rtk pnpm build
+rtk pnpm test
 ```
+
+Node / frontend tooling 統一使用 `pnpm`。不得使用 `npm install`、`npm run`、`npm test` 或其他 npm 指令。
 
 ## 技術方向
 

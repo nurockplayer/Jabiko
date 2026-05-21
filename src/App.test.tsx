@@ -7,7 +7,7 @@ describe("App", () => {
   it("renders the practice tool immediately", () => {
     render(<App />);
 
-    expect(screen.getByRole("heading", { name: "變化訓練場" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /變化訓練場/ })).toBeInTheDocument();
     expect(screen.getByLabelText("答案")).toBeInTheDocument();
     expect(screen.getByText("書く")).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("て形")).toBeInTheDocument();
@@ -20,7 +20,7 @@ describe("App", () => {
     await user.type(screen.getByLabelText("答案"), "書いて");
     await user.click(screen.getByRole("button", { name: "送出" }));
 
-    expect(screen.getByText("正解")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "正解" })).toBeInTheDocument();
   });
 
   it("shows the accepted answer and explanation when the learner submits a wrong answer", async () => {
@@ -44,5 +44,17 @@ describe("App", () => {
 
     expect(screen.getByRole("heading", { name: "錯題複習" })).toBeInTheDocument();
     expect(screen.getByText("書く -> て形")).toBeInTheDocument();
+  });
+
+  it("moves to the next question with Enter after feedback", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.type(screen.getByLabelText("答案"), "書いて");
+    await user.click(screen.getByRole("button", { name: "送出" }));
+    await user.keyboard("{Enter}");
+
+    expect(screen.getByText("聞く")).toBeInTheDocument();
+    expect(screen.getByLabelText("答案")).toHaveValue("");
   });
 });

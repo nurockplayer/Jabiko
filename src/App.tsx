@@ -1,5 +1,14 @@
-import { FormEvent, useMemo, useRef, useState } from "react";
-import { ArrowRight, BookOpen, CheckCircle2, Eye, RotateCcw, Send, XCircle } from "lucide-react";
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  Eye,
+  GraduationCap,
+  RotateCcw,
+  Send,
+  XCircle
+} from "lucide-react";
 import {
   ADJECTIVE_FORMS,
   TARGET_FORM_LABELS,
@@ -54,7 +63,9 @@ export default function App() {
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
+  const [inputHint, setInputHint] = useState("");
   const startedAtRef = useRef(Date.now());
+  const answerInputRef = useRef<HTMLInputElement>(null);
 
   const compatibleForms = partOfSpeech === "verb" || partOfSpeech === "mixed" ? VERB_FORMS : ADJECTIVE_FORMS;
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
@@ -70,6 +81,12 @@ export default function App() {
   );
   const currentQuestion = selectQuestion(questions, questionIndex);
   const mistakeQuestions = getMistakeQuestions(attempts, questions);
+  const correctCount = attempts.filter((attempt) => attempt.isCorrect).length;
+  const accuracy = attempts.length > 0 ? Math.round((correctCount / attempts.length) * 100) : 0;
+
+  useEffect(() => {
+    answerInputRef.current?.focus({ preventScroll: true });
+  }, [feedback, questionIndex, selectedForm]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -79,18 +96,22 @@ export default function App() {
     }
 
     if (!answer.trim()) {
+      setInputHint("請先輸入答案，再按 Enter 送出。");
+      answerInputRef.current?.focus({ preventScroll: true });
       return;
     }
 
     const attempt = scoreAttempt(currentQuestion, answer, startedAtRef.current);
     setAttempts((current) => [...current, attempt]);
     attemptStore.add(attempt);
+    setInputHint("");
     setFeedback({ status: attempt.isCorrect ? "correct" : "incorrect", question: currentQuestion });
   };
 
   const nextQuestion = () => {
     setQuestionIndex((current) => current + 1);
     setAnswer("");
+    setInputHint("");
     setFeedback(null);
     startedAtRef.current = Date.now();
   };
@@ -99,6 +120,7 @@ export default function App() {
     setAttempts([]);
     setQuestionIndex(0);
     setAnswer("");
+    setInputHint("");
     setFeedback(null);
     startedAtRef.current = Date.now();
   };
@@ -112,20 +134,34 @@ export default function App() {
     const missedAttempt = { ...attempt, isCorrect: false, submittedAnswer: "(revealed)" };
     setAttempts((current) => [...current, missedAttempt]);
     attemptStore.add(missedAttempt);
+    setInputHint("");
     setFeedback({ status: "revealed", question: currentQuestion });
   };
 
-  const correctCount = attempts.filter((attempt) => attempt.isCorrect).length;
+  const handleDrillKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key === "Enter" && feedback) {
+      event.preventDefault();
+      nextQuestion();
+    }
+  };
 
   return (
     <main className="app-shell">
+      <div className="app-heading" aria-label="應用程式介紹">
+        <div>
+          <p className="eyebrow">Minna no Nihongo practice</p>
+          <h1>Jabiko 變化訓練場</h1>
+        </div>
+        <p>短回合、立即訂正，把動詞與形容詞變化練到不用想太久。</p>
+      </div>
+
       <section className="practice-layout" aria-label="Jabiko practice">
         <aside className="controls-panel" aria-label="練習設定">
           <div className="brand-lockup">
             <BookOpen aria-hidden="true" />
             <div>
               <p>Jabiko</p>
-              <h1>變化訓練場</h1>
+              <h2>今日練習</h2>
             </div>
           </div>
 
@@ -189,9 +225,18 @@ export default function App() {
           </label>
 
           <div className="score-strip" aria-label="本次練習成績">
-            <span>{attempts.length} 題</span>
-            <span>{correctCount} 正解</span>
-            <span>{mistakeQuestions.length} 複習</span>
+            <span>
+              <strong>{attempts.length}</strong>
+              已答
+            </span>
+            <span>
+              <strong>{correctCount}</strong>
+              正解
+            </span>
+            <span>
+              <strong>{mistakeQuestions.length}</strong>
+              複習
+            </span>
           </div>
 
           <button className="ghost-button" type="button" onClick={resetSession}>
@@ -200,15 +245,19 @@ export default function App() {
           </button>
         </aside>
 
-        <section className="drill-panel" aria-label="目前題目">
+        <section className="drill-panel" aria-label="目前題目" onKeyDown={handleDrillKeyDown}>
           {currentQuestion ? (
             <>
               <div className="prompt-header">
-                <span>{currentQuestion.vocabulary.partOfSpeech === "verb" ? "動詞" : "形容詞"}</span>
+                <span>第 {questionIndex + 1} 題</span>
                 <strong>{TARGET_FORM_LABELS[currentQuestion.targetForm]}</strong>
               </div>
 
               <div className="word-block">
+                <p className="word-kind">
+                  <GraduationCap aria-hidden="true" />
+                  {currentQuestion.vocabulary.partOfSpeech === "verb" ? "動詞" : "形容詞"}
+                </p>
                 <p className="reading">{currentQuestion.vocabulary.reading}</p>
                 <p className="surface">{currentQuestion.vocabulary.surface}</p>
                 <p className="meaning">{currentQuestion.vocabulary.meaningZh}</p>
@@ -218,8 +267,10 @@ export default function App() {
                 <label htmlFor="answer">答案</label>
                 <input
                   id="answer"
+                  ref={answerInputRef}
                   value={answer}
-                  disabled={Boolean(feedback)}
+                  readOnly={Boolean(feedback)}
+                  aria-describedby={inputHint ? "answer-hint" : undefined}
                   autoComplete="off"
                   onChange={(event) => setAnswer(event.target.value)}
                 />
@@ -227,6 +278,11 @@ export default function App() {
                   <Send aria-hidden="true" />
                   送出
                 </button>
+                {inputHint ? (
+                  <p className="input-hint" id="answer-hint" role="status">
+                    {inputHint}
+                  </p>
+                ) : null}
               </form>
 
               <div className="action-row">
@@ -248,7 +304,10 @@ export default function App() {
         </section>
 
         <aside className="review-panel" aria-label="錯題">
-          <h2>錯題複習</h2>
+          <div className="review-heading">
+            <h2>錯題複習</h2>
+            <span>{accuracy}%</span>
+          </div>
           {mistakeQuestions.length > 0 ? (
             <ul>
               {mistakeQuestions.map((question) => (
@@ -268,11 +327,12 @@ export default function App() {
 
 function FeedbackPanel({ feedback }: { feedback: NonNullable<Feedback> }) {
   const isCorrect = feedback.status === "correct";
-  const title = isCorrect ? "正解" : "再想一下";
+  const isRevealed = feedback.status === "revealed";
+  const title = isCorrect ? "正解" : isRevealed ? "先記這題" : "再想一下";
   const Icon = isCorrect ? CheckCircle2 : XCircle;
 
   return (
-    <section className={`feedback ${isCorrect ? "correct" : "incorrect"}`} aria-live="polite">
+    <section className={`feedback ${isCorrect ? "correct" : isRevealed ? "revealed" : "incorrect"}`} aria-live="polite">
       <div className="feedback-title">
         <Icon aria-hidden="true" />
         <h2>{title}</h2>

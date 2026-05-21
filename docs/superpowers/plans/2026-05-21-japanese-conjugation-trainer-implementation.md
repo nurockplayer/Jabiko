@@ -12,7 +12,7 @@
 
 ## File Structure
 
-- Create `package.json`: npm scripts and required frontend/test dependencies.
+- Create `package.json`: pnpm scripts and required frontend/test dependencies.
 - Create `index.html`, `src/main.tsx`, `src/App.tsx`: Vite app entry and main UI.
 - Create `src/domain/types.ts`: vocabulary, form, question, and attempt types.
 - Create `src/domain/vocabulary.ts`: curated MVP verbs and adjectives.
@@ -48,6 +48,7 @@ Create `package.json` with scripts:
   "name": "jabiko",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.33.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -85,8 +86,8 @@ Delete `.python-version`, `main.py`, and `pyproject.toml`. Update `.gitignore` w
 
 - [ ] **Step 4: Install dependencies**
 
-Run: `npm install`
-Expected: package-lock is created with no install failure.
+Run: `rtk pnpm install`
+Expected: `pnpm-lock.yaml` is created with no install failure.
 
 ## Task 2: Grammar Core With TDD
 
@@ -111,7 +112,7 @@ Cover:
 - `静か` -> `静かではない`, `静かだった`, `静かではなかった`.
 - validation trims spaces and optional `。`.
 
-Run: `npm test -- src/domain/conjugation.test.ts`
+Run: `rtk pnpm test -- src/domain/conjugation.test.ts`
 Expected: fail because modules do not exist.
 
 - [ ] **Step 2: Implement minimal grammar module**
@@ -120,7 +121,7 @@ Implement typed form generation, irregular tables, godan ending maps, adjective 
 
 - [ ] **Step 3: Verify grammar tests pass**
 
-Run: `npm test -- src/domain/conjugation.test.ts`
+Run: `rtk pnpm test -- src/domain/conjugation.test.ts`
 Expected: all grammar tests pass.
 
 ## Task 3: Vocabulary And Practice Engine With TDD
@@ -141,7 +142,7 @@ Cover:
 - Records incorrect answers as review items.
 - LocalStorage wrapper falls back to memory when storage throws.
 
-Run: `npm test -- src/domain/practice.test.ts src/domain/storage.test.ts`
+Run: `rtk pnpm test -- src/domain/practice.test.ts src/domain/storage.test.ts`
 Expected: fail because modules do not exist.
 
 - [ ] **Step 2: Implement vocabulary and practice helpers**
@@ -150,7 +151,7 @@ Add the curated MVP vocabulary from the design spec. Implement deterministic que
 
 - [ ] **Step 3: Verify practice/storage tests pass**
 
-Run: `npm test -- src/domain/practice.test.ts src/domain/storage.test.ts`
+Run: `rtk pnpm test -- src/domain/practice.test.ts src/domain/storage.test.ts`
 Expected: all practice and storage tests pass.
 
 ## Task 4: React Study Tool UI
@@ -170,7 +171,7 @@ Cover:
 - User can submit a wrong answer and see the correct form plus explanation.
 - Mistake review appears after answering incorrectly.
 
-Run: `npm test -- src/App.test.tsx`
+Run: `rtk pnpm test -- src/App.test.tsx`
 Expected: fail because UI files do not exist.
 
 - [ ] **Step 2: Implement React UI**
@@ -179,7 +180,7 @@ Build a compact notebook-inspired interface with controls, question prompt, answ
 
 - [ ] **Step 3: Verify UI tests pass**
 
-Run: `npm test -- src/App.test.tsx`
+Run: `rtk pnpm test -- src/App.test.tsx`
 Expected: UI tests pass.
 
 ## Task 5: Build And Manual Verification
@@ -189,17 +190,17 @@ Expected: UI tests pass.
 
 - [ ] **Step 1: Run full test suite**
 
-Run: `npm test`
+Run: `rtk pnpm test`
 Expected: all tests pass.
 
 - [ ] **Step 2: Run production build**
 
-Run: `npm run build`
+Run: `rtk pnpm build`
 Expected: TypeScript and Vite build pass.
 
 - [ ] **Step 3: Start dev server and inspect**
 
-Run: `npm run dev -- --host 127.0.0.1`
+Run: `rtk pnpm dev -- --host 127.0.0.1`
 Expected: app loads locally with no blank screen.
 
 - [ ] **Step 4: Update README**
