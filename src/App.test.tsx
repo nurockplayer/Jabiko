@@ -21,6 +21,10 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: "て形和た形是同一張表" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "否定變化都先回到ない形" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "形容詞和名詞不要混在一起背" })).toBeInTheDocument();
+    expect(screen.getByText("高い -> 高く")).toBeInTheDocument();
+    expect(screen.getByText("静か -> 静かに")).toBeInTheDocument();
+    expect(screen.getByText("学生 -> 学生に")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "練く/に修飾" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "開始挑戰" })).toBeInTheDocument();
     expect(screen.queryByText("答題方式")).not.toBeInTheDocument();
   });
@@ -46,6 +50,18 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "な形容詞" })).toHaveClass("selected");
     expect(screen.getByText("静か")).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("普通形・非過去肯定")).toBeInTheDocument();
+  });
+
+  it("starts a ku-ni modifier drill from the learning guide", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "練く/に修飾" }));
+
+    expect(screen.getByRole("button", { name: "く/に修飾" })).toHaveClass("selected");
+    expect(screen.getByText("高い")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "高く" })).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("修飾形・く/に")).toBeInTheDocument();
   });
 
   it("starts the challenge from the learning path", async () => {

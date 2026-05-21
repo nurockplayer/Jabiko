@@ -54,6 +54,7 @@ export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   nai: "ない形",
   negativeTe: "否定て形・ないで",
   negativeContinuative: "否定接續・なくて",
+  adverbial: "修飾形・く/に",
   te: "て形",
   ta: "た形",
   plainPresentAffirmative: "普通形・非過去肯定",
@@ -81,7 +82,8 @@ export const ADJECTIVE_FORMS: TargetForm[] = [
   "plainPresentNegative",
   "negativeContinuative",
   "plainPastAffirmative",
-  "plainPastNegative"
+  "plainPastNegative",
+  "adverbial"
 ];
 
 export function conjugate(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
@@ -233,6 +235,7 @@ function conjugateIAdjective(item: VocabularyItem, targetForm: TargetForm): Conj
     plainPresentAffirmative: [item.surface],
     plainPresentNegative: [`${stem}くない`],
     negativeContinuative: [`${stem}くなくて`],
+    adverbial: [`${stem}く`],
     plainPastAffirmative: [`${stem}かった`],
     plainPastNegative: [`${stem}くなかった`]
   };
@@ -250,6 +253,7 @@ function conjugateNominal(item: VocabularyItem, targetForm: TargetForm): Conjuga
     plainPresentAffirmative: [`${item.surface}だ`],
     plainPresentNegative: [`${item.surface}ではない`, `${item.surface}じゃない`],
     negativeContinuative: [`${item.surface}ではなくて`, `${item.surface}じゃなくて`],
+    adverbial: [`${item.surface}に`],
     plainPastAffirmative: [`${item.surface}だった`],
     plainPastNegative: [`${item.surface}ではなかった`, `${item.surface}じゃなかった`]
   };
@@ -298,6 +302,10 @@ function explainVerb(item: VocabularyItem, targetForm: TargetForm): string {
 }
 
 function explainIAdjective(targetForm: TargetForm): string {
+  if (targetForm === "adverbial") {
+    return "い形容詞修飾動詞時，去掉最後的「い」，接「く」。";
+  }
+
   if (targetForm === "plainPresentNegative") {
     return "い形容詞否定：去掉最後的「い」，接「くない」。";
   }
@@ -322,6 +330,10 @@ function explainNominal(item: VocabularyItem, targetForm: TargetForm): string {
 
   if (targetForm === "plainPresentNegative") {
     return `${label}否定像名詞句一樣接「ではない」，口語也常用「じゃない」。`;
+  }
+
+  if (targetForm === "adverbial") {
+    return `${label}修飾動詞時接「に」，例如「静かに話す」「学生になる」。`;
   }
 
   if (targetForm === "negativeContinuative") {

@@ -103,17 +103,20 @@ describe("conjugate", () => {
     expect(conjugate(takai, "plainPastAffirmative")).toEqual(expect.objectContaining({ answers: ["高かった"] }));
     expect(conjugate(takai, "plainPastNegative")).toEqual(expect.objectContaining({ answers: ["高くなかった"] }));
     expect(conjugate(takai, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["高くなくて"] }));
+    expect(conjugate(takai, "adverbial")).toEqual(expect.objectContaining({ answers: ["高く"] }));
 
     expect(conjugate(shizuka, "plainPresentAffirmative")).toEqual(expect.objectContaining({ answers: ["静かだ"] }));
     expect(conjugate(shizuka, "plainPresentNegative")).toEqual(expect.objectContaining({ answers: ["静かではない", "静かじゃない"] }));
     expect(conjugate(shizuka, "plainPastAffirmative")).toEqual(expect.objectContaining({ answers: ["静かだった"] }));
     expect(conjugate(shizuka, "plainPastNegative")).toEqual(expect.objectContaining({ answers: ["静かではなかった", "静かじゃなかった"] }));
     expect(conjugate(shizuka, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["静かではなくて", "静かじゃなくて"] }));
+    expect(conjugate(shizuka, "adverbial")).toEqual(expect.objectContaining({ answers: ["静かに"] }));
 
     expect(conjugate(gakusei, "plainPresentAffirmative")).toEqual(expect.objectContaining({ answers: ["学生だ"] }));
     expect(conjugate(gakusei, "plainPresentNegative")).toEqual(expect.objectContaining({ answers: ["学生ではない", "学生じゃない"] }));
     expect(conjugate(gakusei, "plainPastAffirmative")).toEqual(expect.objectContaining({ answers: ["学生だった"] }));
     expect(conjugate(gakusei, "plainPastNegative")).toEqual(expect.objectContaining({ answers: ["学生ではなかった", "学生じゃなかった"] }));
+    expect(conjugate(gakusei, "adverbial")).toEqual(expect.objectContaining({ answers: ["学生に"] }));
   });
 });
 

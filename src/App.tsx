@@ -29,7 +29,7 @@ type Feedback =
   | { status: "revealed"; question: PracticeQuestion }
   | null;
 
-type PracticeFocus = "single" | "teTa" | "negative" | "plain";
+type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial";
 type AnswerMode = "choice" | "input";
 type AppView = "learn" | "challenge";
 type Theme = "light" | "dark";
@@ -63,6 +63,7 @@ const formOptions: TargetForm[] = [
   "nai",
   "negativeTe",
   "negativeContinuative",
+  "adverbial",
   "masu",
   "dictionary",
   "plainPresentAffirmative",
@@ -84,6 +85,11 @@ const focusOptions: Array<{ value: PracticeFocus; label: string; targetForms: Ta
       "plainPastAffirmative",
       "plainPastNegative"
     ]
+  },
+  {
+    value: "adverbial",
+    label: "く/に修飾",
+    targetForms: ["adverbial"]
   }
 ];
 
@@ -161,20 +167,20 @@ const adjectiveRows = [
   {
     type: "い形容詞",
     cue: "去い，加く或かった",
-    examples: ["高い -> 高くない", "高い -> 高かった", "高い -> 高くなかった"],
-    note: "否定過去是くなかった，不是かった再否定。"
+    examples: ["高い -> 高く", "高い -> 高くない", "高い -> 高かった"],
+    note: "修飾動詞用く；否定過去是くなかった，不是かった再否定。"
   },
   {
     type: "な形容詞",
-    cue: "像名詞句，現在肯定要だ",
-    examples: ["静かだ", "静かではない", "静かだった"],
-    note: "過去是だった，不是把な留下來加た。"
+    cue: "修飾動詞加に，句尾像名詞句",
+    examples: ["静か -> 静かに", "静かだ", "静かだった"],
+    note: "修飾動詞用に；過去是だった，不是把な留下來加た。"
   },
   {
     type: "名詞",
-    cue: "和な形容詞同一套",
-    examples: ["学生だ", "学生ではない", "学生だった"],
-    note: "名詞過去用だった；口語否定也可以用じゃない。"
+    cue: "修飾或方向常加に",
+    examples: ["学生 -> 学生に", "学生だ", "学生だった"],
+    note: "名詞加に常用在變成某身分或方向；句尾過去用だった。"
   }
 ];
 
@@ -194,8 +200,8 @@ const lessonCards = [
   {
     title: "い形容詞去い，な形容詞像名詞",
     focus: "形容詞與名詞型",
-    rule: "い形容詞：高い -> 高くない / 高かった。な形容詞與名詞：静かだ、学生だ，過去用だった。",
-    examples: ["高くなかった", "静かではない", "学生だった"]
+    rule: "修飾動詞時：い形容詞去い加く；な形容詞與名詞加に。句尾過去才用だった。",
+    examples: ["高く", "静かに", "学生に"]
   }
 ];
 
@@ -219,7 +225,12 @@ export default function App() {
   const answerInputRef = useRef<HTMLInputElement>(null);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
 
-  const compatibleForms = partOfSpeech === "verb" || partOfSpeech === "mixed" ? VERB_FORMS : ADJECTIVE_FORMS;
+  const compatibleForms =
+    partOfSpeech === "mixed"
+      ? uniqueForms([...VERB_FORMS, ...ADJECTIVE_FORMS])
+      : partOfSpeech === "verb"
+        ? VERB_FORMS
+        : ADJECTIVE_FORMS;
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
   const targetForms = useMemo(
     () =>
@@ -447,7 +458,9 @@ export default function App() {
             <legend>練習重點</legend>
             <div className="segmented focus-segmented">
               {focusOptions.map((option) => {
-                const isDisabled = option.verbOnly && partOfSpeech !== "verb" && partOfSpeech !== "mixed";
+                const isDisabled =
+                  (option.verbOnly && partOfSpeech !== "verb" && partOfSpeech !== "mixed") ||
+                  (option.value === "adverbial" && partOfSpeech === "verb");
 
                 return (
                   <button
@@ -805,6 +818,21 @@ function LearningPanel({
             <ArrowRight aria-hidden="true" />
             練な形容詞
           </button>
+          <button
+            className="inline-drill-button"
+            type="button"
+            onClick={() =>
+              onStartDrill({
+                partOfSpeech: "mixed",
+                verbGroup: "all",
+                practiceFocus: "adverbial",
+                targetForm: "adverbial"
+              })
+            }
+          >
+            <ArrowRight aria-hidden="true" />
+            練く/に修飾
+          </button>
         </div>
       </section>
 
@@ -866,6 +894,10 @@ function buildChoiceOptions(
 
 function uniqueAnswers(answers: string[]): string[] {
   return Array.from(new Set(answers));
+}
+
+function uniqueForms(forms: TargetForm[]): TargetForm[] {
+  return Array.from(new Set(forms));
 }
 
 function choiceOptionClass(choice: string, selectedChoice: string | null, feedback: Feedback): string {

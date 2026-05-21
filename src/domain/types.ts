@@ -8,6 +8,7 @@ export type TargetForm =
   | "nai"
   | "negativeTe"
   | "negativeContinuative"
+  | "adverbial"
   | "te"
   | "ta"
   | "plainPresentAffirmative"
