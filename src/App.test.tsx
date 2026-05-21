@@ -15,27 +15,28 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: /變化訓練場/ })).toBeInTheDocument();
     expect(screen.getByText("練習重點")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "否定整理" })).toBeInTheDocument();
-    expect(screen.getByLabelText("答案")).toBeInTheDocument();
+    expect(screen.getByText("答題方式")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "選擇題" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("答案")).not.toBeInTheDocument();
     expect(screen.getByText("書く")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "書いて" })).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("て形")).toBeInTheDocument();
   });
 
-  it("shows success feedback when the learner submits a correct answer", async () => {
+  it("shows success feedback when the learner picks a correct choice", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.type(screen.getByLabelText("答案"), "書いて");
-    await user.click(screen.getByRole("button", { name: "送出" }));
+    await user.click(screen.getByRole("button", { name: "書いて" }));
 
     expect(screen.getByRole("heading", { name: "正解" })).toBeInTheDocument();
   });
 
-  it("shows the accepted answer and explanation when the learner submits a wrong answer", async () => {
+  it("shows the accepted answer and explanation when the learner picks a wrong choice", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.type(screen.getByLabelText("答案"), "書て");
-    await user.click(screen.getByRole("button", { name: "送出" }));
+    await user.click(screen.getByRole("button", { name: "聞いて" }));
 
     expect(screen.getByText("再想一下")).toBeInTheDocument();
     expect(screen.getByText("正解：書いて")).toBeInTheDocument();
@@ -46,8 +47,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.type(screen.getByLabelText("答案"), "書て");
-    await user.click(screen.getByRole("button", { name: "送出" }));
+    await user.click(screen.getByRole("button", { name: "聞いて" }));
 
     expect(screen.getByRole("heading", { name: "錯題複習" })).toBeInTheDocument();
     expect(screen.getByText("書く -> て形")).toBeInTheDocument();
@@ -57,12 +57,22 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.type(screen.getByLabelText("答案"), "書いて");
-    await user.click(screen.getByRole("button", { name: "送出" }));
+    await user.click(screen.getByRole("button", { name: "書いて" }));
     await user.keyboard("{Enter}");
 
     expect(screen.getByText("聞く")).toBeInTheDocument();
-    expect(screen.getByLabelText("答案")).toHaveValue("");
+    expect(screen.getByRole("button", { name: "聞いて" })).toBeInTheDocument();
+  });
+
+  it("lets the learner switch to typed answers", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "輸入" }));
+    await user.type(screen.getByLabelText("答案"), "書いて");
+    await user.click(screen.getByRole("button", { name: "送出" }));
+
+    expect(screen.getByRole("heading", { name: "正解" })).toBeInTheDocument();
   });
 
   it("lets the learner focus on negative transformations", async () => {

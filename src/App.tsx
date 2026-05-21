@@ -30,6 +30,7 @@ type Feedback =
   | null;
 
 type PracticeFocus = "single" | "teTa" | "negative" | "plain";
+type AnswerMode = "choice" | "input";
 type Theme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "jabiko.theme";
@@ -86,14 +87,17 @@ export default function App() {
   const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">("godan");
   const [targetForm, setTargetForm] = useState<TargetForm>("te");
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>("single");
+  const [answerMode, setAnswerMode] = useState<AnswerMode>("choice");
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState("");
+  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [inputHint, setInputHint] = useState("");
   const startedAtRef = useRef(Date.now());
   const answerInputRef = useRef<HTMLInputElement>(null);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
 
   const compatibleForms = partOfSpeech === "verb" || partOfSpeech === "mixed" ? VERB_FORMS : ADJECTIVE_FORMS;
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
@@ -120,13 +124,24 @@ export default function App() {
     [partOfSpeech, targetForms, verbGroup]
   );
   const currentQuestion = selectQuestion(questions, questionIndex);
+  const choiceOptions = useMemo(
+    () => (currentQuestion ? buildChoiceOptions(currentQuestion, questions, questionIndex) : []),
+    [currentQuestion, questionIndex, questions]
+  );
   const mistakeQuestions = getMistakeQuestions(attempts, questions);
   const correctCount = attempts.filter((attempt) => attempt.isCorrect).length;
   const accuracy = attempts.length > 0 ? Math.round((correctCount / attempts.length) * 100) : 0;
 
   useEffect(() => {
-    answerInputRef.current?.focus({ preventScroll: true });
-  }, [feedback, questionIndex, practiceFocus, selectedForm]);
+    if (feedback) {
+      nextButtonRef.current?.focus({ preventScroll: true });
+      return;
+    }
+
+    if (answerMode === "input" && !feedback) {
+      answerInputRef.current?.focus({ preventScroll: true });
+    }
+  }, [answerMode, feedback, questionIndex, practiceFocus, selectedForm]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -150,6 +165,25 @@ export default function App() {
     resetSession();
   };
 
+  const handleAnswerModeChange = (nextMode: AnswerMode) => {
+    setAnswerMode(nextMode);
+    setAnswer("");
+    setInputHint("");
+    setSelectedChoice(null);
+  };
+
+  const submitAnswer = (submittedAnswer: string) => {
+    if (!currentQuestion || feedback) {
+      return;
+    }
+
+    const attempt = scoreAttempt(currentQuestion, submittedAnswer, startedAtRef.current);
+    setAttempts((current) => [...current, attempt]);
+    attemptStore.add(attempt);
+    setInputHint("");
+    setFeedback({ status: attempt.isCorrect ? "correct" : "incorrect", question: currentQuestion });
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -163,16 +197,22 @@ export default function App() {
       return;
     }
 
-    const attempt = scoreAttempt(currentQuestion, answer, startedAtRef.current);
-    setAttempts((current) => [...current, attempt]);
-    attemptStore.add(attempt);
-    setInputHint("");
-    setFeedback({ status: attempt.isCorrect ? "correct" : "incorrect", question: currentQuestion });
+    submitAnswer(answer);
+  };
+
+  const handleChoiceSubmit = (choice: string) => {
+    if (!currentQuestion || feedback) {
+      return;
+    }
+
+    setSelectedChoice(choice);
+    submitAnswer(choice);
   };
 
   const nextQuestion = () => {
     setQuestionIndex((current) => current + 1);
     setAnswer("");
+    setSelectedChoice(null);
     setInputHint("");
     setFeedback(null);
     startedAtRef.current = Date.now();
@@ -182,6 +222,7 @@ export default function App() {
     setAttempts([]);
     setQuestionIndex(0);
     setAnswer("");
+    setSelectedChoice(null);
     setInputHint("");
     setFeedback(null);
     startedAtRef.current = Date.now();
@@ -197,6 +238,7 @@ export default function App() {
     setAttempts((current) => [...current, missedAttempt]);
     attemptStore.add(missedAttempt);
     setInputHint("");
+    setSelectedChoice(null);
     setFeedback({ status: "revealed", question: currentQuestion });
   };
 
@@ -354,34 +396,72 @@ export default function App() {
                 <p className="meaning">{currentQuestion.vocabulary.meaningZh}</p>
               </div>
 
-              <form className="answer-row" onSubmit={handleSubmit}>
-                <label htmlFor="answer">答案</label>
-                <input
-                  id="answer"
-                  ref={answerInputRef}
-                  value={answer}
-                  readOnly={Boolean(feedback)}
-                  aria-describedby={inputHint ? "answer-hint" : undefined}
-                  autoComplete="off"
-                  onChange={(event) => setAnswer(event.target.value)}
-                />
-                <button type="submit" disabled={Boolean(feedback)}>
-                  <Send aria-hidden="true" />
-                  送出
-                </button>
-                {inputHint ? (
-                  <p className="input-hint" id="answer-hint" role="status">
-                    {inputHint}
-                  </p>
-                ) : null}
-              </form>
+              <fieldset className="answer-mode">
+                <legend>答題方式</legend>
+                <div className="segmented answer-mode-segmented">
+                  <button
+                    type="button"
+                    className={answerMode === "choice" ? "selected" : ""}
+                    disabled={Boolean(feedback)}
+                    onClick={() => handleAnswerModeChange("choice")}
+                  >
+                    選擇題
+                  </button>
+                  <button
+                    type="button"
+                    className={answerMode === "input" ? "selected" : ""}
+                    disabled={Boolean(feedback)}
+                    onClick={() => handleAnswerModeChange("input")}
+                  >
+                    輸入
+                  </button>
+                </div>
+              </fieldset>
+
+              {answerMode === "choice" ? (
+                <div className="choice-grid" aria-label="答案選項">
+                  {choiceOptions.map((choice) => (
+                    <button
+                      key={choice}
+                      type="button"
+                      className={choiceOptionClass(choice, selectedChoice, feedback)}
+                      disabled={Boolean(feedback)}
+                      onClick={() => handleChoiceSubmit(choice)}
+                    >
+                      {choice}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <form className="answer-row" onSubmit={handleSubmit}>
+                  <label htmlFor="answer">答案</label>
+                  <input
+                    id="answer"
+                    ref={answerInputRef}
+                    value={answer}
+                    readOnly={Boolean(feedback)}
+                    aria-describedby={inputHint ? "answer-hint" : undefined}
+                    autoComplete="off"
+                    onChange={(event) => setAnswer(event.target.value)}
+                  />
+                  <button type="submit" disabled={Boolean(feedback)}>
+                    <Send aria-hidden="true" />
+                    送出
+                  </button>
+                  {inputHint ? (
+                    <p className="input-hint" id="answer-hint" role="status">
+                      {inputHint}
+                    </p>
+                  ) : null}
+                </form>
+              )}
 
               <div className="action-row">
                 <button className="ghost-button" type="button" onClick={revealAnswer} disabled={Boolean(feedback)}>
                   <Eye aria-hidden="true" />
                   看答案
                 </button>
-                <button className="next-button" type="button" onClick={nextQuestion}>
+                <button className="next-button" type="button" ref={nextButtonRef} onClick={nextQuestion}>
                   <ArrowRight aria-hidden="true" />
                   下一題
                 </button>
@@ -428,6 +508,47 @@ function getInitialTheme(): Theme {
 
 function storeTheme(theme: Theme) {
   window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+}
+
+function buildChoiceOptions(
+  currentQuestion: PracticeQuestion,
+  questions: PracticeQuestion[],
+  questionIndex: number
+): string[] {
+  const correctAnswer = currentQuestion.expectedAnswers[0];
+  const acceptedAnswers = new Set(currentQuestion.expectedAnswers);
+  const distractors = uniqueAnswers(
+    questions
+      .filter((question) => question.id !== currentQuestion.id)
+      .flatMap((question) => question.expectedAnswers)
+      .filter((answer) => !acceptedAnswers.has(answer))
+  );
+  const options = [correctAnswer, ...distractors.slice(0, 3)];
+  const offset = options.length > 0 ? (questionIndex + currentQuestion.id.length) % options.length : 0;
+
+  return [...options.slice(offset), ...options.slice(0, offset)];
+}
+
+function uniqueAnswers(answers: string[]): string[] {
+  return Array.from(new Set(answers));
+}
+
+function choiceOptionClass(choice: string, selectedChoice: string | null, feedback: Feedback): string {
+  const classes = ["choice-option"];
+
+  if (selectedChoice === choice) {
+    classes.push("chosen");
+
+    if (feedback?.status === "correct") {
+      classes.push("correct");
+    }
+
+    if (feedback?.status === "incorrect") {
+      classes.push("incorrect");
+    }
+  }
+
+  return classes.join(" ");
 }
 
 function partOfSpeechLabel(partOfSpeech: PartOfSpeech): string {

@@ -60,6 +60,7 @@ This keeps the first version valuable even before lessons, accounts, or a large 
   - Mixed drill.
   - Focus drill by word class and target form.
   - Focus drill by transformation family, such as て/た comparison, negative forms, and plain forms.
+  - Recognition questions by default, with a toggle for typed production answers.
   - Mistake review for current session.
 - Feedback:
   - Correct or incorrect state.
@@ -151,11 +152,11 @@ The learner types:
 
 - `書いて`
 
-This is the main MVP question type because it forces active recall.
+This is the stricter practice mode because it forces active recall. Learners can switch to it after warming up with recognition questions.
 
 ### Recognition
 
-The learner chooses the correct transformed form from multiple options. This is useful for beginners but should be secondary because it is easier than production.
+The learner chooses the correct transformed form from multiple options. This is the default MVP question type because it lowers friction while the learner is still internalizing patterns.
 
 ### Transformation Explanation
 
