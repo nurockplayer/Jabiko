@@ -39,6 +39,31 @@ describe("buildQuestionPool", () => {
     ).toEqual(["高くなかった"]);
   });
 
+  it("filters out trivial questions where the expected answer equals the prompt surface", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["dictionary", "plainPresentAffirmative", "te"]
+    });
+
+    expect(questions.some((question) => question.targetForm === "te")).toBe(true);
+    expect(questions.some((question) => question.targetForm === "dictionary")).toBe(false);
+    expect(questions.some((question) => question.targetForm === "plainPresentAffirmative")).toBe(false);
+  });
+
+  it("keeps plainPresentAffirmative for na-adjectives and nouns since they add だ", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "na_adjective",
+      verbGroup: "all",
+      targetForms: ["plainPresentAffirmative"]
+    });
+
+    expect(questions.length).toBeGreaterThan(0);
+    expect(
+      questions.find((question) => question.vocabulary.surface === "静か")?.expectedAnswers
+    ).toEqual(["静かだ"]);
+  });
+
   it("builds noun-like practice questions for plain and negative connective forms", () => {
     const questions = buildQuestionPool(vocabulary, {
       partOfSpeech: "noun",

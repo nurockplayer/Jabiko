@@ -32,7 +32,12 @@ export function buildQuestionPool(vocabulary: VocabularyItem[], options: Questio
             explanation: result.explanation
           };
         })
-    );
+    )
+    .filter(isMeaningfulQuestion);
+}
+
+function isMeaningfulQuestion(question: PracticeQuestion): boolean {
+  return question.expectedAnswers.some((answer) => answer !== question.vocabulary.surface);
 }
 
 export function scoreAttempt(
