@@ -1,6 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { vocabulary } from "./vocabulary";
-import { buildChoiceOptions, buildQuestionPool, getMistakeQuestions, scoreAttempt } from "./practice";
+import {
+  buildChoiceOptions,
+  buildQuestionPool,
+  getMistakeQuestions,
+  scoreAttempt,
+  shuffleQuestions
+} from "./practice";
 
 describe("buildQuestionPool", () => {
   it("filters questions by part of speech, verb group, and selected forms", () => {
@@ -170,6 +176,51 @@ describe("buildChoiceOptions", () => {
 
     expect(options).toContain("高くない");
     expect(options.every((option) => option.startsWith("高"))).toBe(true);
+  });
+});
+
+describe("shuffleQuestions", () => {
+  it("returns the same set of questions", () => {
+    const pool = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "all",
+      targetForms: ["te"]
+    });
+
+    const shuffled = shuffleQuestions(pool);
+
+    expect(shuffled).toHaveLength(pool.length);
+    expect(new Set(shuffled.map((question) => question.id))).toEqual(
+      new Set(pool.map((question) => question.id))
+    );
+  });
+
+  it("does not mutate the input pool", () => {
+    const pool = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["te"]
+    });
+    const originalOrder = pool.map((question) => question.id);
+
+    vi.spyOn(Math, "random").mockReturnValue(0); // forces reordering
+    shuffleQuestions(pool);
+
+    expect(pool.map((question) => question.id)).toEqual(originalOrder);
+  });
+
+  it("reorders questions when Math.random returns 0", () => {
+    const pool = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["te"]
+    });
+    const originalOrder = pool.map((question) => question.id);
+
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    const shuffled = shuffleQuestions(pool).map((question) => question.id);
+
+    expect(shuffled).not.toEqual(originalOrder);
   });
 });
 
