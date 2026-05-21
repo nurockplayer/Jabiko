@@ -2,6 +2,8 @@ export type PartOfSpeech = "verb" | "i_adjective" | "na_adjective" | "noun";
 
 export type VerbGroup = "godan" | "ichidan" | "irregular";
 
+export type JlptLevel = "N5" | "N4" | "N3" | "N2" | "N1";
+
 export type TargetForm =
   | "dictionary"
   | "masu"
@@ -14,6 +16,7 @@ export type TargetForm =
   | "ta"
   | "potential"
   | "volitional"
+  | "reading"
   | "plainPresentAffirmative"
   | "plainPresentNegative"
   | "plainPastAffirmative"
@@ -34,6 +37,7 @@ export interface VocabularyItem {
   lesson: number | null;
   tags: string[];
   examples: ExampleSentence[];
+  level?: JlptLevel;
 }
 
 export interface ConjugationResult {

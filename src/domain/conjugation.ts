@@ -88,6 +88,7 @@ export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   ta: "た形",
   potential: "可能形",
   volitional: "意向形",
+  reading: "念法",
   plainPresentAffirmative: "普通形・非過去肯定",
   plainPresentNegative: "普通形・非過去否定",
   plainPastAffirmative: "普通形・過去肯定",
@@ -249,7 +250,17 @@ function pushNominalLikeCandidates(out: string[], base: string, targetForm: Targ
   }
 }
 
+export const VOCAB_FORMS: TargetForm[] = ["reading"];
+
 export function conjugate(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
+  if (targetForm === "reading") {
+    return {
+      targetForm,
+      answers: [item.reading],
+      explanation: `「${item.surface}」的念法是「${item.reading}」。意思：${item.meaningZh}。`
+    };
+  }
+
   if (item.partOfSpeech === "verb") {
     return conjugateVerb(item, targetForm);
   }

@@ -1,4 +1,4 @@
-import type { PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
+import type { JlptLevel, PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
 
 export type Language = "zh-Hant" | "en" | "ko";
 
@@ -69,6 +69,8 @@ type Copy = {
   verbGroups: Record<VerbGroup | "all", string>;
   focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast", string>;
   targetForms: Record<TargetForm, string>;
+  jlptLevel: string;
+  jlptLevels: Record<JlptLevel | "all", string>;
   lessonCardFocus: string[];
 };
 
@@ -193,10 +195,20 @@ export const copy: Record<Language, Copy> = {
       ta: "た形",
       potential: "可能形",
       volitional: "意向形",
+      reading: "念法",
       plainPresentAffirmative: "普通形・非過去肯定",
       plainPresentNegative: "普通形・非過去否定",
       plainPastAffirmative: "普通形・過去肯定",
       plainPastNegative: "普通形・過去否定"
+    },
+    jlptLevel: "JLPT 級別",
+    jlptLevels: {
+      all: "全部",
+      N5: "N5",
+      N4: "N4",
+      N3: "N3",
+      N2: "N2",
+      N1: "N1"
     },
     lessonCardFocus: ["て形 / た形音便", "ないで / なくて / なかった", "形容詞與名詞型"]
   },
@@ -312,10 +324,20 @@ export const copy: Record<Language, Copy> = {
       ta: "Ta-form",
       potential: "Potential form",
       volitional: "Volitional form",
+      reading: "Reading",
       plainPresentAffirmative: "Plain non-past affirmative",
       plainPresentNegative: "Plain non-past negative",
       plainPastAffirmative: "Plain past affirmative",
       plainPastNegative: "Plain past negative"
+    },
+    jlptLevel: "JLPT level",
+    jlptLevels: {
+      all: "All",
+      N5: "N5",
+      N4: "N4",
+      N3: "N3",
+      N2: "N2",
+      N1: "N1"
     },
     lessonCardFocus: ["Te/Ta sound changes", "naide / nakute / nakatta", "Adjectives and noun-like forms"]
   },
@@ -431,10 +453,20 @@ export const copy: Record<Language, Copy> = {
       ta: "た형",
       potential: "가능형",
       volitional: "의향형",
+      reading: "읽는 법",
       plainPresentAffirmative: "보통형・현재 긍정",
       plainPresentNegative: "보통형・현재 부정",
       plainPastAffirmative: "보통형・과거 긍정",
       plainPastNegative: "보통형・과거 부정"
+    },
+    jlptLevel: "JLPT 등급",
+    jlptLevels: {
+      all: "전체",
+      N5: "N5",
+      N4: "N4",
+      N3: "N3",
+      N2: "N2",
+      N1: "N1"
     },
     lessonCardFocus: ["て/た 음편", "ないで / なくて / なかった", "형용사와 명사형"]
   }
