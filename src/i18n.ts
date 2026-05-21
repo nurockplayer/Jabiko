@@ -53,13 +53,7 @@ type Copy = {
   resetSession: string;
   currentQuestion: string;
   questionNumber: (value: number) => string;
-  answerMode: string;
-  choices: string;
-  input: string;
   answerOptions: string;
-  answer: string;
-  submit: string;
-  inputHint: string;
   revealAnswer: string;
   nextQuestion: string;
   emptyState: string;
@@ -154,13 +148,7 @@ export const copy: Record<Language, Copy> = {
     resetSession: "重設本次",
     currentQuestion: "目前題目",
     questionNumber: (value) => `第 ${value} 題`,
-    answerMode: "答題方式",
-    choices: "選擇題",
-    input: "輸入",
     answerOptions: "答案選項",
-    answer: "答案",
-    submit: "送出",
-    inputHint: "請先輸入答案，再按 Enter 送出。",
     revealAnswer: "看答案",
     nextQuestion: "下一題",
     emptyState: "目前設定沒有可練習的題目。",
@@ -277,13 +265,7 @@ export const copy: Record<Language, Copy> = {
     resetSession: "Reset session",
     currentQuestion: "Current question",
     questionNumber: (value) => `Question ${value}`,
-    answerMode: "Answer mode",
-    choices: "Choices",
-    input: "Input",
     answerOptions: "Answer options",
-    answer: "Answer",
-    submit: "Submit",
-    inputHint: "Enter an answer before pressing Enter.",
     revealAnswer: "Reveal answer",
     nextQuestion: "Next",
     emptyState: "No questions match the current settings.",
@@ -400,13 +382,7 @@ export const copy: Record<Language, Copy> = {
     resetSession: "이번 회차 초기화",
     currentQuestion: "현재 문제",
     questionNumber: (value) => `${value}번 문제`,
-    answerMode: "답변 방식",
-    choices: "선택형",
-    input: "입력",
     answerOptions: "답안 선택지",
-    answer: "답",
-    submit: "제출",
-    inputHint: "답을 입력한 뒤 Enter를 눌러 주세요.",
     revealAnswer: "정답 보기",
     nextQuestion: "다음 문제",
     emptyState: "현재 설정에 맞는 문제가 없습니다.",
