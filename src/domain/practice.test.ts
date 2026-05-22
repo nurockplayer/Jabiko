@@ -68,9 +68,15 @@ describe("buildExamQuestionPool", () => {
           question.vocabulary.level === "N3"
       )
     ).toBe(true);
-    expect(questions.some((question) => question.promptLabel?.includes("N1"))).toBe(true);
-    expect(questions.some((question) => question.promptLabel?.includes("N2"))).toBe(true);
-    expect(questions.some((question) => question.promptLabel?.includes("N3"))).toBe(true);
+    // Internal level metadata still spans all three; user-visible
+    // promptLabel intentionally no longer surfaces the level.
+    expect(questions.some((question) => question.vocabulary.level === "N1")).toBe(true);
+    expect(questions.some((question) => question.vocabulary.level === "N2")).toBe(true);
+    expect(questions.some((question) => question.vocabulary.level === "N3")).toBe(true);
+    // promptLabel must NOT leak the JLPT level back to the user.
+    expect(
+      questions.every((question) => !/^N[1-3]\s/.test(question.promptLabel ?? ""))
+    ).toBe(true);
   });
 
   it("filters exam-style questions by JLPT level", () => {
