@@ -11,13 +11,29 @@ const blocks = text.split("examQuestion({").slice(1);
 
 let bad = 0;
 let seenIds = new Set();
-for (const blk of blocks) {
+for (let i = 0; i < blocks.length; i++) {
+  const blk = blocks[i];
   const end = blk.indexOf("})");
   const body = blk.slice(0, end);
   const idMatch = body.match(/id:\s*"([^"]+)"/);
   const expMatch = body.match(/expectedAnswer:\s*"((?:[^"\\]|\\.)*)"/);
   const optsMatch = body.match(/options:\s*\[([\s\S]*?)\]/);
-  if (!idMatch || !expMatch || !optsMatch) continue;
+  // Fail loudly on unparseable blocks so a malformed entry can't slip
+  // past the guard silently. Report which fields were missing and the
+  // id if we managed to extract it.
+  if (!idMatch || !expMatch || !optsMatch) {
+    const missing = [
+      !idMatch && "id",
+      !expMatch && "expectedAnswer",
+      !optsMatch && "options"
+    ]
+      .filter(Boolean)
+      .join(", ");
+    const idHint = idMatch ? idMatch[1] : `block #${i + 1}`;
+    console.log(`UNPARSEABLE ${idHint}: missing field(s) -> ${missing}`);
+    bad++;
+    continue;
+  }
   const id = idMatch[1];
   const expected = expMatch[1];
   const opts = optsMatch[1];
