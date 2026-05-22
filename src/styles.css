@@ -4,6 +4,7 @@
   font-family: var(--font-ui);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --build-tag: "2026-05-23";
   --font-ui: "PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", "Hiragino Sans",
     sans-serif;
   --font-title: "PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", sans-serif;
@@ -1602,3 +1603,4 @@ select:disabled {
     transform: translateY(0);
   }
 }
+
