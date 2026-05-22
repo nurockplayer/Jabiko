@@ -579,6 +579,11 @@ export default function App() {
                   className={jlptLevel === option ? "selected" : ""}
                   onClick={() => {
                     setJlptLevel(option);
+                    if (option === "N1" || option === "N2") {
+                      setPartOfSpeech("mixed");
+                      setPracticeFocus("single");
+                      setTargetForm("reading");
+                    }
                     resetSession();
                   }}
                 >
