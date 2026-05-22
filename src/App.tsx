@@ -13,6 +13,9 @@ import {
   XCircle
 } from "lucide-react";
 import { ADJECTIVE_FORMS, VERB_FORMS } from "./domain/conjugation";
+import { buildClozeQuestionPool } from "./domain/cloze";
+import { clozeSentences } from "./domain/cloze-data";
+import { buildExamQuestionPool } from "./domain/examBlocks";
 import {
   buildChoiceOptions,
   buildQuestionPool,
@@ -33,7 +36,7 @@ type Feedback =
   | { status: "revealed"; question: PracticeQuestion }
   | null;
 
-type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
+type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast" | "exam" | "cloze";
 type AppView = "learn" | "challenge";
 type Theme = "light" | "dark";
 type DrillPreset = {
@@ -103,6 +106,14 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
   {
     value: "obligationPast",
     targetForms: ["obligationPast"]
+  },
+  {
+    value: "exam",
+    targetForms: []
+  },
+  {
+    value: "cloze",
+    targetForms: []
   }
 ];
 
@@ -310,22 +321,41 @@ export default function App() {
   );
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
   const effectivePracticeFocus = !obligationUnlocked && practiceFocus === "obligationPast" ? "single" : practiceFocus;
+  const isExamFocus = effectivePracticeFocus === "exam";
+  const isClozeFocus = effectivePracticeFocus === "cloze";
+  const isCuratedFocus = isExamFocus || isClozeFocus;
   const targetForms = useMemo(
     () =>
-      effectivePracticeFocus === "single"
+      isCuratedFocus
+        ? []
+        : effectivePracticeFocus === "single"
         ? [selectedForm]
         : focusOptions.find((option) => option.value === effectivePracticeFocus)?.targetForms ?? [selectedForm],
-    [effectivePracticeFocus, selectedForm]
+    [effectivePracticeFocus, isCuratedFocus, selectedForm]
   );
   const activeFocusForms = targetForms.filter((form) => compatibleForms.includes(form));
   const focusSummary =
-    effectivePracticeFocus === "single"
+    isExamFocus
+      ? t.examFocusSummary
+      : isClozeFocus
+      ? t.clozeFocusSummary
+      : effectivePracticeFocus === "single"
       ? t.targetForms[selectedForm]
       : activeFocusForms.map((form) => t.targetForms[form]).join(" / ") || t.focusSummaryEmpty;
 
   const questions = useMemo(
     () => {
       void sessionSeed;
+      if (isExamFocus) {
+        return shuffleQuestions(buildExamQuestionPool(jlptLevel));
+      }
+
+      if (isClozeFocus) {
+        return shuffleQuestions(
+          buildClozeQuestionPool(clozeSentences, vocabulary, { level: jlptLevel })
+        );
+      }
+
       return shuffleQuestions(
         buildQuestionPool(vocabulary, {
           partOfSpeech,
@@ -335,7 +365,7 @@ export default function App() {
         })
       );
     },
-    [partOfSpeech, targetForms, verbGroup, jlptLevel, sessionSeed]
+    [isExamFocus, isClozeFocus, partOfSpeech, targetForms, verbGroup, jlptLevel, sessionSeed]
   );
   const currentQuestion = selectQuestion(questions, questionIndex);
   const choiceOptions = useMemo(
@@ -379,6 +409,10 @@ export default function App() {
   };
 
   const handlePracticeFocusChange = (nextFocus: PracticeFocus) => {
+    if (nextFocus === "exam" && jlptLevel !== "all" && jlptLevel !== "N1" && jlptLevel !== "N2") {
+      setJlptLevel("all");
+    }
+
     setPracticeFocus(nextFocus);
     resetSession();
   };
@@ -441,6 +475,9 @@ export default function App() {
     setVerbGroup(preset.verbGroup ?? "all");
     setPracticeFocus(preset.practiceFocus);
     setTargetForm(preset.targetForm);
+    if (preset.practiceFocus === "exam" && jlptLevel !== "all" && jlptLevel !== "N1" && jlptLevel !== "N2") {
+      setJlptLevel("all");
+    }
     resetSession();
     setAppView("challenge");
   };
@@ -577,6 +614,7 @@ export default function App() {
                   key={option}
                   type="button"
                   className={jlptLevel === option ? "selected" : ""}
+                  disabled={isExamFocus && option !== "all" && option !== "N1" && option !== "N2"}
                   onClick={() => {
                     setJlptLevel(option);
                     if (option === "N1" || option === "N2") {
@@ -641,20 +679,26 @@ export default function App() {
             <>
               <div className="prompt-header">
                 <span>{t.questionNumber(questionIndex + 1)}</span>
-                <strong>{t.targetForms[currentQuestion.targetForm]}</strong>
+                <strong>{currentQuestion.promptLabel ?? t.targetForms[currentQuestion.targetForm]}</strong>
               </div>
 
               <div className="word-block">
-                <p className="word-kind">
-                  <GraduationCap aria-hidden="true" />
-                  {partOfSpeechLabel(currentQuestion.vocabulary.partOfSpeech, language)}
-                </p>
-                {currentQuestion.targetForm === "reading" ? null : (
-                  <p className="reading">{currentQuestion.vocabulary.reading}</p>
-                )}
-                <p className="surface">{currentQuestion.vocabulary.surface}</p>
-                {currentQuestion.targetForm === "meaning" ? null : (
-                  <p className="meaning">{currentQuestion.vocabulary.meaningZh}</p>
+                {currentQuestion.promptText ? (
+                  <ExamPrompt question={currentQuestion} />
+                ) : (
+                  <>
+                    <p className="word-kind">
+                      <GraduationCap aria-hidden="true" />
+                      {partOfSpeechLabel(currentQuestion.vocabulary.partOfSpeech, language)}
+                    </p>
+                    {currentQuestion.targetForm === "reading" ? null : (
+                      <p className="reading">{currentQuestion.vocabulary.reading}</p>
+                    )}
+                    <p className="surface">{currentQuestion.vocabulary.surface}</p>
+                    {currentQuestion.targetForm === "meaning" ? null : (
+                      <p className="meaning">{currentQuestion.vocabulary.meaningZh}</p>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -699,7 +743,7 @@ export default function App() {
             <ul>
               {mistakeQuestions.map((question) => (
                 <li key={question.id}>
-                  {question.vocabulary.surface} {"->"} {t.targetForms[question.targetForm]}
+                  {question.vocabulary.surface} {"->"} {question.promptLabel ?? t.targetForms[question.targetForm]}
                 </li>
               ))}
             </ul>
@@ -977,6 +1021,22 @@ function choiceOptionClass(choice: string, selectedChoice: string | null, feedba
 
 function partOfSpeechLabel(partOfSpeech: PartOfSpeech, language: Language): string {
   return copy[language].partOfSpeech[partOfSpeech];
+}
+
+function ExamPrompt({ question }: { question: PracticeQuestion }) {
+  return (
+    <>
+      <p className="word-kind">
+        <GraduationCap aria-hidden="true" />
+        {question.instructionZh}
+      </p>
+      <p className="exam-prompt">{question.promptText}</p>
+      <p className="meaning">{question.promptContextZh}</p>
+      <p className="reading">
+        {question.vocabulary.surface}・{question.vocabulary.reading}・{question.vocabulary.meaningZh}
+      </p>
+    </>
+  );
 }
 
 function FeedbackPanel({ feedback, language }: { feedback: NonNullable<Feedback>; language: Language }) {

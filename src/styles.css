@@ -1174,6 +1174,16 @@ select:disabled {
   text-shadow: var(--surface-shadow);
 }
 
+.exam-prompt {
+  color: var(--surface-ink);
+  font-family: var(--font-japanese);
+  font-size: clamp(1.35rem, 2.4vw, 2.05rem);
+  line-height: 1.65;
+  max-width: 42rem;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
 .choice-grid {
   display: grid;
   gap: 0.6rem;
