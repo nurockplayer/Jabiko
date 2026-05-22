@@ -74,6 +74,7 @@ const formOptions: TargetForm[] = [
   "causative",
   "passive",
   "reading",
+  "meaning",
   "plainPresentAffirmative",
   "plainPresentNegative",
   "plainPastAffirmative",
@@ -304,7 +305,7 @@ export default function App() {
       : partOfSpeech === "verb"
         ? VERB_FORMS
         : ADJECTIVE_FORMS;
-  const compatibleForms = uniqueForms([...baseCompatibleForms, "reading"]).filter(
+  const compatibleForms = uniqueForms([...baseCompatibleForms, "reading", "meaning"]).filter(
     (form) => obligationUnlocked || form !== "obligationPast"
   );
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
@@ -652,7 +653,9 @@ export default function App() {
                   <p className="reading">{currentQuestion.vocabulary.reading}</p>
                 )}
                 <p className="surface">{currentQuestion.vocabulary.surface}</p>
-                <p className="meaning">{currentQuestion.vocabulary.meaningZh}</p>
+                {currentQuestion.targetForm === "meaning" ? null : (
+                  <p className="meaning">{currentQuestion.vocabulary.meaningZh}</p>
+                )}
               </div>
 
               <div className="choice-grid" aria-label={t.answerOptions}>

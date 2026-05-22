@@ -103,8 +103,8 @@ export function buildChoiceOptions(
   questions: PracticeQuestion[],
   questionIndex: number
 ): string[] {
-  if (currentQuestion.targetForm === "reading") {
-    return buildReadingChoiceOptions(currentQuestion, questions, questionIndex);
+  if (currentQuestion.targetForm === "reading" || currentQuestion.targetForm === "meaning") {
+    return buildPoolBasedChoiceOptions(currentQuestion, questions, questionIndex);
   }
 
   const correctAnswer = currentQuestion.expectedAnswers[0];
@@ -131,7 +131,7 @@ export function buildChoiceOptions(
   return [...options.slice(offset), ...options.slice(0, offset)];
 }
 
-function buildReadingChoiceOptions(
+function buildPoolBasedChoiceOptions(
   currentQuestion: PracticeQuestion,
   questions: PracticeQuestion[],
   questionIndex: number
@@ -143,7 +143,8 @@ function buildReadingChoiceOptions(
   const distractors = uniqueAnswers(
     questions
       .filter(
-        (question) => question.vocabulary.id !== vocab.id && question.targetForm === "reading"
+        (question) =>
+          question.vocabulary.id !== vocab.id && question.targetForm === currentQuestion.targetForm
       )
       .flatMap((question) => question.expectedAnswers)
       .filter((answer) => !acceptedAnswers.has(answer))
@@ -200,7 +201,7 @@ function uniqueAnswers(answers: string[]): string[] {
 }
 
 function isFormCompatible(item: VocabularyItem, targetForm: TargetForm): boolean {
-  if (targetForm === "reading") {
+  if (targetForm === "reading" || targetForm === "meaning") {
     return true;
   }
 

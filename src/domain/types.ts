@@ -19,6 +19,7 @@ export type TargetForm =
   | "causative"
   | "passive"
   | "reading"
+  | "meaning"
   | "plainPresentAffirmative"
   | "plainPresentNegative"
   | "plainPastAffirmative"
