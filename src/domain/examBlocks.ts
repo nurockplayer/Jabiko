@@ -241,8 +241,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "この結果が何を意味するかは、改めて説明する ___。",
     promptContextZh: "這個結果代表什麼，不用特別再說明。",
     expectedAnswer: "までもない",
-    options: ["までもない", "にたえない", "にすぎない", "かいがない"],
-    explanation: "「V辞書形 + までもない」表示沒有必要特地做某事。"
+    options: ["までもない", "ことはない", "には及ばない", "に当たらない"],
+    explanation: "四個都帶「沒必要做 V」家族語感，但理由不同：「までもない」是「不必特地（因為結果太明顯）」；「ことはない」是「沒必要（沒有理由促使）」；「には及ばない」是「不必到那種程度（謙讓／降低）」；「に当たらない」是「不值得（多用於賞賜、責備）」。本句強調「結果一看就懂」，最直接的是「までもない」。"
   }),
   examQuestion({
     id: "n1-grammar-beku",
@@ -252,11 +252,11 @@ export const examStyleQuestions: PracticeQuestion[] = [
     meaningZh: "為了...",
     promptLabel: "文法形式選擇",
     instructionZh: "句中填空：依文脈選最自然的文法。",
-    promptText: "原因を明らかにす ___、専門チームが設置された。",
-    promptContextZh: "為了查明原因，成立了專門小組。",
+    promptText: "プロジェクトを 成功させる ___ 、毎日 遅くまで 残業して いる。",
+    promptContextZh: "為了讓專案成功，每天加班到很晚。",
     expectedAnswer: "べく",
-    options: ["べく", "ものの", "ところを", "ばかりに"],
-    explanation: "「V辞書形 + べく」是較正式的目的表現。注意「する」接「べく」常寫成「すべく」。"
+    options: ["べく", "とともに", "うえで", "ような"],
+    explanation: "「Vる + べく」=「為了...（書面、正式）」，常用於工作、政策、研究等莊重場合，比「ために」更正式。「とともに」是「隨著／同時」（時間並行，非目的）；「うえで」是「V 之後再...」（時序，非目的）；「ような」是連體修飾「像 N 的」（修飾語，非目的）。"
   }),
   examQuestion({
     id: "n1-grammar-wokikkirini",
@@ -2382,8 +2382,18 @@ export function buildExamQuestionPool(level: JlptLevel | "all" = "all"): Practic
     return examStyleQuestions.filter((question) => question.vocabulary.level === level);
   }
 
-  return examStyleQuestions;
+  // For the default "all" pool, focus on N1/N2 (the user's target) and
+  // keep only a small warm-up subset of N3 items so they don't dilute
+  // the high-level practice. The full N3 set is still reachable via
+  // an explicit buildExamQuestionPool("N3") call.
+  const n1AndN2 = examStyleQuestions.filter((q) => q.vocabulary.level !== "N3");
+  const n3WarmUp = examStyleQuestions
+    .filter((q) => q.vocabulary.level === "N3")
+    .slice(0, MAX_N3_IN_DEFAULT_POOL);
+  return [...n1AndN2, ...n3WarmUp];
 }
+
+const MAX_N3_IN_DEFAULT_POOL = 6;
 
 function examQuestion(input: ExamQuestionInput): PracticeQuestion {
   return {

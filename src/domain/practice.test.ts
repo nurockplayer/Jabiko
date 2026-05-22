@@ -83,8 +83,21 @@ describe("buildExamQuestionPool", () => {
     expect(buildExamQuestionPool("N1").every((question) => question.vocabulary.level === "N1")).toBe(true);
     expect(buildExamQuestionPool("N2").every((question) => question.vocabulary.level === "N2")).toBe(true);
     expect(buildExamQuestionPool("N3").every((question) => question.vocabulary.level === "N3")).toBe(true);
-    // Levels without exam content fall back to the whole pool.
+    // Levels without explicit exam content fall back to the default pool
+    // (which is N1/N2-focused with a capped N3 warm-up slice).
     expect(buildExamQuestionPool("N5").length).toBe(buildExamQuestionPool("all").length);
+  });
+
+  it("caps N3 items in the default pool so they don't dilute N1/N2 focus", () => {
+    const defaultPool = buildExamQuestionPool("all");
+    const allN3 = buildExamQuestionPool("N3");
+    const n3InDefault = defaultPool.filter((q) => q.vocabulary.level === "N3").length;
+    // Default pool keeps a small N3 warm-up but strictly less than the
+    // full N3 set, so N1/N2 dominate the random sequence.
+    expect(n3InDefault).toBeLessThan(allN3.length);
+    expect(n3InDefault).toBeGreaterThan(0);
+    // And N3 should be at most ~10% of the default pool.
+    expect(n3InDefault / defaultPool.length).toBeLessThan(0.1);
   });
 });
 
