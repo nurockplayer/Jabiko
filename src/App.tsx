@@ -305,7 +305,7 @@ export default function App() {
       : partOfSpeech === "verb"
         ? VERB_FORMS
         : ADJECTIVE_FORMS;
-  const compatibleForms = uniqueForms([...baseCompatibleForms, "reading"]).filter(
+  const compatibleForms = uniqueForms([...baseCompatibleForms, "reading", "meaning"]).filter(
     (form) => obligationUnlocked || form !== "obligationPast"
   );
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
