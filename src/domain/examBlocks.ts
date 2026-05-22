@@ -142,7 +142,6 @@ export const examStyleQuestions: PracticeQuestion[] = [
     surface: "しがたい",
     reading: "しがたい",
     meaningZh: "難以...",
-    targetForm: "desiderative",
     promptLabel: "N2 語順組合",
     instructionZh: "語順組合：選語法正確且語意自然的句子。",
     promptText: "［専門家でさえ / 予測しがたい / ほど / 市場の変化が / 速い］",
@@ -392,8 +391,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "雨に降られた。傘を持ってくれば ___ 。",
     promptContextZh: "被雨淋了，要是有帶傘就好了。",
     expectedAnswer: "よかった",
-    options: ["よかった", "ほしかった", "いけなかった", "ならなかった"],
-    explanation: "「Vば + よかった」表示對過去未做的事感到後悔。"
+    options: ["よかった", "ばかりだ", "つもりだ", "はずだ"],
+    explanation: "「Vば + よかった」表示對過去未做的事感到後悔。其他三個都是常見的句末表現，但都需要不同的接續（「ばかりだ」「つもりだ」「はずだ」皆接 V辞書形/た形），不能直接接在 Vば 後面。"
   }),
   examQuestion({
     id: "n3-grammar-tahougaii",
@@ -702,7 +701,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptContextZh: "他作為這個業界數一數二的名醫廣為人知。",
     expectedAnswer: "きっての",
     options: ["きっての", "あっての", "なくしての", "ながらの"],
-    explanation: "「N + きっての」表示「N 中最為...」，正面評價。「あっての」是「有了 N 才...」；「なくしては」是「沒有 N 就不...」。"
+    explanation: "「N + きっての」=「N 當中數一數二的」（正面肯定 N 中最頂尖）。「あっての」是「有了 N 才有的（依存關係）」；「なくしての」是「沒有 N 而成立的」（此處語意不通）；「ながらの」是「自帶 N 屬性的、N 風的」。"
   }),
   examQuestion({
     id: "n1-grammar-nagaranishite",
@@ -793,14 +792,14 @@ export const examStyleQuestions: PracticeQuestion[] = [
     level: "N3",
     surface: "たがる",
     reading: "たがる",
-    meaningZh: "（第三人稱）想要",
+    meaningZh: "（第三人稱）想要做",
     promptLabel: "N3 文法形式選擇",
     instructionZh: "句中填空：描述他人的欲望。",
-    promptText: "子供は誰でも 新しい おもちゃを 欲し ___ ものだ。",
-    promptContextZh: "小孩子總是想要新玩具。",
-    expectedAnswer: "がる",
-    options: ["がる", "たい", "そう", "らしい"],
-    explanation: "「Vます形/形容詞語幹 + がる」用來表示第三人稱（他人）的情感或欲望。「たい」是第一人稱的願望；「そう」是「看起來」；「らしい」是傳聞或典型。"
+    promptText: "妹は 体調が 悪いのに、病院に ___ 。",
+    promptContextZh: "妹妹身體不舒服，卻不想去醫院。",
+    expectedAnswer: "行きたがらない",
+    options: ["行きたがらない", "行きたくない", "行かなさそう", "行かないらしい"],
+    explanation: "「Vます形 + たがる（否定：たがらない）」表示「第三人稱（自己以外的人）想／不想做某事」。「Vたい／たくない」是「自己」的願望（第一人稱）；「Vそう」是「看起來會...」（觀察推測）；「Vらしい」是「聽說會...」（傳聞）。本句主語「妹」是第三人稱，必須用「行きたがらない」。"
   }),
   examQuestion({
     id: "n3-grammar-youtosuru",
