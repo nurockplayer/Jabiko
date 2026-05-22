@@ -6,6 +6,7 @@ import {
   Eye,
   GraduationCap,
   Languages,
+  Lock,
   Moon,
   RotateCcw,
   Sun,
@@ -40,6 +41,17 @@ type DrillPreset = {
   verbGroup?: VerbGroup | "all";
   practiceFocus: PracticeFocus;
   targetForm: TargetForm;
+};
+type UnlockStageId = "adverbial" | "negative" | "teTa" | "obligationPast";
+type UnlockStage = {
+  id: UnlockStageId;
+  kicker: string;
+  title: string;
+  body: string;
+  example: string;
+  actionLabel: string;
+  preset: DrillPreset;
+  requiredForms: TargetForm[];
 };
 
 const THEME_STORAGE_KEY = "jabiko.theme";
@@ -228,71 +240,82 @@ const lessonCards = [
   }
 ];
 
-const quickStartCards: Array<{
-  kicker: string;
-  title: string;
-  body: string;
-  example: string;
-  actionLabel: string;
-  preset: DrillPreset;
-  featured?: boolean;
-}> = [
+const unlockStages: UnlockStage[] = [
   {
-    kicker: "最容易混亂",
+    id: "adverbial",
+    kicker: "第 1 關",
+    title: "先分清楚く / に",
+    body: "い形容詞去い加く；な形容詞和名詞先加に。必要過去的に就是從這裡來。",
+    example: "高く / 静かに / 学生に",
+    actionLabel: "開始第 1 關",
+    preset: {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      practiceFocus: "adverbial",
+      targetForm: "adverbial"
+    },
+    requiredForms: ["adverbial"]
+  },
+  {
+    id: "negative",
+    kicker: "第 2 關",
+    title: "ない形家族",
+    body: "先把ない、ないで、なくて、なかった整理成同一條線。",
+    example: "書かない -> 書かなかった",
+    actionLabel: "練第 2 關",
+    preset: {
+      partOfSpeech: "verb",
+      verbGroup: "all",
+      practiceFocus: "negative",
+      targetForm: "nai"
+    },
+    requiredForms: ["nai", "negativeTe", "negativeContinuative", "plainPastNegative"]
+  },
+  {
+    id: "teTa",
+    kicker: "第 3 關",
+    title: "動詞て形 / た形",
+    body: "熟悉一類動詞音便後，再處理更長的句型比較穩。",
+    example: "読む -> 読んで / 読んだ",
+    actionLabel: "練第 3 關",
+    preset: {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      practiceFocus: "teTa",
+      targetForm: "te"
+    },
+    requiredForms: ["te", "ta"]
+  },
+  {
+    id: "obligationPast",
+    kicker: "最後解鎖",
     title: "必要過去",
-    body: "把「先加に」和「過去放最後」分清楚。",
+    body: "前面三關都答對過後，再練「にならなければならなかった」。",
     example: "学生 + に + ならなければならなかった",
-    actionLabel: "先練必要過去",
+    actionLabel: "練必要過去",
     preset: {
       partOfSpeech: "noun",
       verbGroup: "all",
       practiceFocus: "obligationPast",
       targetForm: "obligationPast"
     },
-    featured: true
-  },
-  {
-    kicker: "動詞核心",
-    title: "て形 / た形音便",
-    body: "先熟悉一類動詞尾音怎麼換。",
-    example: "読む -> 読んで / 読んだ",
-    actionLabel: "先練て/た",
-    preset: {
-      partOfSpeech: "verb",
-      verbGroup: "godan",
-      practiceFocus: "teTa",
-      targetForm: "te"
-    }
-  },
-  {
-    kicker: "否定家族",
-    title: "ない形一路變下去",
-    body: "ないで、なくて、なかった都先回到ない形。",
-    example: "書かない -> 書かなかった",
-    actionLabel: "先練否定",
-    preset: {
-      partOfSpeech: "verb",
-      verbGroup: "all",
-      practiceFocus: "negative",
-      targetForm: "nai"
-    }
-  },
-  {
-    kicker: "く / に",
-    title: "形容詞與名詞修飾",
-    body: "い形容詞去い加く；な形容詞和名詞加に。",
-    example: "高く / 静かに / 学生に",
-    actionLabel: "先練く/に",
-    preset: {
-      partOfSpeech: "mixed",
-      verbGroup: "all",
-      practiceFocus: "adverbial",
-      targetForm: "adverbial"
-    }
+    requiredForms: ["obligationPast"]
   }
 ];
 
 const attemptStore = createAttemptStore();
+
+function isLearningStageComplete(attempts: Attempt[], stage: UnlockStage): boolean {
+  return stage.requiredForms.every((targetForm) =>
+    attempts.some((attempt) => attempt.isCorrect && attempt.targetForm === targetForm)
+  );
+}
+
+function isObligationUnlocked(attempts: Attempt[]): boolean {
+  return unlockStages
+    .filter((stage) => stage.id !== "obligationPast")
+    .every((stage) => isLearningStageComplete(attempts, stage));
+}
 
 export default function App() {
   const [appView, setAppView] = useState<AppView>("learn");
@@ -308,9 +331,11 @@ export default function App() {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
+  const [progressAttempts, setProgressAttempts] = useState<Attempt[]>(() => attemptStore.list());
   const startedAtRef = useRef(Date.now());
   const nextButtonRef = useRef<HTMLButtonElement>(null);
   const t = copy[language];
+  const obligationUnlocked = isObligationUnlocked(progressAttempts);
 
   const baseCompatibleForms =
     partOfSpeech === "mixed"
@@ -318,18 +343,21 @@ export default function App() {
       : partOfSpeech === "verb"
         ? VERB_FORMS
         : ADJECTIVE_FORMS;
-  const compatibleForms = uniqueForms([...baseCompatibleForms, "reading"]);
+  const compatibleForms = uniqueForms([...baseCompatibleForms, "reading"]).filter(
+    (form) => obligationUnlocked || form !== "obligationPast"
+  );
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
+  const effectivePracticeFocus = !obligationUnlocked && practiceFocus === "obligationPast" ? "single" : practiceFocus;
   const targetForms = useMemo(
     () =>
-      practiceFocus === "single"
+      effectivePracticeFocus === "single"
         ? [selectedForm]
-        : focusOptions.find((option) => option.value === practiceFocus)?.targetForms ?? [selectedForm],
-    [practiceFocus, selectedForm]
+        : focusOptions.find((option) => option.value === effectivePracticeFocus)?.targetForms ?? [selectedForm],
+    [effectivePracticeFocus, selectedForm]
   );
   const activeFocusForms = targetForms.filter((form) => compatibleForms.includes(form));
   const focusSummary =
-    practiceFocus === "single"
+    effectivePracticeFocus === "single"
       ? t.targetForms[selectedForm]
       : activeFocusForms.map((form) => t.targetForms[form]).join(" / ") || t.focusSummaryEmpty;
 
@@ -402,6 +430,7 @@ export default function App() {
 
     const attempt = scoreAttempt(currentQuestion, choice, startedAtRef.current);
     setAttempts((current) => [...current, attempt]);
+    setProgressAttempts((current) => [...current, attempt]);
     attemptStore.add(attempt);
     setFeedback({ status: attempt.isCorrect ? "correct" : "incorrect", question: currentQuestion });
   };
@@ -430,6 +459,7 @@ export default function App() {
     const attempt = scoreAttempt(currentQuestion, "", startedAtRef.current);
     const missedAttempt = { ...attempt, isCorrect: false, submittedAnswer: "(revealed)" };
     setAttempts((current) => [...current, missedAttempt]);
+    setProgressAttempts((current) => [...current, missedAttempt]);
     attemptStore.add(missedAttempt);
     setSelectedChoice(null);
     setFeedback({ status: "revealed", question: currentQuestion });
@@ -500,7 +530,12 @@ export default function App() {
       </nav>
 
       {appView === "learn" ? (
-        <LearningPanel language={language} onStartChallenge={() => setAppView("challenge")} onStartDrill={startDrill} />
+        <LearningPanel
+          language={language}
+          progressAttempts={progressAttempts}
+          onStartChallenge={() => setAppView("challenge")}
+          onStartDrill={startDrill}
+        />
       ) : (
         <section className="practice-layout" aria-label="Jabiko practice">
         <aside className="controls-panel" aria-label={t.settingsLabel}>
@@ -534,13 +569,14 @@ export default function App() {
               {focusOptions.map((option) => {
                 const isDisabled =
                   (option.verbOnly && partOfSpeech !== "verb" && partOfSpeech !== "mixed") ||
-                  (option.value === "adverbial" && partOfSpeech === "verb");
+                  (option.value === "adverbial" && partOfSpeech === "verb") ||
+                  (option.value === "obligationPast" && !obligationUnlocked);
 
                 return (
                   <button
                     key={option.value}
                     type="button"
-                    className={practiceFocus === option.value ? "selected" : ""}
+                    className={effectivePracticeFocus === option.value ? "selected" : ""}
                     disabled={isDisabled}
                     onClick={() => handlePracticeFocusChange(option.value)}
                   >
@@ -594,7 +630,7 @@ export default function App() {
             {t.targetForm}
             <select
               value={selectedForm}
-              disabled={practiceFocus !== "single"}
+              disabled={effectivePracticeFocus !== "single"}
               onChange={(event) => {
                 setTargetForm(event.target.value as TargetForm);
                 resetSession();
@@ -710,82 +746,96 @@ export default function App() {
 
 function LearningPanel({
   language,
+  progressAttempts,
   onStartChallenge,
   onStartDrill
 }: {
   language: Language;
+  progressAttempts: Attempt[];
   onStartChallenge: () => void;
   onStartDrill: (preset: DrillPreset) => void;
 }) {
   const t = copy[language];
+  const obligationIsUnlocked = isObligationUnlocked(progressAttempts);
+  const stageCards = unlockStages.map((stage) => {
+    const complete = isLearningStageComplete(progressAttempts, stage);
+    const locked = stage.id === "obligationPast" && !obligationIsUnlocked;
+    return { ...stage, complete, locked };
+  });
+  const currentStage = stageCards.find((stage) => !stage.complete && !stage.locked) ?? stageCards[stageCards.length - 1];
 
   return (
     <section className="learning-panel" aria-label={t.learningRegion}>
       <div className="learning-hero">
         <div className="learning-copy">
-          <p className="eyebrow">{t.studyBeforeRecall}</p>
-          <h2>{t.learnTitle}</h2>
-          <p>{t.learnIntro}</p>
-          <div className="learning-hero-actions">
-            <button className="start-challenge" type="button" onClick={onStartChallenge}>
-              <ArrowRight aria-hidden="true" />
-              {t.startChallenge}
-            </button>
-            <button
-              className="priority-drill-button"
-              type="button"
-              onClick={() =>
-                onStartDrill({
-                  partOfSpeech: "noun",
-                  verbGroup: "all",
-                  practiceFocus: "obligationPast",
-                  targetForm: "obligationPast"
-                })
-              }
-            >
-              <ArrowRight aria-hidden="true" />
-              先解「にならなければ」
-            </button>
+          <p className="eyebrow">現在只看這一關</p>
+          <h2>{currentStage.title}</h2>
+          <p>{currentStage.body}</p>
+          <div className="focus-formula" aria-label={`${currentStage.title}例子`}>
+            <span>{currentStage.example}</span>
           </div>
+          <button
+            className="start-challenge"
+            type="button"
+            onClick={() => onStartDrill(currentStage.preset)}
+          >
+            <ArrowRight aria-hidden="true" />
+            {currentStage.complete ? "複習這一關" : currentStage.actionLabel}
+          </button>
+          <p className="learning-scroll-hint">
+            {obligationIsUnlocked ? "必要過去已解鎖；可以開始練最後一關。" : "完成前置關卡後，才會解鎖必要過去。"}
+          </p>
         </div>
-
-        <aside className="learning-path-card" aria-label={t.roadmapLabel}>
-          <p className="eyebrow">{t.roadmapLabel}</p>
-          <ol className="learning-roadmap">
-            {t.learningSteps.map((step) => (
-              <li key={step.label}>
-                <span>{step.label}</span>
-                <strong>{step.title}</strong>
-                <p>{step.body}</p>
-              </li>
-            ))}
-          </ol>
-        </aside>
       </div>
 
       <section className="quick-start" aria-labelledby="quick-start-title">
         <div className="quick-start-heading">
           <div>
-            <p className="eyebrow">先選一個卡點</p>
-            <h3 id="quick-start-title">今天要先看懂哪一種變化？</h3>
+            <p className="eyebrow">解鎖路線</p>
+            <h3 id="quick-start-title">先把前置走完</h3>
           </div>
-          <p>每張卡都會直接進入對應練習；不需要先讀完整規則表。</p>
+          <p>每一關至少答對指定形式一次；最後才開放必要過去。</p>
         </div>
         <div className="quick-start-grid">
-          {quickStartCards.map((card) => (
-            <article className={`quick-start-card${card.featured ? " featured" : ""}`} key={card.title}>
+          {stageCards.map((card) => (
+            <article
+              className={`quick-start-card${card.id === currentStage.id ? " featured" : ""}${card.complete ? " complete" : ""}${card.locked ? " locked" : ""}`}
+              key={card.title}
+            >
               <span>{card.kicker}</span>
               <h4>{card.title}</h4>
               <p>{card.body}</p>
               <code>{card.example}</code>
-              <button className="quick-start-button" type="button" onClick={() => onStartDrill(card.preset)}>
-                <ArrowRight aria-hidden="true" />
-                {card.actionLabel}
+              <button
+                className="quick-start-button"
+                type="button"
+                disabled={card.locked}
+                onClick={() => onStartDrill(card.preset)}
+              >
+                {card.locked ? <Lock aria-hidden="true" /> : card.complete ? <CheckCircle2 aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}
+                {card.locked ? "完成前置後解鎖" : card.complete ? "已完成，可複習" : card.actionLabel}
               </button>
             </article>
           ))}
         </div>
       </section>
+
+      <aside className="learning-path-card learning-path-section" aria-label={t.roadmapLabel}>
+        <p className="eyebrow">學習順序</p>
+        <ol className="learning-roadmap">
+          {stageCards.map((stage) => (
+            <li key={stage.id}>
+              <span>{stage.complete ? "完成" : stage.locked ? "鎖定" : stage.kicker}</span>
+              <strong>{stage.title}</strong>
+              <p>{stage.locked ? "先完成前三關，再回來解這一關。" : stage.complete ? "已答對過這一關的指定形式。" : stage.body}</p>
+            </li>
+          ))}
+        </ol>
+        <button className="secondary-challenge-button" type="button" onClick={onStartChallenge}>
+          <ArrowRight aria-hidden="true" />
+          {t.startChallenge}
+        </button>
+      </aside>
 
       <div className="detail-divider">
         <div>
@@ -965,6 +1015,7 @@ function LearningPanel({
         <button
           className="inline-drill-button"
           type="button"
+          disabled={!obligationIsUnlocked}
           onClick={() =>
             onStartDrill({
               partOfSpeech: "noun",
@@ -974,8 +1025,8 @@ function LearningPanel({
             })
           }
         >
-          <ArrowRight aria-hidden="true" />
-          {t.drillObligationPast}
+          {obligationIsUnlocked ? <ArrowRight aria-hidden="true" /> : <Lock aria-hidden="true" />}
+          {obligationIsUnlocked ? t.drillObligationPast : "完成前置後解鎖"}
         </button>
       </section>
 

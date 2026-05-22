@@ -3,6 +3,24 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import App from "./App";
 
+function seedProgress(targetForms: string[]) {
+  localStorage.setItem(
+    "jabiko:attempts",
+    JSON.stringify(
+      targetForms.map((targetForm, index) => ({
+        vocabularyId: `seed-${targetForm}`,
+        targetForm,
+        prompt: "seed",
+        expectedAnswers: ["seed"],
+        submittedAnswer: "seed",
+        isCorrect: true,
+        timestamp: index + 1,
+        responseTimeMs: 100
+      }))
+    )
+  );
+}
+
 describe("App", () => {
   afterEach(() => {
     localStorage.clear();
@@ -16,7 +34,9 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: /變化訓練場/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "學習" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "先學會，再挑戰" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "先分清楚く / に" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "開始第 1 關" }).length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: "先把前置走完" })).toBeInTheDocument();
     expect(screen.getByText("ないで / なくて / なかった")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "動詞先分三類" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "て形和た形是同一張表" })).toBeInTheDocument();
@@ -28,16 +48,29 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "練く/に修飾" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "必須的過去看最後一段" })).toBeInTheDocument();
     expect(screen.getByText("学生 -> 学生にならなければならなかった")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "練必要過去" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "完成前置後解鎖" })[0]).toBeDisabled();
     expect(screen.getByRole("button", { name: "開始挑戰" })).toBeInTheDocument();
     expect(screen.queryByText("答題方式")).not.toBeInTheDocument();
   });
 
-  it("starts an obligation past drill from the quick-start card", async () => {
+  it("starts the first prerequisite from the hero", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "先練必要過去" }));
+    await user.click(screen.getAllByRole("button", { name: "開始第 1 關" })[0]);
+
+    expect(screen.getByRole("button", { name: "く/に修飾" })).toHaveClass("selected");
+    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("修飾形・く/に")).toBeInTheDocument();
+  });
+
+  it("unlocks obligation past only after prerequisite forms are correct", async () => {
+    const user = userEvent.setup();
+    seedProgress(["adverbial", "nai", "negativeTe", "negativeContinuative", "plainPastNegative", "te", "ta"]);
+    render(<App />);
+
+    expect(screen.getAllByRole("heading", { name: "必要過去" }).length).toBeGreaterThan(0);
+
+    await user.click(screen.getAllByRole("button", { name: "練必要過去" })[0]);
 
     expect(screen.getByRole("button", { name: "必要過去" })).toHaveClass("selected");
     expect(screen.getByText("学生")).toBeInTheDocument();
@@ -82,9 +115,10 @@ describe("App", () => {
 
   it("starts an obligation past drill from the learning guide", async () => {
     const user = userEvent.setup();
+    seedProgress(["adverbial", "nai", "negativeTe", "negativeContinuative", "plainPastNegative", "te", "ta"]);
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "練必要過去" }));
+    await user.click(screen.getAllByRole("button", { name: "練必要過去" })[0]);
 
     expect(screen.getByRole("button", { name: "必要過去" })).toHaveClass("selected");
     expect(screen.getByText("学生")).toBeInTheDocument();
@@ -215,7 +249,7 @@ describe("App", () => {
 
     expect(screen.getByRole("button", { name: "Learn" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Challenge" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Learn first, then challenge yourself" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "先分清楚く / に" }).length).toBeGreaterThan(0);
     expect(localStorage.getItem("jabiko.language")).toBe("en");
   });
 
@@ -227,7 +261,7 @@ describe("App", () => {
 
     expect(screen.getByRole("button", { name: "학습" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "도전" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "먼저 배우고, 그다음 도전하세요" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "先分清楚く / に" }).length).toBeGreaterThan(0);
     expect(localStorage.getItem("jabiko.language")).toBe("ko");
   });
 
