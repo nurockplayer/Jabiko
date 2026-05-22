@@ -309,6 +309,135 @@ button svg {
   padding: 1.25rem;
 }
 
+.chapter-shell {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1.55fr);
+  min-height: 640px;
+}
+
+.chapter-index,
+.chapter-content {
+  min-width: 0;
+}
+
+.chapter-index {
+  border-right: 1px solid var(--rule);
+  display: grid;
+  gap: 1rem;
+  grid-template-rows: auto 1fr auto;
+  padding-right: 1rem;
+}
+
+.chapter-index-copy {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.chapter-index-copy h2,
+.chapter-index-copy p,
+.chapter-content-head h3,
+.chapter-content-head p {
+  margin: 0;
+}
+
+.chapter-index-copy h2 {
+  color: var(--ink);
+  font-family: var(--font-title);
+  font-size: 1.55rem;
+  line-height: 1.2;
+}
+
+.chapter-index-copy p:last-child,
+.chapter-content-head p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.chapter-list {
+  align-content: start;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.chapter-list-button {
+  background: color-mix(in srgb, var(--field-bg) 92%, transparent);
+  border-color: var(--panel-border);
+  color: var(--button-text);
+  display: grid;
+  gap: 0.28rem;
+  justify-items: start;
+  min-height: 0;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.chapter-list-button.selected {
+  background:
+    linear-gradient(135deg, rgba(249, 115, 22, 0.18), transparent 78%),
+    var(--field-bg);
+  border-color: var(--vermilion);
+}
+
+.chapter-list-button.complete {
+  border-color: color-mix(in srgb, var(--green) 58%, var(--panel-border));
+}
+
+.chapter-list-button span {
+  color: var(--teal);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.chapter-list-button strong {
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.28;
+}
+
+.chapter-list-button small {
+  color: var(--muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.chapter-content {
+  display: grid;
+  gap: 1rem;
+}
+
+.chapter-content-head {
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  gap: 0.8rem;
+  padding-bottom: 1rem;
+}
+
+.chapter-content-head h3 {
+  color: var(--ink);
+  font-family: var(--font-japanese-display);
+  font-size: clamp(2.1rem, 5vw, 4.2rem);
+  line-height: 1.05;
+}
+
+.chapter-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.chapter-actions span {
+  color: var(--label-text);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.chapter-lesson {
+  display: grid;
+  gap: 0.85rem;
+}
+
 .learning-hero {
   align-items: center;
   border-bottom: 1px solid var(--rule);
@@ -1220,6 +1349,22 @@ select:disabled {
     grid-template-columns: 1fr;
   }
 
+  .chapter-shell {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .chapter-index {
+    border-bottom: 1px solid var(--rule);
+    border-right: 0;
+    grid-template-rows: auto;
+    padding: 0 0 1rem;
+  }
+
+  .chapter-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .learning-hero {
     min-height: clamp(500px, calc(100vh - 8rem), 640px);
   }
@@ -1310,6 +1455,22 @@ select:disabled {
   .learning-panel,
   .review-panel {
     padding: 1rem;
+  }
+
+  .chapter-list {
+    grid-template-columns: 1fr;
+  }
+
+  .chapter-content-head h3 {
+    font-size: 2rem;
+  }
+
+  .chapter-actions {
+    display: grid;
+  }
+
+  .chapter-actions .start-challenge {
+    justify-self: stretch;
   }
 
   .learning-copy {

@@ -105,24 +105,6 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
   }
 ];
 
-const learningSteps = [
-  {
-    label: "先分類",
-    title: "不要一開始就背表",
-    body: "先問：這是動詞、い形容詞、な形容詞，還是名詞？如果是動詞，再判斷一類、二類、三類。"
-  },
-  {
-    label: "選家族",
-    title: "同一組變化放一起",
-    body: "て形 / た形是一組；ない、ないで、なくて、なかった是一組。先把家族關係看懂，比硬背單字快。"
-  },
-  {
-    label: "看錯題",
-    title: "錯了就讀規則",
-    body: "挑戰時答錯會顯示正解與規則。先確認「為什麼這樣變」，再進下一題。"
-  }
-];
-
 const verbGroupGuide = [
   {
     group: "一類動詞",
@@ -216,27 +198,6 @@ const obligationPastRows = [
     title: "名詞",
     formula: "学生 -> 学生にならなければならなかった",
     body: "你卡住的型就在這裡：名詞 + に + ならなければならなかった。"
-  }
-];
-
-const lessonCards = [
-  {
-    title: "一類動詞先看最後一個假名",
-    focus: "て形 / た形音便",
-    rule: "く -> いて、ぐ -> いで、す -> して；う・つ・る -> って；む・ぶ・ぬ -> んで。",
-    examples: ["書く -> 書いて", "読む -> 読んで", "行く -> 行って"]
-  },
-  {
-    title: "ない形不是把て形變否定",
-    focus: "ないで / なくて / なかった",
-    rule: "先做ない形，再分別接：ないで、なくて、なかった。這三個不是從て形或た形變來。",
-    examples: ["書かないで", "書かなくて", "書かなかった"]
-  },
-  {
-    title: "い形容詞去い，な形容詞像名詞",
-    focus: "形容詞與名詞型",
-    rule: "修飾動詞時：い形容詞去い加く；な形容詞與名詞加に。句尾過去才用だった。",
-    examples: ["高く", "静かに", "学生に"]
   }
 ];
 
@@ -762,287 +723,209 @@ function LearningPanel({
     const locked = stage.id === "obligationPast" && !obligationIsUnlocked;
     return { ...stage, complete, locked };
   });
-  const currentStage = stageCards.find((stage) => !stage.complete && !stage.locked) ?? stageCards[stageCards.length - 1];
+  const recommendedStage = stageCards.find((stage) => !stage.complete && !stage.locked) ?? stageCards[stageCards.length - 1];
+  const [selectedChapterId, setSelectedChapterId] = useState<UnlockStageId | null>(null);
+  const selectedStage = stageCards.find((stage) => stage.id === selectedChapterId);
+  const activeStage = selectedStage && !selectedStage.locked ? selectedStage : recommendedStage;
+
+  const renderChapterLesson = () => {
+    switch (activeStage.id) {
+      case "adverbial":
+        return (
+          <div className="chapter-lesson">
+            <div className="rule-matrix three-column">
+              {adjectiveRows.map((row) => (
+                <article className="rule-card" key={row.type}>
+                  <h4>{row.type}</h4>
+                  <p>{row.cue}</p>
+                  <div className="formula-row" aria-label={`${row.type}例子`}>
+                    {row.examples.map((example) => (
+                      <code key={example}>{example}</code>
+                    ))}
+                  </div>
+                  <small>{row.note}</small>
+                </article>
+              ))}
+            </div>
+            <div className="inline-action-row">
+              <button
+                className="inline-drill-button"
+                type="button"
+                onClick={() =>
+                  onStartDrill({
+                    partOfSpeech: "i_adjective",
+                    verbGroup: "all",
+                    practiceFocus: "plain",
+                    targetForm: "plainPresentNegative"
+                  })
+                }
+              >
+                <ArrowRight aria-hidden="true" />
+                {t.drillIAdjective}
+              </button>
+              <button
+                className="inline-drill-button"
+                type="button"
+                onClick={() =>
+                  onStartDrill({
+                    partOfSpeech: "na_adjective",
+                    verbGroup: "all",
+                    practiceFocus: "plain",
+                    targetForm: "plainPresentNegative"
+                  })
+                }
+              >
+                <ArrowRight aria-hidden="true" />
+                {t.drillNaAdjective}
+              </button>
+              <button
+                className="inline-drill-button"
+                type="button"
+                onClick={() => onStartDrill(activeStage.preset)}
+              >
+                <ArrowRight aria-hidden="true" />
+                {t.drillAdverbial}
+              </button>
+            </div>
+          </div>
+        );
+
+      case "negative":
+        return (
+          <div className="chapter-lesson">
+            <div className="pipeline-grid">
+              {negativePipelines.map((item) => (
+                <article className="pipeline-card" key={item.title}>
+                  <span>{item.title}</span>
+                  <code>{item.formula}</code>
+                  <p>{item.body}</p>
+                </article>
+              ))}
+            </div>
+            <button className="inline-drill-button" type="button" onClick={() => onStartDrill(activeStage.preset)}>
+              <ArrowRight aria-hidden="true" />
+              {t.drillNegative}
+            </button>
+          </div>
+        );
+
+      case "teTa":
+        return (
+          <div className="chapter-lesson">
+            <div className="rule-matrix three-column">
+              {verbGroupGuide.map((item) => (
+                <article className="rule-card" key={item.group}>
+                  <h4>{item.group}</h4>
+                  <p>{item.rule}</p>
+                  <div className="formula-row" aria-label={`${item.group}例子`}>
+                    {item.examples.map((example) => (
+                      <code key={example}>{example}</code>
+                    ))}
+                  </div>
+                  <small>{item.note}</small>
+                </article>
+              ))}
+            </div>
+            <div className="sound-table" role="table" aria-label={t.teTaTableLabel}>
+              <div className="sound-row sound-head" role="row">
+                <span role="columnheader">{t.tableEnding}</span>
+                <span role="columnheader">{t.tableTe}</span>
+                <span role="columnheader">{t.tableTa}</span>
+                <span role="columnheader">{t.tableExample}</span>
+              </div>
+              {teTaRows.map((row) => (
+                <div className="sound-row" role="row" key={row.ending}>
+                  <span role="cell">{row.ending}</span>
+                  <code role="cell">{row.te}</code>
+                  <code role="cell">{row.ta}</code>
+                  <code role="cell">{row.example}</code>
+                </div>
+              ))}
+            </div>
+            <button className="inline-drill-button" type="button" onClick={() => onStartDrill(activeStage.preset)}>
+              <ArrowRight aria-hidden="true" />
+              {t.drillGodanTeTa}
+            </button>
+          </div>
+        );
+
+      case "obligationPast":
+        return (
+          <div className="chapter-lesson">
+            <div className="pipeline-grid">
+              {obligationPastRows.map((item) => (
+                <article className="pipeline-card" key={item.title}>
+                  <span>{item.title}</span>
+                  <code>{item.formula}</code>
+                  <p>{item.body}</p>
+                </article>
+              ))}
+            </div>
+            <button
+              className="inline-drill-button"
+              type="button"
+              disabled={!obligationIsUnlocked}
+              onClick={() => onStartDrill(activeStage.preset)}
+            >
+              {obligationIsUnlocked ? <ArrowRight aria-hidden="true" /> : <Lock aria-hidden="true" />}
+              {obligationIsUnlocked ? t.drillObligationPast : "完成前置後解鎖"}
+            </button>
+          </div>
+        );
+    }
+  };
 
   return (
     <section className="learning-panel" aria-label={t.learningRegion}>
-      <div className="learning-hero">
-        <div className="learning-copy">
-          <p className="eyebrow">現在只看這一關</p>
-          <h2>{currentStage.title}</h2>
-          <p>{currentStage.body}</p>
-          <div className="focus-formula" aria-label={`${currentStage.title}例子`}>
-            <span>{currentStage.example}</span>
+      <div className="chapter-shell">
+        <aside className="chapter-index" aria-label="學習章節">
+          <div className="chapter-index-copy">
+            <p className="eyebrow">課程章節</p>
+            <h2>一章一章解鎖</h2>
+            <p>首頁只放章節目錄。選一章後，右邊才顯示該章規則、例子與練習。</p>
           </div>
-          <button
-            className="start-challenge"
-            type="button"
-            onClick={() => onStartDrill(currentStage.preset)}
-          >
-            <ArrowRight aria-hidden="true" />
-            {currentStage.complete ? "複習這一關" : currentStage.actionLabel}
-          </button>
-          <p className="learning-scroll-hint">
-            {obligationIsUnlocked ? "必要過去已解鎖；可以開始練最後一關。" : "完成前置關卡後，才會解鎖必要過去。"}
-          </p>
-        </div>
-      </div>
 
-      <section className="quick-start" aria-labelledby="quick-start-title">
-        <div className="quick-start-heading">
-          <div>
-            <p className="eyebrow">解鎖路線</p>
-            <h3 id="quick-start-title">先把前置走完</h3>
-          </div>
-          <p>每一關至少答對指定形式一次；最後才開放必要過去。</p>
-        </div>
-        <div className="quick-start-grid">
-          {stageCards.map((card) => (
-            <article
-              className={`quick-start-card${card.id === currentStage.id ? " featured" : ""}${card.complete ? " complete" : ""}${card.locked ? " locked" : ""}`}
-              key={card.title}
-            >
-              <span>{card.kicker}</span>
-              <h4>{card.title}</h4>
-              <p>{card.body}</p>
-              <code>{card.example}</code>
+          <div className="chapter-list">
+            {stageCards.map((stage) => (
               <button
-                className="quick-start-button"
+                className={`chapter-list-button${stage.id === activeStage.id ? " selected" : ""}${stage.complete ? " complete" : ""}`}
                 type="button"
-                disabled={card.locked}
-                onClick={() => onStartDrill(card.preset)}
+                key={stage.id}
+                disabled={stage.locked}
+                aria-label={stage.locked ? `${stage.title}：完成前置後解鎖` : `查看：${stage.title}`}
+                onClick={() => setSelectedChapterId(stage.id)}
               >
-                {card.locked ? <Lock aria-hidden="true" /> : card.complete ? <CheckCircle2 aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}
-                {card.locked ? "完成前置後解鎖" : card.complete ? "已完成，可複習" : card.actionLabel}
+                <span>{stage.complete ? "完成" : stage.locked ? "鎖定" : stage.kicker}</span>
+                <strong>{stage.title}</strong>
+                <small>{stage.locked ? "完成前置後解鎖" : stage.example}</small>
               </button>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <aside className="learning-path-card learning-path-section" aria-label={t.roadmapLabel}>
-        <p className="eyebrow">學習順序</p>
-        <ol className="learning-roadmap">
-          {stageCards.map((stage) => (
-            <li key={stage.id}>
-              <span>{stage.complete ? "完成" : stage.locked ? "鎖定" : stage.kicker}</span>
-              <strong>{stage.title}</strong>
-              <p>{stage.locked ? "先完成前三關，再回來解這一關。" : stage.complete ? "已答對過這一關的指定形式。" : stage.body}</p>
-            </li>
-          ))}
-        </ol>
-        <button className="secondary-challenge-button" type="button" onClick={onStartChallenge}>
-          <ArrowRight aria-hidden="true" />
-          {t.startChallenge}
-        </button>
-      </aside>
-
-      <div className="detail-divider">
-        <div>
-          <p className="eyebrow">規則筆記</p>
-          <h3>需要確認原因時，再往下查表</h3>
-        </div>
-        <p>下面保留完整規則、例子和專項練習入口，答錯時也可以回來對照。</p>
-      </div>
-
-      <section className="learning-section" aria-labelledby="verb-group-title">
-        <div className="learning-section-copy">
-          <p className="eyebrow">{t.step} 1</p>
-          <h3 id="verb-group-title">{t.verbGroupTitle}</h3>
-          <p>{t.verbGroupIntro}</p>
-        </div>
-        <div className="rule-matrix three-column">
-          {verbGroupGuide.map((item) => (
-            <article className="rule-card" key={item.group}>
-              <h4>{item.group}</h4>
-              <p>{item.rule}</p>
-              <div className="formula-row" aria-label={`${item.group}例子`}>
-                {item.examples.map((example) => (
-                  <code key={example}>{example}</code>
-                ))}
-              </div>
-              <small>{item.note}</small>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="learning-section" aria-labelledby="te-ta-title">
-        <div className="learning-section-copy">
-          <p className="eyebrow">{t.step} 2</p>
-          <h3 id="te-ta-title">{t.teTaTitle}</h3>
-          <p>{t.teTaIntro}</p>
-        </div>
-        <div className="sound-table" role="table" aria-label={t.teTaTableLabel}>
-          <div className="sound-row sound-head" role="row">
-            <span role="columnheader">{t.tableEnding}</span>
-            <span role="columnheader">{t.tableTe}</span>
-            <span role="columnheader">{t.tableTa}</span>
-            <span role="columnheader">{t.tableExample}</span>
+            ))}
           </div>
-          {teTaRows.map((row) => (
-            <div className="sound-row" role="row" key={row.ending}>
-              <span role="cell">{row.ending}</span>
-              <code role="cell">{row.te}</code>
-              <code role="cell">{row.ta}</code>
-              <code role="cell">{row.example}</code>
+
+          <button className="secondary-challenge-button" type="button" onClick={onStartChallenge}>
+            <ArrowRight aria-hidden="true" />
+            {t.startChallenge}
+          </button>
+        </aside>
+
+        <section className="chapter-content" aria-labelledby="active-chapter-title">
+          <div className="chapter-content-head">
+            <p className="eyebrow">{activeStage.kicker}</p>
+            <h3 id="active-chapter-title">{activeStage.title}</h3>
+            <p>{activeStage.body}</p>
+            <div className="focus-formula" aria-label={`${activeStage.title}例子`}>
+              <span>{activeStage.example}</span>
             </div>
-          ))}
-        </div>
-        <button
-          className="inline-drill-button"
-          type="button"
-          onClick={() =>
-            onStartDrill({ partOfSpeech: "verb", verbGroup: "godan", practiceFocus: "teTa", targetForm: "te" })
-          }
-        >
-          <ArrowRight aria-hidden="true" />
-          {t.drillGodanTeTa}
-        </button>
-      </section>
-
-      <section className="learning-section" aria-labelledby="negative-title">
-        <div className="learning-section-copy">
-          <p className="eyebrow">{t.step} 3</p>
-          <h3 id="negative-title">{t.negativeTitle}</h3>
-          <p>{t.negativeIntro}</p>
-        </div>
-        <div className="pipeline-grid">
-          {negativePipelines.map((item) => (
-            <article className="pipeline-card" key={item.title}>
-              <span>{item.title}</span>
-              <code>{item.formula}</code>
-              <p>{item.body}</p>
-            </article>
-          ))}
-        </div>
-        <button
-          className="inline-drill-button"
-          type="button"
-          onClick={() =>
-            onStartDrill({ partOfSpeech: "verb", verbGroup: "all", practiceFocus: "negative", targetForm: "nai" })
-          }
-        >
-          <ArrowRight aria-hidden="true" />
-          {t.drillNegative}
-        </button>
-      </section>
-
-      <section className="learning-section" aria-labelledby="adjective-title">
-        <div className="learning-section-copy">
-          <p className="eyebrow">{t.step} 4</p>
-          <h3 id="adjective-title">{t.adjectiveTitle}</h3>
-          <p>{t.adjectiveIntro}</p>
-        </div>
-        <div className="rule-matrix three-column">
-          {adjectiveRows.map((row) => (
-            <article className="rule-card" key={row.type}>
-              <h4>{row.type}</h4>
-              <p>{row.cue}</p>
-              <div className="formula-row" aria-label={`${row.type}例子`}>
-                {row.examples.map((example) => (
-                  <code key={example}>{example}</code>
-                ))}
-              </div>
-              <small>{row.note}</small>
-            </article>
-          ))}
-        </div>
-        <div className="inline-action-row">
-          <button
-            className="inline-drill-button"
-            type="button"
-            onClick={() =>
-              onStartDrill({
-                partOfSpeech: "i_adjective",
-                verbGroup: "all",
-                practiceFocus: "plain",
-                targetForm: "plainPresentNegative"
-              })
-            }
-          >
-            <ArrowRight aria-hidden="true" />
-            {t.drillIAdjective}
-          </button>
-          <button
-            className="inline-drill-button"
-            type="button"
-            onClick={() =>
-              onStartDrill({
-                partOfSpeech: "na_adjective",
-                verbGroup: "all",
-                practiceFocus: "plain",
-                targetForm: "plainPresentNegative"
-              })
-            }
-          >
-            <ArrowRight aria-hidden="true" />
-            {t.drillNaAdjective}
-          </button>
-          <button
-            className="inline-drill-button"
-            type="button"
-            onClick={() =>
-              onStartDrill({
-                partOfSpeech: "mixed",
-                verbGroup: "all",
-                practiceFocus: "adverbial",
-                targetForm: "adverbial"
-              })
-            }
-          >
-            <ArrowRight aria-hidden="true" />
-            {t.drillAdverbial}
-          </button>
-        </div>
-      </section>
-
-      <section className="learning-section" aria-labelledby="obligation-title">
-        <div className="learning-section-copy">
-          <p className="eyebrow">{t.step} 5</p>
-          <h3 id="obligation-title">{t.obligationPastTitle}</h3>
-          <p>{t.obligationPastIntro}</p>
-        </div>
-        <div className="pipeline-grid">
-          {obligationPastRows.map((item) => (
-            <article className="pipeline-card" key={item.title}>
-              <span>{item.title}</span>
-              <code>{item.formula}</code>
-              <p>{item.body}</p>
-            </article>
-          ))}
-        </div>
-        <button
-          className="inline-drill-button"
-          type="button"
-          disabled={!obligationIsUnlocked}
-          onClick={() =>
-            onStartDrill({
-              partOfSpeech: "noun",
-              verbGroup: "all",
-              practiceFocus: "obligationPast",
-              targetForm: "obligationPast"
-            })
-          }
-        >
-          {obligationIsUnlocked ? <ArrowRight aria-hidden="true" /> : <Lock aria-hidden="true" />}
-          {obligationIsUnlocked ? t.drillObligationPast : "完成前置後解鎖"}
-        </button>
-      </section>
-
-      <div className="lesson-grid" aria-label="速記卡">
-        {lessonCards.map((card, index) => (
-          <article className="lesson-card" key={card.title}>
-            <span>{t.lessonCardFocus[index] ?? card.focus}</span>
-            <h3>{card.title}</h3>
-            <p>{card.rule}</p>
-            <div className="formula-row" aria-label={`${card.title}例子`}>
-              {card.examples.map((example) => (
-                <code key={example}>{example}</code>
-              ))}
+            <div className="chapter-actions">
+              <button className="start-challenge" type="button" onClick={() => onStartDrill(activeStage.preset)}>
+                <ArrowRight aria-hidden="true" />
+                {activeStage.complete ? "複習這一章" : activeStage.actionLabel}
+              </button>
+              <span>{obligationIsUnlocked ? "必要過去已解鎖" : "必要過去會在前置完成後解鎖"}</span>
             </div>
-          </article>
-        ))}
+          </div>
+          {renderChapterLesson()}
+        </section>
       </div>
     </section>
   );

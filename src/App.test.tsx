@@ -34,23 +34,32 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: /變化訓練場/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "學習" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "一章一章解鎖" })).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { name: "先分清楚く / に" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("button", { name: "開始第 1 關" }).length).toBeGreaterThan(0);
-    expect(screen.getByRole("heading", { name: "先把前置走完" })).toBeInTheDocument();
-    expect(screen.getByText("ないで / なくて / なかった")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "動詞先分三類" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "て形和た形是同一張表" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "否定變化都先回到ない形" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "形容詞和名詞不要混在一起背" })).toBeInTheDocument();
     expect(screen.getByText("高い -> 高く")).toBeInTheDocument();
     expect(screen.getByText("静か -> 静かに")).toBeInTheDocument();
     expect(screen.getByText("学生 -> 学生に")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "練く/に修飾" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "必須的過去看最後一段" })).toBeInTheDocument();
-    expect(screen.getByText("学生 -> 学生にならなければならなかった")).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: "完成前置後解鎖" })[0]).toBeDisabled();
+    expect(screen.getByRole("button", { name: "查看：ない形家族" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "查看：動詞て形 / た形" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "必要過去：完成前置後解鎖" })).toBeDisabled();
+    expect(screen.queryByText("学生 -> 学生にならなければならなかった")).not.toBeInTheDocument();
+    expect(screen.queryByText("否定て形・ないで")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "開始挑戰" })).toBeInTheDocument();
     expect(screen.queryByText("答題方式")).not.toBeInTheDocument();
+  });
+
+  it("shows a single chapter detail after selecting a chapter", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "查看：ない形家族" }));
+
+    expect(screen.getByRole("heading", { name: "ない形家族" })).toBeInTheDocument();
+    expect(screen.getAllByText("書かない -> 書かなかった").length).toBeGreaterThan(1);
+    expect(screen.getByRole("button", { name: "練否定整理" })).toBeInTheDocument();
+    expect(screen.queryByText("学生 -> 学生にならなければならなかった")).not.toBeInTheDocument();
   });
 
   it("starts the first prerequisite from the hero", async () => {
@@ -82,6 +91,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole("button", { name: "查看：ない形家族" }));
     await user.click(screen.getByRole("button", { name: "練否定整理" }));
 
     expect(screen.getByText("練習重點")).toBeInTheDocument();
