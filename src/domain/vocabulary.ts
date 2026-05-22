@@ -152,7 +152,8 @@ function extraVerb(group: VerbGroup, surface: string, reading: string, meaningZh
     group,
     lesson: null,
     tags: [],
-    examples: []
+    examples: [],
+    level: "N5"
   };
 }
 
@@ -220,6 +221,7 @@ function item(
     group,
     lesson: null,
     tags: [],
-    examples: [{ japanese, meaningZh: exampleZh }]
+    examples: [{ japanese, meaningZh: exampleZh }],
+    level: "N5"
   };
 }

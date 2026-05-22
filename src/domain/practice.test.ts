@@ -51,6 +51,19 @@ describe("buildQuestionPool", () => {
     expect(questions.some((question) => question.targetForm === "plainPresentAffirmative")).toBe(false);
   });
 
+  it("returns a populated pool for the N5 filter (existing Minna no Nihongo vocabulary)", () => {
+    const n5Questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["te"],
+      level: "N5"
+    });
+
+    expect(n5Questions.length).toBeGreaterThan(0);
+    expect(n5Questions.every((question) => question.vocabulary.level === "N5")).toBe(true);
+    expect(n5Questions.some((question) => question.vocabulary.surface === "書く")).toBe(true);
+  });
+
   it("filters by JLPT level when one is selected", () => {
     const n2Questions = buildQuestionPool(vocabulary, {
       partOfSpeech: "mixed",
