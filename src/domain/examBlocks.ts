@@ -1193,8 +1193,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "その 計画は 「やむを得ず」 中止された。",
     promptContextZh: "那個計畫不得已被迫中止。",
     expectedAnswer: "仕方なく",
-    options: ["仕方なく", "自発的に", "喜んで", "大々的に"],
-    explanation: "「やむを得ず」= 在無法選擇的情況下被迫做某事 ≒「仕方なく」。「自発的に」是主動；「喜んで」是樂意；「大々的に」是大規模。"
+    options: ["仕方なく", "思わず", "何とか", "急いで"],
+    explanation: "「やむを得ず」= 無法選擇而被迫 ≒「仕方なく」。「思わず」是「不自覺、反射性」（沒經思考）；「何とか」是「設法、勉強撐過」（強調過程努力）；「急いで」是「匆忙地」（強調速度）。皆與「被迫的不情願」差一點。"
   }),
   examQuestion({
     id: "n1-syn-kotogotoku",
@@ -1221,8 +1221,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "試験の 結果は 「おおむね」 予想通りだった。",
     promptContextZh: "考試結果大致上跟預想的一樣。",
     expectedAnswer: "だいたい",
-    options: ["だいたい", "ちょうど", "全然", "かなり"],
-    explanation: "「おおむね」= 大致上、整體看來 ≒「だいたい」。「ちょうど」是「剛好」（精確）；「全然」是「完全（不）」；「かなり」是「相當（程度副詞）」。"
+    options: ["だいたい", "ちょうど", "結局", "かなり"],
+    explanation: "「おおむね」= 大致上、整體看來 ≒「だいたい」。「ちょうど」是「剛好（精確一致）」；「結局」是「結果是、終究」（強調最後）；「かなり」是「相當（程度大）」。皆與「整體上接近」之意有別。"
   }),
   examQuestion({
     id: "n1-syn-tegakete",
@@ -1235,8 +1235,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "彼は 新しい プロジェクトを 「手がけて」 いる。",
     promptContextZh: "他親自負責新的專案。",
     expectedAnswer: "担当して",
-    options: ["担当して", "中止して", "拒否して", "観察して"],
-    explanation: "「手がける」= 親自著手、負責處理 ≒「担当する」。「中止する」是中止；「拒否する」是拒絕；「観察する」是觀察（旁觀，未動手）。"
+    options: ["担当して", "検討して", "計画して", "観察して"],
+    explanation: "「手がける」= 親自著手、實際操刀 ≒「担当する」。「検討する」是「研議、討論」（決策前階段）；「計画する」是「規劃」（執行前階段）；「観察する」是「觀察」（旁觀，未動手）。皆未到「親手執行」的程度。"
   }),
   examQuestion({
     id: "n1-syn-tegowai",
@@ -1249,8 +1249,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "今回の 対戦相手は かなり 「手強い」 と評判だ。",
     promptContextZh: "據說這次的對手相當難對付。",
     expectedAnswer: "強くて 倒しにくい",
-    options: ["強くて 倒しにくい", "弱くて 簡単に 勝てる", "礼儀正しい", "親しみやすい"],
-    explanation: "「手強い」= 強到難以對付 ≒「強くて倒しにくい」。其餘選項分別是「弱、容易擊敗」「有禮貌」「親切易親近」，皆與「強敵」之意不符。"
+    options: ["強くて 倒しにくい", "経験豊富で 戦い 慣れて いる", "礼儀正しく 親しみやすい"],
+    explanation: "「手強い」= 對手實力強、難以擊敗 ≒「強くて倒しにくい」。「経験豊富で戦い慣れている」是「經驗多、上場熟練」（雖然手強的對手常常如此，但定義是強度而非經驗）；「礼儀正しく親しみやすい」是「禮貌親切」（屬於個性層面，與對戰實力無關）。"
   }),
 
   // -- N1 用法 (word usage) ----------------------------------------------------
@@ -1365,8 +1365,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "機械の 点検を ___ ば、大きな 事故に つながりかねない。",
     promptContextZh: "如果疏於機械檢查，可能釀成大事故。",
     expectedAnswer: "怠れ",
-    options: ["怠れ", "励め", "慎め", "改めれ"],
-    explanation: "「怠る」= 該做的事不去做、懈怠。「励む」是勤奮努力；「慎む」是節制、謹慎；「改める」是改正。語意上只有「怠れば → 引發事故」自然。"
+    options: ["怠れ", "軽んじれ", "急げ"],
+    explanation: "「怠る」= 應做的事敷衍不認真做（最直接導致疏失）。「軽んじる」是「輕視」（態度上不重視，但動作仍可能在做）；「急ぐ」是「匆忙趕進度」（同樣可能釀事故，但問題在於速度而非態度）。"
   }),
   examQuestion({
     id: "n1-vocab-shinogu",
@@ -1423,8 +1423,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "彼は 「おそらく」 もう 来ない だろう。",
     promptContextZh: "他大概不會再來了吧。",
     expectedAnswer: "たぶん",
-    options: ["たぶん", "きっと", "必ず", "決して"],
-    explanation: "「おそらく」≒「たぶん」（兩者皆表示推測，無強烈把握）。「きっと」是「一定（高把握）」；「必ず」是「必定（確定）」；「決して」是「絕對不（否定強調）」。"
+    options: ["たぶん", "きっと", "どうやら", "もしかして"],
+    explanation: "「おそらく」≒「たぶん」（推測，把握中等）。「きっと」是「一定（信心高）」；「どうやら」是「看起來、似乎」（觀察推斷）；「もしかして」是「莫非、是不是」（懷疑語氣，信心低）。差別在於把握程度與語感。"
   }),
   examQuestion({
     id: "n2-syn-shocchu",
@@ -1437,8 +1437,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "彼女は 「しょっちゅう」 遅刻する。",
     promptContextZh: "她常常遲到。",
     expectedAnswer: "頻繁に",
-    options: ["頻繁に", "たまに", "一度だけ", "全く"],
-    explanation: "「しょっちゅう」≒「頻繁に」（很頻繁地）。「たまに」是「偶爾」；「一度だけ」是「只有一次」；「全く」是「完全（不）」。"
+    options: ["頻繁に", "たまに", "ときどき", "いつも"],
+    explanation: "「しょっちゅう」≒「頻繁に」（高頻率、屢屢）。「たまに」是「偶爾」（頻率低）；「ときどき」是「有時候」（頻率中等）；「いつも」是「總是、每次」（頻率最高，必發生）。要從頻率刻度上挑「高頻但非總是」的詞。"
   }),
   examQuestion({
     id: "n2-syn-sokkuri",
@@ -1451,8 +1451,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "双子の 兄弟は 顔が 「そっくり」 だ。",
     promptContextZh: "雙胞胎兄弟臉長得一模一樣。",
     expectedAnswer: "よく 似ている",
-    options: ["よく 似ている", "全く 違う", "とても 大きい", "少し 似ている"],
-    explanation: "「そっくり」= 非常相似、幾乎一模一樣 ≒「よく似ている」。其餘選項分別是「完全不同」「很大」「有點像」（程度太弱）。"
+    options: ["よく 似ている", "やや 似ている", "雰囲気が 似ている"],
+    explanation: "「そっくり」= 高度相似、幾乎一模一樣 ≒「よく似ている」。「やや似ている」是「有點像」（程度太弱）；「雰囲気が似ている」是「氛圍接近」（不到外貌一模一樣）。"
   }),
   examQuestion({
     id: "n2-syn-gakkari",
@@ -1465,8 +1465,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "試験に 落ちて、彼は 「がっかり」 した。",
     promptContextZh: "因為考試沒過，他很失望。",
     expectedAnswer: "失望",
-    options: ["失望", "安心", "興奮", "緊張"],
-    explanation: "「がっかりする」≒「失望する」。「安心」是放心；「興奮」是亢奮；「緊張」是緊張。"
+    options: ["失望", "後悔", "戸惑い", "悲しみ"],
+    explanation: "「がっかりする」≒「失望する」（期待落空的失落感）。「後悔」是事後悔不當初（責備自己）；「戸惑い」是不知所措、困惑；「悲しみ」是悲傷。雖然都是負面情緒，唯有「失望」精準對應「期待沒實現」。"
   }),
   examQuestion({
     id: "n2-syn-wazawaza",
@@ -1479,8 +1479,8 @@ export const examStyleQuestions: PracticeQuestion[] = [
     promptText: "雨の中、「わざわざ」 来て くれて ありがとう。",
     promptContextZh: "下雨還特地過來，謝謝你。",
     expectedAnswer: "特別に",
-    options: ["特別に", "偶然", "自然に", "うっかり"],
-    explanation: "「わざわざ」= 為了某事特地花費心力 ≒「特別に」。「偶然」是碰巧；「自然に」是自然地；「うっかり」是「不小心地」。"
+    options: ["特別に", "ついでに", "急いで"],
+    explanation: "「わざわざ」= 為了某事特地花費心力（即使不便也來）≒「特別に」。「ついでに」是「順便」（剛好順手就做，與「特地」精神相反）；「急いで」是「匆忙地」（強調速度而非用心）。"
   }),
 
   // -- N2 用法 -----------------------------------------------------------------
