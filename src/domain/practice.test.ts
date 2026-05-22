@@ -85,6 +85,19 @@ describe("buildQuestionPool", () => {
     expect(n1Questions.some((question) => question.vocabulary.surface === "蹂躙")).toBe(true);
   });
 
+  it("builds meaning questions with the Chinese meaning as the expected answer", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      targetForms: ["meaning"],
+      level: "N1"
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "蹂躙");
+
+    expect(target).toBeDefined();
+    expect(target!.expectedAnswers).toEqual(["蹂躪、踐踏"]);
+  });
+
   it("supports reading questions for any part of speech", () => {
     const questions = buildQuestionPool(vocabulary, {
       partOfSpeech: "mixed",
@@ -349,6 +362,26 @@ describe("buildChoiceOptions", () => {
     expect(options).toContain("書かれる");
     expect(options.every((option) => option.startsWith("書"))).toBe(true);
     expect(options.filter((option) => option !== "書かれる").every((option) => option.endsWith("れる"))).toBe(true);
+  });
+
+  it("uses other words' meanings as distractors for meaning questions", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      targetForms: ["meaning"],
+      level: "N1"
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "蹂躙");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("蹂躪、踐踏");
+    expect(options).toHaveLength(4);
+    // distractors should be Chinese meanings, not kana
+    const distractors = options.filter((option) => option !== "蹂躪、踐踏");
+    expect(distractors.every((option) => /^[぀-ゟ]+$/.test(option))).toBe(false);
   });
 
   it("uses other words' readings as distractors for reading questions", () => {
