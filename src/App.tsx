@@ -25,7 +25,7 @@ import {
   shuffleQuestions
 } from "./domain/practice";
 import { createAttemptStore } from "./domain/storage";
-import type { Attempt, JlptLevel, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./domain/types";
+import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./domain/types";
 import { vocabulary } from "./domain/vocabulary";
 import { copy, getInitialLanguage, languageOptions, storeLanguage, type Language } from "./i18n";
 import "./styles.css";
@@ -84,7 +84,6 @@ const formOptions: TargetForm[] = [
   "plainPastNegative"
 ];
 
-const jlptLevels: Array<JlptLevel | "all"> = ["all", "N5", "N4", "N3", "N2", "N1"];
 
 const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; verbOnly?: boolean }> = [
   { value: "single", targetForms: [] },
@@ -298,7 +297,6 @@ export default function App() {
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>("single");
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
-  const [jlptLevel, setJlptLevel] = useState<JlptLevel | "all">("all");
   const [questionIndex, setQuestionIndex] = useState(0);
   const [sessionSeed, setSessionSeed] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
@@ -347,25 +345,22 @@ export default function App() {
     () => {
       void sessionSeed;
       if (isExamFocus) {
-        return shuffleQuestions(buildExamQuestionPool(jlptLevel));
+        return shuffleQuestions(buildExamQuestionPool());
       }
 
       if (isClozeFocus) {
-        return shuffleQuestions(
-          buildClozeQuestionPool(clozeSentences, vocabulary, { level: jlptLevel })
-        );
+        return shuffleQuestions(buildClozeQuestionPool(clozeSentences, vocabulary));
       }
 
       return shuffleQuestions(
         buildQuestionPool(vocabulary, {
           partOfSpeech,
           verbGroup,
-          targetForms,
-          level: jlptLevel
+          targetForms
         })
       );
     },
-    [isExamFocus, isClozeFocus, partOfSpeech, targetForms, verbGroup, jlptLevel, sessionSeed]
+    [isExamFocus, isClozeFocus, partOfSpeech, targetForms, verbGroup, sessionSeed]
   );
   const currentQuestion = selectQuestion(questions, questionIndex);
   const choiceOptions = useMemo(
@@ -409,10 +404,6 @@ export default function App() {
   };
 
   const handlePracticeFocusChange = (nextFocus: PracticeFocus) => {
-    if (nextFocus === "exam" && jlptLevel !== "all" && jlptLevel !== "N1" && jlptLevel !== "N2") {
-      setJlptLevel("all");
-    }
-
     setPracticeFocus(nextFocus);
     resetSession();
   };
@@ -475,9 +466,6 @@ export default function App() {
     setVerbGroup(preset.verbGroup ?? "all");
     setPracticeFocus(preset.practiceFocus);
     setTargetForm(preset.targetForm);
-    if (preset.practiceFocus === "exam" && jlptLevel !== "all" && jlptLevel !== "N1" && jlptLevel !== "N2") {
-      setJlptLevel("all");
-    }
     resetSession();
     setAppView("challenge");
   };
@@ -601,31 +589,6 @@ export default function App() {
                   }}
                 >
                   {t.verbGroups[option]}
-                </button>
-              ))}
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>{t.jlptLevel}</legend>
-            <div className="segmented focus-segmented">
-              {jlptLevels.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  className={jlptLevel === option ? "selected" : ""}
-                  disabled={isExamFocus && option !== "all" && option !== "N1" && option !== "N2"}
-                  onClick={() => {
-                    setJlptLevel(option);
-                    if (option === "N1" || option === "N2") {
-                      setPartOfSpeech("mixed");
-                      setPracticeFocus("single");
-                      setTargetForm("reading");
-                    }
-                    resetSession();
-                  }}
-                >
-                  {t.jlptLevels[option]}
                 </button>
               ))}
             </div>
