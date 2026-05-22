@@ -14,6 +14,13 @@ type ExamQuestionInput = {
   expectedAnswer: string;
   options: string[];
   explanation: string;
+  /**
+   * Override the auto-generated example sentence. Needed for question types
+   * (e.g. 用法 / 言い換え類義) where the prompt is an instruction or the
+   * target phrase rather than a sentence with a blank.
+   */
+  exampleJapanese?: string;
+  exampleMeaningZh?: string;
 };
 
 export const examStyleQuestions: PracticeQuestion[] = [
@@ -1172,6 +1179,496 @@ export const examStyleQuestions: PracticeQuestion[] = [
     expectedAnswer: "ところを",
     options: ["ところを", "ところで", "ところに", "ところまで"],
     explanation: "「お/Vている + ところを」是禮貌語體中表示「打擾／體諒對方狀況」。「ところで」是「即使...也」；「ところに/へ」是「正當...時」；「ところまで」是「到 N 為止」。"
+  }),
+
+  // -- N1 言い換え類義 (synonym / paraphrase) ----------------------------------
+  examQuestion({
+    id: "n1-syn-yamuwoezu",
+    level: "N1",
+    surface: "やむを得ず",
+    reading: "やむをえず",
+    meaningZh: "不得已、迫於無奈",
+    promptLabel: "N1 類義替換",
+    instructionZh: "選與「」中詞語意思最接近的選項。",
+    promptText: "その 計画は 「やむを得ず」 中止された。",
+    promptContextZh: "那個計畫不得已被迫中止。",
+    expectedAnswer: "仕方なく",
+    options: ["仕方なく", "自発的に", "喜んで", "大々的に"],
+    explanation: "「やむを得ず」= 在無法選擇的情況下被迫做某事 ≒「仕方なく」。「自発的に」是主動；「喜んで」是樂意；「大々的に」是大規模。"
+  }),
+  examQuestion({
+    id: "n1-syn-kotogotoku",
+    level: "N1",
+    surface: "ことごとく",
+    reading: "ことごとく",
+    meaningZh: "全部、無一例外",
+    promptLabel: "N1 類義替換",
+    instructionZh: "選與「」中詞語意思最接近的選項。",
+    promptText: "彼の 提案は 「ことごとく」 反対された。",
+    promptContextZh: "他的提案無一例外地都遭到反對。",
+    expectedAnswer: "すべて",
+    options: ["すべて", "ほとんど", "強く", "次々と"],
+    explanation: "「ことごとく」= 一個不剩、全部 ≒「すべて」。「ほとんど」是「幾乎」（仍留有例外）；「強く」是強烈；「次々と」是接連不斷（強調連續而非全數）。"
+  }),
+  examQuestion({
+    id: "n1-syn-omune",
+    level: "N1",
+    surface: "おおむね",
+    reading: "おおむね",
+    meaningZh: "大致上、大略",
+    promptLabel: "N1 類義替換",
+    instructionZh: "選與「」中詞語意思最接近的選項。",
+    promptText: "試験の 結果は 「おおむね」 予想通りだった。",
+    promptContextZh: "考試結果大致上跟預想的一樣。",
+    expectedAnswer: "だいたい",
+    options: ["だいたい", "ちょうど", "全然", "かなり"],
+    explanation: "「おおむね」= 大致上、整體看來 ≒「だいたい」。「ちょうど」是「剛好」（精確）；「全然」是「完全（不）」；「かなり」是「相當（程度副詞）」。"
+  }),
+  examQuestion({
+    id: "n1-syn-tegakete",
+    level: "N1",
+    surface: "手がけて",
+    reading: "てがけて",
+    meaningZh: "親自負責、操刀",
+    promptLabel: "N1 類義替換",
+    instructionZh: "選與「」中詞語意思最接近的選項。",
+    promptText: "彼は 新しい プロジェクトを 「手がけて」 いる。",
+    promptContextZh: "他親自負責新的專案。",
+    expectedAnswer: "担当して",
+    options: ["担当して", "中止して", "拒否して", "観察して"],
+    explanation: "「手がける」= 親自著手、負責處理 ≒「担当する」。「中止する」是中止；「拒否する」是拒絕；「観察する」是觀察（旁觀，未動手）。"
+  }),
+  examQuestion({
+    id: "n1-syn-tegowai",
+    level: "N1",
+    surface: "手強い",
+    reading: "てごわい",
+    meaningZh: "難對付的、強勁的",
+    promptLabel: "N1 類義替換",
+    instructionZh: "選與「」中詞語意思最接近的選項。",
+    promptText: "今回の 対戦相手は かなり 「手強い」 と評判だ。",
+    promptContextZh: "據說這次的對手相當難對付。",
+    expectedAnswer: "強くて 倒しにくい",
+    options: ["強くて 倒しにくい", "弱くて 簡単に 勝てる", "礼儀正しい", "親しみやすい"],
+    explanation: "「手強い」= 強到難以對付 ≒「強くて倒しにくい」。其餘選項分別是「弱、容易擊敗」「有禮貌」「親切易親近」，皆與「強敵」之意不符。"
+  }),
+
+  // -- N1 用法 (word usage) ----------------------------------------------------
+  examQuestion({
+    id: "n1-usage-hossoku",
+    level: "N1",
+    surface: "発足",
+    reading: "ほっそく",
+    meaningZh: "（組織、機構）成立、啟動",
+    promptLabel: "N1 詞彙用法",
+    instructionZh: "選出該詞語使用最自然的句子。",
+    promptText: "次の 文の うち、「発足」の 使い方が 最も 適切なものは どれか。",
+    promptContextZh: "「發足」用於組織、機構正式成立、啟動。",
+    expectedAnswer: "来月から、新しい 委員会が 発足する 予定だ。",
+    exampleJapanese: "来月から、新しい 委員会が 発足する 予定だ。",
+    exampleMeaningZh: "下個月起新委員會將正式成立。",
+    options: [
+      "来月から、新しい 委員会が 発足する 予定だ。",
+      "桜の 季節が 今年は 早めに 発足した。",
+      "怒りが 発足して、彼は 大声で 叫んだ。",
+      "新型の 携帯電話が 来週 発足する。"
+    ],
+    explanation: "「発足」專指組織、團體、制度的「成立／啟動」，主語必須是組織類名詞。季節用「始まる」，怒り用「爆発する」，商品上市用「発売される」。"
+  }),
+  examQuestion({
+    id: "n1-usage-tegakeru",
+    level: "N1",
+    surface: "手がける",
+    reading: "てがける",
+    meaningZh: "親自著手、操刀",
+    promptLabel: "N1 詞彙用法",
+    instructionZh: "選出該詞語使用最自然的句子。",
+    promptText: "次の 文の うち、「手がける」の 使い方が 最も 適切なものは どれか。",
+    promptContextZh: "「手がける」用於親自負責、操刀某項工作、事業。",
+    expectedAnswer: "彼は これまでに 多くの 著名な 建築物を 手がけて きた。",
+    exampleJapanese: "彼は これまでに 多くの 著名な 建築物を 手がけて きた。",
+    exampleMeaningZh: "他至今操刀過許多著名建築。",
+    options: [
+      "彼は これまでに 多くの 著名な 建築物を 手がけて きた。",
+      "弟は 階段で 転んで 手を 手がけて しまった。",
+      "雨が 強かったので、傘を 手がけて 外出した。",
+      "兄は 大学入試を 手がけて 見事 合格した。"
+    ],
+    explanation: "「手がける」是「親自著手某項工作／作品」，對象常是創作、事業、案件。受傷用「怪我する」，攜帶物品用「持つ」，參加考試用「受ける」。"
+  }),
+  examQuestion({
+    id: "n1-usage-miotosu",
+    level: "N1",
+    surface: "見落とす",
+    reading: "みおとす",
+    meaningZh: "看漏、疏忽未察覺",
+    promptLabel: "N1 詞彙用法",
+    instructionZh: "選出該詞語使用最自然的句子。",
+    promptText: "次の 文の うち、「見落とす」の 使い方が 最も 適切なものは どれか。",
+    promptContextZh: "「見落とす」是「應該注意到的東西卻沒看到」。",
+    expectedAnswer: "校正で 細かい 誤字を いくつか 見落として しまった。",
+    exampleJapanese: "校正で 細かい 誤字を いくつか 見落として しまった。",
+    exampleMeaningZh: "校稿時把幾個小錯字看漏了。",
+    options: [
+      "校正で 細かい 誤字を いくつか 見落として しまった。",
+      "山の 頂上から 街全体を 見落として 写真を 撮った。",
+      "彼は 約束の 時間を 見落として、家を 出なかった。",
+      "テストで 計算問題を すべて 見落として 答えた。"
+    ],
+    explanation: "「見落とす」= 應留意卻沒看到（多用於文件、誤字、徵兆）。從山上望街用「見下ろす」，忘記約定時間用「忘れる」，把題目跳過用「飛ばす」。"
+  }),
+  examQuestion({
+    id: "n1-usage-uchiawaseru",
+    level: "N1",
+    surface: "打ち合わせる",
+    reading: "うちあわせる",
+    meaningZh: "事前協商、開協調會",
+    promptLabel: "N1 詞彙用法",
+    instructionZh: "選出該詞語使用最自然的句子。",
+    promptText: "次の 文の うち、「打ち合わせる」の 使い方が 最も 適切なものは どれか。",
+    promptContextZh: "「打ち合わせる」是事前討論、協調工作細節。",
+    expectedAnswer: "来週の 会議の 議題に ついて、課長と 打ち合わせた。",
+    exampleJapanese: "来週の 会議の 議題に ついて、課長と 打ち合わせた。",
+    exampleMeaningZh: "我跟課長協商了下週會議的議題。",
+    options: [
+      "来週の 会議の 議題に ついて、課長と 打ち合わせた。",
+      "二人は 目を 打ち合わせて、互いに 微笑んだ。",
+      "兄弟は 仲が悪く、よく 打ち合わせて 喧嘩する。",
+      "釘を 板に 打ち合わせて、棚を 作った。"
+    ],
+    explanation: "「打ち合わせる」是工作上的「事前協商」。彼此對望用「見合わせる」，吵架用「言い争う／喧嘩する」，把釘子打進去用「打ち付ける／打ち込む」。"
+  }),
+
+  // -- N1 文脈規定 (vocab cloze) ----------------------------------------------
+  examQuestion({
+    id: "n1-vocab-hakkaku",
+    level: "N1",
+    surface: "発覚",
+    reading: "はっかく",
+    meaningZh: "（壞事）東窗事發、被揭發",
+    promptLabel: "N1 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "大規模な 不正経理が 監査で ___ し、社長が 辞任した。",
+    promptContextZh: "大規模做假帳被審計揭發，社長因此辭職。",
+    expectedAnswer: "発覚",
+    options: ["発覚", "発明", "発生", "発達"],
+    explanation: "「発覚」專指「壞事被揭發出來」。「発明」是發明；「発生」是發生（中性）；「発達」是發展、進化。"
+  }),
+  examQuestion({
+    id: "n1-vocab-okotaru",
+    level: "N1",
+    surface: "怠る",
+    reading: "おこたる",
+    meaningZh: "懈怠、疏於",
+    promptLabel: "N1 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "機械の 点検を ___ ば、大きな 事故に つながりかねない。",
+    promptContextZh: "如果疏於機械檢查，可能釀成大事故。",
+    expectedAnswer: "怠れ",
+    options: ["怠れ", "励め", "慎め", "改めれ"],
+    explanation: "「怠る」= 該做的事不去做、懈怠。「励む」是勤奮努力；「慎む」是節制、謹慎；「改める」是改正。語意上只有「怠れば → 引發事故」自然。"
+  }),
+  examQuestion({
+    id: "n1-vocab-shinogu",
+    level: "N1",
+    surface: "しのぐ",
+    reading: "しのぐ",
+    meaningZh: "凌駕、超越；勉強撐過",
+    promptLabel: "N1 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "新人の 彼女は、ベテランを ___ 売上を 記録した。",
+    promptContextZh: "她身為新人，卻創下凌駕資深員工的業績。",
+    expectedAnswer: "しのぐ",
+    options: ["しのぐ", "防ぐ", "招く", "守る"],
+    explanation: "「しのぐ」= 凌駕、勝過（A をしのぐ B）。「防ぐ」是防止；「招く」是招致；「守る」是守護。只有「しのぐ」搭配「ベテランを〜売上」自然。"
+  }),
+  examQuestion({
+    id: "n1-vocab-shincho",
+    level: "N1",
+    surface: "慎重",
+    reading: "しんちょう",
+    meaningZh: "慎重",
+    promptLabel: "N1 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "投資の 判断は ___ に 行わなければ ならない。",
+    promptContextZh: "投資判斷必須慎重進行。",
+    expectedAnswer: "慎重",
+    options: ["慎重", "厳重", "重大", "重要"],
+    explanation: "「慎重」= 行為謹慎、不躁進。「厳重」是嚴密（多用於警備、抗議）；「重大」是嚴重（事件本身）；「重要」是重要（價值高）。本句強調「行動方式」，要用「慎重」。"
+  }),
+  examQuestion({
+    id: "n1-vocab-taemanai",
+    level: "N1",
+    surface: "絶え間ない",
+    reading: "たえまない",
+    meaningZh: "持續不斷的、不間斷的",
+    promptLabel: "N1 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "彼女は ___ 努力で 一流の バイオリニストに なった。",
+    promptContextZh: "她憑藉不間斷的努力成為一流的小提琴家。",
+    expectedAnswer: "絶え間ない",
+    options: ["絶え間ない", "限りない", "果てしない", "やむをえない"],
+    explanation: "「絶え間ない」= 中間沒有停頓、連續不斷（強調無間隔）。「限りない」是無止盡（強調無上限）；「果てしない」是無邊無際（多用於空間）；「やむをえない」是不得已。語境是「持續努力」最契合。"
+  }),
+
+  // -- N2 言い換え類義 ---------------------------------------------------------
+  examQuestion({
+    id: "n2-syn-osoraku",
+    level: "N2",
+    surface: "おそらく",
+    reading: "おそらく",
+    meaningZh: "（書面語）大概、恐怕",
+    promptLabel: "N2 類義替換",
+    instructionZh: "選與「」中詞語意思最接近的選項。",
+    promptText: "彼は 「おそらく」 もう 来ない だろう。",
+    promptContextZh: "他大概不會再來了吧。",
+    expectedAnswer: "たぶん",
+    options: ["たぶん", "きっと", "必ず", "決して"],
+    explanation: "「おそらく」≒「たぶん」（兩者皆表示推測，無強烈把握）。「きっと」是「一定（高把握）」；「必ず」是「必定（確定）」；「決して」是「絕對不（否定強調）」。"
+  }),
+  examQuestion({
+    id: "n2-syn-shocchu",
+    level: "N2",
+    surface: "しょっちゅう",
+    reading: "しょっちゅう",
+    meaningZh: "常常、動不動就",
+    promptLabel: "N2 類義替換",
+    instructionZh: "選與「」中詞語意思最接近的選項。",
+    promptText: "彼女は 「しょっちゅう」 遅刻する。",
+    promptContextZh: "她常常遲到。",
+    expectedAnswer: "頻繁に",
+    options: ["頻繁に", "たまに", "一度だけ", "全く"],
+    explanation: "「しょっちゅう」≒「頻繁に」（很頻繁地）。「たまに」是「偶爾」；「一度だけ」是「只有一次」；「全く」是「完全（不）」。"
+  }),
+  examQuestion({
+    id: "n2-syn-sokkuri",
+    level: "N2",
+    surface: "そっくり",
+    reading: "そっくり",
+    meaningZh: "一模一樣、極相似",
+    promptLabel: "N2 類義替換",
+    instructionZh: "選與「」中詞語意思最接近的選項。",
+    promptText: "双子の 兄弟は 顔が 「そっくり」 だ。",
+    promptContextZh: "雙胞胎兄弟臉長得一模一樣。",
+    expectedAnswer: "よく 似ている",
+    options: ["よく 似ている", "全く 違う", "とても 大きい", "少し 似ている"],
+    explanation: "「そっくり」= 非常相似、幾乎一模一樣 ≒「よく似ている」。其餘選項分別是「完全不同」「很大」「有點像」（程度太弱）。"
+  }),
+  examQuestion({
+    id: "n2-syn-gakkari",
+    level: "N2",
+    surface: "がっかり",
+    reading: "がっかり",
+    meaningZh: "失望、沮喪",
+    promptLabel: "N2 類義替換",
+    instructionZh: "選與「」中詞語意思最接近的選項。",
+    promptText: "試験に 落ちて、彼は 「がっかり」 した。",
+    promptContextZh: "因為考試沒過，他很失望。",
+    expectedAnswer: "失望",
+    options: ["失望", "安心", "興奮", "緊張"],
+    explanation: "「がっかりする」≒「失望する」。「安心」是放心；「興奮」是亢奮；「緊張」是緊張。"
+  }),
+  examQuestion({
+    id: "n2-syn-wazawaza",
+    level: "N2",
+    surface: "わざわざ",
+    reading: "わざわざ",
+    meaningZh: "（為了 X）特地、特意",
+    promptLabel: "N2 類義替換",
+    instructionZh: "選與「」中詞語意思最接近的選項。",
+    promptText: "雨の中、「わざわざ」 来て くれて ありがとう。",
+    promptContextZh: "下雨還特地過來，謝謝你。",
+    expectedAnswer: "特別に",
+    options: ["特別に", "偶然", "自然に", "うっかり"],
+    explanation: "「わざわざ」= 為了某事特地花費心力 ≒「特別に」。「偶然」是碰巧；「自然に」是自然地；「うっかり」是「不小心地」。"
+  }),
+
+  // -- N2 用法 -----------------------------------------------------------------
+  examQuestion({
+    id: "n2-usage-habuku",
+    level: "N2",
+    surface: "省く",
+    reading: "はぶく",
+    meaningZh: "省略、刪去",
+    promptLabel: "N2 詞彙用法",
+    instructionZh: "選出該詞語使用最自然的句子。",
+    promptText: "次の 文の うち、「省く」の 使い方が 最も 適切なものは どれか。",
+    promptContextZh: "「省く」用於省略、刪除多餘的部分。",
+    expectedAnswer: "説明を 簡単に するため、専門用語を 省いた。",
+    exampleJapanese: "説明を 簡単に するため、専門用語を 省いた。",
+    exampleMeaningZh: "為了讓說明簡單，省略了專業術語。",
+    options: [
+      "説明を 簡単に するため、専門用語を 省いた。",
+      "時間を 省くため、急いで 食事を した。",
+      "彼は 約束を 省いて、来なかった。",
+      "試験で 問題を 全部 省いて、白紙で 出した。"
+    ],
+    explanation: "「省く」= 省略不必要的部分（語句、步驟）。節省時間用「節約する／短縮する」，違反約定用「破る」，跳過題目用「飛ばす」。"
+  }),
+  examQuestion({
+    id: "n2-usage-motomeru",
+    level: "N2",
+    surface: "求める",
+    reading: "もとめる",
+    meaningZh: "請求、徵求",
+    promptLabel: "N2 詞彙用法",
+    instructionZh: "選出該詞語使用最自然的句子。",
+    promptText: "次の 文の うち、「求める」の 使い方が 最も 適切なものは どれか。",
+    promptContextZh: "「求める」是向人請求、要求某事物。",
+    expectedAnswer: "判断に 迷ったので、上司に 助言を 求めた。",
+    exampleJapanese: "判断に 迷ったので、上司に 助言を 求めた。",
+    exampleMeaningZh: "因為拿不定主意，所以向上司請求建議。",
+    options: [
+      "判断に 迷ったので、上司に 助言を 求めた。",
+      "旅行先で、おいしい レストランを 求めて 歩き回った。",
+      "雨に 求められて、傘を 開いた。",
+      "落し物の 鍵を 部屋中 求めて 探した。"
+    ],
+    explanation: "「求める」= 向他人請求（助言、協力、回答等抽象事物）。實際找東西要用「探す」；被雨淋要用「降られる」；尋找遺失物用「探す」。"
+  }),
+  examQuestion({
+    id: "n2-usage-kotowaru",
+    level: "N2",
+    surface: "断る",
+    reading: "ことわる",
+    meaningZh: "拒絕、回絕",
+    promptLabel: "N2 詞彙用法",
+    instructionZh: "選出該詞語使用最自然的句子。",
+    promptText: "次の 文の うち、「断る」の 使い方が 最も 適切なものは どれか。",
+    promptContextZh: "「断る」是拒絕邀請、要求。",
+    expectedAnswer: "急な 誘いだったので、丁寧に 断った。",
+    exampleJapanese: "急な 誘いだったので、丁寧に 断った。",
+    exampleMeaningZh: "因為是突然的邀約，所以禮貌地拒絕了。",
+    options: [
+      "急な 誘いだったので、丁寧に 断った。",
+      "強い 雨に 断られて、外出を やめた。",
+      "兄に 断られた 服を 弟が 着て 出かけた。",
+      "道路工事で 断られた ため、迂回した。"
+    ],
+    explanation: "「断る」= 拒絕邀請、請求等。被雨阻擋用「降られる」；衣服「不要的」用「着なくなった／お下がり」；道路因施工不通用「通れない／通行止め」。"
+  }),
+  examQuestion({
+    id: "n2-usage-osamaru",
+    level: "N2",
+    surface: "収まる",
+    reading: "おさまる",
+    meaningZh: "（容納地）放得進去；平息",
+    promptLabel: "N2 詞彙用法",
+    instructionZh: "選出該詞語使用最自然的句子。",
+    promptText: "次の 文の うち、「収まる」の 使い方が 最も 適切なものは どれか。",
+    promptContextZh: "「収まる」是東西容納於空間內，或情緒、騷動平息。",
+    expectedAnswer: "大量の 荷物が なんとか この 箱に 収まった。",
+    exampleJapanese: "大量の 荷物が なんとか この 箱に 収まった。",
+    exampleMeaningZh: "大量行李勉強塞進這個箱子。",
+    options: [
+      "大量の 荷物が なんとか この 箱に 収まった。",
+      "風邪が 収まって、薬を 飲んだ。",
+      "彼の 怒りは 収まって、激しく 怒鳴った。",
+      "夕食が 収まって、お腹が 空いて きた。"
+    ],
+    explanation: "「収まる」= 容納於某範圍內，或事態、情緒平息。但 B、C、D 在語意上自相矛盾（先平息又生病／先平息又生氣／吃飽又餓）。"
+  }),
+
+  // -- N2 文脈規定 -------------------------------------------------------------
+  examQuestion({
+    id: "n2-vocab-boshu",
+    level: "N2",
+    surface: "募集",
+    reading: "ぼしゅう",
+    meaningZh: "招募、徵求",
+    promptLabel: "N2 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "来月の イベントで 手伝う ボランティアを ___ している。",
+    promptContextZh: "正在募集下個月幫忙活動的志工。",
+    expectedAnswer: "募集",
+    options: ["募集", "招待", "採用", "入会"],
+    explanation: "「募集」= 公開招募（人員、作品）。「招待」是邀請特定對象；「採用」是錄取後雇用；「入会」是（自己）入會（不能對外行動）。"
+  }),
+  examQuestion({
+    id: "n2-vocab-taio",
+    level: "N2",
+    surface: "対応",
+    reading: "たいおう",
+    meaningZh: "因應、處理",
+    promptLabel: "N2 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "顧客からの 苦情に 迅速に ___ する 必要が ある。",
+    promptContextZh: "對於客戶投訴必須迅速處理。",
+    expectedAnswer: "対応",
+    options: ["対応", "対面", "対立", "対象"],
+    explanation: "「対応」= 處理、應對（外部情況）。「対面」是面對面；「対立」是對立、衝突；「対象」是對象、目標。"
+  }),
+  examQuestion({
+    id: "n2-vocab-omoitsuki",
+    level: "N2",
+    surface: "思いつき",
+    reading: "おもいつき",
+    meaningZh: "靈光一閃、隨興點子",
+    promptLabel: "N2 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "彼の 行動は いつも 単なる ___ で、計画性が ない。",
+    promptContextZh: "他的行動總是憑一時想到的點子，毫無計畫性。",
+    expectedAnswer: "思いつき",
+    options: ["思いつき", "思い込み", "思い出", "思いやり"],
+    explanation: "「思いつき」= 突然想到的點子（多帶輕率語感）。「思い込み」是先入為主／一廂情願；「思い出」是回憶；「思いやり」是體貼。"
+  }),
+  examQuestion({
+    id: "n2-vocab-tekisetsu",
+    level: "N2",
+    surface: "適切",
+    reading: "てきせつ",
+    meaningZh: "妥當、合適",
+    promptLabel: "N2 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "面接では ___ な 言葉遣いを 心がけて ください。",
+    promptContextZh: "面試時請留意使用合適的措辭。",
+    expectedAnswer: "適切",
+    options: ["適切", "適度", "適応", "適合"],
+    explanation: "「適切」= 妥當、恰當（用於行為、判斷、措辭）。「適度」是程度適中（運動量等）；「適応」是適應（環境）；「適合」是符合（規格、條件）。"
+  }),
+  examQuestion({
+    id: "n2-vocab-torikumu",
+    level: "N2",
+    surface: "取り組む",
+    reading: "とりくむ",
+    meaningZh: "（認真）著手處理",
+    promptLabel: "N2 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "全社一丸と なって、環境問題に ___ いる。",
+    promptContextZh: "全公司同心協力，正著手處理環境問題。",
+    expectedAnswer: "取り組んで",
+    options: ["取り組んで", "取り上げて", "取り消して", "取り入れて"],
+    explanation: "「取り組む」= 認真投入處理（課題、問題）。「取り上げる」是「拿起／提及」；「取り消す」是「取消」；「取り入れる」是「導入、採納」。"
+  }),
+
+  // -- N3 文脈規定 (light sprinkle) -------------------------------------------
+  examQuestion({
+    id: "n3-vocab-tazuneru",
+    level: "N3",
+    surface: "訪ねる",
+    reading: "たずねる",
+    meaningZh: "拜訪",
+    promptLabel: "N3 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "夏休みに、田舎の 祖父母を ___ 行きました。",
+    promptContextZh: "暑假時去鄉下拜訪了祖父母。",
+    expectedAnswer: "訪ねて",
+    options: ["訪ねて", "探して", "集めて", "求めて"],
+    explanation: "「訪ねる」= 拜訪（人）。「探す」是「找」；「集める」是「收集」；「求める」是「請求」，都不適用於「拜訪親人」。"
+  }),
+  examQuestion({
+    id: "n3-vocab-katazukeru",
+    level: "N3",
+    surface: "片付ける",
+    reading: "かたづける",
+    meaningZh: "整理、收拾",
+    promptLabel: "N3 詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "食事の あと、皿を ___ から、テレビを 見ます。",
+    promptContextZh: "用完餐後收拾完餐盤再看電視。",
+    expectedAnswer: "片付けて",
+    options: ["片付けて", "並べて", "壊して", "預けて"],
+    explanation: "「片付ける」= 整理收拾。「並べる」是「擺好」（用餐前才做）；「壊す」是「弄壞」；「預ける」是「寄放」。"
   })
 ];
 
@@ -1195,7 +1692,12 @@ function examQuestion(input: ExamQuestionInput): PracticeQuestion {
       group: null,
       lesson: null,
       tags: ["exam_style", input.level],
-      examples: [{ japanese: input.promptText.replace("___", input.expectedAnswer), meaningZh: input.promptContextZh }],
+      examples: [
+        {
+          japanese: input.exampleJapanese ?? input.promptText.replace("___", input.expectedAnswer),
+          meaningZh: input.exampleMeaningZh ?? input.promptContextZh
+        }
+      ],
       level: input.level
     },
     targetForm: input.targetForm ?? "reading",
