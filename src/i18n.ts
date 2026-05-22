@@ -1,4 +1,4 @@
-import type { JlptLevel, PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
+import type { PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
 
 export type Language = "zh-Hant" | "en" | "ko";
 
@@ -70,9 +70,7 @@ type Copy = {
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
   focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast" | "exam" | "cloze", string>;
-  targetForms: Record<TargetForm, string>;
-  jlptLevel: string;
-  jlptLevels: Record<JlptLevel | "all", string>;
+  targetForms: Record<TargetForm, string>;
   lessonCardFocus: string[];
 };
 
@@ -211,15 +209,6 @@ export const copy: Record<Language, Copy> = {
       plainPastAffirmative: "普通形・過去肯定",
       plainPastNegative: "普通形・過去否定"
     },
-    jlptLevel: "JLPT 級別",
-    jlptLevels: {
-      all: "全部",
-      N5: "N5",
-      N4: "N4",
-      N3: "N3",
-      N2: "N2",
-      N1: "N1"
-    },
     lessonCardFocus: ["て形 / た形音便", "ないで / なくて / なかった", "形容詞與名詞型"]
   },
   en: {
@@ -348,15 +337,6 @@ export const copy: Record<Language, Copy> = {
       plainPastAffirmative: "Plain past affirmative",
       plainPastNegative: "Plain past negative"
     },
-    jlptLevel: "JLPT level",
-    jlptLevels: {
-      all: "All",
-      N5: "N5",
-      N4: "N4",
-      N3: "N3",
-      N2: "N2",
-      N1: "N1"
-    },
     lessonCardFocus: ["Te/Ta sound changes", "naide / nakute / nakatta", "Adjectives and noun-like forms"]
   },
   ko: {
@@ -484,15 +464,6 @@ export const copy: Record<Language, Copy> = {
       plainPresentNegative: "보통형・현재 부정",
       plainPastAffirmative: "보통형・과거 긍정",
       plainPastNegative: "보통형・과거 부정"
-    },
-    jlptLevel: "JLPT 등급",
-    jlptLevels: {
-      all: "전체",
-      N5: "N5",
-      N4: "N4",
-      N3: "N3",
-      N2: "N2",
-      N1: "N1"
     },
     lessonCardFocus: ["て/た 음편", "ないで / なくて / なかった", "형용사와 명사형"]
   }
