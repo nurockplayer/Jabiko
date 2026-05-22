@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { vocabulary } from "./vocabulary";
+import { buildClozeQuestionPool } from "./cloze";
+import { clozeSentences } from "./cloze-data";
+import { buildExamQuestionPool } from "./examBlocks";
 import {
   buildChoiceOptions,
   buildQuestionPool,
@@ -7,6 +10,67 @@ import {
   scoreAttempt,
   shuffleQuestions
 } from "./practice";
+
+describe("buildClozeQuestionPool", () => {
+  it("turns seed sentences into PracticeQuestion objects with curated options", () => {
+    const questions = buildClozeQuestionPool(clozeSentences, vocabulary);
+
+    expect(questions.length).toBeGreaterThan(0);
+    const matsuTe = questions.find((question) => question.id === "cloze:te-request-matsu");
+    expect(matsuTe).toBeDefined();
+    expect(matsuTe!.expectedAnswers).toContain("待って");
+    expect(matsuTe!.options).toHaveLength(4);
+    expect(matsuTe!.options).toContain("待って");
+    expect(matsuTe!.promptText).toContain("＿＿＿");
+    expect(matsuTe!.promptLabel).toContain("〜てください");
+  });
+
+  it("uses distinct same-verb forms (not random other words) as cloze distractors", () => {
+    const questions = buildClozeQuestionPool(clozeSentences, vocabulary);
+    const matsuTe = questions.find((question) => question.id === "cloze:te-request-matsu");
+
+    expect(matsuTe).toBeDefined();
+    expect(matsuTe!.options!.every((option) => option.startsWith("待"))).toBe(true);
+  });
+
+  it("produces desiderative answers for たいです patterns", () => {
+    const questions = buildClozeQuestionPool(clozeSentences, vocabulary);
+    const nomuTai = questions.find((question) => question.id === "cloze:tai-nomu-water");
+
+    expect(nomuTai).toBeDefined();
+    expect(nomuTai!.expectedAnswers).toContain("飲みたい");
+    expect(nomuTai!.options).toContain("飲みたい");
+    expect(nomuTai!.options!.every((option) => option.startsWith("飲"))).toBe(true);
+  });
+
+  it("filters by JLPT level", () => {
+    const all = buildClozeQuestionPool(clozeSentences, vocabulary, { level: "all" });
+    const n5 = buildClozeQuestionPool(clozeSentences, vocabulary, { level: "N5" });
+    const n1 = buildClozeQuestionPool(clozeSentences, vocabulary, { level: "N1" });
+
+    expect(all.length).toBeGreaterThan(0);
+    expect(n5.length).toEqual(all.length);
+    expect(n1.length).toEqual(0);
+  });
+});
+
+describe("buildExamQuestionPool", () => {
+  it("builds original N1/N2 exam-style grammar questions", () => {
+    const questions = buildExamQuestionPool("all");
+
+    expect(questions.length).toBeGreaterThanOrEqual(16);
+    expect(questions.every((question) => question.vocabulary.tags.includes("exam_style"))).toBe(true);
+    expect(questions.every((question) => question.vocabulary.level === "N1" || question.vocabulary.level === "N2")).toBe(true);
+    expect(questions.some((question) => question.promptLabel?.includes("N1"))).toBe(true);
+    expect(questions.some((question) => question.promptLabel?.includes("N2"))).toBe(true);
+  });
+
+  it("filters exam-style questions to N1 or N2 only", () => {
+    expect(buildExamQuestionPool("N1").every((question) => question.vocabulary.level === "N1")).toBe(true);
+    expect(buildExamQuestionPool("N2").every((question) => question.vocabulary.level === "N2")).toBe(true);
+    expect(buildExamQuestionPool("N5").every((question) => question.vocabulary.level === "N1" || question.vocabulary.level === "N2")).toBe(true);
+  });
+});
 
 describe("buildQuestionPool", () => {
   it("filters questions by part of speech, verb group, and selected forms", () => {
@@ -142,6 +206,18 @@ describe("buildQuestionPool", () => {
 });
 
 describe("scoreAttempt", () => {
+  it("records exam-style prompt text and stable question id", () => {
+    const question = buildExamQuestionPool("N2")[0];
+    const attempt = scoreAttempt(question, question.expectedAnswers[0], 1000, 1800);
+
+    expect(attempt).toMatchObject({
+      questionId: question.id,
+      vocabularyId: question.vocabulary.id,
+      prompt: question.promptText,
+      isCorrect: true
+    });
+  });
+
   it("records correct answers with timing metadata", () => {
     const question = buildQuestionPool(vocabulary, {
       partOfSpeech: "verb",
@@ -164,6 +240,19 @@ describe("scoreAttempt", () => {
 });
 
 describe("buildChoiceOptions", () => {
+  it("uses curated exam-style options before generated distractors", () => {
+    const questions = buildExamQuestionPool("N1");
+    const target = questions.find((question) => question.id === "n1-grammar-nakushitewa");
+
+    expect(target).toBeDefined();
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("なくしては");
+    expect(options).toContain("にしては");
+    expect(options).toHaveLength(4);
+  });
+
   it("uses other te-form rules of the same verb as distractors", () => {
     const questions = buildQuestionPool(vocabulary, {
       partOfSpeech: "verb",

@@ -60,9 +60,10 @@ export function scoreAttempt(
   finishedAt: number = Date.now()
 ): Attempt {
   return {
+    questionId: question.id,
     vocabularyId: question.vocabulary.id,
     targetForm: question.targetForm,
-    prompt: question.vocabulary.surface,
+    prompt: question.promptText ?? question.vocabulary.surface,
     expectedAnswers: question.expectedAnswers,
     submittedAnswer,
     isCorrect: validateAnswer(submittedAnswer, question.expectedAnswers),
@@ -73,10 +74,12 @@ export function scoreAttempt(
 
 export function getMistakeQuestions(attempts: Attempt[], questions: PracticeQuestion[]): PracticeQuestion[] {
   const missedIds = new Set(
-    attempts.filter((attempt) => !attempt.isCorrect).map((attempt) => `${attempt.vocabularyId}:${attempt.targetForm}`)
+    attempts
+      .filter((attempt) => !attempt.isCorrect)
+      .map((attempt) => attempt.questionId ?? `${attempt.vocabularyId}:${attempt.targetForm}`)
   );
 
-  return questions.filter((question) => missedIds.has(question.id));
+  return questions.filter((question) => missedIds.has(question.id) || missedIds.has(`${question.vocabulary.id}:${question.targetForm}`));
 }
 
 export function selectQuestion(questions: PracticeQuestion[], index: number): PracticeQuestion | null {
@@ -103,6 +106,14 @@ export function buildChoiceOptions(
   questions: PracticeQuestion[],
   questionIndex: number
 ): string[] {
+  if (currentQuestion.options?.length) {
+    return rotateOptions(
+      uniqueAnswers([...currentQuestion.expectedAnswers, ...currentQuestion.options]),
+      currentQuestion,
+      questionIndex
+    );
+  }
+
   if (currentQuestion.targetForm === "reading" || currentQuestion.targetForm === "meaning") {
     return buildPoolBasedChoiceOptions(currentQuestion, questions, questionIndex);
   }
@@ -126,9 +137,8 @@ export function buildChoiceOptions(
 
   const distractors = uniqueAnswers([...ruleDistractors, ...sameWordDistractors, ...fallbackDistractors]);
   const options = [correctAnswer, ...distractors.slice(0, CHOICE_COUNT - 1)];
-  const offset = options.length > 0 ? (questionIndex + currentQuestion.id.length) % options.length : 0;
 
-  return [...options.slice(offset), ...options.slice(0, offset)];
+  return rotateOptions(options, currentQuestion, questionIndex);
 }
 
 function buildPoolBasedChoiceOptions(
@@ -151,8 +161,12 @@ function buildPoolBasedChoiceOptions(
   );
 
   const options = [correctAnswer, ...distractors.slice(0, CHOICE_COUNT - 1)];
-  const offset = options.length > 0 ? (questionIndex + currentQuestion.id.length) % options.length : 0;
 
+  return rotateOptions(options, currentQuestion, questionIndex);
+}
+
+function rotateOptions(options: string[], currentQuestion: PracticeQuestion, questionIndex: number): string[] {
+  const offset = options.length > 0 ? (questionIndex + currentQuestion.id.length) % options.length : 0;
   return [...options.slice(offset), ...options.slice(0, offset)];
 }
 

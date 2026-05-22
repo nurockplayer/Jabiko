@@ -65,9 +65,11 @@ type Copy = {
   revealed: string;
   answerKey: string;
   focusSummaryEmpty: string;
+  examFocusSummary: string;
+  clozeFocusSummary: string;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
-  focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast", string>;
+  focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast" | "exam" | "cloze", string>;
   targetForms: Record<TargetForm, string>;
   jlptLevel: string;
   jlptLevels: Record<JlptLevel | "all", string>;
@@ -162,6 +164,8 @@ export const copy: Record<Language, Copy> = {
     revealed: "先記這題",
     answerKey: "正解",
     focusSummaryEmpty: "目前重點沒有可用形",
+    examFocusSummary: "考試題型：句中填空、語順組合、短文脈絡",
+    clozeFocusSummary: "句中填空 (N5)：〜てください、〜たいです",
     partOfSpeech: {
       verb: "動詞",
       i_adjective: "い形容詞",
@@ -181,7 +185,9 @@ export const copy: Record<Language, Copy> = {
       negative: "否定整理",
       plain: "普通形整理",
       adverbial: "く/に修飾",
-      obligationPast: "必要過去"
+      obligationPast: "必要過去",
+      exam: "考試題型",
+      cloze: "句中填空"
     },
     targetForms: {
       dictionary: "辭書形",
@@ -197,6 +203,7 @@ export const copy: Record<Language, Copy> = {
       volitional: "意向形",
       causative: "使役形",
       passive: "受身形",
+      desiderative: "願望・たい形",
       reading: "念法",
       meaning: "意思",
       plainPresentAffirmative: "普通形・非過去肯定",
@@ -294,6 +301,8 @@ export const copy: Record<Language, Copy> = {
     revealed: "Remember this one",
     answerKey: "Answer",
     focusSummaryEmpty: "No compatible forms for this focus",
+    examFocusSummary: "Exam-style: cloze, sentence order, and short context",
+    clozeFocusSummary: "Sentence cloze (N5): ~te kudasai, ~tai desu",
     partOfSpeech: {
       verb: "Verbs",
       i_adjective: "i-adj",
@@ -313,7 +322,9 @@ export const copy: Record<Language, Copy> = {
       negative: "Negatives",
       plain: "Plain forms",
       adverbial: "ku/ni modifiers",
-      obligationPast: "Past obligation"
+      obligationPast: "Past obligation",
+      exam: "Exam-style",
+      cloze: "Sentence cloze"
     },
     targetForms: {
       dictionary: "Dictionary form",
@@ -329,6 +340,7 @@ export const copy: Record<Language, Copy> = {
       volitional: "Volitional form",
       causative: "Causative form",
       passive: "Passive form",
+      desiderative: "Desiderative (tai)",
       reading: "Reading",
       meaning: "Meaning",
       plainPresentAffirmative: "Plain non-past affirmative",
@@ -426,6 +438,8 @@ export const copy: Record<Language, Copy> = {
     revealed: "이 문제를 기억하기",
     answerKey: "정답",
     focusSummaryEmpty: "이 포인트에 맞는 활용이 없습니다",
+    examFocusSummary: "시험형: 빈칸, 어순, 짧은 문맥",
+    clozeFocusSummary: "문장 빈칸: 문맥으로 활용 고르기",
     partOfSpeech: {
       verb: "동사",
       i_adjective: "い형용사",
@@ -445,7 +459,9 @@ export const copy: Record<Language, Copy> = {
       negative: "부정 정리",
       plain: "보통형 정리",
       adverbial: "く/に 수식",
-      obligationPast: "필요 과거"
+      obligationPast: "필요 과거",
+      exam: "시험형",
+      cloze: "문장 빈칸"
     },
     targetForms: {
       dictionary: "사전형",
@@ -461,6 +477,7 @@ export const copy: Record<Language, Copy> = {
       volitional: "의향형",
       causative: "사역형",
       passive: "수동형",
+      desiderative: "희망형 (たい)",
       reading: "읽는 법",
       meaning: "뜻",
       plainPresentAffirmative: "보통형・현재 긍정",

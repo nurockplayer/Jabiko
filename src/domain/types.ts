@@ -18,6 +18,7 @@ export type TargetForm =
   | "volitional"
   | "causative"
   | "passive"
+  | "desiderative"
   | "reading"
   | "meaning"
   | "plainPresentAffirmative"
@@ -55,9 +56,15 @@ export interface PracticeQuestion {
   targetForm: TargetForm;
   expectedAnswers: string[];
   explanation: string;
+  promptLabel?: string;
+  promptText?: string;
+  promptContextZh?: string;
+  instructionZh?: string;
+  options?: string[];
 }
 
 export interface Attempt {
+  questionId?: string;
   vocabularyId: string;
   targetForm: TargetForm;
   prompt: string;

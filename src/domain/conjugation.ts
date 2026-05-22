@@ -100,6 +100,18 @@ const GODAN_PASSIVE_ENDINGS: Record<string, string> = {
   む: "まれる"
 };
 
+const GODAN_DESIDERATIVE_ENDINGS: Record<string, string> = {
+  る: "りたい",
+  う: "いたい",
+  く: "きたい",
+  ぐ: "ぎたい",
+  す: "したい",
+  つ: "ちたい",
+  ぬ: "にたい",
+  ぶ: "びたい",
+  む: "みたい"
+};
+
 export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   dictionary: "辭書形",
   masu: "ます形",
@@ -114,6 +126,7 @@ export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   volitional: "意向形",
   causative: "使役形",
   passive: "受身形",
+  desiderative: "願望・たい形",
   reading: "念法",
   meaning: "意思",
   plainPresentAffirmative: "普通形・非過去肯定",
@@ -134,6 +147,7 @@ export const VERB_FORMS: TargetForm[] = [
   "volitional",
   "causative",
   "passive",
+  "desiderative",
   "plainPresentAffirmative",
   "plainPresentNegative",
   "plainPastAffirmative",
@@ -190,6 +204,8 @@ export function generateVerbRuleCandidates(surface: string, targetForm: TargetFo
     pushRuleCandidates(candidates, stem, GODAN_CAUSATIVE_ENDINGS, "させる");
   } else if (targetForm === "passive") {
     pushRuleCandidates(candidates, stem, GODAN_PASSIVE_ENDINGS, "られる");
+  } else if (targetForm === "desiderative") {
+    pushRuleCandidates(candidates, stem, GODAN_DESIDERATIVE_ENDINGS, "たい");
   } else {
     const suffix = NAI_DERIVED_SUFFIX[targetForm];
     if (!suffix) {
@@ -397,6 +413,8 @@ function ichidanEnding(targetForm: TargetForm): string {
       return "させる";
     case "passive":
       return "られる";
+    case "desiderative":
+      return "たい";
     default:
       return "";
   }
@@ -412,7 +430,8 @@ function irregularAnswer(surface: string, targetForm: TargetForm): string {
       potential: "来られる",
       volitional: "来よう",
       causative: "来させる",
-      passive: "来られる"
+      passive: "来られる",
+      desiderative: "来たい"
     };
     return forms[targetForm] ?? surface;
   }
@@ -427,7 +446,8 @@ function irregularAnswer(surface: string, targetForm: TargetForm): string {
       potential: `${stem}できる`,
       volitional: `${stem}しよう`,
       causative: `${stem}させる`,
-      passive: `${stem}される`
+      passive: `${stem}される`,
+      desiderative: `${stem}したい`
     };
     return forms[targetForm] ?? surface;
   }
@@ -455,7 +475,8 @@ function godanAnswer(surface: string, targetForm: TargetForm): string {
     potential: GODAN_POTENTIAL_ENDINGS,
     volitional: GODAN_VOLITIONAL_ENDINGS,
     causative: GODAN_CAUSATIVE_ENDINGS,
-    passive: GODAN_PASSIVE_ENDINGS
+    passive: GODAN_PASSIVE_ENDINGS,
+    desiderative: GODAN_DESIDERATIVE_ENDINGS
   };
 
   const replacement = maps[targetForm]?.[ending];
@@ -569,6 +590,10 @@ function explainVerb(item: VocabularyItem, targetForm: TargetForm): string {
 
   if (targetForm === "passive") {
     return "一類動詞受身形把最後一個假名換成あ段後接「れる」，例如「書く -> 書かれる」、「読む -> 読まれる」。う結尾要變「われる」。注意二類動詞的受身與可能同形。";
+  }
+
+  if (targetForm === "desiderative") {
+    return "願望形（〜たい）等於ます形把「ます」換成「たい」：書く -> 書きたい、食べる -> 食べたい、する -> したい。";
   }
 
   return "一類動詞ます形把最後一個假名換成い段後接「ます」。";
