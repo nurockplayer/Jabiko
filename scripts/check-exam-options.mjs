@@ -46,6 +46,15 @@ for (let i = 0; i < blocks.length; i++) {
     console.log("MISSING expected in options:", id, "->", JSON.stringify(expected));
     bad++;
   }
+  // promptLabel should not surface the JLPT level (N1/N2/N3 prefix). The
+  // internal `level` field still drives filtering; only the user-visible
+  // label is the concern. This lint catches regressions if a new item
+  // adds an "N1 ..." style label by reflex.
+  const labelMatch = body.match(/promptLabel:\s*"([^"]+)"/);
+  if (labelMatch && /^N[1-3]\s/.test(labelMatch[1])) {
+    console.log(`LEVEL LEAK in promptLabel: ${id} -> ${JSON.stringify(labelMatch[1])}`);
+    bad++;
+  }
 }
 console.log(`checked ${blocks.length} entries; ${bad} problem(s)`);
 process.exit(bad ? 1 : 0);
