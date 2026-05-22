@@ -55,20 +55,30 @@ describe("buildClozeQuestionPool", () => {
 });
 
 describe("buildExamQuestionPool", () => {
-  it("builds original N1/N2 exam-style grammar questions", () => {
+  it("builds original exam-style grammar questions for N1, N2, and N3", () => {
     const questions = buildExamQuestionPool("all");
 
-    expect(questions.length).toBeGreaterThanOrEqual(16);
+    expect(questions.length).toBeGreaterThanOrEqual(50);
     expect(questions.every((question) => question.vocabulary.tags.includes("exam_style"))).toBe(true);
-    expect(questions.every((question) => question.vocabulary.level === "N1" || question.vocabulary.level === "N2")).toBe(true);
+    expect(
+      questions.every(
+        (question) =>
+          question.vocabulary.level === "N1" ||
+          question.vocabulary.level === "N2" ||
+          question.vocabulary.level === "N3"
+      )
+    ).toBe(true);
     expect(questions.some((question) => question.promptLabel?.includes("N1"))).toBe(true);
     expect(questions.some((question) => question.promptLabel?.includes("N2"))).toBe(true);
+    expect(questions.some((question) => question.promptLabel?.includes("N3"))).toBe(true);
   });
 
-  it("filters exam-style questions to N1 or N2 only", () => {
+  it("filters exam-style questions by JLPT level", () => {
     expect(buildExamQuestionPool("N1").every((question) => question.vocabulary.level === "N1")).toBe(true);
     expect(buildExamQuestionPool("N2").every((question) => question.vocabulary.level === "N2")).toBe(true);
-    expect(buildExamQuestionPool("N5").every((question) => question.vocabulary.level === "N1" || question.vocabulary.level === "N2")).toBe(true);
+    expect(buildExamQuestionPool("N3").every((question) => question.vocabulary.level === "N3")).toBe(true);
+    // Levels without exam content fall back to the whole pool.
+    expect(buildExamQuestionPool("N5").length).toBe(buildExamQuestionPool("all").length);
   });
 });
 
