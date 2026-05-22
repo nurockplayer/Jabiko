@@ -1669,6 +1669,288 @@ export const examStyleQuestions: PracticeQuestion[] = [
     expectedAnswer: "片付けて",
     options: ["片付けて", "並べて", "壊して", "預けて"],
     explanation: "「片付ける」= 整理收拾。「並べる」是「擺好」（用餐前才做）；「壊す」是「弄壞」；「預ける」是「寄放」。"
+  }),
+
+  // -- N2 文章脈絡 (paragraph context / connectives) --------------------------
+  examQuestion({
+    id: "n2-text-sonoue",
+    level: "N2",
+    surface: "そのうえ",
+    reading: "そのうえ",
+    meaningZh: "再加上、而且",
+    promptLabel: "N2 文章脈絡",
+    instructionZh: "短文脈絡：選能讓文章流向自然的接續表現。",
+    promptText: "このレストランは料金が手頃だ。___、味も本格的で評判がいい。",
+    promptContextZh: "前句說價格便宜，後句疊加另一個優點：味道也好。",
+    expectedAnswer: "そのうえ",
+    options: ["そのうえ", "それにしても", "そのため", "つまり"],
+    explanation: "前後同方向、後句再加一個優點，用「そのうえ」（再加上）。「それにしても」帶意外語氣；「そのため」是因果；「つまり」是換言之。"
+  }),
+  examQuestion({
+    id: "n2-text-tokoroga",
+    level: "N2",
+    surface: "ところが",
+    reading: "ところが",
+    meaningZh: "（出乎意料）然而",
+    promptLabel: "N2 文章脈絡",
+    instructionZh: "短文脈絡：選能讓文章流向自然的接續表現。",
+    promptText: "出発前は天気予報も晴れだった。___、現地に着くと急に雨が降り出した。",
+    promptContextZh: "原本預期晴天，結果到現場卻突然下雨。",
+    expectedAnswer: "ところが",
+    options: ["ところが", "そして", "それで", "なお"],
+    explanation: "「ところが」表示「結果與預期相反、出乎意料」。「そして」是並列；「それで」是因果；「なお」是補述。"
+  }),
+  examQuestion({
+    id: "n2-text-soredemo",
+    level: "N2",
+    surface: "それでも",
+    reading: "それでも",
+    meaningZh: "儘管如此、就算這樣",
+    promptLabel: "N2 文章脈絡",
+    instructionZh: "短文脈絡：選能讓文章流向自然的接續表現。",
+    promptText: "何度も練習を重ねた。___、本番では失敗してしまった。",
+    promptContextZh: "雖然付出努力，本場仍然失敗。",
+    expectedAnswer: "それでも",
+    options: ["それでも", "だから", "すなわち", "そこで"],
+    explanation: "「それでも」承認前句事實，但後句結果不如預期（讓步＋逆接）。「だから」是因果；「すなわち」是換言；「そこで」是「於是採取行動」。"
+  }),
+
+  // -- N1 文章脈絡 ------------------------------------------------------------
+  examQuestion({
+    id: "n1-text-nimokakawarazu",
+    level: "N1",
+    surface: "にもかかわらず",
+    reading: "にもかかわらず",
+    meaningZh: "儘管...仍然...",
+    promptLabel: "N1 文章脈絡",
+    instructionZh: "短文脈絡：選能讓文章流向自然的接續表現。",
+    promptText: "事前に何度も確認した。___、当日になって計画に不備があると分かった。",
+    promptContextZh: "事前再三確認，當天卻發現計畫有瑕疵。",
+    expectedAnswer: "にもかかわらず",
+    options: ["にもかかわらず", "それどころか", "もっとも", "すなわち"],
+    explanation: "「(...)にもかかわらず」表示「儘管 A 卻 B」（強烈逆接）。「それどころか」是「不僅如此甚至更...」；「もっとも」是補加限制條件；「すなわち」是換言。"
+  }),
+  examQuestion({
+    id: "n1-text-mottomo",
+    level: "N1",
+    surface: "もっとも",
+    reading: "もっとも",
+    meaningZh: "話雖如此、不過",
+    promptLabel: "N1 文章脈絡",
+    instructionZh: "短文脈絡：選能讓文章流向自然的接續表現。",
+    promptText: "この機能は非常に便利だ。___、使いこなすには多少の慣れが必要だ。",
+    promptContextZh: "承認便利，但接著補充一個附帶條件。",
+    expectedAnswer: "もっとも",
+    options: ["もっとも", "それゆえ", "なお", "ひいては"],
+    explanation: "「もっとも」承認前句後追加例外或限制條件（≒ ただし）。「それゆえ」是因果（形式語）；「なお」是補充；「ひいては」是「進而、由此延伸」。"
+  }),
+  examQuestion({
+    id: "n1-text-kaette",
+    level: "N1",
+    surface: "かえって",
+    reading: "かえって",
+    meaningZh: "反而",
+    promptLabel: "N1 文章脈絡",
+    instructionZh: "短文脈絡：選能讓文章流向自然的接續表現。",
+    promptText: "彼を励まそうと声をかけた。___、本人を傷つけてしまった。",
+    promptContextZh: "出於好意鼓勵，結果反而傷害了對方。",
+    expectedAnswer: "かえって",
+    options: ["かえって", "したがって", "それゆえ", "なお"],
+    explanation: "「かえって」表示「結果與意圖／預期相反」。「したがって」「それゆえ」都是因果（順方向），與本句的「反向結果」不符；「なお」是補述。"
+  }),
+
+  // -- N2 文の組み立て (sentence assembly) -----------------------------------
+  examQuestion({
+    id: "n2-order-bakarika",
+    level: "N2",
+    surface: "ばかりか",
+    reading: "ばかりか",
+    meaningZh: "不只...還...",
+    promptLabel: "N2 語順組合",
+    instructionZh: "語順組合：選語法正確且語意自然的句子。",
+    promptText: "［この店は / 料理がおいしい / 値段も手頃だ / ばかりか］",
+    promptContextZh: "這家店不只料理好吃，價錢也合理。",
+    expectedAnswer: "この店は料理がおいしいばかりか値段も手頃だ",
+    options: [
+      "この店は料理がおいしいばかりか値段も手頃だ",
+      "ばかりかこの店は料理がおいしい値段も手頃だ",
+      "この店はばかりか料理がおいしい値段も手頃だ",
+      "値段も手頃だこの店は料理がおいしいばかりか"
+    ],
+    explanation: "「AばかりかB」是並列疊加：A 是已知優點，B 補充另一優點。「料理がおいしい」直接接「ばかりか」，後接「値段も手頃だ」；「ばかりか」不能放句首或緊跟「は」之後。"
+  }),
+  examQuestion({
+    id: "n2-order-shidai",
+    level: "N2",
+    surface: "次第",
+    reading: "しだい",
+    meaningZh: "一...就...",
+    promptLabel: "N2 語順組合",
+    instructionZh: "語順組合：選語法正確且語意自然的句子。",
+    promptText: "［結果が / 出次第 / 連絡を / します］",
+    promptContextZh: "結果一出來就馬上聯絡您。",
+    expectedAnswer: "結果が出次第連絡をします",
+    options: [
+      "結果が出次第連絡をします",
+      "出次第結果が連絡をします",
+      "連絡をします結果が出次第",
+      "結果が連絡を出次第します"
+    ],
+    explanation: "「Vます形/N + 次第」=「一...就...」，前句條件、後句動作。「結果が出る」加「次第」後接後句「連絡をします」。「出次第」不能置於句首，「次第」也不能與其前面動詞分離。"
+  }),
+  examQuestion({
+    id: "n2-order-nishitagatte",
+    level: "N2",
+    surface: "にしたがって",
+    reading: "にしたがって",
+    meaningZh: "隨著...",
+    promptLabel: "N2 語順組合",
+    instructionZh: "語順組合：選語法正確且語意自然的句子。",
+    promptText: "［科学技術の発展 / 生活が / にしたがって / 便利になった］",
+    promptContextZh: "隨著科技發展，生活變得便利。",
+    expectedAnswer: "科学技術の発展にしたがって生活が便利になった",
+    options: [
+      "科学技術の発展にしたがって生活が便利になった",
+      "にしたがって科学技術の発展生活が便利になった",
+      "便利になった生活が科学技術の発展にしたがって",
+      "生活がにしたがって科学技術の発展便利になった"
+    ],
+    explanation: "「Nにしたがって」表示伴隨變化，N 是變化來源、後句是隨之發生的變化。「科学技術の発展」直接接「にしたがって」，句尾以「便利になった」收。"
+  }),
+  examQuestion({
+    id: "n2-order-tsutsuaru",
+    level: "N2",
+    surface: "つつある",
+    reading: "つつある",
+    meaningZh: "正在...中",
+    promptLabel: "N2 語順組合",
+    instructionZh: "語順組合：選語法正確且語意自然的句子。",
+    promptText: "［日本社会は / 急速に / 高齢化し / つつある］",
+    promptContextZh: "日本社會正快速地高齡化。",
+    expectedAnswer: "日本社会は急速に高齢化しつつある",
+    options: [
+      "日本社会は急速に高齢化しつつある",
+      "つつある日本社会は急速に高齢化し",
+      "高齢化し日本社会は急速につつある",
+      "急速に日本社会はつつある高齢化し"
+    ],
+    explanation: "「Vます形 + つつある」表示動作正在進行的階段。「高齢化し」直接接「つつある」收尾；副詞「急速に」修飾整個過程，置於主語之後動詞之前。"
+  }),
+  examQuestion({
+    id: "n2-order-monono",
+    level: "N2",
+    surface: "ものの",
+    reading: "ものの",
+    meaningZh: "雖然...但...",
+    promptLabel: "N2 語順組合",
+    instructionZh: "語順組合：選語法正確且語意自然的句子。",
+    promptText: "［免許は / 持っている / ものの / 運転には自信がない］",
+    promptContextZh: "雖然有駕照，但對開車沒自信。",
+    expectedAnswer: "免許は持っているものの運転には自信がない",
+    options: [
+      "免許は持っているものの運転には自信がない",
+      "ものの免許は持っている運転には自信がない",
+      "運転には自信がない免許は持っているものの",
+      "免許はものの持っている運転には自信がない"
+    ],
+    explanation: "「Vている + ものの」是逆接連接，A ものの B = 「雖然 A 但 B」。「持っている」後直接接「ものの」，後接逆接句「運転には自信がない」。"
+  }),
+
+  // -- N1 文の組み立て --------------------------------------------------------
+  examQuestion({
+    id: "n1-order-tagasaigo",
+    level: "N1",
+    surface: "たが最後",
+    reading: "たがさいご",
+    meaningZh: "一旦...就...（無法挽回）",
+    promptLabel: "N1 語順組合",
+    instructionZh: "語順組合：選語法正確且語意自然的句子。",
+    promptText: "［借金を / したが最後 / 取り戻すのは / 困難だ］",
+    promptContextZh: "一旦借了錢，要回收就很困難。",
+    expectedAnswer: "借金をしたが最後取り戻すのは困難だ",
+    options: [
+      "借金をしたが最後取り戻すのは困難だ",
+      "困難だ借金をしたが最後取り戻すのは",
+      "したが最後借金を取り戻すのは困難だ",
+      "取り戻すのは借金をしたが最後困難だ"
+    ],
+    explanation: "「Vたが最後」表示「一旦...就再也無法挽回」，後句必為負面結果。「借金をした」直接接「が最後」，後接結論「取り戻すのは困難だ」。"
+  }),
+  examQuestion({
+    id: "n1-order-yoganai",
+    level: "N1",
+    surface: "ようがない",
+    reading: "ようがない",
+    meaningZh: "無從...、無法...",
+    promptLabel: "N1 語順組合",
+    instructionZh: "語順組合：選語法正確且語意自然的句子。",
+    promptText: "［連絡先が / わからないので / 彼女に / 知らせようがない］",
+    promptContextZh: "不知道聯絡方式，沒辦法通知她。",
+    expectedAnswer: "連絡先がわからないので彼女に知らせようがない",
+    options: [
+      "連絡先がわからないので彼女に知らせようがない",
+      "わからないので彼女に連絡先が知らせようがない",
+      "知らせようがない連絡先がわからないので彼女に",
+      "彼女に知らせようがない連絡先がわからないので"
+    ],
+    explanation: "「Vます形 + ようがない」表示「客觀條件不允許做某動作」。先說原因「連絡先がわからないので」，再接結果「彼女に知らせようがない」；「彼女に」要與動詞「知らせる」緊鄰。"
+  }),
+  examQuestion({
+    id: "n1-order-tatokorode",
+    level: "N1",
+    surface: "たところで",
+    reading: "たところで",
+    meaningZh: "就算...也...",
+    promptLabel: "N1 語順組合",
+    instructionZh: "語順組合：選語法正確且語意自然的句子。",
+    promptText: "［今さら / 後悔した / ところで / 結果は変わらない］",
+    promptContextZh: "事到如今後悔也改變不了結果。",
+    expectedAnswer: "今さら後悔したところで結果は変わらない",
+    options: [
+      "今さら後悔したところで結果は変わらない",
+      "後悔した今さらところで結果は変わらない",
+      "ところで今さら後悔した結果は変わらない",
+      "結果は変わらない今さら後悔したところで"
+    ],
+    explanation: "「Vた + ところで」表示「即使做了 V 也沒用」，後句必為否定／無效結果。副詞「今さら」放句首加強語氣，「後悔した」緊鄰「ところで」。"
+  }),
+  examQuestion({
+    id: "n1-order-nisuginai",
+    level: "N1",
+    surface: "にすぎない",
+    reading: "にすぎない",
+    meaningZh: "不過是...",
+    promptLabel: "N1 語順組合",
+    instructionZh: "語順組合：選語法正確且語意自然的句子。",
+    promptText: "［これは / 一部の意見 / にすぎず / 全体を反映する / ものではない］",
+    promptContextZh: "這只不過是部分意見，並不能代表整體。",
+    expectedAnswer: "これは一部の意見にすぎず全体を反映するものではない",
+    options: [
+      "これは一部の意見にすぎず全体を反映するものではない",
+      "にすぎずこれは一部の意見全体を反映するものではない",
+      "全体を反映するこれは一部の意見にすぎずものではない",
+      "ものではないこれは一部の意見にすぎず全体を反映する"
+    ],
+    explanation: "「Nにすぎない」是「只不過是 N」。連用中止形「にすぎず」接後句「全体を反映するものではない」。先點出「これは一部の意見」這個小範圍，再否定全體性。"
+  }),
+  examQuestion({
+    id: "n1-order-tewa",
+    level: "N1",
+    surface: "ては",
+    reading: "ては",
+    meaningZh: "...了又...",
+    promptLabel: "N1 語順組合",
+    instructionZh: "語順組合：選語法正確且語意自然的句子。",
+    promptText: "［単語を / 覚えては / 忘れての / 繰り返しだ］",
+    promptContextZh: "單字記了又忘、忘了又記，一直在重複。",
+    expectedAnswer: "単語を覚えては忘れての繰り返しだ",
+    options: [
+      "単語を覚えては忘れての繰り返しだ",
+      "繰り返しだ単語を覚えては忘れての",
+      "忘れての単語を覚えては繰り返しだ",
+      "単語を忘れての覚えては繰り返しだ"
+    ],
+    explanation: "「Vては Vての繰り返し」是固定表達：兩個動詞交替循環。「単語を」是受詞，緊接「覚えては」；接著「忘れての」修飾結尾的「繰り返しだ」。"
   })
 ];
 
