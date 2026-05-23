@@ -1110,6 +1110,10 @@ select:disabled {
   font-size: 0.78rem;
   color: var(--muted);
   line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .mode-card.selected small {
@@ -1125,6 +1129,10 @@ select:disabled {
   color: var(--muted);
   font-size: 0.85rem;
   line-height: 1.55;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .mode-description p {
