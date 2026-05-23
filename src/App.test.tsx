@@ -136,7 +136,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    // The four new B2 chapters surface in the chapter list.
+    // All four B2 chapters surface in the chapter list (smoke check).
     expect(
       screen.getByRole("button", { name: "查看：てください / てもいい / てはいけない" })
     ).toBeInTheDocument();
@@ -148,20 +148,50 @@ describe("App", () => {
       screen.getByRole("button", { name: "查看：と思う / と言う（引用・意見）" })
     ).toBeInTheDocument();
 
-    // Open the request/permission chapter; its examples and the related
-    // te-form drill button render.
-    await user.click(
-      screen.getByRole("button", { name: "查看：てください / てもいい / てはいけない" })
-    );
-    expect(screen.getByText("書く → 書いてください")).toBeInTheDocument();
-    expect(screen.getByText("食べる → 食べてもいいですか")).toBeInTheDocument();
+    // For each new chapter, walk: open chapter → confirm an example
+    // renders → click the related drill → confirm the practice region
+    // lands on the expected target form. This catches drill-mapping
+    // regressions on any of the four chapters individually.
+    type DrillCase = { chapter: string; example: string; drill: string; form: string | RegExp };
+    const cases: DrillCase[] = [
+      {
+        chapter: "查看：てください / てもいい / てはいけない",
+        example: "書く → 書いてください",
+        drill: "練一類て/た",
+        form: "て形"
+      },
+      {
+        chapter: "查看：なくてもいい（不必）",
+        example: "書く → 書かなくてもいい",
+        drill: "練否定整理",
+        form: "ない形"
+      },
+      {
+        chapter: "查看：てもらう / てくれる / てあげる",
+        example: "友達が 教えてくれた",
+        drill: "練一類て/た",
+        form: "て形"
+      },
+      {
+        chapter: "查看：と思う / と言う（引用・意見）",
+        example: "明日は雨だ → 明日は雨だと思う",
+        drill: "練普通形",
+        // The plain focus shuffles across all four plain forms; any of
+        // the four 普通形・... labels is acceptable as the first
+        // question's form. Match the prefix only.
+        form: /普通形・/
+      }
+    ];
 
-    // The drill button is the te-form practice -- since these are
-    // reference chapters with no requiredForms of their own, the
-    // related drill lets the learner go practice the prerequisite
-    // form (te-form音便) directly.
-    await user.click(screen.getByRole("button", { name: "練一類て/た" }));
-    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("て形")).toBeInTheDocument();
+    for (const { chapter, example, drill, form } of cases) {
+      // Return to the learning view (idempotent if already there).
+      await user.click(screen.getByRole("button", { name: "學習" }));
+      await user.click(screen.getByRole("button", { name: chapter }));
+      expect(screen.getByText(example)).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: drill }));
+      expect(within(screen.getByRole("region", { name: "目前題目" })).getByText(form)).toBeInTheDocument();
+    }
   });
 
   it("renders a soft '建議先看' hint on chapters whose prereqs are incomplete", () => {
