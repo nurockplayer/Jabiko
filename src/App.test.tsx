@@ -132,6 +132,20 @@ describe("App", () => {
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("ます形")).toBeInTheDocument();
   });
 
+  it("renders a soft '建議先看' hint on chapters whose prereqs are incomplete", () => {
+    // Empty progress: 必要過去's three prereqs (adverbial / negative /
+    // teTa) are all incomplete. The chapter-list subtitle should show
+    // the hint instead of the block's default subtitle. The hint is
+    // informational only -- the chapter itself is still openable and
+    // the drill CTA still renders (covered by the next test).
+    render(<App />);
+
+    const obligationButton = screen.getByRole("button", { name: "查看：必要過去" });
+    expect(obligationButton.textContent).toContain("建議先看");
+    expect(obligationButton.textContent).toContain("先分清楚く / に");
+    expect(obligationButton).toBeEnabled();
+  });
+
   it("starts an obligation past drill from the learning guide without prereqs", async () => {
     // No seedProgress -- with the unlock gate removed, 必要過去 must be
     // drillable cold. (Previously this required seeded prereq progress
