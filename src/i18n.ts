@@ -40,6 +40,13 @@ type Copy = {
   drillNaAdjective: string;
   drillAdverbial: string;
   drillObligationPast: string;
+  drillMasu: string;
+  drillPlain: string;
+  drillPotential: string;
+  drillVolitional: string;
+  drillPassive: string;
+  drillCausative: string;
+  drillDesiderative: string;
   startChallenge: string;
   settingsLabel: string;
   todayPractice: string;
@@ -137,6 +144,13 @@ export const copy: Record<Language, Copy> = {
     drillNaAdjective: "練な形容詞",
     drillAdverbial: "練く/に修飾",
     drillObligationPast: "練必要過去",
+    drillMasu: "練ます形",
+    drillPlain: "練普通形",
+    drillPotential: "練可能形",
+    drillVolitional: "練意向形",
+    drillPassive: "練受身形",
+    drillCausative: "練使役形",
+    drillDesiderative: "練たい・たがる",
     startChallenge: "開始挑戰",
     settingsLabel: "練習設定",
     todayPractice: "今日練習",
@@ -267,6 +281,13 @@ export const copy: Record<Language, Copy> = {
     drillNaAdjective: "Drill na-adjectives",
     drillAdverbial: "Drill ku/ni modifiers",
     drillObligationPast: "Drill past obligation",
+    drillMasu: "Drill masu form",
+    drillPlain: "Drill plain forms",
+    drillPotential: "Drill potential form",
+    drillVolitional: "Drill volitional form",
+    drillPassive: "Drill passive form",
+    drillCausative: "Drill causative form",
+    drillDesiderative: "Drill tai / tagaru",
     startChallenge: "Start challenge",
     settingsLabel: "Practice settings",
     todayPractice: "Today's practice",
@@ -397,6 +418,13 @@ export const copy: Record<Language, Copy> = {
     drillNaAdjective: "な형용사 연습",
     drillAdverbial: "く/に 수식 연습",
     drillObligationPast: "필요 과거 연습",
+    drillMasu: "ます형 연습",
+    drillPlain: "보통형 연습",
+    drillPotential: "가능형 연습",
+    drillVolitional: "의향형 연습",
+    drillPassive: "수동형 연습",
+    drillCausative: "사역형 연습",
+    drillDesiderative: "たい・たがる 연습",
     startChallenge: "도전 시작",
     settingsLabel: "연습 설정",
     todayPractice: "오늘의 연습",

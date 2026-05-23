@@ -127,6 +127,26 @@ describe("App", () => {
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("修飾形・く/に")).toBeInTheDocument();
   });
 
+  it("renders the new verb-basic blocks and runs a ます drill from the ます chapter", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // The new chapters surface in the chapter list.
+    expect(screen.getByRole("button", { name: "查看：ます形" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "查看：可能形 (V られる)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "查看：使役形 (V せる/させる)" })).toBeInTheDocument();
+
+    // Open the ます chapter; its example formulas and drill button render.
+    await user.click(screen.getByRole("button", { name: "查看：ます形" }));
+    expect(screen.getByText("書く → 書きます")).toBeInTheDocument();
+    expect(screen.getByText("食べる → 食べます")).toBeInTheDocument();
+
+    // Click the drill CTA -- challenge page should land in basic mode
+    // with the masu target form selected.
+    await user.click(screen.getByRole("button", { name: "練ます形" }));
+    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("ます形")).toBeInTheDocument();
+  });
+
   it("starts an obligation past drill from the learning guide", async () => {
     const user = userEvent.setup();
     seedProgress(["adverbial", "nai", "negativeTe", "negativeContinuative", "plainPastNegative", "te", "ta"]);
