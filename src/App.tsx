@@ -36,7 +36,8 @@ type Feedback =
   | { status: "revealed"; question: PracticeQuestion }
   | null;
 
-type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast" | "exam" | "cloze";
+type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
+type PracticeMode = "basic" | "cloze" | "exam";
 type AppView = "learn" | "challenge";
 type Theme = "light" | "dark";
 type DrillPreset = {
@@ -105,16 +106,10 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
   {
     value: "obligationPast",
     targetForms: ["obligationPast"]
-  },
-  {
-    value: "exam",
-    targetForms: []
-  },
-  {
-    value: "cloze",
-    targetForms: []
   }
 ];
+
+const practiceModeOrder: PracticeMode[] = ["basic", "cloze", "exam"];
 
 const verbGroupGuide = [
   {
@@ -295,6 +290,7 @@ export default function App() {
   const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">("godan");
   const [targetForm, setTargetForm] = useState<TargetForm>("te");
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>("single");
+  const [practiceMode, setPracticeMode] = useState<PracticeMode>("basic");
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -319,9 +315,16 @@ export default function App() {
   );
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
   const effectivePracticeFocus = !obligationUnlocked && practiceFocus === "obligationPast" ? "single" : practiceFocus;
-  const isExamFocus = effectivePracticeFocus === "exam";
-  const isClozeFocus = effectivePracticeFocus === "cloze";
+  const isExamFocus = practiceMode === "exam";
+  const isClozeFocus = practiceMode === "cloze";
   const isCuratedFocus = isExamFocus || isClozeFocus;
+  const isVerbCapable = partOfSpeech === "verb" || partOfSpeech === "mixed";
+  const availableFocusOptions = focusOptions.filter((option) => {
+    if (option.verbOnly && !isVerbCapable) return false;
+    if (option.value === "adverbial" && partOfSpeech === "verb") return false;
+    if (option.value === "obligationPast" && !obligationUnlocked) return false;
+    return true;
+  });
   const targetForms = useMemo(
     () =>
       isCuratedFocus
@@ -332,14 +335,11 @@ export default function App() {
     [effectivePracticeFocus, isCuratedFocus, selectedForm]
   );
   const activeFocusForms = targetForms.filter((form) => compatibleForms.includes(form));
-  const focusSummary =
-    isExamFocus
-      ? t.examFocusSummary
-      : isClozeFocus
-      ? t.clozeFocusSummary
-      : effectivePracticeFocus === "single"
-      ? t.targetForms[selectedForm]
-      : activeFocusForms.map((form) => t.targetForms[form]).join(" / ") || t.focusSummaryEmpty;
+  const focusSummary = isCuratedFocus
+    ? t.modeOptions[practiceMode].subtitle
+    : effectivePracticeFocus === "single"
+    ? t.targetForms[selectedForm]
+    : activeFocusForms.map((form) => t.targetForms[form]).join(" / ") || t.focusSummaryEmpty;
 
   const questions = useMemo(
     () => {
@@ -408,6 +408,11 @@ export default function App() {
     resetSession();
   };
 
+  const handlePracticeModeChange = (nextMode: PracticeMode) => {
+    setPracticeMode(nextMode);
+    resetSession();
+  };
+
   const handleChoiceSubmit = (choice: string) => {
     if (!currentQuestion || feedback) {
       return;
@@ -462,6 +467,7 @@ export default function App() {
   const themeToggleLabel = theme === "dark" ? t.themeLight : t.themeDark;
   const ThemeIcon = theme === "dark" ? Sun : Moon;
   const startDrill = (preset: DrillPreset) => {
+    setPracticeMode("basic");
     setPartOfSpeech(preset.partOfSpeech);
     setVerbGroup(preset.verbGroup ?? "all");
     setPracticeFocus(preset.practiceFocus);
@@ -535,84 +541,105 @@ export default function App() {
           </div>
 
           <fieldset>
-            <legend>{t.practiceType}</legend>
-            <div className="segmented">
-              {partOfSpeechOptions.map((option) => (
+            <legend>{t.practiceMode}</legend>
+            <div className="mode-toggle">
+              {practiceModeOrder.map((mode) => (
                 <button
-                  key={option}
+                  key={mode}
                   type="button"
-                  className={partOfSpeech === option ? "selected" : ""}
-                  onClick={() => handlePartOfSpeechChange(option)}
+                  className={`mode-card${practiceMode === mode ? " selected" : ""}`}
+                  onClick={() => handlePracticeModeChange(mode)}
                 >
-                  {t.partOfSpeech[option]}
+                  <strong>{t.modeOptions[mode].title}</strong>
+                  <small>{t.modeOptions[mode].subtitle}</small>
                 </button>
               ))}
             </div>
           </fieldset>
 
-          <fieldset>
-            <legend>{t.practiceFocus}</legend>
-            <div className="segmented focus-segmented">
-              {focusOptions.map((option) => {
-                const isDisabled =
-                  (option.verbOnly && partOfSpeech !== "verb" && partOfSpeech !== "mixed") ||
-                  (option.value === "adverbial" && partOfSpeech === "verb") ||
-                  (option.value === "obligationPast" && !obligationUnlocked);
+          {practiceMode === "basic" ? (
+            <>
+              <fieldset>
+                <legend>{t.practiceType}</legend>
+                <div className="segmented">
+                  {partOfSpeechOptions.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      className={partOfSpeech === option ? "selected" : ""}
+                      onClick={() => handlePartOfSpeechChange(option)}
+                    >
+                      {t.partOfSpeech[option]}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
 
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={effectivePracticeFocus === option.value ? "selected" : ""}
-                    disabled={isDisabled}
-                    onClick={() => handlePracticeFocusChange(option.value)}
+              {availableFocusOptions.length > 0 ? (
+                <fieldset>
+                  <legend>{t.practiceFocus}</legend>
+                  <div className="segmented focus-segmented">
+                    {availableFocusOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={effectivePracticeFocus === option.value ? "selected" : ""}
+                        onClick={() => handlePracticeFocusChange(option.value)}
+                      >
+                        {t.focusOptions[option.value]}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              ) : null}
+
+              {isVerbCapable ? (
+                <fieldset>
+                  <legend>{t.verbGroup}</legend>
+                  <div className="segmented">
+                    {verbGroupOptions.map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        className={verbGroup === option ? "selected" : ""}
+                        onClick={() => {
+                          setVerbGroup(option);
+                          resetSession();
+                        }}
+                      >
+                        {t.verbGroups[option]}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              ) : null}
+
+              {effectivePracticeFocus === "single" ? (
+                <label className="select-label">
+                  {t.targetForm}
+                  <select
+                    value={selectedForm}
+                    onChange={(event) => {
+                      setTargetForm(event.target.value as TargetForm);
+                      resetSession();
+                    }}
                   >
-                    {t.focusOptions[option.value]}
-                  </button>
-                );
-              })}
+                    {formOptions
+                      .filter((form) => compatibleForms.includes(form))
+                      .map((form) => (
+                        <option key={form} value={form}>
+                          {t.targetForms[form]}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+              ) : null}
+            </>
+          ) : (
+            <div className="mode-description">
+              <p>{t.modeOptions[practiceMode].subtitle}</p>
             </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>{t.verbGroup}</legend>
-            <div className="segmented">
-              {verbGroupOptions.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  className={verbGroup === option ? "selected" : ""}
-                  disabled={partOfSpeech !== "verb" && partOfSpeech !== "mixed"}
-                  onClick={() => {
-                    setVerbGroup(option);
-                    resetSession();
-                  }}
-                >
-                  {t.verbGroups[option]}
-                </button>
-              ))}
-            </div>
-          </fieldset>
-
-          <label className="select-label">
-            {t.targetForm}
-            <select
-              value={selectedForm}
-              disabled={effectivePracticeFocus !== "single"}
-              onChange={(event) => {
-                setTargetForm(event.target.value as TargetForm);
-                resetSession();
-              }}
-            >
-              {formOptions
-                .filter((form) => compatibleForms.includes(form))
-                .map((form) => (
-                  <option key={form} value={form}>
-                    {t.targetForms[form]}
-                  </option>
-                ))}
-            </select>
-          </label>
+          )}
 
           <p className="focus-summary">{focusSummary}</p>
 

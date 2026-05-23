@@ -44,6 +44,7 @@ type Copy = {
   settingsLabel: string;
   todayPractice: string;
   practiceType: string;
+  practiceMode: string;
   practiceFocus: string;
   verbGroup: string;
   targetForm: string;
@@ -65,12 +66,11 @@ type Copy = {
   revealed: string;
   answerKey: string;
   focusSummaryEmpty: string;
-  examFocusSummary: string;
-  clozeFocusSummary: string;
+  modeOptions: Record<"basic" | "cloze" | "exam", { title: string; subtitle: string }>;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
-  focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast" | "exam" | "cloze", string>;
-  targetForms: Record<TargetForm, string>;
+  focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast", string>;
+  targetForms: Record<TargetForm, string>;
   lessonCardFocus: string[];
 };
 
@@ -141,6 +141,7 @@ export const copy: Record<Language, Copy> = {
     settingsLabel: "練習設定",
     todayPractice: "今日練習",
     practiceType: "練習類型",
+    practiceMode: "練習模式",
     practiceFocus: "練習重點",
     verbGroup: "動詞類別",
     targetForm: "目標形",
@@ -162,8 +163,11 @@ export const copy: Record<Language, Copy> = {
     revealed: "先記這題",
     answerKey: "正解",
     focusSummaryEmpty: "目前重點沒有可用形",
-    examFocusSummary: "考試題型：句中填空、語順組合、短文脈絡",
-    clozeFocusSummary: "句中填空 (N5)：〜てください、〜たいです",
+    modeOptions: {
+      basic: { title: "基礎變化", subtitle: "詞類變化練習 · 課本詞彙" },
+      cloze: { title: "句中填空", subtitle: "N5 文型 · 〜てください / 〜たいです" },
+      exam: { title: "綜合考題庫", subtitle: "N1/N2 為主 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み" }
+    },
     partOfSpeech: {
       verb: "動詞",
       i_adjective: "い形容詞",
@@ -183,9 +187,7 @@ export const copy: Record<Language, Copy> = {
       negative: "否定整理",
       plain: "普通形整理",
       adverbial: "く/に修飾",
-      obligationPast: "必要過去",
-      exam: "考試題型",
-      cloze: "句中填空"
+      obligationPast: "必要過去"
     },
     targetForms: {
       dictionary: "辭書形",
@@ -269,6 +271,7 @@ export const copy: Record<Language, Copy> = {
     settingsLabel: "Practice settings",
     todayPractice: "Today's practice",
     practiceType: "Word type",
+    practiceMode: "Practice mode",
     practiceFocus: "Practice focus",
     verbGroup: "Verb group",
     targetForm: "Target form",
@@ -290,8 +293,11 @@ export const copy: Record<Language, Copy> = {
     revealed: "Remember this one",
     answerKey: "Answer",
     focusSummaryEmpty: "No compatible forms for this focus",
-    examFocusSummary: "Exam-style: cloze, sentence order, and short context",
-    clozeFocusSummary: "Sentence cloze (N5): ~te kudasai, ~tai desu",
+    modeOptions: {
+      basic: { title: "Conjugation", subtitle: "Form drills · textbook vocabulary" },
+      cloze: { title: "Sentence cloze", subtitle: "N5 grammar · ~te kudasai / ~tai desu" },
+      exam: { title: "JLPT mock pool", subtitle: "N1/N2 focus · grammar / sentence order / context / vocab / reading" }
+    },
     partOfSpeech: {
       verb: "Verbs",
       i_adjective: "i-adj",
@@ -311,9 +317,7 @@ export const copy: Record<Language, Copy> = {
       negative: "Negatives",
       plain: "Plain forms",
       adverbial: "ku/ni modifiers",
-      obligationPast: "Past obligation",
-      exam: "Exam-style",
-      cloze: "Sentence cloze"
+      obligationPast: "Past obligation"
     },
     targetForms: {
       dictionary: "Dictionary form",
@@ -397,6 +401,7 @@ export const copy: Record<Language, Copy> = {
     settingsLabel: "연습 설정",
     todayPractice: "오늘의 연습",
     practiceType: "연습 유형",
+    practiceMode: "연습 모드",
     practiceFocus: "연습 포인트",
     verbGroup: "동사 그룹",
     targetForm: "목표형",
@@ -418,8 +423,11 @@ export const copy: Record<Language, Copy> = {
     revealed: "이 문제를 기억하기",
     answerKey: "정답",
     focusSummaryEmpty: "이 포인트에 맞는 활용이 없습니다",
-    examFocusSummary: "시험형: 빈칸, 어순, 짧은 문맥",
-    clozeFocusSummary: "문장 빈칸: 문맥으로 활용 고르기",
+    modeOptions: {
+      basic: { title: "기본 활용", subtitle: "품사별 활용 연습 · 교재 어휘" },
+      cloze: { title: "문장 빈칸", subtitle: "N5 문형 · 〜てください / 〜たいです" },
+      exam: { title: "종합 시험 문제", subtitle: "N1/N2 중심 · 문법 / 어순 / 단문 / 어휘 / 한자 읽기" }
+    },
     partOfSpeech: {
       verb: "동사",
       i_adjective: "い형용사",
@@ -439,9 +447,7 @@ export const copy: Record<Language, Copy> = {
       negative: "부정 정리",
       plain: "보통형 정리",
       adverbial: "く/に 수식",
-      obligationPast: "필요 과거",
-      exam: "시험형",
-      cloze: "문장 빈칸"
+      obligationPast: "필요 과거"
     },
     targetForms: {
       dictionary: "사전형",
