@@ -491,6 +491,143 @@ export const learningBlocks: LearningBlock[] = [
     ],
     recommendedAfter: ["masu"],
     requiredForms: ["desiderative"]
+  },
+  {
+    id: "te-kudasai",
+    group: "basic",
+    category: "句型",
+    kicker: "請求 / 許可",
+    title: "てください / てもいい / てはいけない",
+    subtitle: "書いてください / 食べてもいい / 入ってはいけません",
+    explanation:
+      "三個 N5 必背的 V て形句型：請求對方做（てください）、徵求許可（てもいい）、強烈禁止（てはいけない）。先把 て形 音便記熟，再記三個句尾的差別就能直接套。",
+    examples: [
+      { formula: "書く → 書いてください", note: "請對方做這個動作" },
+      { formula: "食べる → 食べてもいいですか", note: "尋求許可，加「ですか」更禮貌" },
+      { formula: "入る → 入ってはいけません", note: "強烈禁止（規定、警告）" },
+      { formula: "ここで写真を撮る → 撮ってもいい", note: "省略「ですか」變成「可以做」的陳述" }
+    ],
+    pitfalls: [
+      "三句型都需要 V て形作前置；先把 て形 音便（いて／いで／して／って／んで）記熟才能正確接",
+      "「ないでください」(請不要做) 比「てはいけません」(禁止) 軟，請對方時用前者較自然",
+      "「もいい」常省略「ですか」變陳述，要看語境分清是徵求許可還是給予許可"
+    ],
+    drills: [
+      {
+        labelKey: "drillGodanTeTa",
+        preset: {
+          partOfSpeech: "verb",
+          verbGroup: "godan",
+          practiceFocus: "teTa",
+          targetForm: "te"
+        }
+      }
+    ],
+    recommendedAfter: ["teTa"]
+    // Reference chapter -- no single requiredForms. Practicing the
+    // underlying て形 is the canonical drill (linked above).
+  },
+  {
+    id: "nakute-mo-ii",
+    group: "basic",
+    category: "句型",
+    kicker: "不必要",
+    title: "なくてもいい（不必）",
+    subtitle: "書かなくてもいい / 高くなくてもいい / 学生でなくてもいい",
+    explanation:
+      "表「不做也可以、沒必要做」。動詞用 Vない形 把ない換成 なくてもいい；形容詞用「-くなくてもいい」；名詞用「-でなくてもいい」。",
+    examples: [
+      { formula: "書く → 書かなくてもいい", note: "動詞：ない形 + なくてもいい" },
+      { formula: "来る → 来なくてもいい", note: "三類動詞：直接記" },
+      { formula: "高い → 高くなくてもいい", note: "い形容詞：去い加 -くなくてもいい" },
+      { formula: "学生 → 学生でなくてもいい", note: "名詞 / な形容詞：-でなくてもいい" }
+    ],
+    pitfalls: [
+      "反義是「なければならない」(必須做)，要分清「不必」與「必須」",
+      "名詞用「でなくてもいい」（不是「ではないでもいい」）",
+      "口語常省略「いい」後面的「です」，正式書面要加上"
+    ],
+    drills: [
+      {
+        labelKey: "drillNegative",
+        preset: {
+          partOfSpeech: "verb",
+          verbGroup: "all",
+          practiceFocus: "negative",
+          targetForm: "nai"
+        }
+      }
+    ],
+    recommendedAfter: ["negative"]
+    // Reference chapter -- the related drill is the ない形 family.
+  },
+  {
+    id: "te-morau",
+    group: "basic",
+    category: "句型",
+    kicker: "授受表現",
+    title: "てもらう / てくれる / てあげる",
+    subtitle: "教えてもらう / 教えてくれる / 教えてあげる",
+    explanation:
+      "日語特殊的「授受」表現，視角不同：「てあげる」是「我（內側）對別人做」、「てくれる」是「別人對我做」、「てもらう」是「我主動請別人幫忙」。視角判錯是這個句型最大的坑。",
+    examples: [
+      { formula: "友達が 教えてくれた", note: "別人對我做：朋友（為我）教" },
+      { formula: "友達に 教えてもらった", note: "我主動請別人做：請朋友教（並接受）" },
+      { formula: "弟に 教えてあげた", note: "我對別人做：我（為弟弟）教" },
+      { formula: "先生に 来ていただいた", note: "「いただく」是「もらう」的謙讓，對上位用" }
+    ],
+    pitfalls: [
+      "別人對我做事一律用「てくれる」家族，不能用「てあげる」（容易記混）",
+      "對上位／長輩用「ていただく」(=てもらう 謙讓) 或「てくださる」(=てくれる 尊敬)",
+      "助詞配對：てもらう／てあげる 用「に」標記做事者；てくれる 用「が」"
+    ],
+    drills: [
+      {
+        labelKey: "drillGodanTeTa",
+        preset: {
+          partOfSpeech: "verb",
+          verbGroup: "godan",
+          practiceFocus: "teTa",
+          targetForm: "te"
+        }
+      }
+    ],
+    recommendedAfter: ["teTa"]
+    // Reference chapter -- te-form practice is the canonical drill.
+  },
+  {
+    id: "to-omou",
+    group: "basic",
+    category: "句型",
+    kicker: "引用 / 意見",
+    title: "と思う / と言う（引用・意見）",
+    subtitle: "明日は雨だと思う / 「行く」と言った",
+    explanation:
+      "用「と」標記引用內容，再接「思う」(認為) 或「言う」(說)。引用內容必須用普通形結尾，不能用ます形。這就是為什麼前面普通形那一章那麼重要。",
+    examples: [
+      { formula: "明日は雨だ → 明日は雨だと思う", note: "個人意見：我覺得明天會下雨" },
+      { formula: "行く → 「行く」と言った", note: "直接引用：他說「我要去」" },
+      { formula: "美味しい → 美味しいと思う", note: "い形容詞的普通形直接接と" },
+      { formula: "学生だ → 学生だと言った", note: "な形容詞 / 名詞要保留「だ」" }
+    ],
+    pitfalls: [
+      "引用內容用普通形，不要用ます形（×「雨ですと思う」）",
+      "な形容詞和名詞要加「だ」（×「静かと思う」→ ○「静かだと思う」）",
+      "口語可把「と」說成「って」：「行くって言った」"
+    ],
+    drills: [
+      {
+        labelKey: "drillPlain",
+        preset: {
+          partOfSpeech: "mixed",
+          verbGroup: "all",
+          practiceFocus: "plain",
+          targetForm: "plainPresentAffirmative"
+        }
+      }
+    ],
+    recommendedAfter: ["plain"]
+    // Reference chapter -- the related drill is the plain-form four-cell.
   }
 ];
 
