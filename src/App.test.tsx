@@ -140,6 +140,33 @@ describe("App", () => {
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("必要過去・なければならなかった")).toBeInTheDocument();
   });
 
+  it("redirects to the prereq chapter when prereqs are incomplete on 必要過去", async () => {
+    const user = userEvent.setup();
+    // No seedProgress -- start with a clean slate so 必要過去 has all
+    // three recommended prereqs incomplete.
+    render(<App />);
+
+    // Open the 必要過去 chapter.
+    await user.click(screen.getByRole("button", { name: "查看：必要過去" }));
+
+    // The drill CTA must not be present: launching obligationPast
+    // practice with the gate still on would silently fall back to a
+    // single-form drill, which is the bug Codex flagged.
+    expect(screen.queryByRole("button", { name: "練必要過去" })).not.toBeInTheDocument();
+
+    // Instead, the chapter offers a one-click jump to the first
+    // incomplete prereq (adverbial → "先分清楚く / に").
+    const prereqCta = screen.getByRole("button", { name: "先看前置：先分清楚く / に" });
+    expect(prereqCta).toBeInTheDocument();
+
+    await user.click(prereqCta);
+
+    // Active chapter switches to adverbial; obligationPast content no
+    // longer rendered.
+    expect(screen.getAllByRole("heading", { name: "先分清楚く / に" }).length).toBeGreaterThan(0);
+    expect(screen.queryByText("学生 -> 学生にならなければならなかった")).not.toBeInTheDocument();
+  });
+
   it("starts the challenge from the learning path", async () => {
     const user = userEvent.setup();
     render(<App />);

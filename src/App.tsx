@@ -691,7 +691,23 @@ function LearningPanel({
               </div>
             ) : null}
 
-            {active.drills && active.drills.length > 0 ? (
+            {activeCard.incompletePrereqs.length > 0 ? (
+              // Prereqs not yet done. Don't expose the drill CTA -- the
+              // challenge page would silently fall back to a different
+              // focus (see the obligationUnlocked filter on focusOptions
+              // / effectivePracticeFocus). Instead, offer a one-click
+              // jump to the first incomplete prereq block.
+              <div className="inline-action-row">
+                <button
+                  className="inline-drill-button"
+                  type="button"
+                  onClick={() => setSelectedBlockId(activeCard.incompletePrereqs[0])}
+                >
+                  <ArrowRight aria-hidden="true" />
+                  先看前置：{blockTitleById(activeCard.incompletePrereqs[0])}
+                </button>
+              </div>
+            ) : active.drills && active.drills.length > 0 ? (
               <div className="inline-action-row">
                 {active.drills.map((drill) => (
                   <button

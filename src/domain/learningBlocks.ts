@@ -33,10 +33,11 @@ export type LearningBlock = {
    */
   drills?: LearningBlockDrill[];
   /**
-   * (PR C) Question IDs to filter the exam mode to when launching from
-   * an N1/N2 攻略 block. Unused by basic blocks.
+   * (PR C) Question IDs from the exam pool that an N1/N2 攻略 block
+   * relates to. When launched, the challenge page will filter exam
+   * mode to just these questions. Unused by basic blocks.
    */
-  examFilterIds?: string[];
+  relatedExamIds?: string[];
   /**
    * Block ids that the learner is recommended to look at first. Does not
    * gate access -- just surfaces a hint when those prereqs aren't done.
