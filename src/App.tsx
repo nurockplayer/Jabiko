@@ -625,7 +625,13 @@ function LearningPanel({
                 aria-pressed={block.id === active.id}
                 onClick={() => setSelectedBlockId(block.id)}
               >
-                <span>{complete ? "完成" : block.kicker ?? block.category}</span>
+                <span>
+                  {block.completionMode === "reference"
+                    ? "參考"
+                    : complete
+                    ? "完成"
+                    : block.kicker ?? block.category}
+                </span>
                 <strong>{block.title}</strong>
                 <small>
                   {incompletePrereqs.length > 0
@@ -673,6 +679,10 @@ function LearningPanel({
                   ))}
                 </ul>
               </div>
+            ) : null}
+
+            {active.drillNote ? (
+              <p className="block-drill-note">{active.drillNote}</p>
             ) : null}
 
             {active.drills && active.drills.length > 0 ? (

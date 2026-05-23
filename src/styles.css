@@ -878,6 +878,18 @@ button svg {
   margin-top: 0.32rem;
 }
 
+.block-drill-note {
+  background: var(--summary-bg);
+  border: 1px dashed var(--summary-border);
+  border-radius: 8px;
+  color: var(--summary-text);
+  font-size: 0.84rem;
+  line-height: 1.55;
+  margin: 0;
+  overflow-wrap: anywhere;
+  padding: 0.55rem 0.75rem;
+}
+
 .inline-action-row {
   display: flex;
   flex-wrap: wrap;
