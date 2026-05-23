@@ -878,15 +878,6 @@ button svg {
   margin-top: 0.32rem;
 }
 
-.block-prereq-hint {
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-style: italic;
-  line-height: 1.5;
-  margin: 0.5rem 0 0;
-  overflow-wrap: anywhere;
-}
-
 .inline-action-row {
   display: flex;
   flex-wrap: wrap;

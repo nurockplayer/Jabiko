@@ -16,11 +16,8 @@ import { buildClozeQuestionPool } from "./domain/cloze";
 import { clozeSentences } from "./domain/cloze-data";
 import { buildExamQuestionPool } from "./domain/examBlocks";
 import {
-  getIncompletePrereqs,
   isLearningBlockComplete,
-  isObligationUnlocked,
   learningBlocks,
-  type LearningBlock,
   type LearningBlockDrillPreset
 } from "./domain/learningBlocks";
 import {
@@ -122,7 +119,6 @@ export default function App() {
   const startedAtRef = useRef(Date.now());
   const nextButtonRef = useRef<HTMLButtonElement>(null);
   const t = copy[language];
-  const obligationUnlocked = isObligationUnlocked(progressAttempts);
 
   const baseCompatibleForms =
     partOfSpeech === "mixed"
@@ -130,11 +126,8 @@ export default function App() {
       : partOfSpeech === "verb"
         ? VERB_FORMS
         : ADJECTIVE_FORMS;
-  const compatibleForms = uniqueForms([...baseCompatibleForms, "reading", "meaning"]).filter(
-    (form) => obligationUnlocked || form !== "obligationPast"
-  );
+  const compatibleForms = uniqueForms([...baseCompatibleForms, "reading", "meaning"]);
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
-  const effectivePracticeFocus = !obligationUnlocked && practiceFocus === "obligationPast" ? "single" : practiceFocus;
   const isExamFocus = practiceMode === "exam";
   const isClozeFocus = practiceMode === "cloze";
   const isCuratedFocus = isExamFocus || isClozeFocus;
@@ -142,22 +135,21 @@ export default function App() {
   const availableFocusOptions = focusOptions.filter((option) => {
     if (option.verbOnly && !isVerbCapable) return false;
     if (option.value === "adverbial" && partOfSpeech === "verb") return false;
-    if (option.value === "obligationPast" && !obligationUnlocked) return false;
     return true;
   });
   const targetForms = useMemo(
     () =>
       isCuratedFocus
         ? []
-        : effectivePracticeFocus === "single"
+        : practiceFocus === "single"
         ? [selectedForm]
-        : focusOptions.find((option) => option.value === effectivePracticeFocus)?.targetForms ?? [selectedForm],
-    [effectivePracticeFocus, isCuratedFocus, selectedForm]
+        : focusOptions.find((option) => option.value === practiceFocus)?.targetForms ?? [selectedForm],
+    [practiceFocus, isCuratedFocus, selectedForm]
   );
   const activeFocusForms = targetForms.filter((form) => compatibleForms.includes(form));
   const focusSummary = isCuratedFocus
     ? t.modeOptions[practiceMode].subtitle
-    : effectivePracticeFocus === "single"
+    : practiceFocus === "single"
     ? t.targetForms[selectedForm]
     : activeFocusForms.map((form) => t.targetForms[form]).join(" / ") || t.focusSummaryEmpty;
 
@@ -405,7 +397,7 @@ export default function App() {
                       <button
                         key={option.value}
                         type="button"
-                        className={effectivePracticeFocus === option.value ? "selected" : ""}
+                        className={practiceFocus === option.value ? "selected" : ""}
                         onClick={() => handlePracticeFocusChange(option.value)}
                       >
                         {t.focusOptions[option.value]}
@@ -436,7 +428,7 @@ export default function App() {
                 </fieldset>
               ) : null}
 
-              {effectivePracticeFocus === "single" ? (
+              {practiceFocus === "single" ? (
                 <label className="select-label">
                   {t.targetForm}
                   <select
@@ -587,17 +579,12 @@ function LearningPanel({
     .filter((block) => block.group === "basic")
     .map((block) => ({
       block,
-      complete: isLearningBlockComplete(progressAttempts, block),
-      incompletePrereqs: getIncompletePrereqs(progressAttempts, block)
+      complete: isLearningBlockComplete(progressAttempts, block)
     }));
 
-  // Pick the first incomplete block whose prereqs are also complete; fall
-  // back to the first incomplete (even if a prereq is still open) and
-  // finally to the very first block.
-  const recommended =
-    blockCards.find((card) => !card.complete && card.incompletePrereqs.length === 0)
-    ?? blockCards.find((card) => !card.complete)
-    ?? blockCards[0];
+  // Default to the first incomplete chapter; fall back to the first
+  // chapter if everything is complete (e.g. revisiting after finishing).
+  const recommended = blockCards.find((card) => !card.complete) ?? blockCards[0];
 
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const activeCard = blockCards.find((card) => card.block.id === selectedBlockId) ?? recommended;
@@ -611,11 +598,6 @@ function LearningPanel({
     return labels[drill.labelKey] ?? drill.labelKey;
   };
 
-  const blockTitleById = (id: string): string => {
-    const found = learningBlocks.find((b) => b.id === id);
-    return found ? found.title : id;
-  };
-
   return (
     <section className="learning-panel" aria-label={t.learningRegion}>
       <div className="chapter-shell">
@@ -627,7 +609,7 @@ function LearningPanel({
           </div>
 
           <div className="chapter-list">
-            {blockCards.map(({ block, complete, incompletePrereqs }) => (
+            {blockCards.map(({ block, complete }) => (
               <button
                 key={block.id}
                 type="button"
@@ -638,11 +620,7 @@ function LearningPanel({
               >
                 <span>{complete ? "完成" : block.kicker ?? block.category}</span>
                 <strong>{block.title}</strong>
-                <small>
-                  {incompletePrereqs.length > 0
-                    ? `建議先看：${incompletePrereqs.map(blockTitleById).join("、")}`
-                    : block.subtitle}
-                </small>
+                <small>{block.subtitle}</small>
               </button>
             ))}
           </div>
@@ -662,11 +640,6 @@ function LearningPanel({
               <div className="focus-formula" aria-label={`${active.title}例子`}>
                 <span>{active.subtitle}</span>
               </div>
-            ) : null}
-            {activeCard.incompletePrereqs.length > 0 ? (
-              <p className="block-prereq-hint">
-                建議先看：{activeCard.incompletePrereqs.map(blockTitleById).join("、")}
-              </p>
             ) : null}
           </div>
 
@@ -691,23 +664,7 @@ function LearningPanel({
               </div>
             ) : null}
 
-            {activeCard.incompletePrereqs.length > 0 ? (
-              // Prereqs not yet done. Don't expose the drill CTA -- the
-              // challenge page would silently fall back to a different
-              // focus (see the obligationUnlocked filter on focusOptions
-              // / effectivePracticeFocus). Instead, offer a one-click
-              // jump to the first incomplete prereq block.
-              <div className="inline-action-row">
-                <button
-                  className="inline-drill-button"
-                  type="button"
-                  onClick={() => setSelectedBlockId(activeCard.incompletePrereqs[0])}
-                >
-                  <ArrowRight aria-hidden="true" />
-                  先看前置：{blockTitleById(activeCard.incompletePrereqs[0])}
-                </button>
-              </div>
-            ) : active.drills && active.drills.length > 0 ? (
+            {active.drills && active.drills.length > 0 ? (
               <div className="inline-action-row">
                 {active.drills.map((drill) => (
                   <button
