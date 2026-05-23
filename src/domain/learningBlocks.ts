@@ -39,11 +39,6 @@ export type LearningBlock = {
    */
   relatedExamIds?: string[];
   /**
-   * Block ids that the learner is recommended to look at first. Does not
-   * gate access -- just surfaces a hint when those prereqs aren't done.
-   */
-  recommendedAfter?: string[];
-  /**
    * Target forms the learner needs to answer correctly at least once to
    * mark this block as 完成 in the index. Optional -- some blocks (e.g.
    * exam-prep 攻略) don't have a single matching practice form.
@@ -199,7 +194,6 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    recommendedAfter: ["adverbial", "negative", "teTa"],
     requiredForms: ["obligationPast"]
   },
   {
@@ -343,7 +337,6 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    recommendedAfter: ["verb-types"],
     requiredForms: ["potential"]
   },
   {
@@ -379,7 +372,6 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    recommendedAfter: ["verb-types"],
     requiredForms: ["volitional"]
   },
   {
@@ -414,7 +406,6 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    recommendedAfter: ["verb-types"],
     requiredForms: ["passive"]
   },
   {
@@ -450,7 +441,6 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    recommendedAfter: ["verb-types"],
     requiredForms: ["causative"]
   },
   {
@@ -484,7 +474,6 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    recommendedAfter: ["masu"],
     requiredForms: ["desiderative"]
   }
 ];
@@ -498,25 +487,3 @@ export function isLearningBlockComplete(attempts: CompletionAttempt[], block: Le
   );
 }
 
-/**
- * Returns the recommended-prerequisite block ids that are NOT yet complete.
- * Used to surface a soft hint ("建議先看：XX") -- access is never gated.
- */
-export function getIncompletePrereqs(attempts: CompletionAttempt[], block: LearningBlock): string[] {
-  if (!block.recommendedAfter || block.recommendedAfter.length === 0) return [];
-  return block.recommendedAfter.filter((prereqId) => {
-    const prereq = learningBlocks.find((b) => b.id === prereqId);
-    return Boolean(prereq) && !isLearningBlockComplete(attempts, prereq!);
-  });
-}
-
-/**
- * Kept for the challenge-page focus filter: it still hides the 必要過去
- * option until the learner has worked through the basics. The learning
- * page itself no longer uses this -- every block is always clickable.
- */
-export function isObligationUnlocked(attempts: CompletionAttempt[]): boolean {
-  const block = learningBlocks.find((b) => b.id === "obligationPast");
-  if (!block) return true;
-  return getIncompletePrereqs(attempts, block).length === 0;
-}
