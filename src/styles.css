@@ -847,6 +847,46 @@ button svg {
   line-height: 1.55;
 }
 
+.block-pitfalls {
+  background: color-mix(in srgb, var(--vermilion) 10%, var(--paper));
+  border: 1px solid color-mix(in srgb, var(--vermilion) 36%, var(--rule));
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+}
+
+.block-pitfalls-title {
+  color: var(--vermilion);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+}
+
+.block-pitfalls ul {
+  color: var(--ink);
+  line-height: 1.6;
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.block-pitfalls li {
+  overflow-wrap: anywhere;
+}
+
+.block-pitfalls li + li {
+  margin-top: 0.32rem;
+}
+
+.block-prereq-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0.5rem 0 0;
+  overflow-wrap: anywhere;
+}
+
 .inline-action-row {
   display: flex;
   flex-wrap: wrap;

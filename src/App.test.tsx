@@ -36,14 +36,16 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "一章一章解鎖" })).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { name: "先分清楚く / に" }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("button", { name: "開始第 1 關" }).length).toBeGreaterThan(0);
     expect(screen.getByText("高い -> 高く")).toBeInTheDocument();
     expect(screen.getByText("静か -> 静かに")).toBeInTheDocument();
     expect(screen.getByText("学生 -> 学生に")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "練く/に修飾" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "查看：ない形家族" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "查看：動詞て形 / た形" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "必要過去：完成前置後解鎖" })).toBeDisabled();
+    // 必要過去 is always clickable now (no lock UI); only the active
+    // chapter's body content is rendered, so its examples should not
+    // appear in the default view.
+    expect(screen.getByRole("button", { name: "查看：必要過去" })).toBeEnabled();
     expect(screen.queryByText("学生 -> 学生にならなければならなかった")).not.toBeInTheDocument();
     expect(screen.queryByText("否定て形・ないで")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "開始挑戰" })).toBeInTheDocument();
@@ -62,11 +64,13 @@ describe("App", () => {
     expect(screen.queryByText("学生 -> 学生にならなければならなかった")).not.toBeInTheDocument();
   });
 
-  it("starts the first prerequisite from the hero", async () => {
+  it("starts the first prerequisite from the recommended chapter CTA", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getAllByRole("button", { name: "開始第 1 關" })[0]);
+    // Default-active chapter is "先分清楚く / に"; its く/に drill button is
+    // the equivalent of the old "開始第 1 關" hero CTA.
+    await user.click(screen.getByRole("button", { name: "練く/に修飾" }));
 
     expect(screen.getByRole("button", { name: "く/に修飾" })).toHaveClass("selected");
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("修飾形・く/に")).toBeInTheDocument();
