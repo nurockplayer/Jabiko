@@ -41,7 +41,9 @@ describe("App", () => {
     expect(screen.getByText("学生 -> 学生に")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "練く/に修飾" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "查看：ない形家族" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "查看：動詞て形 / た形" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "查看：動詞て形 / た形（一類音便重點）" })
+    ).toBeInTheDocument();
     // 必要過去 is always clickable now (no lock UI); only the active
     // chapter's body content is rendered, so its examples should not
     // appear in the default view.
@@ -192,6 +194,26 @@ describe("App", () => {
       await user.click(screen.getByRole("button", { name: drill }));
       expect(within(screen.getByRole("region", { name: "目前題目" })).getByText(form)).toBeInTheDocument();
     }
+  });
+
+  it("renders reference chapters with '參考' badge and a drill-note", async () => {
+    // Reference chapters (verb-types + the 4 sentence-pattern chapters)
+    // have no requiredForms and should never get marked "完成". Their
+    // status badge says "參考"; sentence-pattern chapters carry an
+    // explicit drillNote saying the linked drill is a prerequisite-form
+    // practice, not the chapter's own pattern.
+    const user = userEvent.setup();
+    render(<App />);
+
+    const referenceChapter = screen.getByRole("button", {
+      name: "查看：てください / てもいい / てはいけない"
+    });
+    expect(referenceChapter.textContent).toContain("參考");
+
+    await user.click(referenceChapter);
+    expect(
+      screen.getByText(/連到的是前置「て形」音便練習/)
+    ).toBeInTheDocument();
   });
 
   it("renders a soft '建議先看' hint on chapters whose prereqs are incomplete", () => {

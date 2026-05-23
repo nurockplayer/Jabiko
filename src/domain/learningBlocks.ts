@@ -28,10 +28,25 @@ export type LearningBlock = {
   examples: Array<{ formula: string; note?: string }>;
   pitfalls?: string[];
   /**
+   * "tracked" (default): completion is decided by requiredForms.
+   * "reference": this chapter has no completable drill of its own --
+   * it's reading material. UI shows "參考" instead of completion state
+   * and the recommendation algorithm skips it (treats it as
+   * always-complete) so it doesn't get stuck recommending these.
+   */
+  completionMode?: "tracked" | "reference";
+  /**
    * One or more drill buttons. The first entry is the primary action;
    * additional entries render as secondary buttons in the same row.
    */
   drills?: LearningBlockDrill[];
+  /**
+   * Optional note rendered above the drill button row. Used by
+   * reference chapters whose drill targets a prerequisite form rather
+   * than the chapter's own pattern, so the gap between "what you're
+   * reading" and "what you'll practice" is explicit.
+   */
+  drillNote?: string;
   /**
    * (PR C) Question IDs from the exam pool that an N1/N2 攻略 block
    * relates to. When launched, the challenge page will filter exam
@@ -143,8 +158,8 @@ export const learningBlocks: LearningBlock[] = [
     group: "basic",
     category: "動詞變化",
     kicker: "音便整理",
-    title: "動詞て形 / た形",
-    subtitle: "読む -> 読んで / 読んだ",
+    title: "動詞て形 / た形（一類音便重點）",
+    subtitle: "読む → 読んで / 読んだ（一類動詞五種音便）",
     explanation:
       "熟悉一類動詞的音便（く→いて、ぐ→いで、す→して、う・つ・る→って、む・ぶ・ぬ→んで），任何句型都能直接套。",
     examples: [
@@ -226,6 +241,7 @@ export const learningBlocks: LearningBlock[] = [
       "「勉強する」「練習する」這種 N + する 也跟 する 同類，當三類處理",
       "判斷時要看整個字典形，不要只看結尾一字"
     ],
+    completionMode: "reference",
     drills: [
       {
         labelKey: "drillMasu",
@@ -237,10 +253,12 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ]
-    // verb-types is a reference chapter -- the canonical drill of
-    // verb-type classification is the ます chapter, which has its own
-    // requiredForms. Sharing requiredForms here would clear both
-    // chapters on a single correct ます answer (Codex review of #28).
+    // verb-types is a reference chapter -- there's no targetForm in
+    // the engine that uniquely tests classification, so ます is the
+    // canonical drill. The "reference" completionMode keeps verb-types
+    // off the per-attempt completion tracker (avoids the shared-
+    // completion bug Codex flagged on PR #28) and lets the chapter
+    // show 「參考」 instead of getting stuck "incomplete" forever.
   },
   {
     id: "masu",
@@ -441,7 +459,7 @@ export const learningBlocks: LearningBlock[] = [
     ],
     pitfalls: [
       "う結尾的一類動詞要變わ：手伝う → 手伝わせる",
-      "「に」「を」標記受役者，搭配差別大（息子に行かせる／息子を行かせる）",
+      "助詞提示受役者的角色（息子に行かせる／息子を行かせる），但「強制 vs 允許」主要靠語境判讀，不是只看助詞",
       "「させられる」是使役被動「被迫做」，常考"
     ],
     drills: [
@@ -469,7 +487,7 @@ export const learningBlocks: LearningBlock[] = [
       "第一人稱用 V ます形 + たい（い形容詞變化），第三人稱用 V ます形 + たがる（動詞變化）。文法和變化邏輯不同要分開記。",
     examples: [
       { formula: "行く → 行きたい / 行きたくない / 行きたかった", note: "第一人稱：い形容詞變化" },
-      { formula: "食べる → 食べたい", note: "二類也是去る＋たい（不要去ます形再去る）" },
+      { formula: "食べる → 食べたい", note: "二類：去る得到ます stem「食べ」，再加たい" },
       { formula: "妹は 行きたがる / 行きたがっている", note: "第三人稱：動詞變化（がる／がっている）" },
       { formula: "子供は 食べたがっている", note: "第三人稱當下願望多用ている" }
     ],
@@ -512,6 +530,7 @@ export const learningBlocks: LearningBlock[] = [
       "「ないでください」(請不要做) 比「てはいけません」(禁止) 軟，請對方時用前者較自然",
       "「もいい」常省略「ですか」變陳述，要看語境分清是徵求許可還是給予許可"
     ],
+    completionMode: "reference",
     drills: [
       {
         labelKey: "drillGodanTeTa",
@@ -523,9 +542,9 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
+    drillNote:
+      "※ 這支按鈕連到的是前置「て形」音便練習，不是句型本身的選擇題。判斷「請求 / 許可 / 禁止」的真正題型會在後續更新補上。",
     recommendedAfter: ["teTa"]
-    // Reference chapter -- no single requiredForms. Practicing the
-    // underlying て形 is the canonical drill (linked above).
   },
   {
     id: "nakute-mo-ii",
@@ -547,6 +566,7 @@ export const learningBlocks: LearningBlock[] = [
       "名詞用「でなくてもいい」（不是「ではないでもいい」）",
       "口語常省略「いい」後面的「です」，正式書面要加上"
     ],
+    completionMode: "reference",
     drills: [
       {
         labelKey: "drillNegative",
@@ -558,8 +578,9 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
+    drillNote:
+      "※ 按鈕連到「ない形家族」練習，是 なくてもいい 的前置變化。判斷「不必 / 必須」的選句題會在後續補上。",
     recommendedAfter: ["negative"]
-    // Reference chapter -- the related drill is the ない形 family.
   },
   {
     id: "te-morau",
@@ -581,6 +602,7 @@ export const learningBlocks: LearningBlock[] = [
       "對上位／長輩用「ていただく」(=てもらう 謙讓) 或「てくださる」(=てくれる 尊敬)",
       "助詞配對：てもらう／てあげる 用「に」標記做事者；てくれる 用「が」"
     ],
+    completionMode: "reference",
     drills: [
       {
         labelKey: "drillGodanTeTa",
@@ -592,8 +614,9 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
+    drillNote:
+      "※ 按鈕連到「て形」音便練習，是授受表現的前置。判斷誰幫誰做的視角題會在後續補上。",
     recommendedAfter: ["teTa"]
-    // Reference chapter -- te-form practice is the canonical drill.
   },
   {
     id: "to-omou",
@@ -603,18 +626,19 @@ export const learningBlocks: LearningBlock[] = [
     title: "と思う / と言う（引用・意見）",
     subtitle: "明日は雨だと思う / 「行く」と言った",
     explanation:
-      "用「と」標記引用內容，再接「思う」(認為) 或「言う」(說)。引用內容必須用普通形結尾，不能用ます形。這就是為什麼前面普通形那一章那麼重要。",
+      "用「と」標記引用內容，再接「思う」(認為) 或「言う」(說)。意見與間接引用通常用普通形（雨だと思う）；直接引用時引號內可以保留原話，例如「行きます」と言った 也是合法的。整體看，把普通形練熟最不容易出錯。",
     examples: [
       { formula: "明日は雨だ → 明日は雨だと思う", note: "個人意見：我覺得明天會下雨" },
-      { formula: "行く → 「行く」と言った", note: "直接引用：他說「我要去」" },
+      { formula: "「行く」と言った", note: "直接引用：可用普通形「行く」也可用「行きます」原話" },
       { formula: "美味しい → 美味しいと思う", note: "い形容詞的普通形直接接と" },
       { formula: "学生だ → 学生だと言った", note: "な形容詞 / 名詞要保留「だ」" }
     ],
     pitfalls: [
-      "引用內容用普通形，不要用ます形（×「雨ですと思う」）",
+      "間接引用 / 個人意見要用普通形（×「雨ですと思う」、○「雨だと思う」）",
       "な形容詞和名詞要加「だ」（×「静かと思う」→ ○「静かだと思う」）",
       "口語可把「と」說成「って」：「行くって言った」"
     ],
+    completionMode: "reference",
     drills: [
       {
         labelKey: "drillPlain",
@@ -626,14 +650,20 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
+    drillNote:
+      "※ 按鈕連到「普通形四格」練習，是引用句型的前置。直接區分引用 / 意見的選擇題會在後續補上。",
     recommendedAfter: ["plain"]
-    // Reference chapter -- the related drill is the plain-form four-cell.
   }
 ];
 
 type CompletionAttempt = { isCorrect: boolean; targetForm: string };
 
 export function isLearningBlockComplete(attempts: CompletionAttempt[], block: LearningBlock): boolean {
+  // Reference chapters are reading material -- treat them as
+  // "no completion needed" so the recommendation algorithm doesn't
+  // park on them, and the UI shows "參考" rather than misleadingly
+  // marking them perpetually incomplete.
+  if (block.completionMode === "reference") return true;
   if (!block.requiredForms || block.requiredForms.length === 0) return false;
   return block.requiredForms.every((targetForm) =>
     attempts.some((attempt) => attempt.isCorrect && attempt.targetForm === targetForm)
@@ -649,6 +679,11 @@ export function getIncompletePrereqs(attempts: CompletionAttempt[], block: Learn
   if (!block.recommendedAfter || block.recommendedAfter.length === 0) return [];
   return block.recommendedAfter.filter((prereqId) => {
     const prereq = learningBlocks.find((b) => b.id === prereqId);
-    return Boolean(prereq) && !isLearningBlockComplete(attempts, prereq!);
+    if (!prereq) return false;
+    // Reference prereqs don't sit in the hint (their completion is
+    // implicit via reading); we only nudge learners on prereqs that
+    // can actually be completed via a drill.
+    if (prereq.completionMode === "reference") return false;
+    return !isLearningBlockComplete(attempts, prereq);
   });
 }
