@@ -409,6 +409,7 @@ export default function App() {
   };
 
   const handlePracticeModeChange = (nextMode: PracticeMode) => {
+    if (nextMode === practiceMode) return;
     setPracticeMode(nextMode);
     resetSession();
   };
@@ -548,6 +549,7 @@ export default function App() {
                   key={mode}
                   type="button"
                   className={`mode-card${practiceMode === mode ? " selected" : ""}`}
+                  aria-pressed={practiceMode === mode}
                   onClick={() => handlePracticeModeChange(mode)}
                 >
                   <strong>{t.modeOptions[mode].title}</strong>
