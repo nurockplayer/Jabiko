@@ -6,7 +6,6 @@ import {
   Eye,
   GraduationCap,
   Languages,
-  Lock,
   Moon,
   RotateCcw,
   Sun,
@@ -16,6 +15,14 @@ import { ADJECTIVE_FORMS, VERB_FORMS } from "./domain/conjugation";
 import { buildClozeQuestionPool } from "./domain/cloze";
 import { clozeSentences } from "./domain/cloze-data";
 import { buildExamQuestionPool } from "./domain/examBlocks";
+import {
+  getIncompletePrereqs,
+  isLearningBlockComplete,
+  isObligationUnlocked,
+  learningBlocks,
+  type LearningBlock,
+  type LearningBlockDrillPreset
+} from "./domain/learningBlocks";
 import {
   buildChoiceOptions,
   buildQuestionPool,
@@ -40,23 +47,7 @@ type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "o
 type PracticeMode = "basic" | "cloze" | "exam";
 type AppView = "learn" | "challenge";
 type Theme = "light" | "dark";
-type DrillPreset = {
-  partOfSpeech: PartOfSpeech | "mixed";
-  verbGroup?: VerbGroup | "all";
-  practiceFocus: PracticeFocus;
-  targetForm: TargetForm;
-};
-type UnlockStageId = "adverbial" | "negative" | "teTa" | "obligationPast";
-type UnlockStage = {
-  id: UnlockStageId;
-  kicker: string;
-  title: string;
-  body: string;
-  example: string;
-  actionLabel: string;
-  preset: DrillPreset;
-  requiredForms: TargetForm[];
-};
+type DrillPreset = LearningBlockDrillPreset;
 
 const THEME_STORAGE_KEY = "jabiko.theme";
 
@@ -111,178 +102,7 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
 
 const practiceModeOrder: PracticeMode[] = ["basic", "cloze", "exam"];
 
-const verbGroupGuide = [
-  {
-    group: "一類動詞",
-    rule: "最後一個假名會換段或音便。",
-    examples: ["書く -> 書きます", "読む -> 読みます", "帰る -> 帰ります"],
-    note: "像「帰る」雖然以る結尾，但仍是一類，要另外記。"
-  },
-  {
-    group: "二類動詞",
-    rule: "先去掉最後的る，再接語尾。",
-    examples: ["食べる -> 食べます", "見る -> 見ます", "起きる -> 起きます"],
-    note: "二類通常比較規則：食べる、見る、起きる。"
-  },
-  {
-    group: "三類動詞",
-    rule: "する、来る是不規則，直接記形。",
-    examples: ["する -> します", "来る -> 来ます", "勉強する -> 勉強します"],
-    note: "名詞 + する 也跟 する 一起變。"
-  }
-];
-
-const teTaRows = [
-  { ending: "く", te: "いて", ta: "いた", example: "書く -> 書いて / 書いた" },
-  { ending: "ぐ", te: "いで", ta: "いだ", example: "泳ぐ -> 泳いで / 泳いだ" },
-  { ending: "す", te: "して", ta: "した", example: "話す -> 話して / 話した" },
-  { ending: "う・つ・る", te: "って", ta: "った", example: "待つ -> 待って / 待った" },
-  { ending: "む・ぶ・ぬ", te: "んで", ta: "んだ", example: "読む -> 読んで / 読んだ" }
-];
-
-const negativePipelines = [
-  {
-    title: "ない形",
-    formula: "書く -> 書かない",
-    body: "一類動詞先把最後假名換成あ段，再接ない；う結尾要變わない。"
-  },
-  {
-    title: "否定て形・ないで",
-    formula: "書かない -> 書かないで",
-    body: "不是從て形變否定。先做ない形，再接ないで。"
-  },
-  {
-    title: "否定接續・なくて",
-    formula: "書かない -> 書かなくて",
-    body: "也是先做ない形，再把ない換成なくて。常用來接理由或狀態。"
-  },
-  {
-    title: "否定過去",
-    formula: "書かない -> 書かなかった",
-    body: "不是從た形變否定。先做ない形，再把ない換成なかった。"
-  }
-];
-
-const adjectiveRows = [
-  {
-    type: "い形容詞",
-    cue: "去い，加く或かった",
-    examples: ["高い -> 高く", "高い -> 高くない", "高い -> 高かった"],
-    note: "修飾動詞用く；否定過去是くなかった，不是かった再否定。"
-  },
-  {
-    type: "な形容詞",
-    cue: "修飾動詞加に，句尾像名詞句",
-    examples: ["静か -> 静かに", "静かだ", "静かだった"],
-    note: "修飾動詞用に；過去是だった，不是把な留下來加た。"
-  },
-  {
-    type: "名詞",
-    cue: "修飾或方向常加に",
-    examples: ["学生 -> 学生に", "学生だ", "学生だった"],
-    note: "名詞加に常用在變成某身分或方向；句尾過去用だった。"
-  }
-];
-
-const obligationPastRows = [
-  {
-    title: "動詞",
-    formula: "書く -> 書かなければならなかった",
-    body: "先做ない形「書かない」，再把ない換成「なければならなかった」。"
-  },
-  {
-    title: "い形容詞",
-    formula: "高い -> 高くならなければならなかった",
-    body: "先做「高くなる」，再把なる變成必要過去。"
-  },
-  {
-    title: "な形容詞",
-    formula: "静か -> 静かにならなければならなかった",
-    body: "先加に做「静かになる」，過去放在最後的ならなかった。"
-  },
-  {
-    title: "名詞",
-    formula: "学生 -> 学生にならなければならなかった",
-    body: "你卡住的型就在這裡：名詞 + に + ならなければならなかった。"
-  }
-];
-
-const unlockStages: UnlockStage[] = [
-  {
-    id: "adverbial",
-    kicker: "第 1 關",
-    title: "先分清楚く / に",
-    body: "い形容詞去い加く；な形容詞和名詞先加に。必要過去的に就是從這裡來。",
-    example: "高く / 静かに / 学生に",
-    actionLabel: "開始第 1 關",
-    preset: {
-      partOfSpeech: "mixed",
-      verbGroup: "all",
-      practiceFocus: "adverbial",
-      targetForm: "adverbial"
-    },
-    requiredForms: ["adverbial"]
-  },
-  {
-    id: "negative",
-    kicker: "第 2 關",
-    title: "ない形家族",
-    body: "先把ない、ないで、なくて、なかった整理成同一條線。",
-    example: "書かない -> 書かなかった",
-    actionLabel: "練第 2 關",
-    preset: {
-      partOfSpeech: "verb",
-      verbGroup: "all",
-      practiceFocus: "negative",
-      targetForm: "nai"
-    },
-    requiredForms: ["nai", "negativeTe", "negativeContinuative", "plainPastNegative"]
-  },
-  {
-    id: "teTa",
-    kicker: "第 3 關",
-    title: "動詞て形 / た形",
-    body: "熟悉一類動詞音便後，再處理更長的句型比較穩。",
-    example: "読む -> 読んで / 読んだ",
-    actionLabel: "練第 3 關",
-    preset: {
-      partOfSpeech: "verb",
-      verbGroup: "godan",
-      practiceFocus: "teTa",
-      targetForm: "te"
-    },
-    requiredForms: ["te", "ta"]
-  },
-  {
-    id: "obligationPast",
-    kicker: "最後解鎖",
-    title: "必要過去",
-    body: "前面三關都答對過後，再練「にならなければならなかった」。",
-    example: "学生 + に + ならなければならなかった",
-    actionLabel: "練必要過去",
-    preset: {
-      partOfSpeech: "noun",
-      verbGroup: "all",
-      practiceFocus: "obligationPast",
-      targetForm: "obligationPast"
-    },
-    requiredForms: ["obligationPast"]
-  }
-];
-
 const attemptStore = createAttemptStore();
-
-function isLearningStageComplete(attempts: Attempt[], stage: UnlockStage): boolean {
-  return stage.requiredForms.every((targetForm) =>
-    attempts.some((attempt) => attempt.isCorrect && attempt.targetForm === targetForm)
-  );
-}
-
-function isObligationUnlocked(attempts: Attempt[]): boolean {
-  return unlockStages
-    .filter((stage) => stage.id !== "obligationPast")
-    .every((stage) => isLearningStageComplete(attempts, stage));
-}
 
 export default function App() {
   const [appView, setAppView] = useState<AppView>("learn");
@@ -761,162 +581,39 @@ function LearningPanel({
   onStartDrill: (preset: DrillPreset) => void;
 }) {
   const t = copy[language];
-  const obligationIsUnlocked = isObligationUnlocked(progressAttempts);
-  const stageCards = unlockStages.map((stage) => {
-    const complete = isLearningStageComplete(progressAttempts, stage);
-    const locked = stage.id === "obligationPast" && !obligationIsUnlocked;
-    return { ...stage, complete, locked };
-  });
-  const recommendedStage = stageCards.find((stage) => !stage.complete && !stage.locked) ?? stageCards[stageCards.length - 1];
-  const [selectedChapterId, setSelectedChapterId] = useState<UnlockStageId | null>(null);
-  const selectedStage = stageCards.find((stage) => stage.id === selectedChapterId);
-  const activeStage = selectedStage && !selectedStage.locked ? selectedStage : recommendedStage;
+  // PR A: surface only the "basic" learning blocks. PR C will introduce
+  // exam-prep blocks alongside these.
+  const blockCards = learningBlocks
+    .filter((block) => block.group === "basic")
+    .map((block) => ({
+      block,
+      complete: isLearningBlockComplete(progressAttempts, block),
+      incompletePrereqs: getIncompletePrereqs(progressAttempts, block)
+    }));
 
-  const renderChapterLesson = () => {
-    switch (activeStage.id) {
-      case "adverbial":
-        return (
-          <div className="chapter-lesson">
-            <div className="rule-matrix three-column">
-              {adjectiveRows.map((row) => (
-                <article className="rule-card" key={row.type}>
-                  <h4>{row.type}</h4>
-                  <p>{row.cue}</p>
-                  <div className="formula-row" aria-label={`${row.type}例子`}>
-                    {row.examples.map((example) => (
-                      <code key={example}>{example}</code>
-                    ))}
-                  </div>
-                  <small>{row.note}</small>
-                </article>
-              ))}
-            </div>
-            <div className="inline-action-row">
-              <button
-                className="inline-drill-button"
-                type="button"
-                onClick={() =>
-                  onStartDrill({
-                    partOfSpeech: "i_adjective",
-                    verbGroup: "all",
-                    practiceFocus: "plain",
-                    targetForm: "plainPresentNegative"
-                  })
-                }
-              >
-                <ArrowRight aria-hidden="true" />
-                {t.drillIAdjective}
-              </button>
-              <button
-                className="inline-drill-button"
-                type="button"
-                onClick={() =>
-                  onStartDrill({
-                    partOfSpeech: "na_adjective",
-                    verbGroup: "all",
-                    practiceFocus: "plain",
-                    targetForm: "plainPresentNegative"
-                  })
-                }
-              >
-                <ArrowRight aria-hidden="true" />
-                {t.drillNaAdjective}
-              </button>
-              <button
-                className="inline-drill-button"
-                type="button"
-                onClick={() => onStartDrill(activeStage.preset)}
-              >
-                <ArrowRight aria-hidden="true" />
-                {t.drillAdverbial}
-              </button>
-            </div>
-          </div>
-        );
+  // Pick the first incomplete block whose prereqs are also complete; fall
+  // back to the first incomplete (even if a prereq is still open) and
+  // finally to the very first block.
+  const recommended =
+    blockCards.find((card) => !card.complete && card.incompletePrereqs.length === 0)
+    ?? blockCards.find((card) => !card.complete)
+    ?? blockCards[0];
 
-      case "negative":
-        return (
-          <div className="chapter-lesson">
-            <div className="pipeline-grid">
-              {negativePipelines.map((item) => (
-                <article className="pipeline-card" key={item.title}>
-                  <span>{item.title}</span>
-                  <code>{item.formula}</code>
-                  <p>{item.body}</p>
-                </article>
-              ))}
-            </div>
-            <button className="inline-drill-button" type="button" onClick={() => onStartDrill(activeStage.preset)}>
-              <ArrowRight aria-hidden="true" />
-              {t.drillNegative}
-            </button>
-          </div>
-        );
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const activeCard = blockCards.find((card) => card.block.id === selectedBlockId) ?? recommended;
+  const active = activeCard.block;
 
-      case "teTa":
-        return (
-          <div className="chapter-lesson">
-            <div className="rule-matrix three-column">
-              {verbGroupGuide.map((item) => (
-                <article className="rule-card" key={item.group}>
-                  <h4>{item.group}</h4>
-                  <p>{item.rule}</p>
-                  <div className="formula-row" aria-label={`${item.group}例子`}>
-                    {item.examples.map((example) => (
-                      <code key={example}>{example}</code>
-                    ))}
-                  </div>
-                  <small>{item.note}</small>
-                </article>
-              ))}
-            </div>
-            <div className="sound-table" role="table" aria-label={t.teTaTableLabel}>
-              <div className="sound-row sound-head" role="row">
-                <span role="columnheader">{t.tableEnding}</span>
-                <span role="columnheader">{t.tableTe}</span>
-                <span role="columnheader">{t.tableTa}</span>
-                <span role="columnheader">{t.tableExample}</span>
-              </div>
-              {teTaRows.map((row) => (
-                <div className="sound-row" role="row" key={row.ending}>
-                  <span role="cell">{row.ending}</span>
-                  <code role="cell">{row.te}</code>
-                  <code role="cell">{row.ta}</code>
-                  <code role="cell">{row.example}</code>
-                </div>
-              ))}
-            </div>
-            <button className="inline-drill-button" type="button" onClick={() => onStartDrill(activeStage.preset)}>
-              <ArrowRight aria-hidden="true" />
-              {t.drillGodanTeTa}
-            </button>
-          </div>
-        );
+  // Resolve the drill button label from the i18n copy table. The schema
+  // stores a plain string key so new drill labels don't require schema
+  // updates.
+  const drillButtonLabel = (drill: { labelKey: string }): string => {
+    const labels = t as unknown as Record<string, string>;
+    return labels[drill.labelKey] ?? drill.labelKey;
+  };
 
-      case "obligationPast":
-        return (
-          <div className="chapter-lesson">
-            <div className="pipeline-grid">
-              {obligationPastRows.map((item) => (
-                <article className="pipeline-card" key={item.title}>
-                  <span>{item.title}</span>
-                  <code>{item.formula}</code>
-                  <p>{item.body}</p>
-                </article>
-              ))}
-            </div>
-            <button
-              className="inline-drill-button"
-              type="button"
-              disabled={!obligationIsUnlocked}
-              onClick={() => onStartDrill(activeStage.preset)}
-            >
-              {obligationIsUnlocked ? <ArrowRight aria-hidden="true" /> : <Lock aria-hidden="true" />}
-              {obligationIsUnlocked ? t.drillObligationPast : "完成前置後解鎖"}
-            </button>
-          </div>
-        );
-    }
+  const blockTitleById = (id: string): string => {
+    const found = learningBlocks.find((b) => b.id === id);
+    return found ? found.title : id;
   };
 
   return (
@@ -926,22 +623,26 @@ function LearningPanel({
           <div className="chapter-index-copy">
             <p className="eyebrow">課程章節</p>
             <h2>一章一章解鎖</h2>
-            <p>首頁只放章節目錄。選一章後，右邊才顯示該章規則、例子與練習。</p>
+            <p>選一章看規則、例子與常見陷阱，再到挑戰頁練。</p>
           </div>
 
           <div className="chapter-list">
-            {stageCards.map((stage) => (
+            {blockCards.map(({ block, complete, incompletePrereqs }) => (
               <button
-                className={`chapter-list-button${stage.id === activeStage.id ? " selected" : ""}${stage.complete ? " complete" : ""}`}
+                key={block.id}
                 type="button"
-                key={stage.id}
-                disabled={stage.locked}
-                aria-label={stage.locked ? `${stage.title}：完成前置後解鎖` : `查看：${stage.title}`}
-                onClick={() => setSelectedChapterId(stage.id)}
+                className={`chapter-list-button${block.id === active.id ? " selected" : ""}${complete ? " complete" : ""}`}
+                aria-label={`查看：${block.title}`}
+                aria-pressed={block.id === active.id}
+                onClick={() => setSelectedBlockId(block.id)}
               >
-                <span>{stage.complete ? "完成" : stage.locked ? "鎖定" : stage.kicker}</span>
-                <strong>{stage.title}</strong>
-                <small>{stage.locked ? "完成前置後解鎖" : stage.example}</small>
+                <span>{complete ? "完成" : block.kicker ?? block.category}</span>
+                <strong>{block.title}</strong>
+                <small>
+                  {incompletePrereqs.length > 0
+                    ? `建議先看：${incompletePrereqs.map(blockTitleById).join("、")}`
+                    : block.subtitle}
+                </small>
               </button>
             ))}
           </div>
@@ -954,21 +655,58 @@ function LearningPanel({
 
         <section className="chapter-content" aria-labelledby="active-chapter-title">
           <div className="chapter-content-head">
-            <p className="eyebrow">{activeStage.kicker}</p>
-            <h3 id="active-chapter-title">{activeStage.title}</h3>
-            <p>{activeStage.body}</p>
-            <div className="focus-formula" aria-label={`${activeStage.title}例子`}>
-              <span>{activeStage.example}</span>
-            </div>
-            <div className="chapter-actions">
-              <button className="start-challenge" type="button" onClick={() => onStartDrill(activeStage.preset)}>
-                <ArrowRight aria-hidden="true" />
-                {activeStage.complete ? "複習這一章" : activeStage.actionLabel}
-              </button>
-              <span>{obligationIsUnlocked ? "必要過去已解鎖" : "必要過去會在前置完成後解鎖"}</span>
-            </div>
+            <p className="eyebrow">{active.kicker ?? active.category}</p>
+            <h3 id="active-chapter-title">{active.title}</h3>
+            <p>{active.explanation}</p>
+            {active.subtitle ? (
+              <div className="focus-formula" aria-label={`${active.title}例子`}>
+                <span>{active.subtitle}</span>
+              </div>
+            ) : null}
+            {activeCard.incompletePrereqs.length > 0 ? (
+              <p className="block-prereq-hint">
+                建議先看：{activeCard.incompletePrereqs.map(blockTitleById).join("、")}
+              </p>
+            ) : null}
           </div>
-          {renderChapterLesson()}
+
+          <div className="chapter-lesson">
+            <div className="pipeline-grid">
+              {active.examples.map((example) => (
+                <article className="pipeline-card" key={example.formula}>
+                  <code>{example.formula}</code>
+                  {example.note ? <p>{example.note}</p> : null}
+                </article>
+              ))}
+            </div>
+
+            {active.pitfalls && active.pitfalls.length > 0 ? (
+              <div className="block-pitfalls">
+                <p className="block-pitfalls-title">常見陷阱</p>
+                <ul>
+                  {active.pitfalls.map((pitfall) => (
+                    <li key={pitfall}>{pitfall}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {active.drills && active.drills.length > 0 ? (
+              <div className="inline-action-row">
+                {active.drills.map((drill) => (
+                  <button
+                    key={drill.labelKey}
+                    className="inline-drill-button"
+                    type="button"
+                    onClick={() => onStartDrill(drill.preset)}
+                  >
+                    <ArrowRight aria-hidden="true" />
+                    {drillButtonLabel(drill)}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
         </section>
       </div>
     </section>
