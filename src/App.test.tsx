@@ -132,6 +132,38 @@ describe("App", () => {
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("ます形")).toBeInTheDocument();
   });
 
+  it("renders the new sentence-pattern reference chapters and reaches their related drill", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // The four new B2 chapters surface in the chapter list.
+    expect(
+      screen.getByRole("button", { name: "查看：てください / てもいい / てはいけない" })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "查看：なくてもいい（不必）" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "查看：てもらう / てくれる / てあげる" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "查看：と思う / と言う（引用・意見）" })
+    ).toBeInTheDocument();
+
+    // Open the request/permission chapter; its examples and the related
+    // te-form drill button render.
+    await user.click(
+      screen.getByRole("button", { name: "查看：てください / てもいい / てはいけない" })
+    );
+    expect(screen.getByText("書く → 書いてください")).toBeInTheDocument();
+    expect(screen.getByText("食べる → 食べてもいいですか")).toBeInTheDocument();
+
+    // The drill button is the te-form practice -- since these are
+    // reference chapters with no requiredForms of their own, the
+    // related drill lets the learner go practice the prerequisite
+    // form (te-form音便) directly.
+    await user.click(screen.getByRole("button", { name: "練一類て/た" }));
+    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("て形")).toBeInTheDocument();
+  });
+
   it("renders a soft '建議先看' hint on chapters whose prereqs are incomplete", () => {
     // Empty progress: 必要過去's three prereqs (adverbial / negative /
     // teTa) are all incomplete. The chapter-list subtitle should show
