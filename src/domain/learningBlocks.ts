@@ -236,8 +236,11 @@ export const learningBlocks: LearningBlock[] = [
           targetForm: "masu"
         }
       }
-    ],
-    requiredForms: ["masu"]
+    ]
+    // verb-types is a reference chapter -- the canonical drill of
+    // verb-type classification is the ます chapter, which has its own
+    // requiredForms. Sharing requiredForms here would clear both
+    // chapters on a single correct ます answer (Codex review of #28).
   },
   {
     id: "masu",
@@ -345,7 +348,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    recommendedAfter: ["verb-types"],
+    recommendedAfter: ["masu"],
     requiredForms: ["potential"]
   },
   {
@@ -381,7 +384,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    recommendedAfter: ["verb-types"],
+    recommendedAfter: ["masu"],
     requiredForms: ["volitional"]
   },
   {
@@ -416,7 +419,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    recommendedAfter: ["verb-types"],
+    recommendedAfter: ["masu"],
     requiredForms: ["passive"]
   },
   {
@@ -452,7 +455,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    recommendedAfter: ["verb-types"],
+    recommendedAfter: ["masu"],
     requiredForms: ["causative"]
   },
   {
