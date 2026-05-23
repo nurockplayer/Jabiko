@@ -39,6 +39,13 @@ export type LearningBlock = {
    */
   relatedExamIds?: string[];
   /**
+   * Block ids the learner is suggested to look at first. Informational
+   * only -- access is never blocked. Used to render a soft
+   * "建議先看：XX" hint in the chapter list when those prereqs are
+   * still incomplete.
+   */
+  recommendedAfter?: string[];
+  /**
    * Target forms the learner needs to answer correctly at least once to
    * mark this block as 完成 in the index. Optional -- some blocks (e.g.
    * exam-prep 攻略) don't have a single matching practice form.
@@ -194,6 +201,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
+    recommendedAfter: ["adverbial", "negative", "teTa"],
     requiredForms: ["obligationPast"]
   },
   {
@@ -337,6 +345,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
+    recommendedAfter: ["verb-types"],
     requiredForms: ["potential"]
   },
   {
@@ -372,6 +381,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
+    recommendedAfter: ["verb-types"],
     requiredForms: ["volitional"]
   },
   {
@@ -406,6 +416,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
+    recommendedAfter: ["verb-types"],
     requiredForms: ["passive"]
   },
   {
@@ -441,6 +452,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
+    recommendedAfter: ["verb-types"],
     requiredForms: ["causative"]
   },
   {
@@ -474,6 +486,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
+    recommendedAfter: ["masu"],
     requiredForms: ["desiderative"]
   }
 ];
@@ -487,3 +500,15 @@ export function isLearningBlockComplete(attempts: CompletionAttempt[], block: Le
   );
 }
 
+/**
+ * Returns the recommendedAfter ids whose blocks are NOT yet complete.
+ * Powers the informational "建議先看：XX" hint in the chapter list --
+ * never blocks access (no callers gate UI on this).
+ */
+export function getIncompletePrereqs(attempts: CompletionAttempt[], block: LearningBlock): string[] {
+  if (!block.recommendedAfter || block.recommendedAfter.length === 0) return [];
+  return block.recommendedAfter.filter((prereqId) => {
+    const prereq = learningBlocks.find((b) => b.id === prereqId);
+    return Boolean(prereq) && !isLearningBlockComplete(attempts, prereq!);
+  });
+}

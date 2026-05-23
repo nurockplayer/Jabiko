@@ -16,6 +16,7 @@ import { buildClozeQuestionPool } from "./domain/cloze";
 import { clozeSentences } from "./domain/cloze-data";
 import { buildExamQuestionPool } from "./domain/examBlocks";
 import {
+  getIncompletePrereqs,
   isLearningBlockComplete,
   learningBlocks,
   type LearningBlockDrillPreset
@@ -579,7 +580,8 @@ function LearningPanel({
     .filter((block) => block.group === "basic")
     .map((block) => ({
       block,
-      complete: isLearningBlockComplete(progressAttempts, block)
+      complete: isLearningBlockComplete(progressAttempts, block),
+      incompletePrereqs: getIncompletePrereqs(progressAttempts, block)
     }));
 
   // Default to the first incomplete chapter; fall back to the first
@@ -598,6 +600,11 @@ function LearningPanel({
     return labels[drill.labelKey] ?? drill.labelKey;
   };
 
+  const blockTitleById = (id: string): string => {
+    const found = learningBlocks.find((b) => b.id === id);
+    return found ? found.title : id;
+  };
+
   return (
     <section className="learning-panel" aria-label={t.learningRegion}>
       <div className="chapter-shell">
@@ -609,7 +616,7 @@ function LearningPanel({
           </div>
 
           <div className="chapter-list">
-            {blockCards.map(({ block, complete }) => (
+            {blockCards.map(({ block, complete, incompletePrereqs }) => (
               <button
                 key={block.id}
                 type="button"
@@ -620,7 +627,11 @@ function LearningPanel({
               >
                 <span>{complete ? "完成" : block.kicker ?? block.category}</span>
                 <strong>{block.title}</strong>
-                <small>{block.subtitle}</small>
+                <small>
+                  {incompletePrereqs.length > 0
+                    ? `建議先看：${incompletePrereqs.map(blockTitleById).join("、")}`
+                    : block.subtitle}
+                </small>
               </button>
             ))}
           </div>
