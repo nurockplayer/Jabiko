@@ -430,7 +430,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "熱がありますね。早く病院へ行った ___ 。",
     promptContextZh: "你發燒了呢，早點去醫院比較好。",
-    hintZh: "對發燒的人關於就醫的建議。",
+    hintZh: "發燒時對就醫安排的判斷。",
     expectedAnswer: "ほうがいい",
     options: ["ほうがいい", "ことがある", "つもりだ", "おかげだ"],
     explanation: "「Vた + ほうがいい」表示對對方的建議。"

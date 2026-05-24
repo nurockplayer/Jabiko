@@ -68,11 +68,12 @@ for (let i = 0; i < blocks.length; i++) {
   const meaningMatch = body.match(/meaningZh:\s*"((?:[^"\\]|\\.)*)"/);
   if (hintMatch && meaningMatch) {
     const hint = hintMatch[1];
-    // Split meaningZh on common Chinese punctuation (、 / ， / ;) -- each
-    // gloss often lists synonyms; any one of them appearing in hintZh
-    // is a leak.
+    // Split meaningZh on common Chinese punctuation AND on parens.
+    // Parens often hold the function tag (e.g. "...比較好（建議）") --
+    // those tags are the worst leak surface since they name the answer
+    // type, so the guard must catch them.
     const tokens = meaningMatch[1]
-      .split(/[、，；,;/]/)
+      .split(/[、，；,;/（）()「」]/)
       .map((t) => t.replace(/\.\.\.|…|\s/g, "").trim())
       .filter((t) => t.length >= 2);
     for (const token of tokens) {
