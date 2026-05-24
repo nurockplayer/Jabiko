@@ -196,6 +196,56 @@ describe("App", () => {
     }
   });
 
+  it("launches the sentence-pattern drill from each reference chapter's pattern button", async () => {
+    // The 4 reference chapters now expose a primary pattern-drill
+    // button (above the existing form-variation drill). Clicking it
+    // should set the challenge page to "句型練習" mode filtered to
+    // that chapter's pattern, and the first question's prompt label
+    // should reflect the pattern.
+    const user = userEvent.setup();
+    type PatternCase = {
+      chapter: string;
+      drill: string;
+      promptLabelFragment: RegExp;
+    };
+    const cases: PatternCase[] = [
+      {
+        chapter: "查看：てください / てもいい / てはいけない",
+        drill: "練句型：請求 / 許可 / 禁止",
+        promptLabelFragment: /請求 \/ 許可 \/ 禁止/
+      },
+      {
+        chapter: "查看：なくてもいい（不必）",
+        drill: "練句型：不必 vs 必須",
+        promptLabelFragment: /不必 \/ 必須/
+      },
+      {
+        chapter: "查看：てもらう / てくれる / てあげる",
+        drill: "練句型：授受視角",
+        promptLabelFragment: /授受視角/
+      },
+      {
+        chapter: "查看：と思う / と言う（引用・意見）",
+        drill: "練句型：引用 / 意見",
+        promptLabelFragment: /引用 \/ 意見/
+      }
+    ];
+
+    render(<App />);
+
+    for (const { chapter, drill, promptLabelFragment } of cases) {
+      await user.click(screen.getByRole("button", { name: "學習" }));
+      await user.click(screen.getByRole("button", { name: chapter }));
+      await user.click(screen.getByRole("button", { name: drill }));
+      // Challenge page: "句型練習" mode card is selected and the
+      // question header includes the pattern label.
+      expect(screen.getByRole("button", { name: /句型練習/ })).toHaveClass("selected");
+      expect(
+        within(screen.getByRole("region", { name: "目前題目" })).getByText(promptLabelFragment)
+      ).toBeInTheDocument();
+    }
+  });
+
   it("renders reference chapters with '參考' badge and a drill-note", async () => {
     // Reference chapters (verb-types + the 4 sentence-pattern chapters)
     // have no requiredForms and should never get marked "完成". Their
@@ -212,7 +262,7 @@ describe("App", () => {
 
     await user.click(referenceChapter);
     expect(
-      screen.getByText(/連到的是前置「て形」音便練習/)
+      screen.getByText(/上方按鈕直接練本章句型判斷.*前置「て形」音便/)
     ).toBeInTheDocument();
   });
 
