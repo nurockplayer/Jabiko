@@ -58,7 +58,20 @@ export interface PracticeQuestion {
   explanation: string;
   promptLabel?: string;
   promptText?: string;
+  /**
+   * Full Chinese translation of the prompt. Shown POST-answer in the
+   * feedback panel. May contain content that would otherwise hint at
+   * the correct answer (e.g. "請勿停車" gives away 「てはいけません」),
+   * which is why pre-answer display switched from this to `hintZh`.
+   */
   promptContextZh?: string;
+  /**
+   * Pre-answer "neutral situation" hint shown above the prompt. Should
+   * describe WHO/WHERE/WHAT the context is without naming the answer's
+   * grammatical role. Falls back to `promptContextZh` only as a
+   * compatibility shim for items that haven't been audited yet.
+   */
+  hintZh?: string;
   instructionZh?: string;
   options?: string[];
 }
