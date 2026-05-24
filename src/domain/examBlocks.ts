@@ -11,6 +11,13 @@ type ExamQuestionInput = {
   instructionZh: string;
   promptText: string;
   promptContextZh: string;
+  /**
+   * Pre-answer neutral situation hint. Optional during the staged
+   * audit -- items without it fall back to promptContextZh (which
+   * may leak the answer category). Once a batch is audited, items
+   * should never go back to nullable hintZh.
+   */
+  hintZh?: string;
   expectedAnswer: string;
   options: string[];
   explanation: string;
@@ -34,6 +41,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "産業の発展 ___、地域の雇用環境も大きく変化した。",
     promptContextZh: "隨著產業發展，地方的就業環境也大幅改變。",
+    hintZh: "產業發展與地方就業環境的關聯。",
     expectedAnswer: "に伴って",
     options: ["に伴って", "によると", "に限って", "に対して"],
     explanation: "「Aに伴ってB」表示 B 隨著 A 的變化一起發生。這裡是產業發展帶動雇用環境變化。"
@@ -48,6 +56,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "実際に現場を見てみ ___、原因は判断できない。",
     promptContextZh: "沒有實際看現場，就無法判斷原因。",
+    hintZh: "判斷原因時對現場觀察的必要性。",
     expectedAnswer: "ないことには",
     options: ["ないことには", "ない限り", "なくしては", "なしには"],
     explanation: "四個都帶有「若沒...就...」的精神，但細節不同：「ないことには〜ない」強調「必須先實際做 V，否則...」；「ない限り〜ない」強調「在 V 沒成立的範圍內」（持續狀態）；「なくしては〜ない」是「沒有 N 就不...」（要求 N 是名詞）；「なしには」也是「沒有 N...就不」（要求 N 是名詞）。本句的「見てみ」是 Vて+みる 的連用，必須選「ないことには」對應動詞句。"
@@ -62,6 +71,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "新しい評価制度の導入 ___、社内で意見が分かれている。",
     promptContextZh: "公司內部圍繞新評價制度的導入意見分歧。",
+    hintZh: "公司導入新評價制度後出現的議論。",
     expectedAnswer: "をめぐって",
     options: ["をめぐって", "をこめて", "を問わず", "をはじめ"],
     explanation: "「Aをめぐって」表示以 A 為中心產生議論、對立或問題。後面的「意見が分かれている」很典型。"
@@ -76,6 +86,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "情報管理を怠れば、会社の信用を失い ___。",
     promptContextZh: "若疏忽資訊管理，可能失去公司信用。",
+    hintZh: "資訊管理疏忽對公司信用的影響。",
     expectedAnswer: "かねない",
     options: ["かねない", "がたい", "そうだ", "うる"],
     explanation: "「Vます形 + かねない」=「有可能發生（壞結果）」。其餘三個都能接 Vます形：「がたい」是「（人主觀上）難以...」；「そうだ」（樣態）是「看起來會...」（觀察推測，正負皆可）；「うる」是「有可能...」（中性可能性，常用於正面或客觀）。本句強調「會釀成負面結果」，唯有「かねない」精準。"
@@ -90,6 +101,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "十分な資料がそろっていないため、結論を見送ら ___。",
     promptContextZh: "因為資料不足，不得不暫緩結論。",
+    hintZh: "資料不足時對結論的處理。",
     expectedAnswer: "ざるを得ない",
     options: ["ざるを得ない", "ないではいられない", "ずにはおかない", "かねない"],
     explanation: "「Vない形去ない + ざるを得ない」表示沒有其他選擇，只能那樣做。"
@@ -104,6 +116,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "記者会見 ___、関係者に資料が配布された。",
     promptContextZh: "在記者會之前，資料已發給相關人士。",
+    hintZh: "記者會與資料發放的時間關係。",
     expectedAnswer: "に先立って",
     options: ["に先立って", "に応じて", "に反して", "に沿って"],
     explanation: "「Aに先立ってB」表示 B 在 A 之前先進行，常見於正式活動、發表、會議。"
@@ -118,6 +131,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "大雨 ___、説明会には多くの参加者が集まった。",
     promptContextZh: "儘管下大雨，說明會仍聚集了許多參加者。",
+    hintZh: "大雨天氣與說明會出席狀況。",
     expectedAnswer: "にもかかわらず",
     options: ["にもかかわらず", "を問わず", "のもかまわず", "のせいで"],
     explanation: "「Nにもかかわらず」表示「儘管 N（普遍會阻止），結果卻仍 B」。「Nを問わず」是「不論 N 為何」（多用於範圍中性，如年齢を問わず）；「Nのもかまわず」是「不顧 N」（強調自我中心地不在乎）；「Nのせいで」是「因為 N（負面原因）」（順因果，方向相反）。本句下大雨仍聚集人潮，是強烈逆接，要用「にもかかわらず」。"
@@ -184,6 +198,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "独自の技術が丁寧な接客 ___、この店の評価を高めている。",
     promptContextZh: "獨家技術加上細緻接待，共同提高了店的評價。",
+    hintZh: "店家的技術與服務對評價的作用。",
     expectedAnswer: "と相まって",
     options: ["と相まって", "に先立って", "を問わず", "に反して"],
     explanation: "「AがBと相まってC」表示 A 與 B 互相配合、共同造成 C。"
@@ -198,6 +213,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "台風の影響で、主催者はイベントの中止 ___。",
     promptContextZh: "因颱風影響，主辦方被迫取消活動。",
+    hintZh: "颱風與活動安排之間的關係。",
     expectedAnswer: "を余儀なくされた",
     options: ["を余儀なくされた", "をものともせず", "にたえなかった", "に即していた"],
     explanation: "「Nを余儀なくされる」表示被外在情況逼得不得不做某事。這裡是被迫取消。"
@@ -212,6 +228,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "住民の理解 ___、この計画を進めることはできない。",
     promptContextZh: "沒有居民理解，就無法推進這項計畫。",
+    hintZh: "居民理解與計畫推進的關係。",
     expectedAnswer: "なくしては",
     options: ["なくしては", "にしては", "からして", "をもって"],
     explanation: "「Nなくしては...ない」表示沒有 N 就無法成立。後句「できない」是重要線索。"
@@ -226,6 +243,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "現場の実情 ___、運用ルールを見直す必要がある。",
     promptContextZh: "需要依據現場實際情況重新檢討運用規則。",
+    hintZh: "現場狀況與規則調整的關係。",
     expectedAnswer: "に即して",
     options: ["に即して", "に至って", "にひきかえ", "を皮切りに"],
     explanation: "「Nに即して」表示依據 N、配合 N。這裡是依照現場實情調整規則。"
@@ -240,6 +258,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "この結果が何を意味するかは、改めて説明する ___。",
     promptContextZh: "這個結果代表什麼，不用特別再說明。",
+    hintZh: "對於這個結果的後續說明判斷。",
     expectedAnswer: "までもない",
     options: ["までもない", "ことはない", "には及ばない", "に当たらない"],
     explanation: "四個都帶「沒必要做 V」家族語感，但理由不同：「までもない」是「不必特地（因為結果太明顯）」；「ことはない」是「沒必要（沒有理由促使）」；「には及ばない」是「不必到那種程度（謙讓／降低）」；「に当たらない」是「不值得（多用於賞賜、責備）」。本句強調「結果一看就懂」，最直接的是「までもない」。"
@@ -254,6 +273,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "プロジェクトを 成功させる ___ 、毎日 遅くまで 残業して いる。",
     promptContextZh: "為了讓專案成功，每天加班到很晚。",
+    hintZh: "專案成功與加班努力的關係。",
     expectedAnswer: "べく",
     options: ["べく", "とともに", "うえで", "ような"],
     explanation: "「Vる + べく」=「為了...（書面、正式）」，常用於工作、政策、研究等莊重場合，比「ために」更正式。「とともに」是「隨著／同時」（時間並行，非目的）；「うえで」是「V 之後再...」（時序，非目的）；「ような」是連體修飾「像 N 的」（修飾語，非目的）。"
@@ -268,6 +288,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "東京での発表会 ___、全国各地で説明会が開かれる予定だ。",
     promptContextZh: "以東京發表會為開端，預計在全國各地舉辦說明會。",
+    hintZh: "東京發表會與全國說明會的關係。",
     expectedAnswer: "を皮切りに",
     options: ["を皮切りに", "を余儀なく", "に至って", "にたえず"],
     explanation: "「Aを皮切りにB」表示以 A 為開端，之後 B 陸續展開。"
@@ -282,6 +303,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "連休初日 ___、駅は朝から多くの旅行客で混雑していた。",
     promptContextZh: "因為是連假第一天，車站一早就擠滿旅客。",
+    hintZh: "連假第一天車站的狀況。",
     expectedAnswer: "とあって",
     options: ["とあって", "といえども", "ときたら", "とはいえ"],
     explanation: "「AとあってB」表示因為 A 這個特殊狀況，所以自然產生 B 的結果。"
@@ -348,6 +370,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "毎日 練習したので、自転車に乗れる ___ なった。",
     promptContextZh: "每天練習，結果變得會騎自行車了。",
+    hintZh: "每天練習自行車的結果。",
     expectedAnswer: "ように",
     options: ["ように", "ことに", "ために", "ようで"],
     explanation: "「Vる/可能形 + ようになる」表示「（從不會到會、從不做到做）變化的結果」。「ことになる」是外在的決定；「ために」表目的；「ようで」是「好像」。"
@@ -362,6 +385,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "体に悪いから、たばこをやめる ___ 。",
     promptContextZh: "對身體不好，我決定戒菸了。",
+    hintZh: "因身體考量對抽菸的處理。",
     expectedAnswer: "ことにした",
     options: ["ことにした", "ようにした", "ことになった", "ようになった"],
     explanation: "「Vる + ことにする」表示「自己的決定」。「ことになる」是外在情況/規定造成的結果；「ようにする」是「努力做到」。"
@@ -376,6 +400,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "夏休みに国へ帰る ___ です。",
     promptContextZh: "暑假打算回國。",
+    hintZh: "暑假的安排。",
     expectedAnswer: "つもり",
     options: ["つもり", "ばかり", "はず", "ところ"],
     explanation: "「Vる + つもり」表示主觀的打算。「ばかり」表示「剛剛...完」；「はず」表示客觀推測「應該」；「ところ」表動作階段。"
@@ -390,6 +415,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "雨に降られた。傘を持ってくれば ___ 。",
     promptContextZh: "被雨淋了，要是有帶傘就好了。",
+    hintZh: "被雨淋濕後對帶傘的反思。",
     expectedAnswer: "よかった",
     options: ["よかった", "ばかりだ", "つもりだ", "はずだ"],
     explanation: "「Vば + よかった」表示對過去未做的事感到後悔。其他三個都是常見的句末表現，但都需要不同的接續（「ばかりだ」「つもりだ」「はずだ」皆接 V辞書形/た形），不能直接接在 Vば 後面。"
@@ -404,6 +430,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "熱がありますね。早く病院へ行った ___ 。",
     promptContextZh: "你發燒了呢，早點去醫院比較好。",
+    hintZh: "對發燒的人關於就醫的建議。",
     expectedAnswer: "ほうがいい",
     options: ["ほうがいい", "ことがある", "つもりだ", "おかげだ"],
     explanation: "「Vた + ほうがいい」表示對對方的建議。"
@@ -418,6 +445,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "明日までにこのレポートを ___ いけない。",
     promptContextZh: "明天之前必須交這份報告。",
+    hintZh: "明天前報告交件的安排。",
     expectedAnswer: "出さなくては",
     options: ["出さなくては", "出さなくても", "出さないで", "出すことが"],
     explanation: "「Vない形 + なくてはいけない」表示「必須做」的義務。「なくてもいい」相反，表示不需要做。"
@@ -432,6 +460,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "大事な約束を忘れて ___ 、本当にすみません。",
     promptContextZh: "把重要的約定忘了，真的很抱歉。",
+    hintZh: "對忘記重要約定的回應。",
     expectedAnswer: "しまって",
     options: ["しまって", "おいて", "みて", "あって"],
     explanation: "「Vて + しまう」表示完成或表達遺憾／後悔。「ておく」表示為將來做準備；「てみる」表示嘗試。"
@@ -446,6 +475,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "明日の会議の前に、資料をコピーし ___ ます。",
     promptContextZh: "明天會議前先把資料影印起來。",
+    hintZh: "會議前對資料的安排。",
     expectedAnswer: "ておき",
     options: ["ておき", "てしまい", "てあり", "ていき"],
     explanation: "「Vて + おく」表示為將來做準備。「てある」是已被人放置的狀態；「てしまう」是完了／遺憾。"
@@ -460,6 +490,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "音楽を聞き ___ 、勉強するのが好きだ。",
     promptContextZh: "我喜歡邊聽音樂邊讀書。",
+    hintZh: "聽音樂與讀書的習慣。",
     expectedAnswer: "ながら",
     options: ["ながら", "あいだ", "うちに", "ばかり"],
     explanation: "「Vます形 + ながら」表示同一個人同時做兩件事。「あいだ」「うちに」是時間範圍／不同主語。"
@@ -474,6 +505,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "今、ご飯を ___ ので、後で電話します。",
     promptContextZh: "現在正在吃飯，等等再打電話。",
+    hintZh: "用餐時間中對於來電的回應。",
     expectedAnswer: "食べているところな",
     options: ["食べているところな", "食べたところな", "食べたばかりな", "食べるところな"],
     explanation: "「Vている + ところだ」表示「動作正在進行中」；「Vたところだ」表示「剛剛做完」；「Vるところだ」是「正要做」；「Vたばかりだ」是「剛剛...不久」。"
@@ -488,6 +520,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "ダイエットを始めた ___ 、なかなか体重が減らない。",
     promptContextZh: "雖然開始減肥了，但體重一直沒減少。",
+    hintZh: "開始減肥後體重的變化。",
     expectedAnswer: "ものの",
     options: ["ものの", "ことに", "ものを", "ように"],
     explanation: "「A ものの、B」表示「雖然 A，但是 B」，書面語逆接。「ものを」帶後悔語氣「明明可以...卻沒」。"
@@ -502,6 +535,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "君のことを思っている ___ 、こんなに厳しく言うのだ。",
     promptContextZh: "正因為為了你著想，才這麼嚴格地說。",
+    hintZh: "對對方的關心與嚴厲態度的關係。",
     expectedAnswer: "からこそ",
     options: ["からこそ", "からといって", "からには", "からして"],
     explanation: "「A からこそ B」強調「正是因為 A」的唯一原因。「からといって」是「不能因為...就」；「からには」是「既然...就應該」。"
@@ -516,6 +550,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "新しいプロジェクトを始める ___ 、関係者を集めて打ち合わせをした。",
     promptContextZh: "在開始新項目之際，召集了相關人員開會。",
+    hintZh: "啟動新項目時的準備工作。",
     expectedAnswer: "にあたって",
     options: ["にあたって", "について", "に対して", "に従って"],
     explanation: "「Vる/N にあたって」用於正式場合，表示「在某重要時刻」。「について」是「關於」；「に対して」是「對於」；「に従って」是「隨著」。"
@@ -530,6 +565,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "この問題 ___ 、皆さんのご意見を伺いたい。",
     promptContextZh: "關於這個問題，想聽聽大家的意見。",
+    hintZh: "就某問題向大家徵詢意見。",
     expectedAnswer: "に関して",
     options: ["に関して", "に伴って", "に応じて", "に反して"],
     explanation: "「Nに関して」表示「關於 N」，較「について」正式。「に伴って」是「隨著」；「に応じて」是「依照」；「に反して」是「與...相反」。"
@@ -544,6 +580,7 @@ export const examStyleQuestions: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "彼は日本に来てまだ三か月 ___ 、日本語が上手だ。",
     promptContextZh: "他來日本才三個月，日語就講得很好。",
+    hintZh: "他來日本的時間與日語能力的關係。",
     expectedAnswer: "にしては",
     options: ["にしては", "にしても", "にしたら", "について"],
     explanation: "「N にしては」表示「以 N 來說（偏離預期）」。「にしても」是「即使...也」；「にしたら」是「站在 N 的立場」。"
@@ -2421,6 +2458,7 @@ function examQuestion(input: ExamQuestionInput): PracticeQuestion {
     promptLabel: input.promptLabel,
     promptText: input.promptText,
     promptContextZh: input.promptContextZh,
+    hintZh: input.hintZh,
     instructionZh: input.instructionZh,
     options: input.options
   };

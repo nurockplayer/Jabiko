@@ -60,6 +60,29 @@ for (let i = 0; i < blocks.length; i++) {
     console.log(`LEVEL LEAK in promptLabel: ${id} -> ${JSON.stringify(labelMatch[1])}`);
     bad++;
   }
+  // hintZh leak guard: if hintZh is authored, it must not contain the
+  // Chinese gloss of the item's answer (which lives in meaningZh). A
+  // bare substring check is good enough here -- each item's meaningZh
+  // is the most leak-prone token (it IS the answer's translation).
+  const hintMatch = body.match(/hintZh:\s*"((?:[^"\\]|\\.)*)"/);
+  const meaningMatch = body.match(/meaningZh:\s*"((?:[^"\\]|\\.)*)"/);
+  if (hintMatch && meaningMatch) {
+    const hint = hintMatch[1];
+    // Split meaningZh on common Chinese punctuation (、 / ， / ;) -- each
+    // gloss often lists synonyms; any one of them appearing in hintZh
+    // is a leak.
+    const tokens = meaningMatch[1]
+      .split(/[、，；,;/]/)
+      .map((t) => t.replace(/\.\.\.|…|\s/g, "").trim())
+      .filter((t) => t.length >= 2);
+    for (const token of tokens) {
+      if (hint.includes(token)) {
+        console.log(`HINT LEAK in ${id}: hintZh contains "${token}" (from meaningZh) -> ${JSON.stringify(hint)}`);
+        bad++;
+        break;
+      }
+    }
+  }
 }
 console.log(`checked ${blocks.length} exam entries; ${bad} problem(s)`);
 
