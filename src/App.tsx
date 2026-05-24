@@ -803,6 +803,11 @@ function ExamPrompt({ question }: { question: PracticeQuestion }) {
   // line. Skip the reading row for those items -- the prompt label
   // already names the pattern.
   const isSentencePattern = question.vocabulary.tags?.includes("sentence_pattern");
+  // Pre-answer Chinese: prefer the neutral hint when authored; fall back
+  // to the full translation for items that haven't been audited yet
+  // (legacy exam items). The full translation still appears in the
+  // FeedbackPanel post-answer via vocabulary.examples[0].meaningZh.
+  const preAnswerHint = question.hintZh ?? question.promptContextZh;
   return (
     <>
       <p className="word-kind">
@@ -810,7 +815,7 @@ function ExamPrompt({ question }: { question: PracticeQuestion }) {
         {question.instructionZh}
       </p>
       <p className="exam-prompt">{question.promptText}</p>
-      <p className="meaning">{question.promptContextZh}</p>
+      {preAnswerHint ? <p className="meaning">{preAnswerHint}</p> : null}
       {isSentencePattern ? null : (
         <p className="reading">
           {question.vocabulary.surface}・{question.vocabulary.reading}・{question.vocabulary.meaningZh}

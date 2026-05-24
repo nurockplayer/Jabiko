@@ -10,6 +10,14 @@ export type SentencePatternItem = {
   id: string;
   patternId: SentencePatternId;
   promptText: string;
+  /**
+   * Pre-answer hint: a neutral situation description shown above the
+   * prompt. Must NOT name the answer's grammatical role or use the
+   * Chinese gloss of any candidate pattern (no 「請」「禁止」「不必」
+   * 「必須」「可以」「以為」「說」 etc.); a guard script enforces this.
+   */
+  hintZh: string;
+  /** Full Chinese translation, shown POST-answer in the feedback panel. */
   promptContextZh: string;
   expectedAnswer: string;
   options: string[];
@@ -33,6 +41,7 @@ const TE_KUDASAI_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-kudasai-001",
     patternId: "te-kudasai",
     promptText: "上司から：「来週までに資料を ___ 。」",
+    hintZh: "上司對下屬指示工作期限。",
     promptContextZh: "上司對下屬：「下週前把資料交出來。」",
     expectedAnswer: "提出してください",
     options: [
@@ -48,6 +57,7 @@ const TE_KUDASAI_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-kudasai-002",
     patternId: "te-kudasai",
     promptText: "学生から先生に：「すみません、辞書を ___ か？」",
+    hintZh: "學生向老師詢問可否動用某物。",
     promptContextZh: "學生問老師：「不好意思，可以用辭典嗎？」",
     expectedAnswer: "使ってもいいです",
     options: [
@@ -63,6 +73,7 @@ const TE_KUDASAI_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-kudasai-003",
     patternId: "te-kudasai",
     promptText: "図書館の貼り紙：「館内で食べ物を ___ 。」",
+    hintZh: "圖書館關於館內飲食的告示。",
     promptContextZh: "圖書館告示：「館內請勿飲食。」",
     expectedAnswer: "食べてはいけません",
     options: [
@@ -78,6 +89,7 @@ const TE_KUDASAI_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-kudasai-004",
     patternId: "te-kudasai",
     promptText: "電車の中で友達に：「もう少し小さい声で ___ ね。」",
+    hintZh: "電車內就音量大小對朋友說話。",
     promptContextZh: "電車內提醒朋友：「請小聲一點喔。」",
     expectedAnswer: "話してください",
     options: [
@@ -93,6 +105,7 @@ const TE_KUDASAI_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-kudasai-005",
     patternId: "te-kudasai",
     promptText: "病院で：「お酒は ___ か？」",
+    hintZh: "病人就飲酒一事詢問醫生。",
     promptContextZh: "病人問醫生：「可以喝酒嗎？」",
     expectedAnswer: "飲んでもいいです",
     options: [
@@ -108,6 +121,7 @@ const TE_KUDASAI_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-kudasai-006",
     patternId: "te-kudasai",
     promptText: "駐車場の看板：「ここに車を ___ 。」",
+    hintZh: "停車場的告示牌內容。",
     promptContextZh: "停車場標誌：「禁止停車。」",
     expectedAnswer: "止めてはいけません",
     options: [
@@ -123,6 +137,7 @@ const TE_KUDASAI_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-kudasai-007",
     patternId: "te-kudasai",
     promptText: "店員から客に：「お手数ですが、こちらに名前を ___ 。」",
+    hintZh: "店員引導顧客在表單上填寫姓名。",
     promptContextZh: "店員對顧客：「麻煩您在這裡寫名字。」",
     expectedAnswer: "書いてください",
     options: [
@@ -138,6 +153,7 @@ const TE_KUDASAI_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-kudasai-008",
     patternId: "te-kudasai",
     promptText: "母から子に：「危ないから、火に ___ 。」",
+    hintZh: "母親對小孩關於火的安全話。",
     promptContextZh: "母親對小孩：「危險，不准碰火。」",
     expectedAnswer: "触ってはいけません",
     options: [
@@ -161,6 +177,7 @@ const NAKUTE_MO_II_ITEMS: SentencePatternItem[] = [
     id: "pattern-nakute-mo-ii-001",
     patternId: "nakute-mo-ii",
     promptText: "もう熱が下がったから、明日は薬を ___ 。",
+    hintZh: "退燒後的服藥判斷。",
     promptContextZh: "燒已經退了，明天可以不必吃藥了。",
     expectedAnswer: "飲まなくてもいい",
     options: [
@@ -176,6 +193,7 @@ const NAKUTE_MO_II_ITEMS: SentencePatternItem[] = [
     id: "pattern-nakute-mo-ii-002",
     patternId: "nakute-mo-ii",
     promptText: "明日は試験があるから、今日は早く ___ 。",
+    hintZh: "考試前夜的就寢安排。",
     promptContextZh: "明天有考試，今天必須早睡。",
     expectedAnswer: "寝なければならない",
     options: [
@@ -191,6 +209,7 @@ const NAKUTE_MO_II_ITEMS: SentencePatternItem[] = [
     id: "pattern-nakute-mo-ii-003",
     patternId: "nakute-mo-ii",
     promptText: "土日はオフィスに ___ 。",
+    hintZh: "週末是否進公司。",
     promptContextZh: "週末不必到辦公室上班。",
     expectedAnswer: "来なくてもいいです",
     options: [
@@ -206,6 +225,7 @@ const NAKUTE_MO_II_ITEMS: SentencePatternItem[] = [
     id: "pattern-nakute-mo-ii-004",
     patternId: "nakute-mo-ii",
     promptText: "免許を持っている人だけが、車を ___ 。",
+    hintZh: "駕照與開車的關係。",
     promptContextZh: "只有有駕照的人才可以開車。",
     expectedAnswer: "運転してもいい",
     options: [
@@ -221,6 +241,7 @@ const NAKUTE_MO_II_ITEMS: SentencePatternItem[] = [
     id: "pattern-nakute-mo-ii-005",
     patternId: "nakute-mo-ii",
     promptText: "病気の時は、無理して仕事に ___ 。",
+    hintZh: "生病時對上班的建議。",
     promptContextZh: "生病的時候不必勉強來上班。",
     expectedAnswer: "来なくてもいいです",
     options: [
@@ -236,6 +257,7 @@ const NAKUTE_MO_II_ITEMS: SentencePatternItem[] = [
     id: "pattern-nakute-mo-ii-006",
     patternId: "nakute-mo-ii",
     promptText: "図書館では本を借りる時、お金を ___ 。",
+    hintZh: "圖書館借書的費用。",
     promptContextZh: "在圖書館借書時不必付錢。",
     expectedAnswer: "払わなくてもいい",
     options: [
@@ -251,6 +273,7 @@ const NAKUTE_MO_II_ITEMS: SentencePatternItem[] = [
     id: "pattern-nakute-mo-ii-007",
     patternId: "nakute-mo-ii",
     promptText: "授業が始まる前に、必ず教科書を ___ 。",
+    hintZh: "上課前的書本準備。",
     promptContextZh: "上課前一定要準備好教科書。",
     expectedAnswer: "準備しなければならない",
     options: [
@@ -266,6 +289,7 @@ const NAKUTE_MO_II_ITEMS: SentencePatternItem[] = [
     id: "pattern-nakute-mo-ii-008",
     patternId: "nakute-mo-ii",
     promptText: "このパーティーはカジュアルだから、ドレスコードは特になく、スーツを ___ 。",
+    hintZh: "輕鬆派對的服裝判斷。",
     promptContextZh: "派對是輕鬆場合，沒有特別的服裝要求，不必穿西裝。",
     expectedAnswer: "着なくてもいい",
     options: [
@@ -291,6 +315,7 @@ const TE_MORAU_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-morau-001",
     patternId: "te-morau",
     promptText: "妹は宿題が分からなかったので、私は妹に教えて ___ 。",
+    hintZh: "妹妹有學業困難時與我之間的互動。",
     promptContextZh: "妹妹不會作業，我教了她。",
     expectedAnswer: "あげた",
     options: ["あげた", "くれた", "もらった", "いただいた"],
@@ -301,6 +326,7 @@ const TE_MORAU_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-morau-002",
     patternId: "te-morau",
     promptText: "重い荷物だったから、友達が空港まで運んで ___ 。",
+    hintZh: "重行李與機場接送時和朋友的互動。",
     promptContextZh: "因為行李太重，朋友幫我搬到機場。",
     expectedAnswer: "くれた",
     options: ["くれた", "あげた", "もらった", "差し上げた"],
@@ -311,6 +337,7 @@ const TE_MORAU_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-morau-003",
     patternId: "te-morau",
     promptText: "先生は私の作文を丁寧に直して ___ 。",
+    hintZh: "老師處理我作文的方式。",
     promptContextZh: "老師仔細地幫我改了作文。",
     expectedAnswer: "くださった",
     options: ["くださった", "あげた", "もらった", "差し上げた"],
@@ -321,6 +348,7 @@ const TE_MORAU_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-morau-004",
     patternId: "te-morau",
     promptText: "兄に頼んで、東京駅まで送って ___ 。",
+    hintZh: "我與兄長之間關於送站的安排。",
     promptContextZh: "我請哥哥送我到東京車站。",
     expectedAnswer: "もらった",
     options: ["もらった", "くれた", "あげた", "くださった"],
@@ -331,6 +359,7 @@ const TE_MORAU_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-morau-005",
     patternId: "te-morau",
     promptText: "おばあさんが道に迷っていたので、駅まで案内して ___ 。",
+    hintZh: "為迷路的長者帶路到車站。",
     promptContextZh: "老奶奶在路上迷路了，我帶她到車站。",
     expectedAnswer: "あげた",
     options: ["あげた", "くれた", "もらった", "差し上げた"],
@@ -341,6 +370,7 @@ const TE_MORAU_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-morau-006",
     patternId: "te-morau",
     promptText: "母が毎朝、お弁当を作って ___ 。",
+    hintZh: "母親每天為家人準備便當。",
     promptContextZh: "媽媽每天早上幫我做便當。",
     expectedAnswer: "くれる",
     options: ["くれる", "あげる", "もらう", "くださる"],
@@ -351,6 +381,7 @@ const TE_MORAU_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-morau-007",
     patternId: "te-morau",
     promptText: "課長に、来週の会議の資料を見て ___ つもりです。",
+    hintZh: "下週會議資料與課長的安排。",
     promptContextZh: "我打算請課長看一下下週的會議資料。",
     expectedAnswer: "いただく",
     options: ["いただく", "もらう", "くださる", "くれる"],
@@ -361,6 +392,7 @@ const TE_MORAU_ITEMS: SentencePatternItem[] = [
     id: "pattern-te-morau-008",
     patternId: "te-morau",
     promptText: "子供たちに本を読んで ___ のは、毎晩の楽しみだ。",
+    hintZh: "每晚與孩子們的閱讀時光。",
     promptContextZh: "每晚為孩子們讀書是我的樂趣。",
     expectedAnswer: "あげる",
     options: ["あげる", "くれる", "もらう", "差し上げる"],
@@ -379,6 +411,7 @@ const TO_OMOU_ITEMS: SentencePatternItem[] = [
     id: "pattern-to-omou-001",
     patternId: "to-omou",
     promptText: "彼は明日試験がある ___ 言った。",
+    hintZh: "他關於明天考試的話。",
     promptContextZh: "他說明天有考試。",
     expectedAnswer: "と",
     options: ["と", "が", "に", "で"],
@@ -389,6 +422,7 @@ const TO_OMOU_ITEMS: SentencePatternItem[] = [
     id: "pattern-to-omou-002",
     patternId: "to-omou",
     promptText: "明日は雨が ___ と思います。",
+    hintZh: "對明天天氣的猜測。",
     promptContextZh: "我覺得明天會下雨。",
     expectedAnswer: "降る",
     options: ["降る", "降ります", "降りだ", "降って"],
@@ -399,6 +433,7 @@ const TO_OMOU_ITEMS: SentencePatternItem[] = [
     id: "pattern-to-omou-003",
     patternId: "to-omou",
     promptText: "彼は明日北海道に ___ と思っているらしい。",
+    hintZh: "他對於去北海道一事的打算。",
     promptContextZh: "聽說他打算明天去北海道。",
     expectedAnswer: "行く",
     options: ["行く", "行きます", "行った", "行って"],
@@ -409,6 +444,7 @@ const TO_OMOU_ITEMS: SentencePatternItem[] = [
     id: "pattern-to-omou-004",
     patternId: "to-omou",
     promptText: "この問題はとても ___ と思う。",
+    hintZh: "對這個問題難度的判斷。",
     promptContextZh: "我覺得這個問題很難。",
     expectedAnswer: "難しい",
     options: ["難しい", "難しいだ", "難しく", "難しくて"],
@@ -419,6 +455,7 @@ const TO_OMOU_ITEMS: SentencePatternItem[] = [
     id: "pattern-to-omou-005",
     patternId: "to-omou",
     promptText: "妹は新しい服を ___ と言った。",
+    hintZh: "妹妹關於新衣服的話。",
     promptContextZh: "妹妹說想要新衣服。",
     expectedAnswer: "買いたい",
     options: ["買いたい", "買いたいです", "買いたいだ", "買って"],
@@ -429,6 +466,7 @@ const TO_OMOU_ITEMS: SentencePatternItem[] = [
     id: "pattern-to-omou-006",
     patternId: "to-omou",
     promptText: "兄は今、駅前にいる ___ 言ってた。",
+    hintZh: "哥哥剛才提到的所在位置。",
     promptContextZh: "哥哥剛才說他現在在車站前。",
     expectedAnswer: "って",
     options: ["って", "は", "が", "で"],
@@ -439,6 +477,7 @@ const TO_OMOU_ITEMS: SentencePatternItem[] = [
     id: "pattern-to-omou-007",
     patternId: "to-omou",
     promptText: "あの店は ___ と思う。",
+    hintZh: "對那家店氛圍的看法。",
     promptContextZh: "我覺得那家店很安靜。",
     expectedAnswer: "静かだ",
     options: ["静かだ", "静か", "静かで", "静かに"],
@@ -449,6 +488,7 @@ const TO_OMOU_ITEMS: SentencePatternItem[] = [
     id: "pattern-to-omou-008",
     patternId: "to-omou",
     promptText: "私はあの人がきっと ___ と思う。",
+    hintZh: "關於那個人身分的推測。",
     promptContextZh: "我覺得那個人一定是學生。",
     expectedAnswer: "学生だ",
     options: ["学生だ", "学生な", "学生で", "学生の"],
@@ -511,6 +551,7 @@ function toPracticeQuestion(item: SentencePatternItem): PracticeQuestion {
     promptLabel: `句型練習：${PATTERN_LABEL_ZH[item.patternId]}`,
     promptText: item.promptText,
     promptContextZh: item.promptContextZh,
+    hintZh: item.hintZh,
     instructionZh: "依語境選最自然的句型。",
     options: item.options
   };
