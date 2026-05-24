@@ -47,6 +47,10 @@ type Copy = {
   drillPassive: string;
   drillCausative: string;
   drillDesiderative: string;
+  drillPatternTeKudasai: string;
+  drillPatternNakuteMoII: string;
+  drillPatternTeMorau: string;
+  drillPatternToOmou: string;
   startChallenge: string;
   settingsLabel: string;
   todayPractice: string;
@@ -73,7 +77,7 @@ type Copy = {
   revealed: string;
   answerKey: string;
   focusSummaryEmpty: string;
-  modeOptions: Record<"basic" | "cloze" | "exam", { title: string; subtitle: string }>;
+  modeOptions: Record<"basic" | "cloze" | "exam" | "pattern", { title: string; subtitle: string }>;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
   focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast", string>;
@@ -151,6 +155,10 @@ export const copy: Record<Language, Copy> = {
     drillPassive: "練受身形",
     drillCausative: "練使役形",
     drillDesiderative: "練たい・たがる",
+    drillPatternTeKudasai: "練句型：請求 / 許可 / 禁止",
+    drillPatternNakuteMoII: "練句型：不必 vs 必須",
+    drillPatternTeMorau: "練句型：授受視角",
+    drillPatternToOmou: "練句型：引用 / 意見",
     startChallenge: "開始挑戰",
     settingsLabel: "練習設定",
     todayPractice: "今日練習",
@@ -180,6 +188,7 @@ export const copy: Record<Language, Copy> = {
     modeOptions: {
       basic: { title: "基礎變化", subtitle: "詞類變化練習 · 課本詞彙" },
       cloze: { title: "句中填空", subtitle: "N5 文型 · 〜てください / 〜たいです" },
+      pattern: { title: "句型練習", subtitle: "N5/N4 句型判斷 · 視角 / 許可 / 引用 / 不必" },
       exam: { title: "綜合考題庫", subtitle: "N1/N2 為主 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み" }
     },
     partOfSpeech: {
@@ -288,6 +297,10 @@ export const copy: Record<Language, Copy> = {
     drillPassive: "Drill passive form",
     drillCausative: "Drill causative form",
     drillDesiderative: "Drill tai / tagaru",
+    drillPatternTeKudasai: "Drill pattern: request / permission / prohibition",
+    drillPatternNakuteMoII: "Drill pattern: no-need vs must",
+    drillPatternTeMorau: "Drill pattern: giving/receiving perspective",
+    drillPatternToOmou: "Drill pattern: quote / opinion",
     startChallenge: "Start challenge",
     settingsLabel: "Practice settings",
     todayPractice: "Today's practice",
@@ -317,6 +330,7 @@ export const copy: Record<Language, Copy> = {
     modeOptions: {
       basic: { title: "Conjugation", subtitle: "Form drills · textbook vocabulary" },
       cloze: { title: "Sentence cloze", subtitle: "N5 grammar · ~te kudasai / ~tai desu" },
+      pattern: { title: "Pattern judging", subtitle: "N5/N4 · perspective / permission / quotation / negation" },
       exam: { title: "JLPT mock pool", subtitle: "N1/N2 focus · grammar / sentence order / context / vocab / reading" }
     },
     partOfSpeech: {
@@ -425,6 +439,10 @@ export const copy: Record<Language, Copy> = {
     drillPassive: "수동형 연습",
     drillCausative: "사역형 연습",
     drillDesiderative: "たい・たがる 연습",
+    drillPatternTeKudasai: "문형 연습: 요청 / 허가 / 금지",
+    drillPatternNakuteMoII: "문형 연습: 불필요 vs 필수",
+    drillPatternTeMorau: "문형 연습: 수수 시점",
+    drillPatternToOmou: "문형 연습: 인용 / 의견",
     startChallenge: "도전 시작",
     settingsLabel: "연습 설정",
     todayPractice: "오늘의 연습",
@@ -454,6 +472,7 @@ export const copy: Record<Language, Copy> = {
     modeOptions: {
       basic: { title: "기본 활용", subtitle: "품사별 활용 연습 · 교재 어휘" },
       cloze: { title: "문장 빈칸", subtitle: "N5 문형 · 〜てください / 〜たいです" },
+      pattern: { title: "문형 판단", subtitle: "N5/N4 · 시점 / 허가 / 인용 / 불필요" },
       exam: { title: "종합 시험 문제", subtitle: "N1/N2 중심 · 문법 / 어순 / 단문 / 어휘 / 한자 읽기" }
     },
     partOfSpeech: {

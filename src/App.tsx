@@ -21,6 +21,7 @@ import {
   learningBlocks,
   type LearningBlockDrillPreset
 } from "./domain/learningBlocks";
+import { buildSentencePatternPool, type SentencePatternId } from "./domain/sentencePatterns";
 import {
   buildChoiceOptions,
   buildQuestionPool,
@@ -42,7 +43,8 @@ type Feedback =
   | null;
 
 type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
-type PracticeMode = "basic" | "cloze" | "exam";
+type PracticeMode = "basic" | "cloze" | "pattern" | "exam";
+type PracticeFilter = { patternIds?: SentencePatternId[] };
 type AppView = "learn" | "challenge";
 type Theme = "light" | "dark";
 type DrillPreset = LearningBlockDrillPreset;
@@ -98,7 +100,7 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
   }
 ];
 
-const practiceModeOrder: PracticeMode[] = ["basic", "cloze", "exam"];
+const practiceModeOrder: PracticeMode[] = ["basic", "cloze", "pattern", "exam"];
 
 const attemptStore = createAttemptStore();
 
@@ -109,6 +111,7 @@ export default function App() {
   const [targetForm, setTargetForm] = useState<TargetForm>("te");
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>("single");
   const [practiceMode, setPracticeMode] = useState<PracticeMode>("basic");
+  const [practiceFilter, setPracticeFilter] = useState<PracticeFilter>({});
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -131,7 +134,8 @@ export default function App() {
   const selectedForm = compatibleForms.includes(targetForm) ? targetForm : compatibleForms[0];
   const isExamFocus = practiceMode === "exam";
   const isClozeFocus = practiceMode === "cloze";
-  const isCuratedFocus = isExamFocus || isClozeFocus;
+  const isPatternFocus = practiceMode === "pattern";
+  const isCuratedFocus = isExamFocus || isClozeFocus || isPatternFocus;
   const isVerbCapable = partOfSpeech === "verb" || partOfSpeech === "mixed";
   const availableFocusOptions = focusOptions.filter((option) => {
     if (option.verbOnly && !isVerbCapable) return false;
@@ -165,6 +169,12 @@ export default function App() {
         return shuffleQuestions(buildClozeQuestionPool(clozeSentences, vocabulary));
       }
 
+      if (isPatternFocus) {
+        return shuffleQuestions(
+          buildSentencePatternPool({ patternIds: practiceFilter.patternIds })
+        );
+      }
+
       return shuffleQuestions(
         buildQuestionPool(vocabulary, {
           partOfSpeech,
@@ -173,7 +183,16 @@ export default function App() {
         })
       );
     },
-    [isExamFocus, isClozeFocus, partOfSpeech, targetForms, verbGroup, sessionSeed]
+    [
+      isExamFocus,
+      isClozeFocus,
+      isPatternFocus,
+      practiceFilter.patternIds,
+      partOfSpeech,
+      targetForms,
+      verbGroup,
+      sessionSeed
+    ]
   );
   const currentQuestion = selectQuestion(questions, questionIndex);
   const choiceOptions = useMemo(
@@ -224,6 +243,10 @@ export default function App() {
   const handlePracticeModeChange = (nextMode: PracticeMode) => {
     if (nextMode === practiceMode) return;
     setPracticeMode(nextMode);
+    // Clear any chapter-driven filter when the learner switches modes
+    // via the picker -- the picker means "give me a fresh mix",
+    // whereas a chapter drill button sets a specific patternIds filter.
+    setPracticeFilter({});
     resetSession();
   };
 
@@ -282,10 +305,18 @@ export default function App() {
   const ThemeIcon = theme === "dark" ? Sun : Moon;
   const startDrill = (preset: DrillPreset) => {
     setPracticeMode("basic");
+    setPracticeFilter({});
     setPartOfSpeech(preset.partOfSpeech);
     setVerbGroup(preset.verbGroup ?? "all");
     setPracticeFocus(preset.practiceFocus);
     setTargetForm(preset.targetForm);
+    resetSession();
+    setAppView("challenge");
+  };
+
+  const startPatternDrill = (patternIds: SentencePatternId[]) => {
+    setPracticeMode("pattern");
+    setPracticeFilter({ patternIds });
     resetSession();
     setAppView("challenge");
   };
@@ -342,6 +373,7 @@ export default function App() {
           progressAttempts={progressAttempts}
           onStartChallenge={() => setAppView("challenge")}
           onStartDrill={startDrill}
+          onStartPatternDrill={startPatternDrill}
         />
       ) : (
         <section className="practice-layout" aria-label="Jabiko practice">
@@ -566,12 +598,14 @@ function LearningPanel({
   language,
   progressAttempts,
   onStartChallenge,
-  onStartDrill
+  onStartDrill,
+  onStartPatternDrill
 }: {
   language: Language;
   progressAttempts: Attempt[];
   onStartChallenge: () => void;
   onStartDrill: (preset: DrillPreset) => void;
+  onStartPatternDrill: (patternIds: SentencePatternId[]) => void;
 }) {
   const t = copy[language];
   // PR A: surface only the "basic" learning blocks. PR C will introduce
@@ -681,6 +715,22 @@ function LearningPanel({
               </div>
             ) : null}
 
+            {active.patternDrills && active.patternDrills.length > 0 ? (
+              <div className="inline-action-row">
+                {active.patternDrills.map((drill) => (
+                  <button
+                    key={drill.labelKey}
+                    className="inline-drill-button"
+                    type="button"
+                    onClick={() => onStartPatternDrill(drill.patternIds)}
+                  >
+                    <ArrowRight aria-hidden="true" />
+                    {drillButtonLabel(drill)}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
             {active.drillNote ? (
               <p className="block-drill-note">{active.drillNote}</p>
             ) : null}
@@ -748,6 +798,11 @@ function partOfSpeechLabel(partOfSpeech: PartOfSpeech, language: Language): stri
 }
 
 function ExamPrompt({ question }: { question: PracticeQuestion }) {
+  // Sentence-pattern items use placeholder surface/reading (the pattern
+  // id) which would render as a meaningless "te-kudasai・te-kudasai・..."
+  // line. Skip the reading row for those items -- the prompt label
+  // already names the pattern.
+  const isSentencePattern = question.vocabulary.tags?.includes("sentence_pattern");
   return (
     <>
       <p className="word-kind">
@@ -756,9 +811,11 @@ function ExamPrompt({ question }: { question: PracticeQuestion }) {
       </p>
       <p className="exam-prompt">{question.promptText}</p>
       <p className="meaning">{question.promptContextZh}</p>
-      <p className="reading">
-        {question.vocabulary.surface}・{question.vocabulary.reading}・{question.vocabulary.meaningZh}
-      </p>
+      {isSentencePattern ? null : (
+        <p className="reading">
+          {question.vocabulary.surface}・{question.vocabulary.reading}・{question.vocabulary.meaningZh}
+        </p>
+      )}
     </>
   );
 }

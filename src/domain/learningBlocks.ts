@@ -1,3 +1,4 @@
+import type { SentencePatternId } from "./sentencePatterns";
 import type { PartOfSpeech, TargetForm, VerbGroup } from "./types";
 
 export type LearningBlockDrillPreset = {
@@ -15,6 +16,11 @@ export type LearningBlockDrill = {
    */
   labelKey: string;
   preset: LearningBlockDrillPreset;
+};
+
+export type LearningBlockPatternDrill = {
+  labelKey: string;
+  patternIds: SentencePatternId[];
 };
 
 export type LearningBlock = {
@@ -40,6 +46,16 @@ export type LearningBlock = {
    * additional entries render as secondary buttons in the same row.
    */
   drills?: LearningBlockDrill[];
+  /**
+   * Sentence-pattern drills (separate from `drills` because they
+   * launch a different practice mode and take a different shape).
+   * Rendered as the chapter's PRIMARY drill row -- they actually test
+   * the pattern the chapter teaches, whereas `drills` for these
+   * chapters is the underlying form variation (te-form, nai-form,
+   * plain-form). Reserved for the four sentence-pattern reference
+   * chapters.
+   */
+  patternDrills?: LearningBlockPatternDrill[];
   /**
    * Optional note rendered above the drill button row. Used by
    * reference chapters whose drill targets a prerequisite form rather
@@ -531,6 +547,12 @@ export const learningBlocks: LearningBlock[] = [
       "「もいい」常省略「ですか」變陳述，要看語境分清是徵求許可還是給予許可"
     ],
     completionMode: "reference",
+    patternDrills: [
+      {
+        labelKey: "drillPatternTeKudasai",
+        patternIds: ["te-kudasai"]
+      }
+    ],
     drills: [
       {
         labelKey: "drillGodanTeTa",
@@ -542,8 +564,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    drillNote:
-      "※ 這支按鈕連到的是前置「て形」音便練習，不是句型本身的選擇題。判斷「請求 / 許可 / 禁止」的真正題型會在後續更新補上。",
+    drillNote: "※ 上方按鈕直接練本章句型判斷；下方按鈕加練前置「て形」音便。",
     recommendedAfter: ["teTa"]
   },
   {
@@ -567,6 +588,12 @@ export const learningBlocks: LearningBlock[] = [
       "口語常省略「いい」後面的「です」，正式書面要加上"
     ],
     completionMode: "reference",
+    patternDrills: [
+      {
+        labelKey: "drillPatternNakuteMoII",
+        patternIds: ["nakute-mo-ii"]
+      }
+    ],
     drills: [
       {
         labelKey: "drillNegative",
@@ -578,8 +605,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    drillNote:
-      "※ 按鈕連到「ない形家族」練習，是 なくてもいい 的前置變化。判斷「不必 / 必須」的選句題會在後續補上。",
+    drillNote: "※ 上方按鈕直接練「不必 vs 必須」判斷；下方按鈕加練前置「ない形家族」。",
     recommendedAfter: ["negative"]
   },
   {
@@ -603,6 +629,12 @@ export const learningBlocks: LearningBlock[] = [
       "助詞配對：てもらう／てあげる 用「に」標記做事者；てくれる 用「が」"
     ],
     completionMode: "reference",
+    patternDrills: [
+      {
+        labelKey: "drillPatternTeMorau",
+        patternIds: ["te-morau"]
+      }
+    ],
     drills: [
       {
         labelKey: "drillGodanTeTa",
@@ -614,8 +646,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    drillNote:
-      "※ 按鈕連到「て形」音便練習，是授受表現的前置。判斷誰幫誰做的視角題會在後續補上。",
+    drillNote: "※ 上方按鈕直接練授受視角判斷；下方按鈕加練前置「て形」。",
     recommendedAfter: ["teTa"]
   },
   {
@@ -639,6 +670,12 @@ export const learningBlocks: LearningBlock[] = [
       "口語可把「と」說成「って」：「行くって言った」"
     ],
     completionMode: "reference",
+    patternDrills: [
+      {
+        labelKey: "drillPatternToOmou",
+        patternIds: ["to-omou"]
+      }
+    ],
     drills: [
       {
         labelKey: "drillPlain",
@@ -650,8 +687,7 @@ export const learningBlocks: LearningBlock[] = [
         }
       }
     ],
-    drillNote:
-      "※ 按鈕連到「普通形四格」練習，是引用句型的前置。直接區分引用 / 意見的選擇題會在後續補上。",
+    drillNote: "※ 上方按鈕直接練引用 / 意見判斷；下方按鈕加練前置「普通形」。",
     recommendedAfter: ["plain"]
   }
 ];
