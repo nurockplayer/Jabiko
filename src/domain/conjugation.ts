@@ -548,6 +548,18 @@ function explainVerb(item: VocabularyItem, targetForm: TargetForm): string {
     return "否定接續「なくて」也是先做ない形，再把最後的「ない」換成「なくて」。常用在說明理由或把否定狀態接到後句。";
   }
 
+  if (targetForm === "plainPastAffirmative") {
+    if (item.group === "godan") {
+      return "普通形過去肯定就是た形。一類動詞的た形會依最後一個假名產生音便，例如「く -> いた」、「む -> んだ」、「す -> した」。";
+    }
+
+    if (item.group === "ichidan") {
+      return "普通形過去肯定就是た形。二類動詞先去掉最後的「る」，再接「た」。";
+    }
+
+    return "普通形過去肯定就是た形。三類動詞是不規則變化，要直接記住「する -> した」、「来る -> 来た」以及「名詞 + する -> 名詞 + した」。";
+  }
+
   if (item.group === "ichidan") {
     return `二類動詞先去掉最後的「る」，再接上${TARGET_FORM_LABELS[targetForm]}需要的語尾。`;
   }
