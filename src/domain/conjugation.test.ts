@@ -19,6 +19,29 @@ const word = (
 });
 
 describe("conjugate", () => {
+  it("conjugates every godan te and ta sound-change ending", () => {
+    const cases = [
+      ["買う", "かう", "買", "買って", "買った"],
+      ["待つ", "まつ", "等", "待って", "待った"],
+      ["帰る", "かえる", "回去", "帰って", "帰った"],
+      ["飲む", "のむ", "喝", "飲んで", "飲んだ"],
+      ["遊ぶ", "あそぶ", "玩", "遊んで", "遊んだ"],
+      ["死ぬ", "しぬ", "死", "死んで", "死んだ"],
+      ["書く", "かく", "寫", "書いて", "書いた"],
+      ["泳ぐ", "およぐ", "游泳", "泳いで", "泳いだ"],
+      ["話す", "はなす", "說", "話して", "話した"],
+      ["行く", "いく", "去", "行って", "行った"]
+    ] as const;
+
+    for (const [surface, reading, meaningZh, te, ta] of cases) {
+      const item = word({ surface, reading, meaningZh, partOfSpeech: "verb", group: "godan" });
+
+      expect(conjugate(item, "te")).toEqual(expect.objectContaining({ answers: [te] }));
+      expect(conjugate(item, "ta")).toEqual(expect.objectContaining({ answers: [ta] }));
+      expect(conjugate(item, "plainPastAffirmative")).toEqual(expect.objectContaining({ answers: [ta] }));
+    }
+  });
+
   it("conjugates godan verbs across te, ta, nai, masu, and plain forms", () => {
     const kaku = word({ surface: "書く", reading: "かく", meaningZh: "寫", partOfSpeech: "verb", group: "godan" });
     const iku = word({ surface: "行く", reading: "いく", meaningZh: "去", partOfSpeech: "verb", group: "godan" });
@@ -136,6 +159,7 @@ describe("conjugate", () => {
     expect(conjugate(kuru, "negativeContinuative")).toEqual(expect.objectContaining({ answers: ["来なくて"] }));
 
     expect(conjugate(benkyo, "te")).toEqual(expect.objectContaining({ answers: ["勉強して"] }));
+    expect(conjugate(benkyo, "ta")).toEqual(expect.objectContaining({ answers: ["勉強した"] }));
     expect(conjugate(benkyo, "nai")).toEqual(expect.objectContaining({ answers: ["勉強しない"] }));
     expect(conjugate(benkyo, "negativeTe")).toEqual(expect.objectContaining({ answers: ["勉強しないで"] }));
 
@@ -199,5 +223,13 @@ describe("rule explanations", () => {
     expect(getRuleExplanation(kaku, "te")).toContain("一類動詞");
     expect(getRuleExplanation(kaku, "negativeTe")).toContain("ないで");
     expect(getRuleExplanation(kaku, "negativeContinuative")).toContain("なくて");
+  });
+
+  it("explains godan plain affirmative past as the ta-form sound-change family", () => {
+    const kaku = word({ surface: "書く", reading: "かく", meaningZh: "寫", partOfSpeech: "verb", group: "godan" });
+
+    expect(getRuleExplanation(kaku, "plainPastAffirmative")).toContain("た形");
+    expect(getRuleExplanation(kaku, "plainPastAffirmative")).toContain("音便");
+    expect(getRuleExplanation(kaku, "plainPastAffirmative")).not.toContain("ます形");
   });
 });
