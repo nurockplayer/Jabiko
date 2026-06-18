@@ -2,7 +2,7 @@ import type { PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
 
 export type Language = "zh-Hant" | "en" | "ko";
 
-type Copy = {
+export type Copy = {
   languageName: string;
   appIntroLabel: string;
   appTitle: string;
@@ -10,8 +10,62 @@ type Copy = {
   themeLight: string;
   themeDark: string;
   flowLabel: string;
+  home: string;
   learn: string;
   challenge: string;
+  homeHeroTitle: string;
+  homeHeroIntro: string;
+  homeBannerReviewMain: (count: number) => string;
+  homeBannerReviewSub: string;
+  homeBannerContinueMain: (chapter: string) => string;
+  homeBannerContinueSub: string;
+  homeStatsLabel: string;
+  homeStatsAttempts: string;
+  homeStatsAccuracy: string;
+  homeStatsChapters: string;
+  homeCardLearnTitle: string;
+  homeCardLearnSub: string;
+  homeCardLearnMeta: (completed: number, total: number) => string;
+  homeCardChallengeTitle: string;
+  homeCardChallengeSub: string;
+  homeCardChallengeMeta: string;
+  homeCardMockTitle: string;
+  homeCardMockSub: string;
+  homeCardMockMeta: string;
+  homeCardReviewTitle: string;
+  homeCardReviewSubActive: (count: number) => string;
+  homeCardReviewSubEmpty: string;
+  homeCardReviewMeta: string;
+  mockExam: string;
+  mockExamSetupTitle: string;
+  mockExamSetupIntro: string;
+  mockExamLevelLabel: string;
+  mockExamSectionsHeading: string;
+  mockExamSectionPoolLabel: string;
+  mockExamSectionGap: string;
+  mockExamPoolEmpty: string;
+  mockExamStart: string;
+  mockExamStartDisabled: string;
+  mockExamSuggestedMinutes: (value: number) => string;
+  mockExamSectionBadge: (index: number) => string;
+  mockExamRunningTitle: (level: string) => string;
+  mockExamProgress: (current: number, total: number) => string;
+  mockExamElapsed: string;
+  mockExamSubmit: string;
+  mockExamSubmitConfirm: string;
+  mockExamSkip: string;
+  mockExamNext: string;
+  mockExamPrev: string;
+  mockExamResultsTitle: (level: string) => string;
+  mockExamTotalScore: (correct: number, total: number, percent: number) => string;
+  mockExamAnsweredOf: (answered: number, total: number) => string;
+  mockExamGapNote: (gap: number) => string;
+  mockExamRetake: string;
+  mockExamExit: string;
+  mockExamReviewWrong: string;
+  mockExamReviewSection: string;
+  mockExamUnansweredBadge: string;
+  mockExamSkippedShort: string;
   learningRegion: string;
   studyBeforeRecall: string;
   learnTitle: string;
@@ -77,7 +131,17 @@ type Copy = {
   revealed: string;
   answerKey: string;
   focusSummaryEmpty: string;
-  modeOptions: Record<"basic" | "cloze" | "exam" | "pattern", { title: string; subtitle: string }>;
+  modeOptions: Record<"basic" | "cloze" | "exam" | "pattern" | "review", { title: string; subtitle: string }>;
+  // ---- Dashboard / review ---------------------------------------------------
+  dashboardEyebrow: string;
+  dashboardReviewPending: (count: number) => string;
+  dashboardReviewEmpty: string;
+  dashboardReviewCta: string;
+  dashboardNextChapterLabel: string;
+  dashboardStatsAttempts: (count: number) => string;
+  dashboardStatsAccuracy: (percent: number) => string;
+  reviewEmptyState: string;
+  speakAriaLabel: string;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
   focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast", string>;
@@ -102,8 +166,63 @@ export const copy: Record<Language, Copy> = {
     themeLight: "淺色模式",
     themeDark: "深色模式",
     flowLabel: "學習流程",
+    home: "首頁",
     learn: "學習",
     challenge: "挑戰",
+    mockExam: "模擬考",
+    homeHeroTitle: "今天想練什麼？",
+    homeHeroIntro: "選一個入口開始。累積的錯題、章節進度、整卷模擬都在這裡。",
+    homeBannerReviewMain: (count) => `你有 ${count} 題等待複習`,
+    homeBannerReviewSub: "跨 session 累積的錯題，答對才會移出。",
+    homeBannerContinueMain: (chapter) => `繼續學：${chapter}`,
+    homeBannerContinueSub: "上次還沒完成的章節。",
+    homeStatsLabel: "整體進度",
+    homeStatsAttempts: "累積已答",
+    homeStatsAccuracy: "總正答率",
+    homeStatsChapters: "完成章節",
+    homeCardLearnTitle: "學習",
+    homeCardLearnSub: "章節式變化與句型解說，先看規則再練。",
+    homeCardLearnMeta: (completed, total) => `已完成 ${completed} / ${total} 章`,
+    homeCardChallengeTitle: "挑戰",
+    homeCardChallengeSub: "四種模式：基礎變化 · 句中填空 · 句型判斷 · 綜合考題庫。",
+    homeCardChallengeMeta: "自由選詞類、目標形、JLPT 等級",
+    homeCardMockTitle: "模擬考",
+    homeCardMockSub: "JLPT N1 / N2 整卷抽題，計時 + 結果分析。",
+    homeCardMockMeta: "依官方題型結構",
+    homeCardReviewTitle: "弱點複習",
+    homeCardReviewSubActive: (count) => `${count} 題等你重練到對。`,
+    homeCardReviewSubEmpty: "目前沒有錯題可複習。",
+    homeCardReviewMeta: "答對才會移出 queue",
+    mockExamSetupTitle: "JLPT 模擬考",
+    mockExamSetupIntro:
+      "依官方題型結構抽題。作答中不顯示對錯，整份交卷後才看分數與詳解。題庫不足的小題會明確標出。",
+    mockExamLevelLabel: "等級",
+    mockExamSectionsHeading: "本回題型結構",
+    mockExamSectionPoolLabel: "目前題庫",
+    mockExamSectionGap: "缺 {gap} 題",
+    mockExamPoolEmpty: "題庫尚未建置",
+    mockExamStart: "開始模擬考",
+    mockExamStartDisabled: "題庫為空，暫無可考題",
+    mockExamSuggestedMinutes: (value) => `建議時長 ${value} 分（官方）`,
+    mockExamSectionBadge: (index) => `問題 ${index}`,
+    mockExamRunningTitle: (level) => `模擬考 ${level} · 進行中`,
+    mockExamProgress: (current, total) => `第 ${current} / ${total} 題`,
+    mockExamElapsed: "經過時間",
+    mockExamSubmit: "結束作答",
+    mockExamSubmitConfirm: "確定交卷？尚未作答的題目會以未作答計算。",
+    mockExamSkip: "跳過",
+    mockExamNext: "下一題 →",
+    mockExamPrev: "← 上一題",
+    mockExamResultsTitle: (level) => `模擬考 ${level} · 結果`,
+    mockExamTotalScore: (correct, total, percent) => `總分 ${correct} / ${total}（${percent}%）`,
+    mockExamAnsweredOf: (answered, total) => `已作答 ${answered} / ${total} 題`,
+    mockExamGapNote: (gap) => `本回比官方少 ${gap} 題（缺漏的題型已標示）`,
+    mockExamRetake: "再考一次",
+    mockExamExit: "離開模擬考",
+    mockExamReviewWrong: "看錯題詳解",
+    mockExamReviewSection: "題型分析",
+    mockExamUnansweredBadge: "未作答",
+    mockExamSkippedShort: "跳過",
     learningRegion: "學習",
     studyBeforeRecall: "先學習，再回想",
     learnTitle: "先學會，再挑戰",
@@ -189,8 +308,18 @@ export const copy: Record<Language, Copy> = {
       basic: { title: "基礎變化", subtitle: "詞類變化練習 · 課本詞彙" },
       cloze: { title: "句中填空", subtitle: "N5 文型 · 〜てください / 〜たいです" },
       pattern: { title: "句型練習", subtitle: "N5/N4 句型判斷 · 視角 / 許可 / 引用 / 不必" },
-      exam: { title: "綜合考題庫", subtitle: "N1/N2 為主 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み" }
+      exam: { title: "綜合考題庫", subtitle: "N1/N2 為主 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み" },
+      review: { title: "弱點複習", subtitle: "把上次答錯的題目重練到對為止" }
     },
+    dashboardEyebrow: "繼續學習",
+    dashboardReviewPending: (count) => `你還有 ${count} 題等待複習`,
+    dashboardReviewEmpty: "沒有待複習錯題了 🎉",
+    dashboardReviewCta: "立刻複習",
+    dashboardNextChapterLabel: "下一章建議",
+    dashboardStatsAttempts: (count) => `已練 ${count} 題`,
+    dashboardStatsAccuracy: (percent) => `總正答率 ${percent}%`,
+    reviewEmptyState: "沒有錯題可以複習。回到綜合題庫或基礎變化練幾題吧。",
+    speakAriaLabel: "朗讀日文",
     partOfSpeech: {
       verb: "動詞",
       i_adjective: "い形容詞",
@@ -244,8 +373,64 @@ export const copy: Record<Language, Copy> = {
     themeLight: "Light mode",
     themeDark: "Dark mode",
     flowLabel: "Learning flow",
+    home: "Home",
     learn: "Learn",
     challenge: "Challenge",
+    mockExam: "Mock exam",
+    homeHeroTitle: "What do you want to practice today?",
+    homeHeroIntro:
+      "Pick an entry point. Your review queue, chapter progress, and full mock exams all live here.",
+    homeBannerReviewMain: (count) => `${count} item${count === 1 ? "" : "s"} waiting for review`,
+    homeBannerReviewSub: "Mistakes accumulate across sessions until you answer them correctly.",
+    homeBannerContinueMain: (chapter) => `Continue: ${chapter}`,
+    homeBannerContinueSub: "The next chapter you haven't finished.",
+    homeStatsLabel: "Overall progress",
+    homeStatsAttempts: "Answered",
+    homeStatsAccuracy: "Accuracy",
+    homeStatsChapters: "Chapters",
+    homeCardLearnTitle: "Learn",
+    homeCardLearnSub: "Chapter-by-chapter form rules and patterns; read first, then drill.",
+    homeCardLearnMeta: (completed, total) => `${completed} / ${total} chapters done`,
+    homeCardChallengeTitle: "Challenge",
+    homeCardChallengeSub: "Four modes: conjugation · cloze · pattern judging · JLPT mock pool.",
+    homeCardChallengeMeta: "Word type, target form, JLPT level — your call",
+    homeCardMockTitle: "Mock exam",
+    homeCardMockSub: "Full JLPT N1 / N2 paper, timed, with section-level breakdown.",
+    homeCardMockMeta: "Real exam structure",
+    homeCardReviewTitle: "Weak-spot review",
+    homeCardReviewSubActive: (count) => `${count} item${count === 1 ? "" : "s"} to re-drill until they stick.`,
+    homeCardReviewSubEmpty: "Nothing to review right now.",
+    homeCardReviewMeta: "Drops out once you answer correctly",
+    mockExamSetupTitle: "JLPT mock exam",
+    mockExamSetupIntro:
+      "Pulls questions section-by-section to match the official JLPT paper. No per-question feedback during the run -- you'll see the score and full explanations only after you submit. Sections with too few questions are flagged explicitly.",
+    mockExamLevelLabel: "Level",
+    mockExamSectionsHeading: "Paper structure",
+    mockExamSectionPoolLabel: "Pool",
+    mockExamSectionGap: "missing {gap}",
+    mockExamPoolEmpty: "no items yet",
+    mockExamStart: "Start mock exam",
+    mockExamStartDisabled: "Pool is empty",
+    mockExamSuggestedMinutes: (value) => `Official time: ${value} min`,
+    mockExamSectionBadge: (index) => `Section ${index}`,
+    mockExamRunningTitle: (level) => `Mock exam ${level} · in progress`,
+    mockExamProgress: (current, total) => `${current} / ${total}`,
+    mockExamElapsed: "Elapsed",
+    mockExamSubmit: "Submit exam",
+    mockExamSubmitConfirm: "Submit now? Unanswered questions will count as wrong.",
+    mockExamSkip: "Skip",
+    mockExamNext: "Next →",
+    mockExamPrev: "← Previous",
+    mockExamResultsTitle: (level) => `Mock exam ${level} · results`,
+    mockExamTotalScore: (correct, total, percent) => `${correct} / ${total} (${percent}%)`,
+    mockExamAnsweredOf: (answered, total) => `Answered ${answered} of ${total}`,
+    mockExamGapNote: (gap) => `${gap} questions short of the official paper (gap sections flagged below)`,
+    mockExamRetake: "Retake",
+    mockExamExit: "Exit",
+    mockExamReviewWrong: "Review wrong answers",
+    mockExamReviewSection: "Section breakdown",
+    mockExamUnansweredBadge: "Unanswered",
+    mockExamSkippedShort: "Skipped",
     learningRegion: "Learning",
     studyBeforeRecall: "Study before recall",
     learnTitle: "Learn first, then challenge yourself",
@@ -331,8 +516,18 @@ export const copy: Record<Language, Copy> = {
       basic: { title: "Conjugation", subtitle: "Form drills · textbook vocabulary" },
       cloze: { title: "Sentence cloze", subtitle: "N5 grammar · ~te kudasai / ~tai desu" },
       pattern: { title: "Pattern judging", subtitle: "N5/N4 · perspective / permission / quotation / negation" },
-      exam: { title: "JLPT mock pool", subtitle: "N1/N2 focus · grammar / sentence order / context / vocab / reading" }
+      exam: { title: "JLPT mock pool", subtitle: "N1/N2 focus · grammar / sentence order / context / vocab / reading" },
+      review: { title: "Weak-spot review", subtitle: "Re-drill questions you got wrong until they stick" }
     },
+    dashboardEyebrow: "Pick up where you left off",
+    dashboardReviewPending: (count) => `${count} item${count === 1 ? "" : "s"} waiting for review`,
+    dashboardReviewEmpty: "Nothing to review right now 🎉",
+    dashboardReviewCta: "Review now",
+    dashboardNextChapterLabel: "Suggested next chapter",
+    dashboardStatsAttempts: (count) => `${count} answered`,
+    dashboardStatsAccuracy: (percent) => `${percent}% overall`,
+    reviewEmptyState: "No wrong answers to review. Head back to JLPT mock pool or basic drills.",
+    speakAriaLabel: "Read aloud",
     partOfSpeech: {
       verb: "Verbs",
       i_adjective: "i-adj",
@@ -386,8 +581,63 @@ export const copy: Record<Language, Copy> = {
     themeLight: "라이트 모드",
     themeDark: "다크 모드",
     flowLabel: "학습 흐름",
+    home: "홈",
     learn: "학습",
     challenge: "도전",
+    mockExam: "모의시험",
+    homeHeroTitle: "오늘은 무엇을 연습할까요?",
+    homeHeroIntro: "입구를 골라 시작하세요. 오답, 챕터 진도, 모의시험이 모두 여기에 있습니다.",
+    homeBannerReviewMain: (count) => `복습 대기 ${count}문제`,
+    homeBannerReviewSub: "정답을 맞힐 때까지 세션을 넘어 누적된 오답입니다.",
+    homeBannerContinueMain: (chapter) => `이어서 학습: ${chapter}`,
+    homeBannerContinueSub: "아직 끝내지 않은 챕터입니다.",
+    homeStatsLabel: "전체 진도",
+    homeStatsAttempts: "누적 풀이",
+    homeStatsAccuracy: "정답률",
+    homeStatsChapters: "완료 챕터",
+    homeCardLearnTitle: "학습",
+    homeCardLearnSub: "챕터별 활용 규칙과 문형 설명을 보고 연습합니다.",
+    homeCardLearnMeta: (completed, total) => `${completed} / ${total} 챕터 완료`,
+    homeCardChallengeTitle: "도전",
+    homeCardChallengeSub: "네 가지 모드: 활용 · 빈칸 · 문형 판단 · 종합 문제.",
+    homeCardChallengeMeta: "품사 · 목표형 · JLPT 레벨 선택 가능",
+    homeCardMockTitle: "모의시험",
+    homeCardMockSub: "JLPT N1 / N2 한 회분, 시간 측정 + 섹션별 분석.",
+    homeCardMockMeta: "공식 시험 구조",
+    homeCardReviewTitle: "약점 복습",
+    homeCardReviewSubActive: (count) => `다시 풀어야 할 문제 ${count}개.`,
+    homeCardReviewSubEmpty: "지금 복습할 오답이 없습니다.",
+    homeCardReviewMeta: "정답을 맞히면 큐에서 제거됩니다",
+    mockExamSetupTitle: "JLPT 모의시험",
+    mockExamSetupIntro:
+      "공식 시험 구조에 맞춰 섹션별로 문제를 뽑습니다. 풀이 중에는 정답을 보여 주지 않고, 제출 후 점수와 해설을 한꺼번에 확인합니다. 문제 풀이가 부족한 섹션은 명확히 표시됩니다.",
+    mockExamLevelLabel: "레벨",
+    mockExamSectionsHeading: "이번 회차 구조",
+    mockExamSectionPoolLabel: "현재 문제 수",
+    mockExamSectionGap: "{gap}문제 부족",
+    mockExamPoolEmpty: "문제 준비 중",
+    mockExamStart: "모의시험 시작",
+    mockExamStartDisabled: "문제가 없습니다",
+    mockExamSuggestedMinutes: (value) => `권장 시간 ${value}분（공식 기준）`,
+    mockExamSectionBadge: (index) => `문제 ${index}`,
+    mockExamRunningTitle: (level) => `모의시험 ${level} · 진행 중`,
+    mockExamProgress: (current, total) => `${current} / ${total}`,
+    mockExamElapsed: "경과 시간",
+    mockExamSubmit: "제출하기",
+    mockExamSubmitConfirm: "지금 제출하시겠어요? 미응답 문제는 오답 처리됩니다.",
+    mockExamSkip: "건너뛰기",
+    mockExamNext: "다음 문제 →",
+    mockExamPrev: "← 이전 문제",
+    mockExamResultsTitle: (level) => `모의시험 ${level} · 결과`,
+    mockExamTotalScore: (correct, total, percent) => `${correct} / ${total} (${percent}%)`,
+    mockExamAnsweredOf: (answered, total) => `${total}문제 중 ${answered}문제 응답`,
+    mockExamGapNote: (gap) => `공식 시험 대비 ${gap}문제 부족 (부족한 섹션은 아래에 표시)`,
+    mockExamRetake: "다시 보기",
+    mockExamExit: "나가기",
+    mockExamReviewWrong: "오답 해설 보기",
+    mockExamReviewSection: "섹션별 결과",
+    mockExamUnansweredBadge: "미응답",
+    mockExamSkippedShort: "건너뜀",
     learningRegion: "학습",
     studyBeforeRecall: "회상하기 전에 학습하기",
     learnTitle: "먼저 배우고, 그다음 도전하세요",
@@ -473,8 +723,18 @@ export const copy: Record<Language, Copy> = {
       basic: { title: "기본 활용", subtitle: "품사별 활용 연습 · 교재 어휘" },
       cloze: { title: "문장 빈칸", subtitle: "N5 문형 · 〜てください / 〜たいです" },
       pattern: { title: "문형 판단", subtitle: "N5/N4 · 시점 / 허가 / 인용 / 불필요" },
-      exam: { title: "종합 시험 문제", subtitle: "N1/N2 중심 · 문법 / 어순 / 단문 / 어휘 / 한자 읽기" }
+      exam: { title: "종합 시험 문제", subtitle: "N1/N2 중심 · 문법 / 어순 / 단문 / 어휘 / 한자 읽기" },
+      review: { title: "약점 복습", subtitle: "틀린 문제만 모아서 다시 풀기" }
     },
+    dashboardEyebrow: "이어서 학습하기",
+    dashboardReviewPending: (count) => `복습 대기 ${count}문제`,
+    dashboardReviewEmpty: "지금 복습할 오답이 없습니다 🎉",
+    dashboardReviewCta: "지금 복습",
+    dashboardNextChapterLabel: "다음 추천 챕터",
+    dashboardStatsAttempts: (count) => `${count}문제 풀이`,
+    dashboardStatsAccuracy: (percent) => `누적 정답률 ${percent}%`,
+    reviewEmptyState: "복습할 오답이 없습니다. 종합 시험 문제나 기본 활용으로 돌아가 보세요.",
+    speakAriaLabel: "일본어 읽어주기",
     partOfSpeech: {
       verb: "동사",
       i_adjective: "い형용사",

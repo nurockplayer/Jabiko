@@ -7,6 +7,7 @@ import {
   buildChoiceOptions,
   buildQuestionPool,
   getMistakeQuestions,
+  getReviewQueue,
   scoreAttempt,
   shuffleQuestions
 } from "./practice";
@@ -597,5 +598,49 @@ describe("getMistakeQuestions", () => {
     const rightAttempt = scoreAttempt(question, question.expectedAnswers[0], 2000, 2300);
 
     expect(getMistakeQuestions([wrongAttempt, rightAttempt], [question])).toEqual([question]);
+  });
+});
+
+describe("getReviewQueue", () => {
+  const pool = buildQuestionPool(vocabulary, {
+    partOfSpeech: "verb",
+    verbGroup: "godan",
+    targetForms: ["te"]
+  }).slice(0, 3);
+
+  it("returns an empty queue when no attempts have been made", () => {
+    expect(getReviewQueue([], pool)).toEqual([]);
+  });
+
+  it("includes a question whose only attempt was wrong", () => {
+    const wrong = scoreAttempt(pool[0], "wrong", 1000, 1500);
+    const queue = getReviewQueue([wrong], pool);
+    expect(queue).toEqual([pool[0]]);
+  });
+
+  it("drops a question once the most recent attempt is correct", () => {
+    const wrong = scoreAttempt(pool[0], "wrong", 1000, 1500);
+    const right = scoreAttempt(pool[0], pool[0].expectedAnswers[0], 2000, 2300);
+    expect(getReviewQueue([wrong, right], pool)).toEqual([]);
+  });
+
+  it("re-adds a question that was answered correctly then missed again", () => {
+    const right = scoreAttempt(pool[0], pool[0].expectedAnswers[0], 1000, 1300);
+    const wrong = scoreAttempt(pool[0], "wrong", 2000, 2500);
+    expect(getReviewQueue([right, wrong], pool)).toEqual([pool[0]]);
+  });
+
+  it("orders the queue with the most recent miss first", () => {
+    const olderMiss = scoreAttempt(pool[0], "wrong", 1000, 1500);
+    const newerMiss = scoreAttempt(pool[1], "wrong", 3000, 3500);
+    const queue = getReviewQueue([olderMiss, newerMiss], pool);
+    expect(queue.map((q) => q.id)).toEqual([pool[1].id, pool[0].id]);
+  });
+
+  it("deduplicates a question that has been missed multiple times", () => {
+    const miss1 = scoreAttempt(pool[0], "wrong", 1000, 1500);
+    const miss2 = scoreAttempt(pool[0], "wrong-again", 2000, 2500);
+    const queue = getReviewQueue([miss1, miss2], pool);
+    expect(queue).toEqual([pool[0]]);
   });
 });

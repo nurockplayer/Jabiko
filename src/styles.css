@@ -11,29 +11,43 @@
   --font-japanese-ui: "Hiragino Sans", "Yu Gothic", "YuGothic", "Noto Sans JP", "Noto Sans CJK JP", var(--font-ui);
   --font-japanese-display: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", "Noto Serif CJK JP",
     "Songti TC", serif;
-  --app-bg: #f1ede3;
+  /* Wafuu / Japanese-editorial palette. The previous palette leaned
+   * tech-dashboard (teal-indigo gradients, cyan glows, deep cool
+   * shadow). This version is warm-paper-led:
+   *   - --app-bg / --paper: warm cream, dominant
+   *   - --teal / --matcha: small role, accent only
+   *   - --vermilion: muted brick (was electric orange #e85d2a)
+   *   - --gold: kept for fine details
+   *   - --indigo: repurposed to matcha; name kept for compatibility
+   *     until a follow-up rename pass touches all call sites.
+   * Glow tokens are kept but flattened to transparent so existing
+   * radial-gradient layers compile to no-op.
+   */
+  --app-bg: #f4ead8;
   --paper: #fffaf0;
-  --paper-deep: #e7eee7;
+  --paper-deep: #efe6cf;
   --ink: #172126;
-  --muted: #56676a;
-  --rule: #c5d4d2;
+  --muted: #6a6155;
+  --rule: #d8cdb5;
   --teal: #0f766e;
   --teal-dark: #115e59;
-  --vermilion: #e85d2a;
-  --indigo: #0f7ea8;
+  --matcha: #647c5c;
+  --matcha-dark: #4f6549;
+  --vermilion: #b94a2c;
+  --indigo: #647c5c; /* repurposed -> matcha; see palette note above */
   --gold: #b7791f;
-  --green: #257a4b;
-  --shadow: 0 20px 54px rgba(15, 47, 53, 0.16);
-  --body-grid-row: rgba(15, 118, 110, 0.12);
-  --body-grid-column: rgba(15, 126, 168, 0.1);
-  --bg-glow-primary: rgba(20, 184, 166, 0.16);
-  --bg-glow-secondary: rgba(232, 93, 42, 0.12);
-  --panel-glow: rgba(15, 126, 168, 0.12);
-  --panel-bg: linear-gradient(180deg, rgba(255, 250, 240, 0.92), rgba(248, 243, 231, 0.98));
-  --panel-border: #b6c8c5;
-  --button-border: #456065;
+  --green: #4f7a3f;
+  --shadow: 0 6px 18px rgba(120, 95, 55, 0.09);
+  --body-grid-row: transparent;
+  --body-grid-column: transparent;
+  --bg-glow-primary: transparent;
+  --bg-glow-secondary: transparent;
+  --panel-glow: transparent;
+  --panel-bg: var(--paper);
+  --panel-border: #d4c7ad;
+  --button-border: #c3b698;
   --button-text: #172126;
-  --button-hover-shadow: 0 10px 22px rgba(15, 47, 53, 0.14);
+  --button-hover-shadow: 0 4px 14px rgba(120, 95, 55, 0.12);
   --selected-text: #fffaf0;
   --label-text: #42565a;
   --field-bg: #fffaf0;
@@ -69,29 +83,34 @@
 }
 
 :root[data-theme="dark"] {
-  --app-bg: #0b1518;
-  --paper: #111d22;
-  --paper-deep: #16272d;
-  --ink: #f6fbf6;
-  --muted: #a9bdbc;
-  --rule: #263c43;
-  --teal: #14b8a6;
-  --teal-dark: #0f766e;
-  --vermilion: #f97316;
-  --indigo: #38bdf8;
-  --gold: #fbbf24;
-  --green: #86efac;
-  --shadow: 0 26px 72px rgba(0, 0, 0, 0.48);
-  --body-grid-row: rgba(20, 184, 166, 0.08);
-  --body-grid-column: rgba(56, 189, 248, 0.07);
-  --bg-glow-primary: rgba(20, 184, 166, 0.16);
-  --bg-glow-secondary: rgba(249, 115, 22, 0.15);
-  --panel-glow: rgba(56, 189, 248, 0.11);
-  --panel-bg: linear-gradient(180deg, rgba(20, 34, 39, 0.96), rgba(10, 20, 24, 0.98));
-  --panel-border: #244149;
-  --button-border: #34535c;
-  --button-text: #effaf7;
-  --button-hover-shadow: 0 12px 26px rgba(0, 0, 0, 0.4);
+  /* Dark theme reframed as "evening reading" rather than "tech UI":
+   * warm dark walnut background, muted matcha + brick accents, no
+   * electric cyan. Glows flattened. */
+  --app-bg: #1a1814;
+  --paper: #221f1a;
+  --paper-deep: #2b271f;
+  --ink: #f3eddc;
+  --muted: #a89d87;
+  --rule: #3a342a;
+  --teal: #5a9a8e;
+  --teal-dark: #3f7a6f;
+  --matcha: #889c80;
+  --matcha-dark: #6a7d61;
+  --vermilion: #d06a47;
+  --indigo: #889c80; /* repurposed -> matcha; see palette note */
+  --gold: #d4a64a;
+  --green: #8fb076;
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
+  --body-grid-row: transparent;
+  --body-grid-column: transparent;
+  --bg-glow-primary: transparent;
+  --bg-glow-secondary: transparent;
+  --panel-glow: transparent;
+  --panel-bg: var(--paper);
+  --panel-border: #3a342a;
+  --button-border: #4d4538;
+  --button-text: #f3eddc;
+  --button-hover-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
   --selected-text: #101216;
   --label-text: #d8e6e2;
   --field-bg: #0d171b;
@@ -134,12 +153,10 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 18% 0%, var(--bg-glow-primary), transparent 32rem),
-    radial-gradient(circle at 100% 8%, var(--bg-glow-secondary), transparent 28rem),
-    linear-gradient(var(--body-grid-row) 1px, transparent 1px) 0 0 / 100% 32px,
-    linear-gradient(90deg, var(--body-grid-column) 1px, transparent 1px) 3rem 0 / 100% 100%,
-    var(--app-bg);
+  /* Plain paper wash. The previous body had a teal/orange radial glow +
+   * hairline grid that read as "SaaS dashboard"; this theme is wafuu
+   * editorial, so the background should just be paper. */
+  background: var(--app-bg);
 }
 
 body,
@@ -274,7 +291,7 @@ button svg {
 }
 
 .language-switch button.selected {
-  background: linear-gradient(135deg, var(--teal), var(--indigo));
+  background: var(--matcha);
   color: var(--selected-text);
 }
 
@@ -295,15 +312,13 @@ button svg {
 }
 
 .learning-panel {
+  /* Paper card, no dashboard chrome. Removed: radial panel-glow, the
+   * backdrop blur, and the 4px teal top stripe -- those three together
+   * gave a "glass admin panel" feel. Just a card on paper now. */
   animation: panel-rise 240ms ease both;
-  background:
-    radial-gradient(circle at 80% 0%, var(--panel-glow), transparent 24rem),
-    var(--panel-bg),
-    var(--paper);
-  backdrop-filter: blur(14px);
+  background: var(--paper);
   border: 1px solid var(--panel-border);
-  border-top: 4px solid var(--teal);
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: var(--shadow);
   margin: 0 auto;
   max-width: 1220px;
@@ -374,10 +389,11 @@ button svg {
 }
 
 .chapter-list-button.selected {
-  background:
-    linear-gradient(135deg, rgba(249, 115, 22, 0.18), transparent 78%),
-    var(--field-bg);
-  border-color: var(--vermilion);
+  /* "Currently reading this chapter" highlight. Was a saturated orange
+   * gradient; now a soft muted-brick wash that matches the new
+   * --vermilion (#b94a2c) instead of the old hardcoded #f97316. */
+  background: color-mix(in srgb, var(--vermilion) 10%, var(--paper));
+  border-color: color-mix(in srgb, var(--vermilion) 55%, var(--panel-border));
 }
 
 .chapter-list-button.complete {
@@ -693,7 +709,7 @@ button svg {
 }
 
 .quick-start-card.featured .quick-start-button {
-  background: linear-gradient(135deg, var(--vermilion), var(--gold));
+  background: var(--vermilion);
   border-color: var(--vermilion);
   color: var(--selected-text);
 }
@@ -897,8 +913,8 @@ button svg {
 }
 
 .inline-drill-button {
-  background: linear-gradient(135deg, var(--teal), var(--indigo));
-  border-color: var(--teal);
+  background: var(--matcha);
+  border-color: var(--matcha-dark);
   color: var(--selected-text);
   font-weight: 800;
   justify-self: start;
@@ -957,7 +973,7 @@ button svg {
 }
 
 .start-challenge {
-  background: linear-gradient(135deg, var(--vermilion), var(--gold));
+  background: var(--vermilion);
   border-color: var(--vermilion);
   color: var(--selected-text);
   font-weight: 800;
@@ -975,31 +991,24 @@ button svg {
 .controls-panel,
 .drill-panel,
 .review-panel {
+  /* Same wafuu paper-card treatment as .learning-panel: no glow, no
+   * blur, no colour-coded 4px top stripe. The previous teal/vermilion/
+   * indigo stripes were the loudest dashboard signal in the app. */
   animation: panel-rise 240ms ease both;
-  background:
-    radial-gradient(circle at 50% 0%, var(--panel-glow), transparent 22rem),
-    var(--panel-bg),
-    var(--paper);
-  backdrop-filter: blur(14px);
+  background: var(--paper);
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: var(--shadow);
   padding: 1.15rem;
 }
 
-.controls-panel {
-  border-top: 4px solid var(--teal);
-}
-
 .drill-panel {
   animation-delay: 60ms;
-  border-top: 4px solid var(--vermilion);
   min-height: 640px;
 }
 
 .review-panel {
   animation-delay: 120ms;
-  border-top: 4px solid var(--indigo);
 }
 
 .brand-lockup {
@@ -1064,8 +1073,8 @@ legend,
 }
 
 .segmented button.selected {
-  background: linear-gradient(135deg, var(--teal), var(--indigo));
-  border-color: var(--teal);
+  background: var(--matcha);
+  border-color: var(--matcha-dark);
   color: var(--selected-text);
 }
 
@@ -1344,7 +1353,7 @@ select:disabled {
 }
 
 .next-button {
-  background: linear-gradient(135deg, var(--vermilion), var(--gold));
+  background: var(--vermilion);
   border-color: var(--vermilion);
   color: var(--selected-text);
   font-weight: 800;
@@ -1541,12 +1550,11 @@ select:disabled {
 }
 
 @media (max-width: 560px) {
+  /* Mobile bg used to layer extra radial glows + a tighter grid spacing
+   * for "feels different on mobile" decoration. Same plain paper here
+   * to match the new theme. */
   body {
-    background:
-      radial-gradient(circle at 16% 0%, var(--bg-glow-primary), transparent 24rem),
-      radial-gradient(circle at 100% 4%, var(--bg-glow-secondary), transparent 22rem),
-      linear-gradient(var(--body-grid-row) 1px, transparent 1px) 0 0 / 100% 30px,
-      var(--app-bg);
+    background: var(--app-bg);
   }
 
   .app-shell {
@@ -1718,6 +1726,687 @@ select:disabled {
 
   to {
     transform: translateY(0);
+  }
+}
+
+/* ---- Home panel ----------------------------------------------------- */
+
+.home-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  max-width: 940px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.home-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.home-hero-image {
+  width: 100%;
+  /* The source asset is 16:9; aspect-ratio prevents CLS while the
+     image loads (height is reserved before the bytes arrive). */
+  aspect-ratio: 16 / 9;
+  max-height: 280px;
+  object-fit: cover;
+  /* Bias the crop slightly upward -- on the still-life source, the
+     subject (desk + objects) sits in the upper-middle band, so a flat
+     center crop would clip the books and emphasise the empty wood
+     foreground. */
+  object-position: center 38%;
+  border-radius: 0.95rem;
+  border: 1px solid var(--panel-border);
+  background: var(--paper);
+  display: block;
+}
+
+.home-hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.home-hero-text .eyebrow {
+  margin: 0;
+  font-weight: 700;
+  color: var(--teal-dark);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.home-hero-text h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  color: var(--ink);
+}
+
+.home-hero-text p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .home-hero-image {
+    max-height: 200px;
+  }
+}
+
+.home-banner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.15rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--panel-border);
+  cursor: pointer;
+  text-align: left;
+  transition: box-shadow 0.16s ease;
+}
+
+.home-banner:hover {
+  box-shadow: var(--button-hover-shadow);
+}
+
+.home-banner-review {
+  background: var(--feedback-incorrect-bg);
+  border-color: var(--feedback-incorrect-border);
+  color: var(--vermilion);
+}
+
+.home-banner-continue {
+  background: var(--summary-bg);
+  border-color: var(--summary-border);
+  color: var(--summary-text);
+}
+
+.home-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.home-banner-text strong {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.home-banner-text small {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.home-stats-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0.85rem;
+}
+
+.home-stats-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: center;
+  text-align: center;
+}
+
+.home-stats-cell strong {
+  font-size: 1.4rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.home-stats-cell small {
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+}
+
+.home-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "icon title"
+    "icon body"
+    "icon meta";
+  gap: 0.35rem 0.85rem;
+  padding: 1.05rem 1.1rem 1.2rem;
+  background: var(--paper);
+  border: 1px solid var(--panel-border);
+  border-radius: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.home-card:hover:not(:disabled) {
+  box-shadow: var(--button-hover-shadow);
+  transform: translateY(-1px);
+}
+
+.home-card-icon {
+  /* Icon as a quiet line drawing, not a dashboard "stat tile" with
+   * coloured bubble background. The card itself now does the framing. */
+  grid-area: icon;
+  align-self: start;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.1rem;
+  color: var(--matcha-dark);
+}
+
+.home-card h2 {
+  grid-area: title;
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.home-card p {
+  grid-area: body;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.home-card-meta {
+  grid-area: meta;
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--teal-dark);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.home-card-arrow {
+  position: absolute;
+  top: 0.95rem;
+  right: 0.95rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--muted);
+}
+
+.home-card-dimmed {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.home-card-dimmed .home-card-icon {
+  color: var(--field-disabled-text);
+}
+
+@media (max-width: 720px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-stats-strip {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+}
+
+/* ---- Learn-view dashboard card -------------------------------------- */
+
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0.95rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--paper);
+  border: 1px solid var(--panel-border);
+  border-radius: 0.85rem;
+}
+
+.dashboard-card .eyebrow {
+  margin: 0;
+  color: var(--teal-dark);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dashboard-review-cta {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 0.85rem;
+  background: var(--feedback-revealed-bg);
+  border: 1px solid var(--feedback-revealed-border);
+  border-radius: 0.7rem;
+  color: var(--feedback-revealed-title);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dashboard-review-cta:hover {
+  box-shadow: var(--button-hover-shadow);
+}
+
+.dashboard-review-text {
+  font-size: 0.95rem;
+}
+
+.dashboard-review-action {
+  padding: 0.18rem 0.55rem;
+  background: var(--vermilion);
+  color: var(--selected-text);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.dashboard-review-empty {
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  background: var(--summary-bg);
+  border: 1px solid var(--summary-border);
+  border-radius: 0.65rem;
+  color: var(--summary-text);
+  font-size: 0.9rem;
+}
+
+.dashboard-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- SpeakButton (TTS) ---------------------------------------------- */
+
+.speak-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.4rem;
+  padding: 0.2rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  background: transparent;
+  border: 1px solid var(--prompt-chip-border);
+  border-radius: 999px;
+  color: var(--teal-dark);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.speak-button:hover {
+  background: var(--summary-bg);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.speak-button svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+/* ---- Mock exam mode -------------------------------------------------- */
+
+.mock-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  max-width: 920px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.mock-setup,
+.mock-running,
+.mock-results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 1.1rem;
+  padding: 1.6rem 1.8rem;
+  box-shadow: var(--shadow);
+}
+
+.mock-setup-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.mock-setup-head .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--teal-dark);
+  font-weight: 600;
+}
+
+.mock-setup-intro {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.mock-setup-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.mock-level-picker {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mock-level-picker legend {
+  color: var(--label-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.mock-section-list h3,
+.mock-section-breakdown h3,
+.mock-wrong-list h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.mock-section-summary {
+  color: var(--muted);
+  margin: 0 0 0.8rem;
+  font-size: 0.92rem;
+}
+
+.mock-section-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mock-section-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.65rem 0.9rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0.7rem;
+}
+
+.mock-section-row.empty {
+  background: var(--field-disabled-bg);
+  color: var(--field-disabled-text);
+}
+
+.mock-section-row.partial {
+  border-color: var(--feedback-revealed-border);
+  background: var(--feedback-revealed-bg);
+}
+
+.mock-section-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.2rem;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--prompt-chip-text);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--prompt-chip-border);
+  border-radius: 999px;
+}
+
+.mock-section-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.mock-section-meta strong {
+  font-family: var(--font-japanese-ui);
+  font-size: 0.98rem;
+}
+
+.mock-section-meta small {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.mock-section-pool {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
+.mock-section-warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--vermilion);
+  font-style: normal;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.mock-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.mock-actions .next-button {
+  flex: 1 1 auto;
+  min-width: 12rem;
+}
+
+.mock-running-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.mock-running-head .eyebrow {
+  color: var(--teal-dark);
+  font-weight: 600;
+}
+
+.mock-running-head strong {
+  font-size: 1.1rem;
+}
+
+.mock-elapsed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.7rem;
+  background: var(--summary-bg);
+  border: 1px solid var(--summary-border);
+  border-radius: 0.6rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--summary-text);
+}
+
+.mock-elapsed strong {
+  font-size: 1.05rem;
+}
+
+.mock-question {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0.9rem;
+}
+
+.mock-question .prompt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--prompt-chip-text);
+}
+
+.mock-question .prompt-header span {
+  display: inline-flex;
+  padding: 0.15rem 0.6rem;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--prompt-chip-border);
+  border-radius: 999px;
+}
+
+.mock-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.mock-nav .next-button {
+  flex: 1 1 auto;
+}
+
+.mock-nav .mock-exit {
+  margin-left: auto;
+}
+
+.mock-results-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mock-results-head h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--teal-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.mock-results-meta {
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mock-results-gap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.8rem;
+  background: var(--feedback-revealed-bg);
+  border: 1px solid var(--feedback-revealed-border);
+  border-radius: 0.6rem;
+  color: var(--feedback-revealed-title);
+  font-size: 0.92rem;
+}
+
+.mock-wrong-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.mock-wrong-item {
+  padding: 0.85rem 1rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.mock-wrong-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mock-wrong-prompt {
+  font-family: var(--font-japanese-display);
+  font-size: 1.02rem;
+  color: var(--surface-ink);
+}
+
+.mock-wrong-submitted {
+  color: var(--vermilion);
+  font-weight: 600;
+}
+
+.mock-wrong-explanation {
+  color: var(--review-row-text);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .mock-setup,
+  .mock-running,
+  .mock-results {
+    padding: 1.2rem 1.1rem;
+  }
+
+  .mock-section-row {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .mock-section-pool {
+    grid-column: 1 / -1;
+    align-items: flex-start;
   }
 }
 
