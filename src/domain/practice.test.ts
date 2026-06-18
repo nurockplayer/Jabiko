@@ -9,6 +9,7 @@ import {
   getMistakeQuestions,
   getReviewQueue,
   readingSimilarity,
+  reduceAdjacentClusters,
   scoreAttempt,
   shuffleQuestions
 } from "./practice";
@@ -576,17 +577,23 @@ describe("buildChoiceOptions (vocab reading distractors)", () => {
     level: "N2"
   });
 
-  // Mixed mora-lengths so we can assert length-preference + variety.
+  // Nine 4-kana readings + three 2-kana ones. The 4-kana group is big
+  // enough (>= DISTRACTOR_BAND) that the similarity band for any 4-kana
+  // answer is entirely 4-kana, which lets us assert length-preference
+  // deterministically while still having room for variety.
   const readingVocab: VocabularyItem[] = [
-    mk("v1", "影響", "えいきょう"),
-    mk("v2", "環境", "かんきょう"),
-    mk("v3", "状況", "じょうきょう"),
-    mk("v4", "経験", "けいけん"),
-    mk("v5", "経済", "けいざい"),
-    mk("v6", "社会", "しゃかい"),
-    mk("v7", "自由", "じゆう"),
-    mk("v8", "文化", "ぶんか"),
-    mk("v9", "国", "くに")
+    mk("v1", "経験", "けいけん"),
+    mk("v2", "経済", "けいざい"),
+    mk("v3", "社会", "しゃかい"),
+    mk("v4", "解決", "かいけつ"),
+    mk("v5", "賛成", "さんせい"),
+    mk("v6", "関係", "かんけい"),
+    mk("v7", "種類", "しゅるい"),
+    mk("v8", "貯金", "ちょきん"),
+    mk("v9", "公開", "こうかい"),
+    mk("s1", "国", "くに"),
+    mk("s2", "山", "やま"),
+    mk("s3", "川", "かわ")
   ];
 
   const readingQuestions = buildQuestionPool(readingVocab, {
@@ -594,6 +601,7 @@ describe("buildChoiceOptions (vocab reading distractors)", () => {
     verbGroup: "all",
     targetForms: ["reading"]
   });
+  const fourKana = readingQuestions.filter((q) => q.expectedAnswers[0].length === 4);
 
   it("always returns 4 options including the correct reading", () => {
     for (let i = 0; i < readingQuestions.length; i++) {
@@ -605,33 +613,33 @@ describe("buildChoiceOptions (vocab reading distractors)", () => {
 
   it("does not give every question the same distractor set (the shared-options bug)", () => {
     // The old `.slice(0, 3)` handed nearly every question the same first
-    // three pool entries. With similarity ranking, distractor sets must
-    // vary across questions.
-    const distractorSets = readingQuestions.map((question, i) => {
+    // three pool entries. Band + seeded sample must spread them out.
+    const distractorSets = fourKana.map((question) => {
+      const index = readingQuestions.indexOf(question);
       const answer = question.expectedAnswers[0];
-      return buildChoiceOptions(question, readingQuestions, i)
+      return buildChoiceOptions(question, readingQuestions, index)
         .filter((option) => option !== answer)
+        .slice()
         .sort()
         .join("|");
     });
     const uniqueSets = new Set(distractorSets);
-    // With 9 questions we expect clearly more than one distinct set;
-    // assert a healthy spread rather than an exact number.
-    expect(uniqueSets.size).toBeGreaterThanOrEqual(5);
+    // 9 four-kana questions -> expect a healthy spread of distinct sets.
+    expect(uniqueSets.size).toBeGreaterThanOrEqual(6);
   });
 
-  it("prefers distractors with the same mora count as the answer", () => {
-    // 経験 = けいけん (4 mora). Pool has several 4-mora readings
-    // (けいざい / しゃかい) and longer/shorter ones; the chosen
-    // distractors should lean toward the 4-mora group.
-    const keiken = readingQuestions.find((q) => q.vocabulary.id === "v4")!;
-    const index = readingQuestions.indexOf(keiken);
-    const distractors = buildChoiceOptions(keiken, readingQuestions, index).filter(
-      (option) => option !== "けいけん"
-    );
-    const sameLength = distractors.filter((d) => d.length === "けいけん".length);
-    // At least 2 of the 3 distractors should match the 4-mora length.
-    expect(sameLength.length).toBeGreaterThanOrEqual(2);
+  it("keeps distractors in the same length band as the answer", () => {
+    // For any 4-kana answer, the band is all 4-kana readings, so every
+    // distractor should also be 4-kana (the two-kana readings never win
+    // the similarity ranking).
+    for (const question of fourKana) {
+      const index = readingQuestions.indexOf(question);
+      const answer = question.expectedAnswers[0];
+      const distractors = buildChoiceOptions(question, readingQuestions, index).filter(
+        (option) => option !== answer
+      );
+      expect(distractors.every((option) => option.length === 4)).toBe(true);
+    }
   });
 
   it("is stable across repeated calls (no per-render reshuffle)", () => {
@@ -639,6 +647,31 @@ describe("buildChoiceOptions (vocab reading distractors)", () => {
     const first = buildChoiceOptions(q, readingQuestions, 0);
     const second = buildChoiceOptions(q, readingQuestions, 0);
     expect(first).toEqual(second);
+  });
+});
+
+describe("reduceAdjacentClusters", () => {
+  it("removes avoidable adjacent same-key pairs", () => {
+    const items = ["a1", "a2", "a3", "b1", "b2", "c1"];
+    const key = (s: string) => s[0];
+    const spread = reduceAdjacentClusters(items, key);
+    for (let i = 1; i < spread.length; i++) {
+      expect(key(spread[i])).not.toBe(key(spread[i - 1]));
+    }
+  });
+
+  it("preserves the exact multiset of items", () => {
+    const items = ["a1", "a2", "a3", "b1", "b2", "c1"];
+    const spread = reduceAdjacentClusters(items, (s) => s[0]);
+    expect([...spread].sort()).toEqual([...items].sort());
+  });
+
+  it("leaves unavoidable runs in place without looping forever", () => {
+    // All same key: nothing can be de-run, but it must terminate and
+    // preserve the items.
+    const items = ["a1", "a2", "a3"];
+    const spread = reduceAdjacentClusters(items, () => "same");
+    expect([...spread].sort()).toEqual([...items].sort());
   });
 });
 

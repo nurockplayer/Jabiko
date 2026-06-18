@@ -19,6 +19,14 @@ import type {
 
 export const CHOICE_COUNT = 4;
 
+// How many of the most-similar candidates form the pool we sample
+// distractors from. Strict top-(CHOICE_COUNT-1) converges: questions
+// with similar answers keep drawing the same globally-closest readings.
+// A band + per-question seeded sample keeps distractors confusable but
+// varied. 8 is wide enough for variety (C(8,3)=56 combos) while staying
+// in the high-similarity tier.
+const DISTRACTOR_BAND = 8;
+
 export interface QuestionOptions {
   partOfSpeech: PartOfSpeech | "mixed";
   verbGroup: VerbGroup | "all";
@@ -212,7 +220,13 @@ function buildPoolBasedChoiceOptions(
     .sort((a, b) => b.score - a.score || a.tiebreak - b.tiebreak)
     .map((entry) => entry.text);
 
-  const options = [correctAnswer, ...ranked.slice(0, CHOICE_COUNT - 1)];
+  // Sample the distractors from a similarity band rather than taking the
+  // strict top few -- see DISTRACTOR_BAND. Seed is the question id hash,
+  // so the pick is deterministic (stable across re-renders, no
+  // reshuffle-on-answer) yet differs between questions.
+  const band = ranked.slice(0, Math.min(ranked.length, DISTRACTOR_BAND));
+  const picked = seededSample(band, CHOICE_COUNT - 1, hashString(currentQuestion.id));
+  const options = [correctAnswer, ...picked];
 
   return rotateOptions(options, currentQuestion, questionIndex);
 }
@@ -263,6 +277,54 @@ function hashString(value: string): number {
     hash = (Math.imul(hash, 31) + value.charCodeAt(i)) | 0;
   }
   return hash >>> 0;
+}
+
+/** Small deterministic PRNG (mulberry32). Seeded so distractor sampling
+ *  is reproducible per question -- stable across re-renders. */
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Deterministic seeded sample: seeded Fisher-Yates, take first `count`. */
+function seededSample<T>(items: T[], count: number, seed: number): T[] {
+  const arr = [...items];
+  const rand = mulberry32(seed);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, count);
+}
+
+/**
+ * Single greedy pass that pulls apart runs of same-key items: whenever an
+ * item shares its key with the previous item, swap in the next later item
+ * that has a different key. Preserves the input set and most of the
+ * incoming (already-shuffled) order, just de-runs adjacency.
+ *
+ * Used for vocab reading drills keyed by reading length: consecutive
+ * questions then tend to have different answer lengths, which means
+ * different distractor bands, which kills the "every question looks the
+ * same" feel even when the random shuffle happens to cluster.
+ */
+export function reduceAdjacentClusters<T>(items: T[], keyFn: (item: T) => string): T[] {
+  const result = [...items];
+  for (let i = 1; i < result.length; i++) {
+    if (keyFn(result[i]) !== keyFn(result[i - 1])) continue;
+    for (let j = i + 1; j < result.length; j++) {
+      if (keyFn(result[j]) !== keyFn(result[i - 1])) {
+        [result[i], result[j]] = [result[j], result[i]];
+        break;
+      }
+    }
+  }
+  return result;
 }
 
 function rotateOptions(options: string[], currentQuestion: PracticeQuestion, questionIndex: number): string[] {

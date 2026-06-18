@@ -41,6 +41,7 @@ import {
   buildQuestionPool,
   getMistakeQuestions,
   getReviewQueue,
+  reduceAdjacentClusters,
   scoreAttempt,
   selectQuestion,
   shuffleQuestions
@@ -242,12 +243,20 @@ export default function App() {
         // 影響 is えいきょう, not えいきゅう. Meaning is still tested,
         // but in CONTEXT, via the exam pool's 詞彙填空 / 類義替換 /
         // 詞彙用法 sections -- which is the authentic way to test it.
-        return shuffleQuestions(
+        const vocabPool = shuffleQuestions(
           buildQuestionPool(jlptVocabulary, {
             partOfSpeech: "mixed",
             verbGroup: "all",
             targetForms: ["reading"]
           })
+        );
+        // De-run by reading length: consecutive questions then tend to
+        // have different-length answers -> different distractor bands ->
+        // no "same options twice in a row" feel even when the random
+        // shuffle clusters same-length words together.
+        return reduceAdjacentClusters(
+          vocabPool,
+          (question) => String(question.expectedAnswers[0]?.length ?? 0)
         );
       }
 
