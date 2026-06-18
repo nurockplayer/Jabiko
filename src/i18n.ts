@@ -50,6 +50,10 @@ export type Copy = {
   mockExamSetupTitle: string;
   mockExamSetupIntro: string;
   mockExamLevelLabel: string;
+  mockSectionTitle: string;
+  mockSectionIntro: string;
+  mockSectionCount: (count: number) => string;
+  mockSectionEmpty: string;
   mockExamSectionsHeading: string;
   mockExamSectionPoolLabel: string;
   mockExamSectionGap: string;
@@ -225,6 +229,10 @@ export const copy: Record<Language, Copy> = {
     mockExamSetupIntro:
       "依官方題型結構抽題。作答中不顯示對錯，整份交卷後才看分數與詳解。題庫不足的小題會明確標出。",
     mockExamLevelLabel: "等級",
+    mockSectionTitle: "題型分區練習",
+    mockSectionIntro: "選一個 JLPT 題型，直接練那一區。每題作答後即時看解析；錯題會自動進弱點複習。",
+    mockSectionCount: (count) => `${count} 題`,
+    mockSectionEmpty: "尚未建置",
     mockExamSectionsHeading: "本回題型結構",
     mockExamSectionPoolLabel: "目前題庫",
     mockExamSectionGap: "缺 {gap} 題",
@@ -454,6 +462,11 @@ export const copy: Record<Language, Copy> = {
     mockExamSetupIntro:
       "Pulls questions section-by-section to match the official JLPT paper. No per-question feedback during the run -- you'll see the score and full explanations only after you submit. Sections with too few questions are flagged explicitly.",
     mockExamLevelLabel: "Level",
+    mockSectionTitle: "Practice by section",
+    mockSectionIntro:
+      "Pick a JLPT section and drill just that part. Per-question feedback as you go; misses flow into weak-spot review.",
+    mockSectionCount: (count) => `${count} question${count === 1 ? "" : "s"}`,
+    mockSectionEmpty: "not built yet",
     mockExamSectionsHeading: "Paper structure",
     mockExamSectionPoolLabel: "Pool",
     mockExamSectionGap: "missing {gap}",
@@ -683,6 +696,11 @@ export const copy: Record<Language, Copy> = {
     mockExamSetupIntro:
       "공식 시험 구조에 맞춰 섹션별로 문제를 뽑습니다. 풀이 중에는 정답을 보여 주지 않고, 제출 후 점수와 해설을 한꺼번에 확인합니다. 문제 풀이가 부족한 섹션은 명확히 표시됩니다.",
     mockExamLevelLabel: "레벨",
+    mockSectionTitle: "섹션별 연습",
+    mockSectionIntro:
+      "JLPT 섹션을 골라 그 부분만 연습하세요. 문제마다 바로 해설을 보고, 틀린 문제는 약점 복습으로 들어갑니다.",
+    mockSectionCount: (count) => `${count}문제`,
+    mockSectionEmpty: "준비 중",
     mockExamSectionsHeading: "이번 회차 구조",
     mockExamSectionPoolLabel: "현재 문제 수",
     mockExamSectionGap: "{gap}문제 부족",

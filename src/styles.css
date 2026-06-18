@@ -2441,6 +2441,68 @@ select:disabled {
   font-weight: 600;
 }
 
+/* ---- Mock exam section picker --------------------------------------- */
+
+.mock-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.mock-section-head .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--matcha-dark);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.mock-section-intro {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.mock-section-card {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  background: var(--paper);
+  border: 1px solid var(--panel-border);
+  border-radius: 0.8rem;
+  cursor: pointer;
+  min-height: 0;
+}
+
+.mock-section-card:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--matcha) 55%, var(--panel-border));
+  box-shadow: var(--button-hover-shadow);
+}
+
+.mock-section-card.empty {
+  background: var(--field-disabled-bg);
+  cursor: not-allowed;
+}
+
+.mock-section-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+  color: var(--matcha-dark);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mock-section-arrow {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--muted);
+}
+
 .mock-actions {
   display: flex;
   flex-wrap: wrap;

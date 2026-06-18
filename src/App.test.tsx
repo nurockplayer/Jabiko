@@ -394,6 +394,56 @@ describe("App", () => {
     expect(screen.queryByRole("button", { name: "や否や" })).not.toBeInTheDocument();
   });
 
+  it("does not leak the answer in the pre-answer vocab row of an exam item", async () => {
+    // n1-grammar-yainaya: surface や否や (== the answer), reading やいなや.
+    // The old ExamPrompt rendered "surface・reading・meaning" pre-answer,
+    // handing over the answer. Now that row is suppressed for items
+    // whose surface/reading IS an expected answer.
+    localStorage.setItem(
+      "jabiko:attempts",
+      JSON.stringify([
+        {
+          questionId: "n1-grammar-yainaya",
+          vocabularyId: "n1-grammar-yainaya",
+          targetForm: "meaning",
+          prompt: "seed",
+          expectedAnswers: ["や否や"],
+          submittedAnswer: "x",
+          isCorrect: false,
+          timestamp: 1000,
+          responseTimeMs: 100
+        }
+      ])
+    );
+
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /等待複習/ }));
+
+    // The answer is offered as a choice...
+    expect(screen.getByRole("button", { name: "や否や" })).toBeInTheDocument();
+    // ...but the reading row that used to spell it out is gone.
+    expect(screen.queryByText(/やいなや/)).not.toBeInTheDocument();
+  });
+
+  it("mock exam is a section picker that launches a filtered exam drill", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "模擬考" }));
+
+    // Section cards from the N2 blueprint render; the grammar section has
+    // items, so its card is enabled and clickable.
+    const grammarCard = screen.getByRole("button", { name: /文の文法 1/ });
+    await user.click(grammarCard);
+
+    // Lands in the challenge drill, exam mode filtered to that section
+    // (prompt-header shows the section's promptLabel).
+    expect(
+      within(screen.getByRole("region", { name: "目前題目" })).getByText("文法形式選擇")
+    ).toBeInTheDocument();
+  });
+
   it("starts the challenge from the learning path", async () => {
     const user = userEvent.setup();
     render(<App />);

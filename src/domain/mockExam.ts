@@ -1,23 +1,17 @@
-// Mock-exam composer.
+// Mock-exam section blueprints.
 //
-// Mock-exam mode is a separate top-level view (App.tsx -> appView === "mock")
-// that mimics the JLPT 言語知識・読解 paper structure: pull questions
-// section-by-section to match the official 1-回 quotas, run them without
-// per-question feedback, then show a per-section score + wrong-answer
-// review at the end.
+// 模擬考 mode (App.tsx -> appView === "mock") is a SECTION PICKER: it
+// lists the JLPT 言語知識・読解 sections and lets the learner drill one
+// section at a time in the normal challenge view. This module supplies
+// the canonical section metadata -- label, order, and the `promptLabel`
+// that ties each section to its questions in examBlocks.ts -- plus the
+// official per-回 target counts (kept for reference / a possible future
+// timed mode).
 //
-// Why a dedicated composer (instead of just calling shuffleQuestions on
-// buildExamQuestionPool(level)):
-//   1. The real exam is structured. A 73-question paper hits 14 different
-//      問題 sections in fixed counts -- not a uniform shuffle. The composer
-//      enforces the section structure so the practice feels like the test.
-//   2. Some sections are still empty (漢字書寫 表記 / 語形成 / 読解 5
-//      sections). The composer reports a `gap` per section so the UI can
-//      surface "this section is short" instead of silently truncating.
-//   3. Mock exam attempts are session-local (NOT written to attemptStore)
-//      so the result of a mock doesn't pollute the per-vocabulary progress
-//      tracker. Keeping the composer pure makes that boundary clean.
-import type { JlptLevel, PracticeQuestion } from "./types";
+// (An earlier version composed and ran a full timed paper here; that was
+// dropped for the lighter section picker. See git history if a timed
+// full-paper mode is ever wanted again.)
+import type { JlptLevel } from "./types";
 
 export type MockExamLevel = Extract<JlptLevel, "N1" | "N2">;
 
@@ -29,37 +23,20 @@ export interface MockExamSection {
   /** Short 中文 hint for the section. */
   labelZh: string;
   /**
-   * Value the composer matches against PracticeQuestion.promptLabel.
-   * MUST match the strings authored in `examBlocks.ts` exactly, or the
-   * section will silently report a gap of 100%.
+   * Matched against PracticeQuestion.promptLabel to gather a section's
+   * questions. MUST match the strings authored in `examBlocks.ts`
+   * exactly, or the section shows up empty.
    */
   promptLabel: string;
-  /** Number of questions per official 1 回. */
+  /** Number of questions per official 1 回 (reference only). */
   targetCount: number;
 }
 
 export interface MockExamBlueprint {
   level: MockExamLevel;
-  /** Official 言語知識・読解 duration in minutes. Reference only -- the
-   *  runner shows elapsed time, not a hard countdown. */
+  /** Official 言語知識・読解 duration in minutes (reference only). */
   totalMinutes: number;
   sections: MockExamSection[];
-}
-
-export interface MockExamSectionPlan {
-  section: MockExamSection;
-  /** Questions chosen for this run (already in display order). */
-  questions: PracticeQuestion[];
-  /** Shortfall vs targetCount. Always >= 0. */
-  gap: number;
-}
-
-export interface MockExamPlan {
-  blueprint: MockExamBlueprint;
-  sections: MockExamSectionPlan[];
-  totalTarget: number;
-  totalPicked: number;
-  totalGap: number;
 }
 
 // Official JLPT 1 回 structure (言語知識・読解 paper only -- 聴解 is its own
@@ -108,141 +85,4 @@ export const N1_BLUEPRINT: MockExamBlueprint = {
 
 export function getMockExamBlueprint(level: MockExamLevel): MockExamBlueprint {
   return level === "N1" ? N1_BLUEPRINT : N2_BLUEPRINT;
-}
-
-/**
- * Compose a mock-exam plan: walk each blueprint section, pull up to
- * `targetCount` matching questions from the pool, and report any
- * shortfall.
- *
- * The `shuffle` argument is injectable so tests can pass an identity
- * function and assert deterministic selection. In production the
- * default `Math.random`-based Fisher-Yates is fine -- the user wants
- * variety per run, not reproducibility.
- *
- * Note: a question is consumed at most ONCE within a single composition.
- * Sections are matched by exact `promptLabel`, so a question authored
- * with `promptLabel: "漢字読み"` can only land in the kanji-yomi
- * section; cross-section collisions are structurally impossible.
- */
-export function composeMockExam(
-  level: MockExamLevel,
-  pool: PracticeQuestion[],
-  shuffle: <T>(items: T[]) => T[] = defaultShuffle
-): MockExamPlan {
-  const blueprint = getMockExamBlueprint(level);
-  const levelPool = pool.filter((q) => q.vocabulary.level === level);
-
-  const sections: MockExamSectionPlan[] = blueprint.sections.map((section) => {
-    const matching = levelPool.filter((q) => q.promptLabel === section.promptLabel);
-    const picked = shuffle(matching).slice(0, section.targetCount);
-    return {
-      section,
-      questions: picked,
-      gap: Math.max(0, section.targetCount - picked.length)
-    };
-  });
-
-  const totalTarget = blueprint.sections.reduce((sum, s) => sum + s.targetCount, 0);
-  const totalPicked = sections.reduce((sum, s) => sum + s.questions.length, 0);
-  const totalGap = sections.reduce((sum, s) => sum + s.gap, 0);
-
-  return { blueprint, sections, totalTarget, totalPicked, totalGap };
-}
-
-export interface MockExamQuestionResult {
-  question: PracticeQuestion;
-  /** Learner-submitted choice, or null if they skipped the question. */
-  submittedAnswer: string | null;
-  isCorrect: boolean;
-  wasAnswered: boolean;
-}
-
-export interface MockExamSectionSummary {
-  section: MockExamSection;
-  results: MockExamQuestionResult[];
-  correct: number;
-  answered: number;
-  total: number;
-  /** Shortfall this section had vs blueprint targetCount (carry-through). */
-  gap: number;
-}
-
-export interface MockExamSummary {
-  plan: MockExamPlan;
-  sections: MockExamSectionSummary[];
-  totalCorrect: number;
-  totalAnswered: number;
-  totalQuestions: number;
-  /** 0-100, computed over questions actually presented (not blueprint
-   *  target). Unanswered counts as wrong here. */
-  accuracyPercent: number;
-}
-
-/**
- * Aggregate per-question answers into a per-section summary. The
- * `answers` map is keyed by `PracticeQuestion.id` -> raw submitted
- * string. Missing keys count as "skipped" (wasAnswered: false,
- * isCorrect: false).
- */
-export function summarizeMockExam(
-  plan: MockExamPlan,
-  answers: Map<string, string>
-): MockExamSummary {
-  const sections = plan.sections.map((sp): MockExamSectionSummary => {
-    const results: MockExamQuestionResult[] = sp.questions.map((question) => {
-      const submitted = answers.get(question.id);
-      const wasAnswered = submitted !== undefined && submitted !== "";
-      const isCorrect = wasAnswered
-        ? question.expectedAnswers.includes(submitted as string)
-        : false;
-      return {
-        question,
-        submittedAnswer: wasAnswered ? (submitted as string) : null,
-        isCorrect,
-        wasAnswered
-      };
-    });
-
-    return {
-      section: sp.section,
-      results,
-      correct: results.filter((r) => r.isCorrect).length,
-      answered: results.filter((r) => r.wasAnswered).length,
-      total: results.length,
-      gap: sp.gap
-    };
-  });
-
-  const totalCorrect = sections.reduce((sum, s) => sum + s.correct, 0);
-  const totalAnswered = sections.reduce((sum, s) => sum + s.answered, 0);
-  const totalQuestions = sections.reduce((sum, s) => sum + s.total, 0);
-  const accuracyPercent =
-    totalQuestions === 0 ? 0 : Math.round((totalCorrect / totalQuestions) * 100);
-
-  return {
-    plan,
-    sections,
-    totalCorrect,
-    totalAnswered,
-    totalQuestions,
-    accuracyPercent
-  };
-}
-
-/**
- * Flatten a plan's sections back into a single sequential question
- * array, in section order. UI runner iterates over this.
- */
-export function flattenMockExam(plan: MockExamPlan): PracticeQuestion[] {
-  return plan.sections.flatMap((sp) => sp.questions);
-}
-
-function defaultShuffle<T>(items: T[]): T[] {
-  const shuffled = [...items];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
 }

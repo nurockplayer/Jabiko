@@ -5,14 +5,12 @@ import {
   BookOpen,
   CheckCircle2,
   ClipboardList,
-  Clock,
   Eye,
   GraduationCap,
   Languages,
   Moon,
   RotateCcw,
   Sun,
-  Timer,
   Volume2,
   XCircle
 } from "lucide-react";
@@ -20,14 +18,7 @@ import { ADJECTIVE_FORMS, VERB_FORMS } from "./domain/conjugation";
 import { buildClozeQuestionPool } from "./domain/cloze";
 import { clozeSentences } from "./domain/cloze-data";
 import { buildExamQuestionPool } from "./domain/examBlocks";
-import {
-  composeMockExam,
-  flattenMockExam,
-  summarizeMockExam,
-  type MockExamLevel,
-  type MockExamPlan,
-  type MockExamSummary
-} from "./domain/mockExam";
+import { getMockExamBlueprint, type MockExamLevel } from "./domain/mockExam";
 import { CONJUGATION_TABLES } from "./domain/conjugationTables";
 import {
   getIncompletePrereqs,
@@ -61,7 +52,12 @@ type Feedback =
 
 type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
 type PracticeMode = "basic" | "cloze" | "pattern" | "exam" | "review" | "vocab";
-type PracticeFilter = { patternIds?: SentencePatternId[] };
+type PracticeFilter = {
+  patternIds?: SentencePatternId[];
+  // Narrows exam mode to one JLPT section (by level + promptLabel), set
+  // when the learner taps a section card in the 模擬考 picker.
+  examSection?: { level: MockExamLevel; promptLabel: string };
+};
 type AppView = "home" | "learn" | "rules" | "challenge" | "mock";
 type Theme = "light" | "dark";
 type DrillPreset = LearningBlockDrillPreset;
@@ -211,6 +207,17 @@ export default function App() {
     () => {
       void sessionSeed;
       if (isExamFocus) {
+        // Section-filtered when launched from the 模擬考 picker; the
+        // plain "綜合考題庫" mode card leaves examSection unset and
+        // mixes every section.
+        const section = practiceFilter.examSection;
+        if (section) {
+          return shuffleQuestions(
+            buildExamQuestionPool(section.level).filter(
+              (question) => question.promptLabel === section.promptLabel
+            )
+          );
+        }
         return shuffleQuestions(buildExamQuestionPool());
       }
 
@@ -288,6 +295,7 @@ export default function App() {
       isReviewFocus,
       isVocabFocus,
       practiceFilter.patternIds,
+      practiceFilter.examSection,
       partOfSpeech,
       targetForms,
       verbGroup,
@@ -536,7 +544,15 @@ export default function App() {
       ) : appView === "rules" ? (
         <RulesPanel language={language} />
       ) : appView === "mock" ? (
-        <MockExamPanel language={language} onExit={() => setAppView("home")} />
+        <MockExamPanel
+          language={language}
+          onStartSection={(level, promptLabel) => {
+            setPracticeMode("exam");
+            setPracticeFilter({ examSection: { level, promptLabel } });
+            resetSession();
+            setAppView("challenge");
+          }}
+        />
       ) : (
         <section className="practice-layout" aria-label="Jabiko practice">
         <aside className="controls-panel" aria-label={t.settingsLabel}>
@@ -1286,9 +1302,22 @@ function partOfSpeechLabel(partOfSpeech: PartOfSpeech, language: Language): stri
 function ExamPrompt({ question, language }: { question: PracticeQuestion; language: Language }) {
   // Sentence-pattern items use placeholder surface/reading (the pattern
   // id) which would render as a meaningless "te-kudasai・te-kudasai・..."
-  // line. Skip the reading row for those items -- the prompt label
+  // line. Skip the vocab row for those items -- the prompt label
   // already names the pattern.
   const isSentencePattern = question.vocabulary.tags?.includes("sentence_pattern");
+  // ANSWER-LEAK GUARD: for 文法形式選擇 items the surface IS the answer
+  // (e.g. surface「ものの」== the correct choice); for 漢字読み items the
+  // reading IS the answer (e.g. reading「とどこおって」). Rendering the
+  // surface・reading・meaning row pre-answer therefore hands the learner
+  // the answer. Only show that row when neither surface nor reading is
+  // one of the expected answers -- which keeps it for cloze items
+  // (待つ -> answer 待って, surface is a legit "which verb" hint) but
+  // hides it for grammar / kanji-reading. The full answer always shows
+  // post-answer in FeedbackPanel.
+  const answerSet = new Set(question.expectedAnswers);
+  const vocabRowLeaksAnswer =
+    answerSet.has(question.vocabulary.surface) || answerSet.has(question.vocabulary.reading);
+  const showVocabRow = !isSentencePattern && !vocabRowLeaksAnswer;
   // Pre-answer Chinese: prefer the neutral hint when authored; fall back
   // to the full translation for items that haven't been audited yet
   // (legacy exam items). The full translation still appears in the
@@ -1307,11 +1336,11 @@ function ExamPrompt({ question, language }: { question: PracticeQuestion; langua
         ) : null}
       </p>
       {preAnswerHint ? <p className="meaning">{preAnswerHint}</p> : null}
-      {isSentencePattern ? null : (
+      {showVocabRow ? (
         <p className="reading">
           {question.vocabulary.surface}・{question.vocabulary.reading}・{question.vocabulary.meaningZh}
         </p>
-      )}
+      ) : null}
     </>
   );
 }
@@ -1387,167 +1416,42 @@ function FeedbackPanel({ feedback, language }: { feedback: NonNullable<Feedback>
   );
 }
 
-// ---- Mock exam panel ---------------------------------------------------
-// Self-contained: composes a plan from the shared exam pool, runs the
-// learner through it without per-question feedback, then shows score +
-// per-section breakdown + wrong-answer detail. Mock-exam attempts are
-// session-local on purpose -- they don't write to attemptStore, so a
-// mock run doesn't pollute the per-vocabulary progress tracker (which
-// drives chapter completion in the Learn view).
+// ---- Mock exam panel (section picker) ----------------------------------
+// Reworked from a strict timed full-paper exam into a section picker: the
+// learner taps a JLPT section and drills just that section in the normal
+// challenge view (with per-question feedback + SRS recording). Less
+// rigorous than a timed paper, and -- unlike the old flow -- it always
+// works because it just hands a section filter to the existing exam pool.
+// The blueprint (mockExam.ts) still supplies the canonical section labels
+// and order; sections with no authored items yet are shown disabled.
 
-type MockPhase = "setup" | "running" | "results";
-
-function MockExamPanel({ language, onExit }: { language: Language; onExit: () => void }) {
+function MockExamPanel({
+  language,
+  onStartSection
+}: {
+  language: Language;
+  onStartSection: (level: MockExamLevel, promptLabel: string) => void;
+}) {
   const t = copy[language];
   const [level, setLevel] = useState<MockExamLevel>("N2");
-  const [phase, setPhase] = useState<MockPhase>("setup");
-  const [planKey, setPlanKey] = useState(0); // bump to recompose on retake
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Map<string, string>>(() => new Map());
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const startedAtRef = useRef<number | null>(null);
 
-  // Compose a fresh plan whenever level or planKey changes. The full
-  // pool is filtered to the chosen level by composeMockExam.
-  const plan: MockExamPlan = useMemo(
-    () => {
-      void planKey;
-      return composeMockExam(level, buildExamQuestionPool(level));
-    },
-    [level, planKey]
-  );
-
-  const questions = useMemo(() => flattenMockExam(plan), [plan]);
-  const currentQuestion = questions[currentIndex] ?? null;
-
-  // Running-phase elapsed-time tick. Resets when we enter setup/results.
-  useEffect(() => {
-    if (phase !== "running") {
-      return;
-    }
-    const start = startedAtRef.current ?? Date.now();
-    startedAtRef.current = start;
-    setElapsedSeconds(Math.floor((Date.now() - start) / 1000));
-    const id = window.setInterval(() => {
-      setElapsedSeconds(Math.floor((Date.now() - start) / 1000));
-    }, 1000);
-    return () => window.clearInterval(id);
-  }, [phase]);
-
-  const startExam = () => {
-    setCurrentIndex(0);
-    setAnswers(new Map());
-    setElapsedSeconds(0);
-    startedAtRef.current = Date.now();
-    setPhase("running");
-  };
-
-  const retake = () => {
-    setPlanKey((k) => k + 1);
-    setCurrentIndex(0);
-    setAnswers(new Map());
-    setElapsedSeconds(0);
-    startedAtRef.current = null;
-    setPhase("setup");
-  };
-
-  const recordAnswer = (choice: string) => {
-    if (!currentQuestion) return;
-    setAnswers((prev) => {
-      const next = new Map(prev);
-      next.set(currentQuestion.id, choice);
-      return next;
-    });
-  };
-
-  const goNext = () => {
-    setCurrentIndex((i) => Math.min(i + 1, questions.length - 1));
-  };
-
-  const goPrev = () => {
-    setCurrentIndex((i) => Math.max(i - 1, 0));
-  };
-
-  const submit = () => {
-    const unansweredCount = questions.length - answers.size;
-    if (unansweredCount > 0 && !window.confirm(t.mockExamSubmitConfirm)) {
-      return;
-    }
-    setPhase("results");
-  };
-
-  const summary: MockExamSummary | null = phase === "results" ? summarizeMockExam(plan, answers) : null;
+  const blueprint = getMockExamBlueprint(level);
+  const pool = buildExamQuestionPool(level);
+  // Live count of available questions per section (keyed by promptLabel).
+  const counts = new Map<string, number>();
+  for (const question of pool) {
+    const key = question.promptLabel ?? "";
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
 
   return (
-    <section className="mock-panel" aria-label="Mock exam">
-      {phase === "setup" ? (
-        <MockExamSetup
-          t={t}
-          level={level}
-          onLevelChange={setLevel}
-          plan={plan}
-          onStart={startExam}
-          onExit={onExit}
-        />
-      ) : phase === "running" && currentQuestion ? (
-        <MockExamRunning
-          t={t}
-          language={language}
-          level={level}
-          question={currentQuestion}
-          currentIndex={currentIndex}
-          total={questions.length}
-          selectedAnswer={answers.get(currentQuestion.id) ?? null}
-          elapsedSeconds={elapsedSeconds}
-          onSelect={recordAnswer}
-          onPrev={goPrev}
-          onNext={goNext}
-          onSubmit={submit}
-          onExit={onExit}
-        />
-      ) : summary ? (
-        <MockExamResults
-          t={t}
-          level={level}
-          summary={summary}
-          elapsedSeconds={elapsedSeconds}
-          onRetake={retake}
-          onExit={onExit}
-        />
-      ) : (
-        <div className="empty-state">{t.emptyState}</div>
-      )}
-    </section>
-  );
-}
-
-function MockExamSetup({
-  t,
-  level,
-  onLevelChange,
-  plan,
-  onStart,
-  onExit
-}: {
-  t: Copy;
-  level: MockExamLevel;
-  onLevelChange: (level: MockExamLevel) => void;
-  plan: MockExamPlan;
-  onStart: () => void;
-  onExit: () => void;
-}) {
-  return (
-    <div className="mock-setup">
-      <header className="mock-setup-head">
+    <section className="mock-panel" aria-label={t.mockExam}>
+      <header className="mock-section-head">
         <p className="eyebrow">
           <ClipboardList aria-hidden="true" />
-          {t.mockExamSetupTitle}
+          {t.mockSectionTitle}
         </p>
-        <p className="mock-setup-intro">{t.mockExamSetupIntro}</p>
-        <p className="mock-setup-meta">
-          <Timer aria-hidden="true" />
-          {t.mockExamSuggestedMinutes(plan.blueprint.totalMinutes)}
-        </p>
+        <p className="mock-section-intro">{t.mockSectionIntro}</p>
       </header>
 
       <fieldset className="mock-level-picker">
@@ -1558,7 +1462,7 @@ function MockExamSetup({
               key={option}
               type="button"
               className={level === option ? "selected" : ""}
-              onClick={() => onLevelChange(option)}
+              onClick={() => setLevel(option)}
             >
               {option}
             </button>
@@ -1566,285 +1470,38 @@ function MockExamSetup({
         </div>
       </fieldset>
 
-      <section className="mock-section-list" aria-label={t.mockExamSectionsHeading}>
-        <h3>{t.mockExamSectionsHeading}</h3>
-        <p className="mock-section-summary">
-          {t.mockExamAnsweredOf(plan.totalPicked, plan.totalTarget)}
-          {plan.totalGap > 0 ? ` · ${t.mockExamGapNote(plan.totalGap)}` : ""}
-        </p>
-        <ol className="mock-section-rows">
-          {plan.sections.map((sp, index) => {
-            const isEmpty = sp.questions.length === 0;
-            const isPartial = !isEmpty && sp.gap > 0;
-            return (
-              <li
-                key={sp.section.id}
-                className={`mock-section-row${isEmpty ? " empty" : isPartial ? " partial" : ""}`}
+      <ol className="mock-section-rows">
+        {blueprint.sections.map((section) => {
+          const count = counts.get(section.promptLabel) ?? 0;
+          const empty = count === 0;
+          return (
+            <li key={section.id}>
+              <button
+                type="button"
+                className={`mock-section-card${empty ? " empty" : ""}`}
+                disabled={empty}
+                onClick={() => onStartSection(level, section.promptLabel)}
               >
-                <span className="mock-section-badge">{t.mockExamSectionBadge(index + 1)}</span>
                 <div className="mock-section-meta">
-                  <strong>{sp.section.labelJa}</strong>
-                  <small>{sp.section.labelZh}</small>
+                  <strong>{section.labelJa}</strong>
+                  <small>{section.labelZh}</small>
                 </div>
-                <div className="mock-section-pool">
-                  <span>
-                    {sp.questions.length} / {sp.section.targetCount}
-                  </span>
-                  {isEmpty ? (
+                <span className="mock-section-count">
+                  {empty ? (
                     <em className="mock-section-warn">
                       <AlertTriangle aria-hidden="true" />
-                      {t.mockExamPoolEmpty}
+                      {t.mockSectionEmpty}
                     </em>
-                  ) : isPartial ? (
-                    <em className="mock-section-warn">
-                      <AlertTriangle aria-hidden="true" />
-                      {t.mockExamSectionGap.replace("{gap}", String(sp.gap))}
-                    </em>
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      </section>
-
-      <div className="mock-actions">
-        <button
-          className="next-button"
-          type="button"
-          disabled={plan.totalPicked === 0}
-          onClick={onStart}
-        >
-          <ArrowRight aria-hidden="true" />
-          {plan.totalPicked === 0 ? t.mockExamStartDisabled : t.mockExamStart}
-        </button>
-        <button className="ghost-button" type="button" onClick={onExit}>
-          {t.mockExamExit}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function MockExamRunning({
-  t,
-  language,
-  level,
-  question,
-  currentIndex,
-  total,
-  selectedAnswer,
-  elapsedSeconds,
-  onSelect,
-  onPrev,
-  onNext,
-  onSubmit,
-  onExit
-}: {
-  t: Copy;
-  language: Language;
-  level: MockExamLevel;
-  question: PracticeQuestion;
-  currentIndex: number;
-  total: number;
-  selectedAnswer: string | null;
-  elapsedSeconds: number;
-  onSelect: (choice: string) => void;
-  onPrev: () => void;
-  onNext: () => void;
-  onSubmit: () => void;
-  onExit: () => void;
-}) {
-  // Reuse the existing exam options as authored (the examQuestion helper
-  // wires `options` and includes the expected answer). Rotate the
-  // display order deterministically by index so it's not always answer-
-  // first, while staying stable if the learner navigates back.
-  const options = useMemo(() => {
-    const raw = Array.from(new Set([...question.expectedAnswers, ...(question.options ?? [])]));
-    if (raw.length === 0) return raw;
-    const offset = (currentIndex + question.id.length) % raw.length;
-    return [...raw.slice(offset), ...raw.slice(0, offset)];
-  }, [question, currentIndex]);
-
-  const isLast = currentIndex === total - 1;
-
-  return (
-    <div className="mock-running">
-      <header className="mock-running-head">
-        <div>
-          <p className="eyebrow">{t.mockExamRunningTitle(level)}</p>
-          <strong>{t.mockExamProgress(currentIndex + 1, total)}</strong>
-        </div>
-        <div className="mock-elapsed">
-          <Clock aria-hidden="true" />
-          <span>{t.mockExamElapsed}</span>
-          <strong>{formatElapsed(elapsedSeconds)}</strong>
-        </div>
-      </header>
-
-      <div className="mock-question">
-        <div className="prompt-header">
-          <span>{question.promptLabel}</span>
-        </div>
-        <div className="word-block">
-          <ExamPrompt question={question} language={language} />
-        </div>
-
-        <div className="choice-grid" aria-label={t.answerOptions}>
-          {options.map((choice) => (
-            <button
-              key={choice}
-              type="button"
-              className={`choice-option${selectedAnswer === choice ? " chosen" : ""}`}
-              onClick={() => onSelect(choice)}
-            >
-              {choice}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="mock-nav">
-        <button className="ghost-button" type="button" onClick={onPrev} disabled={currentIndex === 0}>
-          {t.mockExamPrev}
-        </button>
-        {isLast ? (
-          <button className="next-button" type="button" onClick={onSubmit}>
-            <CheckCircle2 aria-hidden="true" />
-            {t.mockExamSubmit}
-          </button>
-        ) : (
-          <button className="next-button" type="button" onClick={onNext}>
-            <ArrowRight aria-hidden="true" />
-            {selectedAnswer === null ? t.mockExamSkip : t.mockExamNext}
-          </button>
-        )}
-        <button className="ghost-button mock-exit" type="button" onClick={onExit}>
-          {t.mockExamExit}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function MockExamResults({
-  t,
-  level,
-  summary,
-  elapsedSeconds,
-  onRetake,
-  onExit
-}: {
-  t: Copy;
-  level: MockExamLevel;
-  summary: MockExamSummary;
-  elapsedSeconds: number;
-  onRetake: () => void;
-  onExit: () => void;
-}) {
-  const wrong = summary.sections.flatMap((s) =>
-    s.results.filter((r) => !r.isCorrect).map((r) => ({ section: s.section, result: r }))
-  );
-  const totalGap = summary.plan.totalGap;
-
-  return (
-    <div className="mock-results">
-      <header className="mock-results-head">
-        <p className="eyebrow">{t.mockExamResultsTitle(level)}</p>
-        <h2>
-          {t.mockExamTotalScore(
-            summary.totalCorrect,
-            summary.totalQuestions,
-            summary.accuracyPercent
-          )}
-        </h2>
-        <p className="mock-results-meta">
-          <Clock aria-hidden="true" />
-          {t.mockExamElapsed}：{formatElapsed(elapsedSeconds)}
-          {" · "}
-          {t.mockExamAnsweredOf(summary.totalAnswered, summary.totalQuestions)}
-        </p>
-        {totalGap > 0 ? (
-          <p className="mock-results-gap">
-            <AlertTriangle aria-hidden="true" />
-            {t.mockExamGapNote(totalGap)}
-          </p>
-        ) : null}
-      </header>
-
-      <section className="mock-section-breakdown" aria-label={t.mockExamReviewSection}>
-        <h3>{t.mockExamReviewSection}</h3>
-        <ol className="mock-section-rows">
-          {summary.sections.map((s, index) => (
-            <li
-              key={s.section.id}
-              className={`mock-section-row${s.total === 0 ? " empty" : ""}`}
-            >
-              <span className="mock-section-badge">{t.mockExamSectionBadge(index + 1)}</span>
-              <div className="mock-section-meta">
-                <strong>{s.section.labelJa}</strong>
-                <small>{s.section.labelZh}</small>
-              </div>
-              <div className="mock-section-pool">
-                {s.total === 0 ? (
-                  <em className="mock-section-warn">
-                    <AlertTriangle aria-hidden="true" />
-                    {t.mockExamPoolEmpty}
-                  </em>
-                ) : (
-                  <span>
-                    {s.correct} / {s.total}
-                    {s.answered < s.total ? ` · ${t.mockExamSkippedShort} ${s.total - s.answered}` : ""}
-                  </span>
-                )}
-              </div>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {wrong.length > 0 ? (
-        <section className="mock-wrong-list" aria-label={t.mockExamReviewWrong}>
-          <h3>{t.mockExamReviewWrong}</h3>
-          <ul>
-            {wrong.map(({ section, result }) => (
-              <li key={result.question.id} className="mock-wrong-item">
-                <div className="mock-wrong-head">
-                  <span className="mock-section-badge">{section.labelJa}</span>
-                  <strong className="mock-wrong-prompt">{result.question.promptText}</strong>
-                </div>
-                <p className="answer-key">
-                  {t.answerKey}：{result.question.expectedAnswers.join(" / ")}
-                  {result.wasAnswered ? (
-                    <span className="mock-wrong-submitted"> · {t.incorrect}：{result.submittedAnswer}</span>
                   ) : (
-                    <span className="mock-wrong-submitted"> · {t.mockExamUnansweredBadge}</span>
+                    t.mockSectionCount(count)
                   )}
-                </p>
-                <p className="mock-wrong-explanation">{result.question.explanation}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <div className="mock-actions">
-        <button className="next-button" type="button" onClick={onRetake}>
-          <RotateCcw aria-hidden="true" />
-          {t.mockExamRetake}
-        </button>
-        <button className="ghost-button" type="button" onClick={onExit}>
-          {t.mockExamExit}
-        </button>
-      </div>
-    </div>
+                </span>
+                {empty ? null : <ArrowRight className="mock-section-arrow" aria-hidden="true" />}
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
   );
-}
-
-function formatElapsed(seconds: number): string {
-  const mm = Math.floor(seconds / 60)
-    .toString()
-    .padStart(2, "0");
-  const ss = (seconds % 60).toString().padStart(2, "0");
-  return `${mm}:${ss}`;
 }
