@@ -82,6 +82,56 @@ export function getMistakeQuestions(attempts: Attempt[], questions: PracticeQues
   return questions.filter((question) => missedIds.has(question.id) || missedIds.has(`${question.vocabulary.id}:${question.targetForm}`));
 }
 
+/**
+ * Cross-session review queue: questions whose MOST RECENT attempt was
+ * incorrect. Once the learner answers correctly, that question drops out
+ * of the queue -- this is the simplest "SRS-lite" rule that avoids
+ * shoving items they've already mastered back into review.
+ *
+ * Returns questions in attempt-recency order (most-recent miss first),
+ * deduplicated by question id. Used by the "弱點複習" practice mode and
+ * for the dashboard pending-count badge on the Learn view.
+ */
+export function getReviewQueue(attempts: Attempt[], pool: PracticeQuestion[]): PracticeQuestion[] {
+  const lastIncorrectAt = new Map<string, number>();
+  const lastCorrectAt = new Map<string, number>();
+
+  for (const attempt of attempts) {
+    const key = attempt.questionId ?? `${attempt.vocabularyId}:${attempt.targetForm}`;
+    const target = attempt.isCorrect ? lastCorrectAt : lastIncorrectAt;
+    const current = target.get(key) ?? 0;
+    if (attempt.timestamp > current) {
+      target.set(key, attempt.timestamp);
+    }
+  }
+
+  // A question is in the queue iff its most recent incorrect attempt is
+  // strictly newer than its most recent correct one (or it has no
+  // correct one yet).
+  const reviewKeys = new Set<string>();
+  for (const [key, missedAt] of lastIncorrectAt) {
+    if (missedAt > (lastCorrectAt.get(key) ?? 0)) {
+      reviewKeys.add(key);
+    }
+  }
+
+  const matched = pool.filter(
+    (question) =>
+      reviewKeys.has(question.id) ||
+      reviewKeys.has(`${question.vocabulary.id}:${question.targetForm}`)
+  );
+
+  // Sort most-recent-miss first so the learner re-encounters fresh
+  // mistakes before older ones (cheaper recall = stronger reinforcement).
+  return matched.sort((a, b) => {
+    const aTime =
+      lastIncorrectAt.get(a.id) ?? lastIncorrectAt.get(`${a.vocabulary.id}:${a.targetForm}`) ?? 0;
+    const bTime =
+      lastIncorrectAt.get(b.id) ?? lastIncorrectAt.get(`${b.vocabulary.id}:${b.targetForm}`) ?? 0;
+    return bTime - aTime;
+  });
+}
+
 export function selectQuestion(questions: PracticeQuestion[], index: number): PracticeQuestion | null {
   if (questions.length === 0) {
     return null;

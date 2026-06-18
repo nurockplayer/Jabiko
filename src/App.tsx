@@ -1,20 +1,34 @@
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
+  AlertTriangle,
   ArrowRight,
   BookOpen,
   CheckCircle2,
+  ClipboardList,
+  Clock,
   Eye,
   GraduationCap,
   Languages,
   Moon,
+  PencilLine,
   RotateCcw,
   Sun,
+  Timer,
+  Volume2,
   XCircle
 } from "lucide-react";
 import { ADJECTIVE_FORMS, VERB_FORMS } from "./domain/conjugation";
 import { buildClozeQuestionPool } from "./domain/cloze";
 import { clozeSentences } from "./domain/cloze-data";
 import { buildExamQuestionPool } from "./domain/examBlocks";
+import {
+  composeMockExam,
+  flattenMockExam,
+  summarizeMockExam,
+  type MockExamLevel,
+  type MockExamPlan,
+  type MockExamSummary
+} from "./domain/mockExam";
 import {
   getIncompletePrereqs,
   isLearningBlockComplete,
@@ -26,6 +40,7 @@ import {
   buildChoiceOptions,
   buildQuestionPool,
   getMistakeQuestions,
+  getReviewQueue,
   scoreAttempt,
   selectQuestion,
   shuffleQuestions
@@ -33,7 +48,7 @@ import {
 import { createAttemptStore } from "./domain/storage";
 import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./domain/types";
 import { vocabulary } from "./domain/vocabulary";
-import { copy, getInitialLanguage, languageOptions, storeLanguage, type Language } from "./i18n";
+import { copy, getInitialLanguage, languageOptions, storeLanguage, type Copy, type Language } from "./i18n";
 import "./styles.css";
 
 type Feedback =
@@ -43,9 +58,9 @@ type Feedback =
   | null;
 
 type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
-type PracticeMode = "basic" | "cloze" | "pattern" | "exam";
+type PracticeMode = "basic" | "cloze" | "pattern" | "exam" | "review";
 type PracticeFilter = { patternIds?: SentencePatternId[] };
-type AppView = "learn" | "challenge";
+type AppView = "home" | "learn" | "challenge" | "mock";
 type Theme = "light" | "dark";
 type DrillPreset = LearningBlockDrillPreset;
 
@@ -100,12 +115,12 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
   }
 ];
 
-const practiceModeOrder: PracticeMode[] = ["basic", "cloze", "pattern", "exam"];
+const practiceModeOrder: PracticeMode[] = ["basic", "cloze", "pattern", "exam", "review"];
 
 const attemptStore = createAttemptStore();
 
 export default function App() {
-  const [appView, setAppView] = useState<AppView>("learn");
+  const [appView, setAppView] = useState<AppView>("home");
   const [partOfSpeech, setPartOfSpeech] = useState<PartOfSpeech | "mixed">("verb");
   const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">("godan");
   const [targetForm, setTargetForm] = useState<TargetForm>("te");
@@ -135,7 +150,37 @@ export default function App() {
   const isExamFocus = practiceMode === "exam";
   const isClozeFocus = practiceMode === "cloze";
   const isPatternFocus = practiceMode === "pattern";
-  const isCuratedFocus = isExamFocus || isClozeFocus || isPatternFocus;
+  const isReviewFocus = practiceMode === "review";
+  const isCuratedFocus = isExamFocus || isClozeFocus || isPatternFocus || isReviewFocus;
+
+  // Union pool used to materialise the review queue: any question the
+  // learner has ever encountered (across exam / cloze / pattern / basic)
+  // could be in their attempt history, so the queue lookup needs to see
+  // them all. Built once and reused -- this is the same set of question
+  // factories the four mode-specific branches below call, just unioned.
+  const allKnownQuestions = useMemo(
+    () => [
+      ...buildExamQuestionPool(),
+      ...buildClozeQuestionPool(clozeSentences, vocabulary),
+      ...buildSentencePatternPool(),
+      ...buildQuestionPool(vocabulary, {
+        partOfSpeech: "mixed",
+        verbGroup: "all",
+        targetForms: uniqueForms([
+          ...VERB_FORMS,
+          ...ADJECTIVE_FORMS,
+          "reading",
+          "meaning"
+        ])
+      })
+    ],
+    []
+  );
+
+  const reviewQueue = useMemo(
+    () => getReviewQueue(progressAttempts, allKnownQuestions),
+    [progressAttempts, allKnownQuestions]
+  );
   const isVerbCapable = partOfSpeech === "verb" || partOfSpeech === "mixed";
   const availableFocusOptions = focusOptions.filter((option) => {
     if (option.verbOnly && !isVerbCapable) return false;
@@ -175,6 +220,13 @@ export default function App() {
         );
       }
 
+      if (isReviewFocus) {
+        // Don't shuffle: getReviewQueue already orders by recency-of-miss
+        // so the freshest mistakes come first. Shuffling here would
+        // throw that away.
+        return reviewQueue;
+      }
+
       return shuffleQuestions(
         buildQuestionPool(vocabulary, {
           partOfSpeech,
@@ -187,6 +239,8 @@ export default function App() {
       isExamFocus,
       isClozeFocus,
       isPatternFocus,
+      isReviewFocus,
+      reviewQueue,
       practiceFilter.patternIds,
       partOfSpeech,
       targetForms,
@@ -353,6 +407,13 @@ export default function App() {
       <nav className="view-switch segmented" aria-label={t.flowLabel}>
         <button
           type="button"
+          className={appView === "home" ? "selected" : ""}
+          onClick={() => setAppView("home")}
+        >
+          {t.home}
+        </button>
+        <button
+          type="button"
           className={appView === "learn" ? "selected" : ""}
           onClick={() => setAppView("learn")}
         >
@@ -365,16 +426,45 @@ export default function App() {
         >
           {t.challenge}
         </button>
+        <button
+          type="button"
+          className={appView === "mock" ? "selected" : ""}
+          onClick={() => setAppView("mock")}
+        >
+          {t.mockExam}
+        </button>
       </nav>
 
-      {appView === "learn" ? (
+      {appView === "home" ? (
+        <HomePanel
+          language={language}
+          progressAttempts={progressAttempts}
+          reviewCount={reviewQueue.length}
+          onNavigate={(target) => setAppView(target)}
+          onStartReview={() => {
+            setPracticeMode("review");
+            setPracticeFilter({});
+            resetSession();
+            setAppView("challenge");
+          }}
+        />
+      ) : appView === "learn" ? (
         <LearningPanel
           language={language}
           progressAttempts={progressAttempts}
+          reviewCount={reviewQueue.length}
           onStartChallenge={() => setAppView("challenge")}
+          onStartReview={() => {
+            setPracticeMode("review");
+            setPracticeFilter({});
+            resetSession();
+            setAppView("challenge");
+          }}
           onStartDrill={startDrill}
           onStartPatternDrill={startPatternDrill}
         />
+      ) : appView === "mock" ? (
+        <MockExamPanel language={language} onExit={() => setAppView("home")} />
       ) : (
         <section className="practice-layout" aria-label="Jabiko practice">
         <aside className="controls-panel" aria-label={t.settingsLabel}>
@@ -521,7 +611,7 @@ export default function App() {
 
               <div className="word-block">
                 {currentQuestion.promptText ? (
-                  <ExamPrompt question={currentQuestion} />
+                  <ExamPrompt question={currentQuestion} language={language} />
                 ) : (
                   <>
                     <p className="word-kind">
@@ -531,7 +621,13 @@ export default function App() {
                     {currentQuestion.targetForm === "reading" ? null : (
                       <p className="reading">{currentQuestion.vocabulary.reading}</p>
                     )}
-                    <p className="surface">{currentQuestion.vocabulary.surface}</p>
+                    <p className="surface">
+                      {currentQuestion.vocabulary.surface}
+                      <SpeakButton
+                        text={currentQuestion.vocabulary.surface}
+                        language={language}
+                      />
+                    </p>
                     {currentQuestion.targetForm === "meaning" ? null : (
                       <p className="meaning">{currentQuestion.vocabulary.meaningZh}</p>
                     )}
@@ -597,13 +693,17 @@ export default function App() {
 function LearningPanel({
   language,
   progressAttempts,
+  reviewCount,
   onStartChallenge,
+  onStartReview,
   onStartDrill,
   onStartPatternDrill
 }: {
   language: Language;
   progressAttempts: Attempt[];
+  reviewCount: number;
   onStartChallenge: () => void;
+  onStartReview: () => void;
   onStartDrill: (preset: DrillPreset) => void;
   onStartPatternDrill: (patternIds: SentencePatternId[]) => void;
 }) {
@@ -639,10 +739,47 @@ function LearningPanel({
     return found ? found.title : id;
   };
 
+  // Lightweight dashboard stats: derived from the same attemptStore the
+  // chapter index uses, so the count stays in sync with whatever the
+  // learner just did. accuracyPercent is computed across ALL recorded
+  // attempts (not just this session) -- the dashboard's purpose is to
+  // surface cross-session signal, not session-local feedback.
+  const dashboardTotalAttempts = progressAttempts.length;
+  const dashboardCorrectAttempts = progressAttempts.filter((a) => a.isCorrect).length;
+  const dashboardAccuracy =
+    dashboardTotalAttempts === 0
+      ? 0
+      : Math.round((dashboardCorrectAttempts / dashboardTotalAttempts) * 100);
+
   return (
     <section className="learning-panel" aria-label={t.learningRegion}>
       <div className="chapter-shell">
         <aside className="chapter-index" aria-label="學習章節">
+          <div className="dashboard-card" aria-label={t.dashboardEyebrow}>
+            <p className="eyebrow">{t.dashboardEyebrow}</p>
+            {reviewCount > 0 ? (
+              <button
+                type="button"
+                className="dashboard-review-cta"
+                onClick={onStartReview}
+              >
+                <AlertTriangle aria-hidden="true" />
+                <span className="dashboard-review-text">
+                  {t.dashboardReviewPending(reviewCount)}
+                </span>
+                <span className="dashboard-review-action">{t.dashboardReviewCta}</span>
+              </button>
+            ) : (
+              <p className="dashboard-review-empty">{t.dashboardReviewEmpty}</p>
+            )}
+            {dashboardTotalAttempts > 0 ? (
+              <div className="dashboard-stats">
+                <span>{t.dashboardStatsAttempts(dashboardTotalAttempts)}</span>
+                <span>·</span>
+                <span>{t.dashboardStatsAccuracy(dashboardAccuracy)}</span>
+              </div>
+            ) : null}
+          </div>
           <div className="chapter-index-copy">
             <p className="eyebrow">課程章節</p>
             <h2>一章一章解鎖</h2>
@@ -757,6 +894,159 @@ function LearningPanel({
   );
 }
 
+// ---- HomePanel -------------------------------------------------------
+// First view the learner lands on. Three layers:
+//   1. Context-aware banner ("review N items" if any, else "continue
+//      chapter XX" if there's an incomplete one). Suppressed entirely
+//      when nothing meaningful to surface, to avoid noise.
+//   2. Lifetime stats strip (only shown after the first attempt).
+//   3. Four entry cards. The Review card disables itself when there's
+//      nothing to review, so the affordance is still discoverable but
+//      doesn't lead to an empty quiz.
+//
+// HomePanel is intentionally read-only of the learner state -- mutating
+// callbacks (onNavigate, onStartReview) live on the parent so the panel
+// stays a presentational component.
+function HomePanel({
+  language,
+  progressAttempts,
+  reviewCount,
+  onNavigate,
+  onStartReview
+}: {
+  language: Language;
+  progressAttempts: Attempt[];
+  reviewCount: number;
+  onNavigate: (target: "learn" | "challenge" | "mock") => void;
+  onStartReview: () => void;
+}) {
+  const t = copy[language];
+
+  const totalAttempts = progressAttempts.length;
+  const correctAttempts = progressAttempts.filter((attempt) => attempt.isCorrect).length;
+  const accuracyPercent =
+    totalAttempts === 0 ? 0 : Math.round((correctAttempts / totalAttempts) * 100);
+
+  // Only count "trackable" basic chapters towards the X / Y badge --
+  // reference chapters (verb-types + the four sentence-pattern reading
+  // chapters) are reading material, not drillable units.
+  const trackableChapters = learningBlocks.filter(
+    (block) => block.group === "basic" && block.completionMode !== "reference"
+  );
+  const completedChapters = trackableChapters.filter((block) =>
+    isLearningBlockComplete(progressAttempts, block)
+  ).length;
+
+  const nextIncompleteChapter = trackableChapters.find(
+    (block) => !isLearningBlockComplete(progressAttempts, block)
+  );
+
+  return (
+    <section className="home-panel" aria-label={t.home}>
+      <header className="home-hero">
+        {/* Decorative hero -- the heading below carries the actual
+            message, so alt is intentionally empty (avoids the screen
+            reader saying "image, hero" which adds nothing). */}
+        <img
+          className="home-hero-image"
+          src="/hero.webp"
+          alt=""
+          width={1600}
+          height={900}
+        />
+        <div className="home-hero-text">
+          <p className="eyebrow">Jabiko</p>
+          <h1>{t.homeHeroTitle}</h1>
+          <p>{t.homeHeroIntro}</p>
+        </div>
+      </header>
+
+      {reviewCount > 0 ? (
+        <button type="button" className="home-banner home-banner-review" onClick={onStartReview}>
+          <AlertTriangle aria-hidden="true" />
+          <span className="home-banner-text">
+            <strong>{t.homeBannerReviewMain(reviewCount)}</strong>
+            <small>{t.homeBannerReviewSub}</small>
+          </span>
+          <ArrowRight aria-hidden="true" />
+        </button>
+      ) : nextIncompleteChapter ? (
+        <button
+          type="button"
+          className="home-banner home-banner-continue"
+          onClick={() => onNavigate("learn")}
+        >
+          <BookOpen aria-hidden="true" />
+          <span className="home-banner-text">
+            <strong>{t.homeBannerContinueMain(nextIncompleteChapter.title)}</strong>
+            <small>{t.homeBannerContinueSub}</small>
+          </span>
+          <ArrowRight aria-hidden="true" />
+        </button>
+      ) : null}
+
+      {totalAttempts > 0 ? (
+        <div className="home-stats-strip" aria-label={t.homeStatsLabel}>
+          <div className="home-stats-cell">
+            <strong>{totalAttempts}</strong>
+            <small>{t.homeStatsAttempts}</small>
+          </div>
+          <div className="home-stats-cell">
+            <strong>{accuracyPercent}%</strong>
+            <small>{t.homeStatsAccuracy}</small>
+          </div>
+          <div className="home-stats-cell">
+            <strong>
+              {completedChapters} / {trackableChapters.length}
+            </strong>
+            <small>{t.homeStatsChapters}</small>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="home-grid">
+        <button type="button" className="home-card" onClick={() => onNavigate("learn")}>
+          <BookOpen className="home-card-icon" aria-hidden="true" />
+          <h2>{t.homeCardLearnTitle}</h2>
+          <p>{t.homeCardLearnSub}</p>
+          <span className="home-card-meta">
+            {t.homeCardLearnMeta(completedChapters, trackableChapters.length)}
+          </span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+        <button type="button" className="home-card" onClick={() => onNavigate("challenge")}>
+          <PencilLine className="home-card-icon" aria-hidden="true" />
+          <h2>{t.homeCardChallengeTitle}</h2>
+          <p>{t.homeCardChallengeSub}</p>
+          <span className="home-card-meta">{t.homeCardChallengeMeta}</span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+        <button type="button" className="home-card" onClick={() => onNavigate("mock")}>
+          <ClipboardList className="home-card-icon" aria-hidden="true" />
+          <h2>{t.homeCardMockTitle}</h2>
+          <p>{t.homeCardMockSub}</p>
+          <span className="home-card-meta">{t.homeCardMockMeta}</span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className={`home-card${reviewCount === 0 ? " home-card-dimmed" : ""}`}
+          onClick={onStartReview}
+          disabled={reviewCount === 0}
+        >
+          <RotateCcw className="home-card-icon" aria-hidden="true" />
+          <h2>{t.homeCardReviewTitle}</h2>
+          <p>
+            {reviewCount > 0 ? t.homeCardReviewSubActive(reviewCount) : t.homeCardReviewSubEmpty}
+          </p>
+          <span className="home-card-meta">{t.homeCardReviewMeta}</span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function getInitialTheme(): Theme {
   const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
 
@@ -764,7 +1054,10 @@ function getInitialTheme(): Theme {
     return storedTheme;
   }
 
-  return "dark";
+  // First-time default switched from dark to light: the new wafuu-paper
+  // palette is designed light-first. Dark theme is still available via
+  // the toggle and via stored preference.
+  return "light";
 }
 
 function storeTheme(theme: Theme) {
@@ -797,7 +1090,7 @@ function partOfSpeechLabel(partOfSpeech: PartOfSpeech, language: Language): stri
   return copy[language].partOfSpeech[partOfSpeech];
 }
 
-function ExamPrompt({ question }: { question: PracticeQuestion }) {
+function ExamPrompt({ question, language }: { question: PracticeQuestion; language: Language }) {
   // Sentence-pattern items use placeholder surface/reading (the pattern
   // id) which would render as a meaningless "te-kudasai・te-kudasai・..."
   // line. Skip the reading row for those items -- the prompt label
@@ -814,7 +1107,12 @@ function ExamPrompt({ question }: { question: PracticeQuestion }) {
         <GraduationCap aria-hidden="true" />
         {question.instructionZh}
       </p>
-      <p className="exam-prompt">{question.promptText}</p>
+      <p className="exam-prompt">
+        {question.promptText}
+        {question.promptText ? (
+          <SpeakButton text={question.promptText} language={language} />
+        ) : null}
+      </p>
       {preAnswerHint ? <p className="meaning">{preAnswerHint}</p> : null}
       {isSentencePattern ? null : (
         <p className="reading">
@@ -822,6 +1120,52 @@ function ExamPrompt({ question }: { question: PracticeQuestion }) {
         </p>
       )}
     </>
+  );
+}
+
+// ---- SpeakButton ------------------------------------------------------
+// Small inline button that reads its `text` aloud via the browser's
+// built-in SpeechSynthesis API. No external TTS service or audio asset
+// involved -- the voice quality depends on what the user's OS/browser
+// ships, but for "hear the kanji" / "hear the example sentence" the
+// built-in JA voices are good enough for a first cut. If the API or a
+// JA voice isn't available, the component renders nothing rather than a
+// broken-feeling button. Single-flight: if you click it again while
+// it's still speaking, the current utterance is cancelled first so the
+// new one starts cleanly.
+
+function SpeakButton({ text, language }: { text: string; language: Language }) {
+  const supported =
+    typeof window !== "undefined" &&
+    "speechSynthesis" in window &&
+    typeof window.SpeechSynthesisUtterance === "function";
+
+  if (!supported) return null;
+  if (!text) return null;
+
+  const handleClick = () => {
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new window.SpeechSynthesisUtterance(text);
+      utterance.lang = "ja-JP";
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      // Voice synthesis can throw if the engine is in a bad state; the
+      // worst case here is "no sound played", which is better than
+      // crashing the practice flow.
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      className="speak-button"
+      aria-label={copy[language].speakAriaLabel}
+      onClick={handleClick}
+    >
+      <Volume2 aria-hidden="true" />
+    </button>
   );
 }
 
@@ -848,4 +1192,466 @@ function FeedbackPanel({ feedback, language }: { feedback: NonNullable<Feedback>
       ) : null}
     </section>
   );
+}
+
+// ---- Mock exam panel ---------------------------------------------------
+// Self-contained: composes a plan from the shared exam pool, runs the
+// learner through it without per-question feedback, then shows score +
+// per-section breakdown + wrong-answer detail. Mock-exam attempts are
+// session-local on purpose -- they don't write to attemptStore, so a
+// mock run doesn't pollute the per-vocabulary progress tracker (which
+// drives chapter completion in the Learn view).
+
+type MockPhase = "setup" | "running" | "results";
+
+function MockExamPanel({ language, onExit }: { language: Language; onExit: () => void }) {
+  const t = copy[language];
+  const [level, setLevel] = useState<MockExamLevel>("N2");
+  const [phase, setPhase] = useState<MockPhase>("setup");
+  const [planKey, setPlanKey] = useState(0); // bump to recompose on retake
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState<Map<string, string>>(() => new Map());
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const startedAtRef = useRef<number | null>(null);
+
+  // Compose a fresh plan whenever level or planKey changes. The full
+  // pool is filtered to the chosen level by composeMockExam.
+  const plan: MockExamPlan = useMemo(
+    () => {
+      void planKey;
+      return composeMockExam(level, buildExamQuestionPool(level));
+    },
+    [level, planKey]
+  );
+
+  const questions = useMemo(() => flattenMockExam(plan), [plan]);
+  const currentQuestion = questions[currentIndex] ?? null;
+
+  // Running-phase elapsed-time tick. Resets when we enter setup/results.
+  useEffect(() => {
+    if (phase !== "running") {
+      return;
+    }
+    const start = startedAtRef.current ?? Date.now();
+    startedAtRef.current = start;
+    setElapsedSeconds(Math.floor((Date.now() - start) / 1000));
+    const id = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - start) / 1000));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [phase]);
+
+  const startExam = () => {
+    setCurrentIndex(0);
+    setAnswers(new Map());
+    setElapsedSeconds(0);
+    startedAtRef.current = Date.now();
+    setPhase("running");
+  };
+
+  const retake = () => {
+    setPlanKey((k) => k + 1);
+    setCurrentIndex(0);
+    setAnswers(new Map());
+    setElapsedSeconds(0);
+    startedAtRef.current = null;
+    setPhase("setup");
+  };
+
+  const recordAnswer = (choice: string) => {
+    if (!currentQuestion) return;
+    setAnswers((prev) => {
+      const next = new Map(prev);
+      next.set(currentQuestion.id, choice);
+      return next;
+    });
+  };
+
+  const goNext = () => {
+    setCurrentIndex((i) => Math.min(i + 1, questions.length - 1));
+  };
+
+  const goPrev = () => {
+    setCurrentIndex((i) => Math.max(i - 1, 0));
+  };
+
+  const submit = () => {
+    const unansweredCount = questions.length - answers.size;
+    if (unansweredCount > 0 && !window.confirm(t.mockExamSubmitConfirm)) {
+      return;
+    }
+    setPhase("results");
+  };
+
+  const summary: MockExamSummary | null = phase === "results" ? summarizeMockExam(plan, answers) : null;
+
+  return (
+    <section className="mock-panel" aria-label="Mock exam">
+      {phase === "setup" ? (
+        <MockExamSetup
+          t={t}
+          level={level}
+          onLevelChange={setLevel}
+          plan={plan}
+          onStart={startExam}
+          onExit={onExit}
+        />
+      ) : phase === "running" && currentQuestion ? (
+        <MockExamRunning
+          t={t}
+          language={language}
+          level={level}
+          question={currentQuestion}
+          currentIndex={currentIndex}
+          total={questions.length}
+          selectedAnswer={answers.get(currentQuestion.id) ?? null}
+          elapsedSeconds={elapsedSeconds}
+          onSelect={recordAnswer}
+          onPrev={goPrev}
+          onNext={goNext}
+          onSubmit={submit}
+          onExit={onExit}
+        />
+      ) : summary ? (
+        <MockExamResults
+          t={t}
+          level={level}
+          summary={summary}
+          elapsedSeconds={elapsedSeconds}
+          onRetake={retake}
+          onExit={onExit}
+        />
+      ) : (
+        <div className="empty-state">{t.emptyState}</div>
+      )}
+    </section>
+  );
+}
+
+function MockExamSetup({
+  t,
+  level,
+  onLevelChange,
+  plan,
+  onStart,
+  onExit
+}: {
+  t: Copy;
+  level: MockExamLevel;
+  onLevelChange: (level: MockExamLevel) => void;
+  plan: MockExamPlan;
+  onStart: () => void;
+  onExit: () => void;
+}) {
+  return (
+    <div className="mock-setup">
+      <header className="mock-setup-head">
+        <p className="eyebrow">
+          <ClipboardList aria-hidden="true" />
+          {t.mockExamSetupTitle}
+        </p>
+        <p className="mock-setup-intro">{t.mockExamSetupIntro}</p>
+        <p className="mock-setup-meta">
+          <Timer aria-hidden="true" />
+          {t.mockExamSuggestedMinutes(plan.blueprint.totalMinutes)}
+        </p>
+      </header>
+
+      <fieldset className="mock-level-picker">
+        <legend>{t.mockExamLevelLabel}</legend>
+        <div className="segmented">
+          {(["N2", "N1"] as MockExamLevel[]).map((option) => (
+            <button
+              key={option}
+              type="button"
+              className={level === option ? "selected" : ""}
+              onClick={() => onLevelChange(option)}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <section className="mock-section-list" aria-label={t.mockExamSectionsHeading}>
+        <h3>{t.mockExamSectionsHeading}</h3>
+        <p className="mock-section-summary">
+          {t.mockExamAnsweredOf(plan.totalPicked, plan.totalTarget)}
+          {plan.totalGap > 0 ? ` · ${t.mockExamGapNote(plan.totalGap)}` : ""}
+        </p>
+        <ol className="mock-section-rows">
+          {plan.sections.map((sp, index) => {
+            const isEmpty = sp.questions.length === 0;
+            const isPartial = !isEmpty && sp.gap > 0;
+            return (
+              <li
+                key={sp.section.id}
+                className={`mock-section-row${isEmpty ? " empty" : isPartial ? " partial" : ""}`}
+              >
+                <span className="mock-section-badge">{t.mockExamSectionBadge(index + 1)}</span>
+                <div className="mock-section-meta">
+                  <strong>{sp.section.labelJa}</strong>
+                  <small>{sp.section.labelZh}</small>
+                </div>
+                <div className="mock-section-pool">
+                  <span>
+                    {sp.questions.length} / {sp.section.targetCount}
+                  </span>
+                  {isEmpty ? (
+                    <em className="mock-section-warn">
+                      <AlertTriangle aria-hidden="true" />
+                      {t.mockExamPoolEmpty}
+                    </em>
+                  ) : isPartial ? (
+                    <em className="mock-section-warn">
+                      <AlertTriangle aria-hidden="true" />
+                      {t.mockExamSectionGap.replace("{gap}", String(sp.gap))}
+                    </em>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+
+      <div className="mock-actions">
+        <button
+          className="next-button"
+          type="button"
+          disabled={plan.totalPicked === 0}
+          onClick={onStart}
+        >
+          <ArrowRight aria-hidden="true" />
+          {plan.totalPicked === 0 ? t.mockExamStartDisabled : t.mockExamStart}
+        </button>
+        <button className="ghost-button" type="button" onClick={onExit}>
+          {t.mockExamExit}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MockExamRunning({
+  t,
+  language,
+  level,
+  question,
+  currentIndex,
+  total,
+  selectedAnswer,
+  elapsedSeconds,
+  onSelect,
+  onPrev,
+  onNext,
+  onSubmit,
+  onExit
+}: {
+  t: Copy;
+  language: Language;
+  level: MockExamLevel;
+  question: PracticeQuestion;
+  currentIndex: number;
+  total: number;
+  selectedAnswer: string | null;
+  elapsedSeconds: number;
+  onSelect: (choice: string) => void;
+  onPrev: () => void;
+  onNext: () => void;
+  onSubmit: () => void;
+  onExit: () => void;
+}) {
+  // Reuse the existing exam options as authored (the examQuestion helper
+  // wires `options` and includes the expected answer). Rotate the
+  // display order deterministically by index so it's not always answer-
+  // first, while staying stable if the learner navigates back.
+  const options = useMemo(() => {
+    const raw = Array.from(new Set([...question.expectedAnswers, ...(question.options ?? [])]));
+    if (raw.length === 0) return raw;
+    const offset = (currentIndex + question.id.length) % raw.length;
+    return [...raw.slice(offset), ...raw.slice(0, offset)];
+  }, [question, currentIndex]);
+
+  const isLast = currentIndex === total - 1;
+
+  return (
+    <div className="mock-running">
+      <header className="mock-running-head">
+        <div>
+          <p className="eyebrow">{t.mockExamRunningTitle(level)}</p>
+          <strong>{t.mockExamProgress(currentIndex + 1, total)}</strong>
+        </div>
+        <div className="mock-elapsed">
+          <Clock aria-hidden="true" />
+          <span>{t.mockExamElapsed}</span>
+          <strong>{formatElapsed(elapsedSeconds)}</strong>
+        </div>
+      </header>
+
+      <div className="mock-question">
+        <div className="prompt-header">
+          <span>{question.promptLabel}</span>
+        </div>
+        <div className="word-block">
+          <ExamPrompt question={question} language={language} />
+        </div>
+
+        <div className="choice-grid" aria-label={t.answerOptions}>
+          {options.map((choice) => (
+            <button
+              key={choice}
+              type="button"
+              className={`choice-option${selectedAnswer === choice ? " chosen" : ""}`}
+              onClick={() => onSelect(choice)}
+            >
+              {choice}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mock-nav">
+        <button className="ghost-button" type="button" onClick={onPrev} disabled={currentIndex === 0}>
+          {t.mockExamPrev}
+        </button>
+        {isLast ? (
+          <button className="next-button" type="button" onClick={onSubmit}>
+            <CheckCircle2 aria-hidden="true" />
+            {t.mockExamSubmit}
+          </button>
+        ) : (
+          <button className="next-button" type="button" onClick={onNext}>
+            <ArrowRight aria-hidden="true" />
+            {selectedAnswer === null ? t.mockExamSkip : t.mockExamNext}
+          </button>
+        )}
+        <button className="ghost-button mock-exit" type="button" onClick={onExit}>
+          {t.mockExamExit}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MockExamResults({
+  t,
+  level,
+  summary,
+  elapsedSeconds,
+  onRetake,
+  onExit
+}: {
+  t: Copy;
+  level: MockExamLevel;
+  summary: MockExamSummary;
+  elapsedSeconds: number;
+  onRetake: () => void;
+  onExit: () => void;
+}) {
+  const wrong = summary.sections.flatMap((s) =>
+    s.results.filter((r) => !r.isCorrect).map((r) => ({ section: s.section, result: r }))
+  );
+  const totalGap = summary.plan.totalGap;
+
+  return (
+    <div className="mock-results">
+      <header className="mock-results-head">
+        <p className="eyebrow">{t.mockExamResultsTitle(level)}</p>
+        <h2>
+          {t.mockExamTotalScore(
+            summary.totalCorrect,
+            summary.totalQuestions,
+            summary.accuracyPercent
+          )}
+        </h2>
+        <p className="mock-results-meta">
+          <Clock aria-hidden="true" />
+          {t.mockExamElapsed}：{formatElapsed(elapsedSeconds)}
+          {" · "}
+          {t.mockExamAnsweredOf(summary.totalAnswered, summary.totalQuestions)}
+        </p>
+        {totalGap > 0 ? (
+          <p className="mock-results-gap">
+            <AlertTriangle aria-hidden="true" />
+            {t.mockExamGapNote(totalGap)}
+          </p>
+        ) : null}
+      </header>
+
+      <section className="mock-section-breakdown" aria-label={t.mockExamReviewSection}>
+        <h3>{t.mockExamReviewSection}</h3>
+        <ol className="mock-section-rows">
+          {summary.sections.map((s, index) => (
+            <li
+              key={s.section.id}
+              className={`mock-section-row${s.total === 0 ? " empty" : ""}`}
+            >
+              <span className="mock-section-badge">{t.mockExamSectionBadge(index + 1)}</span>
+              <div className="mock-section-meta">
+                <strong>{s.section.labelJa}</strong>
+                <small>{s.section.labelZh}</small>
+              </div>
+              <div className="mock-section-pool">
+                {s.total === 0 ? (
+                  <em className="mock-section-warn">
+                    <AlertTriangle aria-hidden="true" />
+                    {t.mockExamPoolEmpty}
+                  </em>
+                ) : (
+                  <span>
+                    {s.correct} / {s.total}
+                    {s.answered < s.total ? ` · ${t.mockExamSkippedShort} ${s.total - s.answered}` : ""}
+                  </span>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {wrong.length > 0 ? (
+        <section className="mock-wrong-list" aria-label={t.mockExamReviewWrong}>
+          <h3>{t.mockExamReviewWrong}</h3>
+          <ul>
+            {wrong.map(({ section, result }) => (
+              <li key={result.question.id} className="mock-wrong-item">
+                <div className="mock-wrong-head">
+                  <span className="mock-section-badge">{section.labelJa}</span>
+                  <strong className="mock-wrong-prompt">{result.question.promptText}</strong>
+                </div>
+                <p className="answer-key">
+                  {t.answerKey}：{result.question.expectedAnswers.join(" / ")}
+                  {result.wasAnswered ? (
+                    <span className="mock-wrong-submitted"> · {t.incorrect}：{result.submittedAnswer}</span>
+                  ) : (
+                    <span className="mock-wrong-submitted"> · {t.mockExamUnansweredBadge}</span>
+                  )}
+                </p>
+                <p className="mock-wrong-explanation">{result.question.explanation}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <div className="mock-actions">
+        <button className="next-button" type="button" onClick={onRetake}>
+          <RotateCcw aria-hidden="true" />
+          {t.mockExamRetake}
+        </button>
+        <button className="ghost-button" type="button" onClick={onExit}>
+          {t.mockExamExit}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function formatElapsed(seconds: number): string {
+  const mm = Math.floor(seconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const ss = (seconds % 60).toString().padStart(2, "0");
+  return `${mm}:${ss}`;
 }

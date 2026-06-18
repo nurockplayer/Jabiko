@@ -21,6 +21,14 @@ function seedProgress(targetForms: string[]) {
   );
 }
 
+// Default landing changed from "learn" to "home" so the first-time UX
+// is a dashboard with four entry cards instead of dropping the learner
+// straight into the chapter list. Every test that depends on Learn
+// being visible needs this helper to navigate there first.
+async function gotoLearn(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole("button", { name: "學習" }));
+}
+
 describe("App", () => {
   afterEach(() => {
     localStorage.clear();
@@ -28,12 +36,26 @@ describe("App", () => {
     window.history.replaceState({}, "", "/");
   });
 
-  it("renders the learning path before the challenge", () => {
+  it("renders the home dashboard with the four-tab nav by default", () => {
     render(<App />);
 
     expect(screen.getByRole("heading", { name: /變化訓練場/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "學習" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "模擬考" })).toBeInTheDocument();
+    // Home hero copy + at least one entry card heading.
+    expect(screen.getByRole("heading", { name: /今天想練什麼/ })).toBeInTheDocument();
+    // Chapter index belongs to Learn view; not visible on Home.
+    expect(screen.queryByRole("heading", { name: "一章一章解鎖" })).not.toBeInTheDocument();
+  });
+
+  it("shows the chapter index after clicking the Learn tab", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await gotoLearn(user);
+
     expect(screen.getByRole("heading", { name: "一章一章解鎖" })).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { name: "先分清楚く / に" }).length).toBeGreaterThan(0);
     expect(screen.getByText("高い -> 高く")).toBeInTheDocument();
@@ -58,6 +80,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "查看：ない形家族" }));
 
     expect(screen.getByRole("heading", { name: "ない形家族" })).toBeInTheDocument();
@@ -70,6 +93,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     // Default-active chapter is "先分清楚く / に"; its く/に drill button is
     // the equivalent of the old "開始第 1 關" hero CTA.
     await user.click(screen.getByRole("button", { name: "練く/に修飾" }));
@@ -82,6 +106,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "查看：ない形家族" }));
     await user.click(screen.getByRole("button", { name: "練否定整理" }));
 
@@ -95,6 +120,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "練な形容詞" }));
 
     expect(screen.getByRole("button", { name: "な形容詞" })).toHaveClass("selected");
@@ -106,6 +132,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "練く/に修飾" }));
 
     expect(screen.getByRole("button", { name: "く/に修飾" })).toHaveClass("selected");
@@ -118,6 +145,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     // The new chapters surface in the chapter list.
     expect(screen.getByRole("button", { name: "查看：ます形" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "查看：可能形 (V られる)" })).toBeInTheDocument();
@@ -138,6 +166,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     // All four B2 chapters surface in the chapter list (smoke check).
     expect(
       screen.getByRole("button", { name: "查看：てください / てもいい / てはいけない" })
@@ -187,7 +216,7 @@ describe("App", () => {
 
     for (const { chapter, example, drill, form } of cases) {
       // Return to the learning view (idempotent if already there).
-      await user.click(screen.getByRole("button", { name: "學習" }));
+      await gotoLearn(user);
       await user.click(screen.getByRole("button", { name: chapter }));
       expect(screen.getByText(example)).toBeInTheDocument();
 
@@ -234,7 +263,7 @@ describe("App", () => {
     render(<App />);
 
     for (const { chapter, drill, promptLabelFragment } of cases) {
-      await user.click(screen.getByRole("button", { name: "學習" }));
+      await gotoLearn(user);
       await user.click(screen.getByRole("button", { name: chapter }));
       await user.click(screen.getByRole("button", { name: drill }));
       // Challenge page: "句型練習" mode card is selected and the
@@ -255,6 +284,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     const referenceChapter = screen.getByRole("button", {
       name: "查看：てください / てもいい / てはいけない"
     });
@@ -266,14 +296,16 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders a soft '建議先看' hint on chapters whose prereqs are incomplete", () => {
+  it("renders a soft '建議先看' hint on chapters whose prereqs are incomplete", async () => {
     // Empty progress: 必要過去's three prereqs (adverbial / negative /
     // teTa) are all incomplete. The chapter-list subtitle should show
     // the hint instead of the block's default subtitle. The hint is
     // informational only -- the chapter itself is still openable and
     // the drill CTA still renders (covered by the next test).
+    const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     const obligationButton = screen.getByRole("button", { name: "查看：必要過去" });
     expect(obligationButton.textContent).toContain("建議先看");
     expect(obligationButton.textContent).toContain("先分清楚く / に");
@@ -287,6 +319,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "查看：必要過去" }));
     await user.click(screen.getAllByRole("button", { name: "練必要過去" })[0]);
 
@@ -300,6 +333,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
 
     expect(screen.getByText("練習重點")).toBeInTheDocument();
@@ -313,6 +347,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "書いて" }));
 
@@ -323,6 +358,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "書って" }));
 
@@ -335,6 +371,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "書って" }));
 
@@ -346,6 +383,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "書いて" }));
     await user.keyboard("{Enter}");
@@ -358,6 +396,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "否定整理" }));
 
@@ -372,6 +411,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
     await user.click(screen.getByRole("button", { name: "名詞" }));
 
@@ -379,18 +419,22 @@ describe("App", () => {
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("普通形・非過去否定")).toBeInTheDocument();
   });
 
-  it("defaults to dark theme and stores a light preference when toggled", async () => {
+  it("defaults to light theme and stores a dark preference when toggled", async () => {
+    // First-time default switched from dark to light when the wafuu
+    // paper palette landed. Dark theme is still selectable via the
+    // toggle, and explicit localStorage preferences (covered by the
+    // two tests below) override the default in either direction.
     const user = userEvent.setup();
     render(<App />);
 
-    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
-    expect(screen.getByRole("button", { name: "淺色模式" })).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "淺色模式" }));
-
     expect(document.documentElement).toHaveAttribute("data-theme", "light");
-    expect(localStorage.getItem("jabiko.theme")).toBe("light");
     expect(screen.getByRole("button", { name: "深色模式" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "深色模式" }));
+
+    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+    expect(localStorage.getItem("jabiko.theme")).toBe("dark");
+    expect(screen.getByRole("button", { name: "淺色模式" })).toBeInTheDocument();
   });
 
   it("loads the stored dark theme preference", () => {
@@ -419,6 +463,8 @@ describe("App", () => {
 
     expect(screen.getByRole("button", { name: "Learn" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Challenge" })).toBeInTheDocument();
+    // Verify chapter content is reachable in English too.
+    await user.click(screen.getByRole("button", { name: "Learn" }));
     expect(screen.getAllByRole("heading", { name: "先分清楚く / に" }).length).toBeGreaterThan(0);
     expect(localStorage.getItem("jabiko.language")).toBe("en");
   });
@@ -431,6 +477,7 @@ describe("App", () => {
 
     expect(screen.getByRole("button", { name: "학습" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "도전" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "학습" }));
     expect(screen.getAllByRole("heading", { name: "先分清楚く / に" }).length).toBeGreaterThan(0);
     expect(localStorage.getItem("jabiko.language")).toBe("ko");
   });
