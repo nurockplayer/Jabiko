@@ -1873,8 +1873,10 @@ select:disabled {
 }
 
 .home-grid {
+  /* auto-fit so 4 cards stay 2×2 on desktop, 5 cards lay out as 2/2/1
+   * (or 3/2 at wider viewports), and mobile drops to 1 column. */
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 0.85rem;
 }
 

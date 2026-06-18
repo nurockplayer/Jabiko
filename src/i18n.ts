@@ -131,7 +131,10 @@ export type Copy = {
   revealed: string;
   answerKey: string;
   focusSummaryEmpty: string;
-  modeOptions: Record<"basic" | "cloze" | "exam" | "pattern" | "review", { title: string; subtitle: string }>;
+  modeOptions: Record<"basic" | "cloze" | "exam" | "pattern" | "review" | "vocab", { title: string; subtitle: string }>;
+  homeCardVocabTitle: string;
+  homeCardVocabSub: string;
+  homeCardVocabMeta: string;
   // ---- Dashboard / review ---------------------------------------------------
   dashboardEyebrow: string;
   dashboardReviewPending: (count: number) => string;
@@ -309,8 +312,12 @@ export const copy: Record<Language, Copy> = {
       cloze: { title: "句中填空", subtitle: "N5 文型 · 〜てください / 〜たいです" },
       pattern: { title: "句型練習", subtitle: "N5/N4 句型判斷 · 視角 / 許可 / 引用 / 不必" },
       exam: { title: "綜合考題庫", subtitle: "N1/N2 為主 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み" },
+      vocab: { title: "単字快測", subtitle: "N1/N2 單字 · 讀音 + 意思 隨機抽" },
       review: { title: "弱點複習", subtitle: "把上次答錯的題目重練到對為止" }
     },
+    homeCardVocabTitle: "単字快測",
+    homeCardVocabSub: "N1 / N2 單字快速複習，讀音與中文意思隨機抽。",
+    homeCardVocabMeta: "適合通勤碎片時間",
     dashboardEyebrow: "繼續學習",
     dashboardReviewPending: (count) => `你還有 ${count} 題等待複習`,
     dashboardReviewEmpty: "沒有待複習錯題了 🎉",
@@ -517,8 +524,12 @@ export const copy: Record<Language, Copy> = {
       cloze: { title: "Sentence cloze", subtitle: "N5 grammar · ~te kudasai / ~tai desu" },
       pattern: { title: "Pattern judging", subtitle: "N5/N4 · perspective / permission / quotation / negation" },
       exam: { title: "JLPT mock pool", subtitle: "N1/N2 focus · grammar / sentence order / context / vocab / reading" },
+      vocab: { title: "Vocab drill", subtitle: "N1/N2 words · reading + meaning, randomised" },
       review: { title: "Weak-spot review", subtitle: "Re-drill questions you got wrong until they stick" }
     },
+    homeCardVocabTitle: "Vocab drill",
+    homeCardVocabSub: "Fast N1 / N2 word drill: reading and Chinese meaning, randomised.",
+    homeCardVocabMeta: "Built for commute-sized sessions",
     dashboardEyebrow: "Pick up where you left off",
     dashboardReviewPending: (count) => `${count} item${count === 1 ? "" : "s"} waiting for review`,
     dashboardReviewEmpty: "Nothing to review right now 🎉",
@@ -724,8 +735,12 @@ export const copy: Record<Language, Copy> = {
       cloze: { title: "문장 빈칸", subtitle: "N5 문형 · 〜てください / 〜たいです" },
       pattern: { title: "문형 판단", subtitle: "N5/N4 · 시점 / 허가 / 인용 / 불필요" },
       exam: { title: "종합 시험 문제", subtitle: "N1/N2 중심 · 문법 / 어순 / 단문 / 어휘 / 한자 읽기" },
+      vocab: { title: "단어 드릴", subtitle: "N1/N2 단어 · 읽기 + 뜻 무작위 출제" },
       review: { title: "약점 복습", subtitle: "틀린 문제만 모아서 다시 풀기" }
     },
+    homeCardVocabTitle: "단어 드릴",
+    homeCardVocabSub: "N1 / N2 단어 빠른 복습 · 읽는 법과 중국어 뜻을 랜덤 출제.",
+    homeCardVocabMeta: "출퇴근 자투리 시간용",
     dashboardEyebrow: "이어서 학습하기",
     dashboardReviewPending: (count) => `복습 대기 ${count}문제`,
     dashboardReviewEmpty: "지금 복습할 오답이 없습니다 🎉",

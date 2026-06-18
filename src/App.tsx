@@ -12,6 +12,7 @@ import {
   Moon,
   PencilLine,
   RotateCcw,
+  Sparkles,
   Sun,
   Timer,
   Volume2,
@@ -48,6 +49,7 @@ import {
 import { createAttemptStore } from "./domain/storage";
 import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./domain/types";
 import { vocabulary } from "./domain/vocabulary";
+import { jlptVocabulary } from "./domain/vocabulary-jlpt";
 import { copy, getInitialLanguage, languageOptions, storeLanguage, type Copy, type Language } from "./i18n";
 import "./styles.css";
 
@@ -58,7 +60,7 @@ type Feedback =
   | null;
 
 type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
-type PracticeMode = "basic" | "cloze" | "pattern" | "exam" | "review";
+type PracticeMode = "basic" | "cloze" | "pattern" | "exam" | "review" | "vocab";
 type PracticeFilter = { patternIds?: SentencePatternId[] };
 type AppView = "home" | "learn" | "challenge" | "mock";
 type Theme = "light" | "dark";
@@ -115,7 +117,7 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
   }
 ];
 
-const practiceModeOrder: PracticeMode[] = ["basic", "cloze", "pattern", "exam", "review"];
+const practiceModeOrder: PracticeMode[] = ["basic", "cloze", "pattern", "exam", "vocab", "review"];
 
 const attemptStore = createAttemptStore();
 
@@ -151,7 +153,9 @@ export default function App() {
   const isClozeFocus = practiceMode === "cloze";
   const isPatternFocus = practiceMode === "pattern";
   const isReviewFocus = practiceMode === "review";
-  const isCuratedFocus = isExamFocus || isClozeFocus || isPatternFocus || isReviewFocus;
+  const isVocabFocus = practiceMode === "vocab";
+  const isCuratedFocus =
+    isExamFocus || isClozeFocus || isPatternFocus || isReviewFocus || isVocabFocus;
 
   // Union pool used to materialise the review queue: any question the
   // learner has ever encountered (across exam / cloze / pattern / basic)
@@ -227,6 +231,20 @@ export default function App() {
         return reviewQueue;
       }
 
+      if (isVocabFocus) {
+        // 単字 mode: N1/N2 vocabulary drill, alternating reading +
+        // meaning prompts. Pool is the JLPT vocabulary export (which
+        // is N1 + N2 nouns / na-adjectives); each entry produces two
+        // PracticeQuestions (one per target form), then we shuffle.
+        return shuffleQuestions(
+          buildQuestionPool(jlptVocabulary, {
+            partOfSpeech: "mixed",
+            verbGroup: "all",
+            targetForms: ["reading", "meaning"]
+          })
+        );
+      }
+
       return shuffleQuestions(
         buildQuestionPool(vocabulary, {
           partOfSpeech,
@@ -240,6 +258,7 @@ export default function App() {
       isClozeFocus,
       isPatternFocus,
       isReviewFocus,
+      isVocabFocus,
       reviewQueue,
       practiceFilter.patternIds,
       partOfSpeech,
@@ -443,6 +462,12 @@ export default function App() {
           onNavigate={(target) => setAppView(target)}
           onStartReview={() => {
             setPracticeMode("review");
+            setPracticeFilter({});
+            resetSession();
+            setAppView("challenge");
+          }}
+          onStartVocab={() => {
+            setPracticeMode("vocab");
             setPracticeFilter({});
             resetSession();
             setAppView("challenge");
@@ -912,13 +937,15 @@ function HomePanel({
   progressAttempts,
   reviewCount,
   onNavigate,
-  onStartReview
+  onStartReview,
+  onStartVocab
 }: {
   language: Language;
   progressAttempts: Attempt[];
   reviewCount: number;
   onNavigate: (target: "learn" | "challenge" | "mock") => void;
   onStartReview: () => void;
+  onStartVocab: () => void;
 }) {
   const t = copy[language];
 
@@ -1026,6 +1053,13 @@ function HomePanel({
           <h2>{t.homeCardMockTitle}</h2>
           <p>{t.homeCardMockSub}</p>
           <span className="home-card-meta">{t.homeCardMockMeta}</span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+        <button type="button" className="home-card" onClick={onStartVocab}>
+          <Sparkles className="home-card-icon" aria-hidden="true" />
+          <h2>{t.homeCardVocabTitle}</h2>
+          <p>{t.homeCardVocabSub}</p>
+          <span className="home-card-meta">{t.homeCardVocabMeta}</span>
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
         <button
