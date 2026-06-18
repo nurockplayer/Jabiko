@@ -39,7 +39,7 @@ describe("App", () => {
   it("renders the home dashboard with the four-tab nav by default", () => {
     render(<App />);
 
-    expect(screen.getByRole("heading", { name: /變化訓練場/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /自習室/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "學習" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();

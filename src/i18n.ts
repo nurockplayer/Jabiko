@@ -163,9 +163,9 @@ export const languageOptions: Array<{ value: Language; label: string }> = [
 export const copy: Record<Language, Copy> = {
   "zh-Hant": {
     languageName: "繁中",
-    appIntroLabel: "應用程式介紹",
-    appTitle: "Jabiko 變化訓練場",
-    appTagline: "短回合、立即訂正，把動詞與形容詞變化練到不用想太久。",
+    appIntroLabel: "Jabiko 介紹",
+    appTitle: "Jabiko · JLPT 自習室",
+    appTagline: "JLPT N1・N2 文法、漢字、單字、模擬考，一個桌上練到熟。",
     themeLight: "淺色模式",
     themeDark: "深色模式",
     flowLabel: "學習流程",
@@ -374,9 +374,9 @@ export const copy: Record<Language, Copy> = {
   },
   en: {
     languageName: "English",
-    appIntroLabel: "App introduction",
-    appTitle: "Jabiko Conjugation Trainer",
-    appTagline: "Short drills, instant correction, and grammar feedback for Japanese conjugation.",
+    appIntroLabel: "About Jabiko",
+    appTitle: "Jabiko · JLPT study room",
+    appTagline: "JLPT N1 / N2 grammar, kanji, vocab, mock exams — all from one desk.",
     themeLight: "Light mode",
     themeDark: "Dark mode",
     flowLabel: "Learning flow",
@@ -586,9 +586,9 @@ export const copy: Record<Language, Copy> = {
   },
   ko: {
     languageName: "한국어",
-    appIntroLabel: "앱 소개",
-    appTitle: "Jabiko 활용 연습장",
-    appTagline: "짧은 연습, 즉시 채점, 규칙 피드백으로 일본어 활용을 익힙니다.",
+    appIntroLabel: "Jabiko 소개",
+    appTitle: "Jabiko · JLPT 자습실",
+    appTagline: "JLPT N1 · N2 문법, 한자, 단어, 모의시험을 한 책상에서.",
     themeLight: "라이트 모드",
     themeDark: "다크 모드",
     flowLabel: "학습 흐름",
