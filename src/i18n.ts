@@ -192,7 +192,7 @@ export const copy: Record<Language, Copy> = {
     homeCardReviewTitle: "弱點複習",
     homeCardReviewSubActive: (count) => `${count} 題等你重練到對。`,
     homeCardReviewSubEmpty: "目前沒有錯題可複習。",
-    homeCardReviewMeta: "答對才會移出 queue",
+    homeCardReviewMeta: "間隔重複 · 答對自動延到下次到期",
     mockExamSetupTitle: "JLPT 模擬考",
     mockExamSetupIntro:
       "依官方題型結構抽題。作答中不顯示對錯，整份交卷後才看分數與詳解。題庫不足的小題會明確標出。",
@@ -400,7 +400,7 @@ export const copy: Record<Language, Copy> = {
     homeCardReviewTitle: "Weak-spot review",
     homeCardReviewSubActive: (count) => `${count} item${count === 1 ? "" : "s"} to re-drill until they stick.`,
     homeCardReviewSubEmpty: "Nothing to review right now.",
-    homeCardReviewMeta: "Drops out once you answer correctly",
+    homeCardReviewMeta: "Spaced repetition · auto-defers on correct answers",
     mockExamSetupTitle: "JLPT mock exam",
     mockExamSetupIntro:
       "Pulls questions section-by-section to match the official JLPT paper. No per-question feedback during the run -- you'll see the score and full explanations only after you submit. Sections with too few questions are flagged explicitly.",
@@ -607,7 +607,7 @@ export const copy: Record<Language, Copy> = {
     homeCardReviewTitle: "약점 복습",
     homeCardReviewSubActive: (count) => `다시 풀어야 할 문제 ${count}개.`,
     homeCardReviewSubEmpty: "지금 복습할 오답이 없습니다.",
-    homeCardReviewMeta: "정답을 맞히면 큐에서 제거됩니다",
+    homeCardReviewMeta: "간격 반복 · 정답을 맞히면 다음 일정으로 미뤄집니다",
     mockExamSetupTitle: "JLPT 모의시험",
     mockExamSetupIntro:
       "공식 시험 구조에 맞춰 섹션별로 문제를 뽑습니다. 풀이 중에는 정답을 보여 주지 않고, 제출 후 점수와 해설을 한꺼번에 확인합니다. 문제 풀이가 부족한 섹션은 명확히 표시됩니다.",
