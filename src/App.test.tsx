@@ -57,14 +57,26 @@ describe("App", () => {
 
     await user.click(screen.getByRole("button", { name: "規則表" }));
 
-    // The rules page renders a banner heading + the v1 four-table set.
+    // Rules page banner + the full v2 eight-table set.
     expect(screen.getByRole("heading", { name: /動詞變化 速查/ })).toBeInTheDocument();
+    // v1 tables (verb basics):
     expect(screen.getByRole("heading", { name: "動詞 三類分類" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "ます形" })).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: /一類動詞 て形・た形/ })
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /一類例外動詞/ })).toBeInTheDocument();
+    // v2 tables (advanced + adjectives + obligation past + patterns):
+    expect(
+      screen.getByRole("heading", { name: /動詞 進階形 速查/ })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /形容詞・名詞 變化四格/ })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /必要過去 step-by-step/ })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /句型 cheat sheet/ })).toBeInTheDocument();
   });
 
   it("shows the chapter index after clicking the Learn tab", async () => {

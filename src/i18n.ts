@@ -184,7 +184,7 @@ export const copy: Record<Language, Copy> = {
     rules: "規則表",
     rulesEyebrow: "桌上的參考書",
     rulesPanelTitle: "動詞變化 速查",
-    rulesPanelIntro: "考試 / 練習中忘了形變化，直接翻這頁。先 v1：動詞分類、ます形、一類音便、例外動詞。形容詞與進階變化會在下個版本加進來。",
+    rulesPanelIntro: "考試 / 練習中忘了形變化，直接翻這頁。涵蓋動詞三類分類、ます／て・た、可能・意向・受身・使役、形容詞與名詞變化、必要過去 step-by-step，以及 N5-N4 基礎句型 cheat sheet。",
     challenge: "挑戰",
     mockExam: "模擬考",
     homeHeroTitle: "今天想練什麼？",
@@ -407,7 +407,7 @@ export const copy: Record<Language, Copy> = {
     rulesEyebrow: "Reference shelf",
     rulesPanelTitle: "Verb conjugation quick reference",
     rulesPanelIntro:
-      "Forgot a conjugation mid-drill? Flip to this page. v1 covers verb groups, masu form, godan て / た sound changes, and the る-ending exception verbs. Adjectives and advanced forms follow in the next pass.",
+      "Forgot a conjugation mid-drill? Flip to this page. Covers verb groups, masu / te / ta forms, potential / volitional / passive / causative, adjective + noun variations, past obligation step-by-step, and an N5-N4 sentence-pattern cheat sheet.",
     challenge: "Challenge",
     mockExam: "Mock exam",
     homeHeroTitle: "What do you want to practice today?",
@@ -631,7 +631,7 @@ export const copy: Record<Language, Copy> = {
     rulesEyebrow: "책상 위 참고서",
     rulesPanelTitle: "동사 활용 빠른 참고",
     rulesPanelIntro:
-      "시험·연습 중 활용이 헷갈리면 이 페이지를 펼쳐 보세요. v1은 동사 분류, ます형, 1그룹 て/た 음편, る 끝 예외 동사를 다룹니다. 형용사와 고급 활용은 다음 버전에서 추가됩니다.",
+      "시험·연습 중 활용이 헷갈리면 이 페이지를 펼쳐 보세요. 동사 분류, ます/て/た, 가능·의향·수동·사역, 형용사·명사 활용, 필요 과거 단계별 정리, N5-N4 기초 문형 치트시트까지 한 페이지에서 확인합니다.",
     challenge: "도전",
     mockExam: "모의시험",
     homeHeroTitle: "오늘은 무엇을 연습할까요?",
