@@ -2099,6 +2099,148 @@ select:disabled {
   height: 0.95rem;
 }
 
+/* ---- Rules reference view -------------------------------------------- */
+
+.rules-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  max-width: 940px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.rules-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.rules-header .eyebrow {
+  margin: 0;
+  font-weight: 700;
+  color: var(--matcha-dark);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.rules-header h1 {
+  margin: 0;
+  font-family: var(--font-japanese-display);
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.rules-header > p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.rules-table-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.1rem 1.2rem 1.2rem;
+  background: var(--paper);
+  border: 1px solid var(--panel-border);
+  border-radius: 0.85rem;
+}
+
+.rules-table-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.rules-table-head h2 {
+  margin: 0;
+  font-family: var(--font-japanese-display);
+  font-size: 1.18rem;
+  color: var(--ink);
+}
+
+.rules-table-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.rules-table-wrap {
+  /* Horizontal scroll on narrow viewports rather than reflowing into
+   * a less readable card-per-row pattern. Tables of conjugation rules
+   * are inherently grid-shaped; preserving that shape on mobile keeps
+   * them scannable. */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -0.2rem;
+}
+
+.rules-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.rules-table-wrap thead th {
+  text-align: left;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+
+.rules-table-wrap tbody td {
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--rule) 60%, transparent);
+  vertical-align: top;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.rules-table-wrap tbody td:first-child {
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--matcha-dark);
+}
+
+.rules-table-wrap tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.rules-pitfalls {
+  margin: 0.3rem 0 0;
+  padding: 0.6rem 0.9rem 0.6rem 1.2rem;
+  list-style: "・ ";
+  background: color-mix(in srgb, var(--feedback-revealed-bg) 70%, var(--paper));
+  border-left: 3px solid var(--feedback-revealed-border);
+  border-radius: 0 0.4rem 0.4rem 0;
+  color: var(--feedback-revealed-title);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.rules-pitfalls li {
+  margin: 0.2rem 0;
+}
+
+@media (max-width: 720px) {
+  .rules-table-card {
+    padding: 0.95rem 0.9rem 1rem;
+  }
+  .rules-table-wrap tbody td {
+    font-size: 0.9rem;
+    padding: 0.55rem 0.55rem;
+  }
+}
+
 /* ---- Mock exam mode -------------------------------------------------- */
 
 .mock-panel {

@@ -42,12 +42,29 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: /自習室/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "學習" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "規則表" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "模擬考" })).toBeInTheDocument();
     // Home hero copy + at least one entry card heading.
     expect(screen.getByRole("heading", { name: /今天想練什麼/ })).toBeInTheDocument();
     // Chapter index belongs to Learn view; not visible on Home.
     expect(screen.queryByRole("heading", { name: "一章一章解鎖" })).not.toBeInTheDocument();
+  });
+
+  it("opens the rules reference page after clicking the 規則表 tab", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "規則表" }));
+
+    // The rules page renders a banner heading + the v1 four-table set.
+    expect(screen.getByRole("heading", { name: /動詞變化 速查/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "動詞 三類分類" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "ます形" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /一類動詞 て形・た形/ })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /一類例外動詞/ })).toBeInTheDocument();
   });
 
   it("shows the chapter index after clicking the Learn tab", async () => {

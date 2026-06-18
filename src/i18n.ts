@@ -12,6 +12,10 @@ export type Copy = {
   flowLabel: string;
   home: string;
   learn: string;
+  rules: string;
+  rulesEyebrow: string;
+  rulesPanelTitle: string;
+  rulesPanelIntro: string;
   challenge: string;
   homeHeroTitle: string;
   homeHeroIntro: string;
@@ -177,6 +181,10 @@ export const copy: Record<Language, Copy> = {
     flowLabel: "學習流程",
     home: "首頁",
     learn: "學習",
+    rules: "規則表",
+    rulesEyebrow: "桌上的參考書",
+    rulesPanelTitle: "動詞變化 速查",
+    rulesPanelIntro: "考試 / 練習中忘了形變化，直接翻這頁。先 v1：動詞分類、ます形、一類音便、例外動詞。形容詞與進階變化會在下個版本加進來。",
     challenge: "挑戰",
     mockExam: "模擬考",
     homeHeroTitle: "今天想練什麼？",
@@ -395,6 +403,11 @@ export const copy: Record<Language, Copy> = {
     flowLabel: "Learning flow",
     home: "Home",
     learn: "Learn",
+    rules: "Rules",
+    rulesEyebrow: "Reference shelf",
+    rulesPanelTitle: "Verb conjugation quick reference",
+    rulesPanelIntro:
+      "Forgot a conjugation mid-drill? Flip to this page. v1 covers verb groups, masu form, godan て / た sound changes, and the る-ending exception verbs. Adjectives and advanced forms follow in the next pass.",
     challenge: "Challenge",
     mockExam: "Mock exam",
     homeHeroTitle: "What do you want to practice today?",
@@ -614,6 +627,11 @@ export const copy: Record<Language, Copy> = {
     flowLabel: "학습 흐름",
     home: "홈",
     learn: "학습",
+    rules: "활용표",
+    rulesEyebrow: "책상 위 참고서",
+    rulesPanelTitle: "동사 활용 빠른 참고",
+    rulesPanelIntro:
+      "시험·연습 중 활용이 헷갈리면 이 페이지를 펼쳐 보세요. v1은 동사 분류, ます형, 1그룹 て/た 음편, る 끝 예외 동사를 다룹니다. 형용사와 고급 활용은 다음 버전에서 추가됩니다.",
     challenge: "도전",
     mockExam: "모의시험",
     homeHeroTitle: "오늘은 무엇을 연습할까요?",

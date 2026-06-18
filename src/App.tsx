@@ -28,6 +28,7 @@ import {
   type MockExamPlan,
   type MockExamSummary
 } from "./domain/mockExam";
+import { CONJUGATION_TABLES } from "./domain/conjugationTables";
 import {
   getIncompletePrereqs,
   isLearningBlockComplete,
@@ -60,7 +61,7 @@ type Feedback =
 type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
 type PracticeMode = "basic" | "cloze" | "pattern" | "exam" | "review" | "vocab";
 type PracticeFilter = { patternIds?: SentencePatternId[] };
-type AppView = "home" | "learn" | "challenge" | "mock";
+type AppView = "home" | "learn" | "rules" | "challenge" | "mock";
 type Theme = "light" | "dark";
 type DrillPreset = LearningBlockDrillPreset;
 
@@ -438,6 +439,13 @@ export default function App() {
         </button>
         <button
           type="button"
+          className={appView === "rules" ? "selected" : ""}
+          onClick={() => setAppView("rules")}
+        >
+          {t.rules}
+        </button>
+        <button
+          type="button"
           className={appView === "challenge" ? "selected" : ""}
           onClick={() => setAppView("challenge")}
         >
@@ -486,6 +494,8 @@ export default function App() {
           onStartDrill={startDrill}
           onStartPatternDrill={startPatternDrill}
         />
+      ) : appView === "rules" ? (
+        <RulesPanel language={language} />
       ) : appView === "mock" ? (
         <MockExamPanel language={language} onExit={() => setAppView("home")} />
       ) : (
@@ -1124,6 +1134,61 @@ function getInitialTheme(): Theme {
   // palette is designed light-first. Dark theme is still available via
   // the toggle and via stored preference.
   return "light";
+}
+
+// ---- RulesPanel ------------------------------------------------------
+// "規則表" view: a read-only reference page of conjugation tables.
+// Pure presentational; all data lives in domain/conjugationTables.ts
+// so future tables (formal forms / adjective variations / sentence
+// patterns) just need a data-file edit and no component change.
+function RulesPanel({ language }: { language: Language }) {
+  const t = copy[language];
+  return (
+    <section className="rules-panel" aria-label={t.rules}>
+      <header className="rules-header">
+        <p className="eyebrow">{t.rulesEyebrow}</p>
+        <h1>{t.rulesPanelTitle}</h1>
+        <p>{t.rulesPanelIntro}</p>
+      </header>
+      {CONJUGATION_TABLES.map((table) => (
+        <article key={table.id} className="rules-table-card">
+          <header className="rules-table-head">
+            <h2>{table.title}</h2>
+            <p>{table.caption}</p>
+          </header>
+          <div className="rules-table-wrap" role="region" aria-label={table.title}>
+            <table>
+              <thead>
+                <tr>
+                  {table.columns.map((col) => (
+                    <th key={col} scope="col">
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {table.rows.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {row.map((cell, cellIndex) => (
+                      <td key={cellIndex}>{cell}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {table.pitfalls && table.pitfalls.length > 0 ? (
+            <ul className="rules-pitfalls">
+              {table.pitfalls.map((pitfall) => (
+                <li key={pitfall}>{pitfall}</li>
+              ))}
+            </ul>
+          ) : null}
+        </article>
+      ))}
+    </section>
+  );
 }
 
 function storeTheme(theme: Theme) {
