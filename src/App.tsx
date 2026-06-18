@@ -234,15 +234,19 @@ export default function App() {
       }
 
       if (isVocabFocus) {
-        // 単字 mode: N1/N2 vocabulary drill, alternating reading +
-        // meaning prompts. Pool is the JLPT vocabulary export (which
-        // is N1 + N2 nouns / na-adjectives); each entry produces two
-        // PracticeQuestions (one per target form), then we shuffle.
+        // 単字 mode: N1/N2 reading drill. Reading-only on purpose --
+        // for a Chinese-speaking learner the kanji usually telegraphs
+        // the meaning (影響 = 影響), so an isolated meaning question is
+        // trivial and can't be rescued by stronger distractors. The
+        // genuinely hard, JLPT-relevant skill is the READING (よみ):
+        // 影響 is えいきょう, not えいきゅう. Meaning is still tested,
+        // but in CONTEXT, via the exam pool's 詞彙填空 / 類義替換 /
+        // 詞彙用法 sections -- which is the authentic way to test it.
         return shuffleQuestions(
           buildQuestionPool(jlptVocabulary, {
             partOfSpeech: "mixed",
             verbGroup: "all",
-            targetForms: ["reading", "meaning"]
+            targetForms: ["reading"]
           })
         );
       }

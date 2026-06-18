@@ -172,20 +172,97 @@ function buildPoolBasedChoiceOptions(
   const correctAnswer = currentQuestion.expectedAnswers[0];
   const acceptedAnswers = new Set(currentQuestion.expectedAnswers);
   const vocab = currentQuestion.vocabulary;
+  const isReading = currentQuestion.targetForm === "reading";
 
-  const distractors = uniqueAnswers(
-    questions
-      .filter(
-        (question) =>
-          question.vocabulary.id !== vocab.id && question.targetForm === currentQuestion.targetForm
-      )
-      .flatMap((question) => question.expectedAnswers)
-      .filter((answer) => !acceptedAnswers.has(answer))
-  );
+  // Collect candidate distractor strings from other items sharing this
+  // targetForm, keeping each candidate's part of speech so meaning
+  // distractors can prefer the same word class.
+  const seen = new Set<string>(acceptedAnswers);
+  const candidates: Array<{ text: string; pos: PartOfSpeech }> = [];
+  for (const question of questions) {
+    if (question.vocabulary.id === vocab.id) continue;
+    if (question.targetForm !== currentQuestion.targetForm) continue;
+    const text = question.expectedAnswers[0];
+    if (!text || seen.has(text)) continue;
+    seen.add(text);
+    candidates.push({ text, pos: question.vocabulary.partOfSpeech });
+  }
 
-  const options = [correctAnswer, ...distractors.slice(0, CHOICE_COUNT - 1)];
+  // Rank candidates by similarity to the correct answer, then take the
+  // top few. Two problems this fixes vs the old `.slice(0, 3)`:
+  //   1. "shared options": the old code sliced the first 3 of a
+  //      session-fixed pool order, so almost every question showed the
+  //      same 3 distractors. Ranking by similarity-to-THIS-answer makes
+  //      the picked set differ per question (the ranking is relative to
+  //      each answer).
+  //   2. "weak distractors": random pool entries were trivially
+  //      eliminable. Reading distractors now match mora count / edge
+  //      kana (realistic misreadings); meaning distractors prefer the
+  //      same part of speech.
+  // Deterministic tiebreak (hash of candidate + question id) keeps the
+  // option set stable across re-renders -- no reshuffle on answer.
+  const ranked = candidates
+    .map((candidate) => ({
+      text: candidate.text,
+      score: isReading
+        ? readingSimilarity(correctAnswer, candidate.text)
+        : meaningDistractorScore(vocab.partOfSpeech, candidate.pos, correctAnswer, candidate.text),
+      tiebreak: hashString(candidate.text + currentQuestion.id)
+    }))
+    .sort((a, b) => b.score - a.score || a.tiebreak - b.tiebreak)
+    .map((entry) => entry.text);
+
+  const options = [correctAnswer, ...ranked.slice(0, CHOICE_COUNT - 1)];
 
   return rotateOptions(options, currentQuestion, questionIndex);
+}
+
+/**
+ * Phonetic plausibility of a wrong reading vs the correct one. Higher =
+ * more confusable = better distractor. Rewards matching mora count and
+ * shared edge kana, which is how learners actually mis-read a word.
+ */
+export function readingSimilarity(correct: string, candidate: string): number {
+  let score = 0;
+  const lenDiff = Math.abs(correct.length - candidate.length);
+  if (lenDiff === 0) score += 4;
+  else if (lenDiff === 1) score += 2;
+  else if (lenDiff === 2) score += 1;
+  if (correct[0] === candidate[0]) score += 2; // same onset kana
+  if (correct[correct.length - 1] === candidate[candidate.length - 1]) score += 1; // same coda kana
+  // Shared kana (captures long-vowel う / 促音 っ / general overlap).
+  const correctChars = new Set([...correct]);
+  let shared = 0;
+  for (const ch of new Set([...candidate])) {
+    if (correctChars.has(ch)) shared += 1;
+  }
+  return score + Math.min(shared, 3);
+}
+
+/**
+ * Distractor strength for a meaning question. Same part of speech is the
+ * strongest signal (keeps nouns with nouns, na-adjectives with
+ * na-adjectives); a similar length is a weak secondary nudge.
+ */
+function meaningDistractorScore(
+  answerPos: PartOfSpeech,
+  candidatePos: PartOfSpeech,
+  correct: string,
+  candidate: string
+): number {
+  let score = 0;
+  if (candidatePos === answerPos) score += 3;
+  if (Math.abs(correct.length - candidate.length) <= 1) score += 1;
+  return score;
+}
+
+/** Stable unsigned 32-bit string hash for deterministic tiebreaks. */
+function hashString(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (Math.imul(hash, 31) + value.charCodeAt(i)) | 0;
+  }
+  return hash >>> 0;
 }
 
 function rotateOptions(options: string[], currentQuestion: PracticeQuestion, questionIndex: number): string[] {

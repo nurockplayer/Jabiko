@@ -8,9 +8,11 @@ import {
   buildQuestionPool,
   getMistakeQuestions,
   getReviewQueue,
+  readingSimilarity,
   scoreAttempt,
   shuffleQuestions
 } from "./practice";
+import type { VocabularyItem } from "./types";
 
 describe("buildClozeQuestionPool", () => {
   it("turns seed sentences into PracticeQuestion objects with curated options", () => {
@@ -539,6 +541,104 @@ describe("buildChoiceOptions", () => {
     const naAdjTarget = naAdjQuestions.find((question) => question.vocabulary.surface === "静か");
     expect(naAdjTarget).toBeDefined();
     expect(buildChoiceOptions(naAdjTarget!, naAdjQuestions, 0)).toContain("静かく");
+  });
+});
+
+describe("readingSimilarity", () => {
+  it("scores same-length, edge-sharing readings above unrelated ones", () => {
+    // えいきょう vs かんきょう: same 5-length, shared き/ょ/う, same coda.
+    // えいきょう vs くに: different length, no overlap.
+    const close = readingSimilarity("えいきょう", "かんきょう");
+    const far = readingSimilarity("えいきょう", "くに");
+    expect(close).toBeGreaterThan(far);
+  });
+
+  it("rewards matching mora count", () => {
+    // Same length (4) should outscore a 2-length candidate even if the
+    // shorter one shares the onset.
+    const sameLen = readingSimilarity("けいけん", "けいざい");
+    const shorter = readingSimilarity("けいけん", "けん");
+    expect(sameLen).toBeGreaterThan(shorter);
+  });
+});
+
+describe("buildChoiceOptions (vocab reading distractors)", () => {
+  const mk = (id: string, surface: string, reading: string): VocabularyItem => ({
+    id,
+    surface,
+    reading,
+    meaningZh: "test",
+    partOfSpeech: "noun",
+    group: null,
+    lesson: null,
+    tags: [],
+    examples: [],
+    level: "N2"
+  });
+
+  // Mixed mora-lengths so we can assert length-preference + variety.
+  const readingVocab: VocabularyItem[] = [
+    mk("v1", "影響", "えいきょう"),
+    mk("v2", "環境", "かんきょう"),
+    mk("v3", "状況", "じょうきょう"),
+    mk("v4", "経験", "けいけん"),
+    mk("v5", "経済", "けいざい"),
+    mk("v6", "社会", "しゃかい"),
+    mk("v7", "自由", "じゆう"),
+    mk("v8", "文化", "ぶんか"),
+    mk("v9", "国", "くに")
+  ];
+
+  const readingQuestions = buildQuestionPool(readingVocab, {
+    partOfSpeech: "noun",
+    verbGroup: "all",
+    targetForms: ["reading"]
+  });
+
+  it("always returns 4 options including the correct reading", () => {
+    for (let i = 0; i < readingQuestions.length; i++) {
+      const options = buildChoiceOptions(readingQuestions[i], readingQuestions, i);
+      expect(options).toHaveLength(4);
+      expect(options).toContain(readingQuestions[i].expectedAnswers[0]);
+    }
+  });
+
+  it("does not give every question the same distractor set (the shared-options bug)", () => {
+    // The old `.slice(0, 3)` handed nearly every question the same first
+    // three pool entries. With similarity ranking, distractor sets must
+    // vary across questions.
+    const distractorSets = readingQuestions.map((question, i) => {
+      const answer = question.expectedAnswers[0];
+      return buildChoiceOptions(question, readingQuestions, i)
+        .filter((option) => option !== answer)
+        .sort()
+        .join("|");
+    });
+    const uniqueSets = new Set(distractorSets);
+    // With 9 questions we expect clearly more than one distinct set;
+    // assert a healthy spread rather than an exact number.
+    expect(uniqueSets.size).toBeGreaterThanOrEqual(5);
+  });
+
+  it("prefers distractors with the same mora count as the answer", () => {
+    // 経験 = けいけん (4 mora). Pool has several 4-mora readings
+    // (けいざい / しゃかい) and longer/shorter ones; the chosen
+    // distractors should lean toward the 4-mora group.
+    const keiken = readingQuestions.find((q) => q.vocabulary.id === "v4")!;
+    const index = readingQuestions.indexOf(keiken);
+    const distractors = buildChoiceOptions(keiken, readingQuestions, index).filter(
+      (option) => option !== "けいけん"
+    );
+    const sameLength = distractors.filter((d) => d.length === "けいけん".length);
+    // At least 2 of the 3 distractors should match the 4-mora length.
+    expect(sameLength.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("is stable across repeated calls (no per-render reshuffle)", () => {
+    const q = readingQuestions[0];
+    const first = buildChoiceOptions(q, readingQuestions, 0);
+    const second = buildChoiceOptions(q, readingQuestions, 0);
+    expect(first).toEqual(second);
   });
 });
 
