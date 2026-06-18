@@ -1842,6 +1842,22 @@ select:disabled {
   font-weight: 400;
 }
 
+.home-content-stats {
+  /* Magazine-masthead row: thin top + bottom rules sandwich a single
+   * centered line of "X 章節 · Y 綜合題 · ..." counts. Subtle on
+   * purpose; the cards below are the louder element. */
+  margin: 0;
+  padding: 0.7rem 1rem;
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-align: center;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+}
+
 .home-stats-strip {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1904,15 +1920,26 @@ select:disabled {
   transform: translateY(-1px);
 }
 
-.home-card-icon {
-  /* Icon as a quiet line drawing, not a dashboard "stat tile" with
-   * coloured bubble background. The card itself now does the framing. */
+.home-card-stage {
+  /* Single-CJK stage badge ("學 / 練 / 背 / 考 / 補") in place of the
+   * old lucide-react icon. Mincho serif keeps it editorial; a thin
+   * matcha frame anchors it visually without reading as a UI chip. */
   grid-area: icon;
   align-self: start;
-  width: 1.5rem;
-  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
   margin-top: 0.1rem;
+  font-family: var(--font-japanese-display);
+  font-size: 1.25rem;
+  font-weight: 600;
   color: var(--matcha-dark);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--matcha) 42%, var(--rule));
+  border-radius: 0.4rem;
+  line-height: 1;
 }
 
 .home-card h2 {
@@ -1953,8 +1980,9 @@ select:disabled {
   cursor: not-allowed;
 }
 
-.home-card-dimmed .home-card-icon {
+.home-card-dimmed .home-card-stage {
   color: var(--field-disabled-text);
+  border-color: var(--rule);
 }
 
 @media (max-width: 720px) {

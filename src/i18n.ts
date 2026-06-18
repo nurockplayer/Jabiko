@@ -15,6 +15,12 @@ export type Copy = {
   challenge: string;
   homeHeroTitle: string;
   homeHeroIntro: string;
+  homeContentStats: (chapters: number, examItems: number, n1Grammar: number, patternChecks: number, vocab: number) => string;
+  homeCardStageLearn: string;
+  homeCardStageChallenge: string;
+  homeCardStageVocab: string;
+  homeCardStageMock: string;
+  homeCardStageReview: string;
   homeBannerReviewMain: (count: number) => string;
   homeBannerReviewSub: string;
   homeBannerContinueMain: (chapter: string) => string;
@@ -174,7 +180,14 @@ export const copy: Record<Language, Copy> = {
     challenge: "挑戰",
     mockExam: "模擬考",
     homeHeroTitle: "今天想練什麼？",
-    homeHeroIntro: "選一個入口開始。累積的錯題、章節進度、整卷模擬都在這裡。",
+    homeHeroIntro: "從基礎變化到 N1 / N2 題感。文法、漢字、單字、整卷模擬，一處解決。",
+    homeContentStats: (chapters, examItems, n1Grammar, patternChecks, vocab) =>
+      `${chapters} 章節 · ${examItems} 綜合題 · ${n1Grammar} N1 句型 · ${patternChecks} 句型判斷 · ${vocab} N1/N2 單字`,
+    homeCardStageLearn: "學",
+    homeCardStageChallenge: "練",
+    homeCardStageVocab: "背",
+    homeCardStageMock: "考",
+    homeCardStageReview: "補",
     homeBannerReviewMain: (count) => `你有 ${count} 題等待複習`,
     homeBannerReviewSub: "跨 session 累積的錯題，答對才會移出。",
     homeBannerContinueMain: (chapter) => `繼續學：${chapter}`,
@@ -386,7 +399,14 @@ export const copy: Record<Language, Copy> = {
     mockExam: "Mock exam",
     homeHeroTitle: "What do you want to practice today?",
     homeHeroIntro:
-      "Pick an entry point. Your review queue, chapter progress, and full mock exams all live here.",
+      "From base conjugation to JLPT N1 / N2 question sense. Grammar, kanji, vocab, full mock exams — one quiet desk.",
+    homeContentStats: (chapters, examItems, n1Grammar, patternChecks, vocab) =>
+      `${chapters} chapters · ${examItems} exam items · ${n1Grammar} N1 patterns · ${patternChecks} pattern checks · ${vocab} N1/N2 words`,
+    homeCardStageLearn: "Learn",
+    homeCardStageChallenge: "Drill",
+    homeCardStageVocab: "Vocab",
+    homeCardStageMock: "Test",
+    homeCardStageReview: "Catch up",
     homeBannerReviewMain: (count) => `${count} item${count === 1 ? "" : "s"} waiting for review`,
     homeBannerReviewSub: "Mistakes accumulate across sessions until you answer them correctly.",
     homeBannerContinueMain: (chapter) => `Continue: ${chapter}`,
@@ -597,7 +617,15 @@ export const copy: Record<Language, Copy> = {
     challenge: "도전",
     mockExam: "모의시험",
     homeHeroTitle: "오늘은 무엇을 연습할까요?",
-    homeHeroIntro: "입구를 골라 시작하세요. 오답, 챕터 진도, 모의시험이 모두 여기에 있습니다.",
+    homeHeroIntro:
+      "기본 활용에서 N1 / N2 시험 감각까지. 문법, 한자, 단어, 모의시험을 한 책상에서.",
+    homeContentStats: (chapters, examItems, n1Grammar, patternChecks, vocab) =>
+      `${chapters} 챕터 · ${examItems} 종합 문제 · ${n1Grammar} N1 문형 · ${patternChecks} 문형 판단 · ${vocab} N1/N2 단어`,
+    homeCardStageLearn: "학",
+    homeCardStageChallenge: "연",
+    homeCardStageVocab: "암",
+    homeCardStageMock: "시",
+    homeCardStageReview: "보",
     homeBannerReviewMain: (count) => `복습 대기 ${count}문제`,
     homeBannerReviewSub: "정답을 맞힐 때까지 세션을 넘어 누적된 오답입니다.",
     homeBannerContinueMain: (chapter) => `이어서 학습: ${chapter}`,

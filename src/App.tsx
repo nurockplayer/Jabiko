@@ -10,9 +10,7 @@ import {
   GraduationCap,
   Languages,
   Moon,
-  PencilLine,
   RotateCcw,
-  Sparkles,
   Sun,
   Timer,
   Volume2,
@@ -932,6 +930,21 @@ function LearningPanel({
 // HomePanel is intentionally read-only of the learner state -- mutating
 // callbacks (onNavigate, onStartReview) live on the parent so the panel
 // stays a presentational component.
+
+// Content-volume snapshot rendered above the entry cards. Computed
+// once at module load -- the underlying data (learningBlocks, exam
+// pool, sentence patterns, jlptVocabulary) is static at runtime and
+// only changes when a content batch ships, which rebuilds the bundle
+// anyway. Pre-computing avoids re-running buildExamQuestionPool on
+// every HomePanel render.
+const HOME_CONTENT_STATS = {
+  chapters: learningBlocks.filter((block) => block.group === "basic").length,
+  examItems: buildExamQuestionPool("all").length,
+  n1Grammar: buildExamQuestionPool("N1").filter((q) => q.promptLabel === "文法形式選擇").length,
+  patternChecks: buildSentencePatternPool().length,
+  vocab: jlptVocabulary.length
+};
+
 function HomePanel({
   language,
   progressAttempts,
@@ -982,11 +995,24 @@ function HomePanel({
           height={900}
         />
         <div className="home-hero-text">
-          <p className="eyebrow">Jabiko</p>
           <h1>{t.homeHeroTitle}</h1>
           <p>{t.homeHeroIntro}</p>
         </div>
       </header>
+
+      {/* Content-volume strip: tells first-time visitors what they're
+          walking into without resorting to SaaS-style metric tiles.
+          Counts are derived live from the data modules so this stays
+          honest whenever a content batch lands. */}
+      <p className="home-content-stats">
+        {t.homeContentStats(
+          HOME_CONTENT_STATS.chapters,
+          HOME_CONTENT_STATS.examItems,
+          HOME_CONTENT_STATS.n1Grammar,
+          HOME_CONTENT_STATS.patternChecks,
+          HOME_CONTENT_STATS.vocab
+        )}
+      </p>
 
       {reviewCount > 0 ? (
         <button type="button" className="home-banner home-banner-review" onClick={onStartReview}>
@@ -1032,8 +1058,14 @@ function HomePanel({
       ) : null}
 
       <div className="home-grid">
+        {/* Each card carries a single-CJK "stage badge" (學 / 練 / 背 /
+            考 / 補) instead of a lucide-react icon. The icons read as
+            tech-product chrome; the kanji read as editorial. Stages
+            suggest a natural progression but the cards stay
+            independently entry-able -- a returning learner who only
+            wants today's mock exam can still jump straight to 考. */}
         <button type="button" className="home-card" onClick={() => onNavigate("learn")}>
-          <BookOpen className="home-card-icon" aria-hidden="true" />
+          <span className="home-card-stage" aria-hidden="true">{t.homeCardStageLearn}</span>
           <h2>{t.homeCardLearnTitle}</h2>
           <p>{t.homeCardLearnSub}</p>
           <span className="home-card-meta">
@@ -1042,24 +1074,24 @@ function HomePanel({
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
         <button type="button" className="home-card" onClick={() => onNavigate("challenge")}>
-          <PencilLine className="home-card-icon" aria-hidden="true" />
+          <span className="home-card-stage" aria-hidden="true">{t.homeCardStageChallenge}</span>
           <h2>{t.homeCardChallengeTitle}</h2>
           <p>{t.homeCardChallengeSub}</p>
           <span className="home-card-meta">{t.homeCardChallengeMeta}</span>
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
-        <button type="button" className="home-card" onClick={() => onNavigate("mock")}>
-          <ClipboardList className="home-card-icon" aria-hidden="true" />
-          <h2>{t.homeCardMockTitle}</h2>
-          <p>{t.homeCardMockSub}</p>
-          <span className="home-card-meta">{t.homeCardMockMeta}</span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
         <button type="button" className="home-card" onClick={onStartVocab}>
-          <Sparkles className="home-card-icon" aria-hidden="true" />
+          <span className="home-card-stage" aria-hidden="true">{t.homeCardStageVocab}</span>
           <h2>{t.homeCardVocabTitle}</h2>
           <p>{t.homeCardVocabSub}</p>
           <span className="home-card-meta">{t.homeCardVocabMeta}</span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+        <button type="button" className="home-card" onClick={() => onNavigate("mock")}>
+          <span className="home-card-stage" aria-hidden="true">{t.homeCardStageMock}</span>
+          <h2>{t.homeCardMockTitle}</h2>
+          <p>{t.homeCardMockSub}</p>
+          <span className="home-card-meta">{t.homeCardMockMeta}</span>
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
         <button
@@ -1068,7 +1100,7 @@ function HomePanel({
           onClick={onStartReview}
           disabled={reviewCount === 0}
         >
-          <RotateCcw className="home-card-icon" aria-hidden="true" />
+          <span className="home-card-stage" aria-hidden="true">{t.homeCardStageReview}</span>
           <h2>{t.homeCardReviewTitle}</h2>
           <p>
             {reviewCount > 0 ? t.homeCardReviewSubActive(reviewCount) : t.homeCardReviewSubEmpty}
