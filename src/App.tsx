@@ -294,7 +294,18 @@ export default function App() {
       sessionSeed
     ]
   );
-  const currentQuestion = selectQuestion(questions, questionIndex);
+  // Review mode is a FINITE pass over the currently-due snapshot: walk
+  // each item once, no modulo wrap, then stop. Every other mode is an
+  // endless drill (modulo wrap via selectQuestion). Looping review would
+  // re-show items the learner just cleared -- exactly the "錯題一直輪迴"
+  // report. Correctly-answered items leave the SRS due set (next
+  // session), wrong ones reset to box 0 and return next session.
+  const currentQuestion = isReviewFocus
+    ? questions[questionIndex] ?? null
+    : selectQuestion(questions, questionIndex);
+  const reviewEmpty = isReviewFocus && questions.length === 0;
+  const reviewExhausted =
+    isReviewFocus && questions.length > 0 && questionIndex >= questions.length;
   const choiceOptions = useMemo(
     () => (currentQuestion ? buildChoiceOptions(currentQuestion, questions, questionIndex) : []),
     [currentQuestion, questionIndex, questions]
@@ -723,6 +734,29 @@ export default function App() {
 
               {feedback ? <FeedbackPanel feedback={feedback} language={language} /> : null}
             </>
+          ) : reviewExhausted ? (
+            <div className="empty-state review-done">
+              <CheckCircle2 aria-hidden="true" />
+              <h2>{t.reviewDoneTitle}</h2>
+              <p>{t.reviewDoneBody(correctCount, attempts.length - correctCount)}</p>
+              <div className="review-done-actions">
+                <button className="next-button" type="button" onClick={resetSession}>
+                  <RotateCcw aria-hidden="true" />
+                  {t.reviewDoneAgain}
+                </button>
+                <button className="ghost-button" type="button" onClick={() => setAppView("home")}>
+                  {t.reviewDoneExit}
+                </button>
+              </div>
+            </div>
+          ) : reviewEmpty ? (
+            <div className="empty-state review-done">
+              <CheckCircle2 aria-hidden="true" />
+              <p>{t.reviewEmptyState}</p>
+              <button className="ghost-button" type="button" onClick={() => setAppView("home")}>
+                {t.reviewDoneExit}
+              </button>
+            </div>
           ) : (
             <div className="empty-state">{t.emptyState}</div>
           )}

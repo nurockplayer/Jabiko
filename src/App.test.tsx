@@ -358,6 +358,42 @@ describe("App", () => {
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("必要過去・なければならなかった")).toBeInTheDocument();
   });
 
+  it("runs review as a finite pass and shows a completion screen (no infinite loop)", async () => {
+    // Seed one wrong attempt on a real exam question so it's due in the
+    // SRS review queue (box 0, due immediately).
+    localStorage.setItem(
+      "jabiko:attempts",
+      JSON.stringify([
+        {
+          questionId: "n1-grammar-yainaya",
+          vocabularyId: "n1-grammar-yainaya",
+          targetForm: "meaning",
+          prompt: "seed",
+          expectedAnswers: ["や否や"],
+          submittedAnswer: "x",
+          isCorrect: false,
+          timestamp: 1000,
+          responseTimeMs: 100
+        }
+      ])
+    );
+
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Home banner surfaces the due item; clicking it enters review mode.
+    await user.click(screen.getByRole("button", { name: /等待複習/ }));
+
+    // The single due question renders; answer it, then advance.
+    expect(screen.getByRole("button", { name: "や否や" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "や否や" }));
+    await user.click(screen.getByRole("button", { name: "下一題" }));
+
+    // Finite pass -> completion screen, NOT a wrapped-around next question.
+    expect(screen.getByRole("heading", { name: "複習完成！" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "や否や" })).not.toBeInTheDocument();
+  });
+
   it("starts the challenge from the learning path", async () => {
     const user = userEvent.setup();
     render(<App />);

@@ -1472,6 +1472,45 @@ select:disabled {
   color: var(--muted);
 }
 
+.review-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  text-align: center;
+  min-height: 18rem;
+  padding: 2rem 1rem;
+}
+
+.review-done svg {
+  width: 2.4rem;
+  height: 2.4rem;
+  color: var(--matcha-dark);
+}
+
+.review-done h2 {
+  margin: 0;
+  font-family: var(--font-japanese-display);
+  font-size: 1.4rem;
+  color: var(--ink);
+}
+
+.review-done p {
+  margin: 0;
+  max-width: 28rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.review-done-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 0.4rem;
+}
+
 @media (max-width: 980px) {
   .app-heading {
     align-items: start;

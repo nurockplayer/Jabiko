@@ -154,6 +154,10 @@ export type Copy = {
   dashboardStatsAttempts: (count: number) => string;
   dashboardStatsAccuracy: (percent: number) => string;
   reviewEmptyState: string;
+  reviewDoneTitle: string;
+  reviewDoneBody: (cleared: number, remaining: number) => string;
+  reviewDoneAgain: string;
+  reviewDoneExit: string;
   speakAriaLabel: string;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
@@ -346,7 +350,12 @@ export const copy: Record<Language, Copy> = {
     dashboardNextChapterLabel: "下一章建議",
     dashboardStatsAttempts: (count) => `已練 ${count} 題`,
     dashboardStatsAccuracy: (percent) => `總正答率 ${percent}%`,
-    reviewEmptyState: "沒有錯題可以複習。回到綜合題庫或基礎變化練幾題吧。",
+    reviewEmptyState: "目前沒有到期的錯題。回到綜合題庫或基礎變化練幾題吧。",
+    reviewDoneTitle: "複習完成！",
+    reviewDoneBody: (cleared, remaining) =>
+      `這一輪複習了 ${cleared + remaining} 題，答對 ${cleared}、還要再練 ${remaining}。答對的會排到之後，答錯的下次複習會再出現。`,
+    reviewDoneAgain: "再複習一輪",
+    reviewDoneExit: "回首頁",
     speakAriaLabel: "朗讀日文",
     partOfSpeech: {
       verb: "動詞",
@@ -570,7 +579,12 @@ export const copy: Record<Language, Copy> = {
     dashboardNextChapterLabel: "Suggested next chapter",
     dashboardStatsAttempts: (count) => `${count} answered`,
     dashboardStatsAccuracy: (percent) => `${percent}% overall`,
-    reviewEmptyState: "No wrong answers to review. Head back to JLPT mock pool or basic drills.",
+    reviewEmptyState: "Nothing due for review right now. Head back to the JLPT mock pool or basic drills.",
+    reviewDoneTitle: "Review complete!",
+    reviewDoneBody: (cleared, remaining) =>
+      `You reviewed ${cleared + remaining} item${cleared + remaining === 1 ? "" : "s"} this round: ${cleared} correct, ${remaining} to keep working on. Correct ones are scheduled further out; missed ones return next review.`,
+    reviewDoneAgain: "Review again",
+    reviewDoneExit: "Back home",
     speakAriaLabel: "Read aloud",
     partOfSpeech: {
       verb: "Verbs",
@@ -794,7 +808,12 @@ export const copy: Record<Language, Copy> = {
     dashboardNextChapterLabel: "다음 추천 챕터",
     dashboardStatsAttempts: (count) => `${count}문제 풀이`,
     dashboardStatsAccuracy: (percent) => `누적 정답률 ${percent}%`,
-    reviewEmptyState: "복습할 오답이 없습니다. 종합 시험 문제나 기본 활용으로 돌아가 보세요.",
+    reviewEmptyState: "지금 복습할 오답이 없습니다. 종합 문제나 기본 활용으로 돌아가 보세요.",
+    reviewDoneTitle: "복습 완료!",
+    reviewDoneBody: (cleared, remaining) =>
+      `이번 회차에 ${cleared + remaining}문제를 복습했습니다: 정답 ${cleared}, 더 연습할 문제 ${remaining}. 맞힌 문제는 다음 일정으로 미뤄지고, 틀린 문제는 다음 복습에 다시 나옵니다.`,
+    reviewDoneAgain: "다시 복습",
+    reviewDoneExit: "홈으로",
     speakAriaLabel: "일본어 읽어주기",
     partOfSpeech: {
       verb: "동사",
