@@ -383,6 +383,35 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: "正解" })).toBeInTheDocument();
   });
 
+  it("keeps the current question on screen after answering (no mid-attempt reshuffle)", async () => {
+    // Regression: progressAttempts changes used to cascade through
+    // reviewQueue into the questions useMemo deps, reshuffling the
+    // pool on every answer. The user saw "答題後跳下一題、不能答、
+    // 解析還在；按下一題又跳一題". After the fix, currentQuestion
+    // stays put until the learner explicitly hits 下一題.
+    const user = userEvent.setup();
+    render(<App />);
+
+    await gotoLearn(user);
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+
+    // Default first question in basic mode is 書く -> て形.
+    expect(screen.getByText("書く")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "書いて" }));
+
+    // Feedback overlays, the question itself is unchanged.
+    expect(screen.getByRole("heading", { name: "正解" })).toBeInTheDocument();
+    expect(screen.getByText("書く")).toBeInTheDocument();
+
+    // Only after explicit advance does the question change.
+    await user.click(screen.getByRole("button", { name: "下一題" }));
+    expect(screen.queryByRole("heading", { name: "正解" })).not.toBeInTheDocument();
+    // Next question per the te-form shuffle is 聞く (matches existing
+    // "moves to the next question with Enter" test below).
+    expect(screen.getByText("聞く")).toBeInTheDocument();
+  });
+
   it("shows the accepted answer and explanation when the learner picks a wrong choice", async () => {
     const user = userEvent.setup();
     render(<App />);

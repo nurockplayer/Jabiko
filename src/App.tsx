@@ -224,9 +224,12 @@ export default function App() {
       }
 
       if (isReviewFocus) {
-        // Don't shuffle: getReviewQueue already orders by recency-of-miss
-        // so the freshest mistakes come first. Shuffling here would
-        // throw that away.
+        // Snapshot the SRS queue at session start. Subsequent answers
+        // update the LIVE reviewQueue (used by the home banner count),
+        // but this useMemo is intentionally NOT re-keyed on it -- see
+        // the deps comment below for the regression that fixes.
+        // Ordering is preserved (no extra shuffle): getReviewQueue
+        // already sorts most-overdue first.
         return reviewQueue;
       }
 
@@ -252,13 +255,25 @@ export default function App() {
         })
       );
     },
+    // INTENTIONALLY excluding `reviewQueue` from deps. The live queue
+    // is reactive to every progressAttempts change (any answered
+    // question shifts it), and including it here would re-run the
+    // useMemo on every answer -- which in non-review modes reshuffles
+    // the pool, and in review mode shrinks it. Either way the result
+    // is currentQuestion getting ripped out from under the feedback
+    // panel that's still showing the previous answer (user-visible
+    // bug: "答題後跳到下一題、不能答、解析還在；按下一題又跳一題").
+    // The closure inside captures the latest `reviewQueue` whenever
+    // this useMemo DOES re-run (mode change / sessionSeed bump), so
+    // entering review mode + explicit reset still get a fresh
+    // snapshot.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isExamFocus,
       isClozeFocus,
       isPatternFocus,
       isReviewFocus,
       isVocabFocus,
-      reviewQueue,
       practiceFilter.patternIds,
       partOfSpeech,
       targetForms,
