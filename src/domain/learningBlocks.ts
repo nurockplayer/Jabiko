@@ -64,12 +64,6 @@ export type LearningBlock = {
    */
   drillNote?: string;
   /**
-   * (PR C) Question IDs from the exam pool that an N1/N2 攻略 block
-   * relates to. When launched, the challenge page will filter exam
-   * mode to just these questions. Unused by basic blocks.
-   */
-  relatedExamIds?: string[];
-  /**
    * Block ids the learner is suggested to look at first. Informational
    * only -- access is never blocked. Used to render a soft
    * "建議先看：XX" hint in the chapter list when those prereqs are

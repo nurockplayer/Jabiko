@@ -159,6 +159,7 @@ export type Copy = {
   dashboardStatsAttempts: (count: number) => string;
   dashboardStatsAccuracy: (percent: number) => string;
   reviewEmptyState: string;
+  reviewEmptyCta: string;
   reviewDoneTitle: string;
   reviewDoneBody: (cleared: number, remaining: number) => string;
   reviewDoneAgain: string;
@@ -225,7 +226,7 @@ export const copy: Record<Language, Copy> = {
     mockSectionTitle: "題型分區練習",
     mockSectionIntro: "選一個 JLPT 題型，直接練那一區。每題作答後即時看解析；錯題會自動進弱點複習。",
     mockSectionCount: (count) => `${count} 題`,
-    mockSectionEmpty: "尚未建置",
+    mockSectionEmpty: "準備中",
     mockExamSectionsHeading: "本回題型結構",
     mockExamSectionPoolLabel: "目前題庫",
     mockExamSectionGap: "缺 {gap} 題",
@@ -352,7 +353,8 @@ export const copy: Record<Language, Copy> = {
     dashboardNextChapterLabel: "下一章建議",
     dashboardStatsAttempts: (count) => `已練 ${count} 題`,
     dashboardStatsAccuracy: (percent) => `總正答率 ${percent}%`,
-    reviewEmptyState: "目前沒有到期的錯題。回到綜合題庫或基礎變化練幾題吧。",
+    reviewEmptyState: "目前沒有到期的錯題。去綜合題庫練幾題、累積一些再回來複習吧。",
+    reviewEmptyCta: "去綜合題庫",
     reviewDoneTitle: "複習完成！",
     reviewDoneBody: (cleared, remaining) =>
       `這一輪複習了 ${cleared + remaining} 題，答對 ${cleared}、還要再練 ${remaining}。答對的會排到之後，答錯的下次複習會再出現。`,

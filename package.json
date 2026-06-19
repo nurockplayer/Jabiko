@@ -9,6 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "check:exam": "node scripts/check-exam-options.mjs",
     "optimize-hero": "node scripts/optimize-hero.mjs"
   },
   "dependencies": {

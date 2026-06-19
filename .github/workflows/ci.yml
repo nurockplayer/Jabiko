@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check exam bank (hint leaks / answer-in-options / level labels)
+        run: pnpm check:exam
+
       - name: Run tests
         run: pnpm test
 

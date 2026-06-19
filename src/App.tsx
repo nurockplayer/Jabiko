@@ -37,6 +37,7 @@ import {
   shuffleQuestions
 } from "./domain/practice";
 import { createAttemptStore } from "./domain/storage";
+import { readStored, writeStored } from "./domain/safeStorage";
 import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./domain/types";
 import { vocabulary } from "./domain/vocabulary";
 import { jlptVocabulary } from "./domain/vocabulary-jlpt";
@@ -780,9 +781,23 @@ export default function App() {
             <div className="empty-state review-done">
               <TeaCupSpot />
               <p>{t.reviewEmptyState}</p>
-              <button className="ghost-button" type="button" onClick={() => setAppView("home")}>
-                {t.reviewDoneExit}
-              </button>
+              <div className="review-done-actions">
+                <button
+                  className="next-button"
+                  type="button"
+                  onClick={() => {
+                    setPracticeMode("exam");
+                    setPracticeFilter({});
+                    resetSession();
+                  }}
+                >
+                  <ArrowRight aria-hidden="true" />
+                  {t.reviewEmptyCta}
+                </button>
+                <button className="ghost-button" type="button" onClick={() => setAppView("home")}>
+                  {t.reviewDoneExit}
+                </button>
+              </div>
             </div>
           ) : (
             <div className="empty-state empty-state-illustrated">
@@ -1196,12 +1211,7 @@ function HomePanel({
           <span className="home-card-meta">{t.homeCardMockMeta}</span>
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
-        <button
-          type="button"
-          className={`home-card${reviewCount === 0 ? " home-card-dimmed" : ""}`}
-          onClick={onStartReview}
-          disabled={reviewCount === 0}
-        >
+        <button type="button" className="home-card" onClick={onStartReview}>
           <span className="home-card-stage" aria-hidden="true">{t.homeCardStageReview}</span>
           <h2>{t.homeCardReviewTitle}</h2>
           <p>
@@ -1216,7 +1226,7 @@ function HomePanel({
 }
 
 function getInitialTheme(): Theme {
-  const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+  const storedTheme = readStored(THEME_STORAGE_KEY);
 
   if (storedTheme === "dark" || storedTheme === "light") {
     return storedTheme;
@@ -1285,7 +1295,7 @@ function RulesPanel({ language }: { language: Language }) {
 }
 
 function storeTheme(theme: Theme) {
-  window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  writeStored(THEME_STORAGE_KEY, theme);
 }
 
 function uniqueForms(forms: TargetForm[]): TargetForm[] {
@@ -1489,30 +1499,39 @@ function MockExamPanel({
       <ol className="mock-section-rows">
         {blueprint.sections.map((section) => {
           const count = counts.get(section.promptLabel) ?? 0;
-          const empty = count === 0;
+          // Sections with no authored questions yet render as a plain
+          // info row ("準備中"), NOT a disabled button -- you can't drill
+          // an empty pool, so it shouldn't look like a dead action.
+          // Sections with questions are clickable cards.
+          if (count === 0) {
+            return (
+              <li key={section.id}>
+                <div className="mock-section-card empty">
+                  <div className="mock-section-meta">
+                    <strong>{section.labelJa}</strong>
+                    <small>{section.labelZh}</small>
+                  </div>
+                  <span className="mock-section-warn">
+                    <AlertTriangle aria-hidden="true" />
+                    {t.mockSectionEmpty}
+                  </span>
+                </div>
+              </li>
+            );
+          }
           return (
             <li key={section.id}>
               <button
                 type="button"
-                className={`mock-section-card${empty ? " empty" : ""}`}
-                disabled={empty}
+                className="mock-section-card"
                 onClick={() => onStartSection(level, section.promptLabel)}
               >
                 <div className="mock-section-meta">
                   <strong>{section.labelJa}</strong>
                   <small>{section.labelZh}</small>
                 </div>
-                <span className="mock-section-count">
-                  {empty ? (
-                    <em className="mock-section-warn">
-                      <AlertTriangle aria-hidden="true" />
-                      {t.mockSectionEmpty}
-                    </em>
-                  ) : (
-                    t.mockSectionCount(count)
-                  )}
-                </span>
-                {empty ? null : <ArrowRight className="mock-section-arrow" aria-hidden="true" />}
+                <span className="mock-section-count">{t.mockSectionCount(count)}</span>
+                <ArrowRight className="mock-section-arrow" aria-hidden="true" />
               </button>
             </li>
           );

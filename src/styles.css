@@ -2001,15 +2001,6 @@ select:disabled {
   color: var(--muted);
 }
 
-.home-card-dimmed {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.home-card-dimmed .home-card-stage {
-  color: var(--field-disabled-text);
-  border-color: var(--rule);
-}
 
 @media (max-width: 720px) {
   .home-grid {
@@ -2473,7 +2464,7 @@ select:disabled {
 
 .mock-section-card.empty {
   background: var(--field-disabled-bg);
-  cursor: not-allowed;
+  cursor: default;
 }
 
 .mock-section-count {
