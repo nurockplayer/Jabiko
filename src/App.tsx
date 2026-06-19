@@ -36,10 +36,7 @@ import { vocabulary } from "./domain/vocabulary";
 import { jlptVocabulary } from "./domain/vocabulary-jlpt";
 import { copy, type Language } from "./i18n";
 import { DarumaSpot, PaperNoteSpot, TeaCupSpot } from "./illustrations";
-import { HomePanel } from "./components/HomePanel";
-import { LearningPanel } from "./components/LearningPanel";
-import { RulesPanel } from "./components/RulesPanel";
-import { MockExamPanel } from "./components/MockExamPanel";
+import { HomePanel, LearningPanel, MockExamPanel, RulesPanel } from "./components";
 import "./styles.css";
 
 type Feedback =
