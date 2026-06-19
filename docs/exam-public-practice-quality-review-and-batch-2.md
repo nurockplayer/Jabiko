@@ -8,7 +8,7 @@ policy, import criteria, and a second batch of original candidate questions.
 
 ## Current State
 
-- Current guard result: `271 exam entries; 0 problem(s)`.
+- Guard result at import time: `303 exam entries; 0 problem(s)` (was 271 before this batch).
 - Current focus is correctly centered on N1/N2, with only a small N3 warm-up
   presence.
 - Visible `promptLabel` values no longer expose N1/N2/N3.
