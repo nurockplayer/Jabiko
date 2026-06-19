@@ -146,6 +146,7 @@ export type Copy = {
   answerKey: string;
   focusSummaryEmpty: string;
   modeOptions: Record<"basic" | "cloze" | "exam" | "pattern" | "review" | "vocab", { title: string; subtitle: string }>;
+  modeQuestionCount: (count: number) => string;
   homeCardVocabTitle: string;
   homeCardVocabSub: string;
   homeCardVocabMeta: string;
@@ -340,6 +341,7 @@ export const copy: Record<Language, Copy> = {
       vocab: { title: "単字讀音", subtitle: "N1/N2 漢字詞 · 選正確讀音（よみ）" },
       review: { title: "弱點複習", subtitle: "把上次答錯的題目重練到對為止" }
     },
+    modeQuestionCount: (count) => `題庫 ${count} 題`,
     homeCardVocabTitle: "単字讀音",
     homeCardVocabSub: "N1 / N2 漢字詞讀音快測。意思在綜合題庫用句子來考，這裡專練よみ。",
     homeCardVocabMeta: "適合通勤碎片時間",
@@ -400,7 +402,7 @@ export const copy: Record<Language, Copy> = {
       plainPastAffirmative: "普通形・過去肯定",
       plainPastNegative: "普通形・過去否定"
     },
-    lessonCardFocus: ["て形 / た形音便", "ないで / なくて / なかった", "形容詞與名詞型"]
+    lessonCardFocus: ["て形 / た形音便", "ないで / なくて / なかった", "形容詞與名詞型"]
   }
 };
 

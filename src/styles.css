@@ -1118,6 +1118,15 @@ select:disabled {
   background: color-mix(in srgb, var(--teal) 14%, var(--paper));
 }
 
+.mode-card-count {
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--matcha-dark);
+}
+
 .mode-card strong {
   font-size: 1.02rem;
   font-weight: 700;

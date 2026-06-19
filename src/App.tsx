@@ -184,6 +184,25 @@ export default function App() {
     () => getReviewQueue(progressAttempts, allKnownQuestions),
     [progressAttempts, allKnownQuestions]
   );
+
+  // Pool size per practice mode, shown on the mode cards so the learner
+  // can see how big each bank is before picking. Static pools are
+  // computed once; "basic" is intentionally omitted (its size depends on
+  // the chosen word type / verb group / form), and "review" is dynamic
+  // (the due count) so it's read from reviewQueue at render time.
+  const modeCounts = useMemo(
+    () => ({
+      cloze: buildClozeQuestionPool(clozeSentences, vocabulary).length,
+      pattern: buildSentencePatternPool().length,
+      exam: buildExamQuestionPool().length,
+      vocab: buildQuestionPool(jlptVocabulary, {
+        partOfSpeech: "mixed",
+        verbGroup: "all",
+        targetForms: ["reading"]
+      }).length
+    }),
+    []
+  );
   const isVerbCapable = partOfSpeech === "verb" || partOfSpeech === "mixed";
   const availableFocusOptions = focusOptions.filter((option) => {
     if (option.verbOnly && !isVerbCapable) return false;
@@ -548,18 +567,29 @@ export default function App() {
           <fieldset>
             <legend>{t.practiceMode}</legend>
             <div className="mode-toggle">
-              {practiceModeOrder.map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  className={`mode-card${practiceMode === mode ? " selected" : ""}`}
-                  aria-pressed={practiceMode === mode}
-                  onClick={() => handlePracticeModeChange(mode)}
-                >
-                  <strong>{t.modeOptions[mode].title}</strong>
-                  <small>{t.modeOptions[mode].subtitle}</small>
-                </button>
-              ))}
+              {practiceModeOrder.map((mode) => {
+                const count =
+                  mode === "review"
+                    ? reviewQueue.length
+                    : mode === "basic"
+                    ? null
+                    : modeCounts[mode];
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    className={`mode-card${practiceMode === mode ? " selected" : ""}`}
+                    aria-pressed={practiceMode === mode}
+                    onClick={() => handlePracticeModeChange(mode)}
+                  >
+                    <strong>{t.modeOptions[mode].title}</strong>
+                    <small>{t.modeOptions[mode].subtitle}</small>
+                    {count !== null ? (
+                      <span className="mode-card-count">{t.modeQuestionCount(count)}</span>
+                    ) : null}
+                  </button>
+                );
+              })}
             </div>
           </fieldset>
 
