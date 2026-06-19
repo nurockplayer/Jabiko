@@ -261,40 +261,6 @@ button svg {
   font-weight: 800;
 }
 
-.language-switch {
-  align-items: center;
-  background: color-mix(in srgb, var(--paper) 72%, transparent);
-  border: 1px solid var(--panel-border);
-  border-radius: 999px;
-  display: inline-flex;
-  flex: 0 0 auto;
-  gap: 0.25rem;
-  padding: 0.22rem;
-}
-
-.language-switch svg {
-  color: var(--muted);
-  height: 1rem;
-  margin-left: 0.45rem;
-  width: 1rem;
-}
-
-.language-switch button {
-  background: transparent;
-  border: 0;
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 800;
-  min-height: 2.1rem;
-  padding: 0.35rem 0.62rem;
-}
-
-.language-switch button.selected {
-  background: var(--matcha);
-  color: var(--selected-text);
-}
-
 .view-switch {
   margin: 0 auto 1rem;
   max-width: 360px;
@@ -1630,11 +1596,6 @@ select:disabled {
   .heading-actions p {
     grid-column: 1 / -1;
     text-align: left;
-  }
-
-  .language-switch {
-    border-radius: 8px;
-    justify-content: center;
   }
 
   .theme-toggle {

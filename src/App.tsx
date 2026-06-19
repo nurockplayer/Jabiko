@@ -7,7 +7,6 @@ import {
   ClipboardList,
   Eye,
   GraduationCap,
-  Languages,
   Moon,
   RotateCcw,
   Sun,
@@ -41,7 +40,7 @@ import { createAttemptStore } from "./domain/storage";
 import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./domain/types";
 import { vocabulary } from "./domain/vocabulary";
 import { jlptVocabulary } from "./domain/vocabulary-jlpt";
-import { copy, getInitialLanguage, languageOptions, storeLanguage, type Copy, type Language } from "./i18n";
+import { copy, type Copy, type Language } from "./i18n";
 import { BooksSpot, BrushSpot, DarumaSpot, PaperNoteSpot, TeaCupSpot } from "./illustrations";
 import "./styles.css";
 
@@ -127,7 +126,10 @@ export default function App() {
   const [practiceMode, setPracticeMode] = useState<PracticeMode>("basic");
   const [practiceFilter, setPracticeFilter] = useState<PracticeFilter>({});
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
-  const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
+  // Single-language app (zh-Hant). The `language` seam is kept so the
+  // copy[language] call sites and component props don't have to change;
+  // re-adding a locale later is just restoring entries in i18n.ts.
+  const language: Language = "zh-Hant";
   const [questionIndex, setQuestionIndex] = useState(0);
   const [sessionSeed, setSessionSeed] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
@@ -333,19 +335,10 @@ export default function App() {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
-  useEffect(() => {
-    document.documentElement.lang = language;
-  }, [language]);
-
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
     storeTheme(nextTheme);
-  };
-
-  const handleLanguageChange = (nextLanguage: Language) => {
-    setLanguage(nextLanguage);
-    storeLanguage(nextLanguage);
   };
 
   const handlePartOfSpeechChange = (nextPartOfSpeech: PartOfSpeech | "mixed") => {
@@ -450,19 +443,6 @@ export default function App() {
         </div>
         <div className="heading-actions">
           <p>{t.appTagline}</p>
-          <div className="language-switch" aria-label="Language">
-            <Languages aria-hidden="true" />
-            {languageOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={language === option.value ? "selected" : ""}
-                onClick={() => handleLanguageChange(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
           <button className="theme-toggle" type="button" onClick={toggleTheme}>
             <ThemeIcon aria-hidden="true" />
             {themeToggleLabel}
