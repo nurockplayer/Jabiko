@@ -1483,10 +1483,27 @@ select:disabled {
   padding: 2rem 1rem;
 }
 
-.review-done svg {
-  width: 2.4rem;
-  height: 2.4rem;
-  color: var(--matcha-dark);
+/* Decorative spot illustrations: line work follows --ink in both
+ * themes; the size comes from the component's own width/height attrs,
+ * so no sizing here (and crucially no blanket `.review-done svg` rule,
+ * which would also shrink/recolour the action-button icons). */
+.spot-illustration {
+  color: var(--ink);
+  display: block;
+}
+
+.empty-state-illustrated {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  min-height: 16rem;
+  text-align: center;
+}
+
+.panel-header-spot {
+  margin-bottom: 0.1rem;
 }
 
 .review-done h2 {

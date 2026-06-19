@@ -42,6 +42,7 @@ import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } f
 import { vocabulary } from "./domain/vocabulary";
 import { jlptVocabulary } from "./domain/vocabulary-jlpt";
 import { copy, getInitialLanguage, languageOptions, storeLanguage, type Copy, type Language } from "./i18n";
+import { BooksSpot, BrushSpot, DarumaSpot, PaperNoteSpot, TeaCupSpot } from "./illustrations";
 import "./styles.css";
 
 type Feedback =
@@ -752,7 +753,7 @@ export default function App() {
             </>
           ) : reviewExhausted ? (
             <div className="empty-state review-done">
-              <CheckCircle2 aria-hidden="true" />
+              <DarumaSpot />
               <h2>{t.reviewDoneTitle}</h2>
               <p>{t.reviewDoneBody(correctCount, attempts.length - correctCount)}</p>
               <div className="review-done-actions">
@@ -767,14 +768,17 @@ export default function App() {
             </div>
           ) : reviewEmpty ? (
             <div className="empty-state review-done">
-              <CheckCircle2 aria-hidden="true" />
+              <TeaCupSpot />
               <p>{t.reviewEmptyState}</p>
               <button className="ghost-button" type="button" onClick={() => setAppView("home")}>
                 {t.reviewDoneExit}
               </button>
             </div>
           ) : (
-            <div className="empty-state">{t.emptyState}</div>
+            <div className="empty-state empty-state-illustrated">
+              <PaperNoteSpot />
+              <p>{t.emptyState}</p>
+            </div>
           )}
         </section>
 
@@ -1224,6 +1228,7 @@ function RulesPanel({ language }: { language: Language }) {
   return (
     <section className="rules-panel" aria-label={t.rules}>
       <header className="rules-header">
+        <BrushSpot className="panel-header-spot" />
         <p className="eyebrow">{t.rulesEyebrow}</p>
         <h1>{t.rulesPanelTitle}</h1>
         <p>{t.rulesPanelIntro}</p>
@@ -1447,6 +1452,7 @@ function MockExamPanel({
   return (
     <section className="mock-panel" aria-label={t.mockExam}>
       <header className="mock-section-head">
+        <BooksSpot className="panel-header-spot" />
         <p className="eyebrow">
           <ClipboardList aria-hidden="true" />
           {t.mockSectionTitle}
