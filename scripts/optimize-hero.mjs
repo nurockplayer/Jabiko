@@ -44,12 +44,13 @@ await sharp(sourceBytes)
 // OG image: 1200x630 PNG. Center-crop because OG is 1.905 while source
 // is 1.778, so we lose ~7% from the sides. The still-life subject sits
 // in the middle band, so a center crop loses nothing important.
-// compressionLevel 9 trades a few hundred ms of build time for ~15%
-// smaller output -- worth it because this file is only re-generated
-// when the source changes.
+// palette:true emits an 8-bit indexed PNG -- for this flat illustration
+// it cuts the file ~4-5x (1.4 MB -> ~300 KB) with no visible loss, and
+// stays PNG so every link-preview fetcher (LINE / Slack / Discord)
+// accepts it. This file is only regenerated when the source changes.
 await sharp(sourceBytes)
   .resize(1200, 630, { fit: "cover", position: "center" })
-  .png({ compressionLevel: 9 })
+  .png({ compressionLevel: 9, palette: true, quality: 90 })
   .toFile(ogPath);
 
 const webpSize = statSync(webpPath).size;

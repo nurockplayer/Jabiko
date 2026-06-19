@@ -47,39 +47,11 @@ export type Copy = {
   homeCardReviewSubEmpty: string;
   homeCardReviewMeta: string;
   mockExam: string;
-  mockExamSetupTitle: string;
-  mockExamSetupIntro: string;
   mockExamLevelLabel: string;
   mockSectionTitle: string;
   mockSectionIntro: string;
   mockSectionCount: (count: number) => string;
   mockSectionEmpty: string;
-  mockExamSectionsHeading: string;
-  mockExamSectionPoolLabel: string;
-  mockExamSectionGap: string;
-  mockExamPoolEmpty: string;
-  mockExamStart: string;
-  mockExamStartDisabled: string;
-  mockExamSuggestedMinutes: (value: number) => string;
-  mockExamSectionBadge: (index: number) => string;
-  mockExamRunningTitle: (level: string) => string;
-  mockExamProgress: (current: number, total: number) => string;
-  mockExamElapsed: string;
-  mockExamSubmit: string;
-  mockExamSubmitConfirm: string;
-  mockExamSkip: string;
-  mockExamNext: string;
-  mockExamPrev: string;
-  mockExamResultsTitle: (level: string) => string;
-  mockExamTotalScore: (correct: number, total: number, percent: number) => string;
-  mockExamAnsweredOf: (answered: number, total: number) => string;
-  mockExamGapNote: (gap: number) => string;
-  mockExamRetake: string;
-  mockExamExit: string;
-  mockExamReviewWrong: string;
-  mockExamReviewSection: string;
-  mockExamUnansweredBadge: string;
-  mockExamSkippedShort: string;
   learningRegion: string;
   studyBeforeRecall: string;
   learnTitle: string;
@@ -219,40 +191,11 @@ export const copy: Record<Language, Copy> = {
     homeCardReviewSubActive: (count) => `${count} 題等你重練到對。`,
     homeCardReviewSubEmpty: "目前沒有錯題可複習。",
     homeCardReviewMeta: "間隔重複 · 答對自動延到下次到期",
-    mockExamSetupTitle: "JLPT 模擬考",
-    mockExamSetupIntro:
-      "依官方題型結構抽題。作答中不顯示對錯，整份交卷後才看分數與詳解。題庫不足的小題會明確標出。",
     mockExamLevelLabel: "等級",
     mockSectionTitle: "題型分區練習",
     mockSectionIntro: "選一個 JLPT 題型，直接練那一區。每題作答後即時看解析；錯題會自動進弱點複習。",
     mockSectionCount: (count) => `${count} 題`,
     mockSectionEmpty: "準備中",
-    mockExamSectionsHeading: "本回題型結構",
-    mockExamSectionPoolLabel: "目前題庫",
-    mockExamSectionGap: "缺 {gap} 題",
-    mockExamPoolEmpty: "題庫尚未建置",
-    mockExamStart: "開始模擬考",
-    mockExamStartDisabled: "題庫為空，暫無可考題",
-    mockExamSuggestedMinutes: (value) => `建議時長 ${value} 分（官方）`,
-    mockExamSectionBadge: (index) => `問題 ${index}`,
-    mockExamRunningTitle: (level) => `模擬考 ${level} · 進行中`,
-    mockExamProgress: (current, total) => `第 ${current} / ${total} 題`,
-    mockExamElapsed: "經過時間",
-    mockExamSubmit: "結束作答",
-    mockExamSubmitConfirm: "確定交卷？尚未作答的題目會以未作答計算。",
-    mockExamSkip: "跳過",
-    mockExamNext: "下一題 →",
-    mockExamPrev: "← 上一題",
-    mockExamResultsTitle: (level) => `模擬考 ${level} · 結果`,
-    mockExamTotalScore: (correct, total, percent) => `總分 ${correct} / ${total}（${percent}%）`,
-    mockExamAnsweredOf: (answered, total) => `已作答 ${answered} / ${total} 題`,
-    mockExamGapNote: (gap) => `本回比官方少 ${gap} 題（缺漏的題型已標示）`,
-    mockExamRetake: "再考一次",
-    mockExamExit: "離開模擬考",
-    mockExamReviewWrong: "看錯題詳解",
-    mockExamReviewSection: "題型分析",
-    mockExamUnansweredBadge: "未作答",
-    mockExamSkippedShort: "跳過",
     learningRegion: "學習",
     studyBeforeRecall: "先學習，再回想",
     learnTitle: "先學會，再挑戰",
