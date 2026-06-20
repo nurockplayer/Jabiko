@@ -628,18 +628,15 @@ describe("buildChoiceOptions (vocab reading distractors)", () => {
     expect(uniqueSets.size).toBeGreaterThanOrEqual(6);
   });
 
-  it("keeps distractors in the same length band as the answer", () => {
-    // For any 4-kana answer, the band is all 4-kana readings, so every
-    // distractor should also be 4-kana (the two-kana readings never win
-    // the similarity ranking).
-    for (const question of fourKana) {
-      const index = readingQuestions.indexOf(question);
-      const answer = question.expectedAnswers[0];
-      const distractors = buildChoiceOptions(question, readingQuestions, index).filter(
-        (option) => option !== answer
-      );
-      expect(distractors.every((option) => option.length === 4)).toBe(true);
-    }
+  it("uses voicing/length perturbations of the answer as reading distractors", () => {
+    // Reading distractors now perturb the answer (voicing / long vowel /
+    // gemination) rather than pulling other words' readings. 公開 こうかい
+    // has exactly three perturbations -- ごうかい (こ->ご), こうがい (か->が),
+    // こうか (drop the long vowel) -- so こうがい must appear as an option.
+    const target = readingQuestions.find((q) => q.expectedAnswers[0] === "こうかい")!;
+    const index = readingQuestions.indexOf(target);
+    const options = buildChoiceOptions(target, readingQuestions, index);
+    expect(options).toContain("こうがい");
   });
 
   it("is stable across repeated calls (no per-render reshuffle)", () => {
@@ -647,6 +644,18 @@ describe("buildChoiceOptions (vocab reading distractors)", () => {
     const first = buildChoiceOptions(q, readingQuestions, 0);
     const second = buildChoiceOptions(q, readingQuestions, 0);
     expect(first).toEqual(second);
+  });
+
+  it("leaves a baked 漢字読み item on its authored options (no perturbation)", () => {
+    // A reading item that ships baked options must keep using them -- the
+    // perturbation path is only for option-less vocab reading drills.
+    const baked = buildExamQuestionPool("all").find(
+      (q) => q.promptLabel === "漢字読み" && (q.options?.length ?? 0) > 0
+    );
+    expect(baked).toBeDefined();
+    const options = buildChoiceOptions(baked!, [baked!], 0);
+    const authored = new Set([...baked!.expectedAnswers, ...(baked!.options ?? [])]);
+    expect(new Set(options)).toEqual(authored);
   });
 });
 
