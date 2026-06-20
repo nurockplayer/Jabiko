@@ -74,7 +74,7 @@
 完成後至少跑：
 
 ```bash
-node scripts/check-exam-options.mjs
+corepack pnpm check:exam
 corepack pnpm test
 corepack pnpm build
 ```
