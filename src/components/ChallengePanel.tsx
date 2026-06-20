@@ -33,7 +33,7 @@ const formOptions: TargetForm[] = [
   "plainPastNegative"
 ];
 
-const practiceModeOrder: PracticeMode[] = ["basic", "cloze", "pattern", "exam", "vocab", "review"];
+const practiceModeOrder: PracticeMode[] = ["daily", "basic", "cloze", "pattern", "exam", "vocab", "review"];
 
 function choiceOptionClass(choice: string, selectedChoice: string | null, feedback: Feedback): string {
   const classes = ["choice-option"];
@@ -102,7 +102,7 @@ export function ChallengePanel({
     modeCounts,
     currentQuestion,
     reviewEmpty,
-    reviewExhausted,
+    sessionExhausted,
     choiceOptions,
     mistakeQuestions,
     correctCount,
@@ -136,7 +136,7 @@ export function ChallengePanel({
             const count =
               mode === "review"
                 ? reviewQueue.length
-                : mode === "basic"
+                : mode === "basic" || mode === "daily"
                 ? null
                 : modeCounts[mode];
             return (
@@ -326,15 +326,19 @@ export function ChallengePanel({
 
           {feedback ? <FeedbackPanel feedback={feedback} language={language} /> : null}
         </>
-      ) : reviewExhausted ? (
+      ) : sessionExhausted ? (
         <div className="empty-state review-done">
           <DarumaSpot />
-          <h2>{t.reviewDoneTitle}</h2>
-          <p>{t.reviewDoneBody(correctCount, attempts.length - correctCount)}</p>
+          <h2>{practiceMode === "daily" ? t.dailyDoneTitle : t.reviewDoneTitle}</h2>
+          <p>
+            {practiceMode === "daily"
+              ? t.dailyDoneBody(correctCount, attempts.length - correctCount)
+              : t.reviewDoneBody(correctCount, attempts.length - correctCount)}
+          </p>
           <div className="review-done-actions">
             <button className="next-button" type="button" onClick={resetSession}>
               <RotateCcw aria-hidden="true" />
-              {t.reviewDoneAgain}
+              {practiceMode === "daily" ? t.dailyDoneAgain : t.reviewDoneAgain}
             </button>
             <button className="ghost-button" type="button" onClick={onExit}>
               {t.reviewDoneExit}

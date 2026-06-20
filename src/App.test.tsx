@@ -441,6 +441,19 @@ describe("App", () => {
     expect(screen.queryByText(/やいなや/)).not.toBeInTheDocument();
   });
 
+  it("starts a 今日練習 session from the home entry", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // The prominent home CTA launches the mixed daily session.
+    await user.click(screen.getByRole("button", { name: /開始今日練習/ }));
+
+    // Lands in the challenge view with a question and the 今日練習 mode
+    // card selected.
+    await screen.findByRole("region", { name: "目前題目" });
+    expect(screen.getByRole("button", { name: /今日練習/ })).toHaveClass("selected");
+  });
+
   it("mock exam is a section picker that launches a filtered exam drill", async () => {
     const user = userEvent.setup();
     render(<App />);
