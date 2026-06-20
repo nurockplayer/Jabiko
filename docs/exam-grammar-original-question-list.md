@@ -31,7 +31,7 @@ Implementation notes:
 - IDs use `candidate-...` to make it clear these are staging items.
   Rename before committing to `examBlocks.ts` if needed.
 - Keep `promptLabel` visible-level-free.
-- Run `node scripts/check-exam-options.mjs`, tests, and build after porting.
+- Run `corepack pnpm check:exam`, tests, and build after porting.
 
 ## N2 Candidates
 

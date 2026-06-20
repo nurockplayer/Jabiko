@@ -94,7 +94,7 @@ When importing:
 - Run:
 
 ```bash
-node scripts/check-exam-options.mjs
+corepack pnpm check:exam
 corepack pnpm test
 corepack pnpm build
 ```

@@ -8,8 +8,8 @@
 //   - surface must NOT match any existing surface in examBlocks.ts
 //   - each item carries 4 options (1 correct + 3 distractors that are
 //     also real N1 patterns)
-//   - hintZh must pass scripts/check-exam-options.mjs (no token of
-//     length >= 2 from meaningZh appearing in hintZh)
+//   - hintZh must pass the content guard (corepack pnpm check:exam): no
+//     token of length >= 2 from meaningZh appearing in hintZh
 //   - explanation must say WHY each distractor is wrong (matches the
 //     PR #31 review bar Codex set on distractor quality)
 //

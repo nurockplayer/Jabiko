@@ -3,7 +3,7 @@
 //   - 100% original, no third-party question bank used.
 //   - Each item has 4 options (1 correct + 3 real N1 distractors with
 //     explicit "why each is wrong" notes in the explanation).
-//   - hintZh passes the leak guard in scripts/check-exam-options.mjs.
+//   - hintZh passes the leak guard (corepack pnpm check:exam).
 //   - id starts with "n1-grammar-" and is unique across the bank.
 //   - surface does not duplicate any existing surface in examBlocks.
 //

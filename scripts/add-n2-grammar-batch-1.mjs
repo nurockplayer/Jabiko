@@ -9,8 +9,8 @@
 //   - 4 options each (1 correct + 3 real patterns chosen so only one
 //     actually fits -- avoids the "two valid answers" trap), with the
 //     explanation saying why each distractor is wrong.
-//   - hintZh must pass scripts/check-exam-options.mjs (no >=2-char token
-//     from meaningZh may appear in hintZh).
+//   - hintZh must pass the content guard (corepack pnpm check:exam): no
+//     >=2-char token from meaningZh may appear in hintZh.
 //   - id unique, surface not already in the bank.
 //
 // Run: node scripts/add-n2-grammar-batch-1.mjs

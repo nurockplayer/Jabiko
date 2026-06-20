@@ -467,7 +467,7 @@ Use this prompt when asking Claude to implement a batch:
 - 優先 N1/N2，可少量 N3 但不要標示給使用者。
 
 完成後跑：
-- node scripts/check-exam-options.mjs
+- corepack pnpm check:exam
 - corepack pnpm test
 - corepack pnpm build
 
@@ -486,5 +486,5 @@ Before merging a grammar batch, review these:
 - Is `promptContextZh` allowed to be a full translation only after answer?
 - Does explanation teach the minimal-pair difference?
 - Are all options in a natural Japanese register?
-- Did `check-exam-options.mjs`, test, and build pass?
+- Did `check:exam`, test, and build pass?
 
