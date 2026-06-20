@@ -42,22 +42,22 @@ export function FeedbackPanel({
   // Grammar-form items: options are patterns, so show each pattern's gloss.
   const isGrammarGloss = promptLabel === "文法形式選擇" || promptLabel === "文章脈絡";
 
-  let distractorGloss = "";
+  // One gloss string PER distractor, rendered one-per-line, so a long
+  // option list stays readable on mobile instead of wrapping mid-item.
+  let distractorGlosses: string[] = [];
   if (isReadingGloss) {
-    distractorGloss = distractors
-      .map((reading) => {
-        const words = lookupWordsByReading(reading);
-        return `${reading}（${words.length > 0 ? words.join("／") : t.feedbackNoWord}）`;
-      })
-      .join("・");
+    distractorGlosses = distractors.map((reading) => {
+      const words = lookupWordsByReading(reading);
+      return `${reading}（${words.length > 0 ? words.join("／") : t.feedbackNoWord}）`;
+    });
   } else if (isGrammarGloss) {
     const glossed = distractors.map((pattern) => ({ pattern, meaning: lookupPatternMeaning(pattern) }));
-    // Only show the line if the bank knew at least one pattern -- otherwise
+    // Only show the block if the bank knew at least one pattern -- otherwise
     // it would just re-list the options with no added information.
     if (glossed.some((entry) => entry.meaning)) {
-      distractorGloss = glossed
-        .map((entry) => (entry.meaning ? `${entry.pattern}（${entry.meaning}）` : entry.pattern))
-        .join("・");
+      distractorGlosses = glossed.map((entry) =>
+        entry.meaning ? `${entry.pattern}（${entry.meaning}）` : entry.pattern
+      );
     }
   }
 
@@ -74,10 +74,15 @@ export function FeedbackPanel({
       </div>
       <p className="answer-key">{t.answerKey}：{feedback.question.expectedAnswers.join(" / ")}</p>
       <p>{feedback.question.explanation}</p>
-      {distractorGloss ? (
-        <p className="distractor-gloss">
-          {t.feedbackOtherOptions}：{distractorGloss}
-        </p>
+      {distractorGlosses.length > 0 ? (
+        <div className="distractor-gloss">
+          <p className="distractor-gloss-label">{t.feedbackOtherOptions}：</p>
+          <ul className="distractor-gloss-list">
+            {distractorGlosses.map((gloss) => (
+              <li key={gloss}>{gloss}</li>
+            ))}
+          </ul>
+        </div>
       ) : null}
       {feedback.question.vocabulary.examples[0] ? (
         <p className="example">

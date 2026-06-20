@@ -4660,7 +4660,18 @@ export const examStyleQuestions: PracticeQuestion[] = [
   })
 ];
 
-export function buildExamQuestionPool(level: JlptLevel | "all" = "all"): PracticeQuestion[] {
+export function buildExamQuestionPool(
+  level: JlptLevel | JlptLevel[] | "all" = "all"
+): PracticeQuestion[] {
+  // A level RANGE (e.g. ["N1","N2"] / ["N2","N3"]) -- keep every item in
+  // those levels, no N3 warm-up trimming (the caller asked for that band
+  // explicitly).
+  if (Array.isArray(level)) {
+    const levels = new Set(level);
+    return examStyleQuestions.filter(
+      (question) => question.vocabulary.level !== undefined && levels.has(question.vocabulary.level)
+    );
+  }
   if (level === "N1" || level === "N2" || level === "N3") {
     return examStyleQuestions.filter((question) => question.vocabulary.level === level);
   }

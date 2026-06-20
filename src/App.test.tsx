@@ -627,4 +627,20 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "深色模式" })).toBeInTheDocument();
   });
 
+  it("shows the 題庫範圍 picker in exam mode but not basic mode", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await screen.findByRole("region", { name: "目前題目" });
+    // Default basic mode has no level-range picker.
+    expect(screen.queryByText("題庫範圍")).toBeNull();
+
+    // 綜合考題庫 (exam) exposes the N1+N2 / N2+N3 range presets.
+    await user.click(screen.getByRole("button", { name: /綜合考題庫/ }));
+    expect(screen.getByText("題庫範圍")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "N1＋N2" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "N2＋N3" })).toBeInTheDocument();
+  });
+
 });
