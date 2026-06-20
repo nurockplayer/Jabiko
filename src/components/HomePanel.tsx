@@ -2,22 +2,21 @@ import { AlertTriangle, ArrowRight, BookOpen } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
 import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
-import { buildExamQuestionPool } from "../domain/examBlocks";
-import { buildSentencePatternPool } from "../domain/sentencePatterns";
-import { jlptVocabulary } from "../domain/vocabulary-jlpt";
+import { CONTENT_STATS } from "../domain/contentStats";
 
-// Content-volume snapshot rendered above the entry cards. Computed
-// once at module load -- the underlying data (learningBlocks, exam
-// pool, sentence patterns, jlptVocabulary) is static at runtime and
-// only changes when a content batch ships, which rebuilds the bundle
-// anyway. Pre-computing avoids re-running buildExamQuestionPool on
-// every HomePanel render.
+// Content-volume snapshot rendered above the entry cards. The exam /
+// pattern / vocab counts come from CONTENT_STATS (hardcoded, drift-
+// guarded by contentStats.test.ts) so the eager home view never has to
+// import the heavy question-pool / vocabulary data modules -- that data
+// loads only when the learner enters the practice flow. Only `chapters`
+// is read live, from the lightweight learningBlocks module the home
+// progress badges already depend on.
 const HOME_CONTENT_STATS = {
   chapters: learningBlocks.filter((block) => block.group === "basic").length,
-  examItems: buildExamQuestionPool("all").length,
-  n1Grammar: buildExamQuestionPool("N1").filter((q) => q.promptLabel === "文法形式選擇").length,
-  patternChecks: buildSentencePatternPool().length,
-  vocab: jlptVocabulary.length
+  examItems: CONTENT_STATS.examItems,
+  n1Grammar: CONTENT_STATS.n1Grammar,
+  patternChecks: CONTENT_STATS.patternChecks,
+  vocab: CONTENT_STATS.vocab
 };
 
 // First view the learner lands on. Three layers:
