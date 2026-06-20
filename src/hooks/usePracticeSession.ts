@@ -107,13 +107,16 @@ function composeDailySet(due: PracticeQuestion[]): PracticeQuestion[] {
     freshSlots - vocabFresh.length
   );
 
-  // De-cluster by section/type so consecutive questions aren't all the
-  // same kind (exam items carry promptLabel; vocab falls back to its
-  // targetForm, "reading").
-  return reduceAdjacentClusters(
-    [...dueTake, ...vocabFresh, ...examFresh],
+  // De-cluster only the FRESH portion so consecutive fresh questions
+  // aren't all the same kind (exam items carry promptLabel; vocab falls
+  // back to its targetForm, "reading"). The due block stays first, in its
+  // most-overdue-first order -- declustering the whole set would let fresh
+  // items slip between due items and break the "reviews first" promise.
+  const fresh = reduceAdjacentClusters(
+    [...vocabFresh, ...examFresh],
     (question) => question.promptLabel ?? question.targetForm
   );
+  return [...dueTake, ...fresh];
 }
 
 // The stateful core of the practice experience: owns all in-session

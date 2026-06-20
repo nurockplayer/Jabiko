@@ -315,7 +315,7 @@ export const copy: Record<Language, Copy> = {
     reviewDoneExit: "回首頁",
     dailyDoneTitle: "今日練習完成！",
     dailyDoneBody: (cleared, remaining) =>
-      `今天練了 ${cleared + remaining} 題，答對 ${cleared}、答錯 ${remaining}。答錯的會進入弱點複習，明天再出現。`,
+      `今天練了 ${cleared + remaining} 題，答對 ${cleared}、答錯 ${remaining}。答錯的會進入弱點複習，下次複習時會再出現。`,
     dailyDoneAgain: "再練一組",
     speakAriaLabel: "朗讀日文",
     partOfSpeech: {
