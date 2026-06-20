@@ -324,7 +324,9 @@ export function ChallengePanel({
             </button>
           </div>
 
-          {feedback ? <FeedbackPanel feedback={feedback} language={language} /> : null}
+          {feedback ? (
+            <FeedbackPanel feedback={feedback} language={language} options={choiceOptions} />
+          ) : null}
         </>
       ) : sessionExhausted ? (
         <div className="empty-state review-done">
