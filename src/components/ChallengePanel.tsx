@@ -341,7 +341,7 @@ export function ChallengePanel({
               {practiceMode === "daily" ? t.dailyDoneAgain : t.reviewDoneAgain}
             </button>
             <button className="ghost-button" type="button" onClick={onExit}>
-              {t.reviewDoneExit}
+              {practiceMode === "daily" ? t.dailyDoneExit : t.reviewDoneExit}
             </button>
           </div>
         </div>

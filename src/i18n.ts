@@ -142,6 +142,7 @@ export type Copy = {
   dailyDoneTitle: string;
   dailyDoneBody: (cleared: number, remaining: number) => string;
   dailyDoneAgain: string;
+  dailyDoneExit: string;
   speakAriaLabel: string;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
@@ -317,6 +318,7 @@ export const copy: Record<Language, Copy> = {
     dailyDoneBody: (cleared, remaining) =>
       `今天練了 ${cleared + remaining} 題，答對 ${cleared}、答錯 ${remaining}。答錯的會進入弱點複習，下次複習時會再出現。`,
     dailyDoneAgain: "再練一組",
+    dailyDoneExit: "回首頁",
     speakAriaLabel: "朗讀日文",
     partOfSpeech: {
       verb: "動詞",
