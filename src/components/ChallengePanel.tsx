@@ -323,17 +323,38 @@ export function ChallengePanel({
           </div>
 
           <div className="choice-grid" aria-label={t.answerOptions}>
-            {choiceOptions.map((choice) => (
-              <button
-                key={choice}
-                type="button"
-                className={choiceOptionClass(choice, selectedChoice, feedback)}
-                disabled={Boolean(feedback)}
-                onClick={() => handleChoiceSubmit(choice)}
-              >
-                {choice}
-              </button>
-            ))}
+            {choiceOptions.map((choice) => {
+              // Expose selection + result as DOM data attributes for AI /
+              // browser-automation testability. Derived purely from existing
+              // state -- no change to click handling or to choiceOptionClass
+              // (the visual styling). Multi-answer aware via expectedAnswers.
+              const isSelected = selectedChoice === choice;
+              let dataResult: "correct" | "wrong" | "target" | undefined;
+              if (feedback) {
+                if (isSelected) {
+                  dataResult = feedback.status === "correct" ? "correct" : "wrong";
+                } else if (
+                  feedback.status !== "correct" &&
+                  currentQuestion.expectedAnswers.includes(choice)
+                ) {
+                  // Got it wrong (or revealed) -> flag the correct answer button.
+                  dataResult = "target";
+                }
+              }
+              return (
+                <button
+                  key={choice}
+                  type="button"
+                  className={choiceOptionClass(choice, selectedChoice, feedback)}
+                  disabled={Boolean(feedback)}
+                  onClick={() => handleChoiceSubmit(choice)}
+                  data-selected={isSelected ? "true" : undefined}
+                  data-result={dataResult}
+                >
+                  {choice}
+                </button>
+              );
+            })}
           </div>
 
           <div className="action-row">
