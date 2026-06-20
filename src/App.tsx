@@ -1,16 +1,12 @@
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
-  AlertTriangle,
   ArrowRight,
   BookOpen,
-  CheckCircle2,
   Eye,
   GraduationCap,
   Moon,
   RotateCcw,
-  Sun,
-  Volume2,
-  XCircle
+  Sun
 } from "lucide-react";
 import { ADJECTIVE_FORMS, VERB_FORMS } from "./domain/conjugation";
 import { buildClozeQuestionPool } from "./domain/cloze";
@@ -36,14 +32,17 @@ import { vocabulary } from "./domain/vocabulary";
 import { jlptVocabulary } from "./domain/vocabulary-jlpt";
 import { copy, type Language } from "./i18n";
 import { DarumaSpot, PaperNoteSpot, TeaCupSpot } from "./illustrations";
-import { HomePanel, LearningPanel, MockExamPanel, RulesPanel } from "./components";
+import {
+  ExamPrompt,
+  FeedbackPanel,
+  HomePanel,
+  LearningPanel,
+  MockExamPanel,
+  RulesPanel,
+  SpeakButton,
+  type Feedback
+} from "./components";
 import "./styles.css";
-
-type Feedback =
-  | { status: "correct"; question: PracticeQuestion }
-  | { status: "incorrect"; question: PracticeQuestion }
-  | { status: "revealed"; question: PracticeQuestion }
-  | null;
 
 type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
 type PracticeMode = "basic" | "cloze" | "pattern" | "exam" | "review" | "vocab";
@@ -837,11 +836,6 @@ function getInitialTheme(): Theme {
   return "light";
 }
 
-// ---- RulesPanel ------------------------------------------------------
-// "規則表" view: a read-only reference page of conjugation tables.
-// Pure presentational; all data lives in domain/conjugationTables.ts
-// so future tables (formal forms / adjective variations / sentence
-// patterns) just need a data-file edit and no component change.
 function storeTheme(theme: Theme) {
   writeStored(THEME_STORAGE_KEY, theme);
 }
@@ -870,121 +864,4 @@ function choiceOptionClass(choice: string, selectedChoice: string | null, feedba
 
 function partOfSpeechLabel(partOfSpeech: PartOfSpeech, language: Language): string {
   return copy[language].partOfSpeech[partOfSpeech];
-}
-
-function ExamPrompt({ question, language }: { question: PracticeQuestion; language: Language }) {
-  // Sentence-pattern items use placeholder surface/reading (the pattern
-  // id) which would render as a meaningless "te-kudasai・te-kudasai・..."
-  // line. Skip the vocab row for those items -- the prompt label
-  // already names the pattern.
-  const isSentencePattern = question.vocabulary.tags?.includes("sentence_pattern");
-  // ANSWER-LEAK GUARD: for 文法形式選擇 items the surface IS the answer
-  // (e.g. surface「ものの」== the correct choice); for 漢字読み items the
-  // reading IS the answer (e.g. reading「とどこおって」). Rendering the
-  // surface・reading・meaning row pre-answer therefore hands the learner
-  // the answer. Only show that row when neither surface nor reading is
-  // one of the expected answers -- which keeps it for cloze items
-  // (待つ -> answer 待って, surface is a legit "which verb" hint) but
-  // hides it for grammar / kanji-reading. The full answer always shows
-  // post-answer in FeedbackPanel.
-  const answerSet = new Set(question.expectedAnswers);
-  const vocabRowLeaksAnswer =
-    answerSet.has(question.vocabulary.surface) || answerSet.has(question.vocabulary.reading);
-  const showVocabRow = !isSentencePattern && !vocabRowLeaksAnswer;
-  // Pre-answer Chinese: prefer the neutral hint when authored; fall back
-  // to the full translation for items that haven't been audited yet
-  // (legacy exam items). The full translation still appears in the
-  // FeedbackPanel post-answer via vocabulary.examples[0].meaningZh.
-  const preAnswerHint = question.hintZh ?? question.promptContextZh;
-  return (
-    <>
-      <p className="word-kind">
-        <GraduationCap aria-hidden="true" />
-        {question.instructionZh}
-      </p>
-      <p className="exam-prompt">
-        {question.promptText}
-        {question.promptText ? (
-          <SpeakButton text={question.promptText} language={language} />
-        ) : null}
-      </p>
-      {preAnswerHint ? <p className="meaning">{preAnswerHint}</p> : null}
-      {showVocabRow ? (
-        <p className="reading">
-          {question.vocabulary.surface}・{question.vocabulary.reading}・{question.vocabulary.meaningZh}
-        </p>
-      ) : null}
-    </>
-  );
-}
-
-// ---- SpeakButton ------------------------------------------------------
-// Small inline button that reads its `text` aloud via the browser's
-// built-in SpeechSynthesis API. No external TTS service or audio asset
-// involved -- the voice quality depends on what the user's OS/browser
-// ships, but for "hear the kanji" / "hear the example sentence" the
-// built-in JA voices are good enough for a first cut. If the API or a
-// JA voice isn't available, the component renders nothing rather than a
-// broken-feeling button. Single-flight: if you click it again while
-// it's still speaking, the current utterance is cancelled first so the
-// new one starts cleanly.
-
-function SpeakButton({ text, language }: { text: string; language: Language }) {
-  const supported =
-    typeof window !== "undefined" &&
-    "speechSynthesis" in window &&
-    typeof window.SpeechSynthesisUtterance === "function";
-
-  if (!supported) return null;
-  if (!text) return null;
-
-  const handleClick = () => {
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new window.SpeechSynthesisUtterance(text);
-      utterance.lang = "ja-JP";
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    } catch {
-      // Voice synthesis can throw if the engine is in a bad state; the
-      // worst case here is "no sound played", which is better than
-      // crashing the practice flow.
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      className="speak-button"
-      aria-label={copy[language].speakAriaLabel}
-      onClick={handleClick}
-    >
-      <Volume2 aria-hidden="true" />
-    </button>
-  );
-}
-
-function FeedbackPanel({ feedback, language }: { feedback: NonNullable<Feedback>; language: Language }) {
-  const t = copy[language];
-  const isCorrect = feedback.status === "correct";
-  const isRevealed = feedback.status === "revealed";
-  const title = isCorrect ? t.correct : isRevealed ? t.revealed : t.incorrect;
-  const Icon = isCorrect ? CheckCircle2 : XCircle;
-
-  return (
-    <section className={`feedback ${isCorrect ? "correct" : isRevealed ? "revealed" : "incorrect"}`} aria-live="polite">
-      <div className="feedback-title">
-        <Icon aria-hidden="true" />
-        <h2>{title}</h2>
-      </div>
-      <p className="answer-key">{t.answerKey}：{feedback.question.expectedAnswers.join(" / ")}</p>
-      <p>{feedback.question.explanation}</p>
-      {feedback.question.vocabulary.examples[0] ? (
-        <p className="example">
-          {feedback.question.vocabulary.examples[0].japanese}
-          <span>{feedback.question.vocabulary.examples[0].meaningZh}</span>
-        </p>
-      ) : null}
-    </section>
-  );
 }
