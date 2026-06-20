@@ -1862,6 +1862,14 @@ select:disabled {
   color: var(--summary-text);
 }
 
+/* Primary daily-practice entry: matcha accent so it reads as the
+   headline action, distinct from the vermilion review banner. */
+.home-banner-daily {
+  background: color-mix(in srgb, var(--matcha) 12%, var(--paper));
+  border-color: color-mix(in srgb, var(--matcha) 45%, var(--panel-border));
+  color: var(--matcha-dark);
+}
+
 .home-banner-text {
   display: flex;
   flex-direction: column;

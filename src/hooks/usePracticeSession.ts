@@ -15,14 +15,14 @@ import {
   selectQuestion,
   shuffleQuestions
 } from "../domain/practice";
-import type { Attempt, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
+import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "../domain/types";
 import { vocabulary } from "../domain/vocabulary";
 import { jlptVocabulary } from "../domain/vocabulary-jlpt";
 import { copy, type Language } from "../i18n";
 import type { Feedback } from "../components/types";
 
 export type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
-export type PracticeMode = "basic" | "cloze" | "pattern" | "exam" | "review" | "vocab";
+export type PracticeMode = "basic" | "cloze" | "daily" | "pattern" | "exam" | "review" | "vocab";
 export type PracticeFilter = {
   patternIds?: SentencePatternId[];
   // Narrows exam mode to one JLPT section (by level + promptLabel), set
@@ -69,6 +69,54 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
 
 function uniqueForms(forms: TargetForm[]): TargetForm[] {
   return Array.from(new Set(forms));
+}
+
+const DAILY_TARGET = 20;
+// Reserve enough fresh vocab-reading items that their pool-based
+// distractors (drawn from same-targetForm peers within the session) can
+// always fill a full 4-option grid. Without this floor, a daily set that
+// happened to land only 1-2 vocab items would render those 漢字読み
+// questions with too few choices.
+const DAILY_VOCAB_MIN = Math.floor(DAILY_TARGET / 4);
+
+// Builds the "今日練習" set: due SRS reviews first (capped at half so a
+// big backlog still leaves room for variety), then a de-clustered mix of
+// fresh vocab (a reserved minimum) + exam items to fill out the session.
+// It's a FINITE pass -- the learner works through the set once and gets a
+// completion screen, same as review mode. v1 is an even mix; weighting
+// toward the learner's weak sections is a follow-up (needs attempt
+// metadata).
+function composeDailySet(due: PracticeQuestion[]): PracticeQuestion[] {
+  const dueTake = due.slice(0, Math.ceil(DAILY_TARGET / 2));
+  // Exclude EVERY due item from the fresh pools -- not just the capped
+  // slice -- so an over-cap due item can't slip back in mislabelled as a
+  // fresh question (which would drop its most-overdue-first SRS ordering).
+  const dueIds = new Set(due.map((question) => question.id));
+  const isFresh = (question: PracticeQuestion) => !dueIds.has(question.id);
+  const freshSlots = DAILY_TARGET - dueTake.length;
+
+  const vocabFresh = shuffleQuestions(
+    buildQuestionPool(jlptVocabulary, {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      targetForms: ["reading"]
+    }).filter(isFresh)
+  ).slice(0, Math.min(DAILY_VOCAB_MIN, freshSlots));
+  const examFresh = shuffleQuestions(buildExamQuestionPool().filter(isFresh)).slice(
+    0,
+    freshSlots - vocabFresh.length
+  );
+
+  // De-cluster only the FRESH portion so consecutive fresh questions
+  // aren't all the same kind (exam items carry promptLabel; vocab falls
+  // back to its targetForm, "reading"). The due block stays first, in its
+  // most-overdue-first order -- declustering the whole set would let fresh
+  // items slip between due items and break the "reviews first" promise.
+  const fresh = reduceAdjacentClusters(
+    [...vocabFresh, ...examFresh],
+    (question) => question.promptLabel ?? question.targetForm
+  );
+  return [...dueTake, ...fresh];
 }
 
 // The stateful core of the practice experience: owns all in-session
@@ -121,8 +169,9 @@ export function usePracticeSession({
   const isPatternFocus = practiceMode === "pattern";
   const isReviewFocus = practiceMode === "review";
   const isVocabFocus = practiceMode === "vocab";
+  const isDailyFocus = practiceMode === "daily";
   const isCuratedFocus =
-    isExamFocus || isClozeFocus || isPatternFocus || isReviewFocus || isVocabFocus;
+    isExamFocus || isClozeFocus || isPatternFocus || isReviewFocus || isVocabFocus || isDailyFocus;
 
   // Union pool used to materialise the review queue: any question the
   // learner has ever encountered (across exam / cloze / pattern / basic)
@@ -257,6 +306,12 @@ export function usePracticeSession({
         );
       }
 
+      if (isDailyFocus) {
+        // Snapshot the current due queue at session start (same as review
+        // mode); the live reviewQueue stays excluded from the deps below.
+        return composeDailySet(reviewQueue);
+      }
+
       return shuffleQuestions(
         buildQuestionPool(vocabulary, {
           partOfSpeech,
@@ -284,6 +339,7 @@ export function usePracticeSession({
       isPatternFocus,
       isReviewFocus,
       isVocabFocus,
+      isDailyFocus,
       practiceFilter.patternIds,
       practiceFilter.examSection,
       partOfSpeech,
@@ -292,18 +348,19 @@ export function usePracticeSession({
       sessionSeed
     ]
   );
-  // Review mode is a FINITE pass over the currently-due snapshot: walk
-  // each item once, no modulo wrap, then stop. Every other mode is an
-  // endless drill (modulo wrap via selectQuestion). Looping review would
-  // re-show items the learner just cleared -- exactly the "錯題一直輪迴"
-  // report. Correctly-answered items leave the SRS due set (next
-  // session), wrong ones reset to box 0 and return next session.
-  const currentQuestion = isReviewFocus
+  // Review and 今日練習 are FINITE passes over a snapshot: walk each item
+  // once, no modulo wrap, then stop (and show a completion screen). Every
+  // other mode is an endless drill (modulo wrap via selectQuestion).
+  // Looping review would re-show items the learner just cleared -- exactly
+  // the "錯題一直輪迴" report. Correctly-answered items leave the SRS due
+  // set (next session), wrong ones reset to box 0 and return next session.
+  const isFinitePass = isReviewFocus || isDailyFocus;
+  const currentQuestion = isFinitePass
     ? questions[questionIndex] ?? null
     : selectQuestion(questions, questionIndex);
   const reviewEmpty = isReviewFocus && questions.length === 0;
-  const reviewExhausted =
-    isReviewFocus && questions.length > 0 && questionIndex >= questions.length;
+  const sessionExhausted =
+    isFinitePass && questions.length > 0 && questionIndex >= questions.length;
   const choiceOptions = useMemo(
     () => (currentQuestion ? buildChoiceOptions(currentQuestion, questions, questionIndex) : []),
     [currentQuestion, questionIndex, questions]
@@ -413,7 +470,7 @@ export function usePracticeSession({
     modeCounts,
     currentQuestion,
     reviewEmpty,
-    reviewExhausted,
+    sessionExhausted,
     choiceOptions,
     mistakeQuestions,
     correctCount,

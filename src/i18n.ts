@@ -30,6 +30,8 @@ export type Copy = {
   homeBannerReviewSub: string;
   homeBannerContinueMain: (chapter: string) => string;
   homeBannerContinueSub: string;
+  homeDailyMain: string;
+  homeDailySub: string;
   homeStatsLabel: string;
   homeStatsAttempts: string;
   homeStatsAccuracy: string;
@@ -118,7 +120,7 @@ export type Copy = {
   revealed: string;
   answerKey: string;
   focusSummaryEmpty: string;
-  modeOptions: Record<"basic" | "cloze" | "exam" | "pattern" | "review" | "vocab", { title: string; subtitle: string }>;
+  modeOptions: Record<"basic" | "cloze" | "daily" | "exam" | "pattern" | "review" | "vocab", { title: string; subtitle: string }>;
   modeQuestionCount: (count: number) => string;
   homeCardVocabTitle: string;
   homeCardVocabSub: string;
@@ -137,6 +139,10 @@ export type Copy = {
   reviewDoneBody: (cleared: number, remaining: number) => string;
   reviewDoneAgain: string;
   reviewDoneExit: string;
+  dailyDoneTitle: string;
+  dailyDoneBody: (cleared: number, remaining: number) => string;
+  dailyDoneAgain: string;
+  dailyDoneExit: string;
   speakAriaLabel: string;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
@@ -176,6 +182,8 @@ export const copy: Record<Language, Copy> = {
     homeBannerReviewSub: "跨 session 累積的錯題，答對才會移出。",
     homeBannerContinueMain: (chapter) => `繼續學：${chapter}`,
     homeBannerContinueSub: "上次還沒完成的章節。",
+    homeDailyMain: "開始今日練習",
+    homeDailySub: "先清到期複習，再混合文法・語順・漢字読み練一輪。",
     homeStatsLabel: "整體進度",
     homeStatsAttempts: "累積已答",
     homeStatsAccuracy: "總正答率",
@@ -280,6 +288,7 @@ export const copy: Record<Language, Copy> = {
     answerKey: "正解",
     focusSummaryEmpty: "目前重點沒有可用形",
     modeOptions: {
+      daily: { title: "今日練習", subtitle: "複習優先 · 文法 / 語順 / 漢字読み混合一輪" },
       basic: { title: "基礎變化", subtitle: "詞類變化練習 · 課本詞彙" },
       cloze: { title: "句中填空", subtitle: "N5 文型 · 〜てください / 〜たいです" },
       pattern: { title: "句型練習", subtitle: "N5/N4 句型判斷 · 視角 / 許可 / 引用 / 不必" },
@@ -305,6 +314,11 @@ export const copy: Record<Language, Copy> = {
       `這一輪複習了 ${cleared + remaining} 題，答對 ${cleared}、還要再練 ${remaining}。答對的會排到之後，答錯的下次複習會再出現。`,
     reviewDoneAgain: "再複習一輪",
     reviewDoneExit: "回首頁",
+    dailyDoneTitle: "今日練習完成！",
+    dailyDoneBody: (cleared, remaining) =>
+      `今天練了 ${cleared + remaining} 題，答對 ${cleared}、答錯 ${remaining}。答錯的會進入弱點複習，下次複習時會再出現。`,
+    dailyDoneAgain: "再練一組",
+    dailyDoneExit: "回首頁",
     speakAriaLabel: "朗讀日文",
     partOfSpeech: {
       verb: "動詞",

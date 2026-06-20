@@ -139,6 +139,7 @@ export default function App() {
           onNavigate={(target) => (target === "challenge" ? openChallenge() : setAppView(target))}
           onStartReview={() => openChallenge({ mode: "review" })}
           onStartVocab={() => openChallenge({ mode: "vocab" })}
+          onStartDaily={() => openChallenge({ mode: "daily" })}
         />
       ) : appView === "learn" ? (
         <LearningPanel

@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, BookOpen } from "lucide-react";
+import { AlertTriangle, ArrowRight, BookOpen, CalendarCheck } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
 import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
@@ -35,7 +35,8 @@ export function HomePanel({
   reviewCount,
   onNavigate,
   onStartReview,
-  onStartVocab
+  onStartVocab,
+  onStartDaily
 }: {
   language: Language;
   progressAttempts: Attempt[];
@@ -43,6 +44,7 @@ export function HomePanel({
   onNavigate: (target: "learn" | "challenge" | "mock") => void;
   onStartReview: () => void;
   onStartVocab: () => void;
+  onStartDaily: () => void;
 }) {
   const t = copy[language];
 
@@ -83,6 +85,18 @@ export function HomePanel({
           <p>{t.homeHeroIntro}</p>
         </div>
       </header>
+
+      {/* Primary daily entry: the one-tap "今日練習" that builds a
+          due-reviews-first + mixed-section session. Top of the page so
+          it's the default action a returning learner reaches for. */}
+      <button type="button" className="home-banner home-banner-daily" onClick={onStartDaily}>
+        <CalendarCheck aria-hidden="true" />
+        <span className="home-banner-text">
+          <strong>{t.homeDailyMain}</strong>
+          <small>{t.homeDailySub}</small>
+        </span>
+        <ArrowRight aria-hidden="true" />
+      </button>
 
       {/* Content-volume strip: tells first-time visitors what they're
           walking into without resorting to SaaS-style metric tiles.
