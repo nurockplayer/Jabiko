@@ -645,6 +645,18 @@ describe("buildChoiceOptions (vocab reading distractors)", () => {
     const second = buildChoiceOptions(q, readingQuestions, 0);
     expect(first).toEqual(second);
   });
+
+  it("leaves a baked 漢字読み item on its authored options (no perturbation)", () => {
+    // A reading item that ships baked options must keep using them -- the
+    // perturbation path is only for option-less vocab reading drills.
+    const baked = buildExamQuestionPool("all").find(
+      (q) => q.promptLabel === "漢字読み" && (q.options?.length ?? 0) > 0
+    );
+    expect(baked).toBeDefined();
+    const options = buildChoiceOptions(baked!, [baked!], 0);
+    const authored = new Set([...baked!.expectedAnswers, ...(baked!.options ?? [])]);
+    expect(new Set(options)).toEqual(authored);
+  });
 });
 
 describe("reduceAdjacentClusters", () => {
