@@ -10,6 +10,7 @@ export type Copy = {
   themeLight: string;
   themeDark: string;
   flowLabel: string;
+  loading: string;
   home: string;
   learn: string;
   rules: string;
@@ -153,6 +154,7 @@ export const copy: Record<Language, Copy> = {
     themeLight: "淺色模式",
     themeDark: "深色模式",
     flowLabel: "學習流程",
+    loading: "載入中…",
     home: "首頁",
     learn: "學習",
     rules: "規則表",

@@ -1447,6 +1447,17 @@ select:disabled {
   color: var(--muted);
 }
 
+/* Suspense fallback shown while a lazy view chunk (challenge / mock)
+ * loads. Keeps the area from collapsing so the layout doesn't jump when
+ * the real panel swaps in. */
+.panel-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 18rem;
+  color: var(--muted);
+}
+
 .review-done {
   display: flex;
   flex-direction: column;

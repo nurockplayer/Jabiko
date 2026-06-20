@@ -125,6 +125,27 @@ export function getDueQuestions(
 }
 
 /**
+ * Count items currently due (dueAt <= now), WITHOUT a question pool.
+ *
+ * This is the lightweight count behind the home/learn "N 個等待複習"
+ * badge. getDueQuestions needs the full question pool to return the
+ * actual review items (and to drop states whose question no longer
+ * exists), but the badge only needs a number -- and forcing the pool
+ * just for a count would pull the heavy question-data modules into the
+ * eager initial bundle. The trade-off: this can include a state whose
+ * question was since removed from the bank (a stale +1 until that item
+ * ages out), which is acceptable for a nudge.
+ */
+export function countDueReviews(attempts: Attempt[], now: number = Date.now()): number {
+  const states = computeReviewStates(attempts);
+  let count = 0;
+  for (const state of states.values()) {
+    if (state.dueAt <= now) count++;
+  }
+  return count;
+}
+
+/**
  * Count items scheduled to come due within the next `daysAhead` days.
  * Excludes items already due (those go to getDueQuestions). Useful for
  * "X coming up this week" forward-looking UI if we ever add it.

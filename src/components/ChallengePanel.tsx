@@ -1,12 +1,12 @@
 import { ArrowRight, BookOpen, Eye, GraduationCap, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../i18n";
-import type { PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
+import type { Attempt, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
 import { DarumaSpot, PaperNoteSpot, TeaCupSpot } from "../illustrations";
 import { ExamPrompt } from "./ExamPrompt";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { SpeakButton } from "./SpeakButton";
 import type { Feedback } from "./types";
-import type { PracticeMode, PracticeSession } from "../hooks/usePracticeSession";
+import { usePracticeSession, type PracticeMode, type SessionInit } from "../hooks/usePracticeSession";
 
 const partOfSpeechOptions: Array<PartOfSpeech | "mixed"> = ["verb", "i_adjective", "na_adjective", "noun", "mixed"];
 
@@ -58,20 +58,28 @@ function partOfSpeechLabel(partOfSpeech: PartOfSpeech, language: Language): stri
 }
 
 // The challenge workspace: the three-column practice layout (mode/setup
-// controls, the active drill, and the running mistake list). All session
-// state + handlers come from usePracticeSession via the `session` prop;
-// `onExit` returns to the home dashboard from the review completion /
-// empty screens.
+// controls, the active drill, and the running mistake list). This is the
+// lazily-loaded view that owns the practice session -- usePracticeSession
+// (and the heavy question-data it imports) only loads when the learner
+// enters the challenge. `init` is the launch request (which drill to
+// start); `progressAttempts` / `recordAttempt` are the App-owned attempt
+// history; `onExit` returns to the home dashboard from the review
+// completion / empty screens.
 export function ChallengePanel({
-  session,
+  init,
+  progressAttempts,
+  recordAttempt,
   language,
   onExit
 }: {
-  session: PracticeSession;
+  init?: SessionInit;
+  progressAttempts: Attempt[];
+  recordAttempt: (attempt: Attempt) => void;
   language: Language;
   onExit: () => void;
 }) {
   const t = copy[language];
+  const session = usePracticeSession({ language, init, progressAttempts, recordAttempt });
   const {
     partOfSpeech,
     verbGroup,
