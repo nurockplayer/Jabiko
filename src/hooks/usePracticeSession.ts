@@ -72,31 +72,46 @@ function uniqueForms(forms: TargetForm[]): TargetForm[] {
 }
 
 const DAILY_TARGET = 20;
+// Reserve enough fresh vocab-reading items that their pool-based
+// distractors (drawn from same-targetForm peers within the session) can
+// always fill a full 4-option grid. Without this floor, a daily set that
+// happened to land only 1-2 vocab items would render those 漢字読み
+// questions with too few choices.
+const DAILY_VOCAB_MIN = Math.floor(DAILY_TARGET / 4);
 
 // Builds the "今日練習" set: due SRS reviews first (capped at half so a
-// big backlog still leaves room for variety), then an even, de-clustered
-// mix of fresh exam + vocab items to fill out the session. It's a FINITE
-// pass -- the learner works through the set once and gets a completion
-// screen, same as review mode. v1 is an even mix; weighting toward the
-// learner's weak sections is a follow-up (needs attempt metadata).
+// big backlog still leaves room for variety), then a de-clustered mix of
+// fresh vocab (a reserved minimum) + exam items to fill out the session.
+// It's a FINITE pass -- the learner works through the set once and gets a
+// completion screen, same as review mode. v1 is an even mix; weighting
+// toward the learner's weak sections is a follow-up (needs attempt
+// metadata).
 function composeDailySet(due: PracticeQuestion[]): PracticeQuestion[] {
   const dueTake = due.slice(0, Math.ceil(DAILY_TARGET / 2));
-  const dueIds = new Set(dueTake.map((question) => question.id));
-  const fresh = shuffleQuestions(
-    [
-      ...buildExamQuestionPool(),
-      ...buildQuestionPool(jlptVocabulary, {
-        partOfSpeech: "mixed",
-        verbGroup: "all",
-        targetForms: ["reading"]
-      })
-    ].filter((question) => !dueIds.has(question.id))
-  ).slice(0, DAILY_TARGET - dueTake.length);
+  // Exclude EVERY due item from the fresh pools -- not just the capped
+  // slice -- so an over-cap due item can't slip back in mislabelled as a
+  // fresh question (which would drop its most-overdue-first SRS ordering).
+  const dueIds = new Set(due.map((question) => question.id));
+  const isFresh = (question: PracticeQuestion) => !dueIds.has(question.id);
+  const freshSlots = DAILY_TARGET - dueTake.length;
+
+  const vocabFresh = shuffleQuestions(
+    buildQuestionPool(jlptVocabulary, {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      targetForms: ["reading"]
+    }).filter(isFresh)
+  ).slice(0, Math.min(DAILY_VOCAB_MIN, freshSlots));
+  const examFresh = shuffleQuestions(buildExamQuestionPool().filter(isFresh)).slice(
+    0,
+    freshSlots - vocabFresh.length
+  );
+
   // De-cluster by section/type so consecutive questions aren't all the
   // same kind (exam items carry promptLabel; vocab falls back to its
   // targetForm, "reading").
   return reduceAdjacentClusters(
-    [...dueTake, ...fresh],
+    [...dueTake, ...vocabFresh, ...examFresh],
     (question) => question.promptLabel ?? question.targetForm
   );
 }
