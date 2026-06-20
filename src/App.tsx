@@ -1,18 +1,28 @@
-import { useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
+import { countDueReviews } from "./domain/srs";
 import { copy, type Language } from "./i18n";
-import {
-  ChallengePanel,
-  HomePanel,
-  LearningPanel,
-  MockExamPanel,
-  RulesPanel
-} from "./components";
+import { HomePanel, LearningPanel, RulesPanel } from "./components";
 import { useTheme } from "./hooks/useTheme";
-import { usePracticeSession } from "./hooks/usePracticeSession";
+import { useProgressAttempts } from "./hooks/useProgressAttempts";
+import type { SessionInit } from "./hooks/usePracticeSession";
 import "./styles.css";
+
+// Lazy routes. The challenge view owns the practice engine, which
+// statically imports the entire question bank (examBlocks alone is
+// ~288 KB); the mock-exam picker reads the exam pool too. Loading them
+// with React.lazy keeps that data out of the initial bundle -- it's
+// fetched only when the learner actually opens those views. They're
+// imported straight from their modules (not the components barrel) on
+// purpose; see components/index.ts.
+const ChallengePanel = lazy(() =>
+  import("./components/ChallengePanel").then((module) => ({ default: module.ChallengePanel }))
+);
+const MockExamPanel = lazy(() =>
+  import("./components/MockExamPanel").then((module) => ({ default: module.MockExamPanel }))
+);
 
 type AppView = "home" | "learn" | "rules" | "challenge" | "mock";
 type DrillPreset = LearningBlockDrillPreset;
@@ -26,38 +36,45 @@ export default function App() {
   const t = copy[language];
 
   const { theme, toggleTheme } = useTheme();
-  const session = usePracticeSession(language);
-  const {
-    reviewQueue,
-    progressAttempts,
-    setPartOfSpeech,
-    setVerbGroup,
-    setTargetForm,
-    setPracticeFocus,
-    setPracticeMode,
-    setPracticeFilter,
-    resetSession
-  } = session;
+  const { progressAttempts, recordAttempt } = useProgressAttempts();
+  // Lightweight, pool-free count for the home/learn review badge (see
+  // countDueReviews). The full review queue -- which needs the question
+  // pool to resolve due items -- is built inside the lazy challenge view.
+  const reviewCount = useMemo(() => countDueReviews(progressAttempts), [progressAttempts]);
+  // The drill the challenge view starts with on its next mount. Set by
+  // the "start X" actions just before navigating; undefined = the default
+  // basic drill. Read once when ChallengePanel mounts (it owns the
+  // session), so changing it while already in the challenge is a no-op.
+  const [launch, setLaunch] = useState<SessionInit | undefined>(undefined);
 
   const themeToggleLabel = theme === "dark" ? t.themeLight : t.themeDark;
   const ThemeIcon = theme === "dark" ? Sun : Moon;
 
-  const startDrill = (preset: DrillPreset) => {
-    setPracticeMode("basic");
-    setPracticeFilter({});
-    setPartOfSpeech(preset.partOfSpeech);
-    setVerbGroup(preset.verbGroup ?? "all");
-    setPracticeFocus(preset.practiceFocus);
-    setTargetForm(preset.targetForm);
-    resetSession();
+  const openChallenge = (request?: SessionInit) => {
+    // `request` seeds the session when ChallengePanel MOUNTS (its
+    // usePracticeSession reads init via useState initializers). Every
+    // init-carrying caller fires from a non-challenge panel (home /
+    // learn / mock), so navigating in always mounts ChallengePanel fresh
+    // and the seed applies. Don't call this with a non-undefined request
+    // from INSIDE the challenge view -- the panel is already mounted, so
+    // the seed would be silently ignored. (The nav-bar 挑戰 button calls
+    // it with no request, which is a deliberate no-op when already there.)
+    setLaunch(request);
     setAppView("challenge");
   };
 
+  const startDrill = (preset: DrillPreset) => {
+    openChallenge({
+      mode: "basic",
+      partOfSpeech: preset.partOfSpeech,
+      verbGroup: preset.verbGroup ?? "all",
+      practiceFocus: preset.practiceFocus,
+      targetForm: preset.targetForm
+    });
+  };
+
   const startPatternDrill = (patternIds: SentencePatternId[]) => {
-    setPracticeMode("pattern");
-    setPracticeFilter({ patternIds });
-    resetSession();
-    setAppView("challenge");
+    openChallenge({ mode: "pattern", filter: { patternIds } });
   };
 
   return (
@@ -101,7 +118,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "challenge" ? "selected" : ""}
-          onClick={() => setAppView("challenge")}
+          onClick={() => openChallenge()}
         >
           {t.challenge}
         </button>
@@ -118,55 +135,54 @@ export default function App() {
         <HomePanel
           language={language}
           progressAttempts={progressAttempts}
-          reviewCount={reviewQueue.length}
-          onNavigate={(target) => setAppView(target)}
-          onStartReview={() => {
-            setPracticeMode("review");
-            setPracticeFilter({});
-            resetSession();
-            setAppView("challenge");
-          }}
-          onStartVocab={() => {
-            setPracticeMode("vocab");
-            setPracticeFilter({});
-            resetSession();
-            setAppView("challenge");
-          }}
+          reviewCount={reviewCount}
+          onNavigate={(target) => (target === "challenge" ? openChallenge() : setAppView(target))}
+          onStartReview={() => openChallenge({ mode: "review" })}
+          onStartVocab={() => openChallenge({ mode: "vocab" })}
         />
       ) : appView === "learn" ? (
         <LearningPanel
           language={language}
           progressAttempts={progressAttempts}
-          reviewCount={reviewQueue.length}
-          onStartChallenge={() => setAppView("challenge")}
-          onStartReview={() => {
-            setPracticeMode("review");
-            setPracticeFilter({});
-            resetSession();
-            setAppView("challenge");
-          }}
+          reviewCount={reviewCount}
+          onStartChallenge={() => openChallenge()}
+          onStartReview={() => openChallenge({ mode: "review" })}
           onStartDrill={startDrill}
           onStartPatternDrill={startPatternDrill}
         />
       ) : appView === "rules" ? (
         <RulesPanel language={language} />
       ) : appView === "mock" ? (
-        <MockExamPanel
-          language={language}
-          onStartSection={(level, promptLabel) => {
-            setPracticeMode("exam");
-            setPracticeFilter({ examSection: { level, promptLabel } });
-            resetSession();
-            setAppView("challenge");
-          }}
-        />
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <MockExamPanel
+            language={language}
+            onStartSection={(level, promptLabel) =>
+              openChallenge({ mode: "exam", filter: { examSection: { level, promptLabel } } })
+            }
+          />
+        </Suspense>
       ) : (
-        <ChallengePanel
-          session={session}
-          language={language}
-          onExit={() => setAppView("home")}
-        />
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <ChallengePanel
+            init={launch}
+            progressAttempts={progressAttempts}
+            recordAttempt={recordAttempt}
+            language={language}
+            onExit={() => setAppView("home")}
+          />
+        </Suspense>
       )}
     </main>
+  );
+}
+
+// Suspense placeholder while a lazy view chunk loads. Sized minimally;
+// the chunks are small enough that on a warm cache this is a single
+// frame, but it keeps the layout from collapsing on first open.
+function PanelFallback({ label }: { label: string }) {
+  return (
+    <div className="panel-loading" role="status" aria-live="polite">
+      {label}
+    </div>
   );
 }

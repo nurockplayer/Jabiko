@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import App from "./App";
 
 function seedProgress(targetForms: string[]) {
@@ -30,6 +30,21 @@ async function gotoLearn(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("App", () => {
+  // The challenge + mock views are React.lazy in App, and React.lazy only
+  // suspends on its first resolution. Prime both chunks once here so every
+  // test below renders them synchronously regardless of run order --
+  // otherwise whichever test first navigates to a view would run its
+  // synchronous assertions before the lazy chunk finished loading.
+  beforeAll(async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<App />);
+    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await screen.findByRole("region", { name: "目前題目" });
+    await user.click(screen.getByRole("button", { name: "模擬考" }));
+    await screen.findByRole("region", { name: "模擬考" });
+    unmount();
+  });
+
   afterEach(() => {
     localStorage.clear();
     document.documentElement.removeAttribute("data-theme");

@@ -15,7 +15,6 @@ import {
   selectQuestion,
   shuffleQuestions
 } from "../domain/practice";
-import { createAttemptStore } from "../domain/storage";
 import type { Attempt, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
 import { vocabulary } from "../domain/vocabulary";
 import { jlptVocabulary } from "../domain/vocabulary-jlpt";
@@ -29,6 +28,20 @@ export type PracticeFilter = {
   // Narrows exam mode to one JLPT section (by level + promptLabel), set
   // when the learner taps a section card in the 模擬考 picker.
   examSection?: { level: MockExamLevel; promptLabel: string };
+};
+
+// Initial configuration the challenge view is launched with. App sets
+// this (the "launch request") when the learner taps a learning-block
+// drill, a mock section, or a review/vocab entry, then mounts the lazy
+// ChallengePanel; usePracticeSession seeds its initial state from it.
+// Undefined / empty -> the default basic drill (verb · godan · て形).
+export type SessionInit = {
+  mode?: PracticeMode;
+  filter?: PracticeFilter;
+  partOfSpeech?: PartOfSpeech | "mixed";
+  verbGroup?: VerbGroup | "all";
+  practiceFocus?: PracticeFocus;
+  targetForm?: TargetForm;
 };
 
 const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; verbOnly?: boolean }> = [
@@ -54,30 +67,43 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
   }
 ];
 
-const attemptStore = createAttemptStore();
-
 function uniqueForms(forms: TargetForm[]): TargetForm[] {
   return Array.from(new Set(forms));
 }
 
-// The stateful core of the practice experience: owns all session state
-// (mode / filters / current question / feedback / score), derives the
-// active question pool, and exposes the handlers the challenge view binds
-// to. Extracted from App so App is just the shell + view router.
-// `language` feeds the focus-summary copy lookups.
-export function usePracticeSession(language: Language) {
-  const [partOfSpeech, setPartOfSpeech] = useState<PartOfSpeech | "mixed">("verb");
-  const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">("godan");
-  const [targetForm, setTargetForm] = useState<TargetForm>("te");
-  const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>("single");
-  const [practiceMode, setPracticeMode] = useState<PracticeMode>("basic");
-  const [practiceFilter, setPracticeFilter] = useState<PracticeFilter>({});
+// The stateful core of the practice experience: owns all in-session
+// state (mode / filters / current question / feedback / score), derives
+// the active question pool, and exposes the handlers the challenge view
+// binds to. Lives in the lazily-loaded ChallengePanel so the heavy
+// question-data modules it imports stay out of the initial bundle.
+//   - `init` seeds the initial drill config (the launch request).
+//   - `progressAttempts` / `recordAttempt` are owned by App
+//     (useProgressAttempts) so the always-mounted home/learn dashboards
+//     can read history without loading this hook; we read it for the
+//     review queue and append to it on each answer.
+//   - `language` feeds the focus-summary copy lookups.
+export function usePracticeSession({
+  language,
+  init,
+  progressAttempts,
+  recordAttempt
+}: {
+  language: Language;
+  init?: SessionInit;
+  progressAttempts: Attempt[];
+  recordAttempt: (attempt: Attempt) => void;
+}) {
+  const [partOfSpeech, setPartOfSpeech] = useState<PartOfSpeech | "mixed">(init?.partOfSpeech ?? "verb");
+  const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">(init?.verbGroup ?? "godan");
+  const [targetForm, setTargetForm] = useState<TargetForm>(init?.targetForm ?? "te");
+  const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>(init?.practiceFocus ?? "single");
+  const [practiceMode, setPracticeMode] = useState<PracticeMode>(init?.mode ?? "basic");
+  const [practiceFilter, setPracticeFilter] = useState<PracticeFilter>(init?.filter ?? {});
   const [questionIndex, setQuestionIndex] = useState(0);
   const [sessionSeed, setSessionSeed] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
-  const [progressAttempts, setProgressAttempts] = useState<Attempt[]>(() => attemptStore.list());
   const startedAtRef = useRef(Date.now());
   const nextButtonRef = useRef<HTMLButtonElement>(null);
   const t = copy[language];
@@ -323,8 +349,7 @@ export function usePracticeSession(language: Language) {
 
     const attempt = scoreAttempt(currentQuestion, choice, startedAtRef.current);
     setAttempts((current) => [...current, attempt]);
-    setProgressAttempts((current) => [...current, attempt]);
-    attemptStore.add(attempt);
+    recordAttempt(attempt);
     setFeedback({ status: attempt.isCorrect ? "correct" : "incorrect", question: currentQuestion });
   };
 
@@ -352,8 +377,7 @@ export function usePracticeSession(language: Language) {
     const attempt = scoreAttempt(currentQuestion, "", startedAtRef.current);
     const missedAttempt = { ...attempt, isCorrect: false, submittedAnswer: "(revealed)" };
     setAttempts((current) => [...current, missedAttempt]);
-    setProgressAttempts((current) => [...current, missedAttempt]);
-    attemptStore.add(missedAttempt);
+    recordAttempt(missedAttempt);
     setSelectedChoice(null);
     setFeedback({ status: "revealed", question: currentQuestion });
   };
@@ -375,7 +399,6 @@ export function usePracticeSession(language: Language) {
     selectedChoice,
     feedback,
     attempts,
-    progressAttempts,
     setPartOfSpeech,
     setVerbGroup,
     setTargetForm,
