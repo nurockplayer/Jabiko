@@ -7,6 +7,7 @@ import {
   VERB_FORMS
 } from "./conjugation";
 import { getDueQuestions } from "./srs";
+import { generateReadingConfusers } from "./readingConfusers";
 import type {
   Attempt,
   JlptLevel,
@@ -145,7 +146,11 @@ export function buildChoiceOptions(
     );
   }
 
-  if (currentQuestion.targetForm === "reading" || currentQuestion.targetForm === "meaning") {
+  if (currentQuestion.targetForm === "reading") {
+    return buildReadingChoiceOptions(currentQuestion, questions, questionIndex);
+  }
+
+  if (currentQuestion.targetForm === "meaning") {
     return buildPoolBasedChoiceOptions(currentQuestion, questions, questionIndex);
   }
 
@@ -228,6 +233,57 @@ function buildPoolBasedChoiceOptions(
   const picked = seededSample(band, CHOICE_COUNT - 1, hashString(currentQuestion.id));
   const options = [correctAnswer, ...picked];
 
+  return rotateOptions(options, currentQuestion, questionIndex);
+}
+
+// Reading drills get PERTURBATION distractors: variants of the correct
+// reading along the axes learners confuse -- voicing (か/が), long vowels
+// (こう/こ), gemination (がっこう/がこう). These are far more testing than
+// "some other word's reading". The pool (other readings) is only a
+// top-up when a short reading yields fewer than CHOICE_COUNT-1
+// perturbations. Sampling is seeded by the question id so the option set
+// is stable across re-renders (no reshuffle after answering).
+function buildReadingChoiceOptions(
+  currentQuestion: PracticeQuestion,
+  questions: PracticeQuestion[],
+  questionIndex: number
+): string[] {
+  const correctAnswer = currentQuestion.expectedAnswers[0];
+  const acceptedAnswers = new Set(currentQuestion.expectedAnswers);
+  const vocab = currentQuestion.vocabulary;
+  const seed = hashString(currentQuestion.id);
+
+  let distractors = seededSample(
+    generateReadingConfusers(correctAnswer, acceptedAnswers),
+    CHOICE_COUNT - 1,
+    seed
+  );
+
+  if (distractors.length < CHOICE_COUNT - 1) {
+    const used = new Set<string>([...acceptedAnswers, ...distractors]);
+    const poolCandidates: string[] = [];
+    for (const question of questions) {
+      if (question.vocabulary.id === vocab.id) continue;
+      if (question.targetForm !== "reading") continue;
+      const text = question.expectedAnswers[0];
+      if (!text || used.has(text)) continue;
+      used.add(text);
+      poolCandidates.push(text);
+    }
+    const ranked = poolCandidates
+      .map((text) => ({
+        text,
+        score: readingSimilarity(correctAnswer, text),
+        tiebreak: hashString(text + currentQuestion.id)
+      }))
+      .sort((a, b) => b.score - a.score || a.tiebreak - b.tiebreak)
+      .map((entry) => entry.text);
+    const band = ranked.slice(0, Math.min(ranked.length, DISTRACTOR_BAND));
+    const topUp = seededSample(band, CHOICE_COUNT - 1 - distractors.length, seed ^ 0x9e3779b9);
+    distractors = uniqueAnswers([...distractors, ...topUp]);
+  }
+
+  const options = [correctAnswer, ...distractors.slice(0, CHOICE_COUNT - 1)];
   return rotateOptions(options, currentQuestion, questionIndex);
 }
 
