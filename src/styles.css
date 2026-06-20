@@ -1397,6 +1397,11 @@ select:disabled {
   font-weight: 800;
 }
 
+.distractor-gloss {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .example {
   border-top: 1px solid var(--example-rule);
   margin-bottom: 0;
