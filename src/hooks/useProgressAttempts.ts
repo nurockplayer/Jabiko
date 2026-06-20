@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { createAttemptStore } from "../domain/storage";
 import type { Attempt } from "../domain/types";
 
@@ -15,10 +15,13 @@ const attemptStore = createAttemptStore();
 export function useProgressAttempts() {
   const [progressAttempts, setProgressAttempts] = useState<Attempt[]>(() => attemptStore.list());
 
-  const recordAttempt = (attempt: Attempt) => {
+  // Stable identity (setProgressAttempts is stable; attemptStore is a
+  // module singleton) so passing it down to the challenge view doesn't
+  // change on every answer.
+  const recordAttempt = useCallback((attempt: Attempt) => {
     setProgressAttempts((current) => [...current, attempt]);
     attemptStore.add(attempt);
-  };
+  }, []);
 
   return { progressAttempts, recordAttempt };
 }

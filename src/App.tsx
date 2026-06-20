@@ -51,6 +51,14 @@ export default function App() {
   const ThemeIcon = theme === "dark" ? Sun : Moon;
 
   const openChallenge = (request?: SessionInit) => {
+    // `request` seeds the session when ChallengePanel MOUNTS (its
+    // usePracticeSession reads init via useState initializers). Every
+    // init-carrying caller fires from a non-challenge panel (home /
+    // learn / mock), so navigating in always mounts ChallengePanel fresh
+    // and the seed applies. Don't call this with a non-undefined request
+    // from INSIDE the challenge view -- the panel is already mounted, so
+    // the seed would be silently ignored. (The nav-bar 挑戰 button calls
+    // it with no request, which is a deliberate no-op when already there.)
     setLaunch(request);
     setAppView("challenge");
   };
