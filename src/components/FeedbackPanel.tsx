@@ -67,7 +67,7 @@ export function FeedbackPanel({
         <Icon aria-hidden="true" />
         <h2>{title}</h2>
         {level ? (
-          <span className="feedback-level" title={`JLPT ${level}`}>
+          <span className="feedback-level" title={`JLPT ${level}`} aria-label={`JLPT ${level}`}>
             {level}
           </span>
         ) : null}
