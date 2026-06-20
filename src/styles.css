@@ -1380,6 +1380,19 @@ select:disabled {
   width: 1.2rem;
 }
 
+/* JLPT level tag (N1/N2/N3) pushed to the right of the feedback heading.
+   Neutral colour so it doesn't pick up the correct/incorrect title hue. */
+.feedback-level {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  color: var(--muted);
+}
+
 .feedback.correct .feedback-title {
   color: var(--green);
 }

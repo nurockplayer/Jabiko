@@ -1,9 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { buildQuestionPool } from "../domain/practice";
 import { jlptVocabulary } from "../domain/vocabulary-jlpt";
 import { examStyleQuestions } from "../domain/examBlocks";
+import { buildSentencePatternPool } from "../domain/sentencePatterns";
 import { lookupWordsByReading } from "../domain/readingLookup";
 import { lookupPatternMeaning } from "../domain/patternMeaning";
 
@@ -82,5 +83,66 @@ describe("FeedbackPanel distractor gloss", () => {
       />
     );
     expect(container.querySelector(".distractor-gloss")).toBeNull();
+  });
+
+  it("tags the post-answer panel with the question's JLPT level, and hides it when absent", () => {
+    const examItem = examStyleQuestions.find((q) => q.vocabulary.level === "N1")!;
+    const { container, unmount } = render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question: examItem }}
+        language="zh-Hant"
+        options={examItem.options ?? []}
+      />
+    );
+    expect(container.querySelector(".feedback-level")?.textContent).toBe("N1");
+    unmount();
+
+    // Basic/cloze items have no level -> no tag.
+    const noLevel = {
+      ...readingPool[0],
+      vocabulary: { ...readingPool[0].vocabulary, level: undefined }
+    };
+    const { container: c2 } = render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question: noLevel }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    expect(c2.querySelector(".feedback-level")).toBeNull();
+  });
+
+  it("shows a distractor gloss only for reading + grammar item types (gating matrix)", () => {
+    const sample = (label: string) => examStyleQuestions.find((q) => q.promptLabel === label)!;
+    const textGrammar = sample("文章脈絡");
+    // Another grammar item's answer -> a distractor the bank can gloss.
+    const grammarAnswer = examStyleQuestions.find(
+      (q) => q.promptLabel === "文法形式選擇" && q.expectedAnswers[0] !== textGrammar.expectedAnswers[0]
+    )!.expectedAnswers[0];
+    const kanjiReading = sample("漢字読み");
+
+    const cases = [
+      // reading drills -> gloss shown (even a no-word reading is marked).
+      { question: kanjiReading, options: [kanjiReading.expectedAnswers[0], "なにかのよみ"], gloss: true },
+      // grammar form / text grammar -> gloss shown (distractor has a meaning).
+      { question: textGrammar, options: [textGrammar.expectedAnswers[0], grammarAnswer], gloss: true },
+      // these item types -> never a gloss (and never 無對應詞).
+      { question: sample("語順組合"), options: ["a", "b"], gloss: false },
+      { question: sample("詞彙填空"), options: ["a", "b"], gloss: false },
+      { question: buildSentencePatternPool()[0], options: ["a", "b"], gloss: false }
+    ];
+
+    for (const testCase of cases) {
+      const { container, unmount } = render(
+        <FeedbackPanel
+          feedback={{ status: "incorrect", question: testCase.question }}
+          language="zh-Hant"
+          options={testCase.options}
+        />
+      );
+      const hasGloss = container.querySelector(".distractor-gloss") !== null;
+      expect(hasGloss, `promptLabel=${testCase.question.promptLabel ?? "(none)"}`).toBe(testCase.gloss);
+      unmount();
+    }
   });
 });
