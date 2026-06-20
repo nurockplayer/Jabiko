@@ -9,7 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check:exam": "node scripts/check-exam-options.mjs",
+    "check:exam": "vitest run src/domain/contentGuard.test.ts",
     "optimize-hero": "node scripts/optimize-hero.mjs"
   },
   "dependencies": {
