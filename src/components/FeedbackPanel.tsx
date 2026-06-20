@@ -22,6 +22,10 @@ export function FeedbackPanel({
   const isRevealed = feedback.status === "revealed";
   const title = isCorrect ? t.correct : isRevealed ? t.revealed : t.incorrect;
   const Icon = isCorrect ? CheckCircle2 : XCircle;
+  // Post-answer JLPT level tag (N1/N2/N3) for items that carry one -- exam
+  // questions + JLPT vocab. Shown only here, never pre-answer, so it can't
+  // tip off the question. Basic/cloze/pattern items have no level -> hidden.
+  const level = feedback.question.vocabulary.level;
 
   // Annotate the distractors so a wrong pick teaches something. NOTE all
   // exam items default targetForm to "reading", so we gate on promptLabel,
@@ -62,6 +66,11 @@ export function FeedbackPanel({
       <div className="feedback-title">
         <Icon aria-hidden="true" />
         <h2>{title}</h2>
+        {level ? (
+          <span className="feedback-level" title={`JLPT ${level}`}>
+            {level}
+          </span>
+        ) : null}
       </div>
       <p className="answer-key">{t.answerKey}：{feedback.question.expectedAnswers.join(" / ")}</p>
       <p>{feedback.question.explanation}</p>
