@@ -55,6 +55,15 @@ export type Copy = {
   mockSectionIntro: string;
   mockSectionCount: (count: number) => string;
   mockSectionEmpty: string;
+  kanji: string;
+  kanjiTitle: string;
+  kanjiIntro: string;
+  kanjiSearchPlaceholder: string;
+  kanjiLevelAll: string;
+  kanjiOnyomiLabel: string;
+  kanjiExamplesLabel: string;
+  kanjiNoExamples: string;
+  kanjiSearchEmpty: string;
   learningRegion: string;
   studyBeforeRecall: string;
   learnTitle: string;
@@ -210,6 +219,15 @@ export const copy: Record<Language, Copy> = {
     mockSectionIntro: "選一個 JLPT 題型，直接練那一區。每題作答後即時看解析；錯題會自動進弱點複習。",
     mockSectionCount: (count) => `${count} 題`,
     mockSectionEmpty: "準備中",
+    kanji: "漢字",
+    kanjiTitle: "漢字音読み 速查",
+    kanjiIntro: "依音読み（同音家族）查漢字，確認讀音、別被濁音搞混；點漢字看例詞。",
+    kanjiSearchPlaceholder: "搜尋漢字、讀音、意思",
+    kanjiLevelAll: "全部",
+    kanjiOnyomiLabel: "音読み",
+    kanjiExamplesLabel: "例詞",
+    kanjiNoExamples: "（暫無收錄例詞）",
+    kanjiSearchEmpty: "找不到符合的漢字。",
     learningRegion: "學習",
     studyBeforeRecall: "先學習，再回想",
     learnTitle: "先學會，再挑戰",

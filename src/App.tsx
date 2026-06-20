@@ -23,8 +23,13 @@ const ChallengePanel = lazy(() =>
 const MockExamPanel = lazy(() =>
   import("./components/MockExamPanel").then((module) => ({ default: module.MockExamPanel }))
 );
+// 漢字音読み 速查 also pulls the vocab data (for example words), so it's
+// lazy too -- imported directly from its module, not the barrel.
+const KanjiOnyomiPanel = lazy(() =>
+  import("./components/KanjiOnyomiPanel").then((module) => ({ default: module.KanjiOnyomiPanel }))
+);
 
-type AppView = "home" | "learn" | "rules" | "challenge" | "mock";
+type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock";
 type DrillPreset = LearningBlockDrillPreset;
 
 export default function App() {
@@ -117,6 +122,13 @@ export default function App() {
         </button>
         <button
           type="button"
+          className={appView === "kanji" ? "selected" : ""}
+          onClick={() => setAppView("kanji")}
+        >
+          {t.kanji}
+        </button>
+        <button
+          type="button"
           className={appView === "challenge" ? "selected" : ""}
           onClick={() => openChallenge()}
         >
@@ -153,6 +165,10 @@ export default function App() {
         />
       ) : appView === "rules" ? (
         <RulesPanel language={language} />
+      ) : appView === "kanji" ? (
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <KanjiOnyomiPanel language={language} />
+        </Suspense>
       ) : appView === "mock" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
           <MockExamPanel

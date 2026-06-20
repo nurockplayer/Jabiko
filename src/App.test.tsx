@@ -30,11 +30,11 @@ async function gotoLearn(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("App", () => {
-  // The challenge + mock views are React.lazy in App, and React.lazy only
-  // suspends on its first resolution. Prime both chunks once here so every
-  // test below renders them synchronously regardless of run order --
-  // otherwise whichever test first navigates to a view would run its
-  // synchronous assertions before the lazy chunk finished loading.
+  // The challenge / mock / kanji views are React.lazy in App, and
+  // React.lazy only suspends on its first resolution. Prime the chunks
+  // once here so every test below renders them synchronously regardless of
+  // run order -- otherwise whichever test first navigates to a view would
+  // run its synchronous assertions before the lazy chunk finished loading.
   beforeAll(async () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);
@@ -42,6 +42,8 @@ describe("App", () => {
     await screen.findByRole("region", { name: "目前題目" });
     await user.click(screen.getByRole("button", { name: "模擬考" }));
     await screen.findByRole("region", { name: "模擬考" });
+    await user.click(screen.getByRole("button", { name: "漢字" }));
+    await screen.findByRole("heading", { name: /漢字音読み/ });
     unmount();
   });
 
@@ -641,6 +643,22 @@ describe("App", () => {
     expect(screen.getByText("題庫範圍")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "N1＋N2" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "N2＋N3" })).toBeInTheDocument();
+  });
+
+  it("opens the 漢字音読み table and shows example words for a kanji", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "漢字" }));
+
+    // The table renders, grouped by homophone family.
+    expect(await screen.findByRole("heading", { name: /漢字音読み/ })).toBeInTheDocument();
+    // Tap the 解 kanji cell -> its example words (from the vocab bank) show.
+    await user.click(screen.getByRole("button", { name: /解.*かい/s }));
+    expect(screen.getByText("例詞")).toBeInTheDocument();
+    // 解決's reading is unique to the example row (its surface 解決 also
+    // shows as its own meaningZh, so assert on the reading instead).
+    expect(screen.getByText("かいけつ")).toBeInTheDocument();
   });
 
 });
