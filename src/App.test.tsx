@@ -661,4 +661,52 @@ describe("App", () => {
     expect(screen.getByText("かいけつ")).toBeInTheDocument();
   });
 
+  it("exposes data-selected and data-result on choice buttons after answering", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await screen.findByRole("region", { name: "目前題目" });
+
+    const grid = screen.getByLabelText("答案選項");
+    const options = within(grid).getAllByRole("button");
+    // Nothing flagged before answering.
+    options.forEach((button) => {
+      expect(button).not.toHaveAttribute("data-selected");
+      expect(button).not.toHaveAttribute("data-result");
+    });
+
+    await user.click(options[0]);
+
+    // Exactly one button carries data-selected="true" -- the one picked.
+    const selected = grid.querySelectorAll('[data-selected="true"]');
+    expect(selected).toHaveLength(1);
+    expect(selected[0]).toBe(options[0]);
+
+    // The picked button gets a result. If wrong, the correct answer is
+    // flagged target; if correct, there is no target.
+    const result = options[0].getAttribute("data-result");
+    expect(["correct", "wrong"]).toContain(result);
+    if (result === "wrong") {
+      const target = grid.querySelector('[data-result="target"]');
+      expect(target).not.toBeNull();
+      expect(target).not.toBe(options[0]);
+    } else {
+      expect(grid.querySelector('[data-result="target"]')).toBeNull();
+    }
+  });
+
+  it("flags the correct answer with data-result=target when revealed", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await screen.findByRole("region", { name: "目前題目" });
+
+    await user.click(screen.getByRole("button", { name: "看答案" }));
+
+    const grid = screen.getByLabelText("答案選項");
+    // Revealing flags the correct answer(s) as target, with nothing selected.
+    expect(grid.querySelectorAll('[data-result="target"]').length).toBeGreaterThanOrEqual(1);
+    expect(grid.querySelector('[data-selected="true"]')).toBeNull();
+  });
+
 });
