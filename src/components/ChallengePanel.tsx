@@ -6,6 +6,7 @@ import { ExamPrompt } from "./ExamPrompt";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { SpeakButton } from "./SpeakButton";
 import type { Feedback } from "./types";
+import { LEVEL_RANGE_OPTIONS } from "../domain/levelRange";
 import { usePracticeSession, type PracticeMode, type SessionInit } from "../hooks/usePracticeSession";
 
 const partOfSpeechOptions: Array<PartOfSpeech | "mixed"> = ["verb", "i_adjective", "na_adjective", "noun", "mixed"];
@@ -85,6 +86,8 @@ export function ChallengePanel({
     verbGroup,
     practiceFocus,
     practiceMode,
+    levelRange,
+    showLevelRange,
     selectedForm,
     questionIndex,
     selectedChoice,
@@ -111,6 +114,7 @@ export function ChallengePanel({
     handlePartOfSpeechChange,
     handlePracticeFocusChange,
     handlePracticeModeChange,
+    handleLevelRangeChange,
     handleChoiceSubmit,
     nextQuestion,
     resetSession,
@@ -157,6 +161,25 @@ export function ChallengePanel({
           })}
         </div>
       </fieldset>
+
+      {showLevelRange ? (
+        <fieldset>
+          <legend>{t.levelRange}</legend>
+          <div className="segmented">
+            {LEVEL_RANGE_OPTIONS.map((range) => (
+              <button
+                key={range}
+                type="button"
+                className={levelRange === range ? "selected" : ""}
+                aria-pressed={levelRange === range}
+                onClick={() => handleLevelRangeChange(range)}
+              >
+                {t.levelRangeOptions[range]}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
 
       {practiceMode === "basic" ? (
         <>

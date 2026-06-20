@@ -45,6 +45,27 @@ describe("FeedbackPanel distractor gloss", () => {
     expect(text).not.toContain(`${answer}（`);
   });
 
+  it("renders each reading distractor on its own line (multiline, answer excluded)", () => {
+    const question = readingPool[0];
+    const answer = question.expectedAnswers[0];
+    const distractors = Array.from(
+      new Set(readingPool.map((q) => q.expectedAnswers[0]).filter((reading) => reading !== answer))
+    ).slice(0, 2);
+
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question }}
+        language="zh-Hant"
+        options={[answer, ...distractors]}
+      />
+    );
+
+    // One <li> per distractor (each option on its own line), answer excluded.
+    const items = container.querySelectorAll(".distractor-gloss-list li");
+    expect(items).toHaveLength(distractors.length);
+    items.forEach((li) => expect(li.textContent).not.toContain(`${answer}（`));
+  });
+
   it("glosses grammar distractors with each pattern's meaning (not 無對應詞)", () => {
     // Grammar items default targetForm to "reading", so this also guards
     // against the reading-gloss path firing for them.

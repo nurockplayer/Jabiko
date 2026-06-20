@@ -1415,6 +1415,25 @@ select:disabled {
   font-size: 0.9rem;
 }
 
+.distractor-gloss-label {
+  margin: 0 0 0.25rem;
+}
+
+.distractor-gloss-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* Each distractor on its own line -- on mobile they must not crowd onto
+   one row (issue #50). */
+.distractor-gloss-list li {
+  line-height: 1.4;
+}
+
 .example {
   border-top: 1px solid var(--example-rule);
   margin-bottom: 0;

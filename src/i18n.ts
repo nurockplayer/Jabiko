@@ -99,6 +99,8 @@ export type Copy = {
   todayPractice: string;
   practiceType: string;
   practiceMode: string;
+  levelRange: string;
+  levelRangeOptions: { all: string; n1n2: string; n2n3: string };
   practiceFocus: string;
   verbGroup: string;
   targetForm: string;
@@ -268,6 +270,8 @@ export const copy: Record<Language, Copy> = {
     todayPractice: "今日練習",
     practiceType: "練習類型",
     practiceMode: "練習模式",
+    levelRange: "題庫範圍",
+    levelRangeOptions: { all: "全部", n1n2: "N1＋N2", n2n3: "N2＋N3" },
     practiceFocus: "練習重點",
     verbGroup: "動詞類別",
     targetForm: "目標形",

@@ -3,6 +3,7 @@ import { ADJECTIVE_FORMS, VERB_FORMS } from "../domain/conjugation";
 import { buildClozeQuestionPool } from "../domain/cloze";
 import { clozeSentences } from "../domain/cloze-data";
 import { buildExamQuestionPool } from "../domain/examBlocks";
+import { levelsForRange, type LevelRange } from "../domain/levelRange";
 import type { MockExamLevel } from "../domain/mockExam";
 import { buildSentencePatternPool, type SentencePatternId } from "../domain/sentencePatterns";
 import {
@@ -42,6 +43,8 @@ export type SessionInit = {
   verbGroup?: VerbGroup | "all";
   practiceFocus?: PracticeFocus;
   targetForm?: TargetForm;
+  // JLPT level range for the exam (綜合) + vocab (単字) pools; default all.
+  levelRange?: LevelRange;
 };
 
 const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; verbOnly?: boolean }> = [
@@ -147,6 +150,7 @@ export function usePracticeSession({
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>(init?.practiceFocus ?? "single");
   const [practiceMode, setPracticeMode] = useState<PracticeMode>(init?.mode ?? "basic");
   const [practiceFilter, setPracticeFilter] = useState<PracticeFilter>(init?.filter ?? {});
+  const [levelRange, setLevelRange] = useState<LevelRange>(init?.levelRange ?? "all");
   const [questionIndex, setQuestionIndex] = useState(0);
   const [sessionSeed, setSessionSeed] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
@@ -172,6 +176,10 @@ export function usePracticeSession({
   const isDailyFocus = practiceMode === "daily";
   const isCuratedFocus =
     isExamFocus || isClozeFocus || isPatternFocus || isReviewFocus || isVocabFocus || isDailyFocus;
+  // The level-range picker applies to the 綜合考題庫 (exam with no fixed
+  // section) and 単字 pools -- the two banks with JLPT-tagged items. A
+  // mock-launched exam section already fixes the level, so hide it there.
+  const showLevelRange = (isExamFocus && !practiceFilter.examSection) || isVocabFocus;
 
   // Union pool used to materialise the review queue: any question the
   // learner has ever encountered (across exam / cloze / pattern / basic)
@@ -257,7 +265,8 @@ export function usePracticeSession({
             )
           );
         }
-        return shuffleQuestions(buildExamQuestionPool());
+        // 綜合考題庫: optionally narrowed to a level range (N1+N2 / N2+N3).
+        return shuffleQuestions(buildExamQuestionPool(levelsForRange(levelRange) ?? "all"));
       }
 
       if (isClozeFocus) {
@@ -289,8 +298,12 @@ export function usePracticeSession({
         // 影響 is えいきょう, not えいきゅう. Meaning is still tested,
         // but in CONTEXT, via the exam pool's 詞彙填空 / 類義替換 /
         // 詞彙用法 sections -- which is the authentic way to test it.
+        const levels = levelsForRange(levelRange);
+        const vocabSource = levels
+          ? jlptVocabulary.filter((item) => item.level != null && levels.includes(item.level))
+          : jlptVocabulary;
         const vocabPool = shuffleQuestions(
-          buildQuestionPool(jlptVocabulary, {
+          buildQuestionPool(vocabSource, {
             partOfSpeech: "mixed",
             verbGroup: "all",
             targetForms: ["reading"]
@@ -345,6 +358,7 @@ export function usePracticeSession({
       partOfSpeech,
       targetForms,
       verbGroup,
+      levelRange,
       sessionSeed
     ]
   );
@@ -394,6 +408,12 @@ export function usePracticeSession({
     // via the picker -- the picker means "give me a fresh mix",
     // whereas a chapter drill button sets a specific patternIds filter.
     setPracticeFilter({});
+    resetSession();
+  };
+
+  const handleLevelRangeChange = (nextRange: LevelRange) => {
+    if (nextRange === levelRange) return;
+    setLevelRange(nextRange);
     resetSession();
   };
 
@@ -451,6 +471,8 @@ export function usePracticeSession({
     verbGroup,
     practiceFocus,
     practiceMode,
+    levelRange,
+    showLevelRange,
     selectedForm,
     questionIndex,
     selectedChoice,
@@ -479,6 +501,7 @@ export function usePracticeSession({
     handlePartOfSpeechChange,
     handlePracticeFocusChange,
     handlePracticeModeChange,
+    handleLevelRangeChange,
     handleChoiceSubmit,
     nextQuestion,
     resetSession,
