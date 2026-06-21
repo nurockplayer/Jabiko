@@ -629,20 +629,33 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "深色模式" })).toBeInTheDocument();
   });
 
-  it("shows the 題庫範圍 picker in exam mode but not basic mode", async () => {
+  it("lists 綜合考題庫 / N1 備考 / N2 備考 as side-by-side mode presets", async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.click(screen.getByRole("button", { name: "挑戰" }));
     await screen.findByRole("region", { name: "目前題目" });
-    // Default basic mode has no level-range picker.
+
+    // The exam pool's level ranges are now first-class mode cards, not an
+    // in-mode "題庫範圍" segmented filter.
+    const exam = screen.getByRole("button", { name: /綜合考題庫/ });
+    const n1 = screen.getByRole("button", { name: /N1 備考/ });
+    const n2 = screen.getByRole("button", { name: /N2 備考/ });
+    expect(exam).toBeInTheDocument();
+    expect(n1).toBeInTheDocument();
+    expect(n2).toBeInTheDocument();
     expect(screen.queryByText("題庫範圍")).toBeNull();
 
-    // 綜合考題庫 (exam) exposes the N1+N2 / N2+N3 range presets.
-    await user.click(screen.getByRole("button", { name: /綜合考題庫/ }));
-    expect(screen.getByText("題庫範圍")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "N1＋N2" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "N2＋N3" })).toBeInTheDocument();
+    // Picking N2 備考 activates it (exam mode + N2+N3 range) and deselects
+    // 綜合. The pool actually narrowing to N2/N3 is covered by
+    // levelRange.test.ts (buildExamQuestionPool(["N2","N3"]) excludes N1).
+    await user.click(n2);
+    expect(n2).toHaveAttribute("aria-pressed", "true");
+    expect(exam).toHaveAttribute("aria-pressed", "false");
+    // The active-mode summary reflects the picked preset's copy (examN2
+    // 「N2＋N3 綜合題」), not the generic 綜合 text -- so that copy now
+    // appears on BOTH the N2 備考 card and the summary (>= 2 occurrences).
+    expect(screen.getAllByText(/N2＋N3 綜合題/).length).toBeGreaterThanOrEqual(2);
   });
 
   it("opens the 漢字音読み table and shows example words for a kanji", async () => {

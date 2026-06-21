@@ -133,7 +133,7 @@ export type Copy = {
   feedbackOtherOptions: string;
   feedbackNoWord: string;
   focusSummaryEmpty: string;
-  modeOptions: Record<"basic" | "cloze" | "daily" | "exam" | "pattern" | "review" | "vocab", { title: string; subtitle: string }>;
+  modeOptions: Record<"basic" | "cloze" | "daily" | "exam" | "examN1" | "examN2" | "pattern" | "review" | "vocab", { title: string; subtitle: string }>;
   modeQuestionCount: (count: number) => string;
   homeCardVocabTitle: string;
   homeCardVocabSub: string;
@@ -319,6 +319,8 @@ export const copy: Record<Language, Copy> = {
       cloze: { title: "句中填空", subtitle: "N5 文型 · 〜てください / 〜たいです" },
       pattern: { title: "句型練習", subtitle: "N5/N4 句型判斷 · 視角 / 許可 / 引用 / 不必" },
       exam: { title: "綜合考題庫", subtitle: "N1/N2 為主 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み" },
+      examN1: { title: "N1 備考", subtitle: "N1＋N2 綜合題 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み" },
+      examN2: { title: "N2 備考", subtitle: "N2＋N3 綜合題 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み" },
       vocab: { title: "単字讀音", subtitle: "N1/N2 漢字詞 · 選正確讀音（よみ）" },
       review: { title: "弱點複習", subtitle: "把上次答錯的題目重練到對為止" }
     },

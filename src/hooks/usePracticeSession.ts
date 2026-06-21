@@ -179,7 +179,10 @@ export function usePracticeSession({
   // The level-range picker applies to the 綜合考題庫 (exam with no fixed
   // section) and 単字 pools -- the two banks with JLPT-tagged items. A
   // mock-launched exam section already fixes the level, so hide it there.
-  const showLevelRange = (isExamFocus && !practiceFilter.examSection) || isVocabFocus;
+  // The exam pool's level ranges are now their own mode-picker presets
+  // (綜合 / N1 備考 / N2 備考), so the in-mode range segmented is only
+  // needed for the vocab pool.
+  const showLevelRange = isVocabFocus;
 
   // Union pool used to materialise the review queue: any question the
   // learner has ever encountered (across exam / cloze / pattern / basic)
@@ -220,6 +223,8 @@ export function usePracticeSession({
       cloze: buildClozeQuestionPool(clozeSentences, vocabulary).length,
       pattern: buildSentencePatternPool().length,
       exam: buildExamQuestionPool().length,
+      examN1: buildExamQuestionPool(levelsForRange("n1n2") ?? "all").length,
+      examN2: buildExamQuestionPool(levelsForRange("n2n3") ?? "all").length,
       vocab: buildQuestionPool(jlptVocabulary, {
         partOfSpeech: "mixed",
         verbGroup: "all",
@@ -244,8 +249,20 @@ export function usePracticeSession({
     [practiceFocus, isCuratedFocus, selectedForm]
   );
   const activeFocusForms = targetForms.filter((form) => compatibleForms.includes(form));
+  // Exam mode is one PracticeMode but three picker presets (綜合 / N1 備考
+  // / N2 備考). Map the active mode+range to the matching copy key so the
+  // summary + mode description reflect the chosen 備考 preset, not the
+  // generic 綜合考題庫 text.
+  const activeModeCopyKey: PracticeMode | "examN1" | "examN2" =
+    practiceMode === "exam"
+      ? levelRange === "n1n2"
+        ? "examN1"
+        : levelRange === "n2n3"
+          ? "examN2"
+          : "exam"
+      : practiceMode;
   const focusSummary = isCuratedFocus
-    ? t.modeOptions[practiceMode].subtitle
+    ? t.modeOptions[activeModeCopyKey].subtitle
     : practiceFocus === "single"
     ? t.targetForms[selectedForm]
     : activeFocusForms.map((form) => t.targetForms[form]).join(" / ") || t.focusSummaryEmpty;
@@ -401,12 +418,15 @@ export function usePracticeSession({
     resetSession();
   };
 
-  const handlePracticeModeChange = (nextMode: PracticeMode) => {
-    if (nextMode === practiceMode) return;
+  // The mode picker lists the exam pool as three side-by-side presets
+  // (綜合 / N1 備考 / N2 備考), so picking one sets BOTH the mode and its
+  // level range at once. Non-exam presets pass "all" (a no-op for the
+  // modes that ignore levelRange). Clearing the filter keeps the picker a
+  // "fresh mix" (a chapter drill button is what sets a patternIds filter).
+  const applyModePreset = (nextMode: PracticeMode, nextRange: LevelRange = "all") => {
+    if (nextMode === practiceMode && nextRange === levelRange) return;
     setPracticeMode(nextMode);
-    // Clear any chapter-driven filter when the learner switches modes
-    // via the picker -- the picker means "give me a fresh mix",
-    // whereas a chapter drill button sets a specific patternIds filter.
+    setLevelRange(nextRange);
     setPracticeFilter({});
     resetSession();
   };
@@ -488,6 +508,7 @@ export function usePracticeSession({
     isVerbCapable,
     availableFocusOptions,
     focusSummary,
+    activeModeCopyKey,
     reviewQueue,
     modeCounts,
     currentQuestion,
@@ -500,7 +521,7 @@ export function usePracticeSession({
     nextButtonRef,
     handlePartOfSpeechChange,
     handlePracticeFocusChange,
-    handlePracticeModeChange,
+    applyModePreset,
     handleLevelRangeChange,
     handleChoiceSubmit,
     nextQuestion,

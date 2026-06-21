@@ -6,7 +6,7 @@ import { ExamPrompt } from "./ExamPrompt";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { SpeakButton } from "./SpeakButton";
 import type { Feedback } from "./types";
-import { LEVEL_RANGE_OPTIONS } from "../domain/levelRange";
+import { LEVEL_RANGE_OPTIONS, type LevelRange } from "../domain/levelRange";
 import { usePracticeSession, type PracticeMode, type SessionInit } from "../hooks/usePracticeSession";
 
 const partOfSpeechOptions: Array<PartOfSpeech | "mixed"> = ["verb", "i_adjective", "na_adjective", "noun", "mixed"];
@@ -34,7 +34,23 @@ const formOptions: TargetForm[] = [
   "plainPastNegative"
 ];
 
-const practiceModeOrder: PracticeMode[] = ["daily", "basic", "cloze", "pattern", "exam", "vocab", "review"];
+// Mode picker entries. The exam pool is surfaced as three side-by-side
+// presets -- 綜合考題庫 (all levels) plus N1 備考 (N1+N2) and N2 備考
+// (N2+N3) -- so the備考 ranges are first-class picks rather than a filter
+// hidden inside the exam mode. `id` doubles as the i18n / count key.
+type ModePresetId = PracticeMode | "examN1" | "examN2";
+type ModePreset = { id: ModePresetId; mode: PracticeMode; levelRange?: LevelRange };
+const modePresetOrder: ModePreset[] = [
+  { id: "daily", mode: "daily" },
+  { id: "basic", mode: "basic" },
+  { id: "cloze", mode: "cloze" },
+  { id: "pattern", mode: "pattern" },
+  { id: "exam", mode: "exam", levelRange: "all" },
+  { id: "examN1", mode: "exam", levelRange: "n1n2" },
+  { id: "examN2", mode: "exam", levelRange: "n2n3" },
+  { id: "vocab", mode: "vocab" },
+  { id: "review", mode: "review" }
+];
 
 function choiceOptionClass(choice: string, selectedChoice: string | null, feedback: Feedback): string {
   const classes = ["choice-option"];
@@ -101,6 +117,7 @@ export function ChallengePanel({
     isVerbCapable,
     availableFocusOptions,
     focusSummary,
+    activeModeCopyKey,
     reviewQueue,
     modeCounts,
     currentQuestion,
@@ -113,7 +130,7 @@ export function ChallengePanel({
     nextButtonRef,
     handlePartOfSpeechChange,
     handlePracticeFocusChange,
-    handlePracticeModeChange,
+    applyModePreset,
     handleLevelRangeChange,
     handleChoiceSubmit,
     nextQuestion,
@@ -136,23 +153,28 @@ export function ChallengePanel({
       <fieldset>
         <legend>{t.practiceMode}</legend>
         <div className="mode-toggle">
-          {practiceModeOrder.map((mode) => {
+          {modePresetOrder.map((preset) => {
             const count =
-              mode === "review"
+              preset.mode === "review"
                 ? reviewQueue.length
-                : mode === "basic" || mode === "daily"
+                : preset.mode === "basic" || preset.mode === "daily"
                 ? null
-                : modeCounts[mode];
+                : modeCounts[preset.id as keyof typeof modeCounts];
+            // The exam presets share one mode; the active one is whichever
+            // matches the current level range.
+            const selected =
+              practiceMode === preset.mode &&
+              (preset.mode !== "exam" || (preset.levelRange ?? "all") === levelRange);
             return (
               <button
-                key={mode}
+                key={preset.id}
                 type="button"
-                className={`mode-card${practiceMode === mode ? " selected" : ""}`}
-                aria-pressed={practiceMode === mode}
-                onClick={() => handlePracticeModeChange(mode)}
+                className={`mode-card${selected ? " selected" : ""}`}
+                aria-pressed={selected}
+                onClick={() => applyModePreset(preset.mode, preset.levelRange ?? "all")}
               >
-                <strong>{t.modeOptions[mode].title}</strong>
-                <small>{t.modeOptions[mode].subtitle}</small>
+                <strong>{t.modeOptions[preset.id].title}</strong>
+                <small>{t.modeOptions[preset.id].subtitle}</small>
                 {count !== null ? (
                   <span className="mode-card-count">{t.modeQuestionCount(count)}</span>
                 ) : null}
@@ -261,7 +283,7 @@ export function ChallengePanel({
         </>
       ) : (
         <div className="mode-description">
-          <p>{t.modeOptions[practiceMode].subtitle}</p>
+          <p>{t.modeOptions[activeModeCopyKey].subtitle}</p>
         </div>
       )}
 
