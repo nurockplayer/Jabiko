@@ -43,7 +43,7 @@ export default function App() {
   const t = copy[language];
 
   const { theme, toggleTheme } = useTheme();
-  const { user, signInWithGoogle, signOut } = useAuth();
+  const { user, error: authError, signInWithGoogle, signOut } = useAuth();
   const { progressAttempts, recordAttempt } = useProgressAttempts();
   // Lightweight, pool-free count for the home/learn review badge (see
   // countDueReviews). The full review queue -- which needs the question
@@ -107,6 +107,11 @@ export default function App() {
                 <button type="button" className="auth-button" onClick={signInWithGoogle}>
                   {t.authSignIn}
                 </button>
+              )}
+              {authError && (
+                <span className="heading-auth-error" role="alert">
+                  {authError}
+                </span>
               )}
             </div>
           )}

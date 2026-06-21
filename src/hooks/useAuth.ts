@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { AuthError, User } from "@supabase/supabase-js";
-import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import { getSupabase, isSupabaseConfigured } from "../lib/supabase";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -8,41 +8,62 @@ export function useAuth() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) {
+    if (!isSupabaseConfigured) {
       setLoading(false);
       return;
     }
 
-    supabase.auth.getSession()
-      .then(({ data: { session }, error: err }) => {
-        if (err) {
-          console.error("Supabase getSession error:", err);
-          setError("無法取得登入狀態");
+    let active = true;
+    let unsubscribe: (() => void) | undefined;
+
+    getSupabase()
+      .then((client) => {
+        if (!client || !active) {
+          setLoading(false);
+          return;
         }
-        setUser(session?.user ?? null);
-        setLoading(false);
+
+        client.auth
+          .getSession()
+          .then(({ data: { session }, error: err }) => {
+            if (err) {
+              console.error("Supabase getSession error:", err);
+              setError("無法取得登入狀態");
+            }
+            setUser(session?.user ?? null);
+            setLoading(false);
+          })
+          .catch((e: unknown) => {
+            console.error("Supabase getSession exception:", e);
+            setLoading(false);
+          });
+
+        const {
+          data: { subscription }
+        } = client.auth.onAuthStateChange((_event, session) => {
+          setUser(session?.user ?? null);
+          setError(null); // clear errors on successful auth change
+        });
+        unsubscribe = () => subscription.unsubscribe();
       })
       .catch((e: unknown) => {
-        console.error("Supabase getSession exception:", e);
+        console.error("Supabase load error:", e);
         setLoading(false);
       });
 
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setError(null); // clear errors on successful auth change
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      active = false;
+      unsubscribe?.();
+    };
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
-    if (!supabase) {
+    const client = await getSupabase();
+    if (!client) {
       setError("登入服務不可用");
       return { error: new Error("Supabase not configured") as AuthError };
     }
-    return supabase.auth.signInWithOAuth({
+    return client.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: window.location.origin
@@ -51,8 +72,9 @@ export function useAuth() {
   }, []);
 
   const signOut = useCallback(async () => {
-    if (!supabase) return;
-    const { error: err } = await supabase.auth.signOut();
+    const client = await getSupabase();
+    if (!client) return;
+    const { error: err } = await client.auth.signOut();
     if (err) {
       console.error("Sign out error:", err);
       setError("登出失敗");

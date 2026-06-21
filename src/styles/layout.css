@@ -82,6 +82,11 @@
   gap: 0.5rem;
 }
 
+.heading-auth-error {
+  color: var(--danger, #c0392b);
+  font-size: 0.75rem;
+}
+
 .view-switch {
   margin: 0 auto 1rem;
   max-width: 360px;
