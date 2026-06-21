@@ -1,24 +1,22 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { ADJECTIVE_FORMS, VERB_FORMS } from "../domain/conjugation";
-import { buildClozeQuestionPool } from "../domain/cloze";
-import { clozeSentences } from "../domain/cloze-data";
-import { buildExamQuestionPool } from "../domain/examBlocks";
-import { levelsForRange, type LevelRange } from "../domain/levelRange";
+import { type LevelRange } from "../domain/levelRange";
 import type { MockExamLevel } from "../domain/mockExam";
-import { buildSentencePatternPool, type SentencePatternId } from "../domain/sentencePatterns";
+import { type SentencePatternId } from "../domain/sentencePatterns";
 import {
   buildChoiceOptions,
-  buildQuestionPool,
   getMistakeQuestions,
   getReviewQueue,
-  reduceAdjacentClusters,
   scoreAttempt,
-  selectQuestion,
-  shuffleQuestions
+  selectQuestion
 } from "../domain/practice";
-import type { Attempt, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "../domain/types";
-import { vocabulary } from "../domain/vocabulary";
-import { jlptVocabulary } from "../domain/vocabulary-jlpt";
+import {
+  buildAllKnownQuestions,
+  buildModeCounts,
+  buildPracticeQuestions,
+  uniqueForms
+} from "../domain/sessionPools";
+import type { Attempt, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
 import { copy, type Language } from "../i18n";
 import type { Feedback } from "../components/types";
 
@@ -69,58 +67,6 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
     targetForms: ["obligationPast"]
   }
 ];
-
-function uniqueForms(forms: TargetForm[]): TargetForm[] {
-  return Array.from(new Set(forms));
-}
-
-const DAILY_TARGET = 20;
-// Reserve enough fresh vocab-reading items that their pool-based
-// distractors (drawn from same-targetForm peers within the session) can
-// always fill a full 4-option grid. Without this floor, a daily set that
-// happened to land only 1-2 vocab items would render those 漢字読み
-// questions with too few choices.
-const DAILY_VOCAB_MIN = Math.floor(DAILY_TARGET / 4);
-
-// Builds the "今日練習" set: due SRS reviews first (capped at half so a
-// big backlog still leaves room for variety), then a de-clustered mix of
-// fresh vocab (a reserved minimum) + exam items to fill out the session.
-// It's a FINITE pass -- the learner works through the set once and gets a
-// completion screen, same as review mode. v1 is an even mix; weighting
-// toward the learner's weak sections is a follow-up (needs attempt
-// metadata).
-function composeDailySet(due: PracticeQuestion[]): PracticeQuestion[] {
-  const dueTake = due.slice(0, Math.ceil(DAILY_TARGET / 2));
-  // Exclude EVERY due item from the fresh pools -- not just the capped
-  // slice -- so an over-cap due item can't slip back in mislabelled as a
-  // fresh question (which would drop its most-overdue-first SRS ordering).
-  const dueIds = new Set(due.map((question) => question.id));
-  const isFresh = (question: PracticeQuestion) => !dueIds.has(question.id);
-  const freshSlots = DAILY_TARGET - dueTake.length;
-
-  const vocabFresh = shuffleQuestions(
-    buildQuestionPool(jlptVocabulary, {
-      partOfSpeech: "mixed",
-      verbGroup: "all",
-      targetForms: ["reading"]
-    }).filter(isFresh)
-  ).slice(0, Math.min(DAILY_VOCAB_MIN, freshSlots));
-  const examFresh = shuffleQuestions(buildExamQuestionPool().filter(isFresh)).slice(
-    0,
-    freshSlots - vocabFresh.length
-  );
-
-  // De-cluster only the FRESH portion so consecutive fresh questions
-  // aren't all the same kind (exam items carry promptLabel; vocab falls
-  // back to its targetForm, "reading"). The due block stays first, in its
-  // most-overdue-first order -- declustering the whole set would let fresh
-  // items slip between due items and break the "reviews first" promise.
-  const fresh = reduceAdjacentClusters(
-    [...vocabFresh, ...examFresh],
-    (question) => question.promptLabel ?? question.targetForm
-  );
-  return [...dueTake, ...fresh];
-}
 
 // The stateful core of the practice experience: owns all in-session
 // state (mode / filters / current question / feedback / score), derives
@@ -189,24 +135,7 @@ export function usePracticeSession({
   // could be in their attempt history, so the queue lookup needs to see
   // them all. Built once and reused -- this is the same set of question
   // factories the four mode-specific branches below call, just unioned.
-  const allKnownQuestions = useMemo(
-    () => [
-      ...buildExamQuestionPool(),
-      ...buildClozeQuestionPool(clozeSentences, vocabulary),
-      ...buildSentencePatternPool(),
-      ...buildQuestionPool(vocabulary, {
-        partOfSpeech: "mixed",
-        verbGroup: "all",
-        targetForms: uniqueForms([
-          ...VERB_FORMS,
-          ...ADJECTIVE_FORMS,
-          "reading",
-          "meaning"
-        ])
-      })
-    ],
-    []
-  );
+  const allKnownQuestions = useMemo(() => buildAllKnownQuestions(), []);
 
   const reviewQueue = useMemo(
     () => getReviewQueue(progressAttempts, allKnownQuestions),
@@ -218,22 +147,7 @@ export function usePracticeSession({
   // computed once; "basic" is intentionally omitted (its size depends on
   // the chosen word type / verb group / form), and "review" is dynamic
   // (the due count) so it's read from reviewQueue at render time.
-  const modeCounts = useMemo(
-    () => ({
-      cloze: buildClozeQuestionPool(clozeSentences, vocabulary).length,
-      pattern: buildSentencePatternPool().length,
-      exam: buildExamQuestionPool().length,
-      examN1: buildExamQuestionPool(levelsForRange("n1n2") ?? "all").length,
-      examN2: buildExamQuestionPool(levelsForRange("n2n3") ?? "all").length,
-      examN4: buildExamQuestionPool(levelsForRange("n4n5") ?? "all").length,
-      vocab: buildQuestionPool(jlptVocabulary, {
-        partOfSpeech: "mixed",
-        verbGroup: "all",
-        targetForms: ["reading"]
-      }).length
-    }),
-    []
-  );
+  const modeCounts = useMemo(() => buildModeCounts(), []);
   const isVerbCapable = partOfSpeech === "verb" || partOfSpeech === "mixed";
   const availableFocusOptions = focusOptions.filter((option) => {
     if (option.verbOnly && !isVerbCapable) return false;
@@ -273,85 +187,21 @@ export function usePracticeSession({
   const questions = useMemo(
     () => {
       void sessionSeed;
-      if (isExamFocus) {
-        // Section-filtered when launched from the 模擬考 picker; the
-        // plain "綜合考題庫" mode card leaves examSection unset and
-        // mixes every section.
-        const section = practiceFilter.examSection;
-        if (section) {
-          return shuffleQuestions(
-            buildExamQuestionPool(section.level).filter(
-              (question) => question.promptLabel === section.promptLabel
-            )
-          );
-        }
-        // 綜合考題庫: optionally narrowed to a level range (N1+N2 / N2+N3).
-        return shuffleQuestions(buildExamQuestionPool(levelsForRange(levelRange) ?? "all"));
-      }
-
-      if (isClozeFocus) {
-        return shuffleQuestions(buildClozeQuestionPool(clozeSentences, vocabulary));
-      }
-
-      if (isPatternFocus) {
-        return shuffleQuestions(
-          buildSentencePatternPool({ patternIds: practiceFilter.patternIds })
-        );
-      }
-
-      if (isReviewFocus) {
-        // Snapshot the SRS queue at session start. Subsequent answers
-        // update the LIVE reviewQueue (used by the home banner count),
-        // but this useMemo is intentionally NOT re-keyed on it -- see
-        // the deps comment below for the regression that fixes.
-        // Ordering is preserved (no extra shuffle): getReviewQueue
-        // already sorts most-overdue first.
-        return reviewQueue;
-      }
-
-      if (isVocabFocus) {
-        // 単字 mode: N1/N2 reading drill. Reading-only on purpose --
-        // for a Chinese-speaking learner the kanji usually telegraphs
-        // the meaning (影響 = 影響), so an isolated meaning question is
-        // trivial and can't be rescued by stronger distractors. The
-        // genuinely hard, JLPT-relevant skill is the READING (よみ):
-        // 影響 is えいきょう, not えいきゅう. Meaning is still tested,
-        // but in CONTEXT, via the exam pool's 詞彙填空 / 類義替換 /
-        // 詞彙用法 sections -- which is the authentic way to test it.
-        const levels = levelsForRange(levelRange);
-        const vocabSource = levels
-          ? jlptVocabulary.filter((item) => item.level != null && levels.includes(item.level))
-          : jlptVocabulary;
-        const vocabPool = shuffleQuestions(
-          buildQuestionPool(vocabSource, {
-            partOfSpeech: "mixed",
-            verbGroup: "all",
-            targetForms: ["reading"]
-          })
-        );
-        // De-run by reading length: consecutive questions then tend to
-        // have different-length answers -> different distractor bands ->
-        // no "same options twice in a row" feel even when the random
-        // shuffle clusters same-length words together.
-        return reduceAdjacentClusters(
-          vocabPool,
-          (question) => String(question.expectedAnswers[0]?.length ?? 0)
-        );
-      }
-
-      if (isDailyFocus) {
-        // Snapshot the current due queue at session start (same as review
-        // mode); the live reviewQueue stays excluded from the deps below.
-        return composeDailySet(reviewQueue);
-      }
-
-      return shuffleQuestions(
-        buildQuestionPool(vocabulary, {
-          partOfSpeech,
-          verbGroup,
-          targetForms
-        })
-      );
+      return buildPracticeQuestions({
+        isExamFocus,
+        isClozeFocus,
+        isPatternFocus,
+        isReviewFocus,
+        isVocabFocus,
+        isDailyFocus,
+        examSection: practiceFilter.examSection,
+        patternIds: practiceFilter.patternIds,
+        partOfSpeech,
+        verbGroup,
+        targetForms,
+        levelRange,
+        reviewQueue
+      });
     },
     // INTENTIONALLY excluding `reviewQueue` from deps. The live queue
     // is reactive to every progressAttempts change (any answered
