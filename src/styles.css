@@ -1286,6 +1286,33 @@ select:disabled {
   text-align: left;
 }
 
+/* Collapsible pre-answer hint (ExamPrompt). The toggle button is low-key
+   so it doesn't compete with the prompt; the hint text reuses .meaning. */
+.hint-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.hint-toggle {
+  align-self: flex-start;
+  padding: 0.25rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--panel-border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.hint-toggle:hover,
+.hint-toggle[aria-expanded="true"] {
+  color: var(--ink);
+  border-color: var(--matcha);
+}
+
 .choice-grid {
   display: grid;
   gap: 0.6rem;
