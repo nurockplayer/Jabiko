@@ -1,0 +1,219 @@
+.practice-layout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(236px, 0.82fr) minmax(340px, 1.65fr) minmax(230px, 0.76fr);
+  margin: 0 auto;
+  max-width: 1220px;
+}
+
+.controls-panel,
+.drill-panel,
+.review-panel {
+  /* Same wafuu paper-card treatment as .learning-panel: no glow, no
+   * blur, no colour-coded 4px top stripe. The previous teal/vermilion/
+   * indigo stripes were the loudest dashboard signal in the app. */
+  animation: panel-rise 240ms ease both;
+  background: var(--paper);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 1.15rem;
+}
+
+.drill-panel {
+  animation-delay: 60ms;
+  min-height: 640px;
+}
+
+.review-panel {
+  animation-delay: 120ms;
+}
+
+.brand-lockup {
+  align-items: center;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 1.1rem;
+  padding-bottom: 1rem;
+}
+
+.brand-lockup svg {
+  color: var(--teal);
+  height: 2rem;
+  width: 2rem;
+}
+
+.brand-lockup p {
+  color: var(--muted);
+  font-family: var(--font-title);
+  font-size: 0.82rem;
+}
+
+.brand-lockup h2 {
+  color: var(--ink);
+  font-family: var(--font-title);
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+fieldset {
+  border: 0;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+legend,
+.select-label {
+  color: var(--label-text);
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 800;
+  margin-bottom: 0.45rem;
+}
+
+.segmented {
+  display: grid;
+  gap: 0.42rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.segmented button,
+.ghost-button {
+  background: color-mix(in srgb, var(--paper) 88%, var(--field-bg));
+  color: var(--button-text);
+}
+
+.segmented button {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.segmented button.selected {
+  background: var(--matcha);
+  border-color: var(--matcha-dark);
+  color: var(--selected-text);
+}
+
+.focus-segmented {
+  grid-template-columns: 1fr;
+}
+
+select {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 95%, var(--indigo) 5%), var(--field-bg));
+  border: 1px solid var(--field-border);
+  border-radius: 6px;
+  color: var(--ink);
+  min-height: 2.9rem;
+  padding: 0.64rem 0.75rem;
+  width: 100%;
+}
+
+select:focus,
+button:focus-visible {
+  box-shadow: 0 0 0 4px var(--focus-fill);
+  outline: 3px solid var(--focus-outline);
+  outline-offset: 2px;
+}
+
+select:disabled {
+  background: var(--field-disabled-bg);
+  color: var(--field-disabled-text);
+}
+
+.focus-summary {
+  background: var(--summary-bg);
+  border: 1px solid var(--summary-border);
+  border-radius: 6px;
+  color: var(--summary-text);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.45;
+  margin: 0.6rem 0 1rem;
+  overflow-wrap: anywhere;
+  padding: 0.64rem 0.72rem;
+}
+
+.mode-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.18rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--rule);
+  border-radius: 9px;
+  background: var(--paper);
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.08s ease;
+}
+
+.mode-card:hover {
+  border-color: var(--teal);
+}
+
+.mode-card:active {
+  transform: translateY(1px);
+}
+
+.mode-card.selected {
+  border-color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 14%, var(--paper));
+}
+
+.mode-card-count {
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--matcha-dark);
+}
+
+.mode-card strong {
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.mode-card small {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.mode-card.selected small {
+  color: color-mix(in srgb, var(--ink) 70%, var(--muted));
+}
+
+.mode-description {
+  padding: 0.7rem 0.8rem;
+  margin: 0.4rem 0 0;
+  border: 1px dashed var(--rule);
+  border-radius: 9px;
+  background: var(--paper-deep);
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.mode-description p {
+  margin: 0;
+}

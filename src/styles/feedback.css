@@ -1,0 +1,402 @@
+.score-report {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+
+.score-strip {
+  border-bottom: 1px solid var(--rule);
+  border-top: 1px solid var(--rule);
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 0.8rem 0;
+}
+
+.score-strip span {
+  color: var(--muted);
+  display: grid;
+  font-size: 0.78rem;
+  gap: 0.18rem;
+  justify-items: center;
+  text-align: center;
+}
+
+.score-strip strong {
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* 今日戰報 accuracy: enlarged value + labelled + progress bar, kept
+   separate from the 錯題複習 list so the rate isn't read as a count. */
+.score-accuracy {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+}
+
+.score-accuracy-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.score-accuracy-value {
+  color: var(--matcha-dark);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.score-bar {
+  background: var(--rule);
+  border-radius: 999px;
+  height: 0.5rem;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  background: var(--matcha);
+  border-radius: 999px;
+  display: block;
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* In the right-hand review column the score report sits above the
+   mistake-review heading; give it breathing room from that heading. */
+.review-panel .score-report {
+  margin-bottom: 1.15rem;
+}
+
+.prompt-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.prompt-header span,
+.prompt-header strong {
+  border: 1px solid var(--prompt-chip-border);
+  border-radius: 999px;
+  color: var(--prompt-chip-text);
+  font-size: 0.88rem;
+  line-height: 1;
+  padding: 0.42rem 0.72rem;
+}
+
+.prompt-header strong {
+  background: linear-gradient(135deg, var(--target-chip-bg), color-mix(in srgb, var(--target-chip-bg) 62%, transparent));
+  border-color: var(--target-chip-border);
+  color: var(--target-chip-text);
+}
+
+.word-block {
+  align-items: center;
+  display: grid;
+  isolation: isolate;
+  justify-items: center;
+  min-height: 268px;
+  padding: 2rem 0 1.1rem;
+  position: relative;
+}
+
+.word-block::before {
+  background: radial-gradient(circle, color-mix(in srgb, var(--teal) 14%, transparent), transparent 66%);
+  content: "";
+  height: 14rem;
+  left: 50%;
+  pointer-events: none;
+  position: absolute;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  width: min(26rem, 100%);
+  z-index: -1;
+}
+
+.word-block > * {
+  position: relative;
+  z-index: 1;
+}
+
+.word-kind {
+  align-items: center;
+  background: var(--word-kind-bg);
+  border: 1px solid var(--word-kind-border);
+  border-radius: 999px;
+  color: var(--indigo);
+  display: inline-flex;
+  font-size: 0.82rem;
+  font-weight: 800;
+  gap: 0.35rem;
+  margin-bottom: 0.8rem;
+  padding: 0.35rem 0.68rem;
+}
+
+.word-kind svg {
+  height: 0.95rem;
+  width: 0.95rem;
+}
+
+.reading,
+.meaning {
+  color: var(--muted);
+}
+
+.surface {
+  color: var(--surface-ink);
+  font-family: var(--font-japanese-display);
+  font-size: 6rem;
+  line-height: 1.05;
+  margin: 0.35rem 0;
+  overflow-wrap: anywhere;
+  text-align: center;
+  text-shadow: var(--surface-shadow);
+}
+
+.exam-prompt {
+  color: var(--surface-ink);
+  font-family: var(--font-japanese);
+  font-size: clamp(1.35rem, 2.4vw, 2.05rem);
+  line-height: 1.65;
+  max-width: 42rem;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+/* Collapsible pre-answer hint (ExamPrompt). The toggle button is low-key
+   so it doesn't compete with the prompt; the hint text reuses .meaning. */
+.hint-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.hint-toggle {
+  align-self: flex-start;
+  padding: 0.25rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--panel-border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.hint-toggle:hover,
+.hint-toggle[aria-expanded="true"] {
+  color: var(--ink);
+  border-color: var(--matcha);
+}
+
+.choice-grid {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.choice-option {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 88%, var(--indigo) 12%), var(--field-bg));
+  border-color: color-mix(in srgb, var(--field-border) 80%, var(--indigo));
+  color: var(--ink);
+  font-family: var(--font-japanese-ui);
+  font-size: 1.18rem;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 8%, transparent);
+  min-height: 3.6rem;
+  overflow-wrap: anywhere;
+  padding: 0.7rem;
+}
+
+.choice-option:hover:not(:disabled) {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 78%, var(--teal) 22%), var(--field-bg));
+}
+
+.choice-option:disabled {
+  opacity: 1;
+}
+
+.choice-option.correct {
+  background: var(--feedback-correct-bg);
+  border-color: var(--green);
+  color: var(--ink);
+}
+
+.choice-option.incorrect {
+  background: var(--feedback-incorrect-bg);
+  border-color: var(--vermilion);
+  color: var(--ink);
+}
+
+.next-button {
+  background: var(--vermilion);
+  border-color: var(--vermilion);
+  color: var(--selected-text);
+  font-weight: 800;
+  min-width: 5.7rem;
+}
+
+.action-row {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  margin-top: 0.85rem;
+}
+
+.feedback {
+  background: var(--field-bg);
+  border: 1px solid;
+  border-left-width: 5px;
+  border-radius: 8px;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.feedback.correct {
+  background: var(--feedback-correct-bg);
+  border-color: var(--feedback-correct-border);
+  border-left-color: var(--green);
+}
+
+.feedback.incorrect {
+  background: var(--feedback-incorrect-bg);
+  border-color: var(--feedback-incorrect-border);
+  border-left-color: var(--vermilion);
+}
+
+.feedback.revealed {
+  background: var(--feedback-revealed-bg);
+  border-color: var(--feedback-revealed-border);
+  border-left-color: var(--gold);
+}
+
+.feedback-title {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.feedback-title svg {
+  height: 1.2rem;
+  width: 1.2rem;
+}
+
+/* JLPT level tag (N1/N2/N3) pushed to the right of the feedback heading.
+   Neutral colour so it doesn't pick up the correct/incorrect title hue. */
+.feedback-level {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  color: var(--muted);
+}
+
+.feedback.correct .feedback-title {
+  color: var(--green);
+}
+
+.feedback.incorrect .feedback-title {
+  color: var(--vermilion);
+}
+
+.feedback.revealed .feedback-title {
+  color: var(--feedback-revealed-title);
+}
+
+.answer-key {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.distractor-gloss {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.distractor-gloss-label {
+  margin: 0 0 0.25rem;
+}
+
+.distractor-gloss-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* Each distractor on its own line -- on mobile they must not crowd onto
+   one row (issue #50). */
+.distractor-gloss-list li {
+  line-height: 1.4;
+}
+
+.example {
+  border-top: 1px solid var(--example-rule);
+  margin-bottom: 0;
+  padding-top: 0.75rem;
+}
+
+.example span {
+  color: var(--muted);
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.review-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.review-heading h2 {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.review-heading span {
+  background: var(--review-pill-bg);
+  border: 1px solid var(--review-pill-border);
+  border-radius: 999px;
+  color: var(--indigo);
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 0.28rem 0.58rem;
+}
+
+.review-panel ul {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.review-panel li {
+  border-bottom: 1px solid var(--rule);
+  color: var(--review-row-text);
+  padding: 0.75rem 0;
+}
+
+.review-panel p,
+.empty-state {
+  color: var(--muted);
+}
+
+/* Suspense fallback shown while a lazy view chunk (challenge / mock)
+ * loads. Keeps the area from collapsing so the layout doesn't jump when
+ * the real panel swaps in. */
+.panel-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 18rem;
+  color: var(--muted);
+}

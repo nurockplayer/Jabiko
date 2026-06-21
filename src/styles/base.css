@@ -1,0 +1,203 @@
+:root {
+  color: var(--ink);
+  background: var(--app-bg);
+  font-family: var(--font-ui);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --build-tag: "2026-05-23";
+  --font-ui: "PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", "Hiragino Sans",
+    sans-serif;
+  --font-title: "PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", sans-serif;
+  --font-japanese-ui: "Hiragino Sans", "Yu Gothic", "YuGothic", "Noto Sans JP", "Noto Sans CJK JP", var(--font-ui);
+  --font-japanese-display: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", "Noto Serif CJK JP",
+    "Songti TC", serif;
+  /* Wafuu / Japanese-editorial palette. The previous palette leaned
+   * tech-dashboard (teal-indigo gradients, cyan glows, deep cool
+   * shadow). This version is warm-paper-led:
+   *   - --app-bg / --paper: warm cream, dominant
+   *   - --teal / --matcha: small role, accent only
+   *   - --vermilion: muted brick (was electric orange #e85d2a)
+   *   - --gold: kept for fine details
+   *   - --indigo: repurposed to matcha; name kept for compatibility
+   *     until a follow-up rename pass touches all call sites.
+   * Glow tokens are kept but flattened to transparent so existing
+   * radial-gradient layers compile to no-op.
+   */
+  --app-bg: #f4ead8;
+  --paper: #fffaf0;
+  --paper-deep: #efe6cf;
+  --ink: #172126;
+  --muted: #6a6155;
+  --rule: #d8cdb5;
+  --teal: #0f766e;
+  --teal-dark: #115e59;
+  --matcha: #647c5c;
+  --matcha-dark: #4f6549;
+  --vermilion: #b94a2c;
+  --indigo: #647c5c; /* repurposed -> matcha; see palette note above */
+  --gold: #b7791f;
+  --green: #4f7a3f;
+  --shadow: 0 6px 18px rgba(120, 95, 55, 0.09);
+  --body-grid-row: transparent;
+  --body-grid-column: transparent;
+  --bg-glow-primary: transparent;
+  --bg-glow-secondary: transparent;
+  --panel-glow: transparent;
+  --panel-bg: var(--paper);
+  --panel-border: #d4c7ad;
+  --button-border: #c3b698;
+  --button-text: #172126;
+  --button-hover-shadow: 0 4px 14px rgba(120, 95, 55, 0.12);
+  --selected-text: #fffaf0;
+  --label-text: #42565a;
+  --field-bg: #fffaf0;
+  --field-border: #94aaa8;
+  --field-disabled-bg: #e7e1d4;
+  --field-disabled-text: #71807f;
+  --focus-fill: rgba(255, 250, 240, 0.9);
+  --focus-outline: rgba(20, 184, 166, 0.36);
+  --prompt-chip-border: #9ab2b0;
+  --prompt-chip-text: #42565a;
+  --target-chip-bg: #ffe3d2;
+  --target-chip-border: #f0a070;
+  --target-chip-text: #8d3415;
+  --word-kind-bg: rgba(15, 126, 168, 0.1);
+  --word-kind-border: rgba(15, 126, 168, 0.24);
+  --surface-ink: #10161a;
+  --surface-shadow: 0 1px 0 rgba(255, 250, 240, 0.9);
+  --summary-bg: rgba(15, 118, 110, 0.12);
+  --summary-border: rgba(15, 118, 110, 0.28);
+  --summary-text: #0d5d58;
+  --feedback-correct-bg: #e6f7ec;
+  --feedback-correct-border: #95d8ad;
+  --feedback-incorrect-bg: #fff0e7;
+  --feedback-incorrect-border: #f0a385;
+  --feedback-revealed-bg: #fff6dc;
+  --feedback-revealed-border: #dfbc63;
+  --feedback-revealed-title: #8a5d08;
+  --example-rule: rgba(23, 33, 38, 0.16);
+  --review-row-text: #394b4e;
+  --review-pill-bg: rgba(15, 126, 168, 0.1);
+  --review-pill-border: rgba(15, 126, 168, 0.24);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  /* Dark theme reframed as "evening reading" rather than "tech UI":
+   * warm dark walnut background, muted matcha + brick accents, no
+   * electric cyan. Glows flattened. */
+  --app-bg: #1a1814;
+  --paper: #221f1a;
+  --paper-deep: #2b271f;
+  --ink: #f3eddc;
+  --muted: #a89d87;
+  --rule: #3a342a;
+  --teal: #5a9a8e;
+  --teal-dark: #3f7a6f;
+  --matcha: #889c80;
+  --matcha-dark: #6a7d61;
+  --vermilion: #d06a47;
+  --indigo: #889c80; /* repurposed -> matcha; see palette note */
+  --gold: #d4a64a;
+  --green: #8fb076;
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
+  --body-grid-row: transparent;
+  --body-grid-column: transparent;
+  --bg-glow-primary: transparent;
+  --bg-glow-secondary: transparent;
+  --panel-glow: transparent;
+  --panel-bg: var(--paper);
+  --panel-border: #3a342a;
+  --button-border: #4d4538;
+  --button-text: #f3eddc;
+  --button-hover-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  --selected-text: #101216;
+  --label-text: #d8e6e2;
+  --field-bg: #0d171b;
+  --field-border: #2f535c;
+  --field-disabled-bg: #17262b;
+  --field-disabled-text: #7f9697;
+  --focus-fill: rgba(13, 23, 27, 0.92);
+  --focus-outline: rgba(56, 189, 248, 0.48);
+  --prompt-chip-border: #395a62;
+  --prompt-chip-text: #c8d6d4;
+  --target-chip-bg: rgba(249, 115, 22, 0.17);
+  --target-chip-border: rgba(249, 115, 22, 0.58);
+  --target-chip-text: #ffbe8a;
+  --word-kind-bg: rgba(56, 189, 248, 0.13);
+  --word-kind-border: rgba(56, 189, 248, 0.34);
+  --surface-ink: #fbfff8;
+  --surface-shadow: 0 0 28px rgba(20, 184, 166, 0.18), 0 2px 0 rgba(0, 0, 0, 0.8);
+  --summary-bg: rgba(20, 184, 166, 0.13);
+  --summary-border: rgba(45, 212, 191, 0.34);
+  --summary-text: #99f6e4;
+  --feedback-correct-bg: rgba(34, 197, 94, 0.14);
+  --feedback-correct-border: rgba(134, 239, 172, 0.52);
+  --feedback-incorrect-bg: rgba(249, 115, 22, 0.15);
+  --feedback-incorrect-border: rgba(251, 146, 60, 0.58);
+  --feedback-revealed-bg: rgba(251, 191, 36, 0.13);
+  --feedback-revealed-border: rgba(251, 191, 36, 0.56);
+  --feedback-revealed-title: #fde68a;
+  --example-rule: rgba(246, 251, 246, 0.16);
+  --review-row-text: #d8e7e3;
+  --review-pill-bg: rgba(56, 189, 248, 0.14);
+  --review-pill-border: rgba(56, 189, 248, 0.34);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  /* Plain paper wash. The previous body had a teal/orange radial glow +
+   * hairline grid that read as "SaaS dashboard"; this theme is wafuu
+   * editorial, so the background should just be paper. */
+  background: var(--app-bg);
+}
+
+body,
+button,
+input,
+select {
+  font: inherit;
+  letter-spacing: 0;
+}
+
+button {
+  align-items: center;
+  border: 1px solid var(--button-border);
+  border-radius: 8px;
+  color: var(--button-text);
+  cursor: pointer;
+  display: inline-flex;
+  gap: 0.45rem;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.58rem 0.85rem;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--teal) 58%, var(--button-border));
+  box-shadow: var(--button-hover-shadow);
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+button svg {
+  flex: 0 0 auto;
+  height: 1rem;
+  width: 1rem;
+}

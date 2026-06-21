@@ -1,0 +1,265 @@
+/* ---- Home panel ----------------------------------------------------- */
+
+.home-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  max-width: 940px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.home-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.home-hero-image {
+  width: 100%;
+  /* The source asset is 16:9; aspect-ratio prevents CLS while the
+     image loads (height is reserved before the bytes arrive). */
+  aspect-ratio: 16 / 9;
+  max-height: 280px;
+  object-fit: cover;
+  /* Bias the crop slightly upward -- on the still-life source, the
+     subject (desk + objects) sits in the upper-middle band, so a flat
+     center crop would clip the books and emphasise the empty wood
+     foreground. */
+  object-position: center 38%;
+  border-radius: 0.95rem;
+  border: 1px solid var(--panel-border);
+  background: var(--paper);
+  display: block;
+}
+
+.home-hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.home-hero-text .eyebrow {
+  margin: 0;
+  font-weight: 700;
+  color: var(--teal-dark);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.home-hero-text h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  color: var(--ink);
+}
+
+.home-hero-text p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .home-hero-image {
+    max-height: 200px;
+  }
+}
+
+.home-banner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.15rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--panel-border);
+  cursor: pointer;
+  text-align: left;
+  transition: box-shadow 0.16s ease;
+}
+
+.home-banner:hover {
+  box-shadow: var(--button-hover-shadow);
+}
+
+.home-banner-review {
+  background: var(--feedback-incorrect-bg);
+  border-color: var(--feedback-incorrect-border);
+  color: var(--vermilion);
+}
+
+.home-banner-continue {
+  background: var(--summary-bg);
+  border-color: var(--summary-border);
+  color: var(--summary-text);
+}
+
+/* Primary daily-practice entry: matcha accent so it reads as the
+   headline action, distinct from the vermilion review banner. */
+.home-banner-daily {
+  background: color-mix(in srgb, var(--matcha) 12%, var(--paper));
+  border-color: color-mix(in srgb, var(--matcha) 45%, var(--panel-border));
+  color: var(--matcha-dark);
+}
+
+.home-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.home-banner-text strong {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.home-banner-text small {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.home-content-stats {
+  /* Magazine-masthead row: thin top + bottom rules sandwich a single
+   * centered line of "X 章節 · Y 綜合題 · ..." counts. Subtle on
+   * purpose; the cards below are the louder element. */
+  margin: 0;
+  padding: 0.7rem 1rem;
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-align: center;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+}
+
+.home-stats-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0.85rem;
+}
+
+.home-stats-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: center;
+  text-align: center;
+}
+
+.home-stats-cell strong {
+  font-size: 1.4rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.home-stats-cell small {
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.home-grid {
+  /* auto-fit so 4 cards stay 2×2 on desktop, 5 cards lay out as 2/2/1
+   * (or 3/2 at wider viewports), and mobile drops to 1 column. */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem;
+}
+
+.home-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "icon title"
+    "icon body"
+    "icon meta";
+  gap: 0.35rem 0.85rem;
+  padding: 1.05rem 1.1rem 1.2rem;
+  background: var(--paper);
+  border: 1px solid var(--panel-border);
+  border-radius: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.home-card:hover:not(:disabled) {
+  box-shadow: var(--button-hover-shadow);
+  transform: translateY(-1px);
+}
+
+.home-card-stage {
+  /* Single-CJK stage badge ("學 / 練 / 背 / 考 / 補") in place of the
+   * old lucide-react icon. Mincho serif keeps it editorial; a thin
+   * matcha frame anchors it visually without reading as a UI chip. */
+  grid-area: icon;
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-top: 0.1rem;
+  font-family: var(--font-japanese-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--matcha-dark);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--matcha) 42%, var(--rule));
+  border-radius: 0.4rem;
+  line-height: 1;
+}
+
+.home-card h2 {
+  grid-area: title;
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.home-card p {
+  grid-area: body;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.home-card-meta {
+  grid-area: meta;
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--teal-dark);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.home-card-arrow {
+  position: absolute;
+  top: 0.95rem;
+  right: 0.95rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--muted);
+}
+
+
+@media (max-width: 720px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-stats-strip {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+}
