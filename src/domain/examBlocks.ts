@@ -2,7 +2,7 @@ import type { JlptLevel, PracticeQuestion, TargetForm, VocabularyItem } from "./
 
 type ExamQuestionInput = {
   id: string;
-  level: Extract<JlptLevel, "N1" | "N2" | "N3">;
+  level: JlptLevel;
   surface: string;
   reading: string;
   meaningZh: string;
@@ -6522,6 +6522,173 @@ export const examStyleQuestions: PracticeQuestion[] = [
     explanation: "「規」音讀「き」，「則」音讀「そく」→ きそく。「ぎそく」是首字濁音（き→ぎ，撞「義足」）；「きぞく」是次字濁音（そく→ぞく，撞「貴族」）；「きさい」是次字誤讀（そく→さい，撞「記載」）。",
     exampleJapanese: "会社の規則を守って行動してください。",
     exampleMeaningZh: "請遵守公司的規則行動。"
+  }),
+  examQuestion({
+    id: "n5-grammar-wo-pan",
+    level: "N5",
+    surface: "を",
+    reading: "を",
+    meaningZh: "受詞助詞",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "毎朝、パン ___ 食べます。",
+    promptContextZh: "每天早上吃麵包。",
+    hintZh: "「吃麵包」中，麵包與動詞之間要用的助詞。",
+    expectedAnswer: "を",
+    options: ["を", "が", "に", "へ"],
+    explanation: "他動詞「食べる」的受詞用「を」標記，「パンを食べます」＝吃麵包。「が」標主語、「に」標對象/時間地點、「へ」標方向，都不能標受詞。唯「を」成立。"
+  }),
+  examQuestion({
+    id: "n5-grammar-de-toshokan",
+    level: "N5",
+    surface: "で",
+    reading: "で",
+    meaningZh: "動作場所助詞",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "図書館 ___ 本を読みます。",
+    promptContextZh: "在圖書館讀書。",
+    hintZh: "「讀書」這個動作發生的場所要用的助詞。",
+    expectedAnswer: "で",
+    options: ["で", "に", "を", "へ"],
+    explanation: "動作發生的場所用「で」，「図書館で読みます」＝在圖書館讀。「に」表存在或到達點（如いる/行く）；「を」標受詞；「へ」標方向。表動作場所唯「で」成立。"
+  }),
+  examQuestion({
+    id: "n5-grammar-tekudasai-iu",
+    level: "N5",
+    surface: "てください",
+    reading: "てください",
+    meaningZh: "請（做）…",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "すみません、もう一度言っ ___ 。",
+    promptContextZh: "不好意思，請再說一次。",
+    hintZh: "客氣地請對方再做一次的說法。",
+    expectedAnswer: "てください",
+    options: ["てください", "てから", "ています", "ました"],
+    explanation: "「Vてください」表示客氣的請求，「もう一度言ってください」＝請再說一次。「てから」是「做完…之後」；「ています」是「正在…」；「ました」是過去。配合「すみません、もう一度…」的請求語境，唯「てください」成立。"
+  }),
+  examQuestion({
+    id: "n5-grammar-teimasu-shinbun",
+    level: "N5",
+    surface: "ています",
+    reading: "ています",
+    meaningZh: "正在（做）…",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "今、父は新聞を読ん ___ 。",
+    promptContextZh: "現在爸爸正在看報紙。",
+    hintZh: "句首的『今』提示動作此刻發生中。",
+    expectedAnswer: "でいます",
+    options: ["でいます", "でから", "でも", "でした"],
+    explanation: "「Vている」表示正在進行，「今…読んでいます」＝現在正在讀。「でから」是「讀完之後」；「でも」是「即使讀」；「でした」非自然接續。配合句首「今」，唯「でいます」成立。"
+  }),
+  examQuestion({
+    id: "n5-vocab-nomimasu-mizu",
+    level: "N5",
+    surface: "飲む",
+    reading: "のむ",
+    meaningZh: "喝",
+    promptLabel: "詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "のどが かわいたので、水を ___ 。",
+    promptContextZh: "因為口渴，所以喝水。",
+    hintZh: "口渴時對水做的動作。",
+    expectedAnswer: "飲みます",
+    options: ["飲みます", "食べます", "聞きます", "見ます"],
+    explanation: "「水を飲みます」＝喝水。「食べます」是吃（固體）；「聞きます」是聽/問；「見ます」是看。與「のどがかわいた（口渴）…水を」搭配，唯「飲みます」成立。"
+  }),
+  examQuestion({
+    id: "n5-kanji-gakkou",
+    level: "N5",
+    surface: "学校",
+    reading: "がっこう",
+    meaningZh: "學校",
+    promptLabel: "漢字読み",
+    instructionZh: "選出底線詞語的正確讀音。",
+    promptText: "毎日、自転車で「学校」へ行きます。",
+    promptContextZh: "每天騎腳踏車去學校。",
+    expectedAnswer: "がっこう",
+    options: ["がっこう", "がくこう", "がっこ", "かっこう"],
+    explanation: "「学」在「校（こう）」前促音化讀「がっ」、「校」讀長音「こう」，故「学校」＝がっこう。「がくこう」沒促音化；「がっこ」漏掉長音；「かっこう」沒把「学」讀濁音「がっ」（且 かっこう＝格好）。",
+    exampleJapanese: "毎日、自転車で学校へ行きます。",
+    exampleMeaningZh: "每天騎腳踏車去學校。"
+  }),
+  examQuestion({
+    id: "n4-grammar-takotogaaru-fuji",
+    level: "N4",
+    surface: "たことがある",
+    reading: "たことがある",
+    meaningZh: "曾經…過（經驗）",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "私は富士山に登っ ___ があります。",
+    promptContextZh: "我曾經爬過富士山。",
+    hintZh: "表達過去做過某件事。",
+    expectedAnswer: "たこと",
+    options: ["たこと", "ること", "ないこと", "るところ"],
+    explanation: "「Vたことがある」表示過去的經驗，「登ったことがあります」＝曾經爬過。「ること」「ないこと」與「があります」無法構成『經驗』之意；「るところ」是「正要…」。表經驗唯「たこと」成立。"
+  }),
+  examQuestion({
+    id: "n4-grammar-nakereba-shiken",
+    level: "N4",
+    surface: "なければならない",
+    reading: "なければならない",
+    meaningZh: "必須…",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "明日は試験だから、今夜は勉強し ___ 。",
+    promptContextZh: "因為明天考試，今晚必須讀書。",
+    hintZh: "因為明天考試，今晚對讀書的必要性。",
+    expectedAnswer: "なければならない",
+    options: ["なければならない", "てもいい", "なくてもいい", "ないでください"],
+    explanation: "「Vなければならない」表示義務、非做不可，「勉強しなければならない」＝必須讀書。「てもいい」是「可以…」；「なくてもいい」是「不必…」（相反）；「ないでください」是「請不要…」。配合「試験だから」的必要性，唯「なければならない」成立。"
+  }),
+  examQuestion({
+    id: "n4-grammar-tahougaii-kaze",
+    level: "N4",
+    surface: "たほうがいい",
+    reading: "たほうがいい",
+    meaningZh: "最好…",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "かぜの ときは、早く 寝た ___ が いいです。",
+    promptContextZh: "感冒的時候，最好早點睡。",
+    hintZh: "感冒時，關於睡覺給出的建議。",
+    expectedAnswer: "ほう",
+    options: ["ほう", "こと", "つもり", "はず"],
+    explanation: "「Vたほうがいい」是給建議的固定句型「最好…」，「早く寝たほうがいい」＝最好早點睡。「こと」「つもり」「はず」都無法與「〜た___がいい」構成此建議句型。唯「ほう」成立。"
+  }),
+  examQuestion({
+    id: "n4-vocab-abunai-michi",
+    level: "N4",
+    surface: "危ない",
+    reading: "あぶない",
+    meaningZh: "危險的",
+    promptLabel: "詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "この道は車が多くて ___ ので、気をつけてください。",
+    promptContextZh: "這條路車很多很危險，請小心。",
+    hintZh: "車多、要小心，這條路給人的感覺。",
+    expectedAnswer: "危ない",
+    options: ["危ない", "明るい", "新しい", "暖かい"],
+    explanation: "「危ない」是「危險的」，本句「車多很危險，請小心」即此。「明るい」是「明亮」；「新しい」是「新」；「暖かい」是「溫暖」。與「車が多くて…気をつけて」搭配，唯「危ない」成立。"
+  }),
+  examQuestion({
+    id: "n4-kanji-keizai",
+    level: "N4",
+    surface: "経済",
+    reading: "けいざい",
+    meaningZh: "經濟",
+    promptLabel: "漢字読み",
+    instructionZh: "選出底線詞語的正確讀音。",
+    promptText: "毎朝、新聞で「経済」のニュースを読みます。",
+    promptContextZh: "每天早上看報紙的經濟新聞。",
+    expectedAnswer: "けいざい",
+    options: ["けいざい", "けいさい", "きょうざい", "けえざい"],
+    explanation: "「経」讀長音「けい」、「済」濁化讀「ざい」，故「経済」＝けいざい。「けいさい」沒把「済」讀濁音；「きょうざい」誤把「経」讀「きょう」；「けえざい」把長音誤寫成「けえ」。",
+    exampleJapanese: "毎朝、新聞で経済のニュースを読みます。",
+    exampleMeaningZh: "每天早上看報紙的經濟新聞。"
   })
 ];
 
@@ -6537,7 +6704,7 @@ export function buildExamQuestionPool(
       (question) => question.vocabulary.level !== undefined && levels.has(question.vocabulary.level)
     );
   }
-  if (level === "N1" || level === "N2" || level === "N3") {
+  if (level === "N1" || level === "N2" || level === "N3" || level === "N4" || level === "N5") {
     return examStyleQuestions.filter((question) => question.vocabulary.level === level);
   }
 
@@ -6545,7 +6712,7 @@ export function buildExamQuestionPool(
   // keep only a small warm-up subset of N3 items so they don't dilute
   // the high-level practice. The full N3 set is still reachable via
   // an explicit buildExamQuestionPool("N3") call.
-  const n1AndN2 = examStyleQuestions.filter((q) => q.vocabulary.level !== "N3");
+  const n1AndN2 = examStyleQuestions.filter((q) => q.vocabulary.level === "N1" || q.vocabulary.level === "N2");
   const n3WarmUp = examStyleQuestions
     .filter((q) => q.vocabulary.level === "N3")
     .slice(0, MAX_N3_IN_DEFAULT_POOL);

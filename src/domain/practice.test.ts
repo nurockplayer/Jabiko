@@ -64,6 +64,8 @@ describe("buildExamQuestionPool", () => {
 
     expect(questions.length).toBeGreaterThanOrEqual(50);
     expect(questions.every((question) => question.vocabulary.tags.includes("exam_style"))).toBe(true);
+    // The default pool focuses on N1/N2 + a small N3 warm-up; N4/N5 are
+    // excluded here (reachable only via the explicit n4n5 range).
     expect(
       questions.every(
         (question) =>
@@ -72,14 +74,15 @@ describe("buildExamQuestionPool", () => {
           question.vocabulary.level === "N3"
       )
     ).toBe(true);
-    // Internal level metadata still spans all three; user-visible
-    // promptLabel intentionally no longer surfaces the level.
     expect(questions.some((question) => question.vocabulary.level === "N1")).toBe(true);
     expect(questions.some((question) => question.vocabulary.level === "N2")).toBe(true);
     expect(questions.some((question) => question.vocabulary.level === "N3")).toBe(true);
-    // promptLabel must NOT leak the JLPT level back to the user.
+    // The default pool must not pull in N4/N5 seed items.
+    expect(questions.some((question) => question.vocabulary.level === "N4")).toBe(false);
+    expect(questions.some((question) => question.vocabulary.level === "N5")).toBe(false);
+    // promptLabel must NOT leak the JLPT level (N1–N5) back to the user.
     expect(
-      questions.every((question) => !/^N[1-3]\s/.test(question.promptLabel ?? ""))
+      questions.every((question) => !/^N[1-5]\s/.test(question.promptLabel ?? ""))
     ).toBe(true);
   });
 
@@ -87,9 +90,11 @@ describe("buildExamQuestionPool", () => {
     expect(buildExamQuestionPool("N1").every((question) => question.vocabulary.level === "N1")).toBe(true);
     expect(buildExamQuestionPool("N2").every((question) => question.vocabulary.level === "N2")).toBe(true);
     expect(buildExamQuestionPool("N3").every((question) => question.vocabulary.level === "N3")).toBe(true);
-    // Levels without explicit exam content fall back to the default pool
-    // (which is N1/N2-focused with a capped N3 warm-up slice).
-    expect(buildExamQuestionPool("N5").length).toBe(buildExamQuestionPool("all").length);
+    // N4/N5 now have seed exam content, so their pools filter to that level.
+    expect(buildExamQuestionPool("N4").every((question) => question.vocabulary.level === "N4")).toBe(true);
+    const n5 = buildExamQuestionPool("N5");
+    expect(n5.length).toBeGreaterThan(0);
+    expect(n5.every((question) => question.vocabulary.level === "N5")).toBe(true);
   });
 
   it("caps N3 items in the default pool so they don't dilute N1/N2 focus", () => {

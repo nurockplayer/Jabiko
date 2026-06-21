@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { levelsForRange, LEVEL_RANGE_OPTIONS } from "./levelRange";
+import { levelsForRange, LEVEL_RANGE_OPTIONS, VOCAB_LEVEL_RANGE_OPTIONS } from "./levelRange";
 import { buildExamQuestionPool } from "./examBlocks";
 
 describe("levelsForRange", () => {
@@ -7,11 +7,16 @@ describe("levelsForRange", () => {
     expect(levelsForRange("all")).toBeNull();
     expect(levelsForRange("n1n2")).toEqual(["N1", "N2"]);
     expect(levelsForRange("n2n3")).toEqual(["N2", "N3"]);
+    expect(levelsForRange("n4n5")).toEqual(["N4", "N5"]);
   });
 
-  it("offers 全部 first, then the two target bands", () => {
+  it("offers 全部 first, then the target bands", () => {
     expect(LEVEL_RANGE_OPTIONS[0]).toBe("all");
-    expect(LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3"]);
+    expect(LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3", "n4n5"]);
+  });
+
+  it("excludes n4n5 from the vocab picker (no N4/N5 jlpt words)", () => {
+    expect(VOCAB_LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3"]);
   });
 });
 
