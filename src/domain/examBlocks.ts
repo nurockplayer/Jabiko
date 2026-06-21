@@ -6035,6 +6035,51 @@ export const examStyleQuestions: PracticeQuestion[] = [
     expectedAnswer: "だの / だの",
     options: ["だの / だの", "から / まで", "なり / なり", "といい / といい"],
     explanation: "「遅いだの高いだの」是在列舉抱怨內容、帶批評語氣，與後面的「不満ばかり」相符。本句兩個空格成對。「から／まで」表示範圍；「なり／なり」是擇一去做的方案列舉；「といい／といい」通常接名詞性項目並給整體評價，皆不適合此處的抱怨引用，唯「だの／だの」成立。"
+  }),
+  examQuestion({
+    id: "reinforce-dani-risk-plan",
+    level: "N1",
+    surface: "だに",
+    reading: "だに",
+    meaningZh: "光是…就…（文語強調）",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "安全装置を外したまま実験を行うなど、想像する ___ 恐ろしい計画だ。",
+    promptContextZh: "拆掉安全裝置就做實驗，這種計畫光是想像就令人害怕。",
+    hintZh: "只是在腦中設想這件事時所產生的反應。",
+    expectedAnswer: "だに",
+    options: ["だに", "べく", "がてら", "に際して"],
+    explanation: "「想像するだに恐ろしい」是固定搭配，「Vる＋だに」表示『光是 V，就已經…』，多用於書面或較硬的語氣。「べく」表示目的（為了…）；「がてら」表示順便（做 A 順道做 B）；「に際して」表示在…之際（時點），三者都無法表達『光是想像就…』的強調語感，唯「だに」成立。"
+  }),
+  examQuestion({
+    id: "reinforce-katoomouto-child-mood",
+    level: "N1",
+    surface: "かと思うと",
+    reading: "かとおもうと",
+    meaningZh: "剛…就…（瞬間轉變）",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "子どもは泣き出した ___、次の瞬間にはもう笑っていた。",
+    promptContextZh: "孩子才剛哭出來，下一刻就已經在笑了。",
+    hintZh: "前後兩種狀態在極短時間內的銜接。",
+    expectedAnswer: "かと思うと",
+    options: ["かと思うと", "上は", "こととて", "あげく"],
+    explanation: "「Vたかと思うと」表示剛覺得前項發生，下一瞬間就出現後項變化，本句描寫孩子情緒瞬間反轉。「上は」是『既然…就（負起責任）』；「こととて」是書面致歉、正式理由；「あげく」是『經過一番過程後（多為不理想結果）』，三者都無法表達這種短時間內的快速轉換，唯「かと思うと」成立。"
+  }),
+  examQuestion({
+    id: "reinforce-ageku-lost-station",
+    level: "N2",
+    surface: "あげく",
+    reading: "あげく",
+    meaningZh: "…的結果（多為不理想結局）",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "道に迷って一時間歩き回った ___、最初にいた駅前に戻ってきてしまった。",
+    promptContextZh: "迷路走了一個小時，結果又回到了一開始的車站前。",
+    hintZh: "在長時間折騰之後最終落得的下場。",
+    expectedAnswer: "あげく",
+    options: ["あげく", "うちに", "ところを", "となれば"],
+    explanation: "「Vたあげく」表示經過一番折騰之後，最後得到（多半不理想的）結果，本句是走了一小時又繞回原處。「うちに」要接持續狀態（如「歩いているうちに」），接「歩き回った」た形不自然；「ところを」表示『正當某狀況時（被打擾／被看見）』；「となれば」是假設條件『一旦變成…的話』，三者都不符合『折騰一番後的結果』語感，唯「あげく」成立。"
   })
 ];
 
