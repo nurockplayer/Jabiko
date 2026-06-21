@@ -51,7 +51,7 @@ describe("exam content guard", () => {
     // The internal `level` field drives filtering; the user-visible
     // promptLabel must not start with an "N1 / N2 / N3 " prefix.
     const offenders = examStyleQuestions
-      .filter((question) => /^N[1-3]\s/.test(question.promptLabel ?? ""))
+      .filter((question) => /^N[1-5]\s/.test(question.promptLabel ?? ""))
       .map((question) => `${question.id} -> ${question.promptLabel}`);
     expect(offenders, `level leak in promptLabel: ${offenders.join("; ")}`).toEqual([]);
   });

@@ -5,14 +5,15 @@ import type { JlptLevel } from "./types";
 // FILTER only -- the level never appears on the question itself (no
 // visible promptLabel); it just narrows which bank items are in play.
 // "all" keeps each pool's own default behaviour (no level narrowing).
-export type LevelRange = "all" | "n1n2" | "n2n3";
+export type LevelRange = "all" | "n1n2" | "n2n3" | "n4n5";
 
-// Order shown in the picker (全部 first, then the two target bands).
-export const LEVEL_RANGE_OPTIONS: LevelRange[] = ["all", "n1n2", "n2n3"];
+// Order shown in the picker (全部 first, then the target bands high→low).
+export const LEVEL_RANGE_OPTIONS: LevelRange[] = ["all", "n1n2", "n2n3", "n4n5"];
 
 const RANGE_LEVELS: Record<Exclude<LevelRange, "all">, JlptLevel[]> = {
   n1n2: ["N1", "N2"],
-  n2n3: ["N2", "N3"]
+  n2n3: ["N2", "N3"],
+  n4n5: ["N4", "N5"]
 };
 
 // The JLPT levels a range covers, or null for "all" (= no filter; let the

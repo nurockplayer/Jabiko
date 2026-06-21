@@ -38,7 +38,7 @@ const formOptions: TargetForm[] = [
 // presets -- 綜合考題庫 (all levels) plus N1 備考 (N1+N2) and N2 備考
 // (N2+N3) -- so the備考 ranges are first-class picks rather than a filter
 // hidden inside the exam mode. `id` doubles as the i18n / count key.
-type ModePresetId = PracticeMode | "examN1" | "examN2";
+type ModePresetId = PracticeMode | "examN1" | "examN2" | "examN4";
 type ModePreset = { id: ModePresetId; mode: PracticeMode; levelRange?: LevelRange };
 const modePresetOrder: ModePreset[] = [
   { id: "daily", mode: "daily" },
@@ -48,6 +48,7 @@ const modePresetOrder: ModePreset[] = [
   { id: "exam", mode: "exam", levelRange: "all" },
   { id: "examN1", mode: "exam", levelRange: "n1n2" },
   { id: "examN2", mode: "exam", levelRange: "n2n3" },
+  { id: "examN4", mode: "exam", levelRange: "n4n5" },
   { id: "vocab", mode: "vocab" },
   { id: "review", mode: "review" }
 ];
