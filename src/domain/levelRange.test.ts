@@ -7,11 +7,12 @@ describe("levelsForRange", () => {
     expect(levelsForRange("all")).toBeNull();
     expect(levelsForRange("n1n2")).toEqual(["N1", "N2"]);
     expect(levelsForRange("n2n3")).toEqual(["N2", "N3"]);
+    expect(levelsForRange("n4n5")).toEqual(["N4", "N5"]);
   });
 
-  it("offers 全部 first, then the two target bands", () => {
+  it("offers 全部 first, then the target bands", () => {
     expect(LEVEL_RANGE_OPTIONS[0]).toBe("all");
-    expect(LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3"]);
+    expect(LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3", "n4n5"]);
   });
 });
 
