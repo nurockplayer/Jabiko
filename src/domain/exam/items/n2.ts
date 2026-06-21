@@ -2372,7 +2372,7 @@ export const n2Items: PracticeQuestion[] = [
     instructionZh: "句中填空：選最自然的詞語。",
     promptText: "市は、駅前の混雑を減らすため、交通問題に本格的に ___ ことにした。",
     promptContextZh: "市政府為減少站前壅塞，決定正式著手處理交通問題。",
-    hintZh: "問題解決に向けて継続的に努力する動作。",
+    hintZh: "為解決課題而持續努力的動作。",
     expectedAnswer: "取り組む",
     options: ["取り組む", "取り込む", "取り替える", "取り消す"],
     explanation: "「取り組む」表示認真投入、致力於某問題或課題。「問題に取り組む」是固定搭配。「取り込む」是拿進來/吸收；「取り替える」是更換；「取り消す」是取消，皆不合。"
@@ -2387,7 +2387,7 @@ export const n2Items: PracticeQuestion[] = [
     instructionZh: "選與「」中詞語意思最接近的選項。",
     promptText: "新しい計画は、「おおむね」順調に進んでいる。",
     promptContextZh: "新計畫大致上進行得很順利。",
-    hintZh: "「おおむね」に最も近い意味を選ぶ。",
+    hintZh: "選出語意最接近的說法。",
     expectedAnswer: "だいたい",
     options: ["だいたい", "完全に", "少しずつ", "急に"],
     explanation: "「おおむね」表示大致、大體上，最接近「だいたい」。「完全に」是完全；「少しずつ」是逐漸；「急に」是突然，皆不合。",
@@ -2404,7 +2404,7 @@ export const n2Items: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "発表の直前、緊張の ___ 声が震えてしまった。",
     promptContextZh: "發表前一刻，因為太緊張而聲音發抖。",
-    hintZh: "強い感情が原因で、身体反応が出た文脈。",
+    hintZh: "因情緒過於強烈而引發身體反應。",
     expectedAnswer: "あまり",
     options: ["あまり", "末に", "たびに", "かぎり"],
     explanation: "「Nのあまり」表示由於某種感情或狀態過強而產生後果。本句是因過度緊張而聲音發抖。「末に」是經過一番過程後；「たびに」每次；「かぎり」限度/只要，皆不合。"
@@ -2419,7 +2419,7 @@ export const n2Items: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "新駅の建設計画 ___、住民の間で意見が分かれている。",
     promptContextZh: "圍繞新車站的建設計畫，居民之間意見分歧。",
-    hintZh: "ある議題を中心に議論や対立が起きている文脈。",
+    hintZh: "以某議題為中心引發討論或對立。",
     expectedAnswer: "をめぐって",
     options: ["をめぐって", "に沿って", "に応じて", "を通じて"],
     explanation: "「Nをめぐって」表示圍繞某議題發生討論、對立或問題。本句是圍繞新站建設計畫意見分歧。「に沿って」按照；「に応じて」依照；「を通じて」透過/整個期間，皆不合。"
@@ -2434,7 +2434,7 @@ export const n2Items: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "戻れる ___、入社したばかりの自分に忠告したい。",
     promptContextZh: "如果回得去的話，真想提醒剛進公司的自己。",
-    hintZh: "実現しにくい願望を仮定する文脈。",
+    hintZh: "假設一個現實中很難達成的願望。",
     expectedAnswer: "ものなら",
     options: ["ものなら", "ものの", "ものだから", "ものを"],
     explanation: "「V可能形＋ものなら」表示如果能做到某個實際上很難的事。本句是如果能回到過去，就想提醒剛入社的自己。「ものの」雖然；「ものだから」原因辯解；「ものを」明明卻，皆不合。"
@@ -2449,7 +2449,7 @@ export const n2Items: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "新しい制度を導入した ___、現場ではまだ使い方が十分に理解されていない。",
     promptContextZh: "雖然導入了新制度，但現場還沒充分理解使用方法。",
-    hintZh: "前項の事実を認めつつ、後項で不十分な点を述べる文脈。",
+    hintZh: "承認前項屬實，但後項仍有不足。",
     expectedAnswer: "ものの",
     options: ["ものの", "ものなら", "ものだから", "ものを"],
     explanation: "「〜ものの」表示雖然前項成立，但後項仍有相反或不充分之處。本句是雖導入制度，但現場尚未理解。「ものなら」假設；「ものだから」原因；「ものを」遺憾/責備，皆不合。"
@@ -2464,10 +2464,10 @@ export const n2Items: PracticeQuestion[] = [
     instructionZh: "短文脈絡：選能讓文章流向自然的接續表現。",
     promptText: "会員登録は無料です。___、一部の機能を利用するには本人確認が必要です。",
     promptContextZh: "會員註冊免費。但是，使用部分功能需要本人身分驗證。",
-    hintZh: "前句の条件に、制限事項を付け加える文脈。",
+    hintZh: "在前句說明後補上限制或例外。",
     expectedAnswer: "ただし",
     options: ["ただし", "したがって", "つまり", "一方で"],
-    explanation: "「ただし」は前述に条件・例外・制限を付け加える表現。本句は無料登録という説明に本人確認の条件を加える。「したがって」因此；「つまり」換言；「一方で」另一方面，皆不合。"
+    explanation: "「ただし」用於在前述內容上追加條件、例外或限制。本句在「免費註冊」的說明後，補上需本人驗證的條件。「したがって」是「因此」；「つまり」是「換言之」；「一方で」是「另一方面」，皆不合。"
   }),
   examQuestion({
     id: "reinforce-round2-kanji-joukyou",
@@ -2481,7 +2481,7 @@ export const n2Items: PracticeQuestion[] = [
     promptContextZh: "先確認現場的狀況再判斷吧。",
     expectedAnswer: "じょうきょう",
     options: ["じょうきょう", "しょうきょう", "じょうこう", "じょうぎょう"],
-    explanation: "「状況」は「じょうきょう」と読む。「しょうきょう」は語頭清濁誤り、「じょうこう」は後半の拗音を落とした誤読、「じょうぎょう」は後半の清濁・音の混同。",
+    explanation: "「状況」讀作「じょうきょう」。「しょうきょう」是語頭清濁誤讀；「じょうこう」是漏掉後半拗音的誤讀；「じょうぎょう」是後半清濁與讀音的混淆。",
     exampleJapanese: "現場の状況を確認してから判断しましょう。",
     exampleMeaningZh: "先確認現場的狀況再判斷吧。"
   }),
@@ -2495,7 +2495,7 @@ export const n2Items: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     promptText: "何度も会議を重ねた ___、結局その計画は中止になった。",
     promptContextZh: "開了好幾次會，到頭來那項計畫還是喊停了。",
-    hintZh: "長い過程の末に、望ましくない結末になる文脈。",
+    hintZh: "經過再三折騰，最後演變成不樂見的下場。",
     expectedAnswer: "あげく",
     options: ["あげく", "うちに", "ところに", "かと思うと"],
     explanation: "「Vたあげく」表示經過一番過程後，最後得到多半不理想的結果。本句是多次開會後，最後計畫仍中止。「うちに」期間/趁著；「ところに」正當時；「かと思うと」剛…就，皆不合。"
