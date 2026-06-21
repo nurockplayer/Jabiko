@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { GraduationCap } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { PracticeQuestion } from "../domain/types";
+import { shuffleOrderFragments } from "../domain/wordOrder";
 import { SpeakButton } from "./SpeakButton";
 
 // Renders an exam/cloze/pattern question's prompt: instruction, the
@@ -43,6 +44,13 @@ export function ExamPrompt({ question, language }: { question: PracticeQuestion;
   // (legacy exam items). The full translation still appears in the
   // FeedbackPanel post-answer via vocabulary.examples[0].meaningZh.
   const preAnswerHint = question.hintZh ?? question.promptContextZh;
+  // 語順組合 prompts list their fragments in answer order (［a / b / c / d］),
+  // which spells out the answer. Shuffle them at render time (seeded by id so
+  // it's stable and never reshuffles mid-question). Other labels render as-is.
+  const promptText =
+    question.promptLabel === "語順組合" && question.promptText
+      ? shuffleOrderFragments(question.promptText, question.id)
+      : question.promptText;
   return (
     <>
       <p className="word-kind">
@@ -50,9 +58,9 @@ export function ExamPrompt({ question, language }: { question: PracticeQuestion;
         {question.instructionZh}
       </p>
       <p className="exam-prompt">
-        {question.promptText}
-        {question.promptText ? (
-          <SpeakButton text={question.promptText} language={language} />
+        {promptText}
+        {promptText ? (
+          <SpeakButton text={promptText} language={language} />
         ) : null}
       </p>
       {preAnswerHint ? (
