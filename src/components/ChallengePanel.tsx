@@ -6,7 +6,7 @@ import { ExamPrompt } from "./ExamPrompt";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { SpeakButton } from "./SpeakButton";
 import type { Feedback } from "./types";
-import { LEVEL_RANGE_OPTIONS, type LevelRange } from "../domain/levelRange";
+import { VOCAB_LEVEL_RANGE_OPTIONS, type LevelRange } from "../domain/levelRange";
 import { usePracticeSession, type PracticeMode, type SessionInit } from "../hooks/usePracticeSession";
 
 const partOfSpeechOptions: Array<PartOfSpeech | "mixed"> = ["verb", "i_adjective", "na_adjective", "noun", "mixed"];
@@ -201,7 +201,7 @@ export function ChallengePanel({
         <fieldset>
           <legend>{t.levelRange}</legend>
           <div className="segmented">
-            {LEVEL_RANGE_OPTIONS.map((range) => (
+            {VOCAB_LEVEL_RANGE_OPTIONS.map((range) => (
               <button
                 key={range}
                 type="button"

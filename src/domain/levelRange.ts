@@ -10,6 +10,11 @@ export type LevelRange = "all" | "n1n2" | "n2n3" | "n4n5";
 // Order shown in the picker (全部 first, then the target bands high→low).
 export const LEVEL_RANGE_OPTIONS: LevelRange[] = ["all", "n1n2", "n2n3", "n4n5"];
 
+// Vocab (単字讀音) only has N1/N2 jlpt entries, so its segmented picker
+// must NOT offer n4n5 (it would filter jlptVocabulary down to an empty
+// pool). Exam reaches N4/N5 via the examN4 mode preset, not this picker.
+export const VOCAB_LEVEL_RANGE_OPTIONS: LevelRange[] = ["all", "n1n2", "n2n3"];
+
 const RANGE_LEVELS: Record<Exclude<LevelRange, "all">, JlptLevel[]> = {
   n1n2: ["N1", "N2"],
   n2n3: ["N2", "N3"],
