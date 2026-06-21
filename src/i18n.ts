@@ -160,6 +160,9 @@ export type Copy = {
   dailyDoneAgain: string;
   dailyDoneExit: string;
   speakAriaLabel: string;
+  authSignIn: string;
+  authSignOut: string;
+  authSignedInAs: (name: string) => string;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
   focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast", string>;
@@ -355,6 +358,9 @@ export const copy: Record<Language, Copy> = {
     dailyDoneAgain: "再練一組",
     dailyDoneExit: "回首頁",
     speakAriaLabel: "朗讀日文",
+    authSignIn: "Google 登入",
+    authSignOut: "登出",
+    authSignedInAs: (name) => `${name}`,
     partOfSpeech: {
       verb: "動詞",
       i_adjective: "い形容詞",
