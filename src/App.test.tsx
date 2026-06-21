@@ -738,4 +738,40 @@ describe("App", () => {
     expect(grid.querySelector('[data-selected="true"]')).toBeNull();
   });
 
+  it("exposes the whole answer state on the drill container for embedded AI", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+
+    // Before answering: unanswered, with no selection / expected answer leaked.
+    expect(panel).toHaveAttribute("data-result", "unanswered");
+    expect(panel).not.toHaveAttribute("data-selected");
+    expect(panel).not.toHaveAttribute("data-expected-answer");
+    expect(panel).toHaveAttribute("data-question-id");
+
+    const grid = screen.getByLabelText("答案選項");
+    const options = within(grid).getAllByRole("button");
+    await user.click(options[0]);
+
+    // After answering: the container summarises selection + result + answer.
+    expect(panel).toHaveAttribute("data-selected", options[0].textContent ?? "");
+    expect(["correct", "wrong"]).toContain(panel.getAttribute("data-result"));
+    expect(panel).toHaveAttribute("data-expected-answer");
+  });
+
+  it("marks the drill container revealed (no selection) after 看答案", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+
+    await user.click(screen.getByRole("button", { name: "看答案" }));
+
+    // Revealing sets result=revealed, exposes the answer, with no selection.
+    expect(panel).toHaveAttribute("data-result", "revealed");
+    expect(panel).not.toHaveAttribute("data-selected");
+    expect(panel).toHaveAttribute("data-expected-answer");
+  });
+
 });

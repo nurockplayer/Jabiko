@@ -139,6 +139,18 @@ export function ChallengePanel({
     handleDrillKeyDown
   } = session;
 
+  // Container-level answer state for embedded AI / browser automation:
+  // collapse feedback into one result string so .drill-panel exposes the
+  // whole state (which question, what was picked, the outcome) in one place
+  // without having to scan the option buttons. "unanswered" until answered.
+  const drillResult = !feedback
+    ? "unanswered"
+    : feedback.status === "correct"
+      ? "correct"
+      : feedback.status === "revealed"
+        ? "revealed"
+        : "wrong";
+
   return (
     <section className="practice-layout" aria-label="Jabiko practice">
     <aside className="controls-panel" aria-label={t.settingsLabel}>
@@ -326,7 +338,16 @@ export function ChallengePanel({
       </button>
     </aside>
 
-    <section className="drill-panel" aria-label={t.currentQuestion} onKeyDown={handleDrillKeyDown}>
+    <section
+      className="drill-panel"
+      aria-label={t.currentQuestion}
+      onKeyDown={handleDrillKeyDown}
+      data-question-id={currentQuestion?.id}
+      data-question-type={currentQuestion?.promptLabel ?? currentQuestion?.targetForm}
+      data-selected={selectedChoice ?? undefined}
+      data-result={drillResult}
+      data-expected-answer={feedback ? currentQuestion?.expectedAnswers.join(" / ") : undefined}
+    >
       {currentQuestion ? (
         <>
           <div className="prompt-header">
