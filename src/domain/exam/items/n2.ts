@@ -2331,5 +2331,35 @@ export const n2Items: PracticeQuestion[] = [
     explanation: "「規」音讀「き」，「則」音讀「そく」→ きそく。「ぎそく」是首字濁音（き→ぎ，撞「義足」）；「きぞく」是次字濁音（そく→ぞく，撞「貴族」）；「きさい」是次字誤讀（そく→さい，撞「記載」）。",
     exampleJapanese: "会社の規則を守って行動してください。",
     exampleMeaningZh: "請遵守公司的規則行動。"
+  }),
+  examQuestion({
+    id: "reinforce-stubborn-nagaramomo-young",
+    level: "N2",
+    surface: "ながらも",
+    reading: "ながらも",
+    meaningZh: "儘管如此仍然",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "経験は浅い ___ 、彼は落ち着いて顧客の苦情に対応した。",
+    promptContextZh: "雖然經驗尚淺，他仍冷靜地處理了顧客的客訴。",
+    hintZh: "條件不利，但表現卻超出預期。",
+    expectedAnswer: "ながらも",
+    options: ["ながらも", "からには", "だけに", "にかけて"],
+    explanation: "「Vます形/イ形/Nながらも」表示「有前項事實，後項卻仍成立」的逆接。本句經驗淺，卻仍冷靜應對客訴，故選「ながらも」。「からには」是「既然…就」；「だけに」是「正因為…才」；「にかけて」表時間範圍或擅長領域，接續與語意皆不合。"
+  }),
+  examQuestion({
+    id: "reinforce-stubborn-uewa-contract",
+    level: "N2",
+    surface: "上は",
+    reading: "うえは",
+    meaningZh: "做了就應當",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "契約書に署名した ___ 、条件を守る責任がある。",
+    promptContextZh: "簽署了合約之後，就有遵守條件的責任。",
+    hintZh: "做出某項承諾後，必須擔起隨之而來的責任。",
+    expectedAnswer: "上は",
+    options: ["上は", "うえで", "うえに", "うちは"],
+    explanation: "「Vた＋上は」表示「既做了前項，理所當然就要承擔後項的義務或覺悟」。本句簽了約就要守條件，故選「上は」。「うえで」是「在…之後／在…方面」偏中性程序；「うえに」是「加上、而且」的累加；「うちは」是「在…期間」，皆不合。"
   })
 ];

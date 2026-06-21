@@ -3199,5 +3199,36 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "かと思うと",
     options: ["かと思うと", "上は", "こととて", "あげく"],
     explanation: "「Vたかと思うと」表示剛覺得前項發生，下一瞬間就出現後項變化，本句描寫孩子情緒瞬間反轉。「上は」是『既然…就（負起責任）』；「こととて」是書面致歉、正式理由；「あげく」是『經過一番過程後（多為不理想結果）』，三者都無法表達這種短時間內的快速轉換，唯「かと思うと」成立。"
+  }),
+  examQuestion({
+    id: "reinforce-stubborn-kanji-zengen",
+    level: "N1",
+    surface: "漸減",
+    reading: "ぜんげん",
+    meaningZh: "逐漸減少",
+    promptLabel: "漢字読み",
+    instructionZh: "選出底線詞語的正確讀音。",
+    promptText: "人口は十年前をピークに「漸減」している。",
+    promptContextZh: "人口以十年前為高峰，正逐漸減少。",
+    expectedAnswer: "ぜんげん",
+    options: ["ぜんげん", "ざんげん", "ぜんけん", "ぜんしょう"],
+    explanation: "「漸減」讀作「ぜんげん」，指一點一點地減少。「ざんげん」是把「漸」誤讀成「ざん」的語頭誤讀；「ぜんけん」是把後半「減（げん）」清濁讀錯；「ぜんしょう」是混入「減少（げんしょう）」等別的語形。唯「ぜんげん」正確。",
+    exampleJapanese: "人口は十年前をピークに漸減している。",
+    exampleMeaningZh: "人口以十年前為高峰，正逐漸減少。"
+  }),
+  examQuestion({
+    id: "reinforce-stubborn-nishiro-estimate",
+    level: "N1",
+    surface: "にしろ",
+    reading: "にしろ",
+    meaningZh: "即使是也、不管哪個都",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "どちらの案を採用する ___ 、事前に費用の見積もりを出す必要がある。",
+    promptContextZh: "不管採用哪個方案，都必須事先提出費用估算。",
+    hintZh: "兩個選項任選其一，後面的條件都一樣。",
+    expectedAnswer: "にしろ",
+    options: ["にしろ", "とはいえ", "ばかりに", "に沿って"],
+    explanation: "「疑問詞／選擇項＋にしろ」表示「不論是哪一方，後項都成立」的讓步。本句不論採哪個方案都要估價，故選「にしろ」。「とはいえ」是「雖說如此」，需承接既定事實而非選項；「ばかりに」是「就因為…（招致負面結果）」；「に沿って」是「按照」，皆不合。"
   })
 ];
