@@ -1232,6 +1232,12 @@ select:disabled {
   transition: width 0.3s ease;
 }
 
+/* In the right-hand review column the score report sits above the
+   mistake-review heading; give it breathing room from that heading. */
+.review-panel .score-report {
+  margin-bottom: 1.15rem;
+}
+
 .prompt-header {
   align-items: center;
   display: flex;

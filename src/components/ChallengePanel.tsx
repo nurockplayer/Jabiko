@@ -301,37 +301,6 @@ export function ChallengePanel({
 
       <p className="focus-summary">{focusSummary}</p>
 
-      <div className="score-report" role="group" aria-label="今日戰報">
-        <div className="score-strip">
-          <span>
-            <strong>{attempts.length}</strong>
-            {t.answered}
-          </span>
-          <span>
-            <strong>{correctCount}</strong>
-            {t.correctShort}
-          </span>
-          <span>
-            <strong>{mistakeQuestions.length}</strong>
-            {t.reviewShort}
-          </span>
-        </div>
-        <p className="score-accuracy">
-          <span className="score-accuracy-label">{t.accuracyLabel}</span>
-          <strong className="score-accuracy-value">{accuracy}%</strong>
-        </p>
-        <div
-          className="score-bar"
-          role="progressbar"
-          aria-valuenow={accuracy}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={t.accuracyLabel}
-        >
-          <span className="score-bar-fill" style={{ width: `${accuracy}%` }} />
-        </div>
-      </div>
-
       <button className="ghost-button" type="button" onClick={resetSession}>
         <RotateCcw aria-hidden="true" />
         {t.resetSession}
@@ -481,6 +450,36 @@ export function ChallengePanel({
     </section>
 
     <aside className="review-panel" aria-label={t.mistakesLabel}>
+      <div className="score-report" role="group" aria-label="今日戰報">
+        <div className="score-strip">
+          <span>
+            <strong>{attempts.length}</strong>
+            {t.answered}
+          </span>
+          <span>
+            <strong>{correctCount}</strong>
+            {t.correctShort}
+          </span>
+          <span>
+            <strong>{mistakeQuestions.length}</strong>
+            {t.reviewShort}
+          </span>
+        </div>
+        <p className="score-accuracy">
+          <span className="score-accuracy-label">{t.accuracyLabel}</span>
+          <strong className="score-accuracy-value">{accuracy}%</strong>
+        </p>
+        <div
+          className="score-bar"
+          role="progressbar"
+          aria-valuenow={accuracy}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={t.accuracyLabel}
+        >
+          <span className="score-bar-fill" style={{ width: `${accuracy}%` }} />
+        </div>
+      </div>
       <div className="review-heading">
         <h2>{t.mistakeReview}</h2>
       </div>

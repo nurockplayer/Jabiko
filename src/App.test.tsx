@@ -664,14 +664,16 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: "挑戰" }));
     await screen.findByRole("region", { name: "目前題目" });
 
-    // Accuracy is a labelled value with a progress bar in 今日戰報.
-    expect(screen.getByText("目前正解率")).toBeInTheDocument();
-    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    // Accuracy is a labelled value with a progress bar, both owned by the
+    // 今日戰報 block (now sitting atop the right-hand 錯題複習 column).
+    const scoreReport = screen.getByLabelText("今日戰報");
+    expect(within(scoreReport).getByText("目前正解率")).toBeInTheDocument();
+    expect(within(scoreReport).getByRole("progressbar")).toBeInTheDocument();
 
-    // The 錯題複習 panel no longer carries the percentage (which read as a
-    // mistake-list count); the progress bar lives only in 戰報.
-    const reviewPanel = screen.getByLabelText("錯題");
-    expect(within(reviewPanel).queryByRole("progressbar")).toBeNull();
+    // The 錯題複習 heading itself still does not carry the percentage
+    // (which previously read as a mistake-list count).
+    const reviewHeading = screen.getByRole("heading", { name: "錯題複習" });
+    expect(reviewHeading.textContent ?? "").not.toMatch(/%/);
   });
 
   it("opens the 漢字音読み table and shows example words for a kanji", async () => {
