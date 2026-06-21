@@ -6,6 +6,7 @@ import { countDueReviews } from "./domain/srs";
 import { copy, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel } from "./components";
 import { useTheme } from "./hooks/useTheme";
+import { useAuth } from "./hooks/useAuth";
 import { useProgressAttempts } from "./hooks/useProgressAttempts";
 import type { SessionInit } from "./hooks/usePracticeSession";
 import "./styles.css";
@@ -41,6 +42,7 @@ export default function App() {
   const t = copy[language];
 
   const { theme, toggleTheme } = useTheme();
+  const { user, signInWithGoogle, signOut } = useAuth();
   const { progressAttempts, recordAttempt } = useProgressAttempts();
   // Lightweight, pool-free count for the home/learn review badge (see
   // countDueReviews). The full review queue -- which needs the question
@@ -91,6 +93,20 @@ export default function App() {
         </div>
         <div className="heading-actions">
           <p>{t.appTagline}</p>
+          <div className="heading-auth">
+            {user ? (
+              <>
+                <span className="heading-user">{t.authSignedInAs(user.user_metadata.full_name ?? user.email ?? "")}</span>
+                <button type="button" className="auth-button" onClick={signOut}>
+                  {t.authSignOut}
+                </button>
+              </>
+            ) : (
+              <button type="button" className="auth-button" onClick={signInWithGoogle}>
+                {t.authSignIn}
+              </button>
+            )}
+          </div>
           <button className="theme-toggle" type="button" onClick={toggleTheme}>
             <ThemeIcon aria-hidden="true" />
             {themeToggleLabel}
