@@ -944,5 +944,20 @@ export const n3Items: PracticeQuestion[] = [
     expectedAnswer: "ところで",
     options: ["ところで", "だから", "それでも", "つまり"],
     explanation: "「ところで」用於轉換話題，本句先說資料完成，接著轉問會議時間。「だから」表示所以（因果）；「それでも」表示即使如此（逆接）；「つまり」表示換言之（歸結），皆不適合話題轉換。唯「ところで」成立。"
+  }),
+  examQuestion({
+    id: "reinforce-round2-bayokatta-consult",
+    level: "N3",
+    surface: "ばよかった",
+    reading: "ばよかった",
+    meaningZh: "早知道就該…（懊悔）",
+    promptLabel: "文法形式選擇",
+    instructionZh: "句中填空：依文脈選最自然的文法。",
+    promptText: "こんなに簡単に解決するなら、もっと早く先生に相談 ___。",
+    promptContextZh: "早知道這麼容易解決，就該早點找老師商量。",
+    hintZh: "過去にしなかったことを今になって悔やむ文脈。",
+    expectedAnswer: "すればよかった",
+    options: ["すればよかった", "することにした", "しているところだった", "しないわけではない"],
+    explanation: "「Vばよかった」表示後悔：如果當時做了就好了。本句是早點問老師就好了。「することにした」表示決定；「しているところだった」正在做；「しないわけではない」並非不做，皆不合。"
   })
 ];
