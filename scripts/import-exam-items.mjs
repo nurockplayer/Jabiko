@@ -23,7 +23,9 @@
 //   files...     One or more batch JSON paths. A path may be a literal file or
 //                a simple `*` glob inside scripts/exam-batches (e.g.
 //                "scripts/exam-batches/batch-1.json"). Defaults to
-//                scripts/exam-batches/*.json when omitted.
+//                scripts/exam-batches/*.json when omitted. Globs skip
+//                `_`-prefixed fixtures (e.g. _example.json); pass an explicit
+//                path to import one.
 //   --dry-run    Validate everything and print what WOULD be appended, but do
 //                not write any file. All validations still run and any
 //                violation still fails the run (non-zero exit).
@@ -105,7 +107,9 @@ function parseArgs(argv) {
 
 // Resolve patterns to a sorted, de-duplicated list of files. Supports a single
 // trailing `*` glob in the basename (e.g. scripts/exam-batches/*.json), which
-// is all the prior batch workflow ever needed -- no extra dependency.
+// is all the prior batch workflow ever needed -- no extra dependency. Globs
+// skip `_`-prefixed files (fixtures like _example.json); pass an explicit path
+// to import one.
 function resolveInputFiles(patterns) {
   const list = patterns.length > 0 ? patterns : [DEFAULT_GLOB];
   const out = new Set();
@@ -117,6 +121,10 @@ function resolveInputFiles(patterns) {
       if (!fs.existsSync(dir)) continue;
       const re = new RegExp("^" + base.split("*").map(escapeRegExp).join(".*") + "$");
       for (const name of fs.readdirSync(dir)) {
+        // `_`-prefixed files are fixtures/examples (e.g. _example.json,
+        // _example-bad.json); globs never pick them up. Pass an explicit path
+        // to import one deliberately.
+        if (name.startsWith("_")) continue;
         if (re.test(name)) out.add(path.join(dir, name));
       }
     } else {
@@ -150,7 +158,13 @@ function collectExistingIds() {
 // ---------------------------------------------------------------------------
 // rendering (mirrors the established items/*.ts entry format exactly)
 // ---------------------------------------------------------------------------
-const esc = (s) => String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+const esc = (s) =>
+  String(s)
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r")
+    .replace(/\t/g, "\\t");
 
 function renderEntry(q) {
   const L = [];
@@ -170,8 +184,15 @@ function renderEntry(q) {
   const hasExample = Boolean(q.exampleJapanese);
   L.push(`    explanation: "${esc(q.explanation)}"${hasExample ? "," : ""}`);
   if (hasExample) {
-    L.push(`    exampleJapanese: "${esc(q.exampleJapanese)}",`);
-    L.push(`    exampleMeaningZh: "${esc(q.exampleMeaningZh ?? "")}"`);
+    // exampleMeaningZh is optional: when omitted, leave the field out entirely
+    // so examQuestion()'s `?? promptContextZh` fallback applies. Emitting "" here
+    // would defeat that fallback (?? only triggers on undefined/null, not "").
+    const hasExampleMeaning =
+      typeof q.exampleMeaningZh === "string" && q.exampleMeaningZh.trim() !== "";
+    L.push(`    exampleJapanese: "${esc(q.exampleJapanese)}"${hasExampleMeaning ? "," : ""}`);
+    if (hasExampleMeaning) {
+      L.push(`    exampleMeaningZh: "${esc(q.exampleMeaningZh)}"`);
+    }
   }
   L.push("  })");
   return L.join("\n");
