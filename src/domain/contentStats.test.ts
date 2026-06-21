@@ -11,8 +11,13 @@ import { jlptVocabulary } from "./vocabulary-jlpt";
 // contentStats.ts. It's free to import the heavy builders here; test
 // files are never part of the shipped bundle.
 describe("CONTENT_STATS", () => {
-  it("matches the live exam-pool item count", () => {
-    expect(CONTENT_STATS.examItems).toBe(buildExamQuestionPool("all").length);
+  it("matches the total exam-bank item count across all levels", () => {
+    // examItems is the FULL bank total (N1–N5) so content growth at any
+    // level shows up on the home dashboard -- not the default-pool size
+    // (which trims N3 to a warm-up and excludes N4/N5).
+    expect(CONTENT_STATS.examItems).toBe(
+      buildExamQuestionPool(["N1", "N2", "N3", "N4", "N5"]).length
+    );
   });
 
   it("matches the live N1 文法形式選擇 count", () => {
