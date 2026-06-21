@@ -2383,7 +2383,7 @@ export const n2Items: PracticeQuestion[] = [
     surface: "おおむね",
     reading: "おおむね",
     meaningZh: "大致、大體上",
-    promptLabel: "言い換え類義",
+    promptLabel: "類義替換",
     instructionZh: "選與「」中詞語意思最接近的選項。",
     promptText: "新しい計画は、「おおむね」順調に進んでいる。",
     promptContextZh: "新計畫大致上進行得很順利。",
