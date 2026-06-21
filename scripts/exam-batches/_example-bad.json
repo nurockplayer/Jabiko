@@ -1,0 +1,47 @@
+[
+  {
+    "id": "n5-grammar-wo-pan",
+    "level": "N5",
+    "surface": "を",
+    "reading": "を",
+    "meaningZh": "受詞助詞",
+    "promptLabel": "文法形式選擇",
+    "instructionZh": "句中填空：依文脈選最自然的文法。",
+    "promptText": "毎朝、パン ___ 食べます。",
+    "promptContextZh": "每天早上吃麵包。",
+    "hintZh": "動作對象與動詞之間要用的助詞。",
+    "expectedAnswer": "を",
+    "options": ["を", "が", "に", "へ"],
+    "explanation": "示範負例：此 id 已存在於 items/n5.ts，應被『重複 id』檢查擋下。"
+  },
+  {
+    "id": "n3-example-pipeline-bad-002",
+    "level": "N3",
+    "surface": "ように",
+    "reading": "ように",
+    "meaningZh": "為了能…",
+    "promptLabel": "文法形式選擇",
+    "instructionZh": "句中填空：依文脈選最自然的文法。",
+    "promptText": "よく聞こえる ___、大きい声で話してください。",
+    "promptContextZh": "為了能聽清楚，請大聲說。",
+    "hintZh": "前半是希望達成的狀態，後半是請求的行動，連接兩者的說法。",
+    "expectedAnswer": "ように",
+    "options": ["ために", "おかげで", "せいで", "からには"],
+    "explanation": "示範負例：expectedAnswer『ように』不在 options 中，應被『answer ∉ options』檢查擋下。"
+  },
+  {
+    "id": "n3-example-pipeline-bad-003",
+    "level": "N3",
+    "surface": "において",
+    "reading": "において",
+    "meaningZh": "在…（場合、領域）",
+    "promptLabel": "文法形式選擇",
+    "instructionZh": "句中填空：依文脈選最自然的文法。",
+    "promptText": "会議 ___、新しい計画が発表された。",
+    "promptContextZh": "在會議上發表了新計畫。",
+    "hintZh": "標示某事所發生的正式場合或場域的說法。",
+    "expectedAnswer": "において",
+    "options": ["において", "にとって", "に対して"],
+    "explanation": "示範負例：options 只有 3 個（非 4），應被『options.length===4』檢查擋下。"
+  }
+]
