@@ -6712,7 +6712,7 @@ export function buildExamQuestionPool(
   // keep only a small warm-up subset of N3 items so they don't dilute
   // the high-level practice. The full N3 set is still reachable via
   // an explicit buildExamQuestionPool("N3") call.
-  const n1AndN2 = examStyleQuestions.filter((q) => q.vocabulary.level !== "N3");
+  const n1AndN2 = examStyleQuestions.filter((q) => q.vocabulary.level === "N1" || q.vocabulary.level === "N2");
   const n3WarmUp = examStyleQuestions
     .filter((q) => q.vocabulary.level === "N3")
     .slice(0, MAX_N3_IN_DEFAULT_POOL);
