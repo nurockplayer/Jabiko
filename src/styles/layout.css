@@ -1,0 +1,88 @@
+.app-shell {
+  min-height: 100vh;
+  padding: 1.25rem;
+}
+
+.app-heading {
+  align-items: end;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin: 0 auto 1rem;
+  max-width: 1220px;
+}
+
+.app-heading h1,
+.app-heading p,
+.brand-lockup p,
+.brand-lockup h2,
+.review-heading h2,
+.feedback h2,
+.word-block p {
+  margin: 0;
+}
+
+.app-heading h1 {
+  color: var(--ink);
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.app-heading > p {
+  color: var(--muted);
+  max-width: 30rem;
+  text-align: right;
+}
+
+.heading-actions {
+  align-items: end;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.heading-actions p {
+  color: var(--muted);
+  max-width: 30rem;
+  text-align: right;
+}
+
+.theme-toggle {
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  color: var(--button-text);
+  flex: 0 0 auto;
+  font-weight: 800;
+}
+
+.view-switch {
+  margin: 0 auto 1rem;
+  max-width: 360px;
+}
+
+.view-switch button {
+  font-weight: 800;
+}
+
+.eyebrow {
+  color: var(--teal);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.learning-panel {
+  /* Paper card, no dashboard chrome. Removed: radial panel-glow, the
+   * backdrop blur, and the 4px teal top stripe -- those three together
+   * gave a "glass admin panel" feel. Just a card on paper now. */
+  animation: panel-rise 240ms ease both;
+  background: var(--paper);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin: 0 auto;
+  max-width: 1220px;
+  padding: 1.25rem;
+}

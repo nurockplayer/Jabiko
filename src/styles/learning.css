@@ -1,0 +1,654 @@
+.chapter-shell {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1.55fr);
+  min-height: 640px;
+}
+
+.chapter-index,
+.chapter-content {
+  min-width: 0;
+}
+
+.chapter-index {
+  border-right: 1px solid var(--rule);
+  display: grid;
+  gap: 1rem;
+  grid-template-rows: auto 1fr auto;
+  padding-right: 1rem;
+}
+
+.chapter-index-copy {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.chapter-index-copy h2,
+.chapter-index-copy p,
+.chapter-content-head h3,
+.chapter-content-head p {
+  margin: 0;
+}
+
+.chapter-index-copy h2 {
+  color: var(--ink);
+  font-family: var(--font-title);
+  font-size: 1.55rem;
+  line-height: 1.2;
+}
+
+.chapter-index-copy p:last-child,
+.chapter-content-head p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.chapter-list {
+  align-content: start;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.chapter-list-button {
+  background: color-mix(in srgb, var(--field-bg) 92%, transparent);
+  border-color: var(--panel-border);
+  color: var(--button-text);
+  display: grid;
+  gap: 0.28rem;
+  justify-items: start;
+  min-height: 0;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.chapter-list-button.selected {
+  /* "Currently reading this chapter" highlight. Was a saturated orange
+   * gradient; now a soft muted-brick wash that matches the new
+   * --vermilion (#b94a2c) instead of the old hardcoded #f97316. */
+  background: color-mix(in srgb, var(--vermilion) 10%, var(--paper));
+  border-color: color-mix(in srgb, var(--vermilion) 55%, var(--panel-border));
+}
+
+.chapter-list-button.complete {
+  border-color: color-mix(in srgb, var(--green) 58%, var(--panel-border));
+}
+
+.chapter-list-button span {
+  color: var(--teal);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.chapter-list-button strong {
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.28;
+}
+
+.chapter-list-button small {
+  color: var(--muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.chapter-content {
+  display: grid;
+  gap: 1rem;
+}
+
+.chapter-content-head {
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  gap: 0.8rem;
+  padding-bottom: 1rem;
+}
+
+.chapter-content-head h3 {
+  color: var(--ink);
+  font-family: var(--font-japanese-display);
+  font-size: clamp(2.1rem, 5vw, 4.2rem);
+  line-height: 1.05;
+}
+
+.chapter-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.chapter-actions span {
+  color: var(--label-text);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.chapter-lesson {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.learning-hero {
+  align-items: center;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  justify-content: center;
+  min-height: clamp(520px, calc(100vh - 6rem), 680px);
+  padding: 2.8rem 1rem;
+}
+
+.learning-copy {
+  align-content: start;
+  display: grid;
+  gap: 1.05rem;
+  justify-items: center;
+  max-width: 720px;
+  text-align: center;
+}
+
+.learning-copy h2,
+.learning-copy p,
+.focus-formula,
+.quick-start-heading h3,
+.quick-start-heading p,
+.quick-start-card h4,
+.quick-start-card p,
+.detail-divider h3,
+.detail-divider p,
+.learning-section-copy h3,
+.learning-section-copy p,
+.learning-roadmap p,
+.rule-card h4,
+.rule-card p,
+.pipeline-card p,
+.lesson-card h3,
+.lesson-card p {
+  margin: 0;
+}
+
+.learning-copy h2 {
+  color: var(--ink);
+  font-family: var(--font-japanese-display);
+  font-size: clamp(2.6rem, 7vw, 5.2rem);
+  font-weight: 700;
+  line-height: 1.04;
+}
+
+.learning-copy > p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.65;
+  max-width: 44rem;
+}
+
+.learning-copy .start-challenge {
+  font-size: 1.04rem;
+  min-width: 14rem;
+}
+
+.learning-scroll-hint {
+  color: var(--label-text);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.focus-formula {
+  align-items: center;
+  background:
+    linear-gradient(135deg, rgba(249, 115, 22, 0.16), transparent 72%),
+    var(--field-bg);
+  border: 1px solid var(--summary-border);
+  border-radius: 8px;
+  color: var(--summary-text);
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--font-japanese-ui);
+  font-weight: 800;
+  gap: 0.48rem;
+  justify-content: center;
+  line-height: 1.35;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 0.85rem 1rem;
+}
+
+.focus-formula span {
+  min-width: 0;
+}
+
+.focus-formula span + span::before {
+  color: var(--muted);
+  content: "+";
+  font-family: var(--font-ui);
+  font-weight: 800;
+  margin-right: 0.48rem;
+}
+
+.learning-path-card {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 92%, transparent), color-mix(in srgb, var(--paper-deep) 74%, transparent));
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  min-width: 0;
+  padding: 0.95rem;
+}
+
+.learning-path-section {
+  margin-top: 1.05rem;
+}
+
+.learning-roadmap {
+  counter-reset: learning;
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+  margin: 0.7rem 0 0;
+  padding: 0;
+}
+
+.learning-roadmap li {
+  background: color-mix(in srgb, var(--paper-deep) 68%, transparent);
+  border-left: 3px solid var(--teal);
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.58rem 0 0.58rem 0.72rem;
+}
+
+.learning-roadmap span,
+.pipeline-card span {
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.learning-roadmap strong {
+  color: var(--ink);
+  font-size: 0.96rem;
+}
+
+.learning-roadmap p {
+  color: var(--muted);
+  display: -webkit-box;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.secondary-challenge-button {
+  background: var(--paper);
+  color: var(--button-text);
+  font-weight: 800;
+  margin-top: 0.8rem;
+}
+
+.quick-start {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.15rem;
+}
+
+.quick-start-heading {
+  align-items: end;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.quick-start-heading h3,
+.detail-divider h3 {
+  color: var(--ink);
+  font-size: 1.28rem;
+  line-height: 1.25;
+}
+
+.quick-start-heading > p,
+.detail-divider > p {
+  color: var(--muted);
+  line-height: 1.55;
+  max-width: 32rem;
+  text-align: right;
+}
+
+.quick-start-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.quick-start-card {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 96%, var(--indigo) 4%), var(--field-bg));
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.62rem;
+  min-width: 0;
+  padding: 0.95rem;
+}
+
+.quick-start-card.featured {
+  background:
+    linear-gradient(135deg, rgba(249, 115, 22, 0.18), transparent 78%),
+    var(--field-bg);
+  border-color: var(--vermilion);
+}
+
+.quick-start-card.complete {
+  border-color: color-mix(in srgb, var(--green) 58%, var(--panel-border));
+}
+
+.quick-start-card.locked {
+  opacity: 0.72;
+}
+
+.quick-start-card span {
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.quick-start-card h4 {
+  color: var(--ink);
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+.quick-start-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.quick-start-card code {
+  background: var(--summary-bg);
+  border: 1px solid var(--summary-border);
+  border-radius: 6px;
+  color: var(--summary-text);
+  font-family: var(--font-japanese-ui);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  padding: 0.55rem 0.62rem;
+}
+
+.quick-start-button {
+  background: color-mix(in srgb, var(--paper) 86%, var(--field-bg));
+  color: var(--button-text);
+  font-weight: 800;
+  justify-self: start;
+  margin-top: 0.1rem;
+}
+
+.quick-start-card.featured .quick-start-button {
+  background: var(--vermilion);
+  border-color: var(--vermilion);
+  color: var(--selected-text);
+}
+
+.quick-start-card.locked .quick-start-button {
+  background: var(--field-disabled-bg);
+  border-color: var(--panel-border);
+  color: var(--field-disabled-text);
+}
+
+.detail-divider {
+  align-items: end;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-top: 1.15rem;
+  padding-top: 1.05rem;
+}
+
+.learning-section {
+  border-top: 1px solid var(--rule);
+  display: grid;
+  gap: 0.95rem;
+  margin-top: 1.15rem;
+  padding-top: 1.15rem;
+}
+
+.learning-section-copy {
+  display: grid;
+  gap: 0.35rem;
+  max-width: 52rem;
+}
+
+.learning-section-copy h3 {
+  color: var(--ink);
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.learning-section-copy p:last-child {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.rule-matrix {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.rule-matrix.three-column {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.rule-card,
+.pipeline-card {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 96%, var(--teal) 4%), var(--field-bg));
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.95rem;
+}
+
+.rule-card h4 {
+  color: var(--ink);
+  font-size: 1.02rem;
+}
+
+.rule-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.rule-card small {
+  border-top: 1px solid var(--rule);
+  color: var(--label-text);
+  line-height: 1.5;
+  padding-top: 0.65rem;
+}
+
+.sound-table {
+  background: var(--field-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sound-row {
+  align-items: stretch;
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  gap: 0;
+  grid-template-columns: minmax(4.7rem, 0.7fr) minmax(3.7rem, 0.55fr) minmax(3.7rem, 0.55fr) minmax(0, 2fr);
+}
+
+.sound-row:last-child {
+  border-bottom: 0;
+}
+
+.sound-row > span,
+.sound-row > code {
+  align-items: center;
+  border-right: 1px solid var(--rule);
+  color: var(--ink);
+  display: flex;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 0.68rem 0.75rem;
+}
+
+.sound-row > :last-child {
+  border-right: 0;
+}
+
+.sound-row code,
+.pipeline-card code {
+  color: var(--summary-text);
+  font-family: var(--font-japanese-ui);
+  font-weight: 700;
+}
+
+.sound-head {
+  background: linear-gradient(90deg, var(--summary-bg), color-mix(in srgb, var(--summary-bg) 58%, transparent));
+}
+
+.sound-head span {
+  color: var(--summary-text);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.pipeline-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.pipeline-card code {
+  background: var(--summary-bg);
+  border: 1px solid var(--summary-border);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+  padding: 0.55rem 0.62rem;
+}
+
+.pipeline-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.block-pitfalls {
+  background: color-mix(in srgb, var(--vermilion) 10%, var(--paper));
+  border: 1px solid color-mix(in srgb, var(--vermilion) 36%, var(--rule));
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+}
+
+.block-pitfalls-title {
+  color: var(--vermilion);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+}
+
+.block-pitfalls ul {
+  color: var(--ink);
+  line-height: 1.6;
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.block-pitfalls li {
+  overflow-wrap: anywhere;
+}
+
+.block-pitfalls li + li {
+  margin-top: 0.32rem;
+}
+
+.block-drill-note {
+  background: var(--summary-bg);
+  border: 1px dashed var(--summary-border);
+  border-radius: 8px;
+  color: var(--summary-text);
+  font-size: 0.84rem;
+  line-height: 1.55;
+  margin: 0;
+  overflow-wrap: anywhere;
+  padding: 0.55rem 0.75rem;
+}
+
+.inline-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.inline-drill-button {
+  background: var(--matcha);
+  border-color: var(--matcha-dark);
+  color: var(--selected-text);
+  font-weight: 800;
+  justify-self: start;
+  min-width: 9rem;
+}
+
+.lesson-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1.15rem;
+}
+
+.lesson-card {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 96%, var(--indigo) 4%), var(--field-bg));
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.7rem;
+  min-height: 17rem;
+  padding: 1rem;
+}
+
+.lesson-card span {
+  color: var(--teal);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.lesson-card h3 {
+  color: var(--ink);
+  font-size: 1.1rem;
+  line-height: 1.35;
+}
+
+.lesson-card p {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.formula-row {
+  align-self: end;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.formula-row code {
+  background: var(--summary-bg);
+  border: 1px solid var(--summary-border);
+  border-radius: 6px;
+  color: var(--summary-text);
+  font-family: var(--font-japanese-ui);
+  font-weight: 700;
+  padding: 0.5rem 0.6rem;
+}
+
+.start-challenge {
+  background: var(--vermilion);
+  border-color: var(--vermilion);
+  color: var(--selected-text);
+  font-weight: 800;
+  min-width: 11rem;
+}

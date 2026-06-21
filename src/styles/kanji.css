@@ -1,0 +1,187 @@
+/* ---- 漢字音読み 速查 ------------------------------------------------ */
+.kanji-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.kanji-head h2 {
+  margin: 0;
+}
+
+.kanji-head p {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+}
+
+.kanji-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.kanji-search {
+  flex: 1 1 12rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--panel-border);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.kanji-card {
+  border: 1px solid color-mix(in srgb, var(--matcha) 45%, var(--panel-border));
+  background: color-mix(in srgb, var(--matcha) 10%, var(--paper));
+  border-radius: 0.85rem;
+  padding: 1rem;
+}
+
+.kanji-card-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.kanji-card-char {
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.kanji-card-onyomi {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.3rem;
+  color: var(--matcha-dark);
+}
+
+.kanji-card-onyomi small {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.kanji-card-mean {
+  margin: 0.2rem 0 0;
+  color: var(--ink);
+}
+
+.kanji-examples-label {
+  margin: 0.8rem 0 0.3rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.kanji-examples {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.kanji-examples li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.kanji-example-surface {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.kanji-example-reading {
+  color: var(--matcha-dark);
+}
+
+.kanji-example-mean {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.kanji-no-examples {
+  color: var(--muted);
+}
+
+.kanji-family {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.kanji-family-head {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.kanji-family-head small {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.kanji-family-count {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.kanji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: 0.5rem;
+}
+
+.kanji-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.6rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--panel-border);
+  background: var(--paper);
+  cursor: pointer;
+  text-align: left;
+}
+
+.kanji-cell:hover {
+  box-shadow: var(--button-hover-shadow);
+}
+
+.kanji-cell.selected {
+  border-color: var(--matcha);
+  background: color-mix(in srgb, var(--matcha) 12%, var(--paper));
+}
+
+.kanji-cell-char {
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.kanji-cell-read {
+  font-size: 0.85rem;
+  color: var(--matcha-dark);
+}
+
+.kanji-cell-mean {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.kanji-empty {
+  color: var(--muted);
+}
