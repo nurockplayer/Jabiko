@@ -1166,13 +1166,19 @@ select:disabled {
   margin: 0;
 }
 
+.score-report {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+
 .score-strip {
   border-bottom: 1px solid var(--rule);
   border-top: 1px solid var(--rule);
   display: grid;
   gap: 0.4rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 1rem 0;
   padding: 0.8rem 0;
 }
 
@@ -1189,6 +1195,41 @@ select:disabled {
   color: var(--ink);
   font-size: 1.25rem;
   line-height: 1;
+}
+
+/* 今日戰報 accuracy: enlarged value + labelled + progress bar, kept
+   separate from the 錯題複習 list so the rate isn't read as a count. */
+.score-accuracy {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+}
+
+.score-accuracy-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.score-accuracy-value {
+  color: var(--matcha-dark);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.score-bar {
+  background: var(--rule);
+  border-radius: 999px;
+  height: 0.5rem;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  background: var(--matcha);
+  border-radius: 999px;
+  display: block;
+  height: 100%;
+  transition: width 0.3s ease;
 }
 
 .prompt-header {

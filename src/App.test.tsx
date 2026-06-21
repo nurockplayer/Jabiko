@@ -658,6 +658,22 @@ describe("App", () => {
     expect(screen.getAllByText(/N2＋N3 綜合題/).length).toBeGreaterThanOrEqual(2);
   });
 
+  it("shows accuracy in the 今日戰報 stats block, not on the 錯題複習 heading", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await screen.findByRole("region", { name: "目前題目" });
+
+    // Accuracy is a labelled value with a progress bar in 今日戰報.
+    expect(screen.getByText("目前正解率")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+
+    // The 錯題複習 panel no longer carries the percentage (which read as a
+    // mistake-list count); the progress bar lives only in 戰報.
+    const reviewPanel = screen.getByLabelText("錯題");
+    expect(within(reviewPanel).queryByRole("progressbar")).toBeNull();
+  });
+
   it("opens the 漢字音読み table and shows example words for a kanji", async () => {
     const user = userEvent.setup();
     render(<App />);

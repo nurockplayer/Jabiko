@@ -116,6 +116,7 @@ export type Copy = {
   answered: string;
   correctShort: string;
   reviewShort: string;
+  accuracyLabel: string;
   resetSession: string;
   currentQuestion: string;
   questionNumber: (value: number) => string;
@@ -298,6 +299,7 @@ export const copy: Record<Language, Copy> = {
     answered: "已答",
     correctShort: "正解",
     reviewShort: "複習",
+    accuracyLabel: "目前正解率",
     resetSession: "重設本次",
     currentQuestion: "目前題目",
     questionNumber: (value) => `第 ${value} 題`,
