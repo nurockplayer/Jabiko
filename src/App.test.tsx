@@ -566,6 +566,40 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "聞いて" })).toBeInTheDocument();
   });
 
+  it("answers the MCQ drill with the matching number key (1-4)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await gotoLearn(user);
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+
+    // Options are shuffled, so find 書いて's slot and press its 1-based
+    // position. The number key must select AND submit that option, even
+    // with focus outside the drill (a global, focus-independent shortcut).
+    const grid = screen.getByLabelText("答案選項");
+    const options = within(grid).getAllByRole("button");
+    const correctSlot = options.findIndex((button) => button.textContent === "書いて");
+    expect(correctSlot).toBeGreaterThanOrEqual(0);
+
+    await user.keyboard(String(correctSlot + 1));
+
+    expect(screen.getByRole("heading", { name: "正解" })).toBeInTheDocument();
+  });
+
+  it("ignores a number key past the option count", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await gotoLearn(user);
+    await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+
+    // Only 4 options exist; pressing 9 must not submit anything.
+    await user.keyboard("9");
+
+    expect(screen.queryByRole("heading", { name: "正解" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "再想一下" })).not.toBeInTheDocument();
+  });
+
   it("lets the learner focus on negative transformations", async () => {
     const user = userEvent.setup();
     render(<App />);

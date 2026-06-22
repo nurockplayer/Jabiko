@@ -196,9 +196,11 @@
   display: grid;
   gap: 0.6rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  counter-reset: choice;
 }
 
 .choice-option {
+  position: relative;
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 88%, var(--indigo) 12%), var(--field-bg));
   border-color: color-mix(in srgb, var(--field-border) 80%, var(--indigo));
@@ -231,6 +233,29 @@
   background: var(--feedback-incorrect-bg);
   border-color: var(--vermilion);
   color: var(--ink);
+}
+
+/* Subtle 1-4 number badge: a desktop affordance hinting the matching
+   digit picks this option (see usePracticeSession's keydown shortcut).
+   A CSS counter -- not DOM text -- so it never enters the button's
+   accessible name or textContent. */
+.choice-option::before {
+  content: counter(choice);
+  counter-increment: choice;
+  position: absolute;
+  top: 0.3rem;
+  left: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.4;
+}
+
+.kbd-hint {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  text-align: center;
+  color: color-mix(in srgb, var(--ink) 55%, transparent);
 }
 
 .next-button {

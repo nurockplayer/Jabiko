@@ -172,6 +172,8 @@ export function DrillPanel({
             })}
           </div>
 
+          {!feedback ? <p className="kbd-hint">{t.keyboardHint}</p> : null}
+
           <div className="action-row">
             <button className="ghost-button" type="button" onClick={revealAnswer} disabled={Boolean(feedback)}>
               <Eye aria-hidden="true" />
