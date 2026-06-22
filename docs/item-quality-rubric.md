@@ -113,7 +113,7 @@
 ## 機器擋得住 vs 擋不住（務必分清）
 
 **`contentGuard.test.ts`（`pnpm check:exam`）＋ `import-exam-items.mjs` 已自動強制**：
-- options 存在且 ≥2、恰 4 個、彼此相異、`expectedAnswer` ∈ options
+- options 彼此相異、`expectedAnswer` ∈ options（`check:exam` 驗 ≥2 個；**恰 4 個** 由匯入器 `import-exam-items.mjs` 把關——手寫只跑 `check:exam` 時 3 個選項會漏掉，故新題一律走匯入器）
 - id 全庫唯一
 - promptLabel 不以 `N1`–`N5` 開頭
 - hintZh 不含 `meaningZh` 的 ≥2 字 token
