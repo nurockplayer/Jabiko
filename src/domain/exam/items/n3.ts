@@ -1202,8 +1202,8 @@ export const n3Items: PracticeQuestion[] = [
     promptContextZh: "在房間的牆上裝飾旅行時拍的照片。",
     hintZh: "把東西擺出來讓空間更好看。",
     expectedAnswer: "飾った",
-    options: ["飾った", "並べた", "重ねた", "配った"],
-    explanation: "「飾る」＝為了美觀而裝飾、擺飾。「並べる」是（在平面上）排列；「重ねる」是疊放；「配る」是分發。與「壁に写真を」搭配表裝飾牆面，唯「飾った」成立。"
+    options: ["飾った", "重ねた", "配った", "落とした"],
+    explanation: "「飾る」＝為了美觀而裝飾、擺飾。「重ねる」是疊放；「配る」是分發；「落とす」是掉落。與「壁に写真を」搭配表裝飾牆面，唯「飾った」成立。"
   }),
   examQuestion({
     id: "n3-vocab-akirameru",
