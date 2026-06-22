@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check:exam": "vitest run src/domain/contentGuard.test.ts",
+    "check:readings": "node scripts/check-readings.mjs",
     "optimize-hero": "node scripts/optimize-hero.mjs",
     "pre": "pnpm build"
   },
@@ -39,6 +40,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
     "jsdom": "^27.3.0",
+    "kuromoji": "^0.1.2",
     "sharp": "^0.35.1",
     "simple-git-hooks": "^2.13.1",
     "typescript": "^5.9.3",
