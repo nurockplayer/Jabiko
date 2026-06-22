@@ -235,12 +235,16 @@
   color: var(--ink);
 }
 
-/* Subtle 1-4 number badge: a desktop affordance hinting the matching
-   digit picks this option (see usePracticeSession's keydown shortcut).
-   A CSS counter -- not DOM text -- so it never enters the button's
-   accessible name or textContent. */
+/* Subtle 1-4 number badge hinting the matching digit picks this option
+   (see usePracticeSession's keydown shortcut). The "/ ''" gives the
+   generated content an EMPTY accessibility alt-text, so screen readers
+   do not fold the digit into the button's accessible name -- Chromium /
+   WebKit otherwise include ::before content in the computed name, which
+   would announce "1 書いて" instead of "書いて". Kept out of the DOM (a
+   counter, not text) so it never touches textContent either. Hidden once
+   answered, when the shortcut is inactive. */
 .choice-option::before {
-  content: counter(choice);
+  content: counter(choice) / "";
   counter-increment: choice;
   position: absolute;
   top: 0.3rem;
@@ -249,6 +253,10 @@
   font-weight: 700;
   line-height: 1;
   opacity: 0.4;
+}
+
+.choice-option:disabled::before {
+  display: none;
 }
 
 .kbd-hint {
