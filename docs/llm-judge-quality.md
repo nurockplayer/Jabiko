@@ -61,7 +61,9 @@
 不確定算 P 不算過——寧可誤報，不可放過真雙解。
 ````
 
-> 派法：用 Agent 工具開 general-purpose subagent 貼上述 prompt；另用 `codex exec review --base main`（內容批次）並行。兩邊 findings 合併，P1/P2 修完再 merge。
+> 派法：用 Agent 工具開 general-purpose subagent 貼上述 prompt；另用 codex 並行（`/codex:review`，或 Bash 跑 `codex exec review --base main`）。兩邊 findings 合併，P1/P2 修完再 merge。
+>
+> 本機操作注意：`codex exec` 要**從 repo 內**執行；用 Bash 工具跑時把 stdin 關掉（`< /dev/null`）否則會等 stdin 卡住。若不在 git repo（例如從上層資料夾），加 `--skip-git-repo-check`。
 
 ---
 
