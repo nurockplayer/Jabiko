@@ -31,4 +31,14 @@ describe("kanjiOnyomi", () => {
       expect(examples[i].surface.length).toBeGreaterThanOrEqual(examples[i - 1].surface.length);
     }
   });
+
+  it("yields at least one example word for every entry", () => {
+    // kanjiExamples pulls from jlptVocabulary by surface-contains, so a kanji
+    // that appears in NO vocab word would render an empty card. Guard every
+    // entry -- this also catches a new kanji added without a backing compound.
+    const empty = kanjiOnyomi
+      .filter((entry) => kanjiExamples(entry.kanji).length === 0)
+      .map((entry) => entry.kanji);
+    expect(empty, `kanji with no example words: ${empty.join(", ")}`).toEqual([]);
+  });
 });

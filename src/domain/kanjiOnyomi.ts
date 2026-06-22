@@ -48,7 +48,32 @@ export const kanjiOnyomi: KanjiOnyomiEntry[] = [
   { kanji: "情", onyomi: ["じょう"], meaningZh: "情感、情報", level: "N2" },
   { kanji: "状", onyomi: ["じょう"], meaningZh: "狀態、形狀", level: "N2" },
   // -- つう --------------------------------------------------------------
-  { kanji: "通", onyomi: ["つう"], meaningZh: "通過、普遍", level: "N2" }
+  { kanji: "通", onyomi: ["つう"], meaningZh: "通過、普遍", level: "N2" },
+  // -- こう --------------------------------------------------------------
+  { kanji: "効", onyomi: ["こう"], meaningZh: "效果、有效", level: "N3" },
+  { kanji: "工", onyomi: ["こう", "く"], meaningZh: "工程、工夫", level: "N3" },
+  { kanji: "交", onyomi: ["こう"], meaningZh: "交往、交叉", level: "N3" },
+  { kanji: "構", onyomi: ["こう"], meaningZh: "構造、構成", level: "N2" },
+  { kanji: "攻", onyomi: ["こう"], meaningZh: "攻擊、進攻", level: "N1" },
+  // -- しょう ------------------------------------------------------------
+  { kanji: "消", onyomi: ["しょう"], meaningZh: "消失、消費", level: "N3" },
+  { kanji: "招", onyomi: ["しょう"], meaningZh: "招待、招來", level: "N3" },
+  { kanji: "証", onyomi: ["しょう"], meaningZh: "證明、證據", level: "N2" },
+  // -- きょう ------------------------------------------------------------
+  { kanji: "教", onyomi: ["きょう"], meaningZh: "教導、教育", level: "N3" },
+  { kanji: "競", onyomi: ["きょう", "けい"], meaningZh: "競爭、競賽", level: "N2" },
+  { kanji: "強", onyomi: ["きょう", "ごう"], meaningZh: "強烈、強調", level: "N3" },
+  { kanji: "共", onyomi: ["きょう"], meaningZh: "共同、一起", level: "N3" },
+  // -- か ----------------------------------------------------------------
+  { kanji: "化", onyomi: ["か", "け"], meaningZh: "變化、化為", level: "N3" },
+  { kanji: "加", onyomi: ["か"], meaningZh: "增加、加入", level: "N3" },
+  { kanji: "価", onyomi: ["か"], meaningZh: "價值、價格", level: "N3" },
+  { kanji: "可", onyomi: ["か"], meaningZh: "可以、可能", level: "N3" },
+  { kanji: "過", onyomi: ["か"], meaningZh: "經過、過度", level: "N1" },
+  // -- げん --------------------------------------------------------------
+  { kanji: "減", onyomi: ["げん"], meaningZh: "減少、削減", level: "N3" },
+  { kanji: "限", onyomi: ["げん"], meaningZh: "限制、界限", level: "N2" },
+  { kanji: "現", onyomi: ["げん"], meaningZh: "出現、現在", level: "N2" }
 ];
 
 export type KanjiExample = { surface: string; reading: string; meaningZh: string };
