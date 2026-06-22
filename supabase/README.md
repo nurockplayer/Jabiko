@@ -4,7 +4,7 @@
 
 ## migrations
 
-- [`migrations/0001_create_attempts.sql`](migrations/0001_create_attempts.sql) — 建 `attempts` 表（每筆 attempt 一列、`id` 為 deterministic key／hash、append-only）＋ 開 RLS（每位使用者只能讀寫自己的列）。
+- [`migrations/0001_create_attempts.sql`](migrations/0001_create_attempts.sql) — 建 `attempts` 表（每筆 attempt 一列、**複合主鍵 `(user_id, id)`**、`id` 為 deterministic key／hash、append-only）＋ 開 RLS（每位使用者只能讀寫自己的列）。複合主鍵讓不同使用者的相同 attempt 不會撞鍵丟資料。
 
 ## 手動步驟（agent 無專案登入，需你執行）
 
