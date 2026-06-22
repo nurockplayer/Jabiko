@@ -40,7 +40,7 @@ describe("jlptVocabulary integrity", () => {
   // mislabelled as plain nouns -- the UI shows the part-of-speech and the
   // practice engine groups distractors by it.
   it("labels adverbial words as adverb, not noun", () => {
-    const adverbials = ["漫然", "突如"];
+    const adverbials = ["漫然", "突如", "漸次", "是非"];
     const offenders = adverbials
       .map((surface) => jlptVocabulary.find((item) => item.surface === surface))
       .filter((item): item is NonNullable<typeof item> => Boolean(item))
