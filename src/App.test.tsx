@@ -692,6 +692,20 @@ describe("App", () => {
     expect(screen.getAllByText(/N2＋N3 綜合題/).length).toBeGreaterThanOrEqual(2);
   });
 
+  it("opens 今日練習 by default when entering the challenge tab", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await screen.findByRole("region", { name: "目前題目" });
+
+    // Entering the challenge tab lands on the guided 今日練習 mixed session,
+    // not the raw 基礎變化 setup cascade, so the learner is practising on
+    // arrival rather than configuring four selectors first.
+    expect(screen.getByRole("button", { name: /今日練習/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /基礎變化/ })).toHaveAttribute("aria-pressed", "false");
+  });
+
   it("shows accuracy in the 今日戰報 stats block, not on the 錯題複習 heading", async () => {
     const user = userEvent.setup();
     render(<App />);

@@ -65,8 +65,11 @@ export default function App() {
     // learn / mock), so navigating in always mounts ChallengePanel fresh
     // and the seed applies. Don't call this with a non-undefined request
     // from INSIDE the challenge view -- the panel is already mounted, so
-    // the seed would be silently ignored. (The nav-bar 挑戰 button calls
-    // it with no request, which is a deliberate no-op when already there.)
+    // the seed would be silently ignored. (The nav-bar 挑戰 button seeds
+    // 今日練習 as the default landing -- the guided mixed session, so the
+    // learner practises on arrival instead of the raw 基礎變化 setup
+    // cascade; re-clicking it while already in the challenge view is a
+    // no-op since the mounted panel ignores re-seeds.)
     setLaunch(request);
     setAppView("challenge");
   };
@@ -154,7 +157,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "challenge" ? "selected" : ""}
-          onClick={() => openChallenge()}
+          onClick={() => openChallenge({ mode: "daily" })}
         >
           {t.challenge}
         </button>
