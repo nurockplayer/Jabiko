@@ -35,4 +35,17 @@ describe("jlptVocabulary integrity", () => {
       .map((item) => item.surface || "(empty)");
     expect(incomplete).toEqual([]);
   });
+
+  // #60: words used adverbially (漫然と／たる, 突如として) must not be
+  // mislabelled as plain nouns -- the UI shows the part-of-speech and the
+  // practice engine groups distractors by it.
+  it("labels adverbial words as adverb, not noun", () => {
+    const adverbials = ["漫然", "突如"];
+    const offenders = adverbials
+      .map((surface) => jlptVocabulary.find((item) => item.surface === surface))
+      .filter((item): item is NonNullable<typeof item> => Boolean(item))
+      .filter((item) => item.partOfSpeech !== "adverb")
+      .map((item) => `${item.surface}=${item.partOfSpeech}`);
+    expect(offenders).toEqual([]);
+  });
 });
