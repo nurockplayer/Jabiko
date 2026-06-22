@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildClozeQuestionPool } from "./cloze";
 import { clozeSentences } from "./cloze-data";
+import { ADJECTIVE_FORMS } from "./conjugation";
 import { buildExamQuestionPool } from "./examBlocks";
 import { levelsForRange } from "./levelRange";
 import { buildQuestionPool } from "./practice";
@@ -244,5 +245,21 @@ describe("composeDailySet", () => {
     // With an empty due queue the set is entirely fresh and reserves at
     // least one vocab reading item (DAILY_VOCAB_MIN floor).
     expect(set.some((q) => q.targetForm === "reading")).toBe(true);
+  });
+});
+
+describe("buildQuestionPool part-of-speech handling (#60)", () => {
+  it("does not generate conjugation drills for adverbs", () => {
+    const adverb = jlptVocabulary.find((item) => item.partOfSpeech === "adverb");
+    expect(adverb).toBeDefined();
+    // Adverbs (e.g. 漫然/突如) have no conjugation; pairing one with every
+    // adjective conjugation form must yield zero questions. Only reading /
+    // meaning drills are valid for them.
+    const drills = buildQuestionPool([adverb!], {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      targetForms: ADJECTIVE_FORMS
+    });
+    expect(drills).toEqual([]);
   });
 });
