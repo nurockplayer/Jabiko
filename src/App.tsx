@@ -100,17 +100,18 @@ export default function App() {
           {isSupabaseConfigured && (
             <div className="heading-auth">
               {user ? (
-                <>
+                <div className="heading-auth-row">
                   <span className="heading-user">{t.authSignedInAs(user.user_metadata.full_name ?? user.email ?? "")}</span>
                   <button type="button" className="auth-button" onClick={signOut}>
                     {t.authSignOut}
                   </button>
-                </>
+                </div>
               ) : (
                 <button type="button" className="auth-button" onClick={signInWithGoogle}>
                   {t.authSignIn}
                 </button>
               )}
+              <small className="auth-hint">{user ? t.authSyncedHint : t.authSignInHint}</small>
               {authError && (
                 <span className="heading-auth-error" role="alert">
                   {authError}

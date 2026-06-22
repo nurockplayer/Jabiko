@@ -164,6 +164,8 @@ export type Copy = {
   authSignIn: string;
   authSignOut: string;
   authSignedInAs: (name: string) => string;
+  authSignInHint: string;
+  authSyncedHint: string;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
   focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast", string>;
@@ -363,6 +365,8 @@ export const copy: Record<Language, Copy> = {
     authSignIn: "Google 登入",
     authSignOut: "登出",
     authSignedInAs: (name) => `${name}`,
+    authSignInHint: "登入後錯題與學習進度可跨裝置同步；不登入也能用，紀錄僅存於本機。",
+    authSyncedHint: "錯題與學習進度已跨裝置同步。",
     partOfSpeech: {
       verb: "動詞",
       i_adjective: "い形容詞",
