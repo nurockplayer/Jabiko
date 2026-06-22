@@ -12,6 +12,7 @@
 - `src/domain/types.ts` 是所有領域型別的定義處
 - `src/domain/contentGuard.test.ts` 是題目內容的正確性驗證關卡
 - 修改任何 domain 檔案時，先讀對應的 `.test.ts` 了解預期行為
+- 新增／修改題庫題目前，先讀 [`docs/item-quality-rubric.md`](docs/item-quality-rubric.md)（出題品質規範：唯一正解、干擾、不洩漏、格式）
 
 ## Build 與測試
 
