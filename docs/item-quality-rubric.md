@@ -138,4 +138,4 @@
 3. 寫成 batch JSON → `node scripts/import-exam-items.mjs <path> --dry-run` 驗證 → 正式匯入。
 4. `pnpm check:exam`（機器關卡）→ 同步 `contentStats.ts` 題數 → `pnpm test` / `pnpm build` 全綠。
 5. 開 PR → **雙重 review**（subagent + codex，專盯雙解）→ 修 → merge。
-6. （規劃中）#140 LLM-judge 當 merge 前語意第二道關卡。
+6. 開 PR 後、merge 前：依 [`docs/llm-judge-quality.md`](llm-judge-quality.md) 跑 LLM-judge 語意第二道關卡（雙解／自然度／近義干擾，#140）。
