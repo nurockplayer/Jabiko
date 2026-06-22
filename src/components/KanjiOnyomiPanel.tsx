@@ -4,7 +4,7 @@ import type { JlptLevel } from "../domain/types";
 import { kanjiOnyomi, kanjiExamples, type KanjiOnyomiEntry } from "../domain/kanjiOnyomi";
 import { SpeakButton } from "./SpeakButton";
 
-const LEVELS: Array<JlptLevel | "all"> = ["all", "N1", "N2"];
+const LEVELS: Array<JlptLevel | "all"> = ["all", "N1", "N2", "N3"];
 
 // 漢字音読み 速查表: browse kanji grouped by their primary 音読み
 // (homophone families -- the こう / しょう / せい ... that learners mix up),
