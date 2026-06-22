@@ -135,6 +135,7 @@ export type Copy = {
   feedbackNoWord: string;
   showHint: string;
   hideHint: string;
+  keyboardHint: string;
   focusSummaryEmpty: string;
   modeOptions: Record<"basic" | "cloze" | "daily" | "exam" | "examN1" | "examN2" | "examN4" | "pattern" | "review" | "vocab", { title: string; subtitle: string }>;
   modeQuestionCount: (count: number) => string;
@@ -321,6 +322,7 @@ export const copy: Record<Language, Copy> = {
     feedbackNoWord: "無對應詞",
     showHint: "提示",
     hideHint: "隱藏提示",
+    keyboardHint: "桌面快捷：按 1–4 選答、Enter 進下一題",
     focusSummaryEmpty: "目前重點沒有可用形",
     modeOptions: {
       daily: { title: "今日練習", subtitle: "複習優先 · 文法 / 語順 / 漢字読み混合一輪" },

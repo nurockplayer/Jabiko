@@ -339,6 +339,42 @@ export function usePracticeSession({
     }
   };
 
+  // Desktop shortcut: press 1-9 to pick (and submit) the matching MCQ
+  // option. A GLOBAL document listener -- not the drill section's
+  // onKeyDown -- because the choice buttons are never auto-focused before
+  // answering, so a section-scoped handler would miss the keypress unless
+  // the learner first tabbed in. Only active while a question is open and
+  // unanswered; skipped when a text field is focused (so it never hijacks
+  // typing) or when a modifier is held (leave browser/OS chords alone).
+  // (Enter/Space-to-advance after feedback stays on handleDrillKeyDown,
+  // which works because the next button is auto-focused once answered.)
+  useEffect(() => {
+    if (!currentQuestion || feedback) {
+      return;
+    }
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable) {
+        return;
+      }
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+      if (event.key < "1" || event.key > "9") {
+        return;
+      }
+      const choice = choiceOptions[Number(event.key) - 1];
+      if (choice === undefined) {
+        return;
+      }
+      event.preventDefault();
+      handleChoiceSubmit(choice);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [currentQuestion, feedback, choiceOptions, handleChoiceSubmit]);
+
   return {
     partOfSpeech,
     verbGroup,
