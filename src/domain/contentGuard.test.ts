@@ -49,9 +49,11 @@ describe("exam content guard", () => {
 
   it("never surfaces the JLPT level in promptLabel", () => {
     // The internal `level` field drives filtering; the user-visible
-    // promptLabel must not start with an "N1 / N2 / N3 " prefix.
+    // promptLabel must not lead with an "N1".."N5" token. Use a word
+    // boundary (\b) -- matching the importer's check -- so "N3文法" (no
+    // space, CJK right after) is caught too, not only "N3 文法".
     const offenders = examStyleQuestions
-      .filter((question) => /^N[1-5]\s/.test(question.promptLabel ?? ""))
+      .filter((question) => /^N[1-5]\b/.test(question.promptLabel ?? ""))
       .map((question) => `${question.id} -> ${question.promptLabel}`);
     expect(offenders, `level leak in promptLabel: ${offenders.join("; ")}`).toEqual([]);
   });
@@ -73,6 +75,82 @@ describe("exam content guard", () => {
       if (leaked) offenders.push(`${question.id}: "${leaked}"`);
     }
     expect(offenders, `hintZh leaks a meaningZh token: ${offenders.join("; ")}`).toEqual([]);
+  });
+
+  it("offers kana-only options on 漢字読み items", () => {
+    // 漢字読み tests the READING, so every option must be kana -- a kanji or
+    // romaji option would give the answer away by being the odd one out.
+    // Confusers should differ by 清濁/長音/促音/近形假名, not by script.
+    const isKana = (value: string) => /^[぀-ヿ]+$/.test(value);
+    const offenders: string[] = [];
+    for (const question of examStyleQuestions) {
+      if (question.promptLabel !== "漢字読み") continue;
+      const nonKana = (question.options ?? []).filter((option) => !isKana(option));
+      if (nonKana.length > 0) {
+        offenders.push(`${question.id}: [${nonKana.join(", ")}]`);
+      }
+    }
+    expect(offenders, `漢字読み non-kana options: ${offenders.join("; ")}`).toEqual([]);
+  });
+
+  it("has no duplicate options within any item", () => {
+    // A repeated option silently turns a 1-of-4 into a 1-of-3 (or worse).
+    const offenders = examStyleQuestions
+      .filter((question) => {
+        const options = question.options;
+        return options ? new Set(options).size !== options.length : false;
+      })
+      .map((question) => question.id);
+    expect(offenders, `items with duplicate options: ${offenders.join(", ")}`).toEqual([]);
+  });
+
+  it("gives every item a non-empty explanation", () => {
+    // The post-answer explanation is the learning payload; an empty one is
+    // a quality-floor breach.
+    const offenders = examStyleQuestions
+      .filter((question) => !question.explanation || question.explanation.trim() === "")
+      .map((question) => question.id);
+    expect(offenders, `items with empty explanation: ${offenders.join(", ")}`).toEqual([]);
+  });
+
+  it("keeps 語順組合 prompts shuffleable (a ［...］ list of >=2 fragments)", () => {
+    // 語順組合 prompts list their fragments in ANSWER order inside ［ ］, and
+    // ExamPrompt render-shuffles them (#120) so the prompt doesn't spell out
+    // the answer. That shuffle is a no-op unless the prompt parses as a
+    // bracketed "/"-separated list of >=2 fragments -- mirror wordOrder.ts's
+    // parser so an unshuffleable prompt fails loudly instead of leaking.
+    const offenders: string[] = [];
+    for (const question of examStyleQuestions) {
+      if (question.promptLabel !== "語順組合") continue;
+      const text = (question.promptText ?? "").trim();
+      if (!text.startsWith("［") || !text.endsWith("］")) {
+        offenders.push(`${question.id}: not a ［...］ list`);
+        continue;
+      }
+      const fragments = text
+        .slice(1, -1)
+        .split("/")
+        .map((fragment) => fragment.trim())
+        .filter((fragment) => fragment.length > 0);
+      if (fragments.length < 2) {
+        offenders.push(`${question.id}: <2 fragments`);
+      }
+    }
+    expect(offenders, `unshuffleable 語順組合 prompts: ${offenders.join("; ")}`).toEqual([]);
+  });
+
+  it("has no two items sharing an identical promptText", () => {
+    // A duplicated sentence-with-blank means two "different" questions are
+    // really the same drill -- usually a copy-paste slip when authoring a
+    // batch. Skip items without a promptText (plain conjugation drills).
+    const counts = new Map<string, number>();
+    for (const question of examStyleQuestions) {
+      const text = question.promptText?.trim();
+      if (!text) continue;
+      counts.set(text, (counts.get(text) ?? 0) + 1);
+    }
+    const duplicates = [...counts].filter(([, n]) => n > 1).map(([text]) => text);
+    expect(duplicates, `duplicate promptText: ${duplicates.join(" | ")}`).toEqual([]);
   });
 });
 

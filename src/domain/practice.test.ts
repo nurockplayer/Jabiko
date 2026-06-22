@@ -81,8 +81,10 @@ describe("buildExamQuestionPool", () => {
     expect(questions.some((question) => question.vocabulary.level === "N4")).toBe(false);
     expect(questions.some((question) => question.vocabulary.level === "N5")).toBe(false);
     // promptLabel must NOT leak the JLPT level (N1–N5) back to the user.
+    // Word boundary (\b) matches the importer + contentGuard check, so a
+    // no-space "N3文法" leak is caught here too.
     expect(
-      questions.every((question) => !/^N[1-5]\s/.test(question.promptLabel ?? ""))
+      questions.every((question) => !/^N[1-5]\b/.test(question.promptLabel ?? ""))
     ).toBe(true);
   });
 
