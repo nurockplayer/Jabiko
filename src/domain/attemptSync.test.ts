@@ -29,6 +29,7 @@ describe("attemptKey", () => {
     expect(attemptKey(att({ targetForm: "ta" }))).not.toBe(base);
     expect(attemptKey(att({ submittedAnswer: "y" }))).not.toBe(base);
     expect(attemptKey(att({ questionId: "q1" }))).not.toBe(base);
+    expect(attemptKey(att({ responseTimeMs: 200 }))).not.toBe(base);
   });
 });
 
@@ -66,6 +67,19 @@ describe("mergeAttempts", () => {
       [att({ timestamp: 10, vocabularyId: "a" }), att({ timestamp: 20, vocabularyId: "b" })]
     );
     expect(merged.map((m) => m.timestamp)).toEqual([10, 20, 30]);
+  });
+
+  it("keeps attempts differing only in responseTimeMs as distinct (no silent collapse)", () => {
+    const a = att({ timestamp: 1, responseTimeMs: 100 });
+    const b = att({ timestamp: 1, responseTimeMs: 250 });
+    expect(mergeAttempts([a], [b])).toHaveLength(2);
+  });
+
+  it("orders equal-timestamp attempts deterministically, independent of input order", () => {
+    const x = att({ timestamp: 5, vocabularyId: "a" });
+    const y = att({ timestamp: 5, vocabularyId: "b" });
+    expect(mergeAttempts([x], [y])).toEqual(mergeAttempts([y], [x]));
+    expect(mergeAttempts([y], [x])).toHaveLength(2);
   });
 
   it("does not mutate its inputs", () => {
