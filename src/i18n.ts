@@ -366,6 +366,7 @@ export const copy: Record<Language, Copy> = {
       i_adjective: "い形容詞",
       na_adjective: "な形容詞",
       noun: "名詞",
+      adverb: "副詞",
       mixed: "混合"
     },
     verbGroups: {

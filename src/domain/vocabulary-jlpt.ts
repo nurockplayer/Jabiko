@@ -24,6 +24,7 @@ function entry(
 const n2N = (s: string, r: string, m: string) => entry("N2", "noun", s, r, m);
 const n2A = (s: string, r: string, m: string) => entry("N2", "na_adjective", s, r, m);
 const n1N = (s: string, r: string, m: string) => entry("N1", "noun", s, r, m);
+const n1Adv = (s: string, r: string, m: string) => entry("N1", "adverb", s, r, m);
 const n1A = (s: string, r: string, m: string) => entry("N1", "na_adjective", s, r, m);
 
 const n2Vocabulary: VocabularyItem[] = [
@@ -518,7 +519,7 @@ const n1Vocabulary: VocabularyItem[] = [
   n1N("貌", "ぼう", "外貌"),
   n1N("謀略", "ぼうりゃく", "謀略"),
   n1N("摩擦", "まさつ", "摩擦"),
-  n1N("漫然", "まんぜん", "茫然、漫不經心"),
+  n1Adv("漫然", "まんぜん", "茫然、漫不經心"),
   n1N("無謀", "むぼう", "魯莽、無謀"),
   n1N("名目", "めいもく", "名目"),
   n1N("黙認", "もくにん", "默認"),
@@ -571,7 +572,7 @@ const n1Vocabulary: VocabularyItem[] = [
   n1N("是正", "ぜせい", "糾正"),
   n1N("中枢", "ちゅうすう", "中樞、核心"),
   n1N("同調", "どうちょう", "附和、同步"),
-  n1N("突如", "とつじょ", "突然"),
+  n1Adv("突如", "とつじょ", "突然"),
   n1N("内訳", "うちわけ", "明細"),
   n1N("難航", "なんこう", "進展不順"),
   n1N("排除", "はいじょ", "排除"),

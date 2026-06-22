@@ -437,6 +437,12 @@ function isFormCompatible(item: VocabularyItem, targetForm: TargetForm): boolean
     return true;
   }
 
+  // Adverbs (e.g. 漫然/突如) have no conjugation; only the reading/meaning
+  // drills above apply to them -- never generate a conjugation question.
+  if (item.partOfSpeech === "adverb") {
+    return false;
+  }
+
   if (item.partOfSpeech === "verb") {
     return VERB_FORMS.includes(targetForm);
   }

@@ -1,4 +1,4 @@
-export type PartOfSpeech = "verb" | "i_adjective" | "na_adjective" | "noun";
+export type PartOfSpeech = "verb" | "i_adjective" | "na_adjective" | "noun" | "adverb";
 
 export type VerbGroup = "godan" | "ichidan" | "irregular";
 
