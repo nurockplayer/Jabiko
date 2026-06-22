@@ -195,7 +195,7 @@
 .focus-formula {
   align-items: center;
   background:
-    linear-gradient(135deg, rgba(249, 115, 22, 0.16), transparent 72%),
+    linear-gradient(135deg, color-mix(in srgb, var(--vermilion) 16%, transparent), transparent 72%),
     var(--field-bg);
   border: 1px solid var(--summary-border);
   border-radius: 8px;
@@ -332,7 +332,7 @@
 
 .quick-start-card.featured {
   background:
-    linear-gradient(135deg, rgba(249, 115, 22, 0.18), transparent 78%),
+    linear-gradient(135deg, color-mix(in srgb, var(--vermilion) 18%, transparent), transparent 78%),
     var(--field-bg);
   border-color: var(--vermilion);
 }
