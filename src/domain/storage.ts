@@ -9,6 +9,7 @@ interface StorageLike {
 export interface AttemptStore {
   list: () => Attempt[];
   add: (attempt: Attempt) => void;
+  replace: (attempts: Attempt[]) => void;
   clear: () => void;
 }
 
@@ -49,6 +50,9 @@ export function createAttemptStore(storage: StorageLike | null = browserStorage(
   return {
     list: read,
     add: (attempt) => write([...read(), attempt]),
+    // Overwrite the whole set (memory + persisted). Used to write the
+    // merged history on login sync (see useProgressAttempts / Phase 3).
+    replace: (attempts) => write([...attempts]),
     clear: () => {
       memory = [];
 

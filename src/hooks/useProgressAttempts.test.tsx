@@ -1,0 +1,416 @@
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { User } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Attempt } from "../domain/types";
+
+// The hook talks to Supabase only through these two seams, both mocked so
+// the test stays offline and the SDK never loads. getSupabase returns a
+// sentinel "client" object that the mocked remote fns ignore.
+const fakeClient = {} as unknown as SupabaseClient;
+const getSupabase = vi.fn<() => Promise<SupabaseClient | null>>();
+const fetchRemoteAttempts = vi.fn<(client: SupabaseClient | null, userId: string) => Promise<Attempt[]>>();
+const pushAttempts =
+  vi.fn<(client: SupabaseClient | null, userId: string, attempts: Attempt[]) => Promise<void>>();
+
+vi.mock("../lib/supabase", () => ({
+  getSupabase: () => getSupabase(),
+  isSupabaseConfigured: true
+}));
+
+vi.mock("../domain/attemptRemote", async () => {
+  // Keep the real planLoginSync (pure) -- only the IO is faked.
+  const real = await vi.importActual<typeof import("../domain/attemptRemote")>(
+    "../domain/attemptRemote"
+  );
+  return {
+    ...real,
+    fetchRemoteAttempts: (client: SupabaseClient | null, userId: string) =>
+      fetchRemoteAttempts(client, userId),
+    pushAttempts: (client: SupabaseClient | null, userId: string, attempts: Attempt[]) =>
+      pushAttempts(client, userId, attempts)
+  };
+});
+
+// Imported AFTER the mocks are registered. The hook owns a module-singleton
+// attemptStore backed by window.localStorage (jsdom), so each test clears it.
+import { useProgressAttempts } from "./useProgressAttempts";
+import { attemptKey } from "../domain/attemptSync";
+
+const ATTEMPTS_KEY = "jabiko:attempts";
+
+// The module-singleton attemptStore persists into window.localStorage (jsdom),
+// so we observe whether the store was mutated by reading the raw persisted set
+// (rather than spying on a private singleton). `null` -> never written.
+function readStore(): Attempt[] | null {
+  const raw = window.localStorage.getItem(ATTEMPTS_KEY);
+  return raw ? (JSON.parse(raw) as Attempt[]) : null;
+}
+
+// A manually-resolved promise so a test can unmount / rerender with a
+// different user BEFORE the sync's awaits settle.
+function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void; reject: (err: unknown) => void } {
+  let resolve!: (value: T) => void;
+  let reject!: (err: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
+function makeAttempt(overrides: Partial<Attempt> = {}): Attempt {
+  return {
+    vocabularyId: "kaku",
+    targetForm: "te",
+    prompt: "書く",
+    expectedAnswers: ["書いて"],
+    submittedAnswer: "書いて",
+    isCorrect: true,
+    timestamp: 1000,
+    responseTimeMs: 500,
+    ...overrides
+  };
+}
+
+function makeUser(id: string): User {
+  return { id } as unknown as User;
+}
+
+beforeEach(() => {
+  window.localStorage.clear();
+  getSupabase.mockResolvedValue(fakeClient);
+  fetchRemoteAttempts.mockResolvedValue([]);
+  pushAttempts.mockResolvedValue(undefined);
+});
+
+afterEach(() => {
+  vi.clearAllMocks();
+});
+
+describe("useProgressAttempts -- anon (no user)", () => {
+  it("behaves as before: idle status, local-only, no remote calls", async () => {
+    const { result } = renderHook(() => useProgressAttempts(null));
+
+    expect(result.current.syncStatus).toBe("idle");
+
+    const attempt = makeAttempt();
+    act(() => {
+      result.current.recordAttempt(attempt);
+    });
+
+    expect(result.current.progressAttempts).toEqual([attempt]);
+    // Nothing reached the network seams.
+    expect(getSupabase).not.toHaveBeenCalled();
+    expect(fetchRemoteAttempts).not.toHaveBeenCalled();
+    expect(pushAttempts).not.toHaveBeenCalled();
+  });
+
+  it("keeps recordAttempt identity stable across renders", () => {
+    const { result, rerender } = renderHook(() => useProgressAttempts(null));
+    const first = result.current.recordAttempt;
+    rerender();
+    expect(result.current.recordAttempt).toBe(first);
+  });
+});
+
+describe("useProgressAttempts -- login sync", () => {
+  it("merges remote into local, replaces local with merged, uploads only local-only, ends synced", async () => {
+    const localOnly = makeAttempt({ timestamp: 2, submittedAnswer: "local" });
+    const remoteOnly = makeAttempt({ timestamp: 3, submittedAnswer: "remote" });
+
+    // Seed local store before login by recording while anon.
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+
+    fetchRemoteAttempts.mockResolvedValue([remoteOnly]);
+
+    // Transition to a logged-in user.
+    rerender({ user: makeUser("user-1") });
+
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+
+    // Local state now holds the merged union (sorted by timestamp).
+    expect(result.current.progressAttempts).toEqual([localOnly, remoteOnly]);
+    expect(fetchRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-1");
+    // Only the local-only attempt is uploaded (remoteOnly already remote).
+    expect(pushAttempts).toHaveBeenCalledWith(fakeClient, "user-1", [localOnly]);
+  });
+
+  it("on sync failure sets error and leaves local untouched", async () => {
+    const localOnly = makeAttempt({ timestamp: 5, submittedAnswer: "local" });
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+
+    fetchRemoteAttempts.mockRejectedValue(new Error("offline"));
+
+    rerender({ user: makeUser("user-1") });
+
+    await waitFor(() => expect(result.current.syncStatus).toBe("error"));
+    // Local untouched -- not cleared, not overwritten.
+    expect(result.current.progressAttempts).toEqual([localOnly]);
+  });
+
+  it("recordAttempt while logged in fire-and-forget pushes that single attempt", async () => {
+    const { result } = renderHook(() => useProgressAttempts(makeUser("user-1")));
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+    pushAttempts.mockClear();
+
+    const attempt = makeAttempt({ timestamp: 9, submittedAnswer: "new" });
+    act(() => {
+      result.current.recordAttempt(attempt);
+    });
+
+    expect(result.current.progressAttempts).toContainEqual(attempt);
+    await waitFor(() =>
+      expect(pushAttempts).toHaveBeenCalledWith(fakeClient, "user-1", [attempt])
+    );
+  });
+
+  it("uses attemptKey-based identity (no duplicate upload on re-login)", async () => {
+    const a = makeAttempt({ timestamp: 1 });
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(a);
+    });
+
+    // Remote already has `a` -> nothing to upload.
+    fetchRemoteAttempts.mockResolvedValue([a]);
+    rerender({ user: makeUser("user-1") });
+
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+    expect(pushAttempts).toHaveBeenCalledWith(fakeClient, "user-1", []);
+    // sanity: keys match
+    expect(attemptKey(result.current.progressAttempts[0])).toBe(attemptKey(a));
+  });
+});
+
+describe("useProgressAttempts -- login sync commit safety (codex review)", () => {
+  // BUG 1: a stale async run (unmount / logout / user switch) must NOT mutate
+  // the local store. Using a deferred fetch we unmount BEFORE it resolves,
+  // then resolve -- the store must never be replaced and no state update
+  // must run after unmount.
+  it("unmount before sync resolves -> store NOT replaced, no post-unmount state write", async () => {
+    const localOnly = makeAttempt({ timestamp: 2, submittedAnswer: "local" });
+    const remoteOnly = makeAttempt({ timestamp: 3, submittedAnswer: "remote" });
+
+    const fetchGate = deferred<Attempt[]>();
+    fetchRemoteAttempts.mockReturnValue(fetchGate.promise);
+
+    const { result, rerender, unmount } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+    // Local store now holds exactly the local attempt.
+    expect(readStore()).toEqual([localOnly]);
+
+    // Begin login sync; it parks on the deferred fetch.
+    rerender({ user: makeUser("user-1") });
+    await waitFor(() => expect(fetchRemoteAttempts).toHaveBeenCalled());
+
+    // Unmount while the sync is still in flight, THEN let the fetch resolve.
+    unmount();
+    await act(async () => {
+      fetchGate.resolve([remoteOnly]);
+      await fetchGate.promise;
+    });
+
+    // The stale run must not have written the merged set into the store.
+    expect(readStore()).toEqual([localOnly]);
+    // The merged remote attempt must not have leaked into the (unmounted) store.
+    expect(readStore()).not.toContainEqual(remoteOnly);
+  });
+
+  // BUG 1 variant: user A -> B switch (and logout A -> null) before A's sync
+  // resolves. A's remote/merged must never be written into B's (or the anon)
+  // local store.
+  it("user switch (A->B) before A's sync resolves -> A's merged NOT written", async () => {
+    const aRemote = makeAttempt({ timestamp: 4, submittedAnswer: "A-remote" });
+
+    const aFetch = deferred<Attempt[]>();
+    const bFetch = deferred<Attempt[]>();
+    fetchRemoteAttempts
+      .mockReturnValueOnce(aFetch.promise) // user A
+      .mockReturnValueOnce(bFetch.promise); // user B
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: makeUser("user-A") as User | null } }
+    );
+    await waitFor(() => expect(fetchRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-A"));
+
+    // Switch to user B while A's fetch is still parked.
+    rerender({ user: makeUser("user-B") });
+    await waitFor(() => expect(fetchRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-B"));
+
+    // Now resolve A's (stale) fetch first, then B's.
+    await act(async () => {
+      aFetch.resolve([aRemote]);
+      await aFetch.promise;
+    });
+    await act(async () => {
+      bFetch.resolve([]);
+      await bFetch.promise;
+    });
+
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+    // A's remote attempt must NOT have been written by the stale A run.
+    expect(readStore() ?? []).not.toContainEqual(aRemote);
+    expect(result.current.progressAttempts).not.toContainEqual(aRemote);
+  });
+
+  // BUG 3 (codex re-review): a stale run must NOT push to the OLD user's
+  // remote either. If A's sync is parked on the fetch await and the user logs
+  // out (-> null) before it resolves, A's stale continuation must bail right
+  // after the fetch -- BEFORE reading the (now-anon) local store and uploading
+  // it to user A's remote account (a cross-account data leak).
+  it("logout before A's fetch resolves -> stale A run does NOT push to A's remote", async () => {
+    const localOnly = makeAttempt({ timestamp: 13, submittedAnswer: "local" });
+    const aRemote = makeAttempt({ timestamp: 14, submittedAnswer: "A-remote" });
+
+    const aFetch = deferred<Attempt[]>();
+    fetchRemoteAttempts.mockReturnValue(aFetch.promise);
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    // Seed local while anon.
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+
+    // Begin user A's login sync; it parks on the deferred fetch.
+    rerender({ user: makeUser("user-A") });
+    await waitFor(() => expect(fetchRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-A"));
+
+    // Log out (-> null) while A's fetch is still parked, THEN resolve it.
+    rerender({ user: null });
+    await act(async () => {
+      aFetch.resolve([aRemote]);
+      await aFetch.promise;
+    });
+
+    // The stale A run must have bailed after the fetch -- no upload to A.
+    expect(pushAttempts).not.toHaveBeenCalled();
+    // And of course the local store is untouched by the stale run.
+    expect(readStore()).toEqual([localOnly]);
+    expect(readStore()).not.toContainEqual(aRemote);
+  });
+
+  // BUG 2: push failure (fetch ok) must leave local untouched. The old code
+  // replaced local BEFORE the push, so a push reject lost the "untouched"
+  // guarantee.
+  it("pushAttempts rejects (fetch ok) -> error AND local untouched", async () => {
+    const localOnly = makeAttempt({ timestamp: 6, submittedAnswer: "local" });
+    const remoteOnly = makeAttempt({ timestamp: 7, submittedAnswer: "remote" });
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+
+    fetchRemoteAttempts.mockResolvedValue([remoteOnly]);
+    pushAttempts.mockRejectedValue(new Error("push failed"));
+
+    rerender({ user: makeUser("user-1") });
+
+    await waitFor(() => expect(result.current.syncStatus).toBe("error"));
+    // Local untouched -- the merged set was NOT committed because push failed.
+    expect(readStore()).toEqual([localOnly]);
+    expect(result.current.progressAttempts).toEqual([localOnly]);
+    // No data loss: the local-only attempt is still present.
+    expect(result.current.progressAttempts).toContainEqual(localOnly);
+  });
+
+  // Happy path through the fixed ordering: commit only after fetch + push
+  // both succeed and the effect is still active.
+  it("happy path -> store replaced with merged, state merged, synced, push got delta", async () => {
+    const localOnly = makeAttempt({ timestamp: 8, submittedAnswer: "local" });
+    const remoteOnly = makeAttempt({ timestamp: 9, submittedAnswer: "remote" });
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+
+    fetchRemoteAttempts.mockResolvedValue([remoteOnly]);
+
+    rerender({ user: makeUser("user-1") });
+
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+    const merged = [localOnly, remoteOnly];
+    expect(readStore()).toEqual(merged);
+    expect(result.current.progressAttempts).toEqual(merged);
+    // Push received exactly the local-only delta.
+    expect(pushAttempts).toHaveBeenCalledWith(fakeClient, "user-1", [localOnly]);
+  });
+
+  // RE-READ guard: an attempt recorded DURING the awaits must survive the
+  // commit. The old code planned the merge from a snapshot taken before the
+  // awaits, so a concurrently recorded attempt would be clobbered by replace.
+  it("attempt recorded during the awaits -> final merged INCLUDES it (no clobber)", async () => {
+    const localOnly = makeAttempt({ timestamp: 10, submittedAnswer: "local" });
+    const remoteOnly = makeAttempt({ timestamp: 11, submittedAnswer: "remote" });
+    const recordedDuringSync = makeAttempt({ timestamp: 12, submittedAnswer: "mid-sync" });
+
+    const fetchGate = deferred<Attempt[]>();
+    fetchRemoteAttempts.mockReturnValue(fetchGate.promise);
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+
+    rerender({ user: makeUser("user-1") });
+    await waitFor(() => expect(fetchRemoteAttempts).toHaveBeenCalled());
+
+    // Record a new attempt WHILE the sync is parked on the fetch await.
+    act(() => {
+      result.current.recordAttempt(recordedDuringSync);
+    });
+
+    // Now resolve the fetch and let the commit run.
+    await act(async () => {
+      fetchGate.resolve([remoteOnly]);
+      await fetchGate.promise;
+    });
+
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+    // The concurrently recorded attempt must NOT have been clobbered.
+    expect(readStore()).toContainEqual(recordedDuringSync);
+    expect(result.current.progressAttempts).toContainEqual(recordedDuringSync);
+    // All three records survive.
+    expect(result.current.progressAttempts).toEqual([
+      localOnly,
+      remoteOnly,
+      recordedDuringSync
+    ]);
+  });
+});
