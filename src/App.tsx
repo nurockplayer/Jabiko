@@ -44,7 +44,9 @@ export default function App() {
 
   const { theme, toggleTheme } = useTheme();
   const { user, error: authError, signInWithGoogle, signOut } = useAuth();
-  const { progressAttempts, recordAttempt } = useProgressAttempts();
+  // `user` drives cross-device sync: on login the hook merges the remote
+  // attempt history into the local store and pushes the local-only delta.
+  const { progressAttempts, recordAttempt } = useProgressAttempts(user);
   // Lightweight, pool-free count for the home/learn review badge (see
   // countDueReviews). The full review queue -- which needs the question
   // pool to resolve due items -- is built inside the lazy challenge view.
