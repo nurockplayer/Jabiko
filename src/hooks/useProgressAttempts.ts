@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createAttemptStore } from "../domain/storage";
 import { fetchRemoteAttempts, planLoginSync, pushAttempts } from "../domain/attemptRemote";
+import { mergeAttempts } from "../domain/attemptSync";
 import { getSupabase } from "../lib/supabase";
 import type { Attempt } from "../domain/types";
 
@@ -55,21 +56,31 @@ export function useProgressAttempts(user: User | null) {
 
     (async () => {
       const client = await getSupabase();
+      // fetch + push run BEFORE any local mutation, so a throw from either
+      // (offline, RLS, push conflict, ...) lands in the catch with the local
+      // store completely untouched.
       const remote = await fetchRemoteAttempts(client, userId);
-      const { merged, toUpload } = planLoginSync(attemptStore.list(), remote);
-      attemptStore.replace(merged);
-      if (!active) {
-        return;
-      }
-      setProgressAttempts(merged);
+      const { toUpload } = planLoginSync(attemptStore.list(), remote);
       await pushAttempts(client, userId, toUpload);
+      // Only commit once the effect is still current: a stale run (unmount,
+      // logout, or A->B user switch) bails here BEFORE touching local, so it
+      // can never write a previous user's remote history into the now-anon
+      // or new-user store.
       if (!active) {
         return;
       }
+      // Re-read the live local set at commit time (rather than reusing the
+      // pre-await snapshot) so any attempt recorded during the awaits is
+      // folded in instead of being clobbered by replace.
+      const merged = mergeAttempts(attemptStore.list(), remote);
+      attemptStore.replace(merged);
+      setProgressAttempts(merged);
       setSyncStatus("synced");
     })().catch(() => {
-      // Any failure (offline, RLS, etc.): keep local untouched, surface the
-      // error. The local store still holds everything; the next login retries.
+      // Any failure (offline, RLS, push conflict, etc.): the local store is
+      // left untouched because mutation only happens after fetch + push both
+      // succeed and the effect is still active. Nothing is lost; the next
+      // login retries.
       if (active) {
         setSyncStatus("error");
       }
