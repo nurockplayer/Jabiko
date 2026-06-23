@@ -55,11 +55,25 @@ export function useProgressAttempts(user: User | null) {
     setSyncStatus("syncing");
 
     (async () => {
+      // Re-check `active` after EVERY await: if the effect went stale
+      // (unmount, logout -> null, or A->B user switch) while we were parked
+      // on an await, a stale run must bail immediately so it touches NEITHER
+      // remote NOR local. In particular it must bail after the fetch and
+      // BEFORE reading the (now anon's/new user's) live attemptStore and
+      // pushing it to the OLD user's remote -- otherwise A's stale
+      // continuation would upload the now-current local set to user A's
+      // account (a cross-account data leak).
       const client = await getSupabase();
+      if (!active) {
+        return;
+      }
       // fetch + push run BEFORE any local mutation, so a throw from either
       // (offline, RLS, push conflict, ...) lands in the catch with the local
       // store completely untouched.
       const remote = await fetchRemoteAttempts(client, userId);
+      if (!active) {
+        return;
+      }
       const { toUpload } = planLoginSync(attemptStore.list(), remote);
       await pushAttempts(client, userId, toUpload);
       // Only commit once the effect is still current: a stale run (unmount,

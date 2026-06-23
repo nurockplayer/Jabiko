@@ -276,6 +276,45 @@ describe("useProgressAttempts -- login sync commit safety (codex review)", () =>
     expect(result.current.progressAttempts).not.toContainEqual(aRemote);
   });
 
+  // BUG 3 (codex re-review): a stale run must NOT push to the OLD user's
+  // remote either. If A's sync is parked on the fetch await and the user logs
+  // out (-> null) before it resolves, A's stale continuation must bail right
+  // after the fetch -- BEFORE reading the (now-anon) local store and uploading
+  // it to user A's remote account (a cross-account data leak).
+  it("logout before A's fetch resolves -> stale A run does NOT push to A's remote", async () => {
+    const localOnly = makeAttempt({ timestamp: 13, submittedAnswer: "local" });
+    const aRemote = makeAttempt({ timestamp: 14, submittedAnswer: "A-remote" });
+
+    const aFetch = deferred<Attempt[]>();
+    fetchRemoteAttempts.mockReturnValue(aFetch.promise);
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    // Seed local while anon.
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+
+    // Begin user A's login sync; it parks on the deferred fetch.
+    rerender({ user: makeUser("user-A") });
+    await waitFor(() => expect(fetchRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-A"));
+
+    // Log out (-> null) while A's fetch is still parked, THEN resolve it.
+    rerender({ user: null });
+    await act(async () => {
+      aFetch.resolve([aRemote]);
+      await aFetch.promise;
+    });
+
+    // The stale A run must have bailed after the fetch -- no upload to A.
+    expect(pushAttempts).not.toHaveBeenCalled();
+    // And of course the local store is untouched by the stale run.
+    expect(readStore()).toEqual([localOnly]);
+    expect(readStore()).not.toContainEqual(aRemote);
+  });
+
   // BUG 2: push failure (fetch ok) must leave local untouched. The old code
   // replaced local BEFORE the push, so a push reject lost the "untouched"
   // guarantee.
