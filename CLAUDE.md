@@ -51,3 +51,28 @@
 - 測試檔與原始檔放在同目錄，命名為 `*.test.ts` 或 `*.test.tsx`
 - React 元件用函式元件 + hooks，不用 class component
 - import 用 ES module 路徑（相對路徑）
+
+## 題庫內容工作流（exam content pipeline）
+
+新增 exam 題目（文法／詞彙等）一律走這條 loop，每批一個 PR：
+
+1. **驗真缺**：對 `src/domain/exam/items/<level>.ts` grep 既有點，**同時搜 surface 與 expectedAnswer、漢字與假名**，確認不是已散見於其他題型。
+2. **雙審設計**：subagent + codex 平行各出一份（每點 2 題），再**交叉判**（codex 判 subagent 檔、subagent 判 codex 檔），最後跑一次**終審** subagent 掃雙解/接續秒殺/洩漏。
+   - 最大雷＝**近義雙解**與**接續秒殺**。鎖法：選項放完整述部、干擾用反義、用語境/時間副詞鎖死方向。codex 抓雙解通常比 subagent 準。
+   - codex 用法：`codex exec --skip-git-repo-check "$(cat prompt.txt)" < /dev/null`（須關 stdin，否則卡住）。codex 有時寫日文解說，consolidate 時翻成繁中。
+3. **轉檔**：簡化 shape（`question/answer/...`）轉成 importer 的 `ExamQuestionInput`（`id,level,surface,reading,meaningZh,promptLabel,instructionZh,promptText,promptContextZh,hintZh,expectedAnswer,options[4],explanation`），放 `scripts/exam-batches/<name>.json`。
+   - **contentGuard 硬規則**：`hintZh` 非空且**與 `meaningZh` 不可共用任何 ≥2 字片段**；`options` 恰 4 個互不重複；`expectedAnswer ∈ options`；`promptLabel` 不含 N1–N5 字樣。
+4. **驗證**：`node scripts/import-exam-items.mjs <file> --dry-run` 過 → 再去 `--dry-run` 拿掉實際 append。
+5. **contentStats 同步**（`src/domain/contentStats.ts`，硬編碼數字、`contentStats.test.ts` 是 drift guard）：
+   - `examItems` 計**所有**等級；`n1Grammar` 只計 N1 文法形式選擇。
+   - **N1 批次：examItems 與 n1Grammar 都 +N；N2/N3 批次：只 +examItems。**
+6. **EOL**：`exam/items/*.ts` 在 git 是 `-text`，CRLF 會被 `git diff --check` 報。暫存時用 `git -c core.autocrlf=false add <files>`，commit 前確認 `git diff --cached --check` EXIT=0。
+7. **三閘＋build**：`pnpm check:exam`、`pnpm test`（含 contentGuard/contentStats drift）、`pnpm build`（確認 `examBlocks` 仍是 lazy 獨立 chunk、`index` 不膨脹）。
+8. **PR**：branch → push（pre-push hook 會跑 build）→ `gh pr create`。**CI 必過閘只有 `Test and build`**；CodeRabbit/Cloudflare 常是 rate-limit skip，不阻擋。green 後 `gh pr merge --squash --delete-branch`。
+   - ⚠ 不要開背景 CI waiter 無限 loop（PR merge + branch 刪除後 `gh` 回空、`jq` 對 null 拋錯，條件永不成立 → 殭屍）。要等就用**有迭代上限**的 bounded loop，或 inline 查 `gh pr checks`。
+
+## 目前進度快照（2026-06-24）
+
+- **JLPT 文法 coverage 全數補完**：N1(#164)/N2(#165)/N3(#166) 三子議題已關閉，父議題 #157 收束。`examItems = 919`、`n1Grammar = 265`。
+- 各 batch 來源 JSON 保留在 `scripts/exam-batches/`；loop 細節另記於使用者 memory `jabiko-grammar-coverage-loop`。
+- **下一步候選**（與使用者討論後再開工）：#151 跨裝置進度同步（Supabase）。手動前置已開票 #181 — **由使用者**把 `supabase/migrations/0001_create_attempts.sql` 貼到 Supabase Dashboard → SQL Editor → Run（冪等、不需新密鑰）；端到端同步另需**使用者**做真人 Google OAuth 雙裝置驗證。P2/P3 程式可先用 mock 測試寫，不需等建表。
