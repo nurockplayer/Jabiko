@@ -79,69 +79,75 @@
   --review-row-text: #394b4e;
   --review-pill-bg: rgba(15, 126, 168, 0.1);
   --review-pill-border: rgba(15, 126, 168, 0.24);
+  --danger: #c0392b;
   color-scheme: light;
 }
 
 :root[data-theme="dark"] {
-  /* Dark theme reframed as "evening reading" rather than "tech UI":
-   * warm dark walnut background, muted matcha + brick accents, no
-   * electric cyan. Glows flattened. */
-  --app-bg: #1a1814;
-  --paper: #221f1a;
-  --paper-deep: #2b271f;
-  --ink: #f3eddc;
-  --muted: #a89d87;
-  --rule: #3a342a;
-  --teal: #5a9a8e;
-  --teal-dark: #3f7a6f;
-  --matcha: #889c80;
-  --matcha-dark: #6a7d61;
-  --vermilion: #d06a47;
-  --indigo: #889c80; /* repurposed -> matcha; see palette note */
-  --gold: #d4a64a;
-  --green: #8fb076;
-  --shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
+  /* Neutral dark palette (Codex recommendation).
+   *  - Background: neutral dark grey-green, not brown and not blue
+   *  - Paper: slightly lighter warm-grey surfaces
+   *  - Ink: bright cream-white for maximum readability
+   *  - Muted: light enough (10.7:1 contrast) to be effortless
+   *  - Accents: vibrant teal, matcha, vermilion, gold
+   */
+  --app-bg: #10110f;
+  --paper: #1a1b17;
+  --paper-deep: #24251f;
+  --ink: #f4f1e8;
+  --muted: #c9c2b5;
+  --rule: #444238;
+  --teal: #63d3bd;
+  --teal-dark: #37b49f;
+  --matcha: #a8c978;
+  --matcha-dark: #86aa58;
+  --vermilion: #ff8a6b;
+  --indigo: #a8c978;
+  --gold: #f0c86f;
+  --green: #9bd47d;
+  --shadow: 0 8px 26px rgba(0, 0, 0, 0.48);
   --body-grid-row: transparent;
   --body-grid-column: transparent;
   --bg-glow-primary: transparent;
   --bg-glow-secondary: transparent;
   --panel-glow: transparent;
   --panel-bg: var(--paper);
-  --panel-border: #3a342a;
-  --button-border: #4d4538;
-  --button-text: #f3eddc;
-  --button-hover-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-  --selected-text: #101216;
-  --label-text: #d8e6e2;
-  --field-bg: #0d171b;
-  --field-border: #2f535c;
-  --field-disabled-bg: #17262b;
-  --field-disabled-text: #7f9697;
-  --focus-fill: rgba(13, 23, 27, 0.92);
-  --focus-outline: rgba(56, 189, 248, 0.48);
-  --prompt-chip-border: #395a62;
-  --prompt-chip-text: #c8d6d4;
-  --target-chip-bg: rgba(249, 115, 22, 0.17);
-  --target-chip-border: rgba(249, 115, 22, 0.58);
-  --target-chip-text: #ffbe8a;
-  --word-kind-bg: rgba(56, 189, 248, 0.13);
-  --word-kind-border: rgba(56, 189, 248, 0.34);
-  --surface-ink: #fbfff8;
-  --surface-shadow: 0 0 28px rgba(20, 184, 166, 0.18), 0 2px 0 rgba(0, 0, 0, 0.8);
-  --summary-bg: rgba(20, 184, 166, 0.13);
-  --summary-border: rgba(45, 212, 191, 0.34);
-  --summary-text: #99f6e4;
-  --feedback-correct-bg: rgba(34, 197, 94, 0.14);
-  --feedback-correct-border: rgba(134, 239, 172, 0.52);
-  --feedback-incorrect-bg: rgba(249, 115, 22, 0.15);
-  --feedback-incorrect-border: rgba(251, 146, 60, 0.58);
-  --feedback-revealed-bg: rgba(251, 191, 36, 0.13);
-  --feedback-revealed-border: rgba(251, 191, 36, 0.56);
-  --feedback-revealed-title: #fde68a;
-  --example-rule: rgba(246, 251, 246, 0.16);
-  --review-row-text: #d8e7e3;
-  --review-pill-bg: rgba(56, 189, 248, 0.14);
-  --review-pill-border: rgba(56, 189, 248, 0.34);
+  --panel-border: #4d493e;
+  --button-border: #686254;
+  --button-text: #f4f1e8;
+  --button-hover-shadow: 0 5px 18px rgba(0, 0, 0, 0.5);
+  --selected-text: #08110f;
+  --label-text: #e0d8c8;
+  --field-bg: #141511;
+  --field-border: #706958;
+  --field-disabled-bg: #25241f;
+  --field-disabled-text: #9e9789;
+  --focus-fill: rgba(20, 21, 17, 0.94);
+  --focus-outline: rgba(99, 211, 189, 0.58);
+  --prompt-chip-border: #716b5e;
+  --prompt-chip-text: #e0d8c8;
+  --target-chip-bg: rgba(255, 138, 107, 0.18);
+  --target-chip-border: rgba(255, 138, 107, 0.62);
+  --target-chip-text: #ffd0bf;
+  --word-kind-bg: rgba(99, 211, 189, 0.13);
+  --word-kind-border: rgba(99, 211, 189, 0.36);
+  --surface-ink: #faf6ec;
+  --surface-shadow: 0 1px 3px rgba(0, 0, 0, 0.58);
+  --summary-bg: rgba(99, 211, 189, 0.14);
+  --summary-border: rgba(99, 211, 189, 0.38);
+  --summary-text: #b7f0e3;
+  --feedback-correct-bg: rgba(155, 212, 125, 0.17);
+  --feedback-correct-border: rgba(155, 212, 125, 0.54);
+  --feedback-incorrect-bg: rgba(255, 138, 107, 0.17);
+  --feedback-incorrect-border: rgba(255, 138, 107, 0.58);
+  --feedback-revealed-bg: rgba(240, 200, 111, 0.16);
+  --feedback-revealed-border: rgba(240, 200, 111, 0.54);
+  --feedback-revealed-title: #ffe3a3;
+  --example-rule: rgba(244, 241, 232, 0.19);
+  --review-row-text: #e0d8c8;
+  --review-pill-bg: rgba(99, 211, 189, 0.13);
+  --review-pill-border: rgba(99, 211, 189, 0.36);
+  --danger: #ff9b91;
   color-scheme: dark;
 }
 
@@ -157,6 +163,14 @@ body {
    * hairline grid that read as "SaaS dashboard"; this theme is wafuu
    * editorial, so the background should just be paper. */
   background: var(--app-bg);
+}
+
+/* Dark-mode atmospheric background: subtle teal-tinged glow at the top
+ * centre, evoking a soft desk-lamp on a dark surface. */
+:root[data-theme="dark"] body {
+  background:
+    radial-gradient(ellipse 85% 60% at 50% 0%, rgba(99, 211, 189, 0.04) 0%, transparent 100%),
+    var(--app-bg);
 }
 
 body,

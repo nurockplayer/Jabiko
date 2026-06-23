@@ -59,16 +59,16 @@
 
 .auth-button {
   background: color-mix(in srgb, var(--paper) 86%, transparent);
-  border: 1px solid var(--border);
-  color: var(--text);
+  border: 1px solid var(--button-border);
+  color: var(--button-text);
   font-size: 0.8rem;
   padding: 0.3rem 0.7rem;
 }
 
 .auth-button:hover {
-  background: var(--accent);
-  color: var(--on-accent);
-  border-color: var(--accent);
+  background: var(--vermilion);
+  color: var(--selected-text);
+  border-color: var(--vermilion);
 }
 
 .heading-user {
