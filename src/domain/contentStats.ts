@@ -13,8 +13,8 @@
 // the live builders, so any drift fails CI until the numbers are
 // updated here.
 export const CONTENT_STATS = {
-  examItems: 623,
-  n1Grammar: 181,
+  examItems: 631,
+  n1Grammar: 189,
   patternChecks: 32,
   vocab: 579
 } as const;
