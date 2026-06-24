@@ -181,6 +181,14 @@ describe("buildPracticeQuestions", () => {
     ).toBe(true);
   });
 
+  it("vocab mode (n4n5 has no JLPT vocab): falls back to a non-empty reading pool (#199)", () => {
+    // 単字 only has N1/N2 jlpt entries. A global n4n5 preference must not
+    // empty the 単字 pool -- it falls back to the full reading deck.
+    const questions = buildPracticeQuestions(poolParams({ isVocabFocus: true, levelRange: "n4n5" }));
+    expect(questions.length).toBeGreaterThan(0);
+    expect(questions.every((q) => q.targetForm === "reading")).toBe(true);
+  });
+
   it("vocab mode (range all): keeps the whole JLPT vocab reading pool", () => {
     const questions = buildPracticeQuestions(poolParams({ isVocabFocus: true, levelRange: "all" }));
     const expected = buildQuestionPool(jlptVocabulary, {
@@ -202,6 +210,16 @@ describe("buildPracticeQuestions", () => {
     const dueIds = new Set(due.map((q) => q.id));
     const leading = questions.slice(0, due.length);
     expect(leading.every((q) => dueIds.has(q.id))).toBe(true);
+  });
+
+  it("daily mode: threads the level range into the composed set (n4n5 -> N4/N5) (#199)", () => {
+    const questions = buildPracticeQuestions(
+      poolParams({ isDailyFocus: true, reviewQueue: [], levelRange: "n4n5" })
+    );
+    expect(questions.length).toBeGreaterThan(0);
+    expect(
+      questions.every((q) => q.vocabulary.level === "N4" || q.vocabulary.level === "N5")
+    ).toBe(true);
   });
 });
 
@@ -245,6 +263,43 @@ describe("composeDailySet", () => {
     // With an empty due queue the set is entirely fresh and reserves at
     // least one vocab reading item (DAILY_VOCAB_MIN floor).
     expect(set.some((q) => q.targetForm === "reading")).toBe(true);
+  });
+
+  it("targets the chosen band: n1n2 yields N1/N2 fresh items only (#199)", () => {
+    const set = composeDailySet([], "n1n2");
+    expect(set.length).toBeGreaterThan(0);
+    expect(set.every((q) => q.vocabulary.level === "N1" || q.vocabulary.level === "N2")).toBe(true);
+  });
+
+  it("targets the chosen band: n2n3 narrows to N2/N3 and still reserves a vocab item (#199)", () => {
+    const set = composeDailySet([], "n2n3");
+    expect(set.length).toBeGreaterThan(0);
+    expect(set.every((q) => q.vocabulary.level === "N2" || q.vocabulary.level === "N3")).toBe(true);
+    // jlptVocabulary has N2 entries, so the reserved vocab reading slot fills
+    // (a non-exam_style item -- exam items also carry targetForm "reading").
+    expect(set.some((q) => !q.vocabulary.tags?.includes("exam_style"))).toBe(true);
+  });
+
+  it("初級 n4n5: jlptVocabulary has no N4/N5, so the set fills entirely with N4/N5 exam (no vocab gap) (#199)", () => {
+    const set = composeDailySet([], "n4n5");
+    expect(set.length).toBeGreaterThan(0);
+    expect(set.every((q) => q.vocabulary.level === "N4" || q.vocabulary.level === "N5")).toBe(true);
+    // The empty vocab slots roll into N4/N5 exam (which carry their own 4
+    // baked options), so EVERY item is exam_style -- no short-option 漢字読み.
+    expect(set.every((q) => q.vocabulary.tags?.includes("exam_style"))).toBe(true);
+  });
+
+  it("defaults to the prior all-levels behaviour when no range is passed (#199)", () => {
+    // No range arg == "all" == the old N1/N2-focused default, so an
+    // existing learner with no preference is unaffected. (Both random
+    // sets reserve a vocab reading item and are not band-restricted.)
+    const set = composeDailySet([]);
+    expect(set.some((q) => q.targetForm === "reading")).toBe(true);
+    // "all" is not narrowed to a single band: N1 items are eligible.
+    const everN1 = Array.from({ length: 5 }, () => composeDailySet([])).some((s) =>
+      s.some((q) => q.vocabulary.level === "N1")
+    );
+    expect(everN1).toBe(true);
   });
 });
 

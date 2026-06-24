@@ -1,5 +1,6 @@
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
+import type { LevelRange } from "../domain/levelRange";
 import { usePracticeSession, type SessionInit } from "../hooks/usePracticeSession";
 import { ModePicker } from "./challenge/ModePicker";
 import { DrillPanel } from "./challenge/DrillPanel";
@@ -23,16 +24,20 @@ export function ChallengePanel({
   progressAttempts,
   recordAttempt,
   language,
+  targetLevel = null,
   onExit
 }: {
   init?: SessionInit;
   progressAttempts: Attempt[];
   recordAttempt: (attempt: Attempt) => void;
   language: Language;
+  // The learner's global target-level preference (#199), forwarded to the
+  // session hook to seed the daily / 綜合 / 単字 level range.
+  targetLevel?: LevelRange | null;
   onExit: () => void;
 }) {
   const t = copy[language];
-  const session = usePracticeSession({ language, init, progressAttempts, recordAttempt });
+  const session = usePracticeSession({ language, init, progressAttempts, recordAttempt, targetLevel });
 
   return (
     <section className="practice-layout" aria-label="Jabiko practice">

@@ -46,7 +46,10 @@ const DAILY_VOCAB_MIN = Math.floor(DAILY_TARGET / 4);
 // completion screen, same as review mode. v1 is an even mix; weighting
 // toward the learner's weak sections is a follow-up (needs attempt
 // metadata).
-export function composeDailySet(due: PracticeQuestion[]): PracticeQuestion[] {
+export function composeDailySet(
+  due: PracticeQuestion[],
+  range: LevelRange = "all"
+): PracticeQuestion[] {
   const dueTake = due.slice(0, Math.ceil(DAILY_TARGET / 2));
   // Exclude EVERY due item from the fresh pools -- not just the capped
   // slice -- so an over-cap due item can't slip back in mislabelled as a
@@ -55,14 +58,27 @@ export function composeDailySet(due: PracticeQuestion[]): PracticeQuestion[] {
   const isFresh = (question: PracticeQuestion) => !dueIds.has(question.id);
   const freshSlots = DAILY_TARGET - dueTake.length;
 
+  // Narrow the fresh pools to the learner's target band (#199). `null`
+  // (range "all") keeps each bank's own default mix -- the prior behaviour,
+  // so a learner with no preference is unaffected.
+  const levels = levelsForRange(range);
+  const vocabSource = levels
+    ? jlptVocabulary.filter((item) => item.level != null && levels.includes(item.level))
+    : jlptVocabulary;
+
   const vocabFresh = shuffleQuestions(
-    buildQuestionPool(jlptVocabulary, {
+    buildQuestionPool(vocabSource, {
       partOfSpeech: "mixed",
       verbGroup: "all",
       targetForms: ["reading"]
     }).filter(isFresh)
   ).slice(0, Math.min(DAILY_VOCAB_MIN, freshSlots));
-  const examFresh = shuffleQuestions(buildExamQuestionPool().filter(isFresh)).slice(
+  // 初級 (n4n5) hole: jlptVocabulary is N1/N2 only, so vocabSource is empty
+  // there -> vocabFresh is empty and its reserved slots roll into exam. Exam
+  // items each carry their own 4 baked options, so the band still fills a full
+  // set with no short-option 漢字読み. DAILY_VOCAB_MIN keeps its "reserve a
+  // vocab floor" meaning only where vocab actually exists.
+  const examFresh = shuffleQuestions(buildExamQuestionPool(levels ?? "all").filter(isFresh)).slice(
     0,
     freshSlots - vocabFresh.length
   );
@@ -228,9 +244,14 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     // but in CONTEXT, via the exam pool's 詞彙填空 / 類義替換 /
     // 詞彙用法 sections -- which is the authentic way to test it.
     const levels = levelsForRange(levelRange);
-    const vocabSource = levels
+    const narrowed = levels
       ? jlptVocabulary.filter((item) => item.level != null && levels.includes(item.level))
       : jlptVocabulary;
+    // 単字 only has N1/N2 jlpt entries (VOCAB_LEVEL_RANGE_OPTIONS excludes
+    // n4n5 for this reason). A global n4n5 preference would narrow this to an
+    // empty pool, so fall back to the full reading deck rather than show an
+    // empty 単字 session (#199).
+    const vocabSource = narrowed.length > 0 ? narrowed : jlptVocabulary;
     const vocabPool = shuffleQuestions(
       buildQuestionPool(vocabSource, {
         partOfSpeech: "mixed",
@@ -252,8 +273,9 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
 
   if (isDailyFocus) {
     // Snapshot the current due queue at session start (same as review
-    // mode); the live reviewQueue stays excluded from the deps below.
-    return composeDailySet(reviewQueue);
+    // mode); the live reviewQueue stays excluded from the deps below. The
+    // fresh portion is narrowed to the learner's target band (#199).
+    return composeDailySet(reviewQueue, levelRange);
   }
 
   return cap(
