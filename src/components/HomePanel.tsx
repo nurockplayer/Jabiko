@@ -3,6 +3,7 @@ import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
 import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
 import { CONTENT_STATS } from "../domain/contentStats";
+import { computeProgressStats } from "../domain/stats";
 
 // Content-volume snapshot rendered above the entry cards. The exam /
 // pattern / vocab counts come from CONTENT_STATS (hardcoded, drift-
@@ -66,6 +67,11 @@ export function HomePanel({
   const nextIncompleteChapter = trackableChapters.find(
     (block) => !isLearningBlockComplete(progressAttempts, block)
   );
+
+  // Progress / mastery overview (#133): streak + due + mastered + per-level
+  // accuracy, all aggregated from attempts (+ SRS state) with no heavy bank
+  // import. Only shown once the learner has a history.
+  const progress = computeProgressStats(progressAttempts);
 
   return (
     <section className="home-panel" aria-label={t.home}>
@@ -153,6 +159,38 @@ export function HomePanel({
             <small>{t.homeStatsChapters}</small>
           </div>
         </div>
+      ) : null}
+
+      {totalAttempts > 0 ? (
+        <section className="home-progress" aria-label={t.homeProgressLabel}>
+          <div className="home-stats-strip">
+            <div className="home-stats-cell">
+              <strong>{progress.streakDays}</strong>
+              <small>{t.homeStatsStreak}</small>
+            </div>
+            <div className="home-stats-cell">
+              <strong>{reviewCount}</strong>
+              <small>{t.homeStatsDue}</small>
+            </div>
+            <div className="home-stats-cell">
+              <strong>{progress.masteredCount}</strong>
+              <small>{t.homeStatsMastered}</small>
+            </div>
+          </div>
+
+          {progress.perLevel.length > 0 ? (
+            <div className="home-stats-strip" aria-label={t.homeLevelLabel}>
+              {progress.perLevel.map((stat) => (
+                <div className="home-stats-cell" key={stat.level}>
+                  <strong>{stat.accuracy}%</strong>
+                  <small>
+                    {stat.level}・{t.homeLevelAnswered(stat.answered)}
+                  </small>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </section>
       ) : null}
 
       <div className="home-grid">
