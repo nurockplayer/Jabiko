@@ -6,6 +6,7 @@ import { ModePicker } from "./challenge/ModePicker";
 import { DrillPanel } from "./challenge/DrillPanel";
 import { ScoreReport } from "./challenge/ScoreReport";
 import { ReviewList } from "./challenge/ReviewList";
+import { SessionLengthPicker } from "./challenge/SessionLengthPicker";
 
 // The challenge workspace: the three-column practice layout (mode/setup
 // controls, the active drill, and the running mistake list). This is the
@@ -46,6 +47,13 @@ export function ChallengePanel({
       <DrillPanel language={language} onExit={onExit} {...session} />
 
       <aside className="review-panel" aria-label={t.mistakesLabel}>
+        {session.showSessionLength ? (
+          <SessionLengthPicker
+            language={language}
+            sessionLength={session.sessionLength}
+            onChange={session.handleSessionLengthChange}
+          />
+        ) : null}
         <ScoreReport
           language={language}
           attempts={session.attempts}
