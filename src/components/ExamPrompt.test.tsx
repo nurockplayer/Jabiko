@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { ExamPrompt } from "./ExamPrompt";
-import { FuriganaContext } from "./Ruby";
+import { FuriganaContext } from "./furiganaContext";
 import { examStyleQuestions } from "../domain/examBlocks";
 import { buildClozeQuestionPool } from "../domain/cloze";
 import { clozeSentences } from "../domain/cloze-data";
@@ -133,17 +133,18 @@ describe("ExamPrompt furigana (#134)", () => {
     expect(container.querySelector(".exam-prompt rt")).toBeNull();
   });
 
-  it("suppresses ruby when targetForm is 'reading' regardless of promptLabel", () => {
-    // Exam items default targetForm to "reading", so in practice every exam
-    // stem currently takes this arm (safe over-suppression -- never a leak;
-    // exam stems are not pre-baked yet anyway).
-    const readingByForm = {
+  it("shows ruby on a labelled grammar stem even though exam items default targetForm to 'reading' (#134 P4)", () => {
+    // The whole point of P4: targetForm defaults to "reading" for every exam
+    // item, so a grammar / vocab stem must still get furigana -- the learner
+    // reads a hard question with the readings on. Only 漢字読み is suppressed.
+    const grammarReading = {
       ...base,
       promptText: SENTENCE,
       promptLabel: "文法形式選擇",
       targetForm: "reading" as const
     };
-    const { container } = renderOn(readingByForm);
-    expect(container.querySelector(".exam-prompt rt")).toBeNull();
+    const { container } = renderOn(grammarReading);
+    const readings = Array.from(container.querySelectorAll(".exam-prompt rt")).map((n) => n.textContent);
+    expect(readings).toContain("がっこう");
   });
 });

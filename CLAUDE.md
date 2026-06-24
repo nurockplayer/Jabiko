@@ -66,6 +66,7 @@
 5. **contentStats 同步**（`src/domain/contentStats.ts`，硬編碼數字、`contentStats.test.ts` 是 drift guard）：
    - `examItems` 計**所有**等級；`n1Grammar` 只計 N1 文法形式選擇。
    - **N1 批次：examItems 與 n1Grammar 都 +N；N2/N3 批次：只 +examItems。**
+   - **furigana 重產**（#134 P4）：本批有新 exam 例句／題幹時跑 `pnpm build:furigana` 重產 `src/domain/furiganaData.ts`（從 vocab＋jlpt＋exam 全來源烤；新句的注音才會出現、漢字読み 題幹自動排除）。kuromoji 誤讀加進腳本的 `READING_OVERRIDES`（用複合詞 key、勿用 後/九 這種歧義單字）。`furiganaData` 只進 lazy challenge chunk，勿從 eager 路徑 import（[[jabiko-bundle-codesplit]]）。
 6. **EOL**：`exam/items/*.ts` 在 git 是 `-text`，CRLF 會被 `git diff --check` 報。暫存時用 `git -c core.autocrlf=false add <files>`，commit 前確認 `git diff --cached --check` EXIT=0。
 7. **三閘＋build**：`pnpm check:exam`、`pnpm test`（含 contentGuard/contentStats drift）、`pnpm build`（確認 `examBlocks` 仍是 lazy 獨立 chunk、`index` 不膨脹）。
 8. **PR**：branch → push（pre-push hook 會跑 build）→ `gh pr create`。**CI 必過閘只有 `Test and build`**；CodeRabbit/Cloudflare 常是 rate-limit skip，不阻擋。green 後 `gh pr merge --squash --delete-branch`。

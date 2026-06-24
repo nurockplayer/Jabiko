@@ -1,11 +1,6 @@
-import { createContext, Fragment, useContext } from "react";
+import { Fragment, useContext } from "react";
 import { furiganaData } from "../domain/furiganaData";
-
-// Broadcasts the global furigana toggle to every <Ruby> without prop
-// drilling. Default OFF so a <Ruby> rendered with no provider (and the
-// realistic exam condition) shows plain text. App supplies the live value
-// from useFurigana.
-export const FuriganaContext = createContext<{ enabled: boolean }>({ enabled: false });
+import { FuriganaContext } from "./furiganaContext";
 
 // Renders a pre-baked Japanese string, adding <ruby> furigana over its
 // kanji runs -- but ONLY when the global toggle is on AND this call site
