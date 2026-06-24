@@ -3,6 +3,8 @@ import { GraduationCap } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { PracticeQuestion } from "../domain/types";
 import { shuffleOrderFragments } from "../domain/wordOrder";
+import { isReadingPrompt } from "../domain/furigana";
+import { Ruby } from "./Ruby";
 import { SpeakButton } from "./SpeakButton";
 
 // Renders an exam/cloze/pattern question's prompt: instruction, the
@@ -58,9 +60,11 @@ export function ExamPrompt({ question, language }: { question: PracticeQuestion;
         {question.instructionZh}
       </p>
       <p className="exam-prompt">
-        {promptText}
         {promptText ? (
-          <SpeakButton text={promptText} language={language} />
+          <>
+            <Ruby text={promptText} plain={isReadingPrompt(question.promptLabel, question.targetForm)} />
+            <SpeakButton text={promptText} language={language} />
+          </>
         ) : null}
       </p>
       {preAnswerHint ? (

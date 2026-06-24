@@ -5,6 +5,7 @@ import { lookupWordsByReading } from "../domain/readingLookup";
 import { lookupPatternMeaning } from "../domain/patternMeaning";
 import { lookupGrammarNote } from "../domain/grammarNotes";
 import { GrammarNoteCard } from "./GrammarNoteCard";
+import { Ruby } from "./Ruby";
 import type { Feedback } from "./types";
 
 // Post-answer panel: shows correct/incorrect/revealed status, the
@@ -98,7 +99,7 @@ export function FeedbackPanel({
       ) : null}
       {feedback.question.vocabulary.examples[0] ? (
         <p className="example">
-          {feedback.question.vocabulary.examples[0].japanese}
+          <Ruby text={feedback.question.vocabulary.examples[0].japanese} />
           <span>{feedback.question.vocabulary.examples[0].meaningZh}</span>
         </p>
       ) : null}

@@ -1,6 +1,7 @@
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { FeedbackPanel } from "./FeedbackPanel";
+import { FuriganaContext } from "./Ruby";
 import { buildQuestionPool } from "../domain/practice";
 import { jlptVocabulary } from "../domain/vocabulary-jlpt";
 import { examStyleQuestions } from "../domain/examBlocks";
@@ -237,5 +238,68 @@ describe("FeedbackPanel grammar note (#137)", () => {
       />
     );
     expect(container.querySelector(".grammar-note-block")).toBeNull();
+  });
+});
+
+describe("FeedbackPanel furigana (#134)", () => {
+  // Override the example with a pre-baked sentence (学校 -> がっこう) so the
+  // ruby path has data. The feedback example is POST-answer, so it shows
+  // furigana even for a reading item -- it reinforces the reading, it can't
+  // leak the answer the learner already gave.
+  const SENTENCE = "ここは学校だ。";
+  const question = {
+    ...readingPool[0],
+    vocabulary: {
+      ...readingPool[0].vocabulary,
+      examples: [{ japanese: SENTENCE, meaningZh: "這裡是學校。" }]
+    }
+  };
+
+  it("renders ruby on the example sentence when furigana is on", () => {
+    const { container } = render(
+      <FuriganaContext.Provider value={{ enabled: true }}>
+        <FeedbackPanel
+          feedback={{ status: "correct", question }}
+          language="zh-Hant"
+          options={[]}
+        />
+      </FuriganaContext.Provider>
+    );
+    const readings = Array.from(container.querySelectorAll(".example rt")).map((n) => n.textContent);
+    expect(readings).toContain("がっこう");
+  });
+
+  it("renders a plain example sentence when furigana is off (default)", () => {
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    expect(container.querySelector(".example rt")).toBeNull();
+    expect(container.querySelector(".example")?.textContent).toContain(SENTENCE);
+  });
+
+  it("shows ruby on the POST-answer example even for a 漢字読み reading item (intentional: no leak after answering)", () => {
+    // The reading-item guard suppresses furigana on the PROMPT (ExamPrompt),
+    // never here: the feedback example is shown after the learner has already
+    // answered, so reinforcing the reading can't leak anything.
+    const readingItem = {
+      ...question,
+      promptLabel: "漢字読み",
+      targetForm: "reading" as const
+    };
+    const { container } = render(
+      <FuriganaContext.Provider value={{ enabled: true }}>
+        <FeedbackPanel
+          feedback={{ status: "correct", question: readingItem }}
+          language="zh-Hant"
+          options={[]}
+        />
+      </FuriganaContext.Provider>
+    );
+    const readings = Array.from(container.querySelectorAll(".example rt")).map((n) => n.textContent);
+    expect(readings).toContain("がっこう");
   });
 });

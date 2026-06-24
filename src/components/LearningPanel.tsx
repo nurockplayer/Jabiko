@@ -9,6 +9,7 @@ import {
   type LearningBlockDrillPreset
 } from "../domain/learningBlocks";
 import type { SentencePatternId } from "../domain/sentencePatterns";
+import { Ruby } from "./Ruby";
 
 // Chapter index + active-chapter detail (the "學習" view). Reads learner
 // progress to mark chapter completion and surface a review nudge, but
@@ -183,7 +184,7 @@ export function LearningPanel({
             <div className="pipeline-grid">
               {active.examples.map((example) => (
                 <article className="pipeline-card" key={example.formula}>
-                  <code>{example.formula}</code>
+                  <code><Ruby text={example.formula} /></code>
                   {example.note ? <p>{example.note}</p> : null}
                 </article>
               ))}

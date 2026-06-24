@@ -663,6 +663,28 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "深色模式" })).toBeInTheDocument();
   });
 
+  it("defaults furigana OFF and stores an ON preference when toggled (#134)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Default off (realistic exam condition): the button invites turning it on.
+    const toggle = screen.getByRole("button", { name: "顯示註音" });
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+    await user.click(toggle);
+
+    expect(screen.getByRole("button", { name: "隱藏註音" })).toHaveAttribute("aria-pressed", "true");
+    expect(localStorage.getItem("jabiko.furigana")).toBe("on");
+  });
+
+  it("loads a stored furigana ON preference (#134)", () => {
+    localStorage.setItem("jabiko.furigana", "on");
+
+    render(<App />);
+
+    expect(screen.getByRole("button", { name: "隱藏註音" })).toHaveAttribute("aria-pressed", "true");
+  });
+
   it("lists 綜合考題庫 / N1 備考 / N2 備考 as side-by-side mode presets", async () => {
     const user = userEvent.setup();
     render(<App />);

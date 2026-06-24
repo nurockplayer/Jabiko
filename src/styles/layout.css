@@ -57,6 +57,14 @@
   font-weight: 800;
 }
 
+/* Furigana toggle shares the theme-toggle pill; when on it takes the
+   vermilion "active" fill so the on-state reads at a glance (#134). */
+.furigana-toggle.active {
+  background: var(--vermilion);
+  border-color: var(--vermilion);
+  color: var(--selected-text);
+}
+
 .auth-button {
   background: color-mix(in srgb, var(--paper) 86%, transparent);
   border: 1px solid var(--button-border);

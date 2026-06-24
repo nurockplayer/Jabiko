@@ -2,8 +2,10 @@ import { ArrowRight, Eye, GraduationCap, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
 import { DarumaSpot, PaperNoteSpot, TeaCupSpot } from "../../illustrations";
+import { isReadingPrompt } from "../../domain/furigana";
 import { ExamPrompt } from "../ExamPrompt";
 import { FeedbackPanel } from "../FeedbackPanel";
+import { Ruby } from "../Ruby";
 import { SpeakButton } from "../SpeakButton";
 import type { Feedback } from "../types";
 import type { PracticeSession } from "../../hooks/usePracticeSession";
@@ -158,7 +160,10 @@ export function DrillPanel({
                   <p className="reading">{currentQuestion.vocabulary.reading}</p>
                 )}
                 <p className="surface">
-                  {currentQuestion.vocabulary.surface}
+                  <Ruby
+                    text={currentQuestion.vocabulary.surface}
+                    plain={isReadingPrompt(currentQuestion.promptLabel, currentQuestion.targetForm)}
+                  />
                   <SpeakButton
                     text={currentQuestion.vocabulary.surface}
                     language={language}
