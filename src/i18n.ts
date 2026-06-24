@@ -36,6 +36,12 @@ export type Copy = {
   homeStatsAttempts: string;
   homeStatsAccuracy: string;
   homeStatsChapters: string;
+  homeProgressLabel: string;
+  homeStatsStreak: string;
+  homeStatsDue: string;
+  homeStatsMastered: string;
+  homeLevelLabel: string;
+  homeLevelAnswered: (count: number) => string;
   homeCardLearnTitle: string;
   homeCardLearnSub: string;
   homeCardLearnMeta: (completed: number, total: number) => string;
@@ -221,6 +227,12 @@ export const copy: Record<Language, Copy> = {
     homeStatsAttempts: "累積已答",
     homeStatsAccuracy: "總正答率",
     homeStatsChapters: "完成章節",
+    homeProgressLabel: "學習進度",
+    homeStatsStreak: "連續天數",
+    homeStatsDue: "待複習",
+    homeStatsMastered: "已熟練",
+    homeLevelLabel: "各級正答率",
+    homeLevelAnswered: (count) => `${count} 題`,
     homeCardLearnTitle: "學習",
     homeCardLearnSub: "章節式變化與句型解說，先看規則再練。",
     homeCardLearnMeta: (completed, total) => `已完成 ${completed} / ${total} 章`,
