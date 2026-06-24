@@ -118,6 +118,16 @@ export type Copy = {
   practiceMode: string;
   levelRange: string;
   levelRangeOptions: { all: string; n1n2: string; n2n3: string; n4n5: string };
+  levelOnboarding: {
+    title: string;
+    subtitle: string;
+    beginner: string;
+    beginnerHint: string;
+    intermediate: string;
+    intermediateHint: string;
+    advanced: string;
+    advancedHint: string;
+  };
   sessionLength: string;
   sessionLengthAll: string;
   practiceFocus: string;
@@ -330,6 +340,16 @@ export const copy: Record<Language, Copy> = {
     practiceMode: "練習模式",
     levelRange: "題庫範圍",
     levelRangeOptions: { all: "全部", n1n2: "N1＋N2", n2n3: "N2＋N3", n4n5: "N4＋N5" },
+    levelOnboarding: {
+      title: "選擇你的程度",
+      subtitle: "設定今日練習與各題庫的預設難度，之後隨時可改。",
+      beginner: "初級",
+      beginnerHint: "N4・N5",
+      intermediate: "中級",
+      intermediateHint: "N2・N3",
+      advanced: "高級",
+      advancedHint: "N1・N2"
+    },
     sessionLength: "每組題數",
     sessionLengthAll: "全部",
     practiceFocus: "練習重點",

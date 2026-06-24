@@ -12,6 +12,8 @@ import { isSupabaseConfigured } from "./lib/supabase";
 import { useAuth } from "./hooks/useAuth";
 import { useProgressAttempts } from "./hooks/useProgressAttempts";
 import type { SessionInit } from "./hooks/usePracticeSession";
+import { readLevelPreference, writeLevelPreference } from "./domain/levelPreference";
+import type { LevelRange } from "./domain/levelRange";
 import "./styles.css";
 
 // Lazy routes. The challenge view owns the practice engine, which
@@ -63,6 +65,14 @@ export default function App() {
   // basic drill. Read once when ChallengePanel mounts (it owns the
   // session), so changing it while already in the challenge is a no-op.
   const [launch, setLaunch] = useState<SessionInit | undefined>(undefined);
+  // Global target-level preference (#199), read once at startup. Seeds the
+  // fresh-pool level range (今日練習 / 綜合 / 単字) and drives the first-run
+  // onboarding card; the home card persists it.
+  const [targetLevel, setTargetLevel] = useState<LevelRange | null>(() => readLevelPreference());
+  const handleChooseLevel = (range: LevelRange) => {
+    writeLevelPreference(range);
+    setTargetLevel(range);
+  };
 
   const themeToggleLabel = theme === "dark" ? t.themeLight : t.themeDark;
   const ThemeIcon = theme === "dark" ? Sun : Moon;
@@ -209,6 +219,8 @@ export default function App() {
           onStartReview={() => openChallenge({ mode: "review" })}
           onStartVocab={() => openChallenge({ mode: "vocab" })}
           onStartDaily={() => openChallenge({ mode: "daily" })}
+          targetLevel={targetLevel}
+          onChooseLevel={handleChooseLevel}
         />
       ) : appView === "learn" ? (
         <LearningPanel
@@ -242,6 +254,7 @@ export default function App() {
             progressAttempts={progressAttempts}
             recordAttempt={recordAttempt}
             language={language}
+            targetLevel={targetLevel}
             onExit={() => setAppView("home")}
           />
         </Suspense>

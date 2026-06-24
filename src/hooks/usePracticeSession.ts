@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { ADJECTIVE_FORMS, VERB_FORMS } from "../domain/conjugation";
-import { type LevelRange } from "../domain/levelRange";
+import { VOCAB_LEVEL_RANGE_OPTIONS, type LevelRange } from "../domain/levelRange";
 import type { MockExamLevel } from "../domain/mockExam";
 import { type SentencePatternId } from "../domain/sentencePatterns";
 import {
@@ -63,6 +63,25 @@ export type SessionInit = {
   levelRange?: LevelRange;
 };
 
+// The level range a session starts in (#199). An explicit launch request
+// (init.levelRange) always wins; otherwise it inherits the learner's global
+// target preference. 単字 has no n4n5 jlpt vocab, so an n4n5 preference is
+// clamped to "all" for that mode -- its picker can't show n4n5 and the pool
+// would be empty (the composeDailySet / vocab-branch fallbacks cover the
+// data side; this keeps the picker selection valid). Pure so it can be
+// unit-tested without mounting the hook.
+export function initialLevelRange(
+  init: SessionInit | undefined,
+  targetLevel: LevelRange | null
+): LevelRange {
+  if (init?.levelRange) return init.levelRange;
+  const preferred = targetLevel ?? "all";
+  if (init?.mode === "vocab" && !VOCAB_LEVEL_RANGE_OPTIONS.includes(preferred)) {
+    return "all";
+  }
+  return preferred;
+}
+
 const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; verbOnly?: boolean }> = [
   { value: "single", targetForms: [] },
   { value: "teTa", targetForms: ["te", "ta"], verbOnly: true },
@@ -101,12 +120,17 @@ export function usePracticeSession({
   language,
   init,
   progressAttempts,
-  recordAttempt
+  recordAttempt,
+  targetLevel = null
 }: {
   language: Language;
   init?: SessionInit;
   progressAttempts: Attempt[];
   recordAttempt: (attempt: Attempt) => void;
+  // The learner's global target-level preference (#199). Seeds the level
+  // range for the daily / 綜合 / 単字 pools when the launch request doesn't
+  // pin one; a per-session picker change still overrides it.
+  targetLevel?: LevelRange | null;
 }) {
   const [partOfSpeech, setPartOfSpeech] = useState<PartOfSpeech | "mixed">(init?.partOfSpeech ?? "verb");
   const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">(init?.verbGroup ?? "godan");
@@ -114,7 +138,7 @@ export function usePracticeSession({
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>(init?.practiceFocus ?? "single");
   const [practiceMode, setPracticeMode] = useState<PracticeMode>(init?.mode ?? "basic");
   const [practiceFilter, setPracticeFilter] = useState<PracticeFilter>(init?.filter ?? {});
-  const [levelRange, setLevelRange] = useState<LevelRange>(init?.levelRange ?? "all");
+  const [levelRange, setLevelRange] = useState<LevelRange>(() => initialLevelRange(init, targetLevel));
   const [sessionLength, setSessionLength] = useState<number | null>(() => readSessionLength());
   const [questionIndex, setQuestionIndex] = useState(0);
   const [sessionSeed, setSessionSeed] = useState(0);
@@ -308,10 +332,14 @@ export function usePracticeSession({
   // level range at once. Non-exam presets pass "all" (a no-op for the
   // modes that ignore levelRange). Clearing the filter keeps the picker a
   // "fresh mix" (a chapter drill button is what sets a patternIds filter).
-  const applyModePreset = (nextMode: PracticeMode, nextRange: LevelRange = "all") => {
-    if (nextMode === practiceMode && nextRange === levelRange) return;
+  const applyModePreset = (nextMode: PracticeMode, nextRange?: LevelRange) => {
+    // An explicit range (the exam 綜合 / 備考 cards) wins; otherwise inherit
+    // the global target preference, so daily / 単字 keep honouring it when
+    // re-picked from the in-session picker -- not only on first mount (#199).
+    const resolvedRange = nextRange ?? initialLevelRange({ mode: nextMode }, targetLevel);
+    if (nextMode === practiceMode && resolvedRange === levelRange) return;
     setPracticeMode(nextMode);
-    setLevelRange(nextRange);
+    setLevelRange(resolvedRange);
     setPracticeFilter({});
     resetSession();
   };

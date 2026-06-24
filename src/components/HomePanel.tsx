@@ -1,6 +1,7 @@
 import { AlertTriangle, ArrowRight, BookOpen, CalendarCheck } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
+import type { LevelRange } from "../domain/levelRange";
 import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
 import { CONTENT_STATS } from "../domain/contentStats";
 import { computeProgressStats } from "../domain/stats";
@@ -37,7 +38,9 @@ export function HomePanel({
   onNavigate,
   onStartReview,
   onStartVocab,
-  onStartDaily
+  onStartDaily,
+  targetLevel,
+  onChooseLevel
 }: {
   language: Language;
   progressAttempts: Attempt[];
@@ -46,8 +49,24 @@ export function HomePanel({
   onStartReview: () => void;
   onStartVocab: () => void;
   onStartDaily: () => void;
+  // Global target-level preference (#199): null = not chosen yet. Drives the
+  // first-run onboarding card; selecting a band persists it via onChooseLevel.
+  targetLevel: LevelRange | null;
+  onChooseLevel: (range: LevelRange) => void;
 }) {
   const t = copy[language];
+
+  // First-run "choose your level" card: only for a brand-new learner -- no
+  // saved preference AND no answer history -- so it's a one-time nudge, never
+  // shown to returning learners. Selecting a band stores it and the card
+  // disappears (targetLevel becomes non-null). 初級/中級/高級 map to the
+  // existing LevelRange bands (n4n5 / n2n3 / n1n2); easy → hard order.
+  const showLevelOnboarding = targetLevel === null && progressAttempts.length === 0;
+  const onboardingOptions: { range: LevelRange; label: string; hint: string }[] = [
+    { range: "n4n5", label: t.levelOnboarding.beginner, hint: t.levelOnboarding.beginnerHint },
+    { range: "n2n3", label: t.levelOnboarding.intermediate, hint: t.levelOnboarding.intermediateHint },
+    { range: "n1n2", label: t.levelOnboarding.advanced, hint: t.levelOnboarding.advancedHint }
+  ];
 
   const totalAttempts = progressAttempts.length;
   const correctAttempts = progressAttempts.filter((attempt) => attempt.isCorrect).length;
@@ -75,6 +94,28 @@ export function HomePanel({
 
   return (
     <section className="home-panel" aria-label={t.home}>
+      {showLevelOnboarding ? (
+        <div className="home-level-card" role="group" aria-label={t.levelOnboarding.title}>
+          <div className="home-level-card-copy">
+            <strong>{t.levelOnboarding.title}</strong>
+            <small>{t.levelOnboarding.subtitle}</small>
+          </div>
+          <div className="home-level-card-options">
+            {onboardingOptions.map((option) => (
+              <button
+                key={option.range}
+                type="button"
+                className="home-level-option"
+                onClick={() => onChooseLevel(option.range)}
+              >
+                <strong>{option.label}</strong>
+                <small>{option.hint}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       <header className="home-hero">
         {/* Decorative hero -- the heading below carries the actual
             message, so alt is intentionally empty (avoids the screen

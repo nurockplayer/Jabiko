@@ -140,7 +140,7 @@ export function ModePicker({
                 type="button"
                 className={`mode-card${selected ? " selected" : ""}`}
                 aria-pressed={selected}
-                onClick={() => applyModePreset(preset.mode, preset.levelRange ?? "all")}
+                onClick={() => applyModePreset(preset.mode, preset.levelRange)}
               >
                 <strong>{t.modeOptions[preset.id].title}</strong>
                 <small>{t.modeOptions[preset.id].subtitle}</small>
