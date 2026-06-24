@@ -7,7 +7,7 @@
 // home view can show progress without dragging examBlocks into the initial
 // bundle. Per-level is read from the exam item id prefix (n1-… → N1), so
 // no bank lookup is needed to know an attempt's JLPT level.
-import { computeReviewStates, countDueReviews } from "./srs";
+import { computeReviewStates } from "./srs";
 import type { Attempt, JlptLevel } from "./types";
 
 const MS_PER_DAY = 86_400_000;
@@ -84,10 +84,15 @@ export function computeProgressStats(attempts: Attempt[], now: number = Date.now
     };
   }).filter((stat) => stat.answered > 0);
 
+  // One SRS replay covers both mastered (box ≥ threshold) and due
+  // (dueAt ≤ now) -- same definition countDueReviews uses, without a
+  // second pass over the attempts.
   const states = computeReviewStates(attempts);
   let masteredCount = 0;
+  let dueCount = 0;
   for (const state of states.values()) {
     if (state.box >= MASTERY_BOX) masteredCount++;
+    if (state.dueAt <= now) dueCount++;
   }
 
   return {
@@ -96,7 +101,7 @@ export function computeProgressStats(attempts: Attempt[], now: number = Date.now
     overallAccuracy,
     perLevel,
     masteredCount,
-    dueCount: countDueReviews(attempts, now),
+    dueCount,
     streakDays: computeStreakDays(attempts, now)
   };
 }
