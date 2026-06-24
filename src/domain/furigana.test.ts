@@ -22,6 +22,19 @@ describe("isReadingPrompt", () => {
     expect(isReadingPrompt(undefined, "meaning")).toBe(false);
     expect(isReadingPrompt(null, null)).toBe(false);
   });
+
+  it("does NOT suppress a labelled stem even when targetForm defaults to 'reading' (#134 P4)", () => {
+    // Every exam item defaults targetForm to "reading", so gating on it would
+    // wrongly hide furigana from grammar / vocab stems -- which is exactly
+    // where we want it on hard questions.
+    expect(isReadingPrompt("文法形式選擇", "reading")).toBe(false);
+    expect(isReadingPrompt("詞彙填空", "reading")).toBe(false);
+  });
+
+  it("still suppresses 漢字読み regardless of targetForm (answer-leak guard)", () => {
+    expect(isReadingPrompt("漢字読み", "reading")).toBe(true);
+    expect(isReadingPrompt("漢字読み", "ta")).toBe(true);
+  });
 });
 
 describe("kataToHira", () => {

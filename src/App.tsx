@@ -5,7 +5,7 @@ import type { SentencePatternId } from "./domain/sentencePatterns";
 import { countDueReviews } from "./domain/srs";
 import { copy, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel } from "./components";
-import { FuriganaContext } from "./components/Ruby";
+import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
 import { useFurigana } from "./hooks/useFurigana";
 import { isSupabaseConfigured } from "./lib/supabase";

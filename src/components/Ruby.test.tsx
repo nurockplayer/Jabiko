@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { FuriganaContext, Ruby } from "./Ruby";
+import { Ruby } from "./Ruby";
+import { FuriganaContext } from "./furiganaContext";
 import { furiganaData } from "../domain/furiganaData";
 
 // A sentence known to be in the pre-baked data, with at least one kanji run

@@ -1,7 +1,7 @@
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { FeedbackPanel } from "./FeedbackPanel";
-import { FuriganaContext } from "./Ruby";
+import { FuriganaContext } from "./furiganaContext";
 import { buildQuestionPool } from "../domain/practice";
 import { jlptVocabulary } from "../domain/vocabulary-jlpt";
 import { examStyleQuestions } from "../domain/examBlocks";

@@ -35,17 +35,22 @@ describe("App", () => {
   // once here so every test below renders them synchronously regardless of
   // run order -- otherwise whichever test first navigates to a view would
   // run its synchronous assertions before the lazy chunk finished loading.
+  // Generous timeouts here: this hook cold-loads the lazy chunks, and the
+  // challenge chunk now carries the ~700KB pre-baked furigana table (#134 P4),
+  // so the first transform+eval can exceed the 1s findBy default in CI before
+  // any other test has warmed the modules. Once primed, the per-test
+  // navigations below resolve from cache at the default timeout.
   beforeAll(async () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);
     await user.click(screen.getByRole("button", { name: "挑戰" }));
-    await screen.findByRole("region", { name: "目前題目" });
+    await screen.findByRole("region", { name: "目前題目" }, { timeout: 30000 });
     await user.click(screen.getByRole("button", { name: "模擬考" }));
-    await screen.findByRole("region", { name: "模擬考" });
+    await screen.findByRole("region", { name: "模擬考" }, { timeout: 30000 });
     await user.click(screen.getByRole("button", { name: "漢字" }));
-    await screen.findByRole("heading", { name: /漢字音読み/ });
+    await screen.findByRole("heading", { name: /漢字音読み/ }, { timeout: 30000 });
     unmount();
-  });
+  }, 60000);
 
   afterEach(() => {
     localStorage.clear();

@@ -169,14 +169,22 @@ export function tokensToSegments(tokens: FuriganaToken[]): FuriganaSegment[] {
 /**
  * Whether a question is a reading drill, for which furigana must be
  * suppressed even when the global toggle is ON -- showing the kanji's
- * reading there would hand over the answer (#134). Exam items default
- * targetForm to "reading", so promptLabel is the reliable signal for them
- * (漢字読み); basic / vocab reading drills carry targetForm "reading". Kept
- * here (pure, no DOM) so the render layer just asks this predicate.
+ * reading there would hand over the answer (#134).
+ *
+ * `漢字読み` (read-the-kanji) always suppresses: the reading IS the answer.
+ * For any OTHER labelled (exam) item, targetForm is NOT a reliable signal --
+ * every exam item defaults targetForm to "reading" (see exam/helpers.ts), so
+ * gating on it would wrongly hide furigana from grammar / vocab stems, where
+ * we WANT it so the learner can read a hard question (#134 P4). So exam items
+ * are gated on promptLabel alone; only UNLABELLED basic drills use targetForm
+ * as the reading signal. Kept here (pure, no DOM) so the render layer just
+ * asks this predicate.
  */
 export function isReadingPrompt(
   promptLabel: string | null | undefined,
   targetForm: string | null | undefined
 ): boolean {
-  return promptLabel === "漢字読み" || targetForm === "reading";
+  if (promptLabel === "漢字読み") return true;
+  if (promptLabel) return false;
+  return targetForm === "reading";
 }
