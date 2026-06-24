@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { buildQuestionPool } from "../domain/practice";
@@ -7,6 +7,7 @@ import { examStyleQuestions } from "../domain/examBlocks";
 import { buildSentencePatternPool } from "../domain/sentencePatterns";
 import { lookupWordsByReading } from "../domain/readingLookup";
 import { lookupPatternMeaning } from "../domain/patternMeaning";
+import { grammarNotes } from "../domain/grammarNotes";
 
 const readingPool = buildQuestionPool(jlptVocabulary, {
   partOfSpeech: "mixed",
@@ -165,5 +166,76 @@ describe("FeedbackPanel distractor gloss", () => {
       expect(hasGloss, `promptLabel=${testCase.question.promptLabel ?? "(none)"}`).toBe(testCase.gloss);
       unmount();
     }
+  });
+});
+
+describe("FeedbackPanel grammar note (#137)", () => {
+  const grammarBase = examStyleQuestions.find((q) => q.promptLabel === "文法形式選擇")!;
+  // Override the surface so the lookup hit is independent of which exact
+  // grammar items happen to be in the bank.
+  const grammarWithSurface = (surface: string) => ({
+    ...grammarBase,
+    vocabulary: { ...grammarBase.vocabulary, surface }
+  });
+
+  it("shows a collapsed 看文法說明 entry for a grammar item whose point has a note", () => {
+    const question = grammarWithSurface("ばかりに");
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question }}
+        language="zh-Hant"
+        options={question.options ?? []}
+      />
+    );
+    const toggle = container.querySelector(".grammar-note-toggle");
+    expect(toggle).not.toBeNull();
+    expect(toggle?.getAttribute("aria-expanded")).toBe("false");
+    // Collapsed by default -> the note card is not rendered yet.
+    expect(container.querySelector(".grammar-note")).toBeNull();
+  });
+
+  it("expands the note on click, showing the point's meaning", () => {
+    const question = grammarWithSurface("ばかりに");
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question }}
+        language="zh-Hant"
+        options={question.options ?? []}
+      />
+    );
+    fireEvent.click(container.querySelector(".grammar-note-toggle")!);
+    const note = container.querySelector(".grammar-note");
+    expect(note).not.toBeNull();
+    expect(container.querySelector(".grammar-note-toggle")?.getAttribute("aria-expanded")).toBe("true");
+    expect(note?.textContent).toContain(grammarNotes["ばかりに"].meaningZh);
+  });
+
+  it("hides the entry for a grammar point with no note yet (no error)", () => {
+    const question = grammarWithSurface("そんな文法点はない");
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question }}
+        language="zh-Hant"
+        options={question.options ?? []}
+      />
+    );
+    expect(container.querySelector(".grammar-note-block")).toBeNull();
+  });
+
+  it("does not show the entry for non-grammar items even if the surface collides", () => {
+    // A reading drill (no grammar promptLabel) whose surface happens to be a
+    // noted point must NOT surface the grammar-note entry.
+    const question = {
+      ...readingPool[0],
+      vocabulary: { ...readingPool[0].vocabulary, surface: "ばかりに" }
+    };
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    expect(container.querySelector(".grammar-note-block")).toBeNull();
   });
 });

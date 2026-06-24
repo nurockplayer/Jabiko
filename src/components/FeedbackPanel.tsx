@@ -1,7 +1,10 @@
-import { CheckCircle2, XCircle } from "lucide-react";
+import { useState } from "react";
+import { BookOpen, CheckCircle2, XCircle } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { lookupWordsByReading } from "../domain/readingLookup";
 import { lookupPatternMeaning } from "../domain/patternMeaning";
+import { lookupGrammarNote } from "../domain/grammarNotes";
+import { GrammarNoteCard } from "./GrammarNoteCard";
 import type { Feedback } from "./types";
 
 // Post-answer panel: shows correct/incorrect/revealed status, the
@@ -18,6 +21,7 @@ export function FeedbackPanel({
   options: string[];
 }) {
   const t = copy[language];
+  const [showGrammarNote, setShowGrammarNote] = useState(false);
   const isCorrect = feedback.status === "correct";
   const isRevealed = feedback.status === "revealed";
   const title = isCorrect ? t.correct : isRevealed ? t.revealed : t.incorrect;
@@ -41,6 +45,14 @@ export function FeedbackPanel({
     promptLabel === "漢字読み" || (promptLabel === "" && feedback.question.targetForm === "reading");
   // Grammar-form items: options are patterns, so show each pattern's gloss.
   const isGrammarGloss = promptLabel === "文法形式選擇" || promptLabel === "文章脈絡";
+  // Full reference note (#137) for grammar items, opened behind a "看文法說明"
+  // toggle to close the wrong -> learn loop. Gated on grammar promptLabels;
+  // a point with no note yet just hides the entry point (never an error).
+  const isGrammarItem =
+    promptLabel === "文法形式選擇" || promptLabel === "語順組合" || promptLabel === "文章脈絡";
+  const grammarNote = isGrammarItem
+    ? lookupGrammarNote(feedback.question.vocabulary.surface)
+    : null;
 
   // One gloss string PER distractor, rendered one-per-line, so a long
   // option list stays readable on mobile instead of wrapping mid-item.
@@ -89,6 +101,20 @@ export function FeedbackPanel({
           {feedback.question.vocabulary.examples[0].japanese}
           <span>{feedback.question.vocabulary.examples[0].meaningZh}</span>
         </p>
+      ) : null}
+      {grammarNote ? (
+        <div className="grammar-note-block">
+          <button
+            type="button"
+            className="grammar-note-toggle"
+            aria-expanded={showGrammarNote}
+            onClick={() => setShowGrammarNote((open) => !open)}
+          >
+            <BookOpen aria-hidden="true" />
+            {showGrammarNote ? t.grammarNoteHide : t.grammarNoteCta}
+          </button>
+          {showGrammarNote ? <GrammarNoteCard note={grammarNote} language={language} /> : null}
+        </div>
       ) : null}
     </section>
   );
