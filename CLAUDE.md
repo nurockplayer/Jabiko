@@ -71,8 +71,10 @@
 8. **PR**：branch → push（pre-push hook 會跑 build）→ `gh pr create`。**CI 必過閘只有 `Test and build`**；CodeRabbit/Cloudflare 常是 rate-limit skip，不阻擋。green 後 `gh pr merge --squash --delete-branch`。
    - ⚠ 不要開背景 CI waiter 無限 loop（PR merge + branch 刪除後 `gh` 回空、`jq` 對 null 拋錯，條件永不成立 → 殭屍）。要等就用**有迭代上限**的 bounded loop，或 inline 查 `gh pr checks`。
 
-## 目前進度快照（2026-06-24）
+## 目前進度快照（2026-06-25）
 
-- **JLPT 文法 coverage 全數補完**：N1(#164)/N2(#165)/N3(#166) 三子議題已關閉，父議題 #157 收束。`examItems = 919`、`n1Grammar = 265`。
-- 各 batch 來源 JSON 保留在 `scripts/exam-batches/`；loop 細節另記於使用者 memory `jabiko-grammar-coverage-loop`。
-- **下一步候選**（與使用者討論後再開工）：#151 跨裝置進度同步（Supabase）。手動前置已開票 #181 — **由使用者**把 `supabase/migrations/0001_create_attempts.sql` 貼到 Supabase Dashboard → SQL Editor → Run（冪等、不需新密鑰）；端到端同步另需**使用者**做真人 Google OAuth 雙裝置驗證。P2/P3 程式可先用 mock 測試寫，不需等建表。
+- **JLPT 文法 coverage 全數補完**：N1(#164)/N2(#165)/N3(#166) 三子議題已關閉，父議題 #157 收束。
+- **N1 文字・語彙補平衡完成**（#152，三批 N1 vocab 用法/類義/詞彙填空）。`examItems = 989`、`n1Grammar = 265`。
+- **跨裝置同步（#151）已完成並端到端驗證**：Supabase `attempts` 表 + RLS + 明確 grant（#196 補上，**別靠 Supabase 隱性 default privileges**）；prod 實測雲端 1065 列吻合本機。#181/#151 已關。詳見使用者 memory `jabiko-cross-device-sync`。
+- 各 batch 來源 JSON 保留在 `scripts/exam-batches/`；grammar loop 細節另記於使用者 memory `jabiko-grammar-coverage-loop`。
+- **下一步候選**（與使用者討論後再開工）：#195 漢字讀音速查表擴充全等級、#135 SRS 現代化 epic、#134 Furigana toggle、#124 題型分布補平衡。
