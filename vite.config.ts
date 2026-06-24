@@ -38,7 +38,10 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,svg,png,webp,woff2}"],
+        // Code/markup only here; static images (icons / hero / og) are
+        // precached via includeAssets above. Keeping them out of
+        // globPatterns avoids duplicate precache entries for the same URL.
+        globPatterns: ["**/*.{js,css,html,woff2}"],
         // The lazy examBlocks chunk is ~1MB; lift the precache size cap so
         // it's available offline.
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024
