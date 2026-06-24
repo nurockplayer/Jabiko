@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Jabiko">
+  <rect width="512" height="512" fill="#647c5c" />
+  <path d="M256 170 C 214 148 158 148 120 164 V 356 C 158 340 214 340 256 360 Z" fill="#fdfdf7" />
+  <path d="M256 170 C 298 148 354 148 392 164 V 356 C 354 340 298 340 256 360 Z" fill="#fdfdf7" />
+  <g stroke="#647c5c" stroke-width="11" stroke-linecap="round" fill="none">
+    <path d="M152 214 H 226" />
+    <path d="M152 252 H 226" />
+    <path d="M152 290 H 220" />
+    <path d="M286 214 H 360" />
+    <path d="M286 252 H 360" />
+    <path d="M292 290 H 360" />
+  </g>
+</svg>
