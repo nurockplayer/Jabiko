@@ -46,7 +46,9 @@ export default function App() {
   const { user, error: authError, signInWithGoogle, signOut } = useAuth();
   // `user` drives cross-device sync: on login the hook merges the remote
   // attempt history into the local store and pushes the local-only delta.
-  const { progressAttempts, recordAttempt } = useProgressAttempts(user);
+  // `syncStatus` feeds the honest auth hint below (never says "synced"
+  // until a login merge has actually completed -- #151).
+  const { progressAttempts, recordAttempt, syncStatus } = useProgressAttempts(user);
   // Lightweight, pool-free count for the home/learn review badge (see
   // countDueReviews). The full review queue -- which needs the question
   // pool to resolve due items -- is built inside the lazy challenge view.
@@ -102,20 +104,30 @@ export default function App() {
           {isSupabaseConfigured && (
             <div className="heading-auth">
               {user ? (
-                <>
+                <div className="heading-auth-row">
                   <span className="heading-user">{t.authSignedInAs(user.user_metadata.full_name ?? user.email ?? "")}</span>
                   <button type="button" className="auth-button" onClick={signOut}>
                     {t.authSignOut}
                   </button>
-                </>
+                </div>
               ) : (
                 <button type="button" className="auth-button" onClick={signInWithGoogle}>
                   {t.authSignIn}
                 </button>
               )}
-              {authError && (
+              {authError ? (
                 <span className="heading-auth-error" role="alert">
                   {authError}
+                </span>
+              ) : (
+                <span className="auth-hint">
+                  {!user
+                    ? t.authSignInHint
+                    : syncStatus === "error"
+                      ? t.authSyncErrorHint
+                      : syncStatus === "synced"
+                        ? t.authSyncedHint
+                        : t.authSyncingHint}
                 </span>
               )}
             </div>

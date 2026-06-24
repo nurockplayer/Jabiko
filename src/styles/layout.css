@@ -77,14 +77,31 @@
 }
 
 .heading-auth {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.heading-auth-row {
   align-items: center;
   display: flex;
   gap: 0.5rem;
 }
 
+.auth-hint {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  max-width: 19rem;
+  text-align: right;
+}
+
 .heading-auth-error {
   color: var(--danger, #c0392b);
   font-size: 0.75rem;
+  max-width: 19rem;
+  text-align: right;
 }
 
 .view-switch {
