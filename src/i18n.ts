@@ -9,6 +9,8 @@ export type Copy = {
   appTagline: string;
   themeLight: string;
   themeDark: string;
+  furiganaShow: string;
+  furiganaHide: string;
   flowLabel: string;
   loading: string;
   home: string;
@@ -202,6 +204,8 @@ export const copy: Record<Language, Copy> = {
     appTagline: "JLPT N5〜N1 文法、漢字、單字、模擬考，一個桌上練到熟。",
     themeLight: "淺色模式",
     themeDark: "深色模式",
+    furiganaShow: "顯示註音",
+    furiganaHide: "隱藏註音",
     flowLabel: "學習流程",
     loading: "載入中…",
     home: "首頁",

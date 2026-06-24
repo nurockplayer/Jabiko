@@ -1,11 +1,13 @@
 import { lazy, Suspense, useMemo, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Languages, Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import { countDueReviews } from "./domain/srs";
 import { copy, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel } from "./components";
+import { FuriganaContext } from "./components/Ruby";
 import { useTheme } from "./hooks/useTheme";
+import { useFurigana } from "./hooks/useFurigana";
 import { isSupabaseConfigured } from "./lib/supabase";
 import { useAuth } from "./hooks/useAuth";
 import { useProgressAttempts } from "./hooks/useProgressAttempts";
@@ -43,6 +45,9 @@ export default function App() {
   const t = copy[language];
 
   const { theme, toggleTheme } = useTheme();
+  // Global furigana (ruby) preference, default OFF (#134). The hook owns the
+  // button state; FuriganaContext broadcasts `enabled` to every <Ruby>.
+  const { enabled: furiganaEnabled, toggle: toggleFurigana } = useFurigana();
   const { user, error: authError, signInWithGoogle, signOut } = useAuth();
   // `user` drives cross-device sync: on login the hook merges the remote
   // attempt history into the local store and pushes the local-only delta.
@@ -61,6 +66,7 @@ export default function App() {
 
   const themeToggleLabel = theme === "dark" ? t.themeLight : t.themeDark;
   const ThemeIcon = theme === "dark" ? Sun : Moon;
+  const furiganaToggleLabel = furiganaEnabled ? t.furiganaHide : t.furiganaShow;
 
   const openChallenge = (request?: SessionInit) => {
     // `request` seeds the session when ChallengePanel MOUNTS (its
@@ -132,6 +138,15 @@ export default function App() {
               )}
             </div>
           )}
+          <button
+            className={`theme-toggle furigana-toggle${furiganaEnabled ? " active" : ""}`}
+            type="button"
+            aria-pressed={furiganaEnabled}
+            onClick={toggleFurigana}
+          >
+            <Languages aria-hidden="true" />
+            {furiganaToggleLabel}
+          </button>
           <button className="theme-toggle" type="button" onClick={toggleTheme}>
             <ThemeIcon aria-hidden="true" />
             {themeToggleLabel}
@@ -184,6 +199,7 @@ export default function App() {
         </button>
       </nav>
 
+      <FuriganaContext.Provider value={{ enabled: furiganaEnabled }}>
       {appView === "home" ? (
         <HomePanel
           language={language}
@@ -230,6 +246,7 @@ export default function App() {
           />
         </Suspense>
       )}
+      </FuriganaContext.Provider>
     </main>
   );
 }

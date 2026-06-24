@@ -1,7 +1,9 @@
+import type { ReactElement } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { ExamPrompt } from "./ExamPrompt";
+import { FuriganaContext } from "./Ruby";
 import { examStyleQuestions } from "../domain/examBlocks";
 import { buildClozeQuestionPool } from "../domain/cloze";
 import { clozeSentences } from "../domain/cloze-data";
@@ -75,5 +77,73 @@ describe("ExamPrompt answer-leak guard", () => {
     const vocabRow = container.querySelector("p.reading");
     expect(vocabRow).not.toBeNull();
     expect(vocabRow?.textContent).toContain(cloze.vocabulary.surface);
+  });
+});
+
+describe("ExamPrompt furigana (#134)", () => {
+  // A pre-baked sentence (学校 -> がっこう) used as the prompt so the ruby
+  // path actually has data to render.
+  const SENTENCE = "ここは学校だ。";
+  const base = examStyleQuestions[0];
+
+  const renderOn = (question: typeof base): ReturnType<typeof render> =>
+    render(
+      (
+        <FuriganaContext.Provider value={{ enabled: true }}>
+          <ExamPrompt question={question} language="zh-Hant" />
+        </FuriganaContext.Provider>
+      ) as ReactElement
+    );
+
+  it("renders ruby on a non-reading prompt when furigana is on", () => {
+    const grammarItem = {
+      ...base,
+      promptText: SENTENCE,
+      promptLabel: "文法形式選擇",
+      targetForm: "ta" as const
+    };
+    const { container } = renderOn(grammarItem);
+    const readings = Array.from(container.querySelectorAll(".exam-prompt rt")).map((n) => n.textContent);
+    expect(readings).toContain("がっこう");
+  });
+
+  it("never renders ruby on a reading prompt, even with furigana on (answer-leak guard)", () => {
+    const readingItem = {
+      ...base,
+      promptText: SENTENCE,
+      promptLabel: "漢字読み",
+      targetForm: "reading" as const
+    };
+    const { container } = renderOn(readingItem);
+    expect(container.querySelector(".exam-prompt rt")).toBeNull();
+    expect(container.querySelector(".exam-prompt")?.textContent).toContain(SENTENCE);
+  });
+
+  // The two guard arms, tested independently, so a future change of the OR to
+  // an AND (or dropping one argument from the call site) is caught.
+
+  it("suppresses ruby on a 漢字読み item even when targetForm is not 'reading'", () => {
+    const readingByLabel = {
+      ...base,
+      promptText: SENTENCE,
+      promptLabel: "漢字読み",
+      targetForm: "ta" as const
+    };
+    const { container } = renderOn(readingByLabel);
+    expect(container.querySelector(".exam-prompt rt")).toBeNull();
+  });
+
+  it("suppresses ruby when targetForm is 'reading' regardless of promptLabel", () => {
+    // Exam items default targetForm to "reading", so in practice every exam
+    // stem currently takes this arm (safe over-suppression -- never a leak;
+    // exam stems are not pre-baked yet anyway).
+    const readingByForm = {
+      ...base,
+      promptText: SENTENCE,
+      promptLabel: "文法形式選擇",
+      targetForm: "reading" as const
+    };
+    const { container } = renderOn(readingByForm);
+    expect(container.querySelector(".exam-prompt rt")).toBeNull();
   });
 });

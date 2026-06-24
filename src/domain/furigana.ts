@@ -165,3 +165,18 @@ export function tokensToSegments(tokens: FuriganaToken[]): FuriganaSegment[] {
   }
   return out;
 }
+
+/**
+ * Whether a question is a reading drill, for which furigana must be
+ * suppressed even when the global toggle is ON -- showing the kanji's
+ * reading there would hand over the answer (#134). Exam items default
+ * targetForm to "reading", so promptLabel is the reliable signal for them
+ * (漢字読み); basic / vocab reading drills carry targetForm "reading". Kept
+ * here (pure, no DOM) so the render layer just asks this predicate.
+ */
+export function isReadingPrompt(
+  promptLabel: string | null | undefined,
+  targetForm: string | null | undefined
+): boolean {
+  return promptLabel === "漢字読み" || targetForm === "reading";
+}

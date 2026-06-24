@@ -4,8 +4,25 @@ import {
   hasKanji,
   alignToken,
   tokensToSegments,
-  applyReadingOverrides
+  applyReadingOverrides,
+  isReadingPrompt
 } from "./furigana";
+
+describe("isReadingPrompt", () => {
+  it("flags the 漢字読み prompt label (a reading question)", () => {
+    expect(isReadingPrompt("漢字読み", "ta")).toBe(true);
+  });
+
+  it("flags a reading target form (basic/vocab reading drills)", () => {
+    expect(isReadingPrompt(undefined, "reading")).toBe(true);
+  });
+
+  it("is false for grammar and other item types", () => {
+    expect(isReadingPrompt("文法形式選擇", "ta")).toBe(false);
+    expect(isReadingPrompt(undefined, "meaning")).toBe(false);
+    expect(isReadingPrompt(null, null)).toBe(false);
+  });
+});
 
 describe("kataToHira", () => {
   it("converts katakana to hiragana", () => {
