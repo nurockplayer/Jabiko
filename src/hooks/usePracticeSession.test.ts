@@ -1,5 +1,44 @@
+import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { initialLevelRange } from "./usePracticeSession";
+import { initialLevelRange, usePracticeSession } from "./usePracticeSession";
+
+const baseHookArgs = {
+  language: "zh-Hant" as const,
+  progressAttempts: [],
+  recordAttempt: () => {}
+};
+
+// applyModePreset must keep honouring the global target preference when a
+// mode is picked from the in-session picker -- not only on first mount.
+// Modes with no explicit range (daily / 単字 / basic …) inherit the
+// preference; the exam 備考 cards still pass an explicit range that wins.
+describe("usePracticeSession applyModePreset preference (#199)", () => {
+  it("re-selecting 今日練習 in the picker keeps the global preference (not reset to 'all')", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({ ...baseHookArgs, init: { mode: "daily" }, targetLevel: "n4n5" })
+    );
+    expect(result.current.levelRange).toBe("n4n5");
+    act(() => result.current.applyModePreset("basic"));
+    act(() => result.current.applyModePreset("daily"));
+    expect(result.current.levelRange).toBe("n4n5");
+  });
+
+  it("clamps the preference for 単字 when re-selected (n4n5 has no jlpt vocab -> all)", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({ ...baseHookArgs, init: { mode: "basic" }, targetLevel: "n4n5" })
+    );
+    act(() => result.current.applyModePreset("vocab"));
+    expect(result.current.levelRange).toBe("all");
+  });
+
+  it("an explicit exam range (備考 cards) still overrides the preference", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({ ...baseHookArgs, init: { mode: "basic" }, targetLevel: "n4n5" })
+    );
+    act(() => result.current.applyModePreset("exam", "n1n2"));
+    expect(result.current.levelRange).toBe("n1n2");
+  });
+});
 
 // The pure seed logic for a session's starting level range (#199): an
 // explicit launch request wins; otherwise the global target preference,

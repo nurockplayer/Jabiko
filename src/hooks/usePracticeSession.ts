@@ -332,10 +332,14 @@ export function usePracticeSession({
   // level range at once. Non-exam presets pass "all" (a no-op for the
   // modes that ignore levelRange). Clearing the filter keeps the picker a
   // "fresh mix" (a chapter drill button is what sets a patternIds filter).
-  const applyModePreset = (nextMode: PracticeMode, nextRange: LevelRange = "all") => {
-    if (nextMode === practiceMode && nextRange === levelRange) return;
+  const applyModePreset = (nextMode: PracticeMode, nextRange?: LevelRange) => {
+    // An explicit range (the exam 綜合 / 備考 cards) wins; otherwise inherit
+    // the global target preference, so daily / 単字 keep honouring it when
+    // re-picked from the in-session picker -- not only on first mount (#199).
+    const resolvedRange = nextRange ?? initialLevelRange({ mode: nextMode }, targetLevel);
+    if (nextMode === practiceMode && resolvedRange === levelRange) return;
     setPracticeMode(nextMode);
-    setLevelRange(nextRange);
+    setLevelRange(resolvedRange);
     setPracticeFilter({});
     resetSession();
   };
