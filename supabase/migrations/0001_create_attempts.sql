@@ -50,3 +50,13 @@ create policy "attempts_insert_own" on public.attempts
 drop policy if exists "attempts_delete_own" on public.attempts;
 create policy "attempts_delete_own" on public.attempts
   for delete using (auth.uid() = user_id);
+
+-- Table-level privileges, made explicit. RLS policies above decide WHICH rows
+-- a role may touch, but PostgreSQL first checks the role holds the privilege at
+-- all; without it a query returns 42501 "permission denied for table attempts"
+-- regardless of RLS. On Supabase the `authenticated` role usually inherits this
+-- via the project's default privileges, but relying on that makes the migration
+-- non-self-contained: a fresh DB (or `supabase db reset`) without those defaults
+-- would deny logged-in users. Grant exactly the CRUD the policies scope to own
+-- rows. `anon` is intentionally NOT granted: only logged-in users sync.
+grant select, insert, delete on public.attempts to authenticated;
