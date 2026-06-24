@@ -2,7 +2,7 @@ import { BookOpen, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech, TargetForm, VerbGroup } from "../../domain/types";
 import { VOCAB_LEVEL_RANGE_OPTIONS, type LevelRange } from "../../domain/levelRange";
-import type { PracticeMode, PracticeSession } from "../../hooks/usePracticeSession";
+import { SESSION_LENGTH_OPTIONS, type PracticeMode, type PracticeSession } from "../../hooks/usePracticeSession";
 
 const partOfSpeechOptions: Array<PartOfSpeech | "mixed"> = ["verb", "i_adjective", "na_adjective", "noun", "mixed"];
 
@@ -62,6 +62,8 @@ export function ModePicker({
   practiceMode,
   levelRange,
   showLevelRange,
+  sessionLength,
+  showSessionLength,
   selectedForm,
   setVerbGroup,
   setTargetForm,
@@ -76,6 +78,7 @@ export function ModePicker({
   handlePracticeFocusChange,
   applyModePreset,
   handleLevelRangeChange,
+  handleSessionLengthChange,
   resetSession
 }: Pick<
   PracticeSession,
@@ -85,6 +88,8 @@ export function ModePicker({
   | "practiceMode"
   | "levelRange"
   | "showLevelRange"
+  | "sessionLength"
+  | "showSessionLength"
   | "selectedForm"
   | "setVerbGroup"
   | "setTargetForm"
@@ -99,6 +104,7 @@ export function ModePicker({
   | "handlePracticeFocusChange"
   | "applyModePreset"
   | "handleLevelRangeChange"
+  | "handleSessionLengthChange"
   | "resetSession"
 > & { language: Language }) {
   const t = copy[language];
@@ -162,6 +168,29 @@ export function ModePicker({
                 {t.levelRangeOptions[range]}
               </button>
             ))}
+          </div>
+        </fieldset>
+      ) : null}
+
+      {showSessionLength ? (
+        <fieldset>
+          <legend>{t.sessionLength}</legend>
+          <div className="segmented">
+            {SESSION_LENGTH_OPTIONS.map((option) => {
+              const key = option ?? "all";
+              const active = sessionLength === option;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  className={active ? "selected" : ""}
+                  aria-pressed={active}
+                  onClick={() => handleSessionLengthChange(option)}
+                >
+                  {option === null ? t.sessionLengthAll : String(option)}
+                </button>
+              );
+            })}
           </div>
         </fieldset>
       ) : null}

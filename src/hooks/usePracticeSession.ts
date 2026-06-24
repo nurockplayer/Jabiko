@@ -17,8 +17,26 @@ import {
   uniqueForms
 } from "../domain/sessionPools";
 import type { Attempt, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
+import { readStored, writeStored } from "../domain/safeStorage";
 import { copy, type Language } from "../i18n";
 import type { Feedback } from "../components/types";
+
+// Configurable practice-session length (#154). The endless drill modes
+// (exam / cloze / pattern / vocab / basic) are capped to this many
+// questions so a session is finite; `null` means "全部" (no cap, the old
+// endless behaviour). review (clears the whole due queue) and 今日練習
+// (already a fixed ~20 set) ignore it. Persisted across sessions.
+const SESSION_LENGTH_KEY = "jabiko.sessionLength";
+const DEFAULT_SESSION_LENGTH = 20;
+export const SESSION_LENGTH_OPTIONS: ReadonlyArray<number | null> = [10, 20, 30, 50, null];
+
+function readSessionLength(): number | null {
+  const raw = readStored(SESSION_LENGTH_KEY);
+  if (raw === null) return DEFAULT_SESSION_LENGTH;
+  if (raw === "all") return null;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_SESSION_LENGTH;
+}
 
 export type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
 export type PracticeMode = "basic" | "cloze" | "daily" | "pattern" | "exam" | "review" | "vocab";
@@ -97,6 +115,7 @@ export function usePracticeSession({
   const [practiceMode, setPracticeMode] = useState<PracticeMode>(init?.mode ?? "basic");
   const [practiceFilter, setPracticeFilter] = useState<PracticeFilter>(init?.filter ?? {});
   const [levelRange, setLevelRange] = useState<LevelRange>(init?.levelRange ?? "all");
+  const [sessionLength, setSessionLength] = useState<number | null>(() => readSessionLength());
   const [questionIndex, setQuestionIndex] = useState(0);
   const [sessionSeed, setSessionSeed] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
@@ -122,6 +141,11 @@ export function usePracticeSession({
   const isDailyFocus = practiceMode === "daily";
   const isCuratedFocus =
     isExamFocus || isClozeFocus || isPatternFocus || isReviewFocus || isVocabFocus || isDailyFocus;
+  // The session-length picker applies to the endless drill modes (exam /
+  // cloze / pattern / vocab / basic). review clears the whole due queue
+  // and 今日練習 is already a fixed ~20 set, so neither is capped.
+  const showSessionLength = !isReviewFocus && !isDailyFocus;
+  const isCapped = showSessionLength && sessionLength != null;
   // The level-range picker applies to the 綜合考題庫 (exam with no fixed
   // section) and 単字 pools -- the two banks with JLPT-tagged items. A
   // mock-launched exam section already fixes the level, so hide it there.
@@ -200,7 +224,8 @@ export function usePracticeSession({
         verbGroup,
         targetForms,
         levelRange,
-        reviewQueue
+        reviewQueue,
+        sessionLength
       });
     },
     // INTENTIONALLY excluding `reviewQueue` from deps. The live queue
@@ -229,6 +254,7 @@ export function usePracticeSession({
       targetForms,
       verbGroup,
       levelRange,
+      sessionLength,
       sessionSeed
     ]
   );
@@ -238,13 +264,19 @@ export function usePracticeSession({
   // Looping review would re-show items the learner just cleared -- exactly
   // the "錯題一直輪迴" report. Correctly-answered items leave the SRS due
   // set (next session), wrong ones reset to box 0 and return next session.
-  const isFinitePass = isReviewFocus || isDailyFocus;
+  // A capped endless mode (#154) also becomes a finite pass: walk the
+  // sliced pool once, then show the completion screen ("再來一組" reshuffles
+  // a fresh capped set via resetSession).
+  const isFinitePass = isReviewFocus || isDailyFocus || isCapped;
   const currentQuestion = isFinitePass
     ? questions[questionIndex] ?? null
     : selectQuestion(questions, questionIndex);
   const reviewEmpty = isReviewFocus && questions.length === 0;
   const sessionExhausted =
     isFinitePass && questions.length > 0 && questionIndex >= questions.length;
+  // Total for the "N / total" progress readout: known for finite passes
+  // (capped / review / 今日練習), null for the remaining endless modes.
+  const sessionTotal = isFinitePass ? questions.length : null;
   const choiceOptions = useMemo(
     () => (currentQuestion ? buildChoiceOptions(currentQuestion, questions, questionIndex) : []),
     [currentQuestion, questionIndex, questions]
@@ -287,6 +319,13 @@ export function usePracticeSession({
   const handleLevelRangeChange = (nextRange: LevelRange) => {
     if (nextRange === levelRange) return;
     setLevelRange(nextRange);
+    resetSession();
+  };
+
+  const handleSessionLengthChange = (nextLength: number | null) => {
+    if (nextLength === sessionLength) return;
+    setSessionLength(nextLength);
+    writeStored(SESSION_LENGTH_KEY, nextLength === null ? "all" : String(nextLength));
     resetSession();
   };
 
@@ -382,6 +421,9 @@ export function usePracticeSession({
     practiceMode,
     levelRange,
     showLevelRange,
+    sessionLength,
+    showSessionLength,
+    sessionTotal,
     selectedForm,
     questionIndex,
     selectedChoice,
@@ -412,6 +454,7 @@ export function usePracticeSession({
     handlePracticeFocusChange,
     applyModePreset,
     handleLevelRangeChange,
+    handleSessionLengthChange,
     handleChoiceSubmit,
     nextQuestion,
     resetSession,

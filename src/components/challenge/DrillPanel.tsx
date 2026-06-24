@@ -40,6 +40,7 @@ function partOfSpeechLabel(partOfSpeech: PartOfSpeech, language: Language): stri
 export function DrillPanel({
   language,
   questionIndex,
+  sessionTotal,
   selectedChoice,
   feedback,
   attempts,
@@ -61,6 +62,7 @@ export function DrillPanel({
 }: Pick<
   PracticeSession,
   | "questionIndex"
+  | "sessionTotal"
   | "selectedChoice"
   | "feedback"
   | "attempts"
@@ -80,6 +82,34 @@ export function DrillPanel({
   | "handleDrillKeyDown"
 > & { language: Language; onExit: () => void }) {
   const t = copy[language];
+
+  // Completion-screen copy: daily / review have their own wording; every
+  // other (capped, #154) finite session uses the generic "這組完成" set.
+  const wrongCount = attempts.length - correctCount;
+  const doneTitle =
+    practiceMode === "daily"
+      ? t.dailyDoneTitle
+      : practiceMode === "review"
+        ? t.reviewDoneTitle
+        : t.sessionDoneTitle;
+  const doneBody =
+    practiceMode === "daily"
+      ? t.dailyDoneBody(correctCount, wrongCount)
+      : practiceMode === "review"
+        ? t.reviewDoneBody(correctCount, wrongCount)
+        : t.sessionDoneBody(correctCount, wrongCount);
+  const doneAgain =
+    practiceMode === "daily"
+      ? t.dailyDoneAgain
+      : practiceMode === "review"
+        ? t.reviewDoneAgain
+        : t.sessionDoneAgain;
+  const doneExit =
+    practiceMode === "daily"
+      ? t.dailyDoneExit
+      : practiceMode === "review"
+        ? t.reviewDoneExit
+        : t.sessionDoneExit;
 
   // Container-level answer state for embedded AI / browser automation:
   // collapse feedback into one result string so .drill-panel exposes the
@@ -107,7 +137,11 @@ export function DrillPanel({
       {currentQuestion ? (
         <>
           <div className="prompt-header">
-            <span>{t.questionNumber(questionIndex + 1)}</span>
+            <span>
+              {sessionTotal != null
+                ? t.questionProgress(questionIndex + 1, sessionTotal)
+                : t.questionNumber(questionIndex + 1)}
+            </span>
             <strong>{currentQuestion.promptLabel ?? t.targetForms[currentQuestion.targetForm]}</strong>
           </div>
 
@@ -192,19 +226,15 @@ export function DrillPanel({
       ) : sessionExhausted ? (
         <div className="empty-state review-done">
           <DarumaSpot />
-          <h2>{practiceMode === "daily" ? t.dailyDoneTitle : t.reviewDoneTitle}</h2>
-          <p>
-            {practiceMode === "daily"
-              ? t.dailyDoneBody(correctCount, attempts.length - correctCount)
-              : t.reviewDoneBody(correctCount, attempts.length - correctCount)}
-          </p>
+          <h2>{doneTitle}</h2>
+          <p>{doneBody}</p>
           <div className="review-done-actions">
             <button className="next-button" type="button" onClick={resetSession}>
               <RotateCcw aria-hidden="true" />
-              {practiceMode === "daily" ? t.dailyDoneAgain : t.reviewDoneAgain}
+              {doneAgain}
             </button>
             <button className="ghost-button" type="button" onClick={onExit}>
-              {practiceMode === "daily" ? t.dailyDoneExit : t.reviewDoneExit}
+              {doneExit}
             </button>
           </div>
         </div>
