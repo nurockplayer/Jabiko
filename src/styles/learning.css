@@ -46,7 +46,24 @@
 .chapter-list {
   align-content: start;
   display: grid;
-  gap: 0.6rem;
+  gap: 1.15rem;
+}
+
+/* Chapters grouped by category: a quiet section label, then the cards. The
+ * card-level kicker tag is dropped (the header carries the category), so
+ * the rail reads as a few sections instead of one long flat list. */
+.chapter-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.chapter-group-title {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin: 0;
+  padding-left: 0.1rem;
 }
 
 .chapter-list-button {
@@ -106,8 +123,12 @@
 .chapter-content-head h3 {
   color: var(--ink);
   font-family: var(--font-japanese-display);
-  font-size: clamp(2.1rem, 5vw, 4.2rem);
-  line-height: 1.05;
+  /* Was clamp(2.1rem, 5vw, 4.2rem) -- the 4.2rem cap turned short chapter
+   * titles into oversized billboards with a void beneath, and wrapped long
+   * sentence-style titles into giant multi-line blocks. Keep the display
+   * font, dial the size down to a heading. */
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  line-height: 1.1;
 }
 
 .chapter-actions {
@@ -520,7 +541,12 @@
 .pipeline-grid {
   display: grid;
   gap: 0.75rem;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* Was a fixed 4-column grid: with variable-height cards (some carry a
+   * note, some don't) and an example count that isn't a multiple of 4, it
+   * left ragged rows + a half-empty trailing row. Auto-fill reflows by
+   * width and items stretch to an even row height. */
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  align-items: stretch;
 }
 
 .pipeline-card code {
