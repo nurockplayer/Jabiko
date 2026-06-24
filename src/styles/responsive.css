@@ -24,8 +24,14 @@
     padding: 0 0 1rem;
   }
 
-  .chapter-list {
+  /* Chapters are grouped now: keep the groups stacked, but lay each
+   * group's cards out 2-up with its title spanning the row. */
+  .chapter-group {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chapter-group-title {
+    grid-column: 1 / -1;
   }
 
   .learning-hero {

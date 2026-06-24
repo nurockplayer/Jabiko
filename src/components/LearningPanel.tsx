@@ -49,6 +49,21 @@ export function LearningPanel({
   const activeCard = blockCards.find((card) => card.block.id === selectedBlockId) ?? recommended;
   const active = activeCard.block;
 
+  // Group chapters by category so the rail reads as a few labelled sections
+  // instead of one long flat list where every card repeats a coloured kicker
+  // tag. First-seen category order is preserved.
+  const groupOrder: string[] = [];
+  const groupMap = new Map<string, typeof blockCards>();
+  for (const card of blockCards) {
+    const category = card.block.category;
+    if (!groupMap.has(category)) {
+      groupMap.set(category, []);
+      groupOrder.push(category);
+    }
+    groupMap.get(category)!.push(card);
+  }
+  const chapterGroups = groupOrder.map((category) => ({ category, cards: groupMap.get(category)! }));
+
   // Resolve the drill button label from the i18n copy table. The schema
   // stores a plain string key so new drill labels don't require schema
   // updates.
@@ -110,29 +125,39 @@ export function LearningPanel({
           </div>
 
           <div className="chapter-list">
-            {blockCards.map(({ block, complete, incompletePrereqs }) => (
-              <button
-                key={block.id}
-                type="button"
-                className={`chapter-list-button${block.id === active.id ? " selected" : ""}${complete ? " complete" : ""}`}
-                aria-label={`查看：${block.title}`}
-                aria-pressed={block.id === active.id}
-                onClick={() => setSelectedBlockId(block.id)}
-              >
-                <span>
-                  {block.completionMode === "reference"
+            {chapterGroups.map(({ category, cards }) => (
+              <div className="chapter-group" key={category}>
+                <p className="chapter-group-title">{category}</p>
+                {cards.map(({ block, complete, incompletePrereqs }) => {
+                  // Card no longer carries the category kicker (the group
+                  // header owns it); keep only a status marker when relevant.
+                  // Reference chapters always read "參考" (they're material,
+                  // not drillable), even once their prereqs are done.
+                  const status = block.completionMode === "reference"
                     ? "參考"
                     : complete
                     ? "完成"
-                    : block.kicker ?? block.category}
-                </span>
-                <strong>{block.title}</strong>
-                <small>
-                  {incompletePrereqs.length > 0
-                    ? `建議先看：${incompletePrereqs.map(blockTitleById).join("、")}`
-                    : block.subtitle}
-                </small>
-              </button>
+                    : null;
+                  return (
+                    <button
+                      key={block.id}
+                      type="button"
+                      className={`chapter-list-button${block.id === active.id ? " selected" : ""}${complete ? " complete" : ""}`}
+                      aria-label={`查看：${block.title}`}
+                      aria-pressed={block.id === active.id}
+                      onClick={() => setSelectedBlockId(block.id)}
+                    >
+                      {status ? <span>{status}</span> : null}
+                      <strong>{block.title}</strong>
+                      <small>
+                        {incompletePrereqs.length > 0
+                          ? `建議先看：${incompletePrereqs.map(blockTitleById).join("、")}`
+                          : block.subtitle}
+                      </small>
+                    </button>
+                  );
+                })}
+              </div>
             ))}
           </div>
 
