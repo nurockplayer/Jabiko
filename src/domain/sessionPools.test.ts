@@ -263,3 +263,46 @@ describe("buildQuestionPool part-of-speech handling (#60)", () => {
     expect(drills).toEqual([]);
   });
 });
+
+describe("buildPracticeQuestions session-length cap (#154)", () => {
+  it("caps the basic-drill pool to sessionLength", () => {
+    const full = buildPracticeQuestions(
+      poolParams({ partOfSpeech: "verb", verbGroup: "godan", targetForms: ["te"] })
+    );
+    expect(full.length).toBeGreaterThan(20);
+
+    const capped = buildPracticeQuestions(
+      poolParams({ partOfSpeech: "verb", verbGroup: "godan", targetForms: ["te"], sessionLength: 20 })
+    );
+    expect(capped.length).toBe(20);
+  });
+
+  it("caps the exam pool to sessionLength", () => {
+    const capped = buildPracticeQuestions(
+      poolParams({ isExamFocus: true, levelRange: "all", sessionLength: 20 })
+    );
+    expect(capped.length).toBe(20);
+  });
+
+  it("treats null sessionLength as no cap (full pool)", () => {
+    const full = buildPracticeQuestions(
+      poolParams({ isExamFocus: true, levelRange: "all", sessionLength: null })
+    );
+    expect(full.length).toBe(buildExamQuestionPool("all").length);
+  });
+
+  it("does NOT cap review mode (clears the whole due queue)", () => {
+    const due = buildExamQuestionPool("all").slice(0, 25);
+    const questions = buildPracticeQuestions(
+      poolParams({ isReviewFocus: true, reviewQueue: due, sessionLength: 20 })
+    );
+    expect(questions.length).toBe(25);
+  });
+
+  it("does NOT shrink 今日練習 below its own target via sessionLength", () => {
+    const daily = buildPracticeQuestions(
+      poolParams({ isDailyFocus: true, reviewQueue: [], sessionLength: 5 })
+    );
+    expect(daily.length).toBeGreaterThan(5);
+  });
+});

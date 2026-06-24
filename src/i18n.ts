@@ -110,6 +110,8 @@ export type Copy = {
   practiceMode: string;
   levelRange: string;
   levelRangeOptions: { all: string; n1n2: string; n2n3: string; n4n5: string };
+  sessionLength: string;
+  sessionLengthAll: string;
   practiceFocus: string;
   verbGroup: string;
   targetForm: string;
@@ -120,6 +122,7 @@ export type Copy = {
   resetSession: string;
   currentQuestion: string;
   questionNumber: (value: number) => string;
+  questionProgress: (value: number, total: number) => string;
   answerOptions: string;
   revealAnswer: string;
   nextQuestion: string;
@@ -160,6 +163,10 @@ export type Copy = {
   dailyDoneBody: (cleared: number, remaining: number) => string;
   dailyDoneAgain: string;
   dailyDoneExit: string;
+  sessionDoneTitle: string;
+  sessionDoneBody: (cleared: number, remaining: number) => string;
+  sessionDoneAgain: string;
+  sessionDoneExit: string;
   speakAriaLabel: string;
   authSignIn: string;
   authSignOut: string;
@@ -297,6 +304,8 @@ export const copy: Record<Language, Copy> = {
     practiceMode: "練習模式",
     levelRange: "題庫範圍",
     levelRangeOptions: { all: "全部", n1n2: "N1＋N2", n2n3: "N2＋N3", n4n5: "N4＋N5" },
+    sessionLength: "每組題數",
+    sessionLengthAll: "全部",
     practiceFocus: "練習重點",
     verbGroup: "動詞類別",
     targetForm: "目標形",
@@ -307,6 +316,7 @@ export const copy: Record<Language, Copy> = {
     resetSession: "重設本次",
     currentQuestion: "目前題目",
     questionNumber: (value) => `第 ${value} 題`,
+    questionProgress: (value, total) => `第 ${value} / ${total} 題`,
     answerOptions: "答案選項",
     revealAnswer: "看答案",
     nextQuestion: "下一題",
@@ -359,6 +369,11 @@ export const copy: Record<Language, Copy> = {
       `今天練了 ${cleared + remaining} 題，答對 ${cleared}、答錯 ${remaining}。答錯的會進入弱點複習，下次複習時會再出現。`,
     dailyDoneAgain: "再練一組",
     dailyDoneExit: "回首頁",
+    sessionDoneTitle: "這組練完了！",
+    sessionDoneBody: (cleared, remaining) =>
+      `這一組練了 ${cleared + remaining} 題，答對 ${cleared}、答錯 ${remaining}。答錯的會進入弱點複習，下次複習時會再出現。`,
+    sessionDoneAgain: "再來一組",
+    sessionDoneExit: "回首頁",
     speakAriaLabel: "朗讀日文",
     authSignIn: "Google 登入",
     authSignOut: "登出",

@@ -144,6 +144,12 @@ export type PracticePoolParams = {
   // review and 今日練習 branches. The hook passes the value captured when
   // its `questions` memo last ran (mode change / explicit reset).
   reviewQueue: PracticeQuestion[];
+  // Cap for the endless drill modes (exam / cloze / pattern / vocab /
+  // basic): the learner picks a session length (#154) and we slice the
+  // shuffled pool down to it so the session is finite. null / undefined /
+  // <=0 means no cap (the old endless behaviour). review (clears the whole
+  // due queue) and 今日練習 (already a fixed ~20 set) are NEVER capped.
+  sessionLength?: number | null;
 };
 
 // Derives the active question pool for the current mode. This is the body
@@ -165,8 +171,16 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     verbGroup,
     targetForms,
     levelRange,
-    reviewQueue
+    reviewQueue,
+    sessionLength
   } = params;
+
+  // Cap the endless drill modes to the chosen session length (#154). A
+  // null / non-positive length leaves the pool whole (old behaviour).
+  // Applied only to the cappable branches below; review / 今日練習 return
+  // without it.
+  const cap = (pool: PracticeQuestion[]): PracticeQuestion[] =>
+    sessionLength != null && sessionLength > 0 ? pool.slice(0, sessionLength) : pool;
 
   if (isExamFocus) {
     // Section-filtered when launched from the 模擬考 picker; the
@@ -174,24 +188,24 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     // mixes every section.
     const section = examSection;
     if (section) {
-      return shuffleQuestions(
-        buildExamQuestionPool(section.level).filter(
-          (question) => question.promptLabel === section.promptLabel
+      return cap(
+        shuffleQuestions(
+          buildExamQuestionPool(section.level).filter(
+            (question) => question.promptLabel === section.promptLabel
+          )
         )
       );
     }
     // 綜合考題庫: optionally narrowed to a level range (N1+N2 / N2+N3).
-    return shuffleQuestions(buildExamQuestionPool(levelsForRange(levelRange) ?? "all"));
+    return cap(shuffleQuestions(buildExamQuestionPool(levelsForRange(levelRange) ?? "all")));
   }
 
   if (isClozeFocus) {
-    return shuffleQuestions(buildClozeQuestionPool(clozeSentences, vocabulary));
+    return cap(shuffleQuestions(buildClozeQuestionPool(clozeSentences, vocabulary)));
   }
 
   if (isPatternFocus) {
-    return shuffleQuestions(
-      buildSentencePatternPool({ patternIds })
-    );
+    return cap(shuffleQuestions(buildSentencePatternPool({ patternIds })));
   }
 
   if (isReviewFocus) {
@@ -228,9 +242,11 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     // have different-length answers -> different distractor bands ->
     // no "same options twice in a row" feel even when the random
     // shuffle clusters same-length words together.
-    return reduceAdjacentClusters(
-      vocabPool,
-      (question) => String(question.expectedAnswers[0]?.length ?? 0)
+    return cap(
+      reduceAdjacentClusters(
+        vocabPool,
+        (question) => String(question.expectedAnswers[0]?.length ?? 0)
+      )
     );
   }
 
@@ -240,11 +256,13 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     return composeDailySet(reviewQueue);
   }
 
-  return shuffleQuestions(
-    buildQuestionPool(vocabulary, {
-      partOfSpeech,
-      verbGroup,
-      targetForms
-    })
+  return cap(
+    shuffleQuestions(
+      buildQuestionPool(vocabulary, {
+        partOfSpeech,
+        verbGroup,
+        targetForms
+      })
+    )
   );
 }
