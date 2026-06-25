@@ -100,6 +100,32 @@ legend,
   grid-template-columns: 1fr;
 }
 
+/* 自訂題數: manual count entry below the session-length presets. */
+.session-length-custom {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.42rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.session-length-custom input {
+  width: 5rem;
+  padding: 0.32rem 0.5rem;
+  border: 1px solid var(--field-border);
+  border-radius: 0.5rem;
+  background: var(--field-bg);
+  color: var(--button-text);
+  font: inherit;
+}
+
+.session-length-custom.selected input {
+  border-color: var(--matcha-dark);
+  background: var(--matcha);
+  color: var(--selected-text);
+}
+
 select {
   background: linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 95%, var(--indigo) 5%), var(--field-bg));
   border: 1px solid var(--field-border);

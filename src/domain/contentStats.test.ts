@@ -3,6 +3,7 @@ import { CONTENT_STATS } from "./contentStats";
 import { buildExamQuestionPool } from "./examBlocks";
 import { buildSentencePatternPool } from "./sentencePatterns";
 import { jlptVocabulary } from "./vocabulary-jlpt";
+import { kanjiOnyomi } from "./kanjiOnyomi";
 
 // Drift guard: CONTENT_STATS is hardcoded so the home view doesn't have
 // to import the heavy data modules (see contentStats.ts). This test is
@@ -32,5 +33,9 @@ describe("CONTENT_STATS", () => {
 
   it("matches the live JLPT vocabulary count", () => {
     expect(CONTENT_STATS.vocab).toBe(jlptVocabulary.length);
+  });
+
+  it("matches the live kanji-reading entry count", () => {
+    expect(CONTENT_STATS.kanjiReadings).toBe(kanjiOnyomi.length);
   });
 });

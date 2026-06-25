@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { HomePanel } from "./HomePanel";
 import type { Attempt } from "../domain/types";
+import { CONTENT_STATS } from "../domain/contentStats";
 
 const noop = () => {};
 
@@ -76,5 +77,17 @@ describe("HomePanel guide link", () => {
   it("shows the guide link for returning learners too", () => {
     renderHome({ targetLevel: "n2n3", progressAttempts: [sampleAttempt] });
     expect(screen.getByRole("link", { name: /使用說明書/ })).toBeInTheDocument();
+  });
+});
+
+describe("HomePanel content total", () => {
+  it("renders the grand total of exam + vocab + kanji-readings + patterns", () => {
+    renderHome();
+    const total =
+      CONTENT_STATS.examItems +
+      CONTENT_STATS.vocab +
+      CONTENT_STATS.kanjiReadings +
+      CONTENT_STATS.patternChecks;
+    expect(screen.getByText(new RegExp(total.toLocaleString()))).toBeInTheDocument();
   });
 });

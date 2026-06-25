@@ -20,10 +20,20 @@ import { computeProgressStats } from "../domain/stats";
 const HOME_CONTENT_STATS = {
   chapters: learningBlocks.filter((block) => block.group === "basic").length,
   examItems: CONTENT_STATS.examItems,
-  n1Grammar: CONTENT_STATS.n1Grammar,
   patternChecks: CONTENT_STATS.patternChecks,
-  vocab: CONTENT_STATS.vocab
+  vocab: CONTENT_STATS.vocab,
+  kanjiReadings: CONTENT_STATS.kanjiReadings
 };
+
+// Authoritative site-wide question total, summed from the drift-guarded
+// CONTENT_STATS so it can never go stale as content batches land. n1Grammar
+// is deliberately excluded -- it's a subset of examItems, not a separate
+// pool -- and chapters are learning units, listed but not counted as 題.
+const HOME_CONTENT_TOTAL =
+  HOME_CONTENT_STATS.examItems +
+  HOME_CONTENT_STATS.vocab +
+  HOME_CONTENT_STATS.kanjiReadings +
+  HOME_CONTENT_STATS.patternChecks;
 
 // First view the learner lands on. Three layers:
 //   1. Context-aware banner ("review N items" if any, else "continue
@@ -164,11 +174,12 @@ export function HomePanel({
           honest whenever a content batch lands. */}
       <p className="home-content-stats">
         {t.homeContentStats(
-          HOME_CONTENT_STATS.chapters,
+          HOME_CONTENT_TOTAL,
           HOME_CONTENT_STATS.examItems,
-          HOME_CONTENT_STATS.n1Grammar,
+          HOME_CONTENT_STATS.vocab,
+          HOME_CONTENT_STATS.kanjiReadings,
           HOME_CONTENT_STATS.patternChecks,
-          HOME_CONTENT_STATS.vocab
+          HOME_CONTENT_STATS.chapters
         )}
       </p>
 
