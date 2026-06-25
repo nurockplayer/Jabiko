@@ -23,6 +23,7 @@ export type Copy = {
   homeHeroTitle: string;
   homeHeroIntro: string;
   homeGuideLink: string;
+  homeFooterWish: string;
   homeContentStats: (total: number, examItems: number, vocab: number, kanjiReadings: number, patternChecks: number, chapters: number) => string;
   homeCardStageLearn: string;
   homeCardStageChallenge: string;
@@ -237,6 +238,7 @@ export const copy: Record<Language, Copy> = {
     homeHeroTitle: "今天想練什麼？",
     homeHeroIntro: "從基礎變化到 N1 題感。文法、漢字、單字、整卷模擬，一處解決。",
     homeGuideLink: "使用說明書",
+    homeFooterWish: "一步一步來，祝你考試順利合格。",
     homeContentStats: (total, examItems, vocab, kanjiReadings, patternChecks, chapters) =>
       `全站 ${total.toLocaleString()} 題 · 檢定題 ${examItems} · 單字 ${vocab} · 漢字讀音 ${kanjiReadings} · 句型 ${patternChecks} · ${chapters} 學習章節`,
     homeCardStageLearn: "學",

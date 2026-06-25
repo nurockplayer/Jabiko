@@ -9,6 +9,7 @@ import type { LevelRange } from "../domain/levelRange";
 import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
 import { CONTENT_STATS } from "../domain/contentStats";
 import { computeProgressStats } from "../domain/stats";
+import { ToriiSpot, OmamoriSpot, LanternSpot } from "../illustrations";
 
 // Content-volume snapshot rendered above the entry cards. The exam /
 // pattern / vocab counts come from CONTENT_STATS (hardcoded, drift-
@@ -305,6 +306,15 @@ export function HomePanel({
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
       </div>
+
+      <footer className="home-footer">
+        <div className="home-footer-spots" aria-hidden="true">
+          <ToriiSpot size={40} />
+          <OmamoriSpot size={40} />
+          <LanternSpot size={40} />
+        </div>
+        <p>{t.homeFooterWish}</p>
+      </footer>
     </section>
   );
 }
