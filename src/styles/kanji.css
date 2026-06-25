@@ -208,6 +208,12 @@
   color: var(--muted);
 }
 
+.kanji-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
 .kanji-empty {
   color: var(--muted);
 }

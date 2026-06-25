@@ -119,3 +119,47 @@ export function BrushSpot({ size = 56, className }: SpotProps) {
     </svg>
   );
 }
+
+/** Inkstone (硯) with a brush dipping in -- "kanji / writing" motif.
+ *  Used on the kanji-reading reference header. */
+export function InkstoneSpot({ size = 60, className }: SpotProps) {
+  return (
+    <svg {...svgProps(size, className)}>
+      <path {...stroke} d="M18 54 Q18 46 27 46 L73 46 Q82 46 82 54 L82 76 Q82 84 73 84 L27 84 Q18 84 18 76 Z" fill="var(--paper-deep)" />
+      <path {...stroke} d="M28 56 L70 56 Q74 56 73 60 L70 73 Q69 76 65 76 L35 76 Q31 76 30 73 L27 60 Q26 56 28 56 Z" fill="var(--paper)" />
+      <path {...stroke} d="M37 62 H63" stroke="var(--matcha)" strokeWidth="3" fill="none" />
+      <path d="M50 67 Q54 71 50 74 Q46 71 50 67 Z" fill="currentColor" />
+      <path {...stroke} d="M30 14 L52 36" stroke="var(--gold)" strokeWidth="8" fill="none" />
+      <path {...stroke} d="M52 36 L62 46" strokeWidth="5" fill="none" />
+    </svg>
+  );
+}
+
+/** Magnifying glass over a half-written kanji card -- "search / no match"
+ *  motif for the kanji lookup empty state. */
+export function MagnifierKanjiSpot({ size = 60, className }: SpotProps) {
+  return (
+    <svg {...svgProps(size, className)}>
+      <rect {...stroke} x="20" y="18" width="44" height="48" rx="4" fill="var(--paper)" />
+      <path {...stroke} d="M32 32 H52" stroke="var(--matcha)" strokeWidth="3" fill="none" />
+      <path {...stroke} d="M42 30 V50" strokeWidth="3" fill="none" />
+      <circle {...stroke} cx="60" cy="60" r="17" fill="var(--paper-deep)" />
+      <path {...stroke} d="M72 72 L86 86" strokeWidth="5" fill="none" />
+    </svg>
+  );
+}
+
+/** Two-leaf sprout rising from a pot -- "learning / growth" motif.
+ *  Used on the learn dashboard header. */
+export function SproutSpot({ size = 60, className }: SpotProps) {
+  return (
+    <svg {...svgProps(size, className)}>
+      <path {...stroke} d="M22 74 Q50 66 78 74 L72 84 Q50 88 28 84 Z" fill="var(--paper-deep)" />
+      <path {...stroke} d="M50 74 V42" fill="none" />
+      <path {...stroke} d="M50 54 C40 52 26 44 22 30 C36 26 48 34 50 48 Z" fill="var(--paper)" />
+      <path {...stroke} d="M50 46 C60 42 74 32 80 18 C64 16 50 26 50 40 Z" fill="var(--paper)" />
+      <path {...stroke} d="M50 50 Q40 45 30 36" stroke="var(--matcha)" strokeWidth="2" fill="none" />
+      <path {...stroke} d="M50 42 Q62 37 71 27" stroke="var(--matcha)" strokeWidth="2" fill="none" />
+    </svg>
+  );
+}

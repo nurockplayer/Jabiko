@@ -9,6 +9,7 @@ import {
   type LearningBlockDrillPreset
 } from "../domain/learningBlocks";
 import type { SentencePatternId } from "../domain/sentencePatterns";
+import { SproutSpot, TeaCupSpot } from "../illustrations";
 
 // Chapter index + active-chapter detail (the "學習" view). Reads learner
 // progress to mark chapter completion and surface a review nudge, but
@@ -94,6 +95,7 @@ export function LearningPanel({
       <div className="chapter-shell">
         <aside className="chapter-index" aria-label="學習章節">
           <div className="dashboard-card" aria-label={t.dashboardEyebrow}>
+            <SproutSpot size={48} className="dashboard-spot" />
             <p className="eyebrow">{t.dashboardEyebrow}</p>
             {reviewCount > 0 ? (
               <button
@@ -108,7 +110,10 @@ export function LearningPanel({
                 <span className="dashboard-review-action">{t.dashboardReviewCta}</span>
               </button>
             ) : (
-              <p className="dashboard-review-empty">{t.dashboardReviewEmpty}</p>
+              <p className="dashboard-review-empty">
+                <TeaCupSpot size={40} />
+                {t.dashboardReviewEmpty}
+              </p>
             )}
             {dashboardTotalAttempts > 0 ? (
               <div className="dashboard-stats">
