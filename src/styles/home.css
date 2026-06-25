@@ -278,6 +278,16 @@
   line-height: 1;
 }
 
+/* Per-card wafuu spot illustration, replacing the single-CJK stage badge.
+   Sits in the same grid "icon" slot, sized down from the spot default. */
+.home-card-spot {
+  grid-area: icon;
+  align-self: start;
+  width: 2.7rem;
+  height: 2.7rem;
+  margin-top: 0.05rem;
+}
+
 .home-card h2 {
   grid-area: title;
   margin: 0;

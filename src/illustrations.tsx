@@ -208,3 +208,40 @@ export function ToriiSpot({ size = 60, className }: SpotProps) {
     </svg>
   );
 }
+
+/** Speech bubble with sound waves -- "pronunciation / vocab reading" motif. */
+export function SpeechSpot({ size = 56, className }: SpotProps) {
+  return (
+    <svg {...svgProps(size, className)}>
+      <path {...stroke} d="M22 26 H62 Q68 26 68 32 L68 58 Q68 64 62 64 L40 64 L28 74 L30 64 L22 64 Q16 64 16 58 L16 32 Q16 26 22 26 Z" fill="var(--paper)" />
+      <path {...stroke} d="M28 40 H50" stroke="var(--matcha)" strokeWidth="3" fill="none" />
+      <path {...stroke} d="M28 50 H44" stroke="var(--matcha)" strokeWidth="3" fill="none" />
+      <path {...stroke} d="M76 38 Q83 45 76 52" fill="none" />
+      <path {...stroke} d="M82 32 Q94 45 82 58" fill="none" />
+    </svg>
+  );
+}
+
+/** Clipboard with a red maru (○) -- "mock exam / graded test" motif. */
+export function ExamPaperSpot({ size = 56, className }: SpotProps) {
+  return (
+    <svg {...svgProps(size, className)}>
+      <rect {...stroke} x="26" y="22" width="48" height="62" rx="5" fill="var(--paper)" />
+      <rect {...stroke} x="40" y="16" width="20" height="11" rx="3" fill="var(--paper-deep)" />
+      <circle {...stroke} cx="50" cy="54" r="15" stroke="var(--vermilion)" strokeWidth="4" fill="none" />
+    </svg>
+  );
+}
+
+/** Bullseye with an arrow -- "review weak points / aim" motif. */
+export function TargetSpot({ size = 56, className }: SpotProps) {
+  return (
+    <svg {...svgProps(size, className)}>
+      <circle {...stroke} cx="44" cy="56" r="28" fill="var(--paper)" />
+      <circle {...stroke} cx="44" cy="56" r="16" fill="none" />
+      <circle cx="44" cy="56" r="6" fill="var(--vermilion)" />
+      <path {...stroke} d="M86 22 L52 50" stroke="var(--gold)" strokeWidth="4" fill="none" />
+      <path {...stroke} d="M86 22 L78 23 M86 22 L85 30" strokeWidth="2" fill="none" />
+    </svg>
+  );
+}
