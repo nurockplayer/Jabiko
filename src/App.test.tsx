@@ -759,6 +759,9 @@ describe("App", () => {
 
     // The table renders, grouped by homophone family.
     expect(await screen.findByRole("heading", { name: /漢字音読み/ })).toBeInTheDocument();
+    // The full table now spans N5–N1 (#195), so narrow with the search box
+    // before locating the cell -- keeps the accessible-name scan small/fast.
+    await user.type(screen.getByRole("searchbox"), "解");
     // Tap the 解 kanji cell -> its example words (from the vocab bank) show.
     await user.click(screen.getByRole("button", { name: /解.*かい/s }));
     expect(screen.getByText("例詞")).toBeInTheDocument();

@@ -63,6 +63,20 @@
   color: var(--muted);
 }
 
+.kanji-card-kunyomi {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.3rem;
+  color: var(--ink);
+}
+
+.kanji-card-kunyomi small {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
 .kanji-card-mean {
   margin: 0.2rem 0 0;
   color: var(--ink);
@@ -173,8 +187,20 @@
 }
 
 .kanji-cell-read {
-  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  font-size: 0.8rem;
+}
+
+/* 音 readings in the table accent; 訓 readings muted so the two types read
+   apart at a glance (#195). */
+.kanji-cell-on {
   color: var(--matcha-dark);
+}
+
+.kanji-cell-kun {
+  color: var(--muted);
 }
 
 .kanji-cell-mean {
