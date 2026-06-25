@@ -16,6 +16,11 @@ export function SessionLengthPicker({
 }) {
   const t = copy[language];
 
+  // A length that isn't one of the presets (and isn't 全部) is a manual
+  // choice -- surface it in the 自訂 field so it stays visible/editable and
+  // no preset button lights up.
+  const isCustom = sessionLength != null && !SESSION_LENGTH_OPTIONS.includes(sessionLength);
+
   return (
     <fieldset className="session-length-picker">
       <legend>{t.sessionLength}</legend>
@@ -36,6 +41,22 @@ export function SessionLengthPicker({
           );
         })}
       </div>
+      <label className={`session-length-custom${isCustom ? " selected" : ""}`}>
+        <span>{t.sessionLengthCustom}</span>
+        <input
+          type="number"
+          min={1}
+          max={999}
+          inputMode="numeric"
+          aria-label={t.sessionLengthCustom}
+          placeholder={t.sessionLengthCustomPlaceholder}
+          value={isCustom ? sessionLength : ""}
+          onChange={(event) => {
+            const next = Math.floor(Number(event.target.value));
+            if (Number.isFinite(next) && next > 0) onChange(next);
+          }}
+        />
+      </label>
     </fieldset>
   );
 }

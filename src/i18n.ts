@@ -23,7 +23,7 @@ export type Copy = {
   homeHeroTitle: string;
   homeHeroIntro: string;
   homeGuideLink: string;
-  homeContentStats: (chapters: number, examItems: number, n1Grammar: number, patternChecks: number, vocab: number) => string;
+  homeContentStats: (total: number, examItems: number, vocab: number, kanjiReadings: number, patternChecks: number, chapters: number) => string;
   homeCardStageLearn: string;
   homeCardStageChallenge: string;
   homeCardStageVocab: string;
@@ -136,6 +136,8 @@ export type Copy = {
   };
   sessionLength: string;
   sessionLengthAll: string;
+  sessionLengthCustom: string;
+  sessionLengthCustomPlaceholder: string;
   practiceFocus: string;
   verbGroup: string;
   targetForm: string;
@@ -235,8 +237,8 @@ export const copy: Record<Language, Copy> = {
     homeHeroTitle: "今天想練什麼？",
     homeHeroIntro: "從基礎變化到 N1 題感。文法、漢字、單字、整卷模擬，一處解決。",
     homeGuideLink: "使用說明書",
-    homeContentStats: (chapters, examItems, n1Grammar, patternChecks, vocab) =>
-      `${chapters} 章節 · ${examItems} 綜合題 · ${n1Grammar} N1 句型 · ${patternChecks} 句型判斷 · ${vocab} N1/N2 單字`,
+    homeContentStats: (total, examItems, vocab, kanjiReadings, patternChecks, chapters) =>
+      `全站 ${total.toLocaleString()} 題 · 檢定題 ${examItems} · 單字 ${vocab} · 漢字讀音 ${kanjiReadings} · 句型 ${patternChecks} · ${chapters} 學習章節`,
     homeCardStageLearn: "學",
     homeCardStageChallenge: "練",
     homeCardStageVocab: "背",
@@ -364,6 +366,8 @@ export const copy: Record<Language, Copy> = {
     },
     sessionLength: "每組題數",
     sessionLengthAll: "全部",
+    sessionLengthCustom: "自訂",
+    sessionLengthCustomPlaceholder: "題數",
     practiceFocus: "練習重點",
     verbGroup: "動詞類別",
     targetForm: "目標形",

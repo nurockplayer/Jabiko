@@ -16,5 +16,6 @@ export const CONTENT_STATS = {
   examItems: 1113,
   n1Grammar: 265,
   patternChecks: 32,
-  vocab: 579
+  vocab: 579,
+  kanjiReadings: 671
 } as const;
