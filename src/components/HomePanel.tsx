@@ -9,7 +9,16 @@ import type { LevelRange } from "../domain/levelRange";
 import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
 import { CONTENT_STATS } from "../domain/contentStats";
 import { computeProgressStats } from "../domain/stats";
-import { ToriiSpot, OmamoriSpot, LanternSpot } from "../illustrations";
+import {
+  ToriiSpot,
+  OmamoriSpot,
+  LanternSpot,
+  BooksSpot,
+  BrushSpot,
+  SpeechSpot,
+  ExamPaperSpot,
+  TargetSpot
+} from "../illustrations";
 
 // Content-volume snapshot rendered above the entry cards. The exam /
 // pattern / vocab counts come from CONTENT_STATS (hardcoded, drift-
@@ -267,7 +276,7 @@ export function HomePanel({
             independently entry-able -- a returning learner who only
             wants today's mock exam can still jump straight to 考. */}
         <button type="button" className="home-card" onClick={() => onNavigate("learn")}>
-          <span className="home-card-stage" aria-hidden="true">{t.homeCardStageLearn}</span>
+          <BooksSpot className="home-card-spot" />
           <h2>{t.homeCardLearnTitle}</h2>
           <p>{t.homeCardLearnSub}</p>
           <span className="home-card-meta">
@@ -276,28 +285,28 @@ export function HomePanel({
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
         <button type="button" className="home-card" onClick={() => onNavigate("challenge")}>
-          <span className="home-card-stage" aria-hidden="true">{t.homeCardStageChallenge}</span>
+          <BrushSpot className="home-card-spot" />
           <h2>{t.homeCardChallengeTitle}</h2>
           <p>{t.homeCardChallengeSub}</p>
           <span className="home-card-meta">{t.homeCardChallengeMeta}</span>
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
         <button type="button" className="home-card" onClick={onStartVocab}>
-          <span className="home-card-stage" aria-hidden="true">{t.homeCardStageVocab}</span>
+          <SpeechSpot className="home-card-spot" />
           <h2>{t.homeCardVocabTitle}</h2>
           <p>{t.homeCardVocabSub}</p>
           <span className="home-card-meta">{t.homeCardVocabMeta}</span>
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
         <button type="button" className="home-card" onClick={() => onNavigate("mock")}>
-          <span className="home-card-stage" aria-hidden="true">{t.homeCardStageMock}</span>
+          <ExamPaperSpot className="home-card-spot" />
           <h2>{t.homeCardMockTitle}</h2>
           <p>{t.homeCardMockSub}</p>
           <span className="home-card-meta">{t.homeCardMockMeta}</span>
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
         <button type="button" className="home-card" onClick={onStartReview}>
-          <span className="home-card-stage" aria-hidden="true">{t.homeCardStageReview}</span>
+          <TargetSpot className="home-card-spot" />
           <h2>{t.homeCardReviewTitle}</h2>
           <p>
             {reviewCount > 0 ? t.homeCardReviewSubActive(reviewCount) : t.homeCardReviewSubEmpty}
