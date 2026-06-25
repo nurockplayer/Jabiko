@@ -9,6 +9,31 @@
   width: 100%;
 }
 
+/* 和風 footer: a quiet trio of line-art spots + an encouraging line,
+   closing the home page with some warmth. */
+.home-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.6rem;
+  padding-top: 1.3rem;
+  border-top: 1px solid var(--rule);
+  text-align: center;
+}
+
+.home-footer-spots {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.4rem;
+}
+
+.home-footer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .home-hero {
   display: flex;
   flex-direction: column;

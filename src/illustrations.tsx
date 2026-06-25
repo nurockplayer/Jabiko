@@ -163,3 +163,48 @@ export function SproutSpot({ size = 60, className }: SpotProps) {
     </svg>
   );
 }
+
+/** Paper lantern (提灯) -- wafuu evening / festival ambience. */
+export function LanternSpot({ size = 60, className }: SpotProps) {
+  return (
+    <svg {...svgProps(size, className)}>
+      <path {...stroke} d="M50 8 L50 18" fill="none" />
+      <rect {...stroke} x="36" y="18" width="28" height="8" rx="2" fill="var(--paper-deep)" />
+      <path {...stroke} d="M40 26 C24 36 24 64 40 74 L60 74 C76 64 76 36 60 26 Z" fill="var(--paper)" />
+      <path {...stroke} d="M28 38 H72" fill="none" />
+      <path {...stroke} d="M24.5 50 H75.5" fill="none" />
+      <path {...stroke} d="M28 62 H72" fill="none" />
+      <circle {...stroke} cx="50" cy="50" r="5" fill="var(--vermilion)" />
+      <rect {...stroke} x="36" y="74" width="28" height="8" rx="2" fill="var(--paper-deep)" />
+      <path {...stroke} d="M44 82 V88 M56 82 V88" strokeWidth="3" fill="none" />
+    </svg>
+  );
+}
+
+/** Omamori (合格御守) -- a pass-the-exam talisman. Good-luck / celebration motif. */
+export function OmamoriSpot({ size = 60, className }: SpotProps) {
+  return (
+    <svg {...svgProps(size, className)}>
+      <path {...stroke} d="M50 18 L50 30" fill="none" />
+      <path {...stroke} d="M42 24 Q50 14 58 24 Q63 30 56 31 L44 31 Q37 30 42 24 Z" fill="var(--gold)" />
+      <path {...stroke} d="M34 34 Q50 26 66 34 L72 78 Q72 86 64 86 L36 86 Q28 86 28 78 Z" fill="var(--vermilion)" />
+      <path {...stroke} d="M31 44 L69 44" fill="none" />
+      <path d="M44 58 L56 58" stroke="var(--gold)" strokeWidth="5" strokeLinecap="round" fill="none" />
+      <path d="M50 54 L50 70" stroke="var(--gold)" strokeWidth="5" strokeLinecap="round" fill="none" />
+      <path {...stroke} d="M44 86 L42 94 M56 86 L58 94 M50 86 L50 95" strokeWidth="3" fill="none" />
+    </svg>
+  );
+}
+
+/** Torii gate (鳥居) -- a wafuu gateway / landmark motif. */
+export function ToriiSpot({ size = 60, className }: SpotProps) {
+  return (
+    <svg {...svgProps(size, className)}>
+      <path {...stroke} d="M16 26 Q50 18 84 26 L84 32 Q50 25 16 32 Z" fill="var(--vermilion)" />
+      <path {...stroke} d="M22 44 L78 44 L78 52 L22 52 Z" fill="var(--paper)" />
+      <path {...stroke} d="M30 32 L30 86" strokeWidth="5" fill="none" />
+      <path {...stroke} d="M70 32 L70 86" strokeWidth="5" fill="none" />
+      <path d="M50 44 L50 52" stroke="var(--vermilion)" strokeWidth="3" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
