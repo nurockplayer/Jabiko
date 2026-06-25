@@ -702,9 +702,11 @@ describe("App", () => {
     const exam = screen.getByRole("button", { name: /綜合考題庫/ });
     const n1 = screen.getByRole("button", { name: /N1 備考/ });
     const n2 = screen.getByRole("button", { name: /N2 備考/ });
+    const n3 = screen.getByRole("button", { name: /N3 備考/ });
     expect(exam).toBeInTheDocument();
     expect(n1).toBeInTheDocument();
     expect(n2).toBeInTheDocument();
+    expect(n3).toBeInTheDocument();
     expect(screen.queryByText("題庫範圍")).toBeNull();
 
     // Picking N2 備考 activates it (exam mode + N2+N3 range) and deselects
@@ -717,6 +719,12 @@ describe("App", () => {
     // 「N2＋N3 綜合題」), not the generic 綜合 text -- so that copy now
     // appears on BOTH the N2 備考 card and the summary (>= 2 occurrences).
     expect(screen.getAllByText(/N2＋N3 綜合題/).length).toBeGreaterThanOrEqual(2);
+
+    // The new N3 備考 (N3+N4) preset (#195 follow-up) activates the same way.
+    await user.click(n3);
+    expect(n3).toHaveAttribute("aria-pressed", "true");
+    expect(n2).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getAllByText(/N3＋N4 綜合題/).length).toBeGreaterThanOrEqual(2);
   });
 
   it("opens 今日練習 by default when entering the challenge tab", async () => {

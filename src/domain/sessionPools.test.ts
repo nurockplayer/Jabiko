@@ -53,6 +53,7 @@ describe("buildModeCounts", () => {
     // counts come from the matching level RANGE pools, never the default.
     expect(counts.examN1).toBe(buildExamQuestionPool(levelsForRange("n1n2") ?? "all").length);
     expect(counts.examN2).toBe(buildExamQuestionPool(levelsForRange("n2n3") ?? "all").length);
+    expect(counts.examN3).toBe(buildExamQuestionPool(levelsForRange("n3n4") ?? "all").length);
     expect(counts.examN4).toBe(buildExamQuestionPool(levelsForRange("n4n5") ?? "all").length);
     expect(counts.vocab).toBe(
       buildQuestionPool(jlptVocabulary, {
@@ -71,6 +72,17 @@ describe("buildModeCounts", () => {
     expect(counts.examN4).toBe(n4n5.length);
     expect(
       n4n5.every((q) => q.vocabulary.level === "N4" || q.vocabulary.level === "N5")
+    ).toBe(true);
+  });
+
+  it("derives the examN3 preset from the n3n4 range (N3/N4 only)", () => {
+    const counts = buildModeCounts();
+    const n3n4 = buildExamQuestionPool(levelsForRange("n3n4") ?? "all");
+
+    expect(counts.examN3).toBeGreaterThan(0);
+    expect(counts.examN3).toBe(n3n4.length);
+    expect(
+      n3n4.every((q) => q.vocabulary.level === "N3" || q.vocabulary.level === "N4")
     ).toBe(true);
   });
 });

@@ -122,7 +122,7 @@ export type Copy = {
   practiceType: string;
   practiceMode: string;
   levelRange: string;
-  levelRangeOptions: { all: string; n1n2: string; n2n3: string; n4n5: string };
+  levelRangeOptions: { all: string; n1n2: string; n2n3: string; n3n4: string; n4n5: string };
   levelOnboarding: {
     title: string;
     subtitle: string;
@@ -169,7 +169,7 @@ export type Copy = {
   grammarNoteConfusions: string;
   keyboardHint: string;
   focusSummaryEmpty: string;
-  modeOptions: Record<"basic" | "cloze" | "daily" | "exam" | "examN1" | "examN2" | "examN4" | "pattern" | "review" | "vocab", { title: string; subtitle: string }>;
+  modeOptions: Record<"basic" | "cloze" | "daily" | "exam" | "examN1" | "examN2" | "examN3" | "examN4" | "pattern" | "review" | "vocab", { title: string; subtitle: string }>;
   modeQuestionCount: (count: number) => string;
   homeCardVocabTitle: string;
   homeCardVocabSub: string;
@@ -349,7 +349,7 @@ export const copy: Record<Language, Copy> = {
     practiceType: "練習類型",
     practiceMode: "練習模式",
     levelRange: "題庫範圍",
-    levelRangeOptions: { all: "全部", n1n2: "N1＋N2", n2n3: "N2＋N3", n4n5: "N4＋N5" },
+    levelRangeOptions: { all: "全部", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5" },
     levelOnboarding: {
       title: "選擇你的程度",
       subtitle: "設定今日練習與各題庫的預設難度，之後隨時可改。",
@@ -404,6 +404,7 @@ export const copy: Record<Language, Copy> = {
       exam: { title: "綜合考題庫", subtitle: "N1〜N3 為主 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み" },
       examN1: { title: "N1 備考", subtitle: "N1＋N2 綜合題 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み" },
       examN2: { title: "N2 備考", subtitle: "N2＋N3 綜合題 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み" },
+      examN3: { title: "N3 備考", subtitle: "N3＋N4 綜合題 · 文法 / 短文 / 詞彙 / 漢字読み" },
       examN4: { title: "N4 備考", subtitle: "N4＋N5 綜合題 · 助詞 / 基礎文法 / 詞彙 / 漢字読み" },
       vocab: { title: "単字讀音", subtitle: "N1/N2 漢字詞 · 選正確讀音（よみ）" },
       review: { title: "弱點複習", subtitle: "把上次答錯的題目重練到對為止" }

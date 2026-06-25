@@ -107,6 +107,7 @@ export function buildModeCounts() {
     exam: buildExamQuestionPool().length,
     examN1: buildExamQuestionPool(levelsForRange("n1n2") ?? "all").length,
     examN2: buildExamQuestionPool(levelsForRange("n2n3") ?? "all").length,
+    examN3: buildExamQuestionPool(levelsForRange("n3n4") ?? "all").length,
     examN4: buildExamQuestionPool(levelsForRange("n4n5") ?? "all").length,
     vocab: buildQuestionPool(jlptVocabulary, {
       partOfSpeech: "mixed",
