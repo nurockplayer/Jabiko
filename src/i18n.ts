@@ -68,6 +68,7 @@ export type Copy = {
   kanjiIntro: string;
   kanjiSearchPlaceholder: string;
   kanjiLevelAll: string;
+  kanjiLevelFilter: string;
   kanjiOnyomiLabel: string;
   kanjiKunyomiLabel: string;
   kanjiReadingType: string;
@@ -278,6 +279,7 @@ export const copy: Record<Language, Copy> = {
     kanjiIntro: "依音読み（同音家族）查漢字，確認讀音、別被濁音搞混；點漢字看例詞。",
     kanjiSearchPlaceholder: "搜尋漢字、讀音、意思",
     kanjiLevelAll: "全部",
+    kanjiLevelFilter: "JLPT 等級",
     kanjiOnyomiLabel: "音読み",
     kanjiKunyomiLabel: "訓読み",
     kanjiReadingType: "讀音類型",

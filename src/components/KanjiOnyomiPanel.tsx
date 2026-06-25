@@ -20,8 +20,6 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
   const [readingType, setReadingType] = useState<ReadingType>("on");
   const [selected, setSelected] = useState<string | null>(null);
 
-  const readingsOf = (entry: KanjiOnyomiEntry) =>
-    readingType === "on" ? entry.onyomi : entry.kunyomi;
   const activeLabel = readingType === "on" ? t.kanjiOnyomiLabel : t.kanjiKunyomiLabel;
 
   const families = useMemo(() => {
@@ -87,7 +85,7 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
             </button>
           ))}
         </div>
-        <div className="segmented">
+        <div className="segmented" role="group" aria-label={t.kanjiLevelFilter}>
           {LEVELS.map((option) => (
             <button
               key={option}
