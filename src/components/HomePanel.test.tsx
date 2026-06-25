@@ -63,3 +63,18 @@ describe("HomePanel level onboarding (#199)", () => {
     expect(screen.queryByText("選擇你的程度")).not.toBeInTheDocument();
   });
 });
+
+describe("HomePanel guide link", () => {
+  it("renders a 使用說明書 link to the blog that opens safely in a new tab", () => {
+    renderHome();
+    const link = screen.getByRole("link", { name: /使用說明書/ });
+    expect(link).toHaveAttribute("href", "https://hanayukii.dev/blog/jabiko-jlpt-app");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link.getAttribute("rel") ?? "").toContain("noopener");
+  });
+
+  it("shows the guide link for returning learners too", () => {
+    renderHome({ targetLevel: "n2n3", progressAttempts: [sampleAttempt] });
+    expect(screen.getByRole("link", { name: /使用說明書/ })).toBeInTheDocument();
+  });
+});

@@ -59,6 +59,35 @@
   line-height: 1.6;
 }
 
+/* 使用說明書: outlined pill linking out to the author's walkthrough blog.
+   Sits just under the hero intro as a low-key, self-aligned secondary CTA. */
+.home-hero-guide {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: var(--paper);
+  color: var(--teal-dark);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.home-hero-guide:hover {
+  border-color: var(--teal-dark);
+  box-shadow: var(--button-hover-shadow);
+}
+
+.home-hero-guide svg {
+  width: 1rem;
+  height: 1rem;
+}
+
 @media (max-width: 720px) {
   .home-hero-image {
     max-height: 200px;
