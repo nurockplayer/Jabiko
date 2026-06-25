@@ -22,6 +22,7 @@ export type Copy = {
   challenge: string;
   homeHeroTitle: string;
   homeHeroIntro: string;
+  homeGuideLink: string;
   homeContentStats: (chapters: number, examItems: number, n1Grammar: number, patternChecks: number, vocab: number) => string;
   homeCardStageLearn: string;
   homeCardStageChallenge: string;
@@ -233,6 +234,7 @@ export const copy: Record<Language, Copy> = {
     mockExam: "模擬考",
     homeHeroTitle: "今天想練什麼？",
     homeHeroIntro: "從基礎變化到 N1 題感。文法、漢字、單字、整卷模擬，一處解決。",
+    homeGuideLink: "使用說明書",
     homeContentStats: (chapters, examItems, n1Grammar, patternChecks, vocab) =>
       `${chapters} 章節 · ${examItems} 綜合題 · ${n1Grammar} N1 句型 · ${patternChecks} 句型判斷 · ${vocab} N1/N2 單字`,
     homeCardStageLearn: "學",

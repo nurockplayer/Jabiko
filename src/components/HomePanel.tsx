@@ -1,5 +1,9 @@
 import { AlertTriangle, ArrowRight, BookOpen, CalendarCheck } from "lucide-react";
 import { copy, type Language } from "../i18n";
+
+// External walkthrough / 使用說明書: the author's blog post about Jabiko.
+// Surfaced in the hero so first-time visitors can read how to use the app.
+const GUIDE_URL = "https://hanayukii.dev/blog/jabiko-jlpt-app";
 import type { Attempt } from "../domain/types";
 import type { LevelRange } from "../domain/levelRange";
 import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
@@ -130,6 +134,15 @@ export function HomePanel({
         <div className="home-hero-text">
           <h1>{t.homeHeroTitle}</h1>
           <p>{t.homeHeroIntro}</p>
+          <a
+            className="home-hero-guide"
+            href={GUIDE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <BookOpen aria-hidden="true" />
+            {t.homeGuideLink}
+          </a>
         </div>
       </header>
 
