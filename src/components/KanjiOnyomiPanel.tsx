@@ -3,6 +3,7 @@ import { copy, type Language } from "../i18n";
 import type { JlptLevel } from "../domain/types";
 import { kanjiOnyomi, kanjiExamples, type KanjiOnyomiEntry } from "../domain/kanjiOnyomi";
 import { SpeakButton } from "./SpeakButton";
+import { InkstoneSpot, MagnifierKanjiSpot } from "../illustrations";
 
 const LEVELS: Array<JlptLevel | "all"> = ["all", "N5", "N4", "N3", "N2", "N1"];
 type ReadingType = "on" | "kun";
@@ -59,6 +60,7 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
   return (
     <section className="kanji-panel" aria-label={t.kanjiTitle}>
       <header className="kanji-head">
+        <InkstoneSpot className="panel-header-spot" />
         <h2>{t.kanjiTitle}</h2>
         <p>{t.kanjiIntro}</p>
       </header>
@@ -176,7 +178,10 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
           </div>
         ))
       ) : (
-        <p className="kanji-empty">{t.kanjiSearchEmpty}</p>
+        <div className="empty-state empty-state-illustrated kanji-empty">
+          <MagnifierKanjiSpot />
+          <p>{t.kanjiSearchEmpty}</p>
+        </div>
       )}
     </section>
   );

@@ -54,6 +54,9 @@
 }
 
 .dashboard-review-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   margin: 0;
   padding: 0.55rem 0.7rem;
   background: var(--summary-bg);
@@ -61,6 +64,10 @@
   border-radius: 0.65rem;
   color: var(--summary-text);
   font-size: 0.9rem;
+}
+
+.dashboard-review-empty .spot-illustration {
+  flex-shrink: 0;
 }
 
 .dashboard-stats {
