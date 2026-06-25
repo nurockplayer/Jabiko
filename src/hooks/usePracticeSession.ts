@@ -216,15 +216,17 @@ export function usePracticeSession({
   // / N2 備考). Map the active mode+range to the matching copy key so the
   // summary + mode description reflect the chosen 備考 preset, not the
   // generic 綜合考題庫 text.
-  const activeModeCopyKey: PracticeMode | "examN1" | "examN2" | "examN4" =
+  const activeModeCopyKey: PracticeMode | "examN1" | "examN2" | "examN3" | "examN4" =
     practiceMode === "exam"
       ? levelRange === "n1n2"
         ? "examN1"
         : levelRange === "n2n3"
           ? "examN2"
-          : levelRange === "n4n5"
-            ? "examN4"
-            : "exam"
+          : levelRange === "n3n4"
+            ? "examN3"
+            : levelRange === "n4n5"
+              ? "examN4"
+              : "exam"
       : practiceMode;
   const focusSummary = isCuratedFocus
     ? t.modeOptions[activeModeCopyKey].subtitle

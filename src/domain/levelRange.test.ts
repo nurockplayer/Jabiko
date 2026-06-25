@@ -7,12 +7,13 @@ describe("levelsForRange", () => {
     expect(levelsForRange("all")).toBeNull();
     expect(levelsForRange("n1n2")).toEqual(["N1", "N2"]);
     expect(levelsForRange("n2n3")).toEqual(["N2", "N3"]);
+    expect(levelsForRange("n3n4")).toEqual(["N3", "N4"]);
     expect(levelsForRange("n4n5")).toEqual(["N4", "N5"]);
   });
 
-  it("offers 全部 first, then the target bands", () => {
+  it("offers 全部 first, then the target bands high→low", () => {
     expect(LEVEL_RANGE_OPTIONS[0]).toBe("all");
-    expect(LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3", "n4n5"]);
+    expect(LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3", "n3n4", "n4n5"]);
   });
 
   it("excludes n4n5 from the vocab picker (no N4/N5 jlpt words)", () => {
@@ -36,6 +37,14 @@ describe("buildExamQuestionPool level range", () => {
     const n3InRange = pool.filter((q) => q.vocabulary.level === "N3").length;
     const n3InAll = buildExamQuestionPool().filter((q) => q.vocabulary.level === "N3").length;
     expect(n3InRange).toBeGreaterThan(n3InAll);
+  });
+
+  it("N3+N4 keeps only N3/N4 items (the new N3 備考 band)", () => {
+    const pool = buildExamQuestionPool(["N3", "N4"]);
+    expect(pool.length).toBeGreaterThan(0);
+    expect(pool.every((q) => q.vocabulary.level === "N3" || q.vocabulary.level === "N4")).toBe(true);
+    expect(pool.some((q) => q.vocabulary.level === "N3")).toBe(true);
+    expect(pool.some((q) => q.vocabulary.level === "N4")).toBe(true);
   });
 
   it("does not regress the single-level and all behaviour", () => {
