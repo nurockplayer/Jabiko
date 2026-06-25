@@ -69,6 +69,10 @@ export type Copy = {
   kanjiSearchPlaceholder: string;
   kanjiLevelAll: string;
   kanjiOnyomiLabel: string;
+  kanjiKunyomiLabel: string;
+  kanjiReadingType: string;
+  kanjiReadingOn: string;
+  kanjiReadingKun: string;
   kanjiExamplesLabel: string;
   kanjiNoExamples: string;
   kanjiSearchEmpty: string;
@@ -275,6 +279,10 @@ export const copy: Record<Language, Copy> = {
     kanjiSearchPlaceholder: "搜尋漢字、讀音、意思",
     kanjiLevelAll: "全部",
     kanjiOnyomiLabel: "音読み",
+    kanjiKunyomiLabel: "訓読み",
+    kanjiReadingType: "讀音類型",
+    kanjiReadingOn: "音讀",
+    kanjiReadingKun: "訓讀",
     kanjiExamplesLabel: "例詞",
     kanjiNoExamples: "（暫無收錄例詞）",
     kanjiSearchEmpty: "找不到符合的漢字。",

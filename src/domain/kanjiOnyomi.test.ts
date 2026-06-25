@@ -1,20 +1,34 @@
 import { describe, expect, it } from "vitest";
 import { kanjiOnyomi, kanjiExamples } from "./kanjiOnyomi";
 
+// Readings are stored as plain hiragana (long-vowel ー allowed), no okurigana
+// dots -- matching the reading drills + the panel's grouping/display.
+const HIRAGANA = /^[ぁ-ゖー]+$/;
+const LEVELS = ["N5", "N4", "N3", "N2", "N1"] as const;
+
 describe("kanjiOnyomi", () => {
-  it("every entry is a single kanji with hiragana onyomi + a gloss", () => {
+  it("every entry is a single kanji with hiragana readings, a gloss, and a level", () => {
     for (const entry of kanjiOnyomi) {
       expect([...entry.kanji]).toHaveLength(1);
-      expect(entry.onyomi.length).toBeGreaterThan(0);
-      // onyomi is stored in hiragana (to match the reading drills).
-      expect(entry.onyomi.every((reading) => /^[ぁ-ゖ]+$/.test(reading))).toBe(true);
+      // At least one reading -- on'yomi OR kun'yomi (some kanji lack one type).
+      expect(entry.onyomi.length + entry.kunyomi.length).toBeGreaterThan(0);
+      expect(entry.onyomi.every((reading) => HIRAGANA.test(reading))).toBe(true);
+      expect(entry.kunyomi.every((reading) => HIRAGANA.test(reading))).toBe(true);
       expect(entry.meaningZh.length).toBeGreaterThan(0);
+      expect(LEVELS).toContain(entry.level);
     }
   });
 
   it("has no duplicate kanji", () => {
     const all = kanjiOnyomi.map((entry) => entry.kanji);
     expect(new Set(all).size).toBe(all.length);
+  });
+
+  it("covers every JLPT level N5–N1 (#195)", () => {
+    const levels = new Set(kanjiOnyomi.map((entry) => entry.level));
+    for (const level of LEVELS) {
+      expect(levels.has(level), `no kanji at level ${level}`).toBe(true);
+    }
   });
 
   it("pulls real example words that contain the kanji", () => {
@@ -33,9 +47,9 @@ describe("kanjiOnyomi", () => {
   });
 
   it("yields at least one example word for every entry", () => {
-    // kanjiExamples pulls from jlptVocabulary by surface-contains, so a kanji
+    // kanjiExamples pulls from the vocab deck by surface-contains, so a kanji
     // that appears in NO vocab word would render an empty card. Guard every
-    // entry -- this also catches a new kanji added without a backing compound.
+    // entry -- this also catches a kanji added without a backing compound.
     const empty = kanjiOnyomi
       .filter((entry) => kanjiExamples(entry.kanji).length === 0)
       .map((entry) => entry.kanji);
