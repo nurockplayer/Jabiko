@@ -1,5 +1,6 @@
-import { BookOpen, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
+import { JabikoMark } from "../JabikoMark";
 import type { PartOfSpeech, TargetForm, VerbGroup } from "../../domain/types";
 import { VOCAB_LEVEL_RANGE_OPTIONS, type LevelRange } from "../../domain/levelRange";
 import { type PracticeMode, type PracticeSession } from "../../hooks/usePracticeSession";
@@ -107,7 +108,7 @@ export function ModePicker({
   return (
     <aside className="controls-panel" aria-label={t.settingsLabel}>
       <div className="brand-lockup">
-        <BookOpen aria-hidden="true" />
+        <JabikoMark />
         <div>
           <p>Jabiko</p>
           <h2>{t.todayPractice}</h2>

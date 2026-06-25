@@ -5,6 +5,7 @@ import type { SentencePatternId } from "./domain/sentencePatterns";
 import { countDueReviews } from "./domain/srs";
 import { copy, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel } from "./components";
+import { JabikoMark } from "./components/JabikoMark";
 import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
 import { useFurigana } from "./hooks/useFurigana";
@@ -111,9 +112,12 @@ export default function App() {
   return (
     <main className="app-shell">
       <div className="app-heading" aria-label={t.appIntroLabel}>
-        <div>
-          <p className="eyebrow">Minna no Nihongo practice</p>
-          <h1>{t.appTitle}</h1>
+        <div className="app-brand">
+          <JabikoMark className="app-brand-mark" />
+          <div>
+            <p className="eyebrow">Minna no Nihongo practice</p>
+            <h1>{t.appTitle}</h1>
+          </div>
         </div>
         <div className="heading-actions">
           <p>{t.appTagline}</p>
