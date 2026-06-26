@@ -30,16 +30,32 @@ export async function fetchRemoteAttempts(
     return [];
   }
 
-  const { data, error } = await client
-    .from("attempts")
-    .select("payload")
-    .eq("user_id", userId);
+  // PostgREST caps a single select at ~1000 rows (the project's max-rows),
+  // so a heavy learner's full history wouldn't all come back on a fresh
+  // device. Page through with .range() (ordered by the stable PK column `id`
+  // so pages don't overlap or skip) until a short page signals the end.
+  const PAGE = 1000;
+  const attempts: Attempt[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await client
+      .from("attempts")
+      .select("payload")
+      .eq("user_id", userId)
+      .order("id", { ascending: true })
+      .range(from, from + PAGE - 1);
 
-  if (error) {
-    throw error;
+    if (error) {
+      throw error;
+    }
+
+    const rows = data ?? [];
+    attempts.push(...rows.map((row) => (row as { payload: Attempt }).payload));
+    if (rows.length < PAGE) {
+      break;
+    }
   }
 
-  return (data ?? []).map((row) => (row as { payload: Attempt }).payload);
+  return attempts;
 }
 
 // Append the given attempts for this user. No-op on a null client or empty

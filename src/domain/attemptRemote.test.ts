@@ -60,13 +60,22 @@ function makeFakeClient(opts: {
       return {
         select(columns: string) {
           return {
-            eq(eqColumn: string, eqValue: string): Promise<QueryResult> {
+            // fetch paginates: .eq(...).order(...).range(from, to). The eq()
+            // result is a chainable builder whose range() resolves a page.
+            eq(eqColumn: string, eqValue: string) {
               selectCalls.push({ table, columns, eqColumn, eqValue });
-              return Promise.resolve(
-                opts.selectError
-                  ? { data: null, error: opts.selectError }
-                  : { data: opts.rows ?? [], error: null }
-              );
+              const builder = {
+                order() {
+                  return builder;
+                },
+                range(from: number, to: number): Promise<QueryResult> {
+                  if (opts.selectError) {
+                    return Promise.resolve({ data: null, error: opts.selectError });
+                  }
+                  return Promise.resolve({ data: (opts.rows ?? []).slice(from, to + 1), error: null });
+                }
+              };
+              return builder;
             }
           };
         },
@@ -113,6 +122,17 @@ describe("fetchRemoteAttempts", () => {
   it("throws when the query returns an error", async () => {
     const { client } = makeFakeClient({ selectError: new Error("boom") });
     await expect(fetchRemoteAttempts(client, "user-1")).rejects.toThrow("boom");
+  });
+
+  it("paginates past the PostgREST 1000-row cap (fetches every page)", async () => {
+    const rows = Array.from({ length: 1500 }, (_, i) => ({ payload: makeAttempt({ timestamp: i }) }));
+    const { client, selectCalls } = makeFakeClient({ rows });
+
+    const result = await fetchRemoteAttempts(client, "user-1");
+
+    expect(result).toHaveLength(1500);
+    // more than one page was fetched (1000 + 500), so the 1000 cap can't truncate.
+    expect(selectCalls.length).toBeGreaterThanOrEqual(2);
   });
 });
 
