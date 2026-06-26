@@ -34,6 +34,38 @@
   font-size: 0.9rem;
 }
 
+.home-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 0.1rem;
+}
+
+.home-feedback-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: var(--paper);
+  color: var(--teal-dark);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.home-feedback-link svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.home-feedback-link:hover {
+  border-color: var(--teal-dark);
+  box-shadow: var(--button-hover-shadow);
+}
+
 .home-hero {
   display: flex;
   flex-direction: column;
