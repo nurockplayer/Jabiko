@@ -80,6 +80,21 @@ describe("HomePanel guide link", () => {
   });
 });
 
+describe("HomePanel feedback links", () => {
+  it("renders 許願 + 問題回報 links to GitHub issues, opening safely in a new tab", () => {
+    renderHome();
+    const wish = screen.getByRole("link", { name: /許願/ });
+    const bug = screen.getByRole("link", { name: /回報/ });
+    expect(wish.getAttribute("href") ?? "").toContain("/issues/new");
+    expect(wish.getAttribute("href") ?? "").toContain("labels=enhancement");
+    expect(bug.getAttribute("href") ?? "").toContain("labels=bug");
+    for (const link of [wish, bug]) {
+      expect(link).toHaveAttribute("target", "_blank");
+      expect(link.getAttribute("rel") ?? "").toContain("noopener");
+    }
+  });
+});
+
 describe("HomePanel content total", () => {
   it("renders the grand total of exam + vocab + kanji-readings + patterns", () => {
     renderHome();

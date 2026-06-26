@@ -1,9 +1,15 @@
-import { AlertTriangle, ArrowRight, BookOpen, CalendarCheck } from "lucide-react";
+import { AlertTriangle, ArrowRight, BookOpen, Bug, CalendarCheck, Sparkles } from "lucide-react";
 import { copy, type Language } from "../i18n";
 
 // External walkthrough / 使用說明書: the author's blog post about Jabiko.
 // Surfaced in the hero so first-time visitors can read how to use the app.
 const GUIDE_URL = "https://hanayukii.dev/blog/jabiko-jlpt-app";
+
+// 許願 / 問題回報: deep-link to a prefilled GitHub issue (the repo is public
+// with issues enabled). enhancement = feature wish, bug = problem report.
+const ISSUE_NEW = "https://github.com/nurockplayer/Jabiko/issues/new";
+const WISH_URL = `${ISSUE_NEW}?labels=enhancement&title=${encodeURIComponent("[許願] ")}`;
+const BUG_URL = `${ISSUE_NEW}?labels=bug&title=${encodeURIComponent("[Bug] ")}`;
 import type { Attempt } from "../domain/types";
 import type { LevelRange } from "../domain/levelRange";
 import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
@@ -323,6 +329,16 @@ export function HomePanel({
           <LanternSpot size={40} />
         </div>
         <p>{t.homeFooterWish}</p>
+        <div className="home-feedback">
+          <a className="home-feedback-link" href={WISH_URL} target="_blank" rel="noopener noreferrer">
+            <Sparkles aria-hidden="true" />
+            {t.feedbackWish}
+          </a>
+          <a className="home-feedback-link" href={BUG_URL} target="_blank" rel="noopener noreferrer">
+            <Bug aria-hidden="true" />
+            {t.feedbackBug}
+          </a>
+        </div>
       </footer>
     </section>
   );
