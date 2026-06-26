@@ -69,7 +69,16 @@ try {
     堪え: "たえ", // was こた (堪える = endure)
     堪える: "たえる",
     預け: "あずけ", // was あづ (modern kana ず)
-    預ける: "あずける"
+    預ける: "あずける",
+    // Balance-loop content audit (2026-06-27): kuromoji picked the on'yomi
+    // for these standalone kun'yomi words. Phrase keys (not the bare kanji)
+    // so the override only fires in the disambiguating context -- 家/数/後
+    // are too ambiguous to override as single chars.
+    後にして: "あとにして", // 後 was ご (後にする idiom = set aside)
+    後にした: "あとにした", // past form of the same idiom (会見場を後にした)
+    後にする: "あとにする",
+    家に: "いえに", // 家 was か (home, not the 〜家 suffix)
+    数の: "かずの" // 数 was すう (count/number, not 数〜 "several")
   };
 
   // Sources (#134 P4): the basic deck (all levels) + the JLPT vocab deck +
