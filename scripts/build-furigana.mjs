@@ -82,7 +82,9 @@ try {
     // Idol-flavored batch audit (2026-06-27):
     瞬く間に: "またたくまに", // 瞬く was まばた (blink); idiom is またたく
     後には: "あとには", // 後 was ご (afterwards = あと, not the 〜後 suffix)
-    宝物: "たからもの" // was ほうもつ (temple-treasure); everyday "precious thing" = たからもの
+    宝物: "たからもの", // was ほうもつ (temple-treasure); everyday "precious thing" = たからもの
+    正義: "せいぎ", // was まさよし (given name); the common noun "justice" = せいぎ
+    微笑み: "ほほえみ" // kuromoji split it 微=び/笑=え; the word is ほほえみ
   };
 
   // Sources (#134 P4): the basic deck (all levels) + the JLPT vocab deck +
