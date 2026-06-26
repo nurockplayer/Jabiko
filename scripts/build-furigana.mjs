@@ -78,7 +78,10 @@ try {
     後にした: "あとにした", // past form of the same idiom (会見場を後にした)
     後にする: "あとにする",
     家に: "いえに", // 家 was か (home, not the 〜家 suffix)
-    数の: "かずの" // 数 was すう (count/number, not 数〜 "several")
+    数の: "かずの", // 数 was すう (count/number, not 数〜 "several")
+    // Idol-flavored batch audit (2026-06-27):
+    瞬く間に: "またたくまに", // 瞬く was まばた (blink); idiom is またたく
+    後には: "あとには" // 後 was ご (afterwards = あと, not the 〜後 suffix)
   };
 
   // Sources (#134 P4): the basic deck (all levels) + the JLPT vocab deck +
