@@ -1,5 +1,6 @@
 import { Volume2 } from "lucide-react";
 import { copy, type Language } from "../i18n";
+import { getJapaneseVoice } from "../lib/speech";
 
 // Small inline button that reads its `text` aloud via the browser's
 // built-in SpeechSynthesis API. No external TTS service or audio asset
@@ -23,6 +24,10 @@ export function SpeakButton({ text, language }: { text: string; language: Langua
     try {
       window.speechSynthesis.cancel();
       const utterance = new window.SpeechSynthesisUtterance(text);
+      // iOS/iPadOS ignores `lang` alone and may read kanji with a Chinese
+      // voice -- pin an explicit ja-* voice when one is available.
+      const jaVoice = getJapaneseVoice();
+      if (jaVoice) utterance.voice = jaVoice;
       utterance.lang = "ja-JP";
       utterance.rate = 0.95;
       window.speechSynthesis.speak(utterance);
