@@ -68,11 +68,24 @@
   box-shadow: var(--button-hover-shadow);
 }
 
-/* Anonymous feedback form (opened by the footer buttons). */
+/* Anonymous feedback form -- a centered modal opened by the footer buttons
+   (so the learner never has to scroll down to find it). */
+.feedback-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(23, 33, 38, 0.5);
+}
+
 .feedback-form {
   width: 100%;
   max-width: 32rem;
-  margin: 0.6rem auto 0;
+  max-height: 90vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -80,6 +93,7 @@
   border: 1px solid var(--panel-border);
   border-radius: 0.85rem;
   background: var(--paper);
+  box-shadow: 0 12px 40px rgba(23, 33, 38, 0.28);
   text-align: left;
 }
 
