@@ -1,20 +1,17 @@
+import { useState } from "react";
 import { AlertTriangle, ArrowRight, BookOpen, Bug, CalendarCheck, Sparkles } from "lucide-react";
 import { copy, type Language } from "../i18n";
-
-// External walkthrough / 使用說明書: the author's blog post about Jabiko.
-// Surfaced in the hero so first-time visitors can read how to use the app.
-const GUIDE_URL = "https://hanayukii.dev/blog/jabiko-jlpt-app";
-
-// 許願 / 問題回報: deep-link to a prefilled GitHub issue (the repo is public
-// with issues enabled). enhancement = feature wish, bug = problem report.
-const ISSUE_NEW = "https://github.com/nurockplayer/Jabiko/issues/new";
-const WISH_URL = `${ISSUE_NEW}?labels=enhancement&title=${encodeURIComponent("[許願] ")}`;
-const BUG_URL = `${ISSUE_NEW}?labels=bug&title=${encodeURIComponent("[Bug] ")}`;
 import type { Attempt } from "../domain/types";
 import type { LevelRange } from "../domain/levelRange";
 import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
 import { CONTENT_STATS } from "../domain/contentStats";
 import { computeProgressStats } from "../domain/stats";
+import { FeedbackForm } from "./FeedbackForm";
+import type { FeedbackCategory } from "../domain/feedbackRemote";
+
+// External walkthrough / 使用說明書: the author's blog post about Jabiko.
+// Surfaced in the hero so first-time visitors can read how to use the app.
+const GUIDE_URL = "https://hanayukii.dev/blog/jabiko-jlpt-app";
 import {
   ToriiSpot,
   OmamoriSpot,
@@ -121,6 +118,10 @@ export function HomePanel({
   // accuracy, all aggregated from attempts (+ SRS state) with no heavy bank
   // import. Only shown once the learner has a history.
   const progress = computeProgressStats(progressAttempts);
+
+  // 許願 / 問題回報: which feedback form is open (null = closed). Opened by the
+  // footer buttons; the form submits anonymously to Supabase.
+  const [feedbackKind, setFeedbackKind] = useState<FeedbackCategory | null>(null);
 
   return (
     <section className="home-panel" aria-label={t.home}>
@@ -330,15 +331,22 @@ export function HomePanel({
         </div>
         <p>{t.homeFooterWish}</p>
         <div className="home-feedback">
-          <a className="home-feedback-link" href={WISH_URL} target="_blank" rel="noopener noreferrer">
+          <button type="button" className="home-feedback-link" onClick={() => setFeedbackKind("wish")}>
             <Sparkles aria-hidden="true" />
             {t.feedbackWish}
-          </a>
-          <a className="home-feedback-link" href={BUG_URL} target="_blank" rel="noopener noreferrer">
+          </button>
+          <button type="button" className="home-feedback-link" onClick={() => setFeedbackKind("bug")}>
             <Bug aria-hidden="true" />
             {t.feedbackBug}
-          </a>
+          </button>
         </div>
+        {feedbackKind ? (
+          <FeedbackForm
+            language={language}
+            category={feedbackKind}
+            onClose={() => setFeedbackKind(null)}
+          />
+        ) : null}
       </footer>
     </section>
   );
