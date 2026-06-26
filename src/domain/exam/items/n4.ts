@@ -3626,5 +3626,21 @@ export const n4Items: PracticeQuestion[] = [
     explanation: "「涙」讀作「なみだ」,意為眼淚。干擾項「なみた」把濁音清化、「なまだ」「なびだ」改了中間假名,皆非此字讀音,在此句也不成立,正解唯一為「なみだ」。",
     exampleJapanese: "駅で手を振ると、「涙」が出た。",
     exampleMeaningZh: "在車站揮手的時候,眼淚就掉了下來。"
+  }),
+  examQuestion({
+    id: "n4-kanji-senaka",
+    level: "N4",
+    surface: "背中",
+    reading: "せなか",
+    meaningZh: "背、後背",
+    promptLabel: "漢字読み",
+    instructionZh: "選出底線詞語的正確讀音。",
+    promptText: "信号が青に変わると、あの人の「背中」がどんどん遠くなっていく。",
+    promptContextZh: "清晨的十字路口,綠燈一亮,喜歡的人就朝前走遠了,我望著那道身影。",
+    expectedAnswer: "せなか",
+    options: ["せなか", "せたか", "せいなか", "せなが"],
+    explanation: "「背中」讀作「せなか」,指人的後背、背影。干擾項中「せたか」(濁音化)、「せいなか」(多了長音)、「せなが」(尾音濁音化)都不是「背中」的讀音,在此語境也無法成立,故唯一正解為「せなか」。",
+    exampleJapanese: "信号が青に変わると、あの人の背中がどんどん遠くなっていく。",
+    exampleMeaningZh: "綠燈一亮,那個人的背影就漸漸地越來越遠了。"
   })
 ];
