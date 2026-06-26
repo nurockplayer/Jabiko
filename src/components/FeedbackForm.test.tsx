@@ -25,6 +25,29 @@ describe("FeedbackForm", () => {
     expect(submit).toHaveBeenCalledWith({ category: "wish", message: "想要夜間模式", contact: undefined });
   });
 
+  it("closes when the backdrop is clicked", () => {
+    const onClose = vi.fn();
+    const { container } = render(
+      <FeedbackForm language="zh-Hant" category="wish" onClose={onClose} submit={vi.fn()} />
+    );
+    fireEvent.click(container.querySelector(".feedback-overlay")!);
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("does not close when clicking inside the form", () => {
+    const onClose = vi.fn();
+    render(<FeedbackForm language="zh-Hant" category="wish" onClose={onClose} submit={vi.fn()} />);
+    fireEvent.click(screen.getByPlaceholderText(/想許什麼願/));
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("closes on Escape", () => {
+    const onClose = vi.fn();
+    render(<FeedbackForm language="zh-Hant" category="wish" onClose={onClose} submit={vi.fn()} />);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(onClose).toHaveBeenCalled();
+  });
+
   it("shows a GitHub fallback link when submit fails", async () => {
     const submit = vi.fn().mockRejectedValue(new Error("boom"));
     render(<FeedbackForm language="zh-Hant" category="bug" onClose={() => {}} submit={submit} />);

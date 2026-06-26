@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Send, X } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { getSupabase } from "../lib/supabase";
@@ -51,6 +51,24 @@ export function FeedbackForm({
 
   const trimmed = message.trim();
 
+  // Modal behaviour: Escape closes, and the background page is locked from
+  // scrolling while open (the form pops centered over the viewport so the
+  // learner never has to scroll down to find it).
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [onClose]);
+
+  const stopClose = (event: { stopPropagation: () => void }) => event.stopPropagation();
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!trimmed || status === "sending") return;
@@ -65,17 +83,33 @@ export function FeedbackForm({
 
   if (status === "done") {
     return (
-      <div className="feedback-form feedback-done" role="status">
-        <p>{t.feedbackThanks}</p>
-        <button type="button" className="ghost-button" onClick={onClose}>
-          {t.feedbackClose}
-        </button>
+      <div className="feedback-overlay" role="presentation" onClick={onClose}>
+        <div
+          className="feedback-form feedback-done"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.feedbackTitle}
+          onClick={stopClose}
+        >
+          <p>{t.feedbackThanks}</p>
+          <button type="button" className="ghost-button" onClick={onClose}>
+            {t.feedbackClose}
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <form className="feedback-form" onSubmit={handleSubmit} aria-label={t.feedbackTitle}>
+    <div className="feedback-overlay" role="presentation" onClick={onClose}>
+      <form
+        className="feedback-form"
+        role="dialog"
+        aria-modal="true"
+        onSubmit={handleSubmit}
+        aria-label={t.feedbackTitle}
+        onClick={stopClose}
+      >
       <div className="feedback-head">
         <strong>{t.feedbackTitle}</strong>
         <button type="button" className="feedback-close" aria-label={t.feedbackClose} onClick={onClose}>
@@ -131,6 +165,7 @@ export function FeedbackForm({
           {status === "sending" ? t.feedbackSending : t.feedbackSend}
         </button>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }
