@@ -51,7 +51,9 @@
   border: 1px solid var(--panel-border);
   background: var(--paper);
   color: var(--teal-dark);
+  font: inherit;
   font-size: 0.85rem;
+  cursor: pointer;
   text-decoration: none;
   transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }
@@ -64,6 +66,85 @@
 .home-feedback-link:hover {
   border-color: var(--teal-dark);
   box-shadow: var(--button-hover-shadow);
+}
+
+/* Anonymous feedback form (opened by the footer buttons). */
+.feedback-form {
+  width: 100%;
+  max-width: 32rem;
+  margin: 0.6rem auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 0.85rem;
+  background: var(--paper);
+  text-align: left;
+}
+
+.feedback-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feedback-head strong {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.feedback-close {
+  display: inline-flex;
+  padding: 0.25rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.feedback-close svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.feedback-message,
+.feedback-contact {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--field-border);
+  border-radius: 0.5rem;
+  background: var(--field-bg);
+  color: var(--button-text);
+  font: inherit;
+  resize: vertical;
+}
+
+.feedback-anon {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.feedback-error {
+  margin: 0;
+  color: var(--vermilion);
+  font-size: 0.85rem;
+}
+
+.feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.feedback-done {
+  align-items: center;
+  text-align: center;
+}
+
+.feedback-done p {
+  margin: 0;
+  color: var(--ink);
 }
 
 .home-hero {

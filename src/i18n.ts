@@ -26,6 +26,17 @@ export type Copy = {
   homeFooterWish: string;
   feedbackWish: string;
   feedbackBug: string;
+  feedbackTitle: string;
+  feedbackKind: { wish: string; bug: string; other: string };
+  feedbackPlaceholder: string;
+  feedbackContact: string;
+  feedbackAnon: string;
+  feedbackSend: string;
+  feedbackSending: string;
+  feedbackThanks: string;
+  feedbackClose: string;
+  feedbackError: string;
+  feedbackFallback: string;
   homeContentStats: (total: number, examItems: number, vocab: number, kanjiReadings: number, patternChecks: number, chapters: number) => string;
   homeCardStageLearn: string;
   homeCardStageChallenge: string;
@@ -243,6 +254,17 @@ export const copy: Record<Language, Copy> = {
     homeFooterWish: "一步一步來，祝你考試順利合格。",
     feedbackWish: "許願功能",
     feedbackBug: "回報問題",
+    feedbackTitle: "意見回饋",
+    feedbackKind: { wish: "許願功能", bug: "回報問題", other: "其他" },
+    feedbackPlaceholder: "想許什麼願、遇到什麼問題，都可以直接說（匿名）…",
+    feedbackContact: "聯絡方式（選填，想收到回覆再留）",
+    feedbackAnon: "匿名送出，不需登入。",
+    feedbackSend: "送出",
+    feedbackSending: "送出中…",
+    feedbackThanks: "收到了，謝謝你的回饋！",
+    feedbackClose: "關閉",
+    feedbackError: "送出失敗，請稍後再試，或",
+    feedbackFallback: "改用 GitHub 回報",
     homeContentStats: (total, examItems, vocab, kanjiReadings, patternChecks, chapters) =>
       `全站 ${total.toLocaleString()} 題 · 檢定題 ${examItems} · 單字 ${vocab} · 漢字讀音 ${kanjiReadings} · 句型 ${patternChecks} · ${chapters} 學習章節`,
     homeCardStageLearn: "學",

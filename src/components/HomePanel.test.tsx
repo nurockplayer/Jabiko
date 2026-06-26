@@ -80,18 +80,12 @@ describe("HomePanel guide link", () => {
   });
 });
 
-describe("HomePanel feedback links", () => {
-  it("renders 許願 + 問題回報 links to GitHub issues, opening safely in a new tab", () => {
+describe("HomePanel feedback entry", () => {
+  it("opens the anonymous feedback form from a footer button", () => {
     renderHome();
-    const wish = screen.getByRole("link", { name: /許願/ });
-    const bug = screen.getByRole("link", { name: /回報/ });
-    expect(wish.getAttribute("href") ?? "").toContain("/issues/new");
-    expect(wish.getAttribute("href") ?? "").toContain("labels=enhancement");
-    expect(bug.getAttribute("href") ?? "").toContain("labels=bug");
-    for (const link of [wish, bug]) {
-      expect(link).toHaveAttribute("target", "_blank");
-      expect(link.getAttribute("rel") ?? "").toContain("noopener");
-    }
+    expect(screen.queryByText("意見回饋")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /許願功能/ }));
+    expect(screen.getByText("意見回饋")).toBeInTheDocument();
   });
 });
 
