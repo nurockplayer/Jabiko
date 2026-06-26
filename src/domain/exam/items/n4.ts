@@ -3594,5 +3594,37 @@ export const n4Items: PracticeQuestion[] = [
     expectedAnswer: "とおりに",
     options: ["とおりに", "ばかりに", "かわりに", "うちに"],
     explanation: "「動詞た形＋とおりに」表示「完全照著（已確定的內容）那樣去做」，這裡是「照自己當初相信的那樣前進」，強調忠實依循既定的信念，最自然。「ばかりに」表「就因為…（招致不良後果）」，與正面鼓勵的語境相反；「かわりに」表「代替／作為交換」，文意完全不通；「うちに」表「趁著…（還沒…）」須接狀態或時間範圍，無法承接「信じた」表「依照其內容」之意，母語者不會接受。故唯一正解為「とおりに」。"
+  }),
+  examQuestion({
+    id: "n4-kanji-saku",
+    level: "N4",
+    surface: "咲く",
+    reading: "さく",
+    meaningZh: "開(花)、綻放",
+    promptLabel: "漢字読み",
+    instructionZh: "選出底線詞語的正確讀音。",
+    promptText: "庭の花がまた「咲く」季節になったね。",
+    promptContextZh: "看著今年又冒出的花苞,想起去年和你約好的那個夏天。",
+    expectedAnswer: "さく",
+    options: ["さく", "さぐ", "しく", "せく"],
+    explanation: "「咲く」讀作「さく」,意為花朵綻放。干擾項「さぐ」把清音濁化、「しく」「せく」都改了第一個假名,均非此字讀音,在此句也不成立,正解唯一為「さく」。",
+    exampleJapanese: "庭の花がまた「咲く」季節になったね。",
+    exampleMeaningZh: "庭院的花,又到了綻放的季節了呢。"
+  }),
+  examQuestion({
+    id: "n4-kanji-namida",
+    level: "N4",
+    surface: "涙",
+    reading: "なみだ",
+    meaningZh: "眼淚",
+    promptLabel: "漢字読み",
+    instructionZh: "選出底線詞語的正確讀音。",
+    promptText: "駅で手を振ると、「涙」が出た。",
+    promptContextZh: "在月台揮手道別的那一刻,說好還會再見,可情緒還是先一步湧了上來。",
+    expectedAnswer: "なみだ",
+    options: ["なみだ", "なみた", "なまだ", "なびだ"],
+    explanation: "「涙」讀作「なみだ」,意為眼淚。干擾項「なみた」把濁音清化、「なまだ」「なびだ」改了中間假名,皆非此字讀音,在此句也不成立,正解唯一為「なみだ」。",
+    exampleJapanese: "駅で手を振ると、「涙」が出た。",
+    exampleMeaningZh: "在車站揮手的時候,眼淚就掉了下來。"
   })
 ];
