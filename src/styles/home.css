@@ -362,6 +362,20 @@
   gap: 0.7rem;
 }
 
+.home-progress-title {
+  margin: 0 0 -0.1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+
+/* The merged lifetime+SRS metric strip carries 5 cells; auto-fit keeps them
+   even and wraps gracefully on narrow screens (vs the fixed 3-col default). */
+.home-stats-strip.is-wrap {
+  grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+}
+
 .home-overview-row {
   display: flex;
   flex-wrap: wrap;
@@ -561,10 +575,56 @@
   border-radius: 0.85rem;
 }
 
+.type-bars-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem 0.8rem;
+}
+
 .type-bars-caption {
   margin: 0;
   font-size: 0.9rem;
   color: var(--ink);
+}
+
+/* Inline legend so the accuracy bands aren't a colour-only signal. */
+.type-bars-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.type-bars-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.type-bars-legend li::before {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--rule);
+}
+
+.type-bars-legend li.is-weak::before {
+  background: var(--vermilion);
+}
+
+.type-bars-legend li.is-mid::before {
+  background: var(--gold);
+}
+
+.type-bars-legend li.is-strong::before {
+  background: var(--matcha);
 }
 
 .type-bars-list {
@@ -578,7 +638,7 @@
 
 .type-bar-row {
   display: grid;
-  grid-template-columns: 4.5rem 1fr auto;
+  grid-template-columns: minmax(4.5rem, max-content) 1fr auto;
   align-items: center;
   gap: 0.5rem;
 }
@@ -587,6 +647,8 @@
   font-size: 0.8rem;
   color: var(--ink);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .type-bar-track {

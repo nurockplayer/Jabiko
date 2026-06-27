@@ -8,24 +8,32 @@ export function ActivityTrend({
   points,
   title,
   rangeLabel,
+  peakLabel,
   dayLabel
 }: {
   points: TrendPoint[];
   title: string;
   rangeLabel: string;
+  /** Header magnitude anchor, e.g. (n) => "最多 n 題/日". Bars normalise to the
+   *  busiest day, so without this the absolute scale is invisible on touch. */
+  peakLabel: (count: number) => string;
   /** Builds the per-bar tooltip, e.g. (date, count) => "2026-06-27：8 題". */
   dayLabel: (date: string, count: number) => string;
 }) {
   if (points.length === 0) return null;
 
+  const busiest = Math.max(0, ...points.map((p) => p.attempts));
   // Scale against the busiest day; floor at 1 so an all-zero week doesn't /0.
-  const peak = Math.max(1, ...points.map((p) => p.attempts));
+  const peak = Math.max(1, busiest);
 
   return (
     <div className="activity-trend" role="group" aria-label={title}>
       <div className="activity-trend-head">
         <span className="activity-trend-title">{title}</span>
-        <span className="activity-trend-range">{rangeLabel}</span>
+        <span className="activity-trend-range">
+          {busiest > 0 ? `${peakLabel(busiest)} · ` : ""}
+          {rangeLabel}
+        </span>
       </div>
       <ol className="activity-trend-bars">
         {points.map((point) => (
