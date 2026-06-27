@@ -5,6 +5,7 @@ import {
   levelFromQuestionId,
   MASTERY_BOX
 } from "./stats";
+import { SRS_INTERVAL_DAYS } from "./srs";
 import type { Attempt } from "./types";
 
 const DAY = 86_400_000;
@@ -99,9 +100,12 @@ describe("computeProgressStats", () => {
     expect(stats.dueCount).toBe(0);
   });
 
-  it("counts a freshly-missed item as due", () => {
+  it("rests a freshly-missed item, then counts it due after the box-0 interval", () => {
     const attempts = [attempt({ questionId: "n1-grammar-z", isCorrect: false, timestamp: NOW })];
-    const stats = computeProgressStats(attempts, NOW);
+    // Just missed -> resting, NOT due yet (no same-session answer-cramming).
+    expect(computeProgressStats(attempts, NOW).dueCount).toBe(0);
+    // Due once the box-0 relearn cooldown (~1 hour) elapses.
+    const stats = computeProgressStats(attempts, NOW + SRS_INTERVAL_DAYS[0] * DAY);
     expect(stats.dueCount).toBe(1);
     expect(stats.masteredCount).toBe(0);
   });
