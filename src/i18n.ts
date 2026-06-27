@@ -282,7 +282,7 @@ export const copy: Record<Language, Copy> = {
     aboutAuthorTitle: "作者",
     aboutAuthorName: "花雪（HanaYukii）",
     aboutAuthorBody:
-      "程式競賽出身、在 Google 待過三年的工程師，現在於 AI 新創擔任 Tech Lead。也是十年的日系偶像粉絲（私立恵比寿中学、=LOVE、ukka…），日語就這樣跟著偶像、邊追邊自學了好多年。Jabiko 最初是做給自己練動詞變化的小工具，做著做著就分享給同樣在學日語的人了。",
+      "程式競賽出身、在 Google 待了三年的工程師，2025 年離開後，現在於 AI 新創當 Tech Lead。日語是十年前考過 N2 就擱著的老本，直到 2024 年重新追起日系偶像（私立恵比寿中学、=LOVE、ukka…）才又撿了回來。離開 Google 成了一個契機：與其把日文當成一張考過就收進抽屜的證書，不如當成一條慢慢精進的線走下去——Jabiko 就是這條線上的工具，最初做給自己，後來也分享給同樣在學的人。",
     aboutAuthorLink: "更多關於作者 →",
     homeHeroTitle: "今天想練什麼？",
     homeHeroIntro: "從基礎變化到 N1 題感。文法、漢字、單字、整卷模擬，一處解決。",
