@@ -7,9 +7,11 @@ import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlock
 import { CONTENT_STATS } from "../domain/contentStats";
 import { computeProgressStats } from "../domain/stats";
 import { computeActivityTrend } from "../domain/analytics/trend";
+import { computeErrorsByQuestionType } from "../domain/analytics/weakness";
 import { AccuracyRing } from "./dashboard/AccuracyRing";
 import { LevelBars } from "./dashboard/LevelBars";
 import { ActivityTrend } from "./dashboard/ActivityTrend";
+import { TypeBars } from "./dashboard/TypeBars";
 import { FeedbackForm } from "./FeedbackForm";
 import type { FeedbackCategory } from "../domain/feedbackRemote";
 
@@ -128,6 +130,8 @@ export function HomePanel({
   const progress = computeProgressStats(progressAttempts);
   // Daily practice volume for the last fortnight (dashboard v1, #243).
   const activityTrend = computeActivityTrend(progressAttempts, TREND_DAYS);
+  // Per-question-type accuracy, weakest first (dashboard phase 2, #243).
+  const typeWeakness = computeErrorsByQuestionType(progressAttempts);
 
   // 許願 / 問題回報: which feedback form is open (null = closed). Opened by the
   // footer buttons; the form submits anonymously to Supabase.
@@ -284,6 +288,13 @@ export function HomePanel({
             title={t.homeTrendTitle}
             rangeLabel={t.homeTrendRange(TREND_DAYS)}
             dayLabel={t.homeTrendDay}
+          />
+
+          <TypeBars
+            stats={typeWeakness}
+            caption={t.homeTypeWeaknessTitle}
+            label={(type) => t.questionTypeLabels[type]}
+            answeredLabel={t.homeLevelAnswered}
           />
         </section>
       ) : null}
