@@ -13,7 +13,7 @@
 // full-paper mode is ever wanted again.)
 import type { JlptLevel } from "./types";
 
-export type MockExamLevel = Extract<JlptLevel, "N1" | "N2">;
+export type MockExamLevel = Extract<JlptLevel, "N1" | "N2" | "N3">;
 
 export interface MockExamSection {
   /** Stable id used internally (e.g. "kanji-yomi"). */
@@ -83,6 +83,33 @@ export const N1_BLUEPRINT: MockExamBlueprint = {
   ]
 };
 
+// N3 言語知識（文字・語彙）・（文法）・読解 (聴解 is out of scope). N3 differs
+// from N2/N1: NO 語形成, and its long reading is plain 内容理解（長文） rather
+// than 統合理解 / 主張理解. The 文字・語彙 (30 min) + 文法・読解 (70 min) papers are
+// merged here into one section list, matching the N1/N2 blueprint shape.
+// promptLabels mirror the strings authored for N3 in examBlocks.ts; sections
+// with no authored items yet (表記 / 語順組合 / 読解) render as "準備中".
+export const N3_BLUEPRINT: MockExamBlueprint = {
+  level: "N3",
+  totalMinutes: 100,
+  sections: [
+    { id: "kanji-yomi", labelJa: "漢字読み", labelZh: "漢字讀音", promptLabel: "漢字読み", targetCount: 8 },
+    { id: "hyoki", labelJa: "表記", labelZh: "漢字書寫", promptLabel: "表記", targetCount: 6 },
+    { id: "bunmyaku-kitei", labelJa: "文脈規定", labelZh: "詞彙填空", promptLabel: "詞彙填空", targetCount: 11 },
+    { id: "iikae-ruigi", labelJa: "言い換え類義", labelZh: "類義替換", promptLabel: "類義替換", targetCount: 5 },
+    { id: "yohou", labelJa: "用法", labelZh: "詞彙用法", promptLabel: "詞彙用法", targetCount: 5 },
+    { id: "bun-bunpou-1", labelJa: "文の文法 1（文法形式の判断）", labelZh: "文法形式判斷", promptLabel: "文法形式選擇", targetCount: 13 },
+    { id: "bun-bunpou-2", labelJa: "文の文法 2（文の組み立て）", labelZh: "句子組合（★ 題）", promptLabel: "語順組合", targetCount: 5 },
+    { id: "bunshou-bunpou", labelJa: "文章の文法", labelZh: "文章脈絡填空", promptLabel: "文章脈絡", targetCount: 5 },
+    { id: "dokkai-short", labelJa: "内容理解（短文）", labelZh: "短文閱讀", promptLabel: "内容理解（短文）", targetCount: 4 },
+    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中文閱讀", promptLabel: "内容理解（中文）", targetCount: 6 },
+    { id: "dokkai-long", labelJa: "内容理解（長文）", labelZh: "長文閱讀", promptLabel: "内容理解（長文）", targetCount: 4 },
+    { id: "joho-kensaku", labelJa: "情報検索", labelZh: "資訊檢索", promptLabel: "情報検索", targetCount: 2 }
+  ]
+};
+
 export function getMockExamBlueprint(level: MockExamLevel): MockExamBlueprint {
-  return level === "N1" ? N1_BLUEPRINT : N2_BLUEPRINT;
+  if (level === "N1") return N1_BLUEPRINT;
+  if (level === "N3") return N3_BLUEPRINT;
+  return N2_BLUEPRINT;
 }

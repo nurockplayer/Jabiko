@@ -43,7 +43,7 @@ export function MockExamPanel({
       <fieldset className="mock-level-picker">
         <legend>{t.mockExamLevelLabel}</legend>
         <div className="segmented">
-          {(["N2", "N1"] as MockExamLevel[]).map((option) => (
+          {(["N3", "N2", "N1"] as MockExamLevel[]).map((option) => (
             <button
               key={option}
               type="button"
