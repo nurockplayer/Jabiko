@@ -4,7 +4,7 @@ import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import { countDueReviews } from "./domain/srs";
 import { copy, type Language } from "./i18n";
-import { HomePanel, LearningPanel, RulesPanel } from "./components";
+import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
 import { JabikoMark } from "./components/JabikoMark";
 import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
@@ -36,7 +36,7 @@ const KanjiOnyomiPanel = lazy(() =>
   import("./components/KanjiOnyomiPanel").then((module) => ({ default: module.KanjiOnyomiPanel }))
 );
 
-type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock";
+type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about";
 type DrillPreset = LearningBlockDrillPreset;
 
 export default function App() {
@@ -211,6 +211,13 @@ export default function App() {
         >
           {t.mockExam}
         </button>
+        <button
+          type="button"
+          className={appView === "about" ? "selected" : ""}
+          onClick={() => setAppView("about")}
+        >
+          {t.about}
+        </button>
       </nav>
 
       <FuriganaContext.Provider value={{ enabled: furiganaEnabled }}>
@@ -238,6 +245,8 @@ export default function App() {
         />
       ) : appView === "rules" ? (
         <RulesPanel language={language} />
+      ) : appView === "about" ? (
+        <AboutPanel language={language} />
       ) : appView === "kanji" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
           <KanjiOnyomiPanel language={language} />

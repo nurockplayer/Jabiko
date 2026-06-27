@@ -81,6 +81,17 @@ export type Copy = {
   homeCardReviewSubEmpty: string;
   homeCardReviewMeta: string;
   mockExam: string;
+  about: string;
+  aboutTitle: string;
+  aboutTagline: string;
+  aboutNameTitle: string;
+  aboutNameBody: string;
+  aboutStoryTitle: string;
+  aboutStoryBody: string;
+  aboutAuthorTitle: string;
+  aboutAuthorName: string;
+  aboutAuthorBody: string;
+  aboutAuthorLink: string;
   mockExamLevelLabel: string;
   mockSectionTitle: string;
   mockSectionIntro: string;
@@ -259,6 +270,20 @@ export const copy: Record<Language, Copy> = {
     rulesPanelIntro: "考試 / 練習中忘了形變化，直接翻這頁。涵蓋動詞三類分類、ます／て・た、可能・意向・受身・使役、形容詞與名詞變化、必要過去 step-by-step，以及 N5-N4 基礎句型 cheat sheet。",
     challenge: "挑戰",
     mockExam: "模擬考",
+    about: "關於",
+    aboutTitle: "關於 Jabiko",
+    aboutTagline: "Master Japanese verbs, one step at a time.",
+    aboutNameTitle: "名字由來",
+    aboutNameBody:
+      "Jabiko（ジャビ子）最初只是想做一個「把日語動詞變化練到熟」的小工具。名字拆開看：JA 是 Japanese、bi 取自動詞變化、ko 是日文裡那個可愛的「子」。於是有了 ジャビ子——一隻頭上頂著動詞變化表小書本的助理機器人，陪你 one step at a time，把ます形、て形、可能形一個一個記起來。",
+    aboutStoryTitle: "從緣起到現在",
+    aboutStoryBody:
+      "最早只有基礎變化練習，後來慢慢長出句中填空、句型判斷、JLPT 綜合題庫、模擬考、漢字讀音、間隔複習與學習儀表板——一步一步，越做越完整。",
+    aboutAuthorTitle: "作者",
+    aboutAuthorName: "花雪（HanaYukii）",
+    aboutAuthorBody:
+      "程式競賽出身、在 Google 待過三年的工程師，現在於 AI 新創擔任 Tech Lead。也是十年的日系偶像粉絲（私立恵比寿中学、=LOVE、ukka…），日語就這樣跟著偶像、邊追邊自學了好多年。Jabiko 最初是做給自己練動詞變化的小工具，做著做著就分享給同樣在學日語的人了。",
+    aboutAuthorLink: "更多關於作者 →",
     homeHeroTitle: "今天想練什麼？",
     homeHeroIntro: "從基礎變化到 N1 題感。文法、漢字、單字、整卷模擬，一處解決。",
     homeGuideLink: "使用說明書",

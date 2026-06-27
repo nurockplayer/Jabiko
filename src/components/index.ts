@@ -13,3 +13,4 @@
 export { HomePanel } from "./HomePanel";
 export { LearningPanel } from "./LearningPanel";
 export { RulesPanel } from "./RulesPanel";
+export { AboutPanel } from "./AboutPanel";
