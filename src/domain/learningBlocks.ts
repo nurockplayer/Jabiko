@@ -683,6 +683,129 @@ export const learningBlocks: LearningBlock[] = [
     ],
     drillNote: "※ 上方按鈕直接練引用 / 意見判斷；下方按鈕加練前置「普通形」。",
     recommendedAfter: ["plain"]
+  },
+  {
+    id: "mae-ato",
+    group: "basic",
+    category: "句型",
+    kicker: "前後順序",
+    title: "まえに / あとで / てから（前後順序）",
+    subtitle: "食べるまえに / 食べたあとで / 手を洗ってから",
+    explanation:
+      "三個表「時間先後」的句型。「Vるまえに」＝在某事『之前』，前面永遠用辭書形；「Vたあとで」＝在某事『之後』，前面用た形；「Vてから」＝做完前項『再』接著做，強調緊接。判斷時先看後句發生在前項之前還是之後，再注意まえに接辭書形、あとで接た形。",
+    examples: [
+      { formula: "寝るまえに歯をみがく", note: "睡前刷牙；まえに 前面用辭書形" },
+      { formula: "ごはんを食べたあとで散歩する", note: "吃完飯後散步；あとで 前面用た形" },
+      { formula: "手を洗ってからご飯を食べる", note: "洗手後再吃；てから 強調緊接著" },
+      { formula: "× 食べたまえに / × 食べるあとで", note: "まえに 不接た形、あとで 不接辭書形" }
+    ],
+    pitfalls: [
+      "まえに 前面一律辭書形，就算整句是過去式也一樣（× 行ったまえに → ○ 行くまえに）",
+      "あとで 前面用た形（× 食べるあとで → ○ 食べたあとで）",
+      "てから 與 たあとで 都表「之後」，但 てから 更強調『做完前項緊接著做後項』"
+    ],
+    completionMode: "reference",
+    patternDrills: [
+      {
+        labelKey: "drillPatternMaeAto",
+        patternIds: ["mae-ato"]
+      }
+    ],
+    drills: [
+      {
+        labelKey: "drillGodanTeTa",
+        preset: {
+          partOfSpeech: "verb",
+          verbGroup: "godan",
+          practiceFocus: "teTa",
+          targetForm: "te"
+        }
+      }
+    ],
+    drillNote: "※ 上方按鈕直接練前後順序判斷；下方按鈕加練前置「て形 / た形」音便。",
+    recommendedAfter: ["teTa"]
+  },
+  {
+    id: "nagara-tari",
+    group: "basic",
+    category: "句型",
+    kicker: "並列・同時",
+    title: "ながら / たり / て / し（動作の連接）",
+    subtitle: "聞きながら / 読んだり / 洗って / 安いし",
+    explanation:
+      "連接兩個以上動作或理由的四種方式。「Vます語幹＋ながら」＝同一人『同時』做兩件事；「Vたり〜Vたりする」＝列舉幾個代表性動作；「Vて」＝依『時間順序』接續；「〜し」＝並列『加上理由』（可接形容詞）。判斷時看是同時、列舉、順序，還是在堆疊理由。",
+    examples: [
+      { formula: "音楽を聞きながら勉強する", note: "邊聽音樂邊念書；同一人同時進行" },
+      { formula: "本を読んだり音楽を聞いたりする", note: "看看書、聽聽音樂；列舉代表動作" },
+      { formula: "起きて、顔を洗って、出かける", note: "起床→洗臉→出門；時間順序" },
+      { formula: "安いし、おいしい", note: "又便宜又好吃；並列加理由，可接形容詞" }
+    ],
+    pitfalls: [
+      "ながら 前面用ます形語幹（歩きながら，不是 歩くながら），且必須同一主語同時進行",
+      "たり 要成對使用（〜たり〜たりする），通常是『舉例』而非全部",
+      "し 可以接形容詞（安いし）；ながら / て 不能直接接い形容詞"
+    ],
+    completionMode: "reference",
+    patternDrills: [
+      {
+        labelKey: "drillPatternNagaraTari",
+        patternIds: ["nagara-tari"]
+      }
+    ],
+    drills: [
+      {
+        labelKey: "drillGodanTeTa",
+        preset: {
+          partOfSpeech: "verb",
+          verbGroup: "godan",
+          practiceFocus: "teTa",
+          targetForm: "te"
+        }
+      }
+    ],
+    drillNote: "※ 上方按鈕直接練連接方式判斷；下方按鈕加練前置「て形」音便。",
+    recommendedAfter: ["teTa"]
+  },
+  {
+    id: "te-aux",
+    group: "basic",
+    category: "句型",
+    kicker: "補助動詞",
+    title: "てみる / ておく / てしまう / ている（て＋補助動詞）",
+    subtitle: "食べてみる / 買っておく / 忘れてしまう / 続いている",
+    explanation:
+      "「Vて」後面接補助動詞，替動作加上不同語感：「てみる」＝『試試看』；「ておく」＝『事先』做好並擱著；「てしまう」＝把事情『做完』，或表『遺憾・不小心』；「ている」＝動作『進行中』或『持續的狀態』。先把て形音便記熟，再記四個補助動詞的語感差別。",
+    examples: [
+      { formula: "新しい料理を食べてみる", note: "吃吃看；嘗試" },
+      { formula: "旅行のまえにホテルを予約しておく", note: "旅行前先訂好飯店；事先準備" },
+      { formula: "電車に財布を忘れてしまった", note: "把錢包忘在電車上了；遺憾・不小心" },
+      { formula: "今、雨が降っている", note: "現在正在下雨；進行・狀態" }
+    ],
+    pitfalls: [
+      "てしまう 常表『遺憾・不小心』，口語縮成「〜ちゃう」（食べちゃった）",
+      "ておく 口語縮成「〜とく」（買っとく）",
+      "ている 可表進行，也可表結果狀態（結婚している＝已婚的狀態，不是正在結婚）"
+    ],
+    completionMode: "reference",
+    patternDrills: [
+      {
+        labelKey: "drillPatternTeAux",
+        patternIds: ["te-aux"]
+      }
+    ],
+    drills: [
+      {
+        labelKey: "drillGodanTeTa",
+        preset: {
+          partOfSpeech: "verb",
+          verbGroup: "godan",
+          practiceFocus: "teTa",
+          targetForm: "te"
+        }
+      }
+    ],
+    drillNote: "※ 上方按鈕直接練補助動詞語感判斷；下方按鈕加練前置「て形」音便。",
+    recommendedAfter: ["teTa"]
   }
 ];
 
