@@ -1,4 +1,5 @@
 import type { PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
+import type { QuestionType } from "./domain/analytics/questionType";
 
 export type Language = "zh-Hant";
 
@@ -62,6 +63,8 @@ export type Copy = {
   homeTrendTitle: string;
   homeTrendRange: (days: number) => string;
   homeTrendDay: (date: string, count: number) => string;
+  homeTypeWeaknessTitle: string;
+  questionTypeLabels: Record<QuestionType, string>;
   homeCardLearnTitle: string;
   homeCardLearnSub: string;
   homeCardLearnMeta: (completed: number, total: number) => string;
@@ -294,6 +297,21 @@ export const copy: Record<Language, Copy> = {
     homeTrendTitle: "每日練習量",
     homeTrendRange: (days) => `近 ${days} 天`,
     homeTrendDay: (date, count) => `${date}：${count} 題`,
+    homeTypeWeaknessTitle: "題型弱點",
+    questionTypeLabels: {
+      grammar: "文法",
+      vocab: "詞彙",
+      kanji: "漢字読み",
+      syn: "類義",
+      usage: "用法",
+      context: "文脈",
+      read: "閱讀",
+      order: "語順",
+      text: "文章",
+      cloze: "句中填空",
+      pattern: "句型",
+      basic: "基礎・單字"
+    },
     homeCardLearnTitle: "學習",
     homeCardLearnSub: "章節式變化與句型解說，先看規則再練。",
     homeCardLearnMeta: (completed, total) => `已完成 ${completed} / ${total} 章`,

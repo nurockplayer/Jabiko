@@ -549,6 +549,88 @@
   background: var(--rule);
 }
 
+/* Per-question-type weakness bars (#243 phase 2). Same paper-card frame as
+   the trend strip; bars are accuracy-banded so soft spots read at a glance. */
+.type-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0.85rem;
+}
+
+.type-bars-caption {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.type-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.type-bar-row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.type-bar-tag {
+  font-size: 0.8rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.type-bar-track {
+  display: block;
+  height: 0.5rem;
+  background: var(--rule);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.type-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--matcha);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.type-bar-fill.is-weak {
+  background: var(--vermilion);
+}
+
+.type-bar-fill.is-mid {
+  background: var(--gold);
+}
+
+.type-bar-fill.is-strong {
+  background: var(--matcha);
+}
+
+.type-bar-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.type-bar-value small {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
 .home-grid {
   /* auto-fit so 4 cards stay 2×2 on desktop, 5 cards lay out as 2/2/1
    * (or 3/2 at wider viewports), and mobile drops to 1 column. */
