@@ -6,6 +6,10 @@ import type { LevelRange } from "../domain/levelRange";
 import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
 import { CONTENT_STATS } from "../domain/contentStats";
 import { computeProgressStats } from "../domain/stats";
+import { computeActivityTrend } from "../domain/analytics/trend";
+import { AccuracyRing } from "./dashboard/AccuracyRing";
+import { LevelBars } from "./dashboard/LevelBars";
+import { ActivityTrend } from "./dashboard/ActivityTrend";
 import { FeedbackForm } from "./FeedbackForm";
 import type { FeedbackCategory } from "../domain/feedbackRemote";
 
@@ -47,6 +51,10 @@ const HOME_CONTENT_TOTAL =
   HOME_CONTENT_STATS.vocab +
   HOME_CONTENT_STATS.kanjiReadings +
   HOME_CONTENT_STATS.patternChecks;
+
+// Window for the home activity-trend strip (#243). Two weeks reads as a
+// glanceable "recent habit" without crowding the home page.
+const TREND_DAYS = 14;
 
 // First view the learner lands on. Three layers:
 //   1. Context-aware banner ("review N items" if any, else "continue
@@ -118,6 +126,8 @@ export function HomePanel({
   // accuracy, all aggregated from attempts (+ SRS state) with no heavy bank
   // import. Only shown once the learner has a history.
   const progress = computeProgressStats(progressAttempts);
+  // Daily practice volume for the last fortnight (dashboard v1, #243).
+  const activityTrend = computeActivityTrend(progressAttempts, TREND_DAYS);
 
   // 許願 / 問題回報: which feedback form is open (null = closed). Opened by the
   // footer buttons; the form submits anonymously to Supabase.
@@ -260,18 +270,21 @@ export function HomePanel({
             </div>
           </div>
 
-          {progress.perLevel.length > 0 ? (
-            <div className="home-stats-strip" aria-label={t.homeLevelLabel}>
-              {progress.perLevel.map((stat) => (
-                <div className="home-stats-cell" key={stat.level}>
-                  <strong>{stat.accuracy}%</strong>
-                  <small>
-                    {stat.level}・{t.homeLevelAnswered(stat.answered)}
-                  </small>
-                </div>
-              ))}
-            </div>
-          ) : null}
+          <div className="home-overview-row">
+            <AccuracyRing percent={progress.overallAccuracy} caption={t.homeStatsAccuracy} />
+            <LevelBars
+              levels={progress.perLevel}
+              caption={t.homeLevelLabel}
+              answeredLabel={t.homeLevelAnswered}
+            />
+          </div>
+
+          <ActivityTrend
+            points={activityTrend}
+            title={t.homeTrendTitle}
+            rangeLabel={t.homeTrendRange(TREND_DAYS)}
+            dayLabel={t.homeTrendDay}
+          />
         </section>
       ) : null}
 
