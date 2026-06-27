@@ -115,7 +115,7 @@ export default function App() {
         <div className="app-brand">
           <JabikoMark className="app-brand-mark" />
           <div>
-            <p className="eyebrow">Minna no Nihongo practice</p>
+            <p className="eyebrow">Your JLPT self-study room.</p>
             <h1>{t.appTitle}</h1>
           </div>
         </div>
