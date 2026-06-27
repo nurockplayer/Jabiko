@@ -61,6 +61,13 @@
   margin: 0 0 0.35rem !important;
 }
 
+.about-author-idols {
+  margin: 0.7rem 0 0 !important;
+  font-size: 0.84rem !important;
+  color: var(--muted) !important;
+  line-height: 1.7;
+}
+
 .about-link {
   display: inline-block;
   margin-top: 0.8rem;

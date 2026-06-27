@@ -1,8 +1,8 @@
 import { copy, type Language } from "../i18n";
 import { BooksSpot } from "../illustrations";
 
-// The author's blog (same destination as the home hero's guide link).
-const BLOG_URL = "https://hanayukii.dev/blog/jabiko-jlpt-app";
+// The author's personal "about" page.
+const ABOUT_URL = "https://hanayukii.dev/about";
 
 // 關於 view: a quiet reading page -- where the name came from, how the app
 // grew, and a short note about who made it. Static text only (no learner
@@ -33,7 +33,8 @@ export function AboutPanel({ language }: { language: Language }) {
         <h2>{t.aboutAuthorTitle}</h2>
         <p className="about-author-name">{t.aboutAuthorName}</p>
         <p>{t.aboutAuthorBody}</p>
-        <a className="about-link" href={BLOG_URL} target="_blank" rel="noopener noreferrer">
+        <p className="about-author-idols">{t.aboutAuthorIdols}</p>
+        <a className="about-link" href={ABOUT_URL} target="_blank" rel="noopener noreferrer">
           {t.aboutAuthorLink}
         </a>
       </article>
