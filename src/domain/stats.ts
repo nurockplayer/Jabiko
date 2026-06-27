@@ -15,7 +15,8 @@ const MS_PER_DAY = 86_400_000;
 // "Mastered" = a previously-missed item drilled up to a high SRS box.
 // (Items answered correctly on the first try never enter the SRS queue, so
 // this measures recovered weak points rather than total knowledge.) Box 3
-// is the 7-day interval -- solidly remembered, not yet fully graduated.
+// is the 7-day interval -- three correct reps after a miss, solidly
+// remembered but not yet fully graduated.
 export const MASTERY_BOX = 3;
 
 const LEVELS: JlptLevel[] = ["N1", "N2", "N3", "N4", "N5"];
