@@ -59,6 +59,9 @@ export type Copy = {
   homeStatsMastered: string;
   homeLevelLabel: string;
   homeLevelAnswered: (count: number) => string;
+  homeTrendTitle: string;
+  homeTrendRange: (days: number) => string;
+  homeTrendDay: (date: string, count: number) => string;
   homeCardLearnTitle: string;
   homeCardLearnSub: string;
   homeCardLearnMeta: (completed: number, total: number) => string;
@@ -288,6 +291,9 @@ export const copy: Record<Language, Copy> = {
     homeStatsMastered: "已熟練",
     homeLevelLabel: "各級正答率",
     homeLevelAnswered: (count) => `${count} 題`,
+    homeTrendTitle: "每日練習量",
+    homeTrendRange: (days) => `近 ${days} 天`,
+    homeTrendDay: (date, count) => `${date}：${count} 題`,
     homeCardLearnTitle: "學習",
     homeCardLearnSub: "章節式變化與句型解說，先看規則再練。",
     homeCardLearnMeta: (completed, total) => `已完成 ${completed} / ${total} 章`,
