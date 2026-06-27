@@ -22,6 +22,10 @@ export const examStyleQuestions: PracticeQuestion[] = [
   ...n5Items
 ];
 
+// Warm-up cap: how many N3 items leak into the default "all" pool so they
+// don't dilute the N1/N2 focus. Declared before its consumer below.
+const MAX_N3_IN_DEFAULT_POOL = 6;
+
 export function buildExamQuestionPool(
   level: JlptLevel | JlptLevel[] | "all" = "all"
 ): PracticeQuestion[] {
@@ -48,5 +52,3 @@ export function buildExamQuestionPool(
     .slice(0, MAX_N3_IN_DEFAULT_POOL);
   return [...n1AndN2, ...n3WarmUp];
 }
-
-const MAX_N3_IN_DEFAULT_POOL = 6;

@@ -28,6 +28,8 @@ export type ExamQuestionType = (typeof EXAM_QUESTION_TYPES)[number];
 /** All buckets: the 9 exam types, then the non-exam practice modes. */
 export type QuestionType = ExamQuestionType | "cloze" | "pattern" | "basic";
 
+// Ordered list of every bucket. Exported (its test pins order + uniqueness);
+// also reserved for the planned 2-D level×type weakness heatmap (#243/#242).
 export const QUESTION_TYPES: readonly QuestionType[] = [
   ...EXAM_QUESTION_TYPES,
   "cloze",

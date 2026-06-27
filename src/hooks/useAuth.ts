@@ -4,24 +4,17 @@ import { getSupabase, isSupabaseConfigured } from "../lib/supabase";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setLoading(false);
-      return;
-    }
+    if (!isSupabaseConfigured) return;
 
     let active = true;
     let unsubscribe: (() => void) | undefined;
 
     getSupabase()
       .then((client) => {
-        if (!client || !active) {
-          setLoading(false);
-          return;
-        }
+        if (!client || !active) return;
 
         client.auth
           .getSession()
@@ -31,11 +24,9 @@ export function useAuth() {
               setError("無法取得登入狀態");
             }
             setUser(session?.user ?? null);
-            setLoading(false);
           })
           .catch((e: unknown) => {
             console.error("Supabase getSession exception:", e);
-            setLoading(false);
           });
 
         const {
@@ -48,7 +39,6 @@ export function useAuth() {
       })
       .catch((e: unknown) => {
         console.error("Supabase load error:", e);
-        setLoading(false);
       });
 
     return () => {
@@ -81,5 +71,5 @@ export function useAuth() {
     }
   }, []);
 
-  return { user, loading, error, signInWithGoogle, signOut };
+  return { user, error, signInWithGoogle, signOut };
 }

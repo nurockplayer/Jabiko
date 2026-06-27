@@ -88,30 +88,18 @@ export function DrillPanel({
   // Completion-screen copy: daily / review have their own wording; every
   // other (capped, #154) finite session uses the generic "這組完成" set.
   const wrongCount = attempts.length - correctCount;
-  const doneTitle =
+  // One copy set per finish flavour (daily / review / generic capped #154);
+  // pick once so a new variant is a single map entry, not four-in-lockstep.
+  const doneCopy =
     practiceMode === "daily"
-      ? t.dailyDoneTitle
+      ? { title: t.dailyDoneTitle, body: t.dailyDoneBody, again: t.dailyDoneAgain, exit: t.dailyDoneExit }
       : practiceMode === "review"
-        ? t.reviewDoneTitle
-        : t.sessionDoneTitle;
-  const doneBody =
-    practiceMode === "daily"
-      ? t.dailyDoneBody(correctCount, wrongCount)
-      : practiceMode === "review"
-        ? t.reviewDoneBody(correctCount, wrongCount)
-        : t.sessionDoneBody(correctCount, wrongCount);
-  const doneAgain =
-    practiceMode === "daily"
-      ? t.dailyDoneAgain
-      : practiceMode === "review"
-        ? t.reviewDoneAgain
-        : t.sessionDoneAgain;
-  const doneExit =
-    practiceMode === "daily"
-      ? t.dailyDoneExit
-      : practiceMode === "review"
-        ? t.reviewDoneExit
-        : t.sessionDoneExit;
+        ? { title: t.reviewDoneTitle, body: t.reviewDoneBody, again: t.reviewDoneAgain, exit: t.reviewDoneExit }
+        : { title: t.sessionDoneTitle, body: t.sessionDoneBody, again: t.sessionDoneAgain, exit: t.sessionDoneExit };
+  const doneTitle = doneCopy.title;
+  const doneBody = doneCopy.body(correctCount, wrongCount);
+  const doneAgain = doneCopy.again;
+  const doneExit = doneCopy.exit;
 
   // Container-level answer state for embedded AI / browser automation:
   // collapse feedback into one result string so .drill-panel exposes the

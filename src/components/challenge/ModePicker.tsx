@@ -3,7 +3,13 @@ import { copy, type Language } from "../../i18n";
 import { JabikoMark } from "../JabikoMark";
 import type { PartOfSpeech, TargetForm, VerbGroup } from "../../domain/types";
 import { VOCAB_LEVEL_RANGE_OPTIONS, type LevelRange } from "../../domain/levelRange";
-import { type PracticeMode, type PracticeSession } from "../../hooks/usePracticeSession";
+import {
+  EXAM_PRESET_BY_RANGE,
+  type ExamPresetId,
+  type ModeCopyKey,
+  type PracticeMode
+} from "../../domain/practiceMode";
+import { type PracticeSession } from "../../hooks/usePracticeSession";
 
 const partOfSpeechOptions: Array<PartOfSpeech | "mixed"> = ["verb", "i_adjective", "na_adjective", "noun", "mixed"];
 
@@ -30,22 +36,22 @@ const formOptions: TargetForm[] = [
   "plainPastNegative"
 ];
 
-// Mode picker entries. The exam pool is surfaced as three side-by-side
-// presets -- 綜合考題庫 (all levels) plus N1 備考 (N1+N2) and N2 備考
-// (N2+N3) -- so the備考 ranges are first-class picks rather than a filter
-// hidden inside the exam mode. `id` doubles as the i18n / count key.
-type ModePresetId = PracticeMode | "examN1" | "examN2" | "examN3" | "examN4";
-type ModePreset = { id: ModePresetId; mode: PracticeMode; levelRange?: LevelRange };
+// Mode picker entries. The exam pool is surfaced as several side-by-side
+// presets -- 綜合考題庫 (all levels) plus the 備考 bands -- so the ranges are
+// first-class picks rather than a filter hidden inside the exam mode. `id`
+// doubles as the i18n / count key (ModeCopyKey). The 備考 rows are generated
+// from the single EXAM_PRESET_BY_RANGE table, so adding a band is one edit there.
+type ModePreset = { id: ModeCopyKey; mode: PracticeMode; levelRange?: LevelRange };
+const examPresetRows: ModePreset[] = (
+  Object.entries(EXAM_PRESET_BY_RANGE) as [LevelRange, ExamPresetId][]
+).map(([levelRange, id]) => ({ id, mode: "exam", levelRange }));
 const modePresetOrder: ModePreset[] = [
   { id: "daily", mode: "daily" },
   { id: "basic", mode: "basic" },
   { id: "cloze", mode: "cloze" },
   { id: "pattern", mode: "pattern" },
   { id: "exam", mode: "exam", levelRange: "all" },
-  { id: "examN1", mode: "exam", levelRange: "n1n2" },
-  { id: "examN2", mode: "exam", levelRange: "n2n3" },
-  { id: "examN3", mode: "exam", levelRange: "n3n4" },
-  { id: "examN4", mode: "exam", levelRange: "n4n5" },
+  ...examPresetRows,
   { id: "vocab", mode: "vocab" },
   { id: "review", mode: "review" }
 ];

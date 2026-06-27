@@ -1,5 +1,6 @@
 import type { PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
 import type { QuestionType } from "./domain/analytics/questionType";
+import type { ModeCopyKey } from "./domain/practiceMode";
 
 export type Language = "zh-Hant";
 
@@ -209,7 +210,7 @@ export type Copy = {
   grammarNoteConfusions: string;
   keyboardHint: string;
   focusSummaryEmpty: string;
-  modeOptions: Record<"basic" | "cloze" | "daily" | "exam" | "examN1" | "examN2" | "examN3" | "examN4" | "pattern" | "review" | "vocab", { title: string; subtitle: string }>;
+  modeOptions: Record<ModeCopyKey, { title: string; subtitle: string }>;
   modeQuestionCount: (count: number) => string;
   homeCardVocabTitle: string;
   homeCardVocabSub: string;

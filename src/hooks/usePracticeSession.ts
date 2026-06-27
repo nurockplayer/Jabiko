@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { ADJECTIVE_FORMS, VERB_FORMS } from "../domain/conjugation";
 import { VOCAB_LEVEL_RANGE_OPTIONS, type LevelRange } from "../domain/levelRange";
+import { examPresetForRange, type ModeCopyKey, type PracticeMode } from "../domain/practiceMode";
 import type { MockExamLevel } from "../domain/mockExam";
 import { type SentencePatternId } from "../domain/sentencePatterns";
 import {
@@ -39,7 +40,9 @@ function readSessionLength(): number | null {
 }
 
 export type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
-export type PracticeMode = "basic" | "cloze" | "daily" | "pattern" | "exam" | "review" | "vocab";
+// Re-exported (the canonical type now lives in domain/practiceMode) so the
+// many `import { PracticeMode } from "../hooks/usePracticeSession"` sites keep working.
+export type { PracticeMode };
 export type PracticeFilter = {
   patternIds?: SentencePatternId[];
   // Narrows exam mode to one JLPT section (by level + promptLabel), set
@@ -212,22 +215,12 @@ export function usePracticeSession({
     [practiceFocus, isCuratedFocus, selectedForm]
   );
   const activeFocusForms = targetForms.filter((form) => compatibleForms.includes(form));
-  // Exam mode is one PracticeMode but three picker presets (綜合 / N1 備考
-  // / N2 備考). Map the active mode+range to the matching copy key so the
-  // summary + mode description reflect the chosen 備考 preset, not the
-  // generic 綜合考題庫 text.
-  const activeModeCopyKey: PracticeMode | "examN1" | "examN2" | "examN3" | "examN4" =
-    practiceMode === "exam"
-      ? levelRange === "n1n2"
-        ? "examN1"
-        : levelRange === "n2n3"
-          ? "examN2"
-          : levelRange === "n3n4"
-            ? "examN3"
-            : levelRange === "n4n5"
-              ? "examN4"
-              : "exam"
-      : practiceMode;
+  // Exam mode is one PracticeMode but several picker presets (綜合 / 備考
+  // bands). Map the active mode+range to the matching copy key (via the
+  // single EXAM_PRESET_BY_RANGE table) so the summary + mode description
+  // reflect the chosen 備考 preset, not the generic 綜合考題庫 text.
+  const activeModeCopyKey: ModeCopyKey =
+    practiceMode === "exam" ? examPresetForRange(levelRange) : practiceMode;
   const focusSummary = isCuratedFocus
     ? t.modeOptions[activeModeCopyKey].subtitle
     : practiceFocus === "single"
