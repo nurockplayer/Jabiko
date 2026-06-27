@@ -295,7 +295,7 @@ export const copy: Record<Language, Copy> = {
     homeCardChallengeSub: "四種模式：基礎變化 · 句中填空 · 句型判斷 · 綜合考題庫。",
     homeCardChallengeMeta: "自由選詞類、目標形、JLPT 等級",
     homeCardMockTitle: "模擬考",
-    homeCardMockSub: "JLPT N1 / N2 整卷抽題，計時 + 結果分析。",
+    homeCardMockSub: "JLPT N1〜N3 題型分區，照官方結構逐區攻略。",
     homeCardMockMeta: "依官方題型結構",
     homeCardReviewTitle: "弱點複習",
     homeCardReviewSubActive: (count) => `${count} 題等你重練到對。`,

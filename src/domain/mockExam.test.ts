@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getMockExamBlueprint, N1_BLUEPRINT, N2_BLUEPRINT } from "./mockExam";
+import { getMockExamBlueprint, N1_BLUEPRINT, N2_BLUEPRINT, N3_BLUEPRINT } from "./mockExam";
 
 // 模擬考 is now a section picker built on these blueprints (the timed
 // full-paper composer was removed). These tests pin the section metadata:
@@ -20,8 +20,22 @@ describe("getMockExamBlueprint", () => {
     expect(total).toBe(66);
   });
 
+  it("returns the N3 blueprint with the official 74-question total", () => {
+    const bp = getMockExamBlueprint("N3");
+    const total = bp.sections.reduce((sum, s) => sum + s.targetCount, 0);
+    expect(bp).toBe(N3_BLUEPRINT);
+    expect(total).toBe(74);
+    // N3 has NO 語形成 / 統合理解 / 主張理解 sections (those are N1/N2 only);
+    // its long reading is plain 内容理解（長文）.
+    const ids = bp.sections.map((s) => s.id);
+    expect(ids).not.toContain("go-keisei");
+    expect(ids).not.toContain("togo");
+    expect(ids).not.toContain("shucho");
+    expect(ids).toContain("dokkai-long");
+  });
+
   it("gives every section a non-empty promptLabel and stable id", () => {
-    for (const bp of [N1_BLUEPRINT, N2_BLUEPRINT]) {
+    for (const bp of [N1_BLUEPRINT, N2_BLUEPRINT, N3_BLUEPRINT]) {
       const ids = bp.sections.map((s) => s.id);
       expect(new Set(ids).size).toBe(ids.length); // ids unique within a level
       for (const section of bp.sections) {
