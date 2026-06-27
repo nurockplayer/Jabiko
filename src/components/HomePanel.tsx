@@ -58,6 +58,10 @@ const HOME_CONTENT_TOTAL =
 // glanceable "recent habit" without crowding the home page.
 const TREND_DAYS = 14;
 
+// Cap the weakness breakdown to the few weakest types -- a "weakness" callout
+// is the soft spots, not an exhaustive list of every type practised.
+const TYPE_WEAKNESS_ROWS = 5;
+
 // First view the learner lands on. Three layers:
 //   1. Context-aware banner ("review N items" if any, else "continue
 //      chapter XX" if there's an incomplete one). Suppressed entirely
@@ -106,9 +110,6 @@ export function HomePanel({
   ];
 
   const totalAttempts = progressAttempts.length;
-  const correctAttempts = progressAttempts.filter((attempt) => attempt.isCorrect).length;
-  const accuracyPercent =
-    totalAttempts === 0 ? 0 : Math.round((correctAttempts / totalAttempts) * 100);
 
   // Only count "trackable" basic chapters towards the X / Y badge --
   // reference chapters (verb-types + the four sentence-pattern reading
@@ -239,27 +240,21 @@ export function HomePanel({
       ) : null}
 
       {totalAttempts > 0 ? (
-        <div className="home-stats-strip" aria-label={t.homeStatsLabel}>
-          <div className="home-stats-cell">
-            <strong>{totalAttempts}</strong>
-            <small>{t.homeStatsAttempts}</small>
-          </div>
-          <div className="home-stats-cell">
-            <strong>{accuracyPercent}%</strong>
-            <small>{t.homeStatsAccuracy}</small>
-          </div>
-          <div className="home-stats-cell">
-            <strong>
-              {completedChapters} / {trackableChapters.length}
-            </strong>
-            <small>{t.homeStatsChapters}</small>
-          </div>
-        </div>
-      ) : null}
-
-      {totalAttempts > 0 ? (
-        <section className="home-progress" aria-label={t.homeProgressLabel}>
-          <div className="home-stats-strip">
+        <section className="home-progress">
+          {/* One headed stats group: overall accuracy lives in the ring below,
+              so it's intentionally NOT repeated as a tile here. */}
+          <h2 className="home-progress-title">{t.homeProgressLabel}</h2>
+          <div className="home-stats-strip is-wrap" aria-label={t.homeStatsLabel}>
+            <div className="home-stats-cell">
+              <strong>{totalAttempts}</strong>
+              <small>{t.homeStatsAttempts}</small>
+            </div>
+            <div className="home-stats-cell">
+              <strong>
+                {completedChapters} / {trackableChapters.length}
+              </strong>
+              <small>{t.homeStatsChapters}</small>
+            </div>
             <div className="home-stats-cell">
               <strong>{progress.streakDays}</strong>
               <small>{t.homeStatsStreak}</small>
@@ -287,14 +282,16 @@ export function HomePanel({
             points={activityTrend}
             title={t.homeTrendTitle}
             rangeLabel={t.homeTrendRange(TREND_DAYS)}
+            peakLabel={t.homeTrendPeak}
             dayLabel={t.homeTrendDay}
           />
 
           <TypeBars
-            stats={typeWeakness}
+            stats={typeWeakness.slice(0, TYPE_WEAKNESS_ROWS)}
             caption={t.homeTypeWeaknessTitle}
             label={(type) => t.questionTypeLabels[type]}
             answeredLabel={t.homeLevelAnswered}
+            bandLabels={t.typeBandLabels}
           />
         </section>
       ) : null}

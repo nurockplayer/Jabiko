@@ -62,8 +62,10 @@ export type Copy = {
   homeLevelAnswered: (count: number) => string;
   homeTrendTitle: string;
   homeTrendRange: (days: number) => string;
+  homeTrendPeak: (count: number) => string;
   homeTrendDay: (date: string, count: number) => string;
   homeTypeWeaknessTitle: string;
+  typeBandLabels: { weak: string; mid: string; strong: string };
   questionTypeLabels: Record<QuestionType, string>;
   homeCardLearnTitle: string;
   homeCardLearnSub: string;
@@ -296,8 +298,10 @@ export const copy: Record<Language, Copy> = {
     homeLevelAnswered: (count) => `${count} 題`,
     homeTrendTitle: "每日練習量",
     homeTrendRange: (days) => `近 ${days} 天`,
+    homeTrendPeak: (count) => `最多 ${count} 題/日`,
     homeTrendDay: (date, count) => `${date}：${count} 題`,
     homeTypeWeaknessTitle: "題型弱點",
+    typeBandLabels: { weak: "待加強", mid: "普通", strong: "熟練" },
     questionTypeLabels: {
       grammar: "文法",
       vocab: "詞彙",

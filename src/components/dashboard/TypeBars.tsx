@@ -15,18 +15,29 @@ export function TypeBars({
   stats,
   caption,
   label,
-  answeredLabel
+  answeredLabel,
+  bandLabels
 }: {
   stats: QuestionTypeStat[];
   caption: string;
   label: (type: QuestionType) => string;
   answeredLabel: (count: number) => string;
+  /** Legend text for the three accuracy bands, low → high. */
+  bandLabels: { weak: string; mid: string; strong: string };
 }) {
   if (stats.length === 0) return null;
 
   return (
     <div className="type-bars" role="group" aria-label={caption}>
-      <p className="type-bars-caption">{caption}</p>
+      <div className="type-bars-head">
+        <p className="type-bars-caption">{caption}</p>
+        {/* Legend so the colour bands aren't a colour-only signal. */}
+        <ul className="type-bars-legend" aria-hidden="true">
+          <li className="is-weak">{bandLabels.weak}</li>
+          <li className="is-mid">{bandLabels.mid}</li>
+          <li className="is-strong">{bandLabels.strong}</li>
+        </ul>
+      </div>
       <ul className="type-bars-list">
         {stats.map((stat) => (
           <li className="type-bar-row" key={stat.type}>
