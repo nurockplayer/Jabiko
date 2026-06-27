@@ -239,6 +239,56 @@ export function HomePanel({
         </button>
       ) : null}
 
+      <div className="home-grid">
+        {/* Each card carries a single-CJK "stage badge" (學 / 練 / 背 /
+            考 / 補) instead of a lucide-react icon. The icons read as
+            tech-product chrome; the kanji read as editorial. Stages
+            suggest a natural progression but the cards stay
+            independently entry-able -- a returning learner who only
+            wants today's mock exam can still jump straight to 考. */}
+        <button type="button" className="home-card" onClick={() => onNavigate("learn")}>
+          <BooksSpot className="home-card-spot" />
+          <h2>{t.homeCardLearnTitle}</h2>
+          <p>{t.homeCardLearnSub}</p>
+          <span className="home-card-meta">
+            {t.homeCardLearnMeta(completedChapters, trackableChapters.length)}
+          </span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+        <button type="button" className="home-card" onClick={() => onNavigate("challenge")}>
+          <BrushSpot className="home-card-spot" />
+          <h2>{t.homeCardChallengeTitle}</h2>
+          <p>{t.homeCardChallengeSub}</p>
+          <span className="home-card-meta">{t.homeCardChallengeMeta}</span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+        <button type="button" className="home-card" onClick={onStartVocab}>
+          <SpeechSpot className="home-card-spot" />
+          <h2>{t.homeCardVocabTitle}</h2>
+          <p>{t.homeCardVocabSub}</p>
+          <span className="home-card-meta">{t.homeCardVocabMeta}</span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+        <button type="button" className="home-card" onClick={() => onNavigate("mock")}>
+          <ExamPaperSpot className="home-card-spot" />
+          <h2>{t.homeCardMockTitle}</h2>
+          <p>{t.homeCardMockSub}</p>
+          <span className="home-card-meta">{t.homeCardMockMeta}</span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+        <button type="button" className="home-card" onClick={onStartReview}>
+          <TargetSpot className="home-card-spot" />
+          <h2>{t.homeCardReviewTitle}</h2>
+          <p>
+            {reviewCount > 0 ? t.homeCardReviewSubActive(reviewCount) : t.homeCardReviewSubEmpty}
+          </p>
+          <span className="home-card-meta">{t.homeCardReviewMeta}</span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+      </div>
+
+      {/* Stats sit BELOW the entry cards: the actionable cards are the
+          headline; the progress dashboard is a glance-down afterthought. */}
       {totalAttempts > 0 ? (
         <section className="home-progress">
           {/* One headed stats group: overall accuracy lives in the ring below,
@@ -295,54 +345,6 @@ export function HomePanel({
           />
         </section>
       ) : null}
-
-      <div className="home-grid">
-        {/* Each card carries a single-CJK "stage badge" (學 / 練 / 背 /
-            考 / 補) instead of a lucide-react icon. The icons read as
-            tech-product chrome; the kanji read as editorial. Stages
-            suggest a natural progression but the cards stay
-            independently entry-able -- a returning learner who only
-            wants today's mock exam can still jump straight to 考. */}
-        <button type="button" className="home-card" onClick={() => onNavigate("learn")}>
-          <BooksSpot className="home-card-spot" />
-          <h2>{t.homeCardLearnTitle}</h2>
-          <p>{t.homeCardLearnSub}</p>
-          <span className="home-card-meta">
-            {t.homeCardLearnMeta(completedChapters, trackableChapters.length)}
-          </span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-        <button type="button" className="home-card" onClick={() => onNavigate("challenge")}>
-          <BrushSpot className="home-card-spot" />
-          <h2>{t.homeCardChallengeTitle}</h2>
-          <p>{t.homeCardChallengeSub}</p>
-          <span className="home-card-meta">{t.homeCardChallengeMeta}</span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-        <button type="button" className="home-card" onClick={onStartVocab}>
-          <SpeechSpot className="home-card-spot" />
-          <h2>{t.homeCardVocabTitle}</h2>
-          <p>{t.homeCardVocabSub}</p>
-          <span className="home-card-meta">{t.homeCardVocabMeta}</span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-        <button type="button" className="home-card" onClick={() => onNavigate("mock")}>
-          <ExamPaperSpot className="home-card-spot" />
-          <h2>{t.homeCardMockTitle}</h2>
-          <p>{t.homeCardMockSub}</p>
-          <span className="home-card-meta">{t.homeCardMockMeta}</span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-        <button type="button" className="home-card" onClick={onStartReview}>
-          <TargetSpot className="home-card-spot" />
-          <h2>{t.homeCardReviewTitle}</h2>
-          <p>
-            {reviewCount > 0 ? t.homeCardReviewSubActive(reviewCount) : t.homeCardReviewSubEmpty}
-          </p>
-          <span className="home-card-meta">{t.homeCardReviewMeta}</span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-      </div>
 
       <footer className="home-footer">
         <div className="home-footer-spots" aria-hidden="true">
