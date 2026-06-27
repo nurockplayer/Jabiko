@@ -1,5 +1,5 @@
 import { copy, type Language } from "../i18n";
-import { BooksSpot } from "../illustrations";
+import { JabikoMark } from "./JabikoMark";
 
 // The author's personal "about" page.
 const ABOUT_URL = "https://hanayukii.dev/about";
@@ -13,7 +13,7 @@ export function AboutPanel({ language }: { language: Language }) {
   return (
     <section className="about-panel" aria-label={t.about}>
       <header className="about-hero">
-        <BooksSpot className="panel-header-spot" />
+        <JabikoMark className="about-hero-mark" />
         <p className="eyebrow">{t.about}</p>
         <h1>{t.aboutTitle}</h1>
         <p className="about-tagline">{t.aboutTagline}</p>
