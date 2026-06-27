@@ -285,7 +285,7 @@ export const copy: Record<Language, Copy> = {
     aboutAuthorBody:
       "程式競賽出身、在 Google 待了三年的工程師，2025 年離開後，現在於 AI 新創當 Tech Lead。日語是十年前考過 N2 就擱著的老本，直到 2024 年重新追起日系偶像才又撿了回來。離開 Google 成了一個契機：與其把日文當成一張考過就收進抽屜的證書，不如當成一條慢慢精進的線走下去——Jabiko 就是這條線上的工具，最初做給自己，後來也分享給同樣在學的人。",
     aboutAuthorIdols:
-      "目前在追：私立恵比寿中学・TEAM SHACHI・超ときめき♡宣伝部・高嶺のなでしこ・ももいろクローバーZ・ukka・=LOVE・TrySail・Aqours",
+      "這些年陸續在追（也有幾團已經解散）：私立恵比寿中学・TEAM SHACHI・超ときめき♡宣伝部・高嶺のなでしこ・ももいろクローバーZ・ukka・=LOVE・TrySail・Aqours",
     aboutAuthorLink: "更多關於作者 →",
     homeHeroTitle: "今天想練什麼？",
     homeHeroIntro: "從基礎變化到 N1 題感。文法、漢字、單字、整卷模擬，一處解決。",
