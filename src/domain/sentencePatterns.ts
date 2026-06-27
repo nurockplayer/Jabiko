@@ -4,7 +4,10 @@ export type SentencePatternId =
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
-  | "to-omou";
+  | "to-omou"
+  | "mae-ato"
+  | "nagara-tari"
+  | "te-aux";
 
 export type SentencePatternItem = {
   id: string;
@@ -28,7 +31,10 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
-  "to-omou": "引用 / 意見"
+  "to-omou": "引用 / 意見",
+  "mae-ato": "前後關係",
+  "nagara-tari": "並列・同時",
+  "te-aux": "補助動詞"
 };
 
 // ===========================================================================
@@ -497,11 +503,193 @@ const TO_OMOU_ITEMS: SentencePatternItem[] = [
   }
 ];
 
+// ===========================================================================
+// Pattern 5: mae-ato -- ordering of two actions (まえに / あとで / てから).
+//   The scene fixes the time order; distractors are the same verb in the
+//   other forms, which become temporally impossible (e.g. "after leaving"
+//   can't lock the home door).
+// ===========================================================================
+const MAE_ATO_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-mae-ato-001",
+    patternId: "mae-ato",
+    promptText: "会社へ ___ 、家のかぎをかけました。",
+    hintZh: "早上要出門上班，人還站在玄關，準備踏出家門。",
+    promptContextZh: "去公司之前，鎖上了家裡的門。",
+    expectedAnswer: "行くまえに",
+    options: ["行くまえに", "行ってから", "行ったあとで", "行ったとき"],
+    explanation:
+      "鎖自家門一定發生在離開家以前，「Vるまえに」表示在某動作發生『以前』先做另一件事。「行ってから」「行ったあとで」「行ったとき」都表示人已離開或到了公司，無法再鎖自家門、時間矛盾。"
+  },
+  {
+    id: "pattern-mae-ato-002",
+    patternId: "mae-ato",
+    promptText: "手を ___ 、ケーキを食べてください。",
+    hintZh: "小朋友剛從外面玩回來，手有點髒，桌上放著要吃的蛋糕。",
+    promptContextZh: "把手洗乾淨後再吃蛋糕。",
+    expectedAnswer: "あらってから",
+    options: ["あらってから", "あらうまえに", "あらうとき", "あらいながら"],
+    explanation:
+      "句意是把手洗好、緊接著去吃，「Vてから」表示前項做完『再』接著做後項。「あらうまえに」是手還沒洗就先吃、不衛生；「あらうとき」「あらいながら」變成一邊洗手一邊吃、不合理。"
+  },
+  {
+    id: "pattern-mae-ato-003",
+    patternId: "mae-ato",
+    promptText: "電車に ___ 、ホームでパンを買いました。",
+    hintZh: "在車站月台上，列車還沒進站，肚子有點餓所以走到小賣店。",
+    promptContextZh: "上電車之前，在月台上買了麵包。",
+    expectedAnswer: "乗るまえに",
+    options: ["乗るまえに", "乗ってから", "乗ったあとで", "乗ったとき"],
+    explanation:
+      "在月台買麵包一定發生在上車以前，「Vるまえに」表示在動作發生前先做某事。「乗ってから」「乗ったあとで」「乗ったとき」都表示人已在車上，無法回月台買、時間矛盾。"
+  },
+  {
+    id: "pattern-mae-ato-004",
+    patternId: "mae-ato",
+    promptText: "ごはんを ___ 、すぐ歯をみがきましょう。",
+    hintZh: "一家人剛吃完晚餐，碗盤還在桌上，媽媽提醒孩子下一件該做的事。",
+    promptContextZh: "吃完飯後，馬上去刷牙吧。",
+    expectedAnswer: "食べたあとで",
+    options: ["食べたあとで", "食べるまえに", "食べるとき", "食べながら"],
+    explanation:
+      "刷牙是用餐『完成後』做的事，「Vたあとで」表示某動作做完後再做別的，配合「すぐ（馬上）」。「食べるまえに」是用餐前刷牙、時間相反；「食べるとき」「食べながら」變成一邊吃一邊刷、不合理。"
+  }
+];
+
+// ===========================================================================
+// Pattern 6: nagara-tari -- linking actions (ながら同時 / たり列舉 / て順接 /
+//   し加理由). The context decides which link fits; the distractors are the
+//   other three links, which give a different (wrong) meaning here.
+// ===========================================================================
+const NAGARA_TARI_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-nagara-tari-001",
+    patternId: "nagara-tari",
+    promptText: "最近は天気が ___ 、寒かったりして、体によくない。",
+    hintZh: "最近天氣很不穩定，一下子熱、一下子冷，身體有點吃不消。",
+    promptContextZh: "最近天氣一下子熱、一下子冷，對身體不好。",
+    expectedAnswer: "暑かったり",
+    options: ["暑かったり", "暑くて", "暑いし", "暑いと"],
+    explanation:
+      "後句「寒かったりして」已用「たり」，前後成對舉出『忽冷忽熱』兩種交替狀態，用「Aたり、Bたり」。「暑くて」是接續、「暑いし」是加理由、「暑いと」是條件，都無法與後面的「たり」配對表交替。"
+  },
+  {
+    id: "pattern-nagara-tari-002",
+    patternId: "nagara-tari",
+    promptText: "朝起きて、顔を ___ 、それから会社へ行きます。",
+    hintZh: "敘述早上起床後到出門上班之間，依時間先後完成的固定流程。",
+    promptContextZh: "早上起床，洗了臉，然後再去公司。",
+    expectedAnswer: "洗って",
+    options: ["洗って", "洗いながら", "洗ったり", "洗うし"],
+    explanation:
+      "句中「それから」標示『先洗臉、再出門』的時間順序，動作接續用「て」。「洗いながら」是同時做、「洗ったり」是舉例、「洗うし」是補理由，都不表先後。"
+  },
+  {
+    id: "pattern-nagara-tari-003",
+    patternId: "nagara-tari",
+    promptText: "この店は安い ___ 、料理もおいしいから、よく来ます。",
+    hintZh: "說明一家店令人常常光顧，背後不只一個原因的情況。",
+    promptContextZh: "這家店又便宜，菜也好吃，所以我常來。",
+    expectedAnswer: "し",
+    options: ["し", "ながら", "たり", "て"],
+    explanation:
+      "句尾「〜から、よく来ます」在堆疊「便宜」「好吃」兩個原因，用「し」。「ながら」「たり」「て」都不是在加列原因；且「安い」是形容詞，後三者也接不上。"
+  },
+  {
+    id: "pattern-nagara-tari-004",
+    patternId: "nagara-tari",
+    promptText: "弟は歩き ___ スマホを見るので、よく人にぶつかります。",
+    hintZh: "描述弟弟走路時眼睛沒離開手機螢幕，因此常出狀況。",
+    promptContextZh: "弟弟走著路就看手機，所以常常撞到人。",
+    expectedAnswer: "ながら",
+    options: ["ながら", "たり", "て", "し"],
+    explanation:
+      "「走路」與「看手機」由同一人同時並行進行，用「ながら」（接ます形語幹「歩き」）。「たり」是舉例、「て」會變成先走完再看、「し」是補理由，都不符。"
+  },
+  {
+    id: "pattern-nagara-tari-005",
+    patternId: "nagara-tari",
+    promptText: "デパートでくつを買って、ごはんを ___ 帰りました。",
+    hintZh: "敘述在百貨公司辦完幾件事後才返家的一連串行程。",
+    promptContextZh: "在百貨公司買了鞋，吃了飯，然後就回家了。",
+    expectedAnswer: "食べて",
+    options: ["食べて", "食べたり", "食べながら", "食べるし"],
+    explanation:
+      "前面「買って」已用接續形，整句是「買鞋→吃飯→回家」的時間順序，用「て」。「食べたり」是舉例、「食べながら」是同時、「食べるし」是補理由，都接不上這條時間線。"
+  },
+  {
+    id: "pattern-nagara-tari-006",
+    patternId: "nagara-tari",
+    promptText: "今日は天気もいい ___ 、宿題も終わったから、公園で遊びましょう。",
+    hintZh: "提議去公園玩之前，先擺出好幾項對自己有利的條件。",
+    promptContextZh: "今天天氣又好，作業也做完了，所以去公園玩吧。",
+    expectedAnswer: "し",
+    options: ["し", "ながら", "たり", "で"],
+    explanation:
+      "句中「〜から、遊びましょう」前接「天氣好」「作業做完」兩個有利原因，用「し」。「ながら」是同時、「たり」是舉例、「で」是中止接續，都不是在加列原因；且「いい」是形容詞，後三者也接不上。"
+  }
+];
+
+// ===========================================================================
+// Pattern 7: te-aux -- て + auxiliary verb (てみる試 / ている狀態 / てしまう
+//   完了・遺憾). The scene's nuance picks the auxiliary; distractors are the
+//   other auxiliaries on the same verb.
+// ===========================================================================
+const TE_AUX_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-te-aux-001",
+    patternId: "te-aux",
+    promptText: "この店、おいしそうだから、今度入っ___。",
+    hintZh: "走在街上發現一家從沒去過的餐廳，外觀很不錯，於是對朋友提議下次來這裡。",
+    promptContextZh: "這家店看起來很好吃，下次進去吃吃看吧。",
+    expectedAnswer: "てみよう",
+    options: ["てみよう", "ておこう", "てしまおう", "ている"],
+    explanation:
+      "對沒去過的店、配合「今度」提出『嘗試一下』的語氣，用表嘗試的「〜てみる」的意向形「てみよう」。「ておこう」是為將來預做準備、「てしまおう」是把某事做完或帶懊悔、「ている」是持續狀態，皆不合。"
+  },
+  {
+    id: "pattern-te-aux-002",
+    patternId: "te-aux",
+    promptText: "兄は今、となりの部屋でテレビを見___。",
+    hintZh: "家人問哥哥人在哪裡，回答的人指向隔壁房間，描述哥哥此刻的動作。",
+    promptContextZh: "哥哥現在在隔壁房間看電視。",
+    expectedAnswer: "ている",
+    options: ["ている", "てみる", "ておく", "てしまう"],
+    explanation:
+      "「今」加上描述某人此刻持續進行的動作，用表進行的「〜ている」。「てみる」是嘗試、「ておく」是事先準備、「てしまう」是完成或懊悔，都不能表當下持續。"
+  },
+  {
+    id: "pattern-te-aux-003",
+    patternId: "te-aux",
+    promptText: "あ、ケーキを全部一人で食べ___。ごめん。",
+    hintZh: "原本說好要留給家人的蛋糕，自己一回神才發現整個都吃光了，趕緊向對方道歉。",
+    promptContextZh: "啊，我一個人把蛋糕全部吃光了，對不起。",
+    expectedAnswer: "てしまった",
+    options: ["てしまった", "てみた", "ておいた", "ていた"],
+    explanation:
+      "把該留的蛋糕全吃光並道歉，是非本意、後悔的『完了』，用「〜てしまう」，與「ごめん」相呼應。「てみた」是嘗試、「ておいた」是事先準備、「ていた」是當時狀態，都無法傳達懊悔。"
+  },
+  {
+    id: "pattern-te-aux-004",
+    patternId: "te-aux",
+    promptText: "この道は、駅までずっと続い___。",
+    hintZh: "向問路的人說明眼前這條路的走向，這條路一路通到車站，沿途不會中斷。",
+    promptContextZh: "這條路一直延伸到車站。",
+    expectedAnswer: "ている",
+    options: ["ている", "てみる", "ておく", "てしまう"],
+    explanation:
+      "配合「ずっと」描述道路目前一路延續到車站的『既成狀態』，用表狀態的「〜ている」。「てみる」是嘗試、「ておく」是事先準備、「てしまう」是完成或懊悔，都無法描述這種延伸狀態。"
+  }
+];
+
 export const sentencePatternItems: SentencePatternItem[] = [
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,
-  ...TO_OMOU_ITEMS
+  ...TO_OMOU_ITEMS,
+  ...MAE_ATO_ITEMS,
+  ...NAGARA_TARI_ITEMS,
+  ...TE_AUX_ITEMS
 ];
 
 export type SentencePatternPoolOptions = {
