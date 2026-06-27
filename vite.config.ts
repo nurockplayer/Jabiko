@@ -38,6 +38,10 @@ export default defineConfig({
         ]
       },
       workbox: {
+        // Client-side routes (/about, /mock, …) have no precached file; serve
+        // the app shell for navigations so deep links / refresh work offline
+        // too (the host's public/_redirects covers the online first-load).
+        navigateFallback: "index.html",
         // Code/markup only here; static images (icons / hero / og) are
         // precached via includeAssets above. Keeping them out of
         // globPatterns avoids duplicate precache entries for the same URL.

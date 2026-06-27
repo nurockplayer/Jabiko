@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Languages, Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
@@ -39,8 +39,48 @@ const KanjiOnyomiPanel = lazy(() =>
 type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about";
 type DrillPreset = LearningBlockDrillPreset;
 
+// Lightweight URL routing: each top-level view maps to a path so the browser
+// back/forward buttons, refresh, and shareable/bookmarkable links all work
+// (no router dependency). The challenge view's internal mode/filter stays as
+// ephemeral state -- deep-linking a specific drill is out of scope here.
+// Needs a SPA fallback on the host (public/_redirects) so a direct hit on a
+// sub-path serves index.html.
+const VIEW_PATHS: Record<AppView, string> = {
+  home: "/",
+  learn: "/learn",
+  rules: "/rules",
+  kanji: "/kanji",
+  challenge: "/challenge",
+  mock: "/mock",
+  about: "/about"
+};
+
+function viewFromPath(pathname: string): AppView {
+  const match = (Object.entries(VIEW_PATHS) as [AppView, string][]).find(
+    ([, path]) => path === pathname
+  );
+  return match ? match[0] : "home";
+}
+
 export default function App() {
-  const [appView, setAppView] = useState<AppView>("home");
+  const [appView, setAppView] = useState<AppView>(() => viewFromPath(window.location.pathname));
+
+  // Keep the URL in sync when the view changes (push a history entry only
+  // when the path actually differs, so popstate-driven changes don't loop).
+  useEffect(() => {
+    const target = VIEW_PATHS[appView];
+    if (window.location.pathname !== target) {
+      window.history.pushState({ view: appView }, "", target);
+    }
+  }, [appView]);
+
+  // Back/forward: read the view back off the URL.
+  useEffect(() => {
+    const onPopState = () => setAppView(viewFromPath(window.location.pathname));
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
   // Single-language app (zh-Hant). The `language` seam is kept so the
   // copy[language] call sites and component props don't have to change;
   // re-adding a locale later is just restoring entries in i18n.ts.
