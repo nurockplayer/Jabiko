@@ -50,6 +50,9 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: "漢字" }));
     await screen.findByRole("heading", { name: /漢字音読み/ }, { timeout: 30000 });
     unmount();
+    // Priming navigated the URL (the app now routes view -> path); reset so the
+    // first test starts at "/" (afterEach only runs after each test, not here).
+    window.history.replaceState({}, "", "/");
   }, 60000);
 
   afterEach(() => {

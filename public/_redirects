@@ -1,0 +1,5 @@
+# Cloudflare Pages SPA fallback: client-side routes (/about, /mock, /learn …)
+# have no built file, so serve the app shell and let the in-app router resolve
+# the view. Real static assets (/assets/*, /icon.svg, …) are matched first and
+# served directly, so this only catches unknown paths.
+/*  /index.html  200
