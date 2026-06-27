@@ -126,7 +126,22 @@
 
 .view-switch {
   margin: 0 auto 1rem;
-  max-width: 360px;
+}
+
+/* Top nav is a horizontal, wrapping bar -- the compound selector beats the
+   shared `.segmented` 2-col grid (challenge.css) without touching the
+   in-panel pickers that still use that grid. Buttons hug their labels and
+   wrap to a second row on narrow screens instead of stacking 4 rows tall. */
+.view-switch.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 760px;
+}
+
+.view-switch.segmented button {
+  flex: 0 1 auto;
+  padding-inline: 1.1rem;
 }
 
 .view-switch button {
