@@ -155,6 +155,7 @@ export type Copy = {
   drillPatternMaeAto: string;
   drillPatternNagaraTari: string;
   drillPatternTeAux: string;
+  drillN3Grammar: string;
   startChallenge: string;
   settingsLabel: string;
   todayPractice: string;
@@ -445,6 +446,7 @@ export const copy: Record<Language, Copy> = {
     drillPatternMaeAto: "練句型：前後順序",
     drillPatternNagaraTari: "練句型：並列・同時",
     drillPatternTeAux: "練句型：補助動詞",
+    drillN3Grammar: "去練 N3 文法題",
     startChallenge: "開始挑戰",
     settingsLabel: "練習設定",
     todayPractice: "今日練習",

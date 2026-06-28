@@ -43,6 +43,18 @@ describe("isLearningBlockComplete", () => {
     ).toBe(false);
   });
 
+  it("the N3 grammar lesson chapters are reference and launch the N3 文法 exam drill", () => {
+    for (const id of ["n3-jouken", "n3-suiryou"]) {
+      const block = byId(id);
+      expect(block.completionMode).toBe("reference");
+      expect(block.examDrill).toEqual({
+        labelKey: "drillN3Grammar",
+        level: "N3",
+        promptLabel: "文法形式選擇"
+      });
+    }
+  });
+
   it("the seven sentence-pattern chapters now count as trackable (drillable) chapters", () => {
     const trackable = learningBlocks.filter(
       (b) => b.group === "basic" && b.completionMode !== "reference"

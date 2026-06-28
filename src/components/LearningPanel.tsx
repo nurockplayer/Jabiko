@@ -21,7 +21,8 @@ export function LearningPanel({
   onStartChallenge,
   onStartReview,
   onStartDrill,
-  onStartPatternDrill
+  onStartPatternDrill,
+  onStartExamSection
 }: {
   language: Language;
   progressAttempts: Attempt[];
@@ -30,6 +31,7 @@ export function LearningPanel({
   onStartReview: () => void;
   onStartDrill: (preset: LearningBlockDrillPreset) => void;
   onStartPatternDrill: (patternIds: SentencePatternId[]) => void;
+  onStartExamSection: (level: "N1" | "N2" | "N3", promptLabel: string) => void;
 }) {
   const t = copy[language];
   // PR A: surface only the "basic" learning blocks. PR C will introduce
@@ -218,6 +220,21 @@ export function LearningPanel({
                     {drillButtonLabel(drill)}
                   </button>
                 ))}
+              </div>
+            ) : null}
+
+            {active.examDrill ? (
+              <div className="inline-action-row">
+                <button
+                  className="inline-drill-button"
+                  type="button"
+                  onClick={() =>
+                    onStartExamSection(active.examDrill!.level, active.examDrill!.promptLabel)
+                  }
+                >
+                  <ArrowRight aria-hidden="true" />
+                  {drillButtonLabel(active.examDrill)}
+                </button>
               </div>
             ) : null}
 
