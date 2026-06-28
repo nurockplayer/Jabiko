@@ -29,32 +29,33 @@ export const VIEW_SEO: Record<SeoView, PageSeo> = {
     path: "/"
   },
   learn: {
-    title: "分章學習 · Jabiko JLPT 自習室",
+    title: "分章學習 · JLPT／日檢文法變化 · Jabiko",
     description:
-      "從動詞、形容詞變化一路到常用句型，一章一章看規則、例句與最容易踩的陷阱，看完直接進對應練習。",
+      "從動詞、形容詞變化一路到常用句型，一章一章看規則、例句與最容易踩的陷阱，看完直接練——日檢 N5〜N1 文法打底。",
     path: "/learn"
   },
   rules: {
-    title: "日語變化規則速查表 · Jabiko",
-    description: "動詞變化、ます／て形、各種接續整理成一頁可查的表，需要時掃一眼就好。",
+    title: "日語動詞變化規則速查表 · JLPT／日檢 · Jabiko",
+    description:
+      "動詞變化、ます／て形、各種接續整理成一頁可查的表，日檢文法複習時掃一眼就好。",
     path: "/rules"
   },
   kanji: {
-    title: "漢字音讀速查 · Jabiko 自習室",
+    title: "漢字音讀速查 · JLPT／日檢 N5–N1 · Jabiko",
     description:
-      "依音讀（同音家族）查漢字、確認讀音與例詞，把濁音、長短音一次搞清楚，涵蓋 N5〜N1 漢字。",
+      "依音讀（同音家族）查漢字、確認讀音與例詞，把濁音、長短音一次搞清楚，涵蓋 JLPT／日檢 N5〜N1 漢字。",
     path: "/kanji"
   },
   challenge: {
-    title: "練習題庫 · Jabiko JLPT 自習室",
+    title: "JLPT／日檢線上題庫練習 · Jabiko 自習室",
     description:
-      "基礎變化、句中填空、句型練習，加上 N1〜N4 備考綜合題庫——自由選等級與題型，想練哪一塊就練哪一塊。",
+      "基礎變化、句中填空、句型練習，加上 N1〜N4 日檢備考綜合題庫——自由選等級與題型，線上免費開練。",
     path: "/challenge"
   },
   mock: {
-    title: "JLPT 模擬考 · Jabiko 自習室",
+    title: "JLPT／日檢模擬考線上練習 · Jabiko",
     description:
-      "依 JLPT N1／N2／N3 官方題型分區練習：漢字読み、文法、語順組合、讀解，照真實考卷結構逐區攻略。",
+      "依 JLPT／日檢 N1・N2・N3 官方題型分區線上練習：漢字読み、文法、語順組合、讀解，照真實考卷結構逐區攻略。",
     path: "/mock"
   },
   about: {
