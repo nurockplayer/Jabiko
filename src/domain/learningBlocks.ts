@@ -1023,6 +1023,83 @@ export const learningBlocks: LearningBlock[] = [
     examDrill: { labelKey: "drillN3Grammar", level: "N3", promptLabel: "文法形式選擇" },
     drillNote: "※ 這章是文法整理；按鈕去練 N3 文法形式選擇題庫，邊練邊熟。",
     recommendedAfter: ["teTa"]
+  },
+  {
+    id: "n3-hazu-wake",
+    group: "basic",
+    category: "N3 文法",
+    kicker: "理應・難怪",
+    title: "〜はず / 〜わけ（推論・道理）",
+    subtitle: "来るはず / 寒いわけだ",
+    explanation:
+      "都表「基於道理的推論」。「はず」：根據理由或常識「按理說應該…」（說話者有把握的推測）；「はずがない」＝不可能。「わけ」用法多：「〜わけだ」＝難怪／也就是說（從前提導出的當然結論）；「わけではない」＝並非（部分否定）；「わけにはいかない」＝（情理上）不能。",
+    examples: [
+      { formula: "彼は約束したから、来るはずだ", note: "はず：按理應該…" },
+      { formula: "そんなことを言うはずがない", note: "はずがない：不可能" },
+      { formula: "暖房が壊れているのか。寒いわけだ", note: "わけだ：難怪…" },
+      { formula: "嫌いなわけではないが、苦手だ", note: "わけではない：並非…" },
+      { formula: "今、休むわけにはいかない", note: "わけにはいかない：情理上不能" }
+    ],
+    pitfalls: [
+      "「はず」是根據理由的推測，不是自己的願望（「彼は行きたいはず」＝他應該想去○；但 ×「私は行きたいはず」）",
+      "「はずがない／わけがない」＝不可能；「わけではない」＝並非（部分否定），語意不同別混",
+      "「わけだ」要有前提才自然（從 A 推出當然的 B）"
+    ],
+    completionMode: "reference",
+    examDrill: { labelKey: "drillN3Grammar", level: "N3", promptLabel: "文法形式選擇" },
+    drillNote: "※ 這章是文法整理；按鈕去練 N3 文法形式選擇題庫，邊練邊熟。",
+    recommendedAfter: ["plain"]
+  },
+  {
+    id: "n3-yasui-sugiru",
+    group: "basic",
+    category: "N3 文法",
+    kicker: "難易・過度",
+    title: "〜やすい / 〜にくい / 〜すぎる（程度）",
+    subtitle: "書きやすい / 読みにくい / 食べすぎる",
+    explanation:
+      "三者都接動詞ます形（去ます）。〜やすい＝容易…（書きやすい）。〜にくい＝難以…（読みにくい）。〜すぎる＝太過…（過頭，多帶負面），也接形容詞語幹（高すぎる・静かすぎる）。變化：やすい／にくい 像い形容詞（やすかった）；すぎる 像二類動詞（すぎた）。",
+    examples: [
+      { formula: "このペンは書きやすい", note: "ます形＋やすい：容易" },
+      { formula: "この字は読みにくい", note: "ます形＋にくい：難以" },
+      { formula: "ゆうべは食べすぎて、お腹が痛い", note: "ます形＋すぎる：太過（動詞）" },
+      { formula: "この服は高すぎる", note: "い形語幹＋すぎる" },
+      { formula: "この部屋は静かすぎる", note: "な形語幹＋すぎる" }
+    ],
+    pitfalls: [
+      "三者都接動詞ます形（去ます）：書く→書き＋やすい／にくい／すぎる",
+      "「すぎる」也接形容詞語幹（高すぎる／静かすぎる），帶「過頭、不好」的語感",
+      "「いい」的すぎる是 よすぎる（不是 いすぎる）；「ない」是 なさすぎる"
+    ],
+    completionMode: "reference",
+    examDrill: { labelKey: "drillN3Grammar", level: "N3", promptLabel: "文法形式選擇" },
+    drillNote: "※ 這章是文法整理；按鈕去練 N3 文法形式選擇題庫，邊練邊熟。",
+    recommendedAfter: ["masu"]
+  },
+  {
+    id: "n3-garu",
+    group: "basic",
+    category: "N3 文法",
+    kicker: "描述別人的感受",
+    title: "〜がる / 〜たがる（第三人稱的情緒・願望）",
+    subtitle: "寒がる / 行きたがる",
+    explanation:
+      "「嬉しい・寒い・ほしい・〜たい」這類感受詞，直述時通常只能斷定第一人稱（私は寒い）；要講第三人稱的感受／願望，用「がる」（或〜そう／〜と言っている）。形容詞語幹＋がる（寒い→寒がる、ほしい→ほしがる）；〜たい→〜たがる（行きたい→行きたがる）。「がる」是動詞，描述當下狀態常用〜ている。",
+    examples: [
+      { formula: "弟は新しいゲームを欲しがっている", note: "ほしい→ほしがる（が→を）" },
+      { formula: "子どもが寒がっている", note: "寒い→寒がる" },
+      { formula: "妹は留学に行きたがっている", note: "〜たい→〜たがる" },
+      { formula: "彼は嬉しがっていた", note: "嬉しい→嬉しがる" }
+    ],
+    pitfalls: [
+      "直接說「弟は寒い／弟はほしい」不自然（直述感受預設是「我」）；講別人要用 がる／たがる",
+      "「ほしがる／〜たがる」的對象常把 が 改成 を（水を欲しがる／本を読みたがる）",
+      "「がる」是動詞，描述當下狀態常用〜ている（ほしがっている／行きたがっている）"
+    ],
+    completionMode: "reference",
+    examDrill: { labelKey: "drillN3Grammar", level: "N3", promptLabel: "文法形式選擇" },
+    drillNote: "※ 這章是文法整理；按鈕去練 N3 文法形式選擇題庫，邊練邊熟。",
+    recommendedAfter: ["plain"]
   }
 ];
 
