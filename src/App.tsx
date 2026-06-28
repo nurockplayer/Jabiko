@@ -287,6 +287,9 @@ export default function App() {
           onStartReview={() => openChallenge({ mode: "review" })}
           onStartDrill={startDrill}
           onStartPatternDrill={startPatternDrill}
+          onStartExamSection={(level, promptLabel) =>
+            openChallenge({ mode: "exam", filter: { examSection: { level, promptLabel } } })
+          }
         />
       ) : appView === "rules" ? (
         <RulesPanel language={language} />

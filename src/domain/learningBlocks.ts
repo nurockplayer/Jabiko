@@ -23,6 +23,14 @@ export type LearningBlockPatternDrill = {
   patternIds: SentencePatternId[];
 };
 
+export type LearningBlockExamDrill = {
+  labelKey: string;
+  /** JLPT level whose exam pool to drill (matches the 模擬考 section launch). */
+  level: "N1" | "N2" | "N3";
+  /** Exam section to narrow to, e.g. "文法形式選擇". */
+  promptLabel: string;
+};
+
 export type LearningBlock = {
   id: string;
   group: "basic" | "exam";
@@ -56,6 +64,14 @@ export type LearningBlock = {
    * chapters.
    */
   patternDrills?: LearningBlockPatternDrill[];
+  /**
+   * Launches exam practice filtered to a JLPT level + section (promptLabel),
+   * e.g. N3 文法形式選擇. Used by N3+ grammar-lesson chapters whose practice is
+   * the level's general grammar pool, not one specific point. These chapters
+   * are reading lessons (completionMode "reference") -- the drill is a CTA, not
+   * a per-chapter completion signal.
+   */
+  examDrill?: LearningBlockExamDrill;
   /**
    * Optional note rendered above the drill button row. Used by
    * reference chapters whose drill targets a prerequisite form rather
@@ -799,6 +815,60 @@ export const learningBlocks: LearningBlock[] = [
     ],
     drillNote: "※ 上方按鈕直接練補助動詞語感判斷；下方按鈕加練前置「て形」音便。",
     recommendedAfter: ["teTa"]
+  },
+  {
+    id: "n3-jouken",
+    group: "basic",
+    category: "N3 文法",
+    kicker: "四種「如果」",
+    title: "ば / たら / なら / と（四種條件）",
+    subtitle: "押せば / 着いたら / 行くなら / 春になると",
+    explanation:
+      "四個都能翻成「如果／一…就」，差別在分工。「と」：必然、自然的結果（規律、機械、路線），後句不接意志／命令／請求。「ば」：一般條件、假設，強調前項是後項成立的條件。「たら」：最泛用、口語最常見，「做完 A 之後 B」或「如果 A 的話 B」，後句可接命令、過去的發現。「なら」：針對對方提到的話題給前提／建議（「要…的話」），前句甚至可比後句晚發生。",
+    examples: [
+      { formula: "春になると、桜が咲く", note: "と：必然・自然規律（後句不用意志）" },
+      { formula: "このボタンを押せば、ドアが開く", note: "ば：一般條件" },
+      { formula: "安ければ買う", note: "ば：形容詞也用ば" },
+      { formula: "駅に着いたら、電話して", note: "たら：做完A後B，後句可命令" },
+      { formula: "日本へ行くなら、JRパスがいい", note: "なら：針對對方說的話題給建議" }
+    ],
+    pitfalls: [
+      "「と」後句不能接意志・命令・請求・邀約（×春になると、花を植えよう）→ 改用たら／ば",
+      "拿不定主意時「たら」多半最安全，它涵蓋面最廣、最口語",
+      "「なら」是「就你說的那件事」給前提，常呼應對方的話；なら 前句可比後句晚發生（日本へ行くなら、ガイドブックを先に買う）",
+      "前後不同主語、且後句是意志時，「ば」會不自然，改用「たら」"
+    ],
+    completionMode: "reference",
+    examDrill: { labelKey: "drillN3Grammar", level: "N3", promptLabel: "文法形式選擇" },
+    drillNote: "※ 這章是文法整理；按鈕去練 N3 文法形式選擇題庫，邊練邊熟。",
+    recommendedAfter: ["plain"]
+  },
+  {
+    id: "n3-suiryou",
+    group: "basic",
+    category: "N3 文法",
+    kicker: "看起來・聽說・好像",
+    title: "そうだ / ようだ / らしい / みたい（推量・伝聞）",
+    subtitle: "降りそう / 降ったようだ / 降るらしい / 降るみたい",
+    explanation:
+      "都在表「推測／傳聞」，差在「根據」與「語氣」。「そうだ（様態）」：看當下外觀判斷「眼看就要…／看起來…」，接 V ます形・形容詞語幹。「そうだ（伝聞）」：聽說，接普通形，接法和様態不同。「ようだ」：根據自己觀察到的證據做的推斷（較客觀、偏書面）。「らしい」：根據外部情報或跡象做的推斷／傳聞（也可表「有…的樣子」，如 男らしい）。「みたい」：ようだ 的口語版，直接接普通形／名詞。",
+    examples: [
+      { formula: "空が暗い。雨が降りそうだ", note: "そう（様態）：看外觀，眼看要下。接ます形" },
+      { formula: "天気予報によると、雨が降るそうだ", note: "そう（伝聞）：聽說。接普通形" },
+      { formula: "道がぬれている。雨が降ったようだ", note: "ようだ：根據證據推斷" },
+      { formula: "彼は今日来ないらしい", note: "らしい：根據聽來的情報" },
+      { formula: "外は寒いみたいだ", note: "みたい：ようだ 的口語" }
+    ],
+    pitfalls: [
+      "様態「そう」接ます形／語幹（降りそう）、伝聞「そう」接普通形（降るそうだ）——看接續判斷是哪個",
+      "「いい」「ない」的様態是 よさそう／なさそう（不是 いそう／なそう）",
+      "「ようだ」偏自己證據推斷、偏書面；「らしい」偏外部傳聞；口語最常用「みたい」",
+      "名詞・な形接法：ようだ＝学生のようだ・元気なようだ；みたい＝学生みたい・元気みたい（直接接，な形不加 だ）"
+    ],
+    completionMode: "reference",
+    examDrill: { labelKey: "drillN3Grammar", level: "N3", promptLabel: "文法形式選擇" },
+    drillNote: "※ 這章是文法整理；按鈕去練 N3 文法形式選擇題庫，邊練邊熟。",
+    recommendedAfter: ["plain"]
   }
 ];
 
