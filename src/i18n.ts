@@ -188,6 +188,8 @@ export type Copy = {
   shareFbHint: string;
   shareOther: string;
   shareCopied: string;
+  shareSiteTitle: string;
+  shareSiteText: string;
   resetSession: string;
   currentQuestion: string;
   questionNumber: (value: number) => string;
@@ -477,6 +479,9 @@ export const copy: Record<Language, Copy> = {
     shareFbHint: "按 FB 後，貼文文字自動複製 → 打開臉書新增貼文 → 貼上即可",
     shareOther: "分享到其他平台",
     shareCopied: "已複製貼文文字！",
+    shareSiteTitle: "分享 Jabiko",
+    shareSiteText:
+      "我在用 Jabiko 練日檢：N5〜N1 文法、漢字、單字、模擬考一站練到熟，分享給也在備考的你👇",
     resetSession: "重設本次",
     currentQuestion: "目前題目",
     questionNumber: (value) => `第 ${value} 題`,

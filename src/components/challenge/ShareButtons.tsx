@@ -9,22 +9,25 @@ import {
   threadsShareUrl
 } from "../../domain/share";
 
-// 「分享成績」 panel under the 戰報 (ScoreReport): one-tap share of the session
-// result to Facebook / Threads / LINE / the native share sheet. Drives
-// word-of-mouth reach. Lives in the lazy challenge chunk (imported only via
-// ScoreReport), so the share helpers never touch the eager home bundle.
+// One-tap share panel (Facebook / Threads / LINE / native sheet) to drive
+// word-of-mouth reach. Reused in two places: the 戰報 (share the session
+// result) and the home footer (share the site). The caller passes the body
+// `text`; this component appends the site URL and wires the platform actions.
 export function ShareButtons({
   language,
-  attempts,
-  accuracy
+  text,
+  title
 }: {
   language: Language;
-  attempts: number;
-  accuracy: number;
+  /** The share body (without the URL); the URL is appended here. */
+  text: string;
+  /** Panel heading; defaults to 分享成績. */
+  title?: string;
 }) {
   const t = copy[language];
   const [copied, setCopied] = useState(false);
-  const message = composeMessage(t.shareText(attempts, accuracy));
+  const heading = title ?? t.shareTitle;
+  const message = composeMessage(text);
 
   const flagCopied = () => {
     setCopied(true);
@@ -50,7 +53,7 @@ export function ShareButtons({
   const onOther = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ text: t.shareText(attempts, accuracy), url: SHARE_URL });
+        await navigator.share({ text, url: SHARE_URL });
         return;
       } catch {
         // user cancelled or share failed — fall through to clipboard
@@ -60,8 +63,8 @@ export function ShareButtons({
   };
 
   return (
-    <div className="share-panel" aria-label={t.shareTitle}>
-      <p className="share-title">{t.shareTitle}</p>
+    <div className="share-panel" aria-label={heading}>
+      <p className="share-title">{heading}</p>
 
       <button type="button" className="share-btn share-fb" onClick={onFacebook}>
         <Facebook aria-hidden="true" />

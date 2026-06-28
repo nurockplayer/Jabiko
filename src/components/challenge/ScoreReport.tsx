@@ -52,7 +52,7 @@ export function ScoreReport({
         <span className="score-bar-fill" style={{ width: `${accuracy}%` }} />
       </div>
       {attempts.length > 0 ? (
-        <ShareButtons language={language} attempts={attempts.length} accuracy={accuracy} />
+        <ShareButtons language={language} text={t.shareText(attempts.length, accuracy)} />
       ) : null}
     </div>
   );
