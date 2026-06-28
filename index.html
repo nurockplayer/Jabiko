@@ -11,14 +11,18 @@
     <meta name="theme-color" content="#647c5c" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
+    <link rel="canonical" href="https://jabiko.pages.dev/" />
+
     <!-- Open Graph (Facebook, LINE, Discord, Slack link previews) -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Jabiko · JLPT 自習室" />
+    <meta property="og:url" content="https://jabiko.pages.dev/" />
     <meta property="og:title" content="Jabiko · JLPT 自習室" />
     <meta
       property="og:description"
       content="JLPT N1 / N2 文法、漢字、單字、模擬考一處練到熟。間隔重複弱點複習，整卷模擬。"
     />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image" content="https://jabiko.pages.dev/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="zh_TW" />
@@ -30,7 +34,24 @@
       name="twitter:description"
       content="JLPT N1 / N2 文法、漢字、單字、模擬考一處練到熟。間隔重複弱點複習，整卷模擬。"
     />
-    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:image" content="https://jabiko.pages.dev/og-image.png" />
+
+    <!-- Structured data: free educational web app (rich-result eligibility) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Jabiko",
+        "alternateName": "Jabiko · JLPT 自習室",
+        "url": "https://jabiko.pages.dev/",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "zh-Hant",
+        "isAccessibleForFree": true,
+        "description": "免費的 JLPT 自習網站：N5〜N1 文法、漢字、單字與整卷模擬考，間隔重複自動盯錯題複習。",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TWD" }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

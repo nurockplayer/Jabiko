@@ -9,6 +9,7 @@ import { JabikoMark } from "./components/JabikoMark";
 import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
 import { useFurigana } from "./hooks/useFurigana";
+import { useSeoMeta } from "./hooks/useSeoMeta";
 import { isSupabaseConfigured } from "./lib/supabase";
 import { useAuth } from "./hooks/useAuth";
 import { useProgressAttempts } from "./hooks/useProgressAttempts";
@@ -80,6 +81,10 @@ export default function App() {
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
+
+  // Per-view <title>/description/canonical/og so each route surfaces its own
+  // metadata to crawlers (SPA otherwise shares one static shell). See seo.ts.
+  useSeoMeta(appView);
 
   // Single-language app (zh-Hant). The `language` seam is kept so the
   // copy[language] call sites and component props don't have to change;
