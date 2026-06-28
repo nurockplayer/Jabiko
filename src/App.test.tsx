@@ -329,22 +329,25 @@ describe("App", () => {
     }
   });
 
-  it("renders reference chapters with '參考' badge and a drill-note", async () => {
-    // Reference chapters (verb-types + the 4 sentence-pattern chapters)
-    // have no requiredForms and should never get marked "完成". Their
-    // status badge says "參考"; sentence-pattern chapters carry an
-    // explicit drillNote saying the linked drill is a prerequisite-form
-    // practice, not the chapter's own pattern.
+  it("marks the verb-types explainer '參考', and keeps the drill-note on pattern chapters", async () => {
+    // verb-types is reading-only (no drill of its own) → status badge '參考'.
+    // Sentence-pattern chapters now have a counted pattern drill, so they no
+    // longer show '參考', but they keep a drillNote explaining their secondary
+    // (prerequisite-form) drill.
     const user = userEvent.setup();
     render(<App />);
 
     await gotoLearn(user);
-    const referenceChapter = screen.getByRole("button", {
-      name: "查看：てください / てもいい / てはいけない"
-    });
+
+    const referenceChapter = screen.getByRole("button", { name: "查看：動詞三類怎麼分" });
     expect(referenceChapter.textContent).toContain("參考");
 
-    await user.click(referenceChapter);
+    const patternChapter = screen.getByRole("button", {
+      name: "查看：てください / てもいい / てはいけない"
+    });
+    expect(patternChapter.textContent).not.toContain("參考");
+
+    await user.click(patternChapter);
     expect(
       screen.getByText(/上方按鈕直接練本章句型判斷.*前置「て形」音便/)
     ).toBeInTheDocument();

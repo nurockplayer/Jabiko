@@ -540,7 +540,6 @@ export const learningBlocks: LearningBlock[] = [
       "「ないでください」(請不要做) 比「てはいけません」(禁止) 軟，請對方時用前者較自然",
       "「もいい」常省略「ですか」變陳述，要看語境分清是徵求許可還是給予許可"
     ],
-    completionMode: "reference",
     patternDrills: [
       {
         labelKey: "drillPatternTeKudasai",
@@ -581,7 +580,6 @@ export const learningBlocks: LearningBlock[] = [
       "名詞用「でなくてもいい」（不是「ではないでもいい」）",
       "口語常省略「いい」後面的「です」，正式書面要加上"
     ],
-    completionMode: "reference",
     patternDrills: [
       {
         labelKey: "drillPatternNakuteMoII",
@@ -622,7 +620,6 @@ export const learningBlocks: LearningBlock[] = [
       "對上位／長輩用「ていただく」(=てもらう 謙讓) 或「てくださる」(=てくれる 尊敬)",
       "助詞配對：てもらう／てあげる 用「に」標記做事者；てくれる 用「が」"
     ],
-    completionMode: "reference",
     patternDrills: [
       {
         labelKey: "drillPatternTeMorau",
@@ -663,7 +660,6 @@ export const learningBlocks: LearningBlock[] = [
       "な形容詞和名詞要加「だ」（×「静かと思う」→ ○「静かだと思う」）",
       "口語可把「と」說成「って」：「行くって言った」"
     ],
-    completionMode: "reference",
     patternDrills: [
       {
         labelKey: "drillPatternToOmou",
@@ -704,7 +700,6 @@ export const learningBlocks: LearningBlock[] = [
       "あとで 前面用た形（× 食べるあとで → ○ 食べたあとで）",
       "てから 與 たあとで 都表「之後」，但 てから 更強調『做完前項緊接著做後項』"
     ],
-    completionMode: "reference",
     patternDrills: [
       {
         labelKey: "drillPatternMaeAto",
@@ -745,7 +740,6 @@ export const learningBlocks: LearningBlock[] = [
       "たり 要成對使用（〜たり〜たりする），通常是『舉例』而非全部",
       "し 可以接形容詞（安いし）；ながら / て 不能直接接い形容詞"
     ],
-    completionMode: "reference",
     patternDrills: [
       {
         labelKey: "drillPatternNagaraTari",
@@ -786,7 +780,6 @@ export const learningBlocks: LearningBlock[] = [
       "ておく 口語縮成「〜とく」（買っとく）",
       "ている 可表進行，也可表結果狀態（結婚している＝已婚的狀態，不是正在結婚）"
     ],
-    completionMode: "reference",
     patternDrills: [
       {
         labelKey: "drillPatternTeAux",
@@ -809,7 +802,7 @@ export const learningBlocks: LearningBlock[] = [
   }
 ];
 
-type CompletionAttempt = { isCorrect: boolean; targetForm: string };
+type CompletionAttempt = { isCorrect: boolean; targetForm: string; questionId?: string };
 
 export function isLearningBlockComplete(attempts: CompletionAttempt[], block: LearningBlock): boolean {
   // Reference chapters are reading material -- treat them as
@@ -817,6 +810,17 @@ export function isLearningBlockComplete(attempts: CompletionAttempt[], block: Le
   // park on them, and the UI shows "參考" rather than misleadingly
   // marking them perpetually incomplete.
   if (block.completionMode === "reference") return true;
+  // Sentence-pattern chapters are completed via their pattern drill -- a
+  // correct attempt on any of the chapter's patterns (id "pattern-<id>-…") --
+  // not via a conjugation form, so they count toward progress like the rest.
+  if (block.patternDrills && block.patternDrills.length > 0) {
+    const patternIds = block.patternDrills.flatMap((drill) => drill.patternIds);
+    return attempts.some(
+      (attempt) =>
+        attempt.isCorrect &&
+        patternIds.some((pid) => attempt.questionId?.startsWith(`pattern-${pid}-`))
+    );
+  }
   if (!block.requiredForms || block.requiredForms.length === 0) return false;
   return block.requiredForms.every((targetForm) =>
     attempts.some((attempt) => attempt.isCorrect && attempt.targetForm === targetForm)
