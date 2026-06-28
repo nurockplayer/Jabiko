@@ -135,6 +135,19 @@
   margin: 0 0 0.2rem;
 }
 
+/* Home-footer 「分享 Jabiko」: centre the share panel and cap its width so it
+   doesn't stretch across the full footer. */
+.home-footer-share {
+  margin: 0.75rem auto 0;
+  max-width: 320px;
+  text-align: left;
+  width: 100%;
+}
+
+.home-footer-share .share-title {
+  text-align: center;
+}
+
 /* In the right-hand review column the score report sits above the
    mistake-review heading; give it breathing room from that heading. */
 .review-panel .score-report {

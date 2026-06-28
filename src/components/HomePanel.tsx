@@ -13,6 +13,7 @@ import { LevelBars } from "./dashboard/LevelBars";
 import { ActivityTrend } from "./dashboard/ActivityTrend";
 import { TypeBars } from "./dashboard/TypeBars";
 import { FeedbackForm } from "./FeedbackForm";
+import { ShareButtons } from "./challenge/ShareButtons";
 import type { FeedbackCategory } from "../domain/feedbackRemote";
 
 // External walkthrough / 使用說明書: the author's blog post about Jabiko.
@@ -370,6 +371,9 @@ export function HomePanel({
             onClose={() => setFeedbackKind(null)}
           />
         ) : null}
+        <div className="home-footer-share">
+          <ShareButtons language={language} text={t.shareSiteText} title={t.shareSiteTitle} />
+        </div>
       </footer>
     </section>
   );
