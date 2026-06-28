@@ -183,6 +183,11 @@ export type Copy = {
   correctShort: string;
   reviewShort: string;
   accuracyLabel: string;
+  shareTitle: string;
+  shareText: (attempts: number, accuracy: number) => string;
+  shareFbHint: string;
+  shareOther: string;
+  shareCopied: string;
   resetSession: string;
   currentQuestion: string;
   questionNumber: (value: number) => string;
@@ -466,6 +471,12 @@ export const copy: Record<Language, Copy> = {
     correctShort: "正解",
     reviewShort: "複習",
     accuracyLabel: "目前正解率",
+    shareTitle: "分享成績",
+    shareText: (attempts, accuracy) =>
+      `我在 Jabiko 練日檢，今天練了 ${attempts} 題、正答率 ${accuracy}%！一起來練日文👇`,
+    shareFbHint: "按 FB 後，貼文文字自動複製 → 打開臉書新增貼文 → 貼上即可",
+    shareOther: "分享到其他平台",
+    shareCopied: "已複製貼文文字！",
     resetSession: "重設本次",
     currentQuestion: "目前題目",
     questionNumber: (value) => `第 ${value} 題`,

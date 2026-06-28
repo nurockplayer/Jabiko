@@ -64,6 +64,77 @@
   transition: width 0.3s ease;
 }
 
+/* 「分享成績」 buttons under the score report. Brand colours are fixed (not
+   theme tokens) to match each platform's identity; 其他平台 uses theme tokens. */
+.share-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+}
+
+.share-title {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.share-btn {
+  align-items: center;
+  border: none;
+  border-radius: 0.6rem;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-family: var(--font-japanese-ui);
+  font-size: 0.95rem;
+  font-weight: 700;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  transition:
+    filter 0.15s ease,
+    transform 0.05s ease;
+}
+
+.share-btn:hover {
+  filter: brightness(1.07);
+}
+
+.share-btn:active {
+  transform: translateY(1px);
+}
+
+.share-btn svg {
+  height: 1.1em;
+  width: 1.1em;
+}
+
+.share-fb {
+  background: #1877f2;
+}
+
+.share-threads {
+  background: #101010;
+}
+
+.share-line {
+  background: #06c755;
+}
+
+.share-other {
+  background: color-mix(in srgb, var(--muted) 22%, transparent);
+  color: var(--ink);
+}
+
+.share-fb-hint {
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.4;
+  margin: 0 0 0.2rem;
+}
+
 /* In the right-hand review column the score report sits above the
    mistake-review heading; give it breathing room from that heading. */
 .review-panel .score-report {
