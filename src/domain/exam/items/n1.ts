@@ -7677,5 +7677,21 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "無常",
     options: ["無常", "無理", "無効", "無口"],
     explanation: "正解は「無常」。咲いてすぐ散る花から「世のすべては移ろい、変わらぬものはない」という感慨を述べる文。「無理」は道理に合わない・困難、「無効」は効力がないこと、「無口」は口数が少ない性格で、いずれも「世の___を感じる」という移ろいの文脈に合わず成立しない。"
+  }),
+  examQuestion({
+    id: "n1-kanji-komorebi",
+    level: "N1",
+    surface: "木漏れ日",
+    reading: "こもれび",
+    meaningZh: "從樹葉間灑落的陽光",
+    promptLabel: "漢字読み",
+    instructionZh: "選出底線詞語的正確讀音。",
+    promptText: "森の中を歩くと、「木漏れ日」がとてもきれいだった。",
+    promptContextZh: "走在森林裡，從樹葉間灑落的陽光很美。",
+    expectedAnswer: "こもれび",
+    options: ["こもれび", "きもれび", "こもれひ", "こぼれび"],
+    explanation: "「木漏れ日」是熟字訓：木＝こ、漏れ＝もれ、日濁化＝び，讀「こもれび」。「きもれび」誤把木讀成き；「こもれひ」漏掉日的濁音；「こぼれび」把漏れ(もれ)誤成こぼれ(零れ)。",
+    exampleJapanese: "森の中を歩くと、木漏れ日がとてもきれいだった。",
+    exampleMeaningZh: "走在森林裡，從樹葉間灑落的陽光很美。"
   })
 ];
