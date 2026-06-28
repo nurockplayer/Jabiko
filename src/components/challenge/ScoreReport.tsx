@@ -1,5 +1,6 @@
 import { copy, type Language } from "../../i18n";
 import type { PracticeSession } from "../../hooks/usePracticeSession";
+import { ShareButtons } from "./ShareButtons";
 
 // The 今日戰報 stats block: answered / correct / review counts, the
 // accuracy value, and the accuracy progress bar. Sits atop the right-hand
@@ -50,6 +51,9 @@ export function ScoreReport({
       >
         <span className="score-bar-fill" style={{ width: `${accuracy}%` }} />
       </div>
+      {attempts.length > 0 ? (
+        <ShareButtons language={language} attempts={attempts.length} accuracy={accuracy} />
+      ) : null}
     </div>
   );
 }
