@@ -5,15 +5,17 @@ import { VitePWA } from "vite-plugin-pwa";
 export default defineConfig({
   plugins: [
     react(),
-    // PWA: installable + offline (issue #131). registerType "autoUpdate"
-    // keeps the service worker fresh without a manual update prompt; the
-    // registration script is auto-injected into index.html. Precaches the
-    // built chunks (incl. the lazy examBlocks ~1MB) so a returning learner
-    // can practise offline; the lazy split is unchanged -- precaching runs
-    // in the background after load, the initial render still pulls only the
-    // index chunk.
+    // PWA: installable + offline (issue #131). registerType "prompt" (#327):
+    // a returning learner with an installed SW gets a non-intrusive "new
+    // version" toast (usePwaUpdate + UpdateToast) instead of being silently
+    // reloaded mid-drill -- the old "auto-inject bare registerSW.js" never
+    // reloaded the running page at all, so users were stuck on the old build
+    // until they opened an incognito tab. Precaches the built chunks (incl. the
+    // lazy examBlocks ~1MB) so a returning learner can practise offline; the
+    // lazy split is unchanged -- precaching runs in the background after load,
+    // the initial render still pulls only the index chunk.
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
       includeAssets: ["icon.svg", "apple-touch-icon.png", "hero.webp", "og-image.png"],
       manifest: {
         name: "Jabiko · JLPT 自習室",

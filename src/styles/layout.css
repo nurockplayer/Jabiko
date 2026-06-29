@@ -109,6 +109,44 @@
   white-space: nowrap;
 }
 
+/* "New version available" toast (#327): a fixed pill at the bottom centre,
+   above everything. Non-intrusive -- the learner taps it to reload when ready,
+   instead of being yanked off the page mid-drill. */
+.update-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  z-index: 1200;
+  max-width: calc(100% - 2rem);
+}
+
+.update-toast-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--matcha);
+  border-radius: 999px;
+  background: var(--matcha-dark);
+  color: var(--selected-text, #fff);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(23, 33, 38, 0.28);
+  white-space: nowrap;
+}
+
+.update-toast-button:hover {
+  filter: brightness(1.06);
+}
+
+.update-toast-button svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
 .auth-button {
   background: color-mix(in srgb, var(--paper) 86%, transparent);
   border: 1px solid var(--button-border);

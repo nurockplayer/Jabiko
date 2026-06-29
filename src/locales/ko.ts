@@ -12,6 +12,7 @@ export const ko: Copy = {
   furiganaHide: "후리가나 숨김",
   flowLabel: "학습 흐름",
   loading: "불러오는 중…",
+  updateAvailable: "새 버전이 있습니다 — 탭하여 업데이트",
   home: "홈",
   learn: "학습",
   rules: "규칙표",

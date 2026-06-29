@@ -12,6 +12,7 @@ export const en: Copy = {
   furiganaHide: "Hide furigana",
   flowLabel: "Study flow",
   loading: "Loading…",
+  updateAvailable: "A new version is available — tap to update",
   home: "Home",
   learn: "Learn",
   rules: "Rules",

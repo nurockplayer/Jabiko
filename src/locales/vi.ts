@@ -12,6 +12,7 @@ export const vi: Copy = {
   furiganaHide: "Ẩn furigana",
   flowLabel: "Lộ trình học",
   loading: "Đang tải…",
+  updateAvailable: "Đã có phiên bản mới — chạm để cập nhật",
   home: "Trang chủ",
   learn: "Học",
   rules: "Bảng quy tắc",

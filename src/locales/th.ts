@@ -12,6 +12,7 @@ export const th: Copy = {
   furiganaHide: "ซ่อนคำอ่าน",
   flowLabel: "ขั้นตอนการเรียน",
   loading: "กำลังโหลด…",
+  updateAvailable: "มีเวอร์ชันใหม่ — แตะเพื่ออัปเดต",
   home: "หน้าแรก",
   learn: "เรียนรู้",
   rules: "ตารางกฎ",
