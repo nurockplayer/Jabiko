@@ -54,11 +54,34 @@ export function hasStoredLanguage(): boolean {
   return isSupportedLanguage(readStored(LANGUAGE_STORAGE_KEY));
 }
 
-// The language to start with: a valid stored preference wins; otherwise the
-// best navigator match; otherwise Japanese (this is a Japanese-learning app, so
-// ja is the sensible default suggestion). On a first visit this value is only a
-// *suggestion* — it pre-selects the picker until the user makes a real choice.
+// Parse ?lang=<code> from a location search string (#326). Accepts an exact
+// supported locale ("ja", "zh-Hant") or a BCP-47 tag whose prefix maps to one
+// ("vi-VN" -> vi). Returns null when the param is absent or unrecognised. Lets
+// a deep link / marketing URL force a language regardless of stored preference
+// or browser detection.
+export function languageFromSearch(search: string): Language | null {
+  const raw = new URLSearchParams(search).get("lang");
+  if (!raw) return null;
+  if (isSupportedLanguage(raw)) return raw;
+  return languageForTag(raw);
+}
+
+function urlLanguage(): Language | null {
+  if (typeof window === "undefined") return null;
+  return languageFromSearch(window.location.search);
+}
+
+// The language to start with. Priority (#326): URL ?lang= override > a valid
+// stored preference > the best navigator match > Japanese (this is a
+// Japanese-learning app, so ja is the sensible default). On a first visit with
+// no URL override this value is only a *suggestion* — it pre-selects the picker
+// until the user makes a real choice.
 export function getInitialLanguage(): Language {
+  const fromUrl = urlLanguage();
+  if (fromUrl) {
+    return fromUrl;
+  }
+
   const stored = readStored(LANGUAGE_STORAGE_KEY);
   if (isSupportedLanguage(stored)) {
     return stored;
@@ -79,11 +102,24 @@ function storeLanguage(language: Language) {
 // the consumer shows the first-visit picker; setLanguage clears it for good.
 export function useLanguage() {
   const [language, setLanguageState] = useState<Language>(() => getInitialLanguage());
-  const [needsLanguageChoice, setNeedsLanguageChoice] = useState<boolean>(() => !hasStoredLanguage());
+  // A ?lang= override counts as an explicit choice: skip the first-visit picker.
+  const [needsLanguageChoice, setNeedsLanguageChoice] = useState<boolean>(
+    () => urlLanguage() === null && !hasStoredLanguage()
+  );
 
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
+
+  // Persist a ?lang= deep-link choice so it sticks on the next visit (and so the
+  // picker stays dismissed). Runs once on mount; the param itself stays in the
+  // URL untouched.
+  useEffect(() => {
+    const fromUrl = urlLanguage();
+    if (fromUrl) {
+      storeLanguage(fromUrl);
+    }
+  }, []);
 
   const setLanguage = (next: Language) => {
     setLanguageState(next);

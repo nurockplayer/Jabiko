@@ -150,6 +150,60 @@ describe("useLanguage", () => {
     expect(document.documentElement.lang).toBe("zh-Hant");
   });
 
+  // URL ?lang= override (#326): a deep link / marketing URL can force a
+  // language regardless of stored preference or browser. Priority is
+  // URL param > stored > navigator > default(ja).
+  describe("?lang= URL override", () => {
+    afterEach(() => {
+      window.history.replaceState({}, "", "/");
+    });
+
+    it("uses ?lang=ja over the navigator default", () => {
+      setNavigatorLanguage("zh-TW");
+      setNavigatorLanguages(["zh-TW"]);
+      window.history.replaceState({}, "", "/?lang=ja");
+
+      const { result } = renderHook(() => useLanguage());
+
+      expect(result.current.language).toBe("ja");
+    });
+
+    it("uses ?lang= over a stored preference (URL wins)", () => {
+      localStorage.setItem(KEY, "zh-Hant");
+      window.history.replaceState({}, "", "/?lang=ko");
+
+      const { result } = renderHook(() => useLanguage());
+
+      expect(result.current.language).toBe("ko");
+    });
+
+    it("accepts a BCP-47 tag and maps it by prefix (?lang=vi-VN -> vi)", () => {
+      window.history.replaceState({}, "", "/?lang=vi-VN");
+
+      const { result } = renderHook(() => useLanguage());
+
+      expect(result.current.language).toBe("vi");
+    });
+
+    it("ignores an unsupported ?lang= and falls through", () => {
+      localStorage.setItem(KEY, "th");
+      window.history.replaceState({}, "", "/?lang=fr");
+
+      const { result } = renderHook(() => useLanguage());
+
+      expect(result.current.language).toBe("th");
+    });
+
+    it("skips the first-visit picker and persists the choice", () => {
+      window.history.replaceState({}, "", "/?lang=my");
+
+      const { result } = renderHook(() => useLanguage());
+
+      expect(result.current.needsLanguageChoice).toBe(false);
+      expect(localStorage.getItem(KEY)).toBe("my");
+    });
+  });
+
   // First-visit language choice: with no stored preference the app shows a
   // language picker; once a choice is stored it never asks again.
   describe("needsLanguageChoice (first-visit picker)", () => {

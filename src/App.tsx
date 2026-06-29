@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { Languages, Moon, Sun } from "lucide-react";
+import { Globe, Languages, Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import { countDueReviews } from "./domain/srs";
@@ -98,6 +98,9 @@ export default function App() {
   // the whole tree on change, so the prop-drilled `language` stays a seam.
   const { language, setLanguage, needsLanguageChoice } = useLanguage();
   const t = copy[language];
+  // On-demand language picker, opened from the header switcher (#326). Separate
+  // from needsLanguageChoice, which is the one-time first-visit prompt.
+  const [langPickerOpen, setLangPickerOpen] = useState(false);
 
   const { theme, toggleTheme } = useTheme();
   // Global furigana (ruby) preference, default OFF (#134). The hook owns the
@@ -166,6 +169,18 @@ export default function App() {
       {needsLanguageChoice && (
         <LanguagePicker current={language} options={LANGUAGE_OPTIONS} onChoose={setLanguage} />
       )}
+      {langPickerOpen && (
+        <LanguagePicker
+          current={language}
+          options={LANGUAGE_OPTIONS}
+          onChoose={(code) => {
+            setLanguage(code);
+            setLangPickerOpen(false);
+          }}
+          onClose={() => setLangPickerOpen(false)}
+          closeLabel={t.feedbackClose}
+        />
+      )}
       <div className="app-heading" aria-label={t.appIntroLabel}>
         <div className="app-brand">
           <JabikoMark className="app-brand-mark" />
@@ -209,21 +224,16 @@ export default function App() {
           )}
           <div className="utility-actions">
             {LANGUAGE_OPTIONS.length > 1 && (
-              <div className="lang-switch">
-                <Languages aria-hidden="true" className="lang-switch-icon" />
-                <select
-                  className="lang-switch-select"
-                  aria-label={t.languageSwitchLabel}
-                  value={language}
-                  onChange={(event) => setLanguage(event.target.value as Language)}
-                >
-                  {LANGUAGE_OPTIONS.map((code) => (
-                    <option key={code} value={code}>
-                      {copy[code].languageName}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <button
+                type="button"
+                className="theme-toggle lang-switch-button"
+                aria-label={t.languageSwitchLabel}
+                aria-haspopup="dialog"
+                onClick={() => setLangPickerOpen(true)}
+              >
+                <Globe aria-hidden="true" />
+                <span className="lang-switch-name">{copy[language].languageName}</span>
+              </button>
             )}
             <button
               className={`theme-toggle furigana-toggle${furiganaEnabled ? " active" : ""}`}
