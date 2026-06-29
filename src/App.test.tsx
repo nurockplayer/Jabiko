@@ -720,6 +720,24 @@ describe("App", () => {
     window.history.replaceState({}, "", "/");
   });
 
+  it("a grammar page's 開始挑戰 starts 今日練習, not 基礎變化 (#340)", async () => {
+    const { allGrammarSurfaces } = await import("./domain/grammarPoints");
+    const surface = allGrammarSurfaces()[0];
+    window.history.replaceState({}, "", `/grammar/${encodeURIComponent(surface)}`);
+    const user = userEvent.setup();
+    render(<App />);
+
+    // The page renders (route works) and its practice CTA drops into the
+    // guided 今日練習 session, not the raw 基礎變化 cascade.
+    await user.click(await screen.findByRole("button", { name: "開始挑戰" }));
+    expect(await screen.findByRole("button", { name: /今日練習/ })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+
+    window.history.replaceState({}, "", "/");
+  });
+
   it("lists 綜合考題庫 / N1 備考 / N2 備考 as side-by-side mode presets", async () => {
     const user = userEvent.setup();
     render(<App />);
