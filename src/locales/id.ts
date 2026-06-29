@@ -12,6 +12,7 @@ export const id: Copy = {
   furiganaHide: "Sembunyikan furigana",
   flowLabel: "Alur belajar",
   loading: "Memuat…",
+  updateAvailable: "Versi baru tersedia — ketuk untuk memperbarui",
   home: "Beranda",
   learn: "Belajar",
   rules: "Tabel aturan",

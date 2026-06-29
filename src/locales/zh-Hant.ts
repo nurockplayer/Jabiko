@@ -12,6 +12,7 @@ export const zhHant: Copy = {
   furiganaHide: "隱藏註音",
   flowLabel: "學習流程",
   loading: "載入中…",
+  updateAvailable: "有新版本，點此更新",
   home: "首頁",
   learn: "學習",
   rules: "規則表",

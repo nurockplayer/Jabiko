@@ -12,6 +12,7 @@ export const ja: Copy = {
   furiganaHide: "ふりがなを隠す",
   flowLabel: "学習の流れ",
   loading: "読み込み中…",
+  updateAvailable: "新しいバージョンがあります。タップして更新",
   home: "ホーム",
   learn: "学習",
   rules: "活用表",

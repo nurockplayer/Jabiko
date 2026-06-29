@@ -6,6 +6,8 @@ import { countDueReviews } from "./domain/srs";
 import { copy, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
 import { LanguagePicker } from "./components/LanguagePicker";
+import { UpdateToast } from "./components/UpdateToast";
+import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { JabikoMark } from "./components/JabikoMark";
 import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
@@ -152,6 +154,8 @@ export default function App() {
   const t = copy[language];
   // Language picker, opened from the header Globe button (#326).
   const [langPickerOpen, setLangPickerOpen] = useState(false);
+  // Service-worker update prompt (#327): toast when a new build is ready.
+  const { needRefresh, updateApp } = usePwaUpdate();
 
   const { theme, toggleTheme } = useTheme();
   // Global furigana (ruby) preference, default OFF (#134). The hook owns the
@@ -224,6 +228,7 @@ export default function App() {
 
   return (
     <main className="app-shell">
+      {needRefresh && <UpdateToast label={t.updateAvailable} onUpdate={updateApp} />}
       {langPickerOpen && (
         <LanguagePicker
           current={language}

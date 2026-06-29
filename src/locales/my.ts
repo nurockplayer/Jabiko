@@ -12,6 +12,7 @@ export const my: Copy = {
   furiganaHide: "ဖူရိဂါနာ ဖျောက်ရန်",
   flowLabel: "လေ့လာမှု အဆင့်ဆင့်",
   loading: "ဖွင့်နေသည်…",
+  updateAvailable: "ဗားရှင်းအသစ် ရရှိနိုင်ပါပြီ — အပ်ဒိတ်လုပ်ရန် တို့ပါ",
   home: "ပင်မ",
   learn: "လေ့လာရန်",
   rules: "စည်းမျဉ်းများ",
