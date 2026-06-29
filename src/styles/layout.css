@@ -89,15 +89,17 @@
   color: var(--selected-text);
 }
 
-/* Language switcher (#326): an explicit pill button (Globe icon + the current
-   language's native name) that opens the language picker. A Globe icon -- not
-   the Languages icon the furigana toggle uses -- so the two read as distinct.
-   The name is capped + ellipsised so a long endonym (e.g. "Bahasa Indonesia")
-   can't stretch the header row. */
+/* Language switcher (#326): pill button (Globe icon in vermilion + the current
+   language's native name) that opens the LanguagePicker. The icon colour makes
+   this the first thing the eye lands on in the header row. */
 .lang-switch-button {
   align-items: center;
   display: inline-flex;
   gap: 0.4rem;
+}
+
+.lang-switch-icon {
+  color: var(--vermilion);
 }
 
 .lang-switch-name {

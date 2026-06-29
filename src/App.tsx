@@ -133,14 +133,12 @@ export default function App() {
   // metadata to crawlers (SPA otherwise shares one static shell). See seo.ts.
   useSeoMeta(appView, grammarSurface);
 
-  // UI language: stored preference > navigator detection > zh-Hant default
-  // (#299). The hook owns the <html lang> side-effect and persistence; the
-  // header <select> below lets the learner switch. copy[language] re-renders
-  // the whole tree on change, so the prop-drilled `language` stays a seam.
-  const { language, setLanguage, needsLanguageChoice } = useLanguage();
+  // UI language: stored preference > ja default. The hook owns the <html lang>
+  // side-effect and persistence; copy[language] re-renders the whole tree on
+  // change, so the prop-drilled `language` stays a seam.
+  const { language, setLanguage } = useLanguage();
   const t = copy[language];
-  // On-demand language picker, opened from the header switcher (#326). Separate
-  // from needsLanguageChoice, which is the one-time first-visit prompt.
+  // Language picker, opened from the header Globe button (#326).
   const [langPickerOpen, setLangPickerOpen] = useState(false);
 
   const { theme, toggleTheme } = useTheme();
@@ -207,9 +205,6 @@ export default function App() {
 
   return (
     <main className="app-shell">
-      {needsLanguageChoice && (
-        <LanguagePicker current={language} options={LANGUAGE_OPTIONS} onChoose={setLanguage} />
-      )}
       {langPickerOpen && (
         <LanguagePicker
           current={language}
@@ -272,7 +267,7 @@ export default function App() {
                 aria-haspopup="dialog"
                 onClick={() => setLangPickerOpen(true)}
               >
-                <Globe aria-hidden="true" />
+                <Globe aria-hidden="true" className="lang-switch-icon" />
                 <span className="lang-switch-name">{copy[language].languageName}</span>
               </button>
             )}

@@ -65,25 +65,23 @@ export function ShareButtons({
   return (
     <div className="share-panel" aria-label={heading}>
       <p className="share-title">{heading}</p>
-
-      <button type="button" className="share-btn share-fb" onClick={onFacebook}>
-        <Facebook aria-hidden="true" />
-        Facebook
-      </button>
-      <p className="share-fb-hint">{copied ? t.shareCopied : t.shareFbHint}</p>
-
-      <button type="button" className="share-btn share-threads" onClick={onThreads}>
-        <AtSign aria-hidden="true" />
-        Threads
-      </button>
-      <button type="button" className="share-btn share-line" onClick={onLine}>
-        <MessageCircle aria-hidden="true" />
-        LINE
-      </button>
-      <button type="button" className="share-btn share-other" onClick={onOther}>
-        <Share2 aria-hidden="true" />
-        {t.shareOther}
-      </button>
+      <div className="share-row">
+        <button type="button" className="share-btn" onClick={onFacebook} aria-label="Facebook">
+          <Facebook aria-hidden="true" />
+        </button>
+        <button type="button" className="share-btn" onClick={onThreads} aria-label="Threads">
+          <AtSign aria-hidden="true" />
+        </button>
+        <button type="button" className="share-btn" onClick={onLine} aria-label="LINE">
+          <MessageCircle aria-hidden="true" />
+        </button>
+        <button type="button" className="share-btn" onClick={onOther} aria-label={t.shareOther}>
+          <Share2 aria-hidden="true" />
+        </button>
+      </div>
+      {copied ? (
+        <span className="share-copied-toast" aria-live="polite">{t.shareCopied}</span>
+      ) : null}
     </div>
   );
 }

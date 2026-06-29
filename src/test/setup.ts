@@ -2,17 +2,13 @@ import "@testing-library/jest-dom/vitest";
 
 import { beforeEach, vi } from "vitest";
 
-// Pin the test-environment UI locale to zh-TW at module load, BEFORE any test
-// file's beforeAll runs. jsdom defaults navigator.language to "en-US"; since
-// useLanguage (#299) detects the initial locale from it when no preference is
-// stored, an unpinned default would render the app in English and break every
-// Chinese-label assertion (including priming renders that run in beforeAll,
-// which fire before the beforeEach below). Re-applied per-test too so files
-// that call vi.restoreAllMocks() don't drop it. Tests that exercise other
-// locales override navigator.language locally (see useLanguage.test.ts).
+// Pin the test-environment UI locale to zh-Hant at module load. Since the
+// default is now ja (no navigator detection), we pre-store zh-Hant so the
+// Chinese-label assertions in App.test.tsx and elsewhere still work without
+// rewriting every test. Tests that exercise other locales override this
+// via their own mock (see useLanguage.test.ts).
 function pinTestLocale() {
-  vi.spyOn(window.navigator, "languages", "get").mockReturnValue(["zh-TW"]);
-  vi.spyOn(window.navigator, "language", "get").mockReturnValue("zh-TW");
+  localStorage.setItem("jabiko.lang", "zh-Hant");
 }
 
 pinTestLocale();
