@@ -40,6 +40,19 @@ export type Copy = {
   feedbackClose: string;
   feedbackError: string;
   feedbackFallback: string;
+  // ---- Per-question "report this question" (#299) --------------------------
+  reportQuestionCta: string;
+  reportTitle: string;
+  reportReasonLabel: string;
+  reportReasons: {
+    wrongAnswer: string;
+    awkwardMeaning: string;
+    confusingExplanation: string;
+    typo: string;
+    other: string;
+  };
+  reportDetailPlaceholder: string;
+  reportSend: string;
   homeContentStats: (total: number, examItems: number, vocab: number, kanjiReadings: number, patternChecks: number, chapters: number) => string;
   homeCardStageLearn: string;
   homeCardStageChallenge: string;

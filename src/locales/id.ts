@@ -53,6 +53,18 @@ export const id: Copy = {
   feedbackClose: "Tutup",
   feedbackError: "Gagal mengirim, coba lagi nanti, atau",
   feedbackFallback: "Laporkan lewat GitHub",
+  reportQuestionCta: "Laporkan soal ini",
+  reportTitle: "Laporkan masalah pada soal ini",
+  reportReasonLabel: "Apa yang salah?",
+  reportReasons: {
+    wrongAnswer: "Jawaban / kunci salah",
+    awkwardMeaning: "Makna kalimat terasa janggal",
+    confusingExplanation: "Penjelasan membingungkan",
+    typo: "Salah ketik atau pemilihan kata",
+    other: "Lainnya"
+  },
+  reportDetailPlaceholder: "Tambahkan detail (opsional)…",
+  reportSend: "Kirim laporan",
   homeContentStats: (total, examItems, vocab, kanjiReadings, patternChecks, chapters) =>
     `${total.toLocaleString()} soal total · Soal ujian ${examItems} · Kosakata ${vocab} · Bacaan kanji ${kanjiReadings} · Pola kalimat ${patternChecks} · ${chapters} bab belajar`,
   homeCardStageLearn: "Belajar",

@@ -53,6 +53,18 @@ export const en: Copy = {
   feedbackClose: "Close",
   feedbackError: "Send failed. Please try again later, or",
   feedbackFallback: "report via GitHub instead",
+  reportQuestionCta: "Report this question",
+  reportTitle: "Report a problem with this question",
+  reportReasonLabel: "What's wrong?",
+  reportReasons: {
+    wrongAnswer: "Answer / correct option is wrong",
+    awkwardMeaning: "Sentence sounds unnatural",
+    confusingExplanation: "Explanation is confusing",
+    typo: "Typo or wording issue",
+    other: "Other"
+  },
+  reportDetailPlaceholder: "Add details (optional)…",
+  reportSend: "Send report",
   homeContentStats: (total, examItems, vocab, kanjiReadings, patternChecks, chapters) =>
     `${total.toLocaleString()} questions total · ${examItems} exam items · ${vocab} vocab · ${kanjiReadings} kanji readings · ${patternChecks} patterns · ${chapters} study chapters`,
   homeCardStageLearn: "Learn",

@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { BookOpen, CheckCircle2, XCircle } from "lucide-react";
+import { BookOpen, CheckCircle2, Flag, XCircle } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { lookupWordsByReading } from "../domain/readingLookup";
 import { lookupPatternMeaning } from "../domain/patternMeaning";
 import { lookupGrammarNote } from "../domain/grammarNotes";
 import { GrammarNoteCard } from "./GrammarNoteCard";
+import { QuestionReportForm } from "./QuestionReportForm";
 import { Ruby } from "./Ruby";
 import type { Feedback } from "./types";
 
@@ -15,14 +16,17 @@ import type { Feedback } from "./types";
 export function FeedbackPanel({
   feedback,
   language,
-  options
+  options,
+  selectedAnswer
 }: {
   feedback: NonNullable<Feedback>;
   language: Language;
   options: string[];
+  selectedAnswer?: string | null;
 }) {
   const t = copy[language];
   const [showGrammarNote, setShowGrammarNote] = useState(false);
+  const [showReport, setShowReport] = useState(false);
   const isCorrect = feedback.status === "correct";
   const isRevealed = feedback.status === "revealed";
   const title = isCorrect ? t.correct : isRevealed ? t.revealed : t.incorrect;
@@ -116,6 +120,24 @@ export function FeedbackPanel({
           </button>
           {showGrammarNote ? <GrammarNoteCard note={grammarNote} language={language} /> : null}
         </div>
+      ) : null}
+      <div className="report-question-block">
+        <button
+          type="button"
+          className="report-question-cta"
+          onClick={() => setShowReport(true)}
+        >
+          <Flag aria-hidden="true" />
+          {t.reportQuestionCta}
+        </button>
+      </div>
+      {showReport ? (
+        <QuestionReportForm
+          question={feedback.question}
+          selectedAnswer={selectedAnswer ?? null}
+          language={language}
+          onClose={() => setShowReport(false)}
+        />
       ) : null}
     </section>
   );

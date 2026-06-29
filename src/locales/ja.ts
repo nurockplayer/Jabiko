@@ -54,6 +54,18 @@ export const ja: Copy = {
   feedbackClose: "閉じる",
   feedbackError: "送信に失敗しました。しばらくしてからもう一度お試しいただくか、",
   feedbackFallback: "GitHub から報告する",
+  reportQuestionCta: "この問題を報告",
+  reportTitle: "問題の不具合を報告",
+  reportReasonLabel: "問題の種類",
+  reportReasons: {
+    wrongAnswer: "答え・正解が間違っている",
+    awkwardMeaning: "文の意味が不自然",
+    confusingExplanation: "解説が分かりにくい",
+    typo: "誤字・表記の問題",
+    other: "その他"
+  },
+  reportDetailPlaceholder: "補足説明（任意）…",
+  reportSend: "報告を送信",
   homeContentStats: (total, examItems, vocab, kanjiReadings, patternChecks, chapters) =>
     `全体 ${total.toLocaleString()} 問 · 検定問題 ${examItems} · 単語 ${vocab} · 漢字の読み ${kanjiReadings} · 文型 ${patternChecks} · 学習章 ${chapters}`,
   homeCardStageLearn: "学ぶ",

@@ -54,6 +54,18 @@ export const th: Copy = {
   feedbackClose: "ปิด",
   feedbackError: "ส่งไม่สำเร็จ โปรดลองใหม่ภายหลัง หรือ",
   feedbackFallback: "แจ้งผ่าน GitHub แทน",
+  reportQuestionCta: "รายงานข้อนี้",
+  reportTitle: "รายงานปัญหาของข้อสอบ",
+  reportReasonLabel: "ปัญหาคืออะไร?",
+  reportReasons: {
+    wrongAnswer: "คำตอบ/เฉลยไม่ถูกต้อง",
+    awkwardMeaning: "ความหมายของประโยคไม่เป็นธรรมชาติ",
+    confusingExplanation: "คำอธิบายเข้าใจยาก",
+    typo: "พิมพ์ผิดหรือใช้คำผิด",
+    other: "อื่น ๆ"
+  },
+  reportDetailPlaceholder: "รายละเอียดเพิ่มเติม (ไม่บังคับ)…",
+  reportSend: "ส่งรายงาน",
   homeContentStats: (total, examItems, vocab, kanjiReadings, patternChecks, chapters) =>
     `ทั้งเว็บ ${total.toLocaleString()} ข้อ · ข้อสอบ ${examItems} · คำศัพท์ ${vocab} · คำอ่านคันจิ ${kanjiReadings} · รูปประโยค ${patternChecks} · ${chapters} บทเรียน`,
   homeCardStageLearn: "เรียน",

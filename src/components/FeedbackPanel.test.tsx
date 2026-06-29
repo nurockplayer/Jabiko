@@ -1,5 +1,5 @@
-import { fireEvent, render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { FuriganaContext } from "./furiganaContext";
 import { buildQuestionPool } from "../domain/practice";
@@ -238,6 +238,53 @@ describe("FeedbackPanel grammar note (#137)", () => {
       />
     );
     expect(container.querySelector(".grammar-note-block")).toBeNull();
+  });
+});
+
+describe("FeedbackPanel report-this-question entry (#299)", () => {
+  it("shows a compact 'report this question' entry in the post-answer panel", () => {
+    const question = readingPool[0];
+    render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question }}
+        language="zh-Hant"
+        options={question.expectedAnswers}
+        selectedAnswer={question.expectedAnswers[0]}
+      />
+    );
+    expect(screen.getByRole("button", { name: "回報此題" })).toBeInTheDocument();
+    // The report form is not mounted until the entry is clicked.
+    expect(document.querySelector(".feedback-overlay")).toBeNull();
+  });
+
+  it("opens the report form when the entry is clicked", () => {
+    const question = readingPool[0];
+    render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question }}
+        language="zh-Hant"
+        options={question.expectedAnswers}
+        selectedAnswer={question.expectedAnswers[0]}
+      />
+    );
+    fireEvent.click(screen.getByRole("button", { name: "回報此題" }));
+    // The modal (a feedback-overlay dialog titled 回報題目問題) is now mounted.
+    expect(document.querySelector(".feedback-overlay")).not.toBeNull();
+    expect(screen.getByRole("dialog", { name: "回報題目問題" })).toBeInTheDocument();
+    // And the five reasons are offered.
+    expect(screen.getByRole("button", { name: "答案／正解有誤" })).toBeInTheDocument();
+  });
+
+  it("still renders the entry when selectedAnswer is omitted", () => {
+    const question = readingPool[0];
+    render(
+      <FeedbackPanel
+        feedback={{ status: "revealed", question }}
+        language="zh-Hant"
+        options={question.expectedAnswers}
+      />
+    );
+    expect(screen.getByRole("button", { name: "回報此題" })).toBeInTheDocument();
   });
 });
 

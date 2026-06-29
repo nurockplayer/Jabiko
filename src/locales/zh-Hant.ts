@@ -53,6 +53,18 @@ export const zhHant: Copy = {
   feedbackClose: "關閉",
   feedbackError: "送出失敗，請稍後再試，或",
   feedbackFallback: "改用 GitHub 回報",
+  reportQuestionCta: "回報此題",
+  reportTitle: "回報題目問題",
+  reportReasonLabel: "問題類型",
+  reportReasons: {
+    wrongAnswer: "答案／正解有誤",
+    awkwardMeaning: "句意不自然",
+    confusingExplanation: "解說看不懂",
+    typo: "錯字或用字問題",
+    other: "其他"
+  },
+  reportDetailPlaceholder: "補充說明（選填）…",
+  reportSend: "送出回報",
   homeContentStats: (total, examItems, vocab, kanjiReadings, patternChecks, chapters) =>
     `全站 ${total.toLocaleString()} 題 · 檢定題 ${examItems} · 單字 ${vocab} · 漢字讀音 ${kanjiReadings} · 句型 ${patternChecks} · ${chapters} 學習章節`,
   homeCardStageLearn: "學",
