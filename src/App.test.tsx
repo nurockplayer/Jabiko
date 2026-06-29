@@ -751,6 +751,18 @@ describe("App", () => {
     expect(screen.queryByRole("dialog", { name: /選擇語言/ })).not.toBeInTheDocument();
   });
 
+  it("opens a per-grammar-point study page from /grammar/<surface> (#281)", async () => {
+    const { allGrammarSurfaces } = await import("./domain/grammarPoints");
+    const surface = allGrammarSurfaces()[0];
+    window.history.replaceState({}, "", `/grammar/${encodeURIComponent(surface)}`);
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { level: 1, name: surface })).toBeInTheDocument();
+
+    window.history.replaceState({}, "", "/");
+  });
+
   it("respects ?lang= on load and skips the first-visit picker (#326)", () => {
     localStorage.removeItem("jabiko.lang"); // a never-visited device...
     window.history.replaceState({}, "", "/?lang=ja"); // ...arriving via a ja deep link

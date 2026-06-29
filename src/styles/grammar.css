@@ -1,0 +1,104 @@
+/* Standalone per-grammar-point study page (#281). Reuses the .grammar-note
+   card (feedback.css) for the curated reference; these rules cover the page
+   shell, header, exam-derived examples, and the practice entry. */
+.grammar-point {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 46rem;
+  margin: 0 auto;
+}
+
+.grammar-point-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.grammar-point-back svg,
+.grammar-point-practice svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.grammar-point-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.grammar-point-head h1 {
+  margin: 0;
+  font-family: var(--font-japanese-display);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.2;
+  color: var(--surface-ink);
+}
+
+.grammar-point-level {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  color: var(--muted);
+}
+
+.grammar-point-meaning {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.grammar-point-rule p {
+  margin: 0.3rem 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.grammar-point-examples {
+  margin-top: 0.2rem;
+}
+
+.grammar-point-label {
+  margin: 0 0 0.3rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.grammar-point-examples ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.grammar-point-examples li {
+  border-left: 3px solid var(--matcha);
+  padding-left: 0.75rem;
+}
+
+.grammar-point-ex-ja {
+  display: block;
+  font-family: var(--font-japanese);
+  color: var(--surface-ink);
+  line-height: 1.6;
+}
+
+.grammar-point-ex-zh {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.grammar-point-practice {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}

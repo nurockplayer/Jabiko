@@ -38,8 +38,14 @@ const MockExamPanel = lazy(() =>
 const KanjiOnyomiPanel = lazy(() =>
   import("./components/KanjiOnyomiPanel").then((module) => ({ default: module.KanjiOnyomiPanel }))
 );
+// Per-grammar-point study page (#281). Pulls the exam bank + grammar notes via
+// buildGrammarPoint, so it's lazy + imported directly (never via the barrel) to
+// keep that data out of the initial bundle.
+const GrammarPointPage = lazy(() =>
+  import("./components/GrammarPointPage").then((module) => ({ default: module.GrammarPointPage }))
+);
 
-type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about";
+type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about" | "grammar";
 type DrillPreset = LearningBlockDrillPreset;
 
 // The UI locales, in menu order, for the header language <select>. Each
@@ -59,7 +65,10 @@ const VIEW_PATHS: Record<AppView, string> = {
   kanji: "/kanji",
   challenge: "/challenge",
   mock: "/mock",
-  about: "/about"
+  about: "/about",
+  // Base path; the live grammar route carries a surface segment (see parseRoute
+  // / pathForView). Bare /grammar with no surface falls back to home.
+  grammar: "/grammar"
 };
 
 function viewFromPath(pathname: string): AppView {
@@ -69,28 +78,60 @@ function viewFromPath(pathname: string): AppView {
   return match ? match[0] : "home";
 }
 
+// Per-grammar-point study pages (#281) live at /grammar/<encoded-surface>, the
+// one dynamic route. parseRoute pulls both the view and (for grammar) the
+// decoded surface off the path; pathForView is its inverse for URL sync.
+function parseRoute(pathname: string): { view: AppView; grammarSurface: string | null } {
+  const grammar = pathname.match(/^\/grammar\/(.+)$/);
+  if (grammar) {
+    let surface = grammar[1];
+    try {
+      surface = decodeURIComponent(surface);
+    } catch {
+      // Malformed escape -- keep the raw segment rather than throwing.
+    }
+    return { view: "grammar", grammarSurface: surface };
+  }
+  return { view: viewFromPath(pathname), grammarSurface: null };
+}
+
+function pathForView(view: AppView, grammarSurface: string | null): string {
+  if (view === "grammar" && grammarSurface) {
+    return `/grammar/${encodeURIComponent(grammarSurface)}`;
+  }
+  return VIEW_PATHS[view];
+}
+
 export default function App() {
-  const [appView, setAppView] = useState<AppView>(() => viewFromPath(window.location.pathname));
+  const [appView, setAppView] = useState<AppView>(() => parseRoute(window.location.pathname).view);
+  // The grammar-point surface for the active /grammar/<surface> route (#281).
+  const [grammarSurface, setGrammarSurface] = useState<string | null>(
+    () => parseRoute(window.location.pathname).grammarSurface
+  );
 
   // Keep the URL in sync when the view changes (push a history entry only
   // when the path actually differs, so popstate-driven changes don't loop).
   useEffect(() => {
-    const target = VIEW_PATHS[appView];
+    const target = pathForView(appView, grammarSurface);
     if (window.location.pathname !== target) {
       window.history.pushState({ view: appView }, "", target);
     }
-  }, [appView]);
+  }, [appView, grammarSurface]);
 
-  // Back/forward: read the view back off the URL.
+  // Back/forward: read the view (and grammar surface) back off the URL.
   useEffect(() => {
-    const onPopState = () => setAppView(viewFromPath(window.location.pathname));
+    const onPopState = () => {
+      const route = parseRoute(window.location.pathname);
+      setAppView(route.view);
+      setGrammarSurface(route.grammarSurface);
+    };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
   // Per-view <title>/description/canonical/og so each route surfaces its own
   // metadata to crawlers (SPA otherwise shares one static shell). See seo.ts.
-  useSeoMeta(appView);
+  useSeoMeta(appView, grammarSurface);
 
   // UI language: stored preference > navigator detection > zh-Hant default
   // (#299). The hook owns the <html lang> side-effect and persistence; the
@@ -345,6 +386,15 @@ export default function App() {
             onStartSection={(level, promptLabel) =>
               openChallenge({ mode: "exam", filter: { examSection: { level, promptLabel } } })
             }
+          />
+        </Suspense>
+      ) : appView === "grammar" ? (
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <GrammarPointPage
+            surface={grammarSurface ?? ""}
+            language={language}
+            onPractice={() => openChallenge()}
+            onBack={() => setAppView("home")}
           />
         </Suspense>
       ) : (
