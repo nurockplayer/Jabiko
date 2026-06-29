@@ -77,6 +77,41 @@
   color: var(--selected-text);
 }
 
+/* Language switcher (#299): a compact pill matching the theme/furigana
+   toggles, with the Languages icon as a leading adornment and a native
+   <select> for the five locales. Kept unobtrusive in the header row. */
+.lang-switch {
+  align-items: center;
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  border: 1px solid var(--button-border);
+  border-radius: 999px;
+  color: var(--button-text);
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+}
+
+.lang-switch-icon {
+  flex: 0 0 auto;
+}
+
+.lang-switch-select {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0;
+}
+
+.lang-switch-select:focus-visible {
+  outline: 2px solid var(--vermilion);
+  outline-offset: 2px;
+}
+
 .auth-button {
   background: color-mix(in srgb, var(--paper) 86%, transparent);
   border: 1px solid var(--button-border);

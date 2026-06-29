@@ -22,7 +22,7 @@ export function ScoreReport({
   const t = copy[language];
 
   return (
-    <div className="score-report" role="group" aria-label="今日戰報">
+    <div className="score-report" role="group" aria-label={t.scoreReportLabel}>
       <div className="score-strip">
         <span>
           <strong>{attempts.length}</strong>

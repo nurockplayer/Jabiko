@@ -165,10 +165,10 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
                   <span className="kanji-cell-char">{entry.kanji}</span>
                   <span className="kanji-cell-read">
                     {entry.onyomi.length > 0 ? (
-                      <span className="kanji-cell-on">音 {entry.onyomi.join("・")}</span>
+                      <span className="kanji-cell-on">{t.kanjiCellOnPrefix} {entry.onyomi.join("・")}</span>
                     ) : null}
                     {entry.kunyomi.length > 0 ? (
-                      <span className="kanji-cell-kun">訓 {entry.kunyomi.join("・")}</span>
+                      <span className="kanji-cell-kun">{t.kanjiCellKunPrefix} {entry.kunyomi.join("・")}</span>
                     ) : null}
                   </span>
                   <span className="kanji-cell-mean">{entry.meaningZh}</span>

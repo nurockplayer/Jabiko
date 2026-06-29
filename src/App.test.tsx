@@ -696,6 +696,19 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "隱藏註音" })).toHaveAttribute("aria-pressed", "true");
   });
 
+  it("renders the language switcher with the shipped locales (#299)", () => {
+    // This branch adds id on top of zh-Hant, so LANGUAGE_OPTIONS.length > 1 and
+    // the header language <select> renders (it is suppressed only when a single
+    // locale ships). Default locale is zh-TW (test setup) -> zh-Hant.
+    render(<App />);
+
+    expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
+
+    expect(screen.getByRole("combobox", { name: "切換語言" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "繁中" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Bahasa Indonesia" })).toBeInTheDocument();
+  });
+
   it("lists 綜合考題庫 / N1 備考 / N2 備考 as side-by-side mode presets", async () => {
     const user = userEvent.setup();
     render(<App />);
