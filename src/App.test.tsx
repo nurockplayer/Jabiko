@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import App from "./App";
 
 function seedProgress(targetForms: string[]) {
@@ -41,6 +41,9 @@ describe("App", () => {
   // any other test has warmed the modules. Once primed, the per-test
   // navigations below resolve from cache at the default timeout.
   beforeAll(async () => {
+    // Seed a stored language so the first-visit picker (#313) never overlays the
+    // priming render; these tests cover navigation, not the picker.
+    localStorage.setItem("jabiko.lang", "zh-Hant");
     const user = userEvent.setup();
     const { unmount } = render(<App />);
     await user.click(screen.getByRole("button", { name: "挑戰" }));
@@ -54,6 +57,13 @@ describe("App", () => {
     // first test starts at "/" (afterEach only runs after each test, not here).
     window.history.replaceState({}, "", "/");
   }, 60000);
+
+  // Returning-user default for the suite: a stored language preference, so the
+  // one-time first-visit picker (#313) isn't mounted over the tests below. The
+  // dedicated "first-visit language picker" block clears it to test that path.
+  beforeEach(() => {
+    localStorage.setItem("jabiko.lang", "zh-Hant");
+  });
 
   afterEach(() => {
     localStorage.clear();
@@ -74,6 +84,29 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: /今天想練什麼/ })).toBeInTheDocument();
     // Chapter index belongs to Learn view; not visible on Home.
     expect(screen.queryByRole("heading", { name: "一章一章解鎖" })).not.toBeInTheDocument();
+  });
+
+  describe("first-visit language picker (#313)", () => {
+    it("does not show the picker when a language is already stored", () => {
+      render(<App />); // beforeEach seeded jabiko.lang = zh-Hant
+
+      expect(screen.queryByRole("dialog", { name: /選擇語言/ })).not.toBeInTheDocument();
+    });
+
+    it("shows the picker on a true first visit, then dismisses + persists on choice", async () => {
+      localStorage.removeItem("jabiko.lang"); // simulate a never-visited device
+      const user = userEvent.setup();
+      render(<App />);
+
+      const picker = screen.getByRole("dialog", { name: /選擇語言/ });
+      expect(picker).toBeInTheDocument();
+
+      // Pick Japanese; the picker commits the choice and unmounts for good.
+      await user.click(within(picker).getByRole("button", { name: "日本語" }));
+
+      expect(screen.queryByRole("dialog", { name: /選擇語言/ })).not.toBeInTheDocument();
+      expect(localStorage.getItem("jabiko.lang")).toBe("ja");
+    });
   });
 
   it("opens the rules reference page after clicking the 規則表 tab", async () => {

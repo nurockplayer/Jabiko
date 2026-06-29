@@ -5,6 +5,7 @@ import type { SentencePatternId } from "./domain/sentencePatterns";
 import { countDueReviews } from "./domain/srs";
 import { copy, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
+import { LanguagePicker } from "./components/LanguagePicker";
 import { JabikoMark } from "./components/JabikoMark";
 import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
@@ -41,9 +42,9 @@ const KanjiOnyomiPanel = lazy(() =>
 type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about";
 type DrillPreset = LearningBlockDrillPreset;
 
-// The five UI locales, in menu order, for the header language <select>. Each
+// The UI locales, in menu order, for the header language <select>. Each
 // option's label is that locale's own native name (copy[code].languageName).
-const LANGUAGE_OPTIONS: readonly Language[] = ["zh-Hant", "ja", "en", "th", "id"];
+const LANGUAGE_OPTIONS: readonly Language[] = ["zh-Hant", "ja", "en", "th", "id", "ko", "vi", "my"];
 
 // Lightweight URL routing: each top-level view maps to a path so the browser
 // back/forward buttons, refresh, and shareable/bookmarkable links all work
@@ -95,7 +96,7 @@ export default function App() {
   // (#299). The hook owns the <html lang> side-effect and persistence; the
   // header <select> below lets the learner switch. copy[language] re-renders
   // the whole tree on change, so the prop-drilled `language` stays a seam.
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, needsLanguageChoice } = useLanguage();
   const t = copy[language];
 
   const { theme, toggleTheme } = useTheme();
@@ -162,6 +163,9 @@ export default function App() {
 
   return (
     <main className="app-shell">
+      {needsLanguageChoice && (
+        <LanguagePicker current={language} options={LANGUAGE_OPTIONS} onChoose={setLanguage} />
+      )}
       <div className="app-heading" aria-label={t.appIntroLabel}>
         <div className="app-brand">
           <JabikoMark className="app-brand-mark" />

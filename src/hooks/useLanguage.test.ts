@@ -17,7 +17,7 @@ function setNavigatorLanguages(values: readonly string[] | undefined) {
   vi.spyOn(window.navigator, "languages", "get").mockReturnValue(values as readonly string[]);
 }
 
-// The shipped locale set is zh-Hant / ja / en / th / id.
+// The shipped locale set is zh-Hant / ja / en / th / id / ko / vi / my.
 describe("useLanguage", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -84,13 +84,15 @@ describe("useLanguage", () => {
     expect(result.current.language).toBe("zh-Hant");
   });
 
-  it("defaults to zh-Hant when no entry in navigator.languages is supported", () => {
+  // Suggestion fallback is ja (a Japanese-learning app): when nothing matches,
+  // the language *suggested* in the first-visit picker is Japanese, not zh-Hant.
+  it("suggests ja when no entry in navigator.languages is supported", () => {
     setNavigatorLanguage("fr-FR");
     setNavigatorLanguages(["fr-FR", "de-DE"]);
 
     const { result } = renderHook(() => useLanguage());
 
-    expect(result.current.language).toBe("zh-Hant");
+    expect(result.current.language).toBe("ja");
   });
 
   it("falls back to navigator.language when navigator.languages is empty/absent", () => {
@@ -111,22 +113,22 @@ describe("useLanguage", () => {
     expect(result.current.language).toBe("zh-Hant");
   });
 
-  it("defaults to zh-Hant when nothing is stored and navigator is unrecognised", () => {
+  it("suggests ja when nothing is stored and navigator is unrecognised", () => {
     setNavigatorLanguage("de-DE");
     setNavigatorLanguages(["de-DE"]);
 
     const { result } = renderHook(() => useLanguage());
 
-    expect(result.current.language).toBe("zh-Hant");
+    expect(result.current.language).toBe("ja");
   });
 
-  it("defaults to zh-Hant when navigator.language is missing", () => {
+  it("suggests ja when navigator.language is missing", () => {
     setNavigatorLanguage(undefined);
     setNavigatorLanguages(undefined);
 
     const { result } = renderHook(() => useLanguage());
 
-    expect(result.current.language).toBe("zh-Hant");
+    expect(result.current.language).toBe("ja");
   });
 
   it("sets document.documentElement.lang to the active language", () => {
@@ -146,5 +148,45 @@ describe("useLanguage", () => {
     expect(result.current.language).toBe("zh-Hant");
     expect(localStorage.getItem(KEY)).toBe("zh-Hant");
     expect(document.documentElement.lang).toBe("zh-Hant");
+  });
+
+  // First-visit language choice: with no stored preference the app shows a
+  // language picker; once a choice is stored it never asks again.
+  describe("needsLanguageChoice (first-visit picker)", () => {
+    it("is true when there is no stored preference", () => {
+      setNavigatorLanguage("ja-JP");
+      setNavigatorLanguages(["ja-JP"]);
+
+      const { result } = renderHook(() => useLanguage());
+
+      expect(result.current.needsLanguageChoice).toBe(true);
+    });
+
+    it("is false when a valid preference is already stored", () => {
+      localStorage.setItem(KEY, "ja");
+
+      const { result } = renderHook(() => useLanguage());
+
+      expect(result.current.needsLanguageChoice).toBe(false);
+    });
+
+    it("is true when the stored value is invalid (treated as no choice yet)", () => {
+      localStorage.setItem(KEY, "fr"); // not a supported locale
+
+      const { result } = renderHook(() => useLanguage());
+
+      expect(result.current.needsLanguageChoice).toBe(true);
+    });
+
+    it("clears once the user picks via setLanguage, and persists the choice", () => {
+      const { result } = renderHook(() => useLanguage());
+      expect(result.current.needsLanguageChoice).toBe(true);
+
+      act(() => result.current.setLanguage("ko"));
+
+      expect(result.current.needsLanguageChoice).toBe(false);
+      expect(result.current.language).toBe("ko");
+      expect(localStorage.getItem(KEY)).toBe("ko");
+    });
   });
 });

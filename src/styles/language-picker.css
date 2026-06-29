@@ -1,0 +1,104 @@
+/* First-visit language picker (LanguagePicker.tsx). A mandatory one-time modal:
+   no dismiss control, so it sits above every other overlay (z above modals). */
+.lang-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(23, 33, 38, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.lang-picker {
+  width: 100%;
+  max-width: 30rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1.6rem 1.4rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 1rem;
+  background: var(--paper);
+  box-shadow: 0 16px 48px rgba(23, 33, 38, 0.32);
+  text-align: center;
+}
+
+.lang-picker-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.lang-picker-brand {
+  font-family: var(--font-japanese-display, inherit);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--matcha-dark);
+}
+
+.lang-picker-title {
+  margin: 0.15rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.lang-picker-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.lang-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.lang-picker-option {
+  padding: 0.85rem 0.8rem;
+  border: 1px solid var(--field-border);
+  border-radius: 0.7rem;
+  background: var(--field-bg);
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.05s ease;
+}
+
+.lang-picker-option:hover {
+  border-color: var(--matcha);
+  background: color-mix(in srgb, var(--matcha) 12%, var(--field-bg));
+}
+
+.lang-picker-option:active {
+  transform: translateY(1px);
+}
+
+.lang-picker-option:focus-visible {
+  outline: 2px solid var(--matcha);
+  outline-offset: 2px;
+}
+
+/* The detected / ja-fallback suggestion: pre-highlighted and focused. */
+.lang-picker-option.suggested {
+  border-color: var(--matcha);
+  background: color-mix(in srgb, var(--matcha) 16%, var(--field-bg));
+  box-shadow: inset 0 0 0 1px var(--matcha);
+}
+
+@media (max-width: 360px) {
+  .lang-picker-grid {
+    grid-template-columns: 1fr;
+  }
+}
