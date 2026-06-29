@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { BookOpen, CheckCircle2, Flag, XCircle } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle2, Flag, XCircle } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { lookupWordsByReading } from "../domain/readingLookup";
 import { lookupPatternMeaning } from "../domain/patternMeaning";
 import { lookupGrammarNote } from "../domain/grammarNotes";
+import { hasGrammarPoint } from "../domain/grammarPoints";
 import { GrammarNoteCard } from "./GrammarNoteCard";
 import { QuestionReportForm } from "./QuestionReportForm";
 import { Ruby } from "./Ruby";
@@ -16,11 +17,14 @@ import type { Feedback } from "./types";
 export function FeedbackPanel({
   feedback,
   language,
-  options
+  options,
+  onOpenGrammar
 }: {
   feedback: NonNullable<Feedback>;
   language: Language;
   options: string[];
+  /** Navigate to this grammar point's study page (#282). Omitted = no link. */
+  onOpenGrammar?: (surface: string) => void;
 }) {
   const t = copy[language];
   const [showGrammarNote, setShowGrammarNote] = useState(false);
@@ -53,9 +57,11 @@ export function FeedbackPanel({
   // a point with no note yet just hides the entry point (never an error).
   const isGrammarItem =
     promptLabel === "文法形式選擇" || promptLabel === "語順組合" || promptLabel === "文章脈絡";
-  const grammarNote = isGrammarItem
-    ? lookupGrammarNote(feedback.question.vocabulary.surface)
-    : null;
+  const grammarSurface = feedback.question.vocabulary.surface;
+  const grammarNote = isGrammarItem ? lookupGrammarNote(grammarSurface) : null;
+  // "Study this grammar point →" deep link (#282): only for grammar items whose
+  // point actually has a study page, and only when a navigator is wired in.
+  const showStudyLink = isGrammarItem && Boolean(onOpenGrammar) && hasGrammarPoint(grammarSurface);
 
   // One gloss string PER distractor, rendered one-per-line, so a long
   // option list stays readable on mobile instead of wrapping mid-item.
@@ -118,6 +124,16 @@ export function FeedbackPanel({
           </button>
           {showGrammarNote ? <GrammarNoteCard note={grammarNote} language={language} /> : null}
         </div>
+      ) : null}
+      {showStudyLink ? (
+        <button
+          type="button"
+          className="grammar-study-link"
+          onClick={() => onOpenGrammar?.(grammarSurface)}
+        >
+          {t.grammarStudyLink}
+          <ArrowRight aria-hidden="true" />
+        </button>
       ) : null}
       <div className="report-question-block">
         <button

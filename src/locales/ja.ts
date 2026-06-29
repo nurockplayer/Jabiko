@@ -282,6 +282,7 @@ export const ja: Copy = {
   grammarNoteUsage: "用法",
   grammarNoteExamples: "例文",
   grammarNoteConfusions: "間違えやすい点",
+  grammarStudyLink: "この文法をくわしく学ぶ",
   keyboardHint: "デスクトップのショートカット：1〜4 で回答、Enter で次の問題へ",
   focusSummaryEmpty: "現在の重点に使える形がありません",
   modeOptions: {

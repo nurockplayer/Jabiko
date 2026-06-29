@@ -204,6 +204,38 @@
   height: 0.9rem;
 }
 
+/* "深入學習這個文法 →" deep link to the grammar study page (#282). A clear,
+   matcha-tinted call to action under the feedback -- distinct from the subtle
+   report link -- shown only for grammar items whose study page has content. */
+.grammar-study-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.8rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--matcha) 55%, var(--panel-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--matcha) 12%, transparent);
+  color: var(--matcha-dark);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.grammar-study-link:hover {
+  background: color-mix(in srgb, var(--matcha) 20%, transparent);
+  border-color: var(--matcha);
+}
+
+.grammar-study-link svg {
+  width: 1rem;
+  height: 1rem;
+}
+
 .report-reason-label {
   margin: 0;
   color: var(--ink);

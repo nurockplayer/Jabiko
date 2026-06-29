@@ -274,6 +274,7 @@ export const ko: Copy = {
   grammarNoteUsage: "용법",
   grammarNoteExamples: "예문",
   grammarNoteConfusions: "헷갈리기 쉬운 점",
+  grammarStudyLink: "이 문법 자세히 배우기",
   keyboardHint: "데스크톱 단축키: 1–4로 답하고, Enter로 다음 문제",
   focusSummaryEmpty: "이 초점에 사용할 수 있는 활용형이 없어요",
   modeOptions: {

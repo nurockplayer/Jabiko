@@ -109,6 +109,13 @@ export default function App() {
     () => parseRoute(window.location.pathname).grammarSurface
   );
 
+  // Open a grammar point's study page (#282): from the post-answer feedback's
+  // "深入學習這個文法 →" link, and deep-linkable directly via the URL.
+  const openGrammar = (surface: string) => {
+    setGrammarSurface(surface);
+    setAppView("grammar");
+  };
+
   // Keep the URL in sync when the view changes (push a history entry only
   // when the path actually differs, so popstate-driven changes don't loop).
   useEffect(() => {
@@ -401,6 +408,7 @@ export default function App() {
             language={language}
             targetLevel={targetLevel}
             onExit={() => setAppView("home")}
+            onOpenGrammar={openGrammar}
           />
         </Suspense>
       )}

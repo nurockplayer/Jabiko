@@ -274,6 +274,7 @@ export const vi: Copy = {
   grammarNoteUsage: "Cách dùng",
   grammarNoteExamples: "Ví dụ",
   grammarNoteConfusions: "Dễ nhầm lẫn",
+  grammarStudyLink: "Học sâu hơn ngữ pháp này",
   keyboardHint: "Phím tắt máy tính: bấm 1–4 để trả lời, Enter để sang câu tiếp theo",
   focusSummaryEmpty: "Không có thể nào cho trọng tâm này",
   modeOptions: {

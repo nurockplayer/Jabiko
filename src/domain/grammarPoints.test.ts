@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allGrammarSurfaces, buildGrammarPoint } from "./grammarPoints";
+import { allGrammarSurfaces, buildGrammarPoint, hasGrammarPoint } from "./grammarPoints";
 import { examStyleQuestions } from "./examBlocks";
 import { grammarNotes } from "./grammarNotes";
 
@@ -18,6 +18,15 @@ describe("grammarPoints", () => {
   });
 
   it("returns null for a surface no grammar item uses", () => {
+    expect(buildGrammarPoint("この文法点は存在しないzzz")).toBeNull();
+  });
+
+  it("hasGrammarPoint matches buildGrammarPoint's existence (#282)", () => {
+    const real = allGrammarSurfaces()[0];
+    expect(hasGrammarPoint(real)).toBe(true);
+    expect(buildGrammarPoint(real)).not.toBeNull();
+
+    expect(hasGrammarPoint("この文法点は存在しないzzz")).toBe(false);
     expect(buildGrammarPoint("この文法点は存在しないzzz")).toBeNull();
   });
 

@@ -243,6 +243,7 @@ export type Copy = {
   grammarNoteUsage: string;
   grammarNoteExamples: string;
   grammarNoteConfusions: string;
+  grammarStudyLink: string;
   keyboardHint: string;
   focusSummaryEmpty: string;
   modeOptions: Record<ModeCopyKey, { title: string; subtitle: string }>;
