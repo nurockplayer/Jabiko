@@ -65,6 +65,15 @@ describe("useLanguage", () => {
     expect(result.current.language).toBe(expected);
   });
 
+  it("detects ja from navigator.languages", () => {
+    setNavigatorLanguage("ja-JP");
+    setNavigatorLanguages(["ja-JP"]);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("ja");
+  });
+
   it("scans navigator.languages in order, returning the first supported tag", () => {
     // Primary "fr" is unsupported; the next entry "zh-TW" is the first match.
     setNavigatorLanguage("fr-FR");

@@ -696,18 +696,17 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "隱藏註音" })).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("renders no language switcher when only one locale ships (#299)", () => {
-    // The base branch is single-language (zh-Hant), so the header language
-    // <select> is suppressed -- zero visible change vs the pre-i18n app. The
-    // multi-locale switcher + English-swap + persistence assertions live on
-    // the per-language branches, where LANGUAGE_OPTIONS.length > 1.
+  it("renders the language switcher with zh-Hant + ja options (#299)", () => {
+    // This branch ships zh-Hant + ja, so LANGUAGE_OPTIONS.length > 1 and the
+    // header switcher renders with one option per shipped locale.
     render(<App />);
 
     // Default locale is zh-TW (test setup) -> zh-Hant, so nav reads Chinese.
     expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
 
-    // No switcher combobox is present.
-    expect(screen.queryByRole("combobox", { name: "切換語言" })).not.toBeInTheDocument();
+    const switcher = screen.getByRole("combobox", { name: "切換語言" });
+    const options = within(switcher).getAllByRole("option");
+    expect(options.map((o) => o.textContent)).toEqual(["繁中", "日本語"]);
   });
 
   it("lists 綜合考題庫 / N1 備考 / N2 備考 as side-by-side mode presets", async () => {
