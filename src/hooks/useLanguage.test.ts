@@ -1,27 +1,21 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { useLanguage } from "./useLanguage";
+import { getInitialLanguage, useLanguage } from "./useLanguage";
 
 const KEY = "jabiko.lang";
 
-// Override navigator.language per test. The shared setup (src/test/setup.ts)
-// already spies this getter and pins it to "zh-TW"; re-spying here replaces
-// that for the current test. vi.restoreAllMocks() in afterEach unwinds it.
-function setNavigatorLanguage(value: string | undefined) {
-  vi.spyOn(window.navigator, "language", "get").mockReturnValue(value as string);
+function setLocationSearch(search: string) {
+  vi.stubGlobal("location", {
+    ...window.location,
+    search,
+  });
+  window.location.search = search;
 }
 
-// Override navigator.languages (the ordered preference list) for a test. The
-// shared setup pins it to ["zh-TW"]; re-spying replaces it for the current test.
-function setNavigatorLanguages(values: readonly string[] | undefined) {
-  vi.spyOn(window.navigator, "languages", "get").mockReturnValue(values as readonly string[]);
-}
-
-// The shipped locale set is zh-Hant / ja / en / th / id / ko / vi / my.
+// Priority: URL ?lang= > stored > ja default (no navigator detection).
 describe("useLanguage", () => {
   beforeEach(() => {
     localStorage.clear();
-    setNavigatorLanguage("zh-TW");
   });
 
   afterEach(() => {
@@ -30,217 +24,101 @@ describe("useLanguage", () => {
     vi.restoreAllMocks();
   });
 
-  it("uses a valid stored preference over navigator detection", () => {
+  it("uses a valid stored preference as the initial language", () => {
     localStorage.setItem(KEY, "zh-Hant");
-    setNavigatorLanguage("ja-JP");
 
     const { result } = renderHook(() => useLanguage());
 
     expect(result.current.language).toBe("zh-Hant");
   });
 
-  it("ignores an invalid stored value and falls through to the default", () => {
-    localStorage.setItem(KEY, "fr"); // not a supported locale
-    setNavigatorLanguage("th-TH");
-    setNavigatorLanguages(["th-TH"]);
-
-    const { result } = renderHook(() => useLanguage());
-
-    expect(result.current.language).toBe("th");
-  });
-
-  it.each([
-    ["zh-Hant-TW", "zh-Hant"],
-    ["zh-TW", "zh-Hant"],
-    ["ja-JP", "ja"],
-    ["en-US", "en"],
-    ["th-TH", "th"],
-    ["id-ID", "id"]
-  ])("detects %s from navigator.languages as %s", (navLang, expected) => {
-    setNavigatorLanguage(navLang);
-    setNavigatorLanguages([navLang]);
-
-    const { result } = renderHook(() => useLanguage());
-
-    expect(result.current.language).toBe(expected);
-  });
-
-  it("picks id when the primary tag is unsupported but id is listed next", () => {
-    setNavigatorLanguage("fr-FR");
-    setNavigatorLanguages(["fr-FR", "id-ID"]);
-
-    const { result } = renderHook(() => useLanguage());
-
-    expect(result.current.language).toBe("id");
-  });
-
-  it("scans navigator.languages in order, returning the first supported tag", () => {
-    // Primary "fr" is unsupported; the next entry "zh-TW" is the first match.
-    setNavigatorLanguage("fr-FR");
-    setNavigatorLanguages(["fr-FR", "zh-TW"]);
-
-    const { result } = renderHook(() => useLanguage());
-
-    expect(result.current.language).toBe("zh-Hant");
-  });
-
-  // Suggestion fallback is ja (a Japanese-learning app): when nothing matches,
-  // the language *suggested* in the first-visit picker is Japanese, not zh-Hant.
-  it("suggests ja when no entry in navigator.languages is supported", () => {
-    setNavigatorLanguage("fr-FR");
-    setNavigatorLanguages(["fr-FR", "de-DE"]);
+  it("ignores an invalid stored value and defaults to ja", () => {
+    localStorage.setItem(KEY, "fr");
 
     const { result } = renderHook(() => useLanguage());
 
     expect(result.current.language).toBe("ja");
   });
 
-  it("falls back to navigator.language when navigator.languages is empty/absent", () => {
-    setNavigatorLanguage("zh-TW");
-    setNavigatorLanguages(undefined);
-
-    const { result } = renderHook(() => useLanguage());
-
-    expect(result.current.language).toBe("zh-Hant");
-  });
-
-  it("a valid stored preference still wins over navigator.languages", () => {
-    localStorage.setItem(KEY, "zh-Hant");
-    setNavigatorLanguages(["ja-JP", "th-TH"]);
-
-    const { result } = renderHook(() => useLanguage());
-
-    expect(result.current.language).toBe("zh-Hant");
-  });
-
-  it("suggests ja when nothing is stored and navigator is unrecognised", () => {
-    setNavigatorLanguage("de-DE");
-    setNavigatorLanguages(["de-DE"]);
-
-    const { result } = renderHook(() => useLanguage());
-
-    expect(result.current.language).toBe("ja");
-  });
-
-  it("suggests ja when navigator.language is missing", () => {
-    setNavigatorLanguage(undefined);
-    setNavigatorLanguages(undefined);
-
+  it("defaults to ja when nothing is stored", () => {
     const { result } = renderHook(() => useLanguage());
 
     expect(result.current.language).toBe("ja");
   });
 
   it("sets document.documentElement.lang to the active language", () => {
-    setNavigatorLanguage("zh-TW");
-    setNavigatorLanguages(["zh-TW"]);
+    localStorage.setItem(KEY, "ja");
 
     renderHook(() => useLanguage());
 
-    expect(document.documentElement.lang).toBe("zh-Hant");
+    expect(document.documentElement.lang).toBe("ja");
   });
 
   it("setLanguage updates the value and persists it", () => {
     const { result } = renderHook(() => useLanguage());
 
-    act(() => result.current.setLanguage("zh-Hant"));
+    act(() => result.current.setLanguage("ko"));
 
-    expect(result.current.language).toBe("zh-Hant");
-    expect(localStorage.getItem(KEY)).toBe("zh-Hant");
-    expect(document.documentElement.lang).toBe("zh-Hant");
+    expect(result.current.language).toBe("ko");
+    expect(localStorage.getItem(KEY)).toBe("ko");
+    expect(document.documentElement.lang).toBe("ko");
+  });
+});
+
+describe("getInitialLanguage with URL param", () => {
+  beforeEach(() => {
+    localStorage.clear();
   });
 
-  // URL ?lang= override (#326): a deep link / marketing URL can force a
-  // language regardless of stored preference or browser. Priority is
-  // URL param > stored > navigator > default(ja).
-  describe("?lang= URL override", () => {
-    afterEach(() => {
-      window.history.replaceState({}, "", "/");
-    });
-
-    it("uses ?lang=ja over the navigator default", () => {
-      setNavigatorLanguage("zh-TW");
-      setNavigatorLanguages(["zh-TW"]);
-      window.history.replaceState({}, "", "/?lang=ja");
-
-      const { result } = renderHook(() => useLanguage());
-
-      expect(result.current.language).toBe("ja");
-    });
-
-    it("uses ?lang= over a stored preference (URL wins)", () => {
-      localStorage.setItem(KEY, "zh-Hant");
-      window.history.replaceState({}, "", "/?lang=ko");
-
-      const { result } = renderHook(() => useLanguage());
-
-      expect(result.current.language).toBe("ko");
-    });
-
-    it("accepts a BCP-47 tag and maps it by prefix (?lang=vi-VN -> vi)", () => {
-      window.history.replaceState({}, "", "/?lang=vi-VN");
-
-      const { result } = renderHook(() => useLanguage());
-
-      expect(result.current.language).toBe("vi");
-    });
-
-    it("ignores an unsupported ?lang= and falls through", () => {
-      localStorage.setItem(KEY, "th");
-      window.history.replaceState({}, "", "/?lang=fr");
-
-      const { result } = renderHook(() => useLanguage());
-
-      expect(result.current.language).toBe("th");
-    });
-
-    it("skips the first-visit picker and persists the choice", () => {
-      window.history.replaceState({}, "", "/?lang=my");
-
-      const { result } = renderHook(() => useLanguage());
-
-      expect(result.current.needsLanguageChoice).toBe(false);
-      expect(localStorage.getItem(KEY)).toBe("my");
-    });
+  afterEach(() => {
+    localStorage.clear();
+    document.documentElement.removeAttribute("lang");
+    vi.restoreAllMocks();
   });
 
-  // First-visit language choice: with no stored preference the app shows a
-  // language picker; once a choice is stored it never asks again.
-  describe("needsLanguageChoice (first-visit picker)", () => {
-    it("is true when there is no stored preference", () => {
-      setNavigatorLanguage("ja-JP");
-      setNavigatorLanguages(["ja-JP"]);
+  it("URL ?lang= overrides stored preference", () => {
+    localStorage.setItem(KEY, "zh-Hant");
+    setLocationSearch("?lang=en");
 
-      const { result } = renderHook(() => useLanguage());
+    expect(getInitialLanguage()).toBe("en");
+  });
 
-      expect(result.current.needsLanguageChoice).toBe(true);
-    });
+  it("URL param wins over everything", () => {
+    localStorage.setItem(KEY, "zh-Hant");
+    setLocationSearch("?lang=id");
 
-    it("is false when a valid preference is already stored", () => {
-      localStorage.setItem(KEY, "ja");
+    expect(getInitialLanguage()).toBe("id");
+  });
 
-      const { result } = renderHook(() => useLanguage());
+  it("accepts a BCP-47 tag and maps it by prefix (?lang=vi-VN -> vi)", () => {
+    setLocationSearch("?lang=vi-VN");
 
-      expect(result.current.needsLanguageChoice).toBe(false);
-    });
+    expect(getInitialLanguage()).toBe("vi");
+  });
 
-    it("is true when the stored value is invalid (treated as no choice yet)", () => {
-      localStorage.setItem(KEY, "fr"); // not a supported locale
+  it("ignores an unsupported ?lang= and falls through to stored", () => {
+    localStorage.setItem(KEY, "th");
+    setLocationSearch("?lang=fr");
 
-      const { result } = renderHook(() => useLanguage());
+    expect(getInitialLanguage()).toBe("th");
+  });
 
-      expect(result.current.needsLanguageChoice).toBe(true);
-    });
+  it("case-insensitive ?lang= matching (JA -> ja)", () => {
+    setLocationSearch("?lang=JA");
 
-    it("clears once the user picks via setLanguage, and persists the choice", () => {
-      const { result } = renderHook(() => useLanguage());
-      expect(result.current.needsLanguageChoice).toBe(true);
+    expect(getInitialLanguage()).toBe("ja");
+  });
 
-      act(() => result.current.setLanguage("ko"));
+  it("no stored + no ?lang= -> ja default", () => {
+    setLocationSearch("");
 
-      expect(result.current.needsLanguageChoice).toBe(false);
-      expect(result.current.language).toBe("ko");
-      expect(localStorage.getItem(KEY)).toBe("ko");
-    });
+    expect(getInitialLanguage()).toBe("ja");
+  });
+
+  it("?lang= with no value falls through to stored", () => {
+    localStorage.setItem(KEY, "ja");
+    setLocationSearch("?lang=");
+
+    expect(getInitialLanguage()).toBe("ja");
   });
 });
