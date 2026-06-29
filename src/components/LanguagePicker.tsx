@@ -1,24 +1,32 @@
 import { useEffect, useRef } from "react";
+import { X } from "lucide-react";
 import { copy, type Language } from "../i18n";
 
-// First-visit language picker (#313 follow-up). Shown once, when no language
-// preference is stored yet (useLanguage.needsLanguageChoice), instead of
-// silently committing the auto-detected suggestion. The heading is deliberately
-// multilingual -- the visitor hasn't chosen a language yet, so a single-locale
-// title would beg the question. Each option is labelled in its own script via
-// copy[code].languageName, with lang={code} so the browser can pick the right
-// font (matters for Korean / Burmese). The suggested option (the detected /
-// ja-fallback guess) is pre-highlighted and focused so Enter commits it.
-// Choosing any option commits + dismisses for good; there is intentionally no
-// close affordance -- making a choice IS the action.
+// Language picker (#313 first-visit + #326 on-demand). The heading is
+// deliberately multilingual -- on a first visit the user hasn't chosen a
+// language yet, so a single-locale title would beg the question. Each option is
+// labelled in its own script via copy[code].languageName, with lang={code} so
+// the browser can pick the right font (matters for Korean / Burmese). The
+// suggested option (detected / ja-fallback guess, or the current language when
+// reopened) is pre-highlighted and focused so Enter commits it.
+//
+// Two modes:
+//  - First visit (no onClose): mandatory -- no close affordance, choosing IS the
+//    action.
+//  - On demand from the header switcher (onClose given): dismissible via a close
+//    button, Escape, or a backdrop click, so the user can back out unchanged.
 export function LanguagePicker({
   current,
   options,
-  onChoose
+  onChoose,
+  onClose,
+  closeLabel = "Close"
 }: {
   current: Language;
   options: readonly Language[];
   onChoose: (language: Language) => void;
+  onClose?: () => void;
+  closeLabel?: string;
 }) {
   const suggestedRef = useRef<HTMLButtonElement>(null);
 
@@ -31,14 +39,39 @@ export function LanguagePicker({
     };
   }, []);
 
+  // Escape closes only in dismissible mode.
+  useEffect(() => {
+    if (!onClose) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
-    <div className="lang-picker-overlay" role="presentation">
+    <div
+      className="lang-picker-overlay"
+      role="presentation"
+      onClick={onClose ? () => onClose() : undefined}
+    >
       <div
         className="lang-picker"
         role="dialog"
         aria-modal="true"
         aria-label="Choose your language / 選擇語言 / 言語を選択"
+        onClick={(event) => event.stopPropagation()}
       >
+        {onClose && (
+          <button
+            type="button"
+            className="lang-picker-close"
+            aria-label={closeLabel}
+            onClick={onClose}
+          >
+            <X aria-hidden="true" />
+          </button>
+        )}
         <div className="lang-picker-head">
           <span className="lang-picker-brand" lang="ja">
             ジャビ子

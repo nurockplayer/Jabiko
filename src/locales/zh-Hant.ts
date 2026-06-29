@@ -1,7 +1,7 @@
 import type { Copy } from "../i18n";
 
 export const zhHant: Copy = {
-  languageName: "繁中",
+  languageName: "繁體中文",
   languageSwitchLabel: "切換語言",
   appIntroLabel: "Jabiko 介紹",
   appTitle: "Jabiko · JLPT 自習室",

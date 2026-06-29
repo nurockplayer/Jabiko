@@ -729,18 +729,37 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "隱藏註音" })).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("renders the language switcher with the shipped locales (#299)", () => {
+  it("opens the language picker from the header switcher button (#326)", async () => {
     // Default locale is zh-TW (test setup) -> zh-Hant.
+    const user = userEvent.setup();
+    render(<App />); // beforeEach seeds jabiko.lang = zh-Hant
+
+    // The switcher is now an obvious button labelled with the current language,
+    // not a low-key <select> sharing the furigana icon.
+    const switchButton = screen.getByRole("button", { name: "切換語言" });
+    expect(switchButton).toHaveTextContent("繁體中文");
+
+    await user.click(switchButton);
+
+    const picker = screen.getByRole("dialog", { name: /選擇語言/ });
+    for (const name of ["繁體中文", "日本語", "English", "ไทย", "Bahasa Indonesia", "한국어", "Tiếng Việt", "မြန်မာ"]) {
+      expect(within(picker).getByRole("button", { name })).toBeInTheDocument();
+    }
+
+    // Picking a language closes the picker.
+    await user.click(within(picker).getByRole("button", { name: "日本語" }));
+    expect(screen.queryByRole("dialog", { name: /選擇語言/ })).not.toBeInTheDocument();
+  });
+
+  it("respects ?lang= on load and skips the first-visit picker (#326)", () => {
+    localStorage.removeItem("jabiko.lang"); // a never-visited device...
+    window.history.replaceState({}, "", "/?lang=ja"); // ...arriving via a ja deep link
     render(<App />);
 
-    expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
+    expect(document.documentElement.lang).toBe("ja");
+    expect(screen.queryByRole("dialog", { name: /選擇語言/ })).not.toBeInTheDocument();
 
-    expect(screen.getByRole("combobox", { name: "切換語言" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "繁中" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "日本語" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "English" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "ไทย" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Bahasa Indonesia" })).toBeInTheDocument();
+    window.history.replaceState({}, "", "/");
   });
 
   it("lists 綜合考題庫 / N1 備考 / N2 備考 as side-by-side mode presets", async () => {

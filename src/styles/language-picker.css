@@ -13,6 +13,7 @@
 }
 
 .lang-picker {
+  position: relative;
   width: 100%;
   max-width: 30rem;
   max-height: 90vh;
@@ -26,6 +27,37 @@
   background: var(--paper);
   box-shadow: 0 16px 48px rgba(23, 33, 38, 0.32);
   text-align: center;
+}
+
+/* Close button, only present when the picker is opened on demand (#326). */
+.lang-picker-close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.lang-picker-close:hover {
+  color: var(--ink);
+  border-color: var(--matcha);
+}
+
+.lang-picker-close svg {
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
 .lang-picker-head {

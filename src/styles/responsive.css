@@ -131,13 +131,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .lang-switch {
-    grid-column: 1 / -1;
-    justify-content: center;
-    min-width: 0;
-    width: 100%;
-  }
-
   .theme-toggle {
     justify-self: stretch;
     padding-inline: 0.72rem;
