@@ -2,7 +2,7 @@ import type { PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
 import type { QuestionType } from "./domain/analytics/questionType";
 import type { ModeCopyKey } from "./domain/practiceMode";
 
-export type Language = "zh-Hant" | "id";
+export type Language = "zh-Hant" | "ja" | "en" | "th" | "id";
 
 export type Copy = {
   languageName: string;
@@ -288,10 +288,13 @@ export type Copy = {
 };
 
 import { zhHant } from "./locales/zh-Hant";
+import { ja } from "./locales/ja";
+import { en } from "./locales/en";
+import { th } from "./locales/th";
 import { id } from "./locales/id";
 
 // The full Copy literal for each language now lives in its own file under
 // src/locales/. They import the Copy type from here (a type-only cycle, which
 // tsc resolves fine); assembling them into Record<Language, Copy> below forces
 // every locale to structurally satisfy Copy at compile time.
-export const copy: Record<Language, Copy> = { "zh-Hant": zhHant, id };
+export const copy: Record<Language, Copy> = { "zh-Hant": zhHant, ja, en, th, id };

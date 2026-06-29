@@ -4,7 +4,7 @@ import type { Language } from "../i18n";
 
 const LANGUAGE_STORAGE_KEY = "jabiko.lang";
 
-const SUPPORTED_LANGUAGES: readonly Language[] = ["zh-Hant", "id"];
+const SUPPORTED_LANGUAGES: readonly Language[] = ["zh-Hant", "ja", "en", "th", "id"];
 
 function isSupportedLanguage(value: string | null): value is Language {
   return value !== null && (SUPPORTED_LANGUAGES as readonly string[]).includes(value);
@@ -16,6 +16,9 @@ function isSupportedLanguage(value: string | null): value is Language {
 function languageForTag(tag: string | undefined): Language | null {
   if (!tag) return null;
   const lower = tag.toLowerCase();
+  if (lower.startsWith("ja")) return "ja";
+  if (lower.startsWith("en")) return "en";
+  if (lower.startsWith("th")) return "th";
   if (lower.startsWith("id")) return "id";
   if (lower.startsWith("zh")) return "zh-Hant";
   return null;

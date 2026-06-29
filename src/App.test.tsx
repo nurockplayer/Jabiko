@@ -697,15 +697,16 @@ describe("App", () => {
   });
 
   it("renders the language switcher with the shipped locales (#299)", () => {
-    // This branch adds id on top of zh-Hant, so LANGUAGE_OPTIONS.length > 1 and
-    // the header language <select> renders (it is suppressed only when a single
-    // locale ships). Default locale is zh-TW (test setup) -> zh-Hant.
+    // Default locale is zh-TW (test setup) -> zh-Hant.
     render(<App />);
 
     expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
 
     expect(screen.getByRole("combobox", { name: "切換語言" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "繁中" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "日本語" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "English" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "ไทย" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Bahasa Indonesia" })).toBeInTheDocument();
   });
 
