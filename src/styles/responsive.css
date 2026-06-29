@@ -100,12 +100,42 @@
   .heading-actions {
     align-items: stretch;
     display: grid;
-    grid-template-columns: 1fr;
+    gap: 0.65rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-items: stretch;
   }
 
-  .heading-actions p {
+  .heading-actions p,
+  .heading-auth,
+  .utility-actions {
     grid-column: 1 / -1;
+  }
+
+  .heading-actions p,
+  .auth-hint,
+  .heading-auth-error {
     text-align: left;
+  }
+
+  .heading-auth {
+    align-items: stretch;
+  }
+
+  .auth-button {
+    justify-content: center;
+  }
+
+  .utility-actions {
+    display: grid;
+    gap: 0.65rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lang-switch {
+    grid-column: 1 / -1;
+    justify-content: center;
+    min-width: 0;
+    width: 100%;
   }
 
   .theme-toggle {
