@@ -40,6 +40,40 @@ describe("usePracticeSession applyModePreset preference (#199)", () => {
   });
 });
 
+// FIX 1 (#299): the graded answer must travel WITH the feedback object so the
+// per-question report can never read a stale/mismatched live `selectedChoice`.
+// A choice-submit records the chosen string; a reveal records null (no choice).
+describe("usePracticeSession feedback.submittedAnswer (#299)", () => {
+  it("carries the chosen string on a choice-submit (correct or incorrect)", () => {
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs));
+    const choice = result.current.choiceOptions[0];
+    expect(choice).toBeTypeOf("string");
+
+    act(() => result.current.handleChoiceSubmit(choice));
+
+    expect(result.current.feedback).not.toBeNull();
+    expect(result.current.feedback?.submittedAnswer).toBe(choice);
+    // And it equals the live selectedChoice at submit time (no drift).
+    expect(result.current.feedback?.submittedAnswer).toBe(result.current.selectedChoice);
+  });
+
+  it("records null on a reveal (the learner made no choice)", () => {
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs));
+
+    act(() => result.current.revealAnswer());
+
+    expect(result.current.feedback?.status).toBe("revealed");
+    expect(result.current.feedback?.submittedAnswer).toBeNull();
+  });
+
+  it("resets submittedAnswer with the feedback on nextQuestion", () => {
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs));
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    act(() => result.current.nextQuestion());
+    expect(result.current.feedback).toBeNull();
+  });
+});
+
 // The pure seed logic for a session's starting level range (#199): an
 // explicit launch request wins; otherwise the global target preference,
 // clamped so 単字 never starts on a band its picker can't show.

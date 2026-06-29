@@ -213,7 +213,11 @@ export function DrillPanel({
           </div>
 
           {feedback ? (
-            <FeedbackPanel feedback={feedback} language={language} options={choiceOptions} />
+            <FeedbackPanel
+              feedback={feedback}
+              language={language}
+              options={choiceOptions}
+            />
           ) : null}
         </>
       ) : sessionExhausted ? (

@@ -95,7 +95,7 @@ export function LearningPanel({
   return (
     <section className="learning-panel" aria-label={t.learningRegion}>
       <div className="chapter-shell">
-        <aside className="chapter-index" aria-label="學習章節">
+        <aside className="chapter-index" aria-label={t.chapterIndexLabel}>
           <div className="dashboard-card" aria-label={t.dashboardEyebrow}>
             <SproutSpot size={48} className="dashboard-spot" />
             <p className="eyebrow">{t.dashboardEyebrow}</p>
@@ -126,9 +126,9 @@ export function LearningPanel({
             ) : null}
           </div>
           <div className="chapter-index-copy">
-            <p className="eyebrow">課程章節</p>
-            <h2>一章一章解鎖</h2>
-            <p>選一章看規則、例子與常見陷阱，再到挑戰頁練。</p>
+            <p className="eyebrow">{t.chapterEyebrow}</p>
+            <h2>{t.chapterHeading}</h2>
+            <p>{t.chapterIntro}</p>
           </div>
 
           <div className="chapter-list">
@@ -141,16 +141,16 @@ export function LearningPanel({
                   // Reference chapters always read "參考" (they're material,
                   // not drillable), even once their prereqs are done.
                   const status = block.completionMode === "reference"
-                    ? "參考"
+                    ? t.chapterStatusReference
                     : complete
-                    ? "完成"
+                    ? t.chapterStatusComplete
                     : null;
                   return (
                     <button
                       key={block.id}
                       type="button"
                       className={`chapter-list-button${block.id === active.id ? " selected" : ""}${complete ? " complete" : ""}`}
-                      aria-label={`查看：${block.title}`}
+                      aria-label={t.chapterViewLabel(block.title)}
                       aria-pressed={block.id === active.id}
                       onClick={() => setSelectedBlockId(block.id)}
                     >
@@ -158,7 +158,7 @@ export function LearningPanel({
                       <strong>{block.title}</strong>
                       <small>
                         {incompletePrereqs.length > 0
-                          ? `建議先看：${incompletePrereqs.map(blockTitleById).join("、")}`
+                          ? t.chapterPrereqHint(incompletePrereqs.map(blockTitleById).join("、"))
                           : block.subtitle}
                       </small>
                     </button>
@@ -180,7 +180,7 @@ export function LearningPanel({
             <h3 id="active-chapter-title">{active.title}</h3>
             <p>{active.explanation}</p>
             {active.subtitle ? (
-              <div className="focus-formula" aria-label={`${active.title}例子`}>
+              <div className="focus-formula" aria-label={t.chapterExampleLabel(active.title)}>
                 <span>{active.subtitle}</span>
               </div>
             ) : null}
@@ -198,7 +198,7 @@ export function LearningPanel({
 
             {active.pitfalls && active.pitfalls.length > 0 ? (
               <div className="block-pitfalls">
-                <p className="block-pitfalls-title">常見陷阱</p>
+                <p className="block-pitfalls-title">{t.chapterPitfallsTitle}</p>
                 <ul>
                   {active.pitfalls.map((pitfall) => (
                     <li key={pitfall}>{pitfall}</li>

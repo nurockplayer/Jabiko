@@ -362,7 +362,11 @@ export function usePracticeSession({
     const attempt = scoreAttempt(currentQuestion, choice, startedAtRef.current);
     setAttempts((current) => [...current, attempt]);
     recordAttempt(attempt);
-    setFeedback({ status: attempt.isCorrect ? "correct" : "incorrect", question: currentQuestion });
+    setFeedback({
+      status: attempt.isCorrect ? "correct" : "incorrect",
+      question: currentQuestion,
+      submittedAnswer: choice
+    });
   };
 
   const nextQuestion = () => {
@@ -391,7 +395,7 @@ export function usePracticeSession({
     setAttempts((current) => [...current, missedAttempt]);
     recordAttempt(missedAttempt);
     setSelectedChoice(null);
-    setFeedback({ status: "revealed", question: currentQuestion });
+    setFeedback({ status: "revealed", question: currentQuestion, submittedAnswer: null });
   };
 
   const handleDrillKeyDown = (event: KeyboardEvent<HTMLElement>) => {

@@ -140,6 +140,13 @@
   font-size: 0.8rem;
 }
 
+.feedback-char-remaining {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-align: right;
+}
+
 .feedback-error {
   margin: 0;
   color: var(--vermilion);
@@ -159,6 +166,49 @@
 .feedback-done p {
   margin: 0;
   color: var(--ink);
+}
+
+/* Per-question "report this question" (#299): an unobtrusive text-style entry
+   at the bottom of the post-answer feedback panel, and the reason-group label
+   inside the report modal. The modal itself reuses the .feedback-* classes. */
+.report-question-block {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.4rem;
+}
+
+.report-question-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.3rem;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-radius: 0.35rem;
+  flex-wrap: wrap;
+  max-width: 100%;
+  white-space: normal;
+}
+
+.report-question-cta:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.report-question-cta svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.report-reason-label {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .home-hero {
