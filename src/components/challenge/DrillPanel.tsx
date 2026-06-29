@@ -217,7 +217,6 @@ export function DrillPanel({
               feedback={feedback}
               language={language}
               options={choiceOptions}
-              selectedAnswer={selectedChoice}
             />
           ) : null}
         </>

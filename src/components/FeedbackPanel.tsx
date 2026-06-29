@@ -16,13 +16,11 @@ import type { Feedback } from "./types";
 export function FeedbackPanel({
   feedback,
   language,
-  options,
-  selectedAnswer
+  options
 }: {
   feedback: NonNullable<Feedback>;
   language: Language;
   options: string[];
-  selectedAnswer?: string | null;
 }) {
   const t = copy[language];
   const [showGrammarNote, setShowGrammarNote] = useState(false);
@@ -134,7 +132,7 @@ export function FeedbackPanel({
       {showReport ? (
         <QuestionReportForm
           question={feedback.question}
-          selectedAnswer={selectedAnswer ?? null}
+          selectedAnswer={feedback.submittedAnswer}
           language={language}
           onClose={() => setShowReport(false)}
         />

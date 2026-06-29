@@ -42,9 +42,14 @@ describe("buildQuestionReportMessage", () => {
     expect(message).toContain("wrongAnswer");
     // Question identity + type + level.
     expect(message).toContain("q-demo-001");
-    expect(message).toContain("漢字読み"); // promptLabel preferred as type
+    // promptLabel AND targetForm are emitted separately, not collapsed into one.
+    expect(message).toContain("漢字読み"); // promptLabel
+    expect(message).toContain("reading"); // targetForm (kept even when promptLabel exists)
     expect(message).toContain("N2");
     expect(message).toContain("面倒"); // surface
+    // Extra vocabulary identity: id + reading.
+    expect(message).toContain("v-demo"); // vocabulary id
+    expect(message).toContain("めんどう"); // vocabulary reading
     expect(message).toContain("この仕事は面倒だ。"); // promptText
     // Both expected answers joined.
     expect(message).toContain("めんどう");
@@ -57,7 +62,21 @@ describe("buildQuestionReportMessage", () => {
     expect(message).toContain("正解が二つあるはず");
   });
 
-  it("falls back to targetForm when promptLabel is absent", () => {
+  it("emits promptLabel and targetForm on separate labelled lines", () => {
+    const message = buildQuestionReportMessage({
+      question: baseQuestion,
+      reason: "wrongAnswer",
+      language: "zh-Hant"
+    });
+    const lines = message.split("\n");
+    expect(lines).toContain("promptLabel: 漢字読み");
+    expect(lines).toContain("targetForm: reading");
+    // Vocabulary identity is its own structured pair, not folded into surface.
+    expect(lines).toContain("vocabId: v-demo");
+    expect(lines).toContain("reading: めんどう");
+  });
+
+  it("shows a dash for an absent promptLabel but still emits targetForm", () => {
     const { promptLabel, ...rest } = baseQuestion;
     void promptLabel;
     const message = buildQuestionReportMessage({
@@ -65,7 +84,10 @@ describe("buildQuestionReportMessage", () => {
       reason: "typo",
       language: "zh-Hant"
     });
-    expect(message).toContain("reading"); // targetForm used as type
+    const lines = message.split("\n");
+    expect(lines).toContain("promptLabel: -"); // missing -> dash, never "undefined"
+    expect(lines).toContain("targetForm: reading"); // targetForm always present
+    expect(message).not.toContain("undefined");
   });
 
   it("renders placeholders for missing optional promptText / level / selectedAnswer", () => {
@@ -117,7 +139,11 @@ describe("buildQuestionReportMessage", () => {
       language: "ja"
     });
     expect(message.length).toBeLessThanOrEqual(FEEDBACK_MAX);
-    // The structured header survives the cap (detail is what gets trimmed).
+    // The full structured metadata block survives the cap (only detail trims).
     expect(message).toContain("q-demo-001");
+    expect(message).toContain("v-demo"); // vocab id
+    expect(message).toContain("めんどう"); // vocab reading
+    expect(message).toContain("漢字読み"); // promptLabel
+    expect(message).toContain("reading"); // targetForm
   });
 });

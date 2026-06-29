@@ -36,10 +36,10 @@ export function buildQuestionReportMessage(input: QuestionReportInput): string {
   const { question, reason, detail, language, selectedAnswer } = input;
   const vocab = question.vocabulary;
 
-  // promptLabel is the human question-type tag (e.g. 漢字読み / 文法形式選擇);
-  // exam items default targetForm to "reading", so promptLabel is preferred
-  // and targetForm is the fallback for plain conjugation drills.
-  const questionType = orDash(question.promptLabel ?? question.targetForm);
+  // promptLabel (the human question-type tag, e.g. 漢字読み / 文法形式選擇) and
+  // targetForm are emitted SEPARATELY rather than collapsed into one field:
+  // exam items default targetForm to "reading", so collapsing would hide the
+  // real form. A reviewer needs both to identify what the question tests.
   const level = orDash(vocab.level);
   const expected = question.expectedAnswers.join(" / ") || DASH;
 
@@ -48,9 +48,12 @@ export function buildQuestionReportMessage(input: QuestionReportInput): string {
     header,
     `reason: ${reason}`,
     `questionId: ${orDash(question.id)}`,
-    `type: ${questionType}`,
+    `promptLabel: ${orDash(question.promptLabel)}`,
+    `targetForm: ${orDash(question.targetForm)}`,
     `level: ${level}`,
+    `vocabId: ${orDash(vocab.id)}`,
     `surface: ${orDash(vocab.surface)}`,
+    `reading: ${orDash(vocab.reading)}`,
     `prompt: ${orDash(question.promptText)}`,
     `expectedAnswers: ${expected}`,
     `selectedAnswer: ${orDash(selectedAnswer)}`,

@@ -11,6 +11,12 @@ function setNavigatorLanguage(value: string | undefined) {
   vi.spyOn(window.navigator, "language", "get").mockReturnValue(value as string);
 }
 
+// Override navigator.languages (the ordered preference list) for a test. The
+// shared setup pins it to ["zh-TW"]; re-spying replaces it for the current test.
+function setNavigatorLanguages(values: readonly string[] | undefined) {
+  vi.spyOn(window.navigator, "languages", "get").mockReturnValue(values as readonly string[]);
+}
+
 describe("useLanguage", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -35,6 +41,7 @@ describe("useLanguage", () => {
   it("ignores an invalid stored value and falls through to detection", () => {
     localStorage.setItem(KEY, "fr"); // not one of the five
     setNavigatorLanguage("th-TH");
+    setNavigatorLanguages(["th-TH"]);
 
     const { result } = renderHook(() => useLanguage());
 
@@ -47,16 +54,64 @@ describe("useLanguage", () => {
     ["th-TH", "th"],
     ["id-ID", "id"],
     ["zh-Hant-TW", "zh-Hant"]
-  ])("detects %s from navigator.language as %s", (navLang, expected) => {
+  ])("detects %s from navigator.languages as %s", (navLang, expected) => {
     setNavigatorLanguage(navLang);
+    setNavigatorLanguages([navLang]);
 
     const { result } = renderHook(() => useLanguage());
 
     expect(result.current.language).toBe(expected);
   });
 
+  it("scans navigator.languages in order, returning the first supported tag", () => {
+    // Primary "fr" is unsupported; the next entry "th" is the first match.
+    setNavigatorLanguage("fr-FR");
+    setNavigatorLanguages(["fr-FR", "th-TH"]);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("th");
+  });
+
+  it("falls through an unsupported primary to a supported secondary (en)", () => {
+    setNavigatorLanguage("fr-FR");
+    setNavigatorLanguages(["fr", "en-GB"]);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("en");
+  });
+
+  it("defaults to zh-Hant when no entry in navigator.languages is supported", () => {
+    setNavigatorLanguage("fr-FR");
+    setNavigatorLanguages(["fr-FR", "de-DE"]);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("zh-Hant");
+  });
+
+  it("falls back to navigator.language when navigator.languages is empty/absent", () => {
+    setNavigatorLanguage("ja-JP");
+    setNavigatorLanguages(undefined);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("ja");
+  });
+
+  it("a valid stored preference still wins over navigator.languages", () => {
+    localStorage.setItem(KEY, "en");
+    setNavigatorLanguages(["ja-JP", "th-TH"]);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("en");
+  });
+
   it("defaults to zh-Hant when nothing is stored and navigator is unrecognised", () => {
     setNavigatorLanguage("de-DE");
+    setNavigatorLanguages(["de-DE"]);
 
     const { result } = renderHook(() => useLanguage());
 
@@ -65,6 +120,7 @@ describe("useLanguage", () => {
 
   it("defaults to zh-Hant when navigator.language is missing", () => {
     setNavigatorLanguage(undefined);
+    setNavigatorLanguages(undefined);
 
     const { result } = renderHook(() => useLanguage());
 
@@ -73,6 +129,7 @@ describe("useLanguage", () => {
 
   it("sets document.documentElement.lang to the active language", () => {
     setNavigatorLanguage("ja-JP");
+    setNavigatorLanguages(["ja-JP"]);
 
     renderHook(() => useLanguage());
 

@@ -10,19 +10,37 @@ function isSupportedLanguage(value: string | null): value is Language {
   return value !== null && (SUPPORTED_LANGUAGES as readonly string[]).includes(value);
 }
 
-// Map a BCP-47 navigator tag (e.g. "ja-JP", "zh-Hant-TW") to one of our five
+// Map a single BCP-47 tag (e.g. "ja-JP", "zh-Hant-TW") to one of our five
 // locales by prefix. zh-* always means Traditional Chinese here (the app has
-// no Simplified locale). Returns null when nothing matches.
-function detectFromNavigator(): Language | null {
-  const navLang = typeof navigator !== "undefined" ? navigator.language : undefined;
-  if (!navLang) return null;
-
-  const lower = navLang.toLowerCase();
+// no Simplified locale). Returns null when the tag matches nothing.
+function languageForTag(tag: string | undefined): Language | null {
+  if (!tag) return null;
+  const lower = tag.toLowerCase();
   if (lower.startsWith("ja")) return "ja";
   if (lower.startsWith("en")) return "en";
   if (lower.startsWith("th")) return "th";
   if (lower.startsWith("id")) return "id";
   if (lower.startsWith("zh")) return "zh-Hant";
+  return null;
+}
+
+// Walk the browser's ordered preference list (navigator.languages, falling
+// back to the single navigator.language) and return the FIRST tag whose prefix
+// maps to a supported locale. This honours a user who keeps an unsupported
+// primary (e.g. "fr") but lists a supported secondary (e.g. "en"). Returns null
+// when no entry matches, so the caller can apply the zh-Hant default.
+function detectFromNavigator(): Language | null {
+  if (typeof navigator === "undefined") return null;
+  const tags =
+    navigator.languages && navigator.languages.length > 0
+      ? navigator.languages
+      : navigator.language
+        ? [navigator.language]
+        : [];
+  for (const tag of tags) {
+    const matched = languageForTag(tag);
+    if (matched) return matched;
+  }
   return null;
 }
 

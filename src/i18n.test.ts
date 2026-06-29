@@ -11,7 +11,13 @@ import { copy, type Language } from "./i18n";
 // locale, including deeply nested ones, which a partial typecheck might miss.
 function collectKeyPaths(value: unknown, prefix = ""): string[] {
   if (Array.isArray(value)) {
-    return [`${prefix}[len=${value.length}]`];
+    // Record the length AND recurse into each element, so a per-element missing
+    // sub-key (e.g. a learningSteps entry without `body`) is caught -- a
+    // length-only comparison would miss it.
+    return [
+      `${prefix}[len=${value.length}]`,
+      ...value.flatMap((item, index) => collectKeyPaths(item, `${prefix}[${index}]`))
+    ];
   }
   if (value !== null && typeof value === "object") {
     const paths: string[] = [];
@@ -21,8 +27,38 @@ function collectKeyPaths(value: unknown, prefix = ""): string[] {
     }
     return paths.sort();
   }
-  return [prefix];
+  // Tag the leaf kind so a function accidentally replaced by a string (or vice
+  // versa) in a locale also diverges -- not only a missing/extra key.
+  const kind = typeof value === "function" ? "fn" : "scalar";
+  return [`${prefix}[${kind}]`];
 }
+
+// collectKeyPaths must recurse INTO array elements, not just record the length,
+// so a per-element missing sub-key (e.g. a learningSteps entry without `body`)
+// is caught -- a length-only comparison would miss it.
+describe("collectKeyPaths array recursion", () => {
+  it("emits the array length AND each element's sub-key paths", () => {
+    const paths = collectKeyPaths({ steps: [{ a: "x", b: "y" }] });
+    expect(paths).toContain("steps[len=1]");
+    expect(paths).toContain("steps[0].a[scalar]");
+    expect(paths).toContain("steps[0].b[scalar]");
+  });
+
+  it("catches a per-element missing sub-key (same length, divergent shape)", () => {
+    const complete = collectKeyPaths({ steps: [{ a: "x", b: "y" }] });
+    // Same array length, but the lone element dropped `b`.
+    const missing = collectKeyPaths({ steps: [{ a: "x" }] });
+    const diff = complete.filter((path) => !new Set(missing).has(path));
+    expect(diff).toContain("steps[0].b[scalar]");
+  });
+
+  it("distinguishes a function leaf from a string leaf (catches fn->string swaps)", () => {
+    const asFn = collectKeyPaths({ label: () => "x" });
+    const asString = collectKeyPaths({ label: "x" });
+    expect(asFn).toEqual(["label[fn]"]);
+    expect(asString).toEqual(["label[scalar]"]);
+  });
+});
 
 // Scope-copy guard (#94). The app spans N5 (basic conjugation) → N1, and the
 // 綜合考題庫 exam pool covers N1–N3 (N4/N5 live only in the examN4 preset, not

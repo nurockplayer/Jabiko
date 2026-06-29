@@ -10,6 +10,17 @@ import { lookupWordsByReading } from "../domain/readingLookup";
 import { lookupPatternMeaning } from "../domain/patternMeaning";
 import { grammarNotes } from "../domain/grammarNotes";
 
+// Capture the props QuestionReportForm is opened with, so we can assert the
+// graded answer FeedbackPanel hands it comes from feedback.submittedAnswer
+// (FIX 1, #299) rather than a separate live prop.
+const reportFormProps = vi.hoisted(() => ({ current: null as { selectedAnswer: string | null } | null }));
+vi.mock("./QuestionReportForm", () => ({
+  QuestionReportForm: (props: { selectedAnswer: string | null }) => {
+    reportFormProps.current = props;
+    return <div data-testid="report-form-stub" data-selected={String(props.selectedAnswer)} />;
+  }
+}));
+
 const readingPool = buildQuestionPool(jlptVocabulary, {
   partOfSpeech: "mixed",
   verbGroup: "all",
@@ -28,7 +39,7 @@ describe("FeedbackPanel distractor gloss", () => {
 
     const { container } = render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question }}
+        feedback={{ status: "incorrect", question, submittedAnswer: null }}
         language="zh-Hant"
         options={[answer, realDistractor, fakeDistractor]}
       />
@@ -56,7 +67,7 @@ describe("FeedbackPanel distractor gloss", () => {
 
     const { container } = render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question }}
+        feedback={{ status: "incorrect", question, submittedAnswer: null }}
         language="zh-Hant"
         options={[answer, ...distractors]}
       />
@@ -81,7 +92,7 @@ describe("FeedbackPanel distractor gloss", () => {
 
     const { container } = render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question }}
+        feedback={{ status: "incorrect", question, submittedAnswer: null }}
         language="zh-Hant"
         options={[answer, distractor]}
       />
@@ -100,7 +111,7 @@ describe("FeedbackPanel distractor gloss", () => {
     const question = { ...readingPool[0], targetForm: "te" as const };
     const { container } = render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question }}
+        feedback={{ status: "incorrect", question, submittedAnswer: null }}
         language="zh-Hant"
         options={["a", "b", "c"]}
       />
@@ -112,7 +123,7 @@ describe("FeedbackPanel distractor gloss", () => {
     const examItem = examStyleQuestions.find((q) => q.vocabulary.level === "N1")!;
     const { container, unmount } = render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question: examItem }}
+        feedback={{ status: "incorrect", question: examItem, submittedAnswer: null }}
         language="zh-Hant"
         options={examItem.options ?? []}
       />
@@ -127,7 +138,7 @@ describe("FeedbackPanel distractor gloss", () => {
     };
     const { container: c2 } = render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question: noLevel }}
+        feedback={{ status: "incorrect", question: noLevel, submittedAnswer: null }}
         language="zh-Hant"
         options={[]}
       />
@@ -158,7 +169,7 @@ describe("FeedbackPanel distractor gloss", () => {
     for (const testCase of cases) {
       const { container, unmount } = render(
         <FeedbackPanel
-          feedback={{ status: "incorrect", question: testCase.question }}
+          feedback={{ status: "incorrect", question: testCase.question, submittedAnswer: null }}
           language="zh-Hant"
           options={testCase.options}
         />
@@ -183,7 +194,7 @@ describe("FeedbackPanel grammar note (#137)", () => {
     const question = grammarWithSurface("ばかりに");
     const { container } = render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question }}
+        feedback={{ status: "incorrect", question, submittedAnswer: null }}
         language="zh-Hant"
         options={question.options ?? []}
       />
@@ -199,7 +210,7 @@ describe("FeedbackPanel grammar note (#137)", () => {
     const question = grammarWithSurface("ばかりに");
     const { container } = render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question }}
+        feedback={{ status: "incorrect", question, submittedAnswer: null }}
         language="zh-Hant"
         options={question.options ?? []}
       />
@@ -215,7 +226,7 @@ describe("FeedbackPanel grammar note (#137)", () => {
     const question = grammarWithSurface("そんな文法点はない");
     const { container } = render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question }}
+        feedback={{ status: "incorrect", question, submittedAnswer: null }}
         language="zh-Hant"
         options={question.options ?? []}
       />
@@ -232,7 +243,7 @@ describe("FeedbackPanel grammar note (#137)", () => {
     };
     const { container } = render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question }}
+        feedback={{ status: "incorrect", question, submittedAnswer: null }}
         language="zh-Hant"
         options={[]}
       />
@@ -246,45 +257,56 @@ describe("FeedbackPanel report-this-question entry (#299)", () => {
     const question = readingPool[0];
     render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question }}
+        feedback={{ status: "incorrect", question, submittedAnswer: question.expectedAnswers[0] }}
         language="zh-Hant"
         options={question.expectedAnswers}
-        selectedAnswer={question.expectedAnswers[0]}
       />
     );
     expect(screen.getByRole("button", { name: "回報此題" })).toBeInTheDocument();
     // The report form is not mounted until the entry is clicked.
-    expect(document.querySelector(".feedback-overlay")).toBeNull();
+    expect(screen.queryByTestId("report-form-stub")).toBeNull();
   });
 
   it("opens the report form when the entry is clicked", () => {
     const question = readingPool[0];
     render(
       <FeedbackPanel
-        feedback={{ status: "incorrect", question }}
+        feedback={{ status: "incorrect", question, submittedAnswer: question.expectedAnswers[0] }}
         language="zh-Hant"
         options={question.expectedAnswers}
-        selectedAnswer={question.expectedAnswers[0]}
       />
     );
     fireEvent.click(screen.getByRole("button", { name: "回報此題" }));
-    // The modal (a feedback-overlay dialog titled 回報題目問題) is now mounted.
-    expect(document.querySelector(".feedback-overlay")).not.toBeNull();
-    expect(screen.getByRole("dialog", { name: "回報題目問題" })).toBeInTheDocument();
-    // And the five reasons are offered.
-    expect(screen.getByRole("button", { name: "答案／正解有誤" })).toBeInTheDocument();
+    expect(screen.getByTestId("report-form-stub")).toBeInTheDocument();
   });
 
-  it("still renders the entry when selectedAnswer is omitted", () => {
+  it("hands the report the exact graded answer from feedback.submittedAnswer", () => {
+    const question = readingPool[0];
+    const graded = question.expectedAnswers[0];
+    render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question, submittedAnswer: graded }}
+        language="zh-Hant"
+        options={question.expectedAnswers}
+      />
+    );
+    fireEvent.click(screen.getByRole("button", { name: "回報此題" }));
+    // Sourced from feedback.submittedAnswer, NOT a separate live prop.
+    expect(reportFormProps.current?.selectedAnswer).toBe(graded);
+  });
+
+  it("hands the report null for a revealed/skipped question (no choice)", () => {
     const question = readingPool[0];
     render(
       <FeedbackPanel
-        feedback={{ status: "revealed", question }}
+        feedback={{ status: "revealed", question, submittedAnswer: null }}
         language="zh-Hant"
         options={question.expectedAnswers}
       />
     );
     expect(screen.getByRole("button", { name: "回報此題" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "回報此題" }));
+    expect(reportFormProps.current?.selectedAnswer).toBeNull();
   });
 });
 
@@ -306,7 +328,7 @@ describe("FeedbackPanel furigana (#134)", () => {
     const { container } = render(
       <FuriganaContext.Provider value={{ enabled: true }}>
         <FeedbackPanel
-          feedback={{ status: "correct", question }}
+          feedback={{ status: "correct", question, submittedAnswer: null }}
           language="zh-Hant"
           options={[]}
         />
@@ -319,7 +341,7 @@ describe("FeedbackPanel furigana (#134)", () => {
   it("renders a plain example sentence when furigana is off (default)", () => {
     const { container } = render(
       <FeedbackPanel
-        feedback={{ status: "correct", question }}
+        feedback={{ status: "correct", question, submittedAnswer: null }}
         language="zh-Hant"
         options={[]}
       />
@@ -340,7 +362,7 @@ describe("FeedbackPanel furigana (#134)", () => {
     const { container } = render(
       <FuriganaContext.Provider value={{ enabled: true }}>
         <FeedbackPanel
-          feedback={{ status: "correct", question: readingItem }}
+          feedback={{ status: "correct", question: readingItem, submittedAnswer: null }}
           language="zh-Hant"
           options={[]}
         />
