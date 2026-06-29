@@ -274,6 +274,7 @@ export const zhHant: Copy = {
   grammarNoteUsage: "用法",
   grammarNoteExamples: "例句",
   grammarNoteConfusions: "易混點",
+  grammarStudyLink: "深入學習這個文法",
   keyboardHint: "桌面快捷：按 1–4 選答、Enter 進下一題",
   focusSummaryEmpty: "目前重點沒有可用形",
   modeOptions: {

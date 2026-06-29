@@ -9,6 +9,7 @@ import { buildSentencePatternPool } from "../domain/sentencePatterns";
 import { lookupWordsByReading } from "../domain/readingLookup";
 import { lookupPatternMeaning } from "../domain/patternMeaning";
 import { grammarNotes } from "../domain/grammarNotes";
+import { copy } from "../i18n";
 
 // Capture the props QuestionReportForm is opened with, so we can assert the
 // graded answer FeedbackPanel hands it comes from feedback.submittedAnswer
@@ -256,6 +257,64 @@ describe("FeedbackPanel grammar note (#137)", () => {
       />
     );
     expect(container.querySelector(".grammar-note-block")).toBeNull();
+  });
+});
+
+describe("FeedbackPanel grammar study link (#282)", () => {
+  const grammarBase = examStyleQuestions.find((q) => q.promptLabel === "文法形式選擇")!;
+  const linkName = copy["zh-Hant"].grammarStudyLink;
+
+  it("links a grammar item to its study page, calling onOpenGrammar with the surface", () => {
+    const onOpenGrammar = vi.fn();
+    render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question: grammarBase, submittedAnswer: null }}
+        language="zh-Hant"
+        options={grammarBase.options ?? []}
+        onOpenGrammar={onOpenGrammar}
+      />
+    );
+    fireEvent.click(screen.getByRole("button", { name: linkName }));
+    expect(onOpenGrammar).toHaveBeenCalledWith(grammarBase.vocabulary.surface);
+  });
+
+  it("hides the link when no onOpenGrammar navigator is wired in", () => {
+    render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question: grammarBase, submittedAnswer: null }}
+        language="zh-Hant"
+        options={grammarBase.options ?? []}
+      />
+    );
+    expect(screen.queryByRole("button", { name: linkName })).toBeNull();
+  });
+
+  it("hides the link for a non-grammar (reading) item", () => {
+    render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question: readingPool[0], submittedAnswer: null }}
+        language="zh-Hant"
+        options={[]}
+        onOpenGrammar={vi.fn()}
+      />
+    );
+    expect(screen.queryByRole("button", { name: linkName })).toBeNull();
+  });
+
+  it("hides the link for a grammar surface that has no study page", () => {
+    const question = {
+      ...grammarBase,
+      vocabulary: { ...grammarBase.vocabulary, surface: "そんな文法点はないzzz" }
+    };
+    render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question, submittedAnswer: null }}
+        language="zh-Hant"
+        options={[]}
+        onOpenGrammar={vi.fn()}
+      />
+    );
+    expect(screen.queryByRole("button", { name: linkName })).toBeNull();
   });
 });
 

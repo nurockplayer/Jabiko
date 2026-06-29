@@ -274,6 +274,7 @@ export const id: Copy = {
   grammarNoteUsage: "Penggunaan",
   grammarNoteExamples: "Contoh kalimat",
   grammarNoteConfusions: "Titik rawan tertukar",
+  grammarStudyLink: "Pelajari tata bahasa ini lebih dalam",
   keyboardHint: "Pintasan desktop: tekan 1–4 untuk memilih jawaban, Enter untuk soal berikutnya",
   focusSummaryEmpty: "Fokus saat ini tidak punya bentuk yang tersedia",
   modeOptions: {

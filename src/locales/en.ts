@@ -274,6 +274,7 @@ export const en: Copy = {
   grammarNoteUsage: "Usage",
   grammarNoteExamples: "Examples",
   grammarNoteConfusions: "Easy to confuse",
+  grammarStudyLink: "Study this grammar point",
   keyboardHint: "Desktop shortcuts: press 1–4 to answer, Enter for the next question",
   focusSummaryEmpty: "No forms available for this focus",
   modeOptions: {

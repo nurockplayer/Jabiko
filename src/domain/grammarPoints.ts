@@ -53,6 +53,15 @@ function lookupNote(surface: string): GrammarNote | null {
   return grammarNotes[surface] ?? grammarNotes[surface.replace(/^[〜～]/, "")] ?? null;
 }
 
+// Cheap existence check (#282): does a /grammar/<surface> page have content?
+// Used by the post-answer feedback to decide whether to show the study link,
+// without building the whole point.
+export function hasGrammarPoint(surface: string): boolean {
+  return examStyleQuestions.some(
+    (question) => isGrammarQuestion(question) && question.vocabulary.surface === surface
+  );
+}
+
 // Every distinct grammar-point surface present in the exam bank, sorted for a
 // stable order (an index page / build-time prerender can rely on it).
 export function allGrammarSurfaces(): string[] {

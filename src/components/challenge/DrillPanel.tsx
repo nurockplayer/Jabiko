@@ -60,7 +60,8 @@ export function DrillPanel({
   resetSession,
   revealAnswer,
   handleDrillKeyDown,
-  onExit
+  onExit,
+  onOpenGrammar
 }: Pick<
   PracticeSession,
   | "questionIndex"
@@ -82,7 +83,7 @@ export function DrillPanel({
   | "resetSession"
   | "revealAnswer"
   | "handleDrillKeyDown"
-> & { language: Language; onExit: () => void }) {
+> & { language: Language; onExit: () => void; onOpenGrammar?: (surface: string) => void }) {
   const t = copy[language];
 
   // Completion-screen copy: daily / review have their own wording; every
@@ -217,6 +218,7 @@ export function DrillPanel({
               feedback={feedback}
               language={language}
               options={choiceOptions}
+              onOpenGrammar={onOpenGrammar}
             />
           ) : null}
         </>

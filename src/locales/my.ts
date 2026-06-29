@@ -274,6 +274,7 @@ export const my: Copy = {
   grammarNoteUsage: "အသုံးပြုပုံ",
   grammarNoteExamples: "နမူနာများ",
   grammarNoteConfusions: "ရှုပ်ထွေးလွယ်",
+  grammarStudyLink: "ဤသဒ္ဒါကို အသေးစိတ် လေ့လာရန်",
   keyboardHint: "ဒက်စ်တော့ဖြတ်လမ်း — ဖြေဆိုရန် 1–4 ကိုနှိပ်ပါ၊ နောက်မေးခွန်းအတွက် Enter",
   focusSummaryEmpty: "ဤအာရုံစိုက်ရာအတွက် ရရှိနိုင်သော ပုံစံ မရှိပါ",
   modeOptions: {

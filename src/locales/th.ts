@@ -275,6 +275,7 @@ export const th: Copy = {
   grammarNoteUsage: "การใช้งาน",
   grammarNoteExamples: "ประโยคตัวอย่าง",
   grammarNoteConfusions: "จุดที่มักสับสน",
+  grammarStudyLink: "เรียนรู้ไวยากรณ์นี้เพิ่มเติม",
   keyboardHint: "ทางลัดบนเดสก์ท็อป: กด 1–4 เลือกคำตอบ, Enter ไปข้อถัดไป",
   focusSummaryEmpty: "จุดเน้นปัจจุบันไม่มีรูปที่ใช้ได้",
   modeOptions: {
