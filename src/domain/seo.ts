@@ -9,7 +9,7 @@
 // Pure data + a small resolver -> trivially testable, no DOM here.
 
 /** Top-level views that have their own URL (mirrors App's AppView / VIEW_PATHS). */
-export type SeoView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about";
+export type SeoView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about" | "grammar";
 
 /** Production origin; canonical URLs are absolute so crawlers dedupe cleanly. */
 export const SITE_ORIGIN = "https://jabiko.pages.dev";
@@ -21,7 +21,7 @@ interface PageSeo {
   path: string;
 }
 
-export const VIEW_SEO: Record<SeoView, PageSeo> = {
+export const VIEW_SEO: Record<Exclude<SeoView, "grammar">, PageSeo> = {
   home: {
     title: "Jabiko · JLPT 日檢自習室｜N5–N1 文法單字模擬考",
     description:
@@ -73,9 +73,23 @@ export interface ResolvedSeo {
   canonical: string;
 }
 
-/** Resolve a view's title/description and its absolute canonical URL. */
-export function seoForView(view: SeoView): ResolvedSeo {
-  const entry = VIEW_SEO[view];
+/**
+ * Resolve a view's title/description and its absolute canonical URL. The
+ * `/grammar/<surface>` route is dynamic (#281): its metadata is built from the
+ * surface so each grammar-point page surfaces its own title/canonical to
+ * crawlers. Falls back to the home entry if a grammar view arrives with no
+ * surface (shouldn't happen in practice).
+ */
+export function seoForView(view: SeoView, grammarSurface?: string | null): ResolvedSeo {
+  if (view === "grammar" && grammarSurface) {
+    return {
+      title: `${grammarSurface} 的意思與用法 · JLPT／日檢文法 · Jabiko`,
+      description: `日檢文法「${grammarSurface}」的意思、接續、用法與例句，看完直接練——JLPT 文法逐點攻略。`,
+      canonical: `${SITE_ORIGIN}/grammar/${encodeURIComponent(grammarSurface)}`
+    };
+  }
+
+  const entry = VIEW_SEO[view === "grammar" ? "home" : view];
   return {
     title: entry.title,
     description: entry.description,

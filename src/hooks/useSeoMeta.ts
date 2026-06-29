@@ -27,9 +27,9 @@ function upsertCanonical(href: string) {
 // per-view canonical + og:url. Runs on every view change so a crawler that
 // renders the JS sees route-specific title/description rather than the shared
 // static shell. Idempotent: re-applies in place, never duplicates a tag.
-export function useSeoMeta(view: SeoView) {
+export function useSeoMeta(view: SeoView, grammarSurface?: string | null) {
   useEffect(() => {
-    const { title, description, canonical } = seoForView(view);
+    const { title, description, canonical } = seoForView(view, grammarSurface);
     document.title = title;
     upsertMeta("name", "description", description);
     upsertMeta("property", "og:title", title);
@@ -38,5 +38,5 @@ export function useSeoMeta(view: SeoView) {
     upsertMeta("name", "twitter:title", title);
     upsertMeta("name", "twitter:description", description);
     upsertCanonical(canonical);
-  }, [view]);
+  }, [view, grammarSurface]);
 }
