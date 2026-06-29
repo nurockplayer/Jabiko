@@ -143,6 +143,21 @@
     padding-inline: 0.72rem;
   }
 
+  @media (max-width: 380px) {
+    .utility-actions {
+      grid-template-columns: 1fr;
+    }
+
+    .utility-actions > * {
+      grid-column: 1 / -1;
+    }
+
+    .theme-toggle {
+      min-width: 0;
+      white-space: normal;
+    }
+  }
+
   .controls-panel,
   .drill-panel,
   .learning-panel,
