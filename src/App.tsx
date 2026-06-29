@@ -43,7 +43,7 @@ type DrillPreset = LearningBlockDrillPreset;
 
 // The five UI locales, in menu order, for the header language <select>. Each
 // option's label is that locale's own native name (copy[code].languageName).
-const LANGUAGE_OPTIONS: readonly Language[] = ["zh-Hant"];
+const LANGUAGE_OPTIONS: readonly Language[] = ["zh-Hant", "id"];
 
 // Lightweight URL routing: each top-level view maps to a path so the browser
 // back/forward buttons, refresh, and shareable/bookmarkable links all work

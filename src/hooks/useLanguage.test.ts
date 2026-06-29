@@ -17,9 +17,9 @@ function setNavigatorLanguages(values: readonly string[] | undefined) {
   vi.spyOn(window.navigator, "languages", "get").mockReturnValue(values as readonly string[]);
 }
 
-// The base branch ships zh-Hant only. The four extra locales (ja/en/th/id) and
-// their navigator-detection + switcher assertions live on the per-language
-// branches; here every unsupported tag resolves to the zh-Hant default.
+// This branch adds the id locale on top of the base zh-Hant. The other extra
+// locales (ja/en/th) live on their own branches; here ja/en/th tags still
+// resolve to the zh-Hant default, while id is detected.
 describe("useLanguage", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -63,6 +63,24 @@ describe("useLanguage", () => {
     const { result } = renderHook(() => useLanguage());
 
     expect(result.current.language).toBe(expected);
+  });
+
+  it("detects id from navigator.languages", () => {
+    setNavigatorLanguage("id-ID");
+    setNavigatorLanguages(["id-ID"]);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("id");
+  });
+
+  it("picks id when the primary tag is unsupported but id is listed next", () => {
+    setNavigatorLanguage("fr-FR");
+    setNavigatorLanguages(["fr-FR", "id-ID"]);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("id");
   });
 
   it("scans navigator.languages in order, returning the first supported tag", () => {
