@@ -370,7 +370,9 @@ export default function App() {
           language={language}
           progressAttempts={progressAttempts}
           reviewCount={reviewCount}
-          onNavigate={(target) => (target === "challenge" ? openChallenge() : setAppView(target))}
+          onNavigate={(target) =>
+            target === "challenge" ? openChallenge({ mode: "daily" }) : setAppView(target)
+          }
           onStartReview={() => openChallenge({ mode: "review" })}
           onStartVocab={() => openChallenge({ mode: "vocab" })}
           onStartDaily={() => openChallenge({ mode: "daily" })}
@@ -412,7 +414,7 @@ export default function App() {
           <GrammarPointPage
             surface={grammarSurface ?? ""}
             language={language}
-            onPractice={() => openChallenge()}
+            onPractice={() => openChallenge({ mode: "daily" })}
             onBack={() => setAppView("home")}
           />
         </Suspense>
