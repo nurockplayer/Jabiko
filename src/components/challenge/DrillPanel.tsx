@@ -1,9 +1,11 @@
-import { ArrowRight, Eye, GraduationCap, RotateCcw } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Eye, Flag, GraduationCap, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
 import { DarumaSpot, PaperNoteSpot, TeaCupSpot } from "../../illustrations";
 import { isReadingPrompt } from "../../domain/furigana";
 import { ExamPrompt } from "../ExamPrompt";
+import { FeedbackForm } from "../FeedbackForm";
 import { FeedbackPanel } from "../FeedbackPanel";
 import { Ruby } from "../Ruby";
 import { SpeakButton } from "../SpeakButton";
@@ -84,6 +86,9 @@ export function DrillPanel({
   | "handleDrillKeyDown"
 > & { language: Language; onExit: () => void }) {
   const t = copy[language];
+  // Per-question "report a problem" (#299): opens the feedback box prefilled as a
+  // bug, with the question id as context so the owner can locate the item.
+  const [reportOpen, setReportOpen] = useState(false);
 
   // Completion-screen copy: daily / review have their own wording; every
   // other (capped, #154) finite session uses the generic "這組完成" set.
@@ -214,6 +219,22 @@ export function DrillPanel({
 
           {feedback ? (
             <FeedbackPanel feedback={feedback} language={language} options={choiceOptions} />
+          ) : null}
+
+          {currentQuestion ? (
+            <button type="button" className="report-link" onClick={() => setReportOpen(true)}>
+              <Flag aria-hidden="true" />
+              {t.reportThisQuestion}
+            </button>
+          ) : null}
+
+          {reportOpen && currentQuestion ? (
+            <FeedbackForm
+              language={language}
+              category="bug"
+              context={`題目 ${currentQuestion.id}`}
+              onClose={() => setReportOpen(false)}
+            />
           ) : null}
         </>
       ) : sessionExhausted ? (

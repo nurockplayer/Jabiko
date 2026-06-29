@@ -39,6 +39,8 @@ export type Copy = {
   feedbackClose: string;
   feedbackError: string;
   feedbackFallback: string;
+  feedbackContextLabel: string;
+  reportThisQuestion: string;
   homeContentStats: (total: number, examItems: number, vocab: number, kanjiReadings: number, patternChecks: number, chapters: number) => string;
   homeCardStageLearn: string;
   homeCardStageChallenge: string;
@@ -313,6 +315,8 @@ export const copy: Record<Language, Copy> = {
     feedbackClose: "關閉",
     feedbackError: "送出失敗，請稍後再試，或",
     feedbackFallback: "改用 GitHub 回報",
+    feedbackContextLabel: "回報的題目：",
+    reportThisQuestion: "這題有問題？回報",
     homeContentStats: (total, examItems, vocab, kanjiReadings, patternChecks, chapters) =>
       `全站 ${total.toLocaleString()} 題 · 檢定題 ${examItems} · 單字 ${vocab} · 漢字讀音 ${kanjiReadings} · 句型 ${patternChecks} · ${chapters} 學習章節`,
     homeCardStageLearn: "學",

@@ -48,6 +48,27 @@ describe("FeedbackForm", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it("shows the question context and folds it into the submitted message", async () => {
+    const submit = vi.fn().mockResolvedValue(undefined);
+    render(
+      <FeedbackForm
+        language="zh-Hant"
+        category="bug"
+        context="題目 n3-order-tabini｜語順組合"
+        onClose={() => {}}
+        submit={submit}
+      />
+    );
+    expect(screen.getByText(/n3-order-tabini/)).toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText(/想許什麼願/), { target: { value: "  選項重複  " } });
+    fireEvent.click(screen.getByRole("button", { name: /送出/ }));
+    await waitFor(() => expect(submit).toHaveBeenCalled());
+    const arg = submit.mock.calls[0][0];
+    expect(arg.category).toBe("bug");
+    expect(arg.message).toContain("選項重複");
+    expect(arg.message).toContain("n3-order-tabini");
+  });
+
   it("shows a GitHub fallback link when submit fails", async () => {
     const submit = vi.fn().mockRejectedValue(new Error("boom"));
     render(<FeedbackForm language="zh-Hant" category="bug" onClose={() => {}} submit={submit} />);

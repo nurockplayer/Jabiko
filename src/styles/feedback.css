@@ -517,3 +517,44 @@
   min-height: 18rem;
   color: var(--muted);
 }
+
+/* Per-question report (#299): context line inside the feedback box + the
+   low-key "report this question" link under the drill. */
+.feedback-context {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.feedback-context span {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.report-link {
+  align-self: center;
+  margin-top: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.55rem;
+  border: none;
+  border-radius: 0.45rem;
+  background: none;
+  color: var(--muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.report-link:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--paper) 85%, var(--rule));
+}
+
+.report-link svg {
+  width: 0.95em;
+  height: 0.95em;
+}

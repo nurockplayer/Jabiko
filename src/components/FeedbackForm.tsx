@@ -35,11 +35,15 @@ const KINDS: FeedbackCategory[] = ["wish", "bug", "other"];
 export function FeedbackForm({
   language,
   category,
+  context,
   onClose,
   submit = defaultSubmit
 }: {
   language: Language;
   category: FeedbackCategory;
+  /** Optional report context (e.g. the question id) — shown to the learner and
+   *  folded into the submitted message so the owner can identify the item. */
+  context?: string;
   onClose: () => void;
   submit?: (input: FeedbackInput) => Promise<void>;
 }) {
@@ -73,8 +77,9 @@ export function FeedbackForm({
     event.preventDefault();
     if (!trimmed || status === "sending") return;
     setStatus("sending");
+    const fullMessage = context ? `${trimmed}\n\n— ${context}` : trimmed;
     try {
-      await submit({ category: kind, message: trimmed, contact: contact.trim() || undefined });
+      await submit({ category: kind, message: fullMessage, contact: contact.trim() || undefined });
       setStatus("done");
     } catch {
       setStatus("error");
@@ -130,6 +135,13 @@ export function FeedbackForm({
           </button>
         ))}
       </div>
+
+      {context ? (
+        <p className="feedback-context">
+          {t.feedbackContextLabel}
+          <span>{context}</span>
+        </p>
+      ) : null}
 
       <textarea
         className="feedback-message"
