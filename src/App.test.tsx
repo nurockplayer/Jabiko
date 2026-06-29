@@ -696,6 +696,33 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "隱藏註音" })).toHaveAttribute("aria-pressed", "true");
   });
 
+  it("renders a 5-locale language switcher and swaps the visible copy (#299)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Default locale is zh-TW (test setup) -> zh-Hant, so nav reads Chinese.
+    expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
+
+    // The switcher is a labelled <select> with one option per locale.
+    const switcher = screen.getByRole("combobox", { name: "切換語言" });
+    const options = within(switcher).getAllByRole("option");
+    expect(options).toHaveLength(5);
+    expect(options.map((o) => o.textContent)).toEqual([
+      "繁中",
+      "日本語",
+      "English",
+      "ไทย",
+      "Bahasa Indonesia"
+    ]);
+
+    // Switching to English swaps the prop-drilled copy across the tree:
+    // the Home nav button now reads "Home", and the preference is persisted.
+    await user.selectOptions(switcher, "en");
+    expect(screen.getByRole("button", { name: "Home" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "首頁" })).not.toBeInTheDocument();
+    expect(localStorage.getItem("jabiko.lang")).toBe("en");
+  });
+
   it("lists 綜合考題庫 / N1 備考 / N2 備考 as side-by-side mode presets", async () => {
     const user = userEvent.setup();
     render(<App />);

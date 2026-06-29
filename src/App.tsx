@@ -9,6 +9,7 @@ import { JabikoMark } from "./components/JabikoMark";
 import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
 import { useFurigana } from "./hooks/useFurigana";
+import { useLanguage } from "./hooks/useLanguage";
 import { useSeoMeta } from "./hooks/useSeoMeta";
 import { isSupabaseConfigured } from "./lib/supabase";
 import { useAuth } from "./hooks/useAuth";
@@ -39,6 +40,10 @@ const KanjiOnyomiPanel = lazy(() =>
 
 type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about";
 type DrillPreset = LearningBlockDrillPreset;
+
+// The five UI locales, in menu order, for the header language <select>. Each
+// option's label is that locale's own native name (copy[code].languageName).
+const LANGUAGE_OPTIONS: readonly Language[] = ["zh-Hant", "ja", "en", "th", "id"];
 
 // Lightweight URL routing: each top-level view maps to a path so the browser
 // back/forward buttons, refresh, and shareable/bookmarkable links all work
@@ -86,10 +91,11 @@ export default function App() {
   // metadata to crawlers (SPA otherwise shares one static shell). See seo.ts.
   useSeoMeta(appView);
 
-  // Single-language app (zh-Hant). The `language` seam is kept so the
-  // copy[language] call sites and component props don't have to change;
-  // re-adding a locale later is just restoring entries in i18n.ts.
-  const language: Language = "zh-Hant";
+  // UI language: stored preference > navigator detection > zh-Hant default
+  // (#299). The hook owns the <html lang> side-effect and persistence; the
+  // header <select> below lets the learner switch. copy[language] re-renders
+  // the whole tree on change, so the prop-drilled `language` stays a seam.
+  const { language, setLanguage } = useLanguage();
   const t = copy[language];
 
   const { theme, toggleTheme } = useTheme();
@@ -197,6 +203,21 @@ export default function App() {
               )}
             </div>
           )}
+          <div className="lang-switch">
+            <Languages aria-hidden="true" className="lang-switch-icon" />
+            <select
+              className="lang-switch-select"
+              aria-label={t.languageSwitchLabel}
+              value={language}
+              onChange={(event) => setLanguage(event.target.value as Language)}
+            >
+              {LANGUAGE_OPTIONS.map((code) => (
+                <option key={code} value={code}>
+                  {copy[code].languageName}
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             className={`theme-toggle furigana-toggle${furiganaEnabled ? " active" : ""}`}
             type="button"

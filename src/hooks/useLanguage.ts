@@ -1,0 +1,59 @@
+import { useEffect, useState } from "react";
+import { readStored, writeStored } from "../domain/safeStorage";
+import type { Language } from "../i18n";
+
+const LANGUAGE_STORAGE_KEY = "jabiko.lang";
+
+const SUPPORTED_LANGUAGES: readonly Language[] = ["zh-Hant", "ja", "en", "th", "id"];
+
+function isSupportedLanguage(value: string | null): value is Language {
+  return value !== null && (SUPPORTED_LANGUAGES as readonly string[]).includes(value);
+}
+
+// Map a BCP-47 navigator tag (e.g. "ja-JP", "zh-Hant-TW") to one of our five
+// locales by prefix. zh-* always means Traditional Chinese here (the app has
+// no Simplified locale). Returns null when nothing matches.
+function detectFromNavigator(): Language | null {
+  const navLang = typeof navigator !== "undefined" ? navigator.language : undefined;
+  if (!navLang) return null;
+
+  const lower = navLang.toLowerCase();
+  if (lower.startsWith("ja")) return "ja";
+  if (lower.startsWith("en")) return "en";
+  if (lower.startsWith("th")) return "th";
+  if (lower.startsWith("id")) return "id";
+  if (lower.startsWith("zh")) return "zh-Hant";
+  return null;
+}
+
+export function getInitialLanguage(): Language {
+  const stored = readStored(LANGUAGE_STORAGE_KEY);
+  if (isSupportedLanguage(stored)) {
+    return stored;
+  }
+
+  return detectFromNavigator() ?? "zh-Hant";
+}
+
+function storeLanguage(language: Language) {
+  writeStored(LANGUAGE_STORAGE_KEY, language);
+}
+
+// Owns the UI language: the initial read (stored preference > navigator
+// detection > zh-Hant default), the <html lang> side-effect, and the
+// persisted setter. Mirrors useTheme/useFurigana. The consumer renders the
+// <select>; copy[language] re-renders the whole tree when it changes.
+export function useLanguage() {
+  const [language, setLanguageState] = useState<Language>(() => getInitialLanguage());
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
+  const setLanguage = (next: Language) => {
+    setLanguageState(next);
+    storeLanguage(next);
+  };
+
+  return { language, setLanguage };
+}
