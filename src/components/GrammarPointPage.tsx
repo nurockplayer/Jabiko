@@ -3,11 +3,19 @@ import { copy, type Language } from "../i18n";
 import { buildGrammarPoint } from "../domain/grammarPoints";
 import { GrammarNoteCard } from "./GrammarNoteCard";
 
-// Standalone study page for a single 文法点 (issue #281). Deep-linkable at
-// /grammar/<surface>; content is aggregated from the exam bank and enriched
-// with the curated grammarNotes entry when one exists. Reaches the lazy
-// exam/notes data through buildGrammarPoint, so it is itself lazily loaded
-// (see App's React.lazy import) and never enters the initial bundle.
+// Strip a leading "正解是「…」，" answer-explanation lead-in (#339): the exam
+// bank's explanations are written for a quiz ("the correct answer is X,
+// because…"), which reads wrong on a study page. Drop that prefix so what's
+// left reads as a usage note; non-matching strings pass through untouched.
+function cleanExplanation(text: string): string {
+  return text.replace(/^正解是「[^」]*」[，、。]?\s*/, "");
+}
+
+// Standalone study page for a single 文法点 (issue #281, redesigned in #339).
+// Card-based layout: a hero with the point + meaning, a reference card (curated
+// GrammarNoteCard when available, otherwise meaning + usage notes from the exam
+// bank), worked examples, and a practice CTA. Deep-linkable at /grammar/<surface>;
+// reaches the lazy exam/notes data so it is itself lazily loaded.
 export function GrammarPointPage({
   surface,
   language,
@@ -23,73 +31,82 @@ export function GrammarPointPage({
   const point = buildGrammarPoint(surface);
 
   const backButton = (
-    <button type="button" className="ghost-button grammar-point-back" onClick={onBack}>
+    <button type="button" className="ghost-button gp-back" onClick={onBack}>
       <ArrowLeft aria-hidden="true" />
       {t.reviewDoneExit}
     </button>
   );
 
-  // Unknown surface (e.g. a stale/typo link): show a minimal, non-crashing
-  // shell so the route still resolves and the user can step back.
+  // Unknown surface (stale/typo link): minimal, non-crashing shell.
   if (!point) {
     return (
       <section className="grammar-point grammar-point-missing">
         {backButton}
-        <h1 lang="ja">{surface}</h1>
+        <header className="gp-hero">
+          <h1 className="gp-surface" lang="ja">
+            {surface}
+          </h1>
+        </header>
       </section>
     );
   }
 
-  // Curated examples are shown inside GrammarNoteCard; list only the additional
-  // exam-derived sentences here so nothing repeats.
-  const curatedJa = new Set((point.note?.examples ?? []).map((example) => example.ja));
-  const extraExamples = point.examples.filter((example) => !curatedJa.has(example.ja));
+  // A curated point shows everything (meaning / rule / examples / confusions)
+  // inside GrammarNoteCard, so the page adds nothing more. An un-noted point
+  // gets a usage card + an examples card built from the exam bank.
+  const usageNotes = point.explanations.map(cleanExplanation).filter(Boolean).slice(0, 2);
+  const showExamples = !point.note && point.examples.length > 0;
 
   return (
     <section className="grammar-point" aria-label={surface}>
       {backButton}
 
-      <header className="grammar-point-head">
-        <h1 lang="ja">{surface}</h1>
-        {point.level ? (
-          <span className="grammar-point-level" aria-label={`JLPT ${point.level}`}>
-            {point.level}
-          </span>
-        ) : null}
+      <header className="gp-hero">
+        <div className="gp-hero-row">
+          <h1 className="gp-surface" lang="ja">
+            {surface}
+          </h1>
+          {point.level ? (
+            <span className="gp-level" aria-label={`JLPT ${point.level}`}>
+              {point.level}
+            </span>
+          ) : null}
+        </div>
+        {/* The curated card carries its own meaning; only lead with it here when
+            there's no note, to avoid showing the same line twice. */}
+        {point.note ? null : <p className="gp-meaning">{point.meaningZh}</p>}
       </header>
 
       {point.note ? (
         <GrammarNoteCard note={point.note} language={language} />
-      ) : (
-        <div className="grammar-point-summary">
-          <p className="grammar-point-meaning">{point.meaningZh}</p>
-          {point.explanations.length > 0 ? (
-            <div className="grammar-point-rule">
-              {point.explanations.map((explanation) => (
-                <p key={explanation}>{explanation}</p>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      )}
+      ) : usageNotes.length > 0 ? (
+        <section className="gp-card">
+          <h2 className="gp-card-title">{t.grammarNoteUsage}</h2>
+          {usageNotes.map((note) => (
+            <p key={note} className="gp-usage">
+              {note}
+            </p>
+          ))}
+        </section>
+      ) : null}
 
-      {extraExamples.length > 0 ? (
-        <div className="grammar-point-examples">
-          <p className="grammar-point-label">{t.grammarNoteExamples}</p>
-          <ul>
-            {extraExamples.map((example) => (
+      {showExamples ? (
+        <section className="gp-card">
+          <h2 className="gp-card-title">{t.grammarNoteExamples}</h2>
+          <ul className="gp-examples">
+            {point.examples.map((example) => (
               <li key={example.ja}>
-                <span className="grammar-point-ex-ja" lang="ja">
+                <span className="gp-ex-ja" lang="ja">
                   {example.ja}
                 </span>
-                {example.zh ? <span className="grammar-point-ex-zh">{example.zh}</span> : null}
+                {example.zh ? <span className="gp-ex-zh">{example.zh}</span> : null}
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       ) : null}
 
-      <button type="button" className="next-button grammar-point-practice" onClick={onPractice}>
+      <button type="button" className="next-button gp-practice" onClick={onPractice}>
         <GraduationCap aria-hidden="true" />
         {t.startChallenge}
       </button>
