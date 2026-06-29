@@ -203,36 +203,38 @@ export default function App() {
               )}
             </div>
           )}
-          {LANGUAGE_OPTIONS.length > 1 && (
-            <div className="lang-switch">
-              <Languages aria-hidden="true" className="lang-switch-icon" />
-              <select
-                className="lang-switch-select"
-                aria-label={t.languageSwitchLabel}
-                value={language}
-                onChange={(event) => setLanguage(event.target.value as Language)}
-              >
-                {LANGUAGE_OPTIONS.map((code) => (
-                  <option key={code} value={code}>
-                    {copy[code].languageName}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-          <button
-            className={`theme-toggle furigana-toggle${furiganaEnabled ? " active" : ""}`}
-            type="button"
-            aria-pressed={furiganaEnabled}
-            onClick={toggleFurigana}
-          >
-            <Languages aria-hidden="true" />
-            {furiganaToggleLabel}
-          </button>
-          <button className="theme-toggle" type="button" onClick={toggleTheme}>
-            <ThemeIcon aria-hidden="true" />
-            {themeToggleLabel}
-          </button>
+          <div className="utility-actions">
+            {LANGUAGE_OPTIONS.length > 1 && (
+              <div className="lang-switch">
+                <Languages aria-hidden="true" className="lang-switch-icon" />
+                <select
+                  className="lang-switch-select"
+                  aria-label={t.languageSwitchLabel}
+                  value={language}
+                  onChange={(event) => setLanguage(event.target.value as Language)}
+                >
+                  {LANGUAGE_OPTIONS.map((code) => (
+                    <option key={code} value={code}>
+                      {copy[code].languageName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <button
+              className={`theme-toggle furigana-toggle${furiganaEnabled ? " active" : ""}`}
+              type="button"
+              aria-pressed={furiganaEnabled}
+              onClick={toggleFurigana}
+            >
+              <Languages aria-hidden="true" />
+              {furiganaToggleLabel}
+            </button>
+            <button className="theme-toggle" type="button" onClick={toggleTheme}>
+              <ThemeIcon aria-hidden="true" />
+              {themeToggleLabel}
+            </button>
+          </div>
         </div>
       </div>
 
