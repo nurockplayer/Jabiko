@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, ArrowRight, BookOpen, Bug, CalendarCheck, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowRight, BookOpen, Bug, CalendarCheck, Heart, Sparkles } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
 import type { LevelRange } from "../domain/levelRange";
@@ -371,6 +371,15 @@ export function HomePanel({
             onClose={() => setFeedbackKind(null)}
           />
         ) : null}
+        <a
+          className="home-donate-link"
+          href="https://payment.ecpay.com.tw/Broadcaster/Donate/57DD8DC811013DF1C576D7ED22ACF911"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Heart aria-hidden="true" />
+          {t.donate}
+        </a>
         <div className="home-footer-share">
           <ShareButtons language={language} text={t.shareSiteText} title={t.shareSiteTitle} />
         </div>

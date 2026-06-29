@@ -249,6 +249,7 @@ export const en: Copy = {
   shareSiteTitle: "Share Jabiko",
   shareSiteText:
     "I'm using Jabiko to prep for the JLPT: N5〜N1 grammar, kanji, vocabulary, and mock exams all in one place — sharing it with you if you're studying too👇",
+  donate: "Support Jabiko",
   resetSession: "Reset this session",
   currentQuestion: "Current question",
   questionNumber: (value) => `Question ${value}`,

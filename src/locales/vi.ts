@@ -249,6 +249,7 @@ export const vi: Copy = {
   shareSiteTitle: "Chia sẻ Jabiko",
   shareSiteText:
     "Mình đang dùng Jabiko để ôn JLPT: ngữ pháp, kanji, từ vựng và đề thi thử N5〜N1 đều ở một nơi — chia sẻ cho bạn nếu bạn cũng đang học nhé👇",
+  donate: "Ủng hộ Jabiko",
   resetSession: "Đặt lại phiên này",
   currentQuestion: "Câu hiện tại",
   questionNumber: (value) => `Câu ${value}`,

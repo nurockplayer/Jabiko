@@ -257,6 +257,7 @@ export const ja: Copy = {
   shareSiteTitle: "Jabiko をシェア",
   shareSiteText:
     "Jabiko で日本語能力試験の練習をしています：N5〜N1 の文法・漢字・単語・模擬試験を一か所でまとめて練習。同じく受験勉強中のあなたにシェア👇",
+  donate: "Jabiko を支援する",
   resetSession: "今回をリセット",
   currentQuestion: "現在の問題",
   questionNumber: (value) => `第 ${value} 問`,

@@ -249,6 +249,7 @@ export const ko: Copy = {
   shareSiteTitle: "Jabiko 공유하기",
   shareSiteText:
     "저는 Jabiko로 JLPT를 준비하고 있어요: N5〜N1 문법, 한자, 어휘, 모의고사를 한자리에서 — 같이 공부한다면 당신에게도 추천해요👇",
+  donate: "Jabiko 후원하기",
   resetSession: "이번 세션 초기화",
   currentQuestion: "현재 문제",
   questionNumber: (value) => `${value}번 문제`,
