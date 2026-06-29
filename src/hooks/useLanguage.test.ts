@@ -65,6 +65,24 @@ describe("useLanguage", () => {
     expect(result.current.language).toBe(expected);
   });
 
+  it("detects en from navigator.languages", () => {
+    setNavigatorLanguage("en-US");
+    setNavigatorLanguages(["en-US"]);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("en");
+  });
+
+  it("falls through an unsupported primary to a supported secondary (en)", () => {
+    setNavigatorLanguage("fr-FR");
+    setNavigatorLanguages(["fr", "en-GB"]);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("en");
+  });
+
   it("scans navigator.languages in order, returning the first supported tag", () => {
     // Primary "fr" is unsupported; the next entry "zh-TW" is the first match.
     setNavigatorLanguage("fr-FR");
