@@ -4,7 +4,7 @@ import type { Language } from "../i18n";
 
 const LANGUAGE_STORAGE_KEY = "jabiko.lang";
 
-const SUPPORTED_LANGUAGES: readonly Language[] = ["zh-Hant", "ja", "en", "th", "id"];
+const SUPPORTED_LANGUAGES: readonly Language[] = ["zh-Hant", "ja", "en", "th", "id", "ko", "vi", "my"];
 
 function isSupportedLanguage(value: string | null): value is Language {
   return value !== null && (SUPPORTED_LANGUAGES as readonly string[]).includes(value);
@@ -20,6 +20,9 @@ function languageForTag(tag: string | undefined): Language | null {
   if (lower.startsWith("en")) return "en";
   if (lower.startsWith("th")) return "th";
   if (lower.startsWith("id")) return "id";
+  if (lower.startsWith("ko")) return "ko";
+  if (lower.startsWith("vi")) return "vi";
+  if (lower.startsWith("my")) return "my";
   if (lower.startsWith("zh")) return "zh-Hant";
   return null;
 }
@@ -44,13 +47,24 @@ function detectFromNavigator(): Language | null {
   return null;
 }
 
+// True once the user has a valid stored language preference. Drives the
+// first-visit picker: when false, the app prompts for a language instead of
+// silently committing the suggestion.
+export function hasStoredLanguage(): boolean {
+  return isSupportedLanguage(readStored(LANGUAGE_STORAGE_KEY));
+}
+
+// The language to start with: a valid stored preference wins; otherwise the
+// best navigator match; otherwise Japanese (this is a Japanese-learning app, so
+// ja is the sensible default suggestion). On a first visit this value is only a
+// *suggestion* — it pre-selects the picker until the user makes a real choice.
 export function getInitialLanguage(): Language {
   const stored = readStored(LANGUAGE_STORAGE_KEY);
   if (isSupportedLanguage(stored)) {
     return stored;
   }
 
-  return detectFromNavigator() ?? "zh-Hant";
+  return detectFromNavigator() ?? "ja";
 }
 
 function storeLanguage(language: Language) {
@@ -58,11 +72,14 @@ function storeLanguage(language: Language) {
 }
 
 // Owns the UI language: the initial read (stored preference > navigator
-// detection > zh-Hant default), the <html lang> side-effect, and the
-// persisted setter. Mirrors useTheme/useFurigana. The consumer renders the
-// <select>; copy[language] re-renders the whole tree when it changes.
+// detection > ja default), the <html lang> side-effect, the persisted setter,
+// and whether a first-visit language choice is still pending. Mirrors
+// useTheme/useFurigana. The consumer renders the <select>; copy[language]
+// re-renders the whole tree when it changes. When needsLanguageChoice is true
+// the consumer shows the first-visit picker; setLanguage clears it for good.
 export function useLanguage() {
   const [language, setLanguageState] = useState<Language>(() => getInitialLanguage());
+  const [needsLanguageChoice, setNeedsLanguageChoice] = useState<boolean>(() => !hasStoredLanguage());
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -71,7 +88,8 @@ export function useLanguage() {
   const setLanguage = (next: Language) => {
     setLanguageState(next);
     storeLanguage(next);
+    setNeedsLanguageChoice(false);
   };
 
-  return { language, setLanguage };
+  return { language, setLanguage, needsLanguageChoice };
 }
