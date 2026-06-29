@@ -43,13 +43,13 @@ describe("useLanguage", () => {
 
   it("ignores an invalid stored value and falls through to the default", () => {
     localStorage.setItem(KEY, "fr"); // not a supported locale
-    setNavigatorLanguage("th-TH");
-    setNavigatorLanguages(["th-TH"]);
+    setNavigatorLanguage("de-DE");
+    setNavigatorLanguages(["de-DE"]);
 
     const { result } = renderHook(() => useLanguage());
 
-    // th is unsupported on the base branch, so detection finds no match and
-    // the zh-Hant default applies.
+    // de is unsupported, so detection finds no match and the zh-Hant default
+    // applies.
     expect(result.current.language).toBe("zh-Hant");
   });
 
@@ -63,6 +63,15 @@ describe("useLanguage", () => {
     const { result } = renderHook(() => useLanguage());
 
     expect(result.current.language).toBe(expected);
+  });
+
+  it("detects th from navigator.languages", () => {
+    setNavigatorLanguage("th-TH");
+    setNavigatorLanguages(["th-TH"]);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("th");
   });
 
   it("scans navigator.languages in order, returning the first supported tag", () => {
