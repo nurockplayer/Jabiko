@@ -16,6 +16,7 @@ import { isSupabaseConfigured } from "./lib/supabase";
 import { useAuth } from "./hooks/useAuth";
 import { useProgressAttempts } from "./hooks/useProgressAttempts";
 import type { SessionInit } from "./hooks/usePracticeSession";
+import { challengeInitFromQuery } from "./domain/challengeDeepLink";
 import { readLevelPreference, writeLevelPreference } from "./domain/levelPreference";
 import type { LevelRange } from "./domain/levelRange";
 import "./styles.css";
@@ -131,6 +132,10 @@ export default function App() {
       const route = parseRoute(window.location.pathname);
       setAppView(route.view);
       setGrammarSurface(route.grammarSurface);
+      // Restore the drill from a /challenge?mode=&level= deep link on back/forward.
+      if (route.view === "challenge") {
+        setLaunch(challengeInitFromQuery(window.location.search));
+      }
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
@@ -166,7 +171,14 @@ export default function App() {
   // the "start X" actions just before navigating; undefined = the default
   // basic drill. Read once when ChallengePanel mounts (it owns the
   // session), so changing it while already in the challenge is a no-op.
-  const [launch, setLaunch] = useState<SessionInit | undefined>(undefined);
+  // Seed from a /challenge?mode=&level= deep link on a direct hit / refresh
+  // (#264), so a shared or bookmarked drill restores; a bare /challenge or any
+  // other route stays undefined (default landing).
+  const [launch, setLaunch] = useState<SessionInit | undefined>(() =>
+    parseRoute(window.location.pathname).view === "challenge"
+      ? challengeInitFromQuery(window.location.search)
+      : undefined
+  );
   // Global target-level preference (#199), read once at startup. Seeds the
   // fresh-pool level range (今日練習 / 綜合 / 単字) and drives the first-run
   // onboarding card; the home card persists it.

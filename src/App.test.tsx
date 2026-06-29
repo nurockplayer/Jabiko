@@ -708,6 +708,18 @@ describe("App", () => {
     expect(screen.getByText("繁體中文")).toBeInTheDocument();
   });
 
+  it("restores a drill from a /challenge?mode= deep link (#264)", async () => {
+    window.history.replaceState({}, "", "/challenge?mode=vocab");
+    render(<App />);
+
+    // The challenge mounts with 単字讀音 (vocab) preselected from the URL,
+    // not the default 今日練習 landing — proving the deep link was applied.
+    const vocabCard = await screen.findByRole("button", { name: /単字讀音/ });
+    expect(vocabCard).toHaveAttribute("aria-pressed", "true");
+
+    window.history.replaceState({}, "", "/");
+  });
+
   it("lists 綜合考題庫 / N1 備考 / N2 備考 as side-by-side mode presets", async () => {
     const user = userEvent.setup();
     render(<App />);
