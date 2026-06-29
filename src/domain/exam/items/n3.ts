@@ -230,11 +230,11 @@ export const n3Items: PracticeQuestion[] = [
     meaningZh: "做...做...",
     promptLabel: "文法形式選擇",
     instructionZh: "句中填空：依文脈選最自然的文法。",
-    promptText: "休みの日は本を読んだり、___ して過ごす。",
-    promptContextZh: "假日會做做看書、散步之類的事情。",
+    promptText: "休みの日は ___ して、のんびり過ごすことが多い。",
+    promptContextZh: "假日常做散步之類的事，悠閒度過。",
     expectedAnswer: "散歩したり",
     options: ["散歩したり", "散歩しても", "散歩する", "散歩しながら"],
-    explanation: "「Vたり、Vたりする」表示列舉幾個動作（不限這些）。「ても」是讓步；「ながら」是「同時」。"
+    explanation: "「Vたりする」舉一個（或數個）動作代表「做～之類的事」，不限於此，正好接「して、のんびり過ごす」。「しても」是讓步、「しながら」是同時進行、「する」直接接後句不成句。"
   }),
   examQuestion({
     id: "n3-grammar-tamama",
