@@ -23,3 +23,6 @@ coverage/
 
 # Local visual brainstorming previews
 .superpowers/
+
+# Temporary files (e.g., i18n coverage reports)
+.tmp/
