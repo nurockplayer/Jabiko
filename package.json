@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "check:exam": "vitest run src/domain/contentGuard.test.ts",
     "check:readings": "node scripts/check-readings.mjs",
+    "check:i18n": "node scripts/check-i18n-coverage.mjs",
     "build:furigana": "node scripts/build-furigana.mjs",
     "optimize-hero": "node scripts/optimize-hero.mjs",
     "pre": "pnpm build"
