@@ -1,8 +1,11 @@
-import type { PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
+import type { LocaleCode, PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
 import type { QuestionType } from "./domain/analytics/questionType";
 import type { ModeCopyKey } from "./domain/practiceMode";
 
-export type Language = "zh-Hant" | "ja" | "en" | "th" | "id" | "ko" | "vi" | "my";
+// Single source of truth for the locale code union lives in the domain layer
+// (src/domain/types.ts) so content overlays can reference it too; `Language`
+// is the same set, kept as the UI-facing name.
+export type Language = LocaleCode;
 
 export type Copy = {
   languageName: string;

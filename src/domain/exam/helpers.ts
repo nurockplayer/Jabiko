@@ -24,6 +24,7 @@ export function examQuestion(input: ExamQuestionInput): PracticeQuestion {
     targetForm: input.targetForm ?? "reading",
     expectedAnswers: [input.expectedAnswer],
     explanation: input.explanation,
+    explanationI18n: input.explanationI18n,
     promptLabel: input.promptLabel,
     promptText: input.promptText,
     promptContextZh: input.promptContextZh,
