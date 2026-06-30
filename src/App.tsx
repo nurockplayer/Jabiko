@@ -299,14 +299,15 @@ export default function App() {
               className={`theme-toggle furigana-toggle${furiganaEnabled ? " active" : ""}`}
               type="button"
               aria-pressed={furiganaEnabled}
+              aria-label={furiganaToggleLabel}
               onClick={toggleFurigana}
             >
               <Languages aria-hidden="true" />
-              {furiganaToggleLabel}
+              <span className="toggle-text">{furiganaToggleLabel}</span>
             </button>
-            <button className="theme-toggle" type="button" onClick={toggleTheme}>
+            <button className="theme-toggle" type="button" aria-label={themeToggleLabel} onClick={toggleTheme}>
               <ThemeIcon aria-hidden="true" />
-              {themeToggleLabel}
+              <span className="toggle-text">{themeToggleLabel}</span>
             </button>
           </div>
         </div>
