@@ -15,7 +15,7 @@
   animation: panel-rise 240ms ease both;
   background: var(--paper);
   border: 1px solid var(--panel-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   padding: 1.15rem;
 }
@@ -121,7 +121,7 @@ legend,
   width: 5rem;
   padding: 0.32rem 0.5rem;
   border: 1px solid var(--field-border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   background: var(--field-bg);
   color: var(--button-text);
   font: inherit;
@@ -136,7 +136,7 @@ legend,
 select {
   background: linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 95%, var(--indigo) 5%), var(--field-bg));
   border: 1px solid var(--field-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--ink);
   min-height: 2.9rem;
   padding: 0.64rem 0.75rem;
@@ -158,7 +158,7 @@ select:disabled {
 .focus-summary {
   background: var(--summary-bg);
   border: 1px solid var(--summary-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--summary-text);
   font-size: 0.84rem;
   font-weight: 800;
@@ -181,7 +181,7 @@ select:disabled {
   gap: 0.18rem;
   padding: 0.7rem 0.8rem;
   border: 1px solid var(--rule);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: var(--paper);
   color: var(--ink);
   text-align: left;
@@ -236,7 +236,7 @@ select:disabled {
   padding: 0.7rem 0.8rem;
   margin: 0.4rem 0 0;
   border: 1px dashed var(--rule);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: var(--paper-deep);
   color: var(--muted);
   font-size: 0.85rem;

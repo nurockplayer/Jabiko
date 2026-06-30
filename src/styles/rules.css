@@ -8,7 +8,7 @@
   margin-bottom: 1rem;
   background: var(--paper);
   border: 1px solid var(--panel-border);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-lg);
 }
 
 .dashboard-card .eyebrow {
@@ -28,7 +28,7 @@
   padding: 0.7rem 0.85rem;
   background: var(--feedback-revealed-bg);
   border: 1px solid var(--feedback-revealed-border);
-  border-radius: 0.7rem;
+  border-radius: var(--radius-lg);
   color: var(--feedback-revealed-title);
   font-weight: 600;
   cursor: pointer;
@@ -47,7 +47,7 @@
   padding: 0.18rem 0.55rem;
   background: var(--vermilion);
   color: var(--selected-text);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -61,7 +61,7 @@
   padding: 0.55rem 0.7rem;
   background: var(--summary-bg);
   border: 1px solid var(--summary-border);
-  border-radius: 0.65rem;
+  border-radius: var(--radius-lg);
   color: var(--summary-text);
   font-size: 0.9rem;
 }
@@ -91,7 +91,7 @@
   height: 1.6rem;
   background: transparent;
   border: 1px solid var(--prompt-chip-border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   color: var(--teal-dark);
   cursor: pointer;
   vertical-align: middle;
@@ -155,7 +155,7 @@
   padding: 1.1rem 1.2rem 1.2rem;
   background: var(--paper);
   border: 1px solid var(--panel-border);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-lg);
 }
 
 .rules-table-head {

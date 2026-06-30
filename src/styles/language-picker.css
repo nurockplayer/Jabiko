@@ -8,7 +8,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: rgba(23, 33, 38, 0.55);
+  background: var(--overlay-bg);
   backdrop-filter: blur(2px);
 }
 
@@ -23,9 +23,9 @@
   gap: 1.1rem;
   padding: 1.6rem 1.4rem;
   border: 1px solid var(--panel-border);
-  border-radius: 1rem;
+  border-radius: var(--radius-xl);
   background: var(--paper);
-  box-shadow: 0 16px 48px rgba(23, 33, 38, 0.32);
+  box-shadow: var(--shadow-lg);
   text-align: center;
 }
 
@@ -41,7 +41,7 @@
   height: 2rem;
   padding: 0;
   border: 1px solid var(--panel-border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: transparent;
   color: var(--muted);
   cursor: pointer;
@@ -96,7 +96,7 @@
 .lang-picker-option {
   padding: 0.85rem 0.8rem;
   border: 1px solid var(--field-border);
-  border-radius: 0.7rem;
+  border-radius: var(--radius-lg);
   background: var(--field-bg);
   color: var(--ink);
   font-size: 1.05rem;
