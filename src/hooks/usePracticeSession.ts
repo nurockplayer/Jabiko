@@ -139,7 +139,11 @@ export function usePracticeSession({
   const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">(init?.verbGroup ?? "godan");
   const [targetForm, setTargetForm] = useState<TargetForm>(init?.targetForm ?? "te");
   const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>(init?.practiceFocus ?? "single");
-  const [practiceMode, setPracticeMode] = useState<PracticeMode>(init?.mode ?? "basic");
+  // Default landing is 今日練習 (#340): no challenge entry should drop the
+  // learner into the raw 基礎變化 cascade. Every no-mode entry (nav 挑戰, home
+  // card, grammar CTA, learn 開始挑戰) starts in the guided mixed session;
+  // explicit seeds (incl. {mode:"basic"} drills) and ?mode= deep links win.
+  const [practiceMode, setPracticeMode] = useState<PracticeMode>(init?.mode ?? "daily");
   const [practiceFilter, setPracticeFilter] = useState<PracticeFilter>(init?.filter ?? {});
   const [levelRange, setLevelRange] = useState<LevelRange>(() => initialLevelRange(init, targetLevel));
   const [sessionLength, setSessionLength] = useState<number | null>(() => readSessionLength());

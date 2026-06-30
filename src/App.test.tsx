@@ -45,8 +45,8 @@ describe("App", () => {
     const { unmount } = render(<App />);
     await user.click(screen.getByRole("button", { name: "挑戰" }));
     await screen.findByRole("region", { name: "目前題目" }, { timeout: 30000 });
-    await user.click(screen.getByRole("button", { name: "模擬考" }));
-    await screen.findByRole("region", { name: "模擬考" }, { timeout: 30000 });
+    await user.click(screen.getByRole("button", { name: "題型練習" }));
+    await screen.findByRole("region", { name: "題型練習" }, { timeout: 30000 });
     await user.click(screen.getByRole("button", { name: "漢字" }));
     await screen.findByRole("heading", { name: /漢字音読み/ }, { timeout: 30000 });
     unmount();
@@ -69,7 +69,7 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "學習" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "規則表" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "模擬考" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "題型練習" })).toBeInTheDocument();
     // Home hero copy + at least one entry card heading.
     expect(screen.getByRole("heading", { name: /今天想練什麼/ })).toBeInTheDocument();
     // Chapter index belongs to Learn view; not visible on Home.
@@ -471,7 +471,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "模擬考" }));
+    await user.click(screen.getByRole("button", { name: "題型練習" }));
 
     // Section cards from the N2 blueprint render; the grammar section has
     // items, so its card is enabled and clickable.
@@ -491,6 +491,9 @@ describe("App", () => {
 
     await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    // Default landing is now 今日練習 (#340); switch to 基礎變化 for the
+    // conjugation-drill assertions below.
+    await user.click(screen.getByRole("button", { name: /基礎變化/ }));
 
     expect(screen.getByText("練習重點")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "否定整理" })).toBeInTheDocument();
@@ -505,6 +508,9 @@ describe("App", () => {
 
     await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    // Default landing is now 今日練習 (#340); switch to 基礎變化 for the
+    // conjugation-drill assertions below.
+    await user.click(screen.getByRole("button", { name: /基礎變化/ }));
     await user.click(screen.getByRole("button", { name: "書いて" }));
 
     expect(screen.getByRole("heading", { name: "正解" })).toBeInTheDocument();
@@ -521,6 +527,9 @@ describe("App", () => {
 
     await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    // Default landing is now 今日練習 (#340); switch to 基礎變化 for the
+    // conjugation-drill assertions below.
+    await user.click(screen.getByRole("button", { name: /基礎變化/ }));
 
     // Default first question in basic mode is 書く -> て形.
     expect(screen.getByText("書く")).toBeInTheDocument();
@@ -545,6 +554,9 @@ describe("App", () => {
 
     await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    // Default landing is now 今日練習 (#340); switch to 基礎變化 for the
+    // conjugation-drill assertions below.
+    await user.click(screen.getByRole("button", { name: /基礎變化/ }));
     await user.click(screen.getByRole("button", { name: "書って" }));
 
     expect(screen.getByText("再想一下")).toBeInTheDocument();
@@ -558,6 +570,9 @@ describe("App", () => {
 
     await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    // Default landing is now 今日練習 (#340); switch to 基礎變化 for the
+    // conjugation-drill assertions below.
+    await user.click(screen.getByRole("button", { name: /基礎變化/ }));
     await user.click(screen.getByRole("button", { name: "書って" }));
 
     expect(screen.getByRole("heading", { name: "錯題複習" })).toBeInTheDocument();
@@ -570,6 +585,9 @@ describe("App", () => {
 
     await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    // Default landing is now 今日練習 (#340); switch to 基礎變化 for the
+    // conjugation-drill assertions below.
+    await user.click(screen.getByRole("button", { name: /基礎變化/ }));
     await user.click(screen.getByRole("button", { name: "書いて" }));
     await user.keyboard("{Enter}");
 
@@ -583,6 +601,9 @@ describe("App", () => {
 
     await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    // Default landing is now 今日練習 (#340); switch to 基礎變化 for the
+    // conjugation-drill assertions below.
+    await user.click(screen.getByRole("button", { name: /基礎變化/ }));
 
     // Options are shuffled, so find 書いて's slot and press its 1-based
     // position. The number key must select AND submit that option, even
@@ -603,6 +624,9 @@ describe("App", () => {
 
     await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    // Default landing is now 今日練習 (#340); switch to 基礎變化 for the
+    // conjugation-drill assertions below.
+    await user.click(screen.getByRole("button", { name: /基礎變化/ }));
 
     // Only 4 options exist; pressing 9 must not submit anything.
     await user.keyboard("9");
@@ -617,6 +641,9 @@ describe("App", () => {
 
     await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    // Default landing is now 今日練習 (#340); switch to 基礎變化 for the
+    // conjugation-drill assertions below.
+    await user.click(screen.getByRole("button", { name: /基礎變化/ }));
     await user.click(screen.getByRole("button", { name: "否定整理" }));
 
     expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("ない形")).toBeInTheDocument();
@@ -632,6 +659,9 @@ describe("App", () => {
 
     await gotoLearn(user);
     await user.click(screen.getByRole("button", { name: "開始挑戰" }));
+    // Default landing is now 今日練習 (#340); switch to 基礎變化 for the
+    // conjugation-drill assertions below.
+    await user.click(screen.getByRole("button", { name: /基礎變化/ }));
     await user.click(screen.getByRole("button", { name: "名詞" }));
 
     expect(screen.getByText("学生")).toBeInTheDocument();
@@ -706,6 +736,36 @@ describe("App", () => {
     expect(switcher).toBeInTheDocument();
     expect(switcher).toHaveAttribute("aria-haspopup", "dialog");
     expect(screen.getByText("繁體中文")).toBeInTheDocument();
+  });
+
+  it("restores a drill from a /challenge?mode= deep link (#264)", async () => {
+    window.history.replaceState({}, "", "/challenge?mode=vocab");
+    render(<App />);
+
+    // The challenge mounts with 単字讀音 (vocab) preselected from the URL,
+    // not the default 今日練習 landing — proving the deep link was applied.
+    const vocabCard = await screen.findByRole("button", { name: /単字讀音/ });
+    expect(vocabCard).toHaveAttribute("aria-pressed", "true");
+
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("a grammar page's 開始挑戰 starts 今日練習, not 基礎變化 (#340)", async () => {
+    const { allGrammarSurfaces } = await import("./domain/grammarPoints");
+    const surface = allGrammarSurfaces()[0];
+    window.history.replaceState({}, "", `/grammar/${encodeURIComponent(surface)}`);
+    const user = userEvent.setup();
+    render(<App />);
+
+    // The page renders (route works) and its practice CTA drops into the
+    // guided 今日練習 session, not the raw 基礎變化 cascade.
+    await user.click(await screen.findByRole("button", { name: "開始挑戰" }));
+    expect(await screen.findByRole("button", { name: /今日練習/ })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+
+    window.history.replaceState({}, "", "/");
   });
 
   it("lists 綜合考題庫 / N1 備考 / N2 備考 as side-by-side mode presets", async () => {

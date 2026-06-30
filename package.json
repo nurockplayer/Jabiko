@@ -22,9 +22,11 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
+    "flag-icons": "^7.5.0",
     "lucide-react": "^0.561.0",
     "react": "^19.2.1",
-    "react-dom": "^19.2.1"
+    "react-dom": "^19.2.1",
+    "workbox-window": "^7.4.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

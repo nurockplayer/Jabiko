@@ -125,30 +125,26 @@
     justify-content: center;
   }
 
+  /* Language / furigana / theme controls collapse to a compact icon-only row
+     on small screens instead of stacking full-width and dominating the first
+     screen (#358). aria-label on each button keeps the accessible name; the
+     visible text (.toggle-text / .lang-switch-name) is hidden here only. */
   .utility-actions {
-    display: grid;
-    gap: 0.65rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
   }
 
-  .theme-toggle {
-    justify-self: stretch;
-    padding-inline: 0.72rem;
+  .utility-actions .theme-toggle {
+    gap: 0;
+    padding-inline: 0.62rem;
   }
 
-  @media (max-width: 380px) {
-    .utility-actions {
-      grid-template-columns: 1fr;
-    }
-
-    .utility-actions > * {
-      grid-column: 1 / -1;
-    }
-
-    .theme-toggle {
-      min-width: 0;
-      white-space: normal;
-    }
+  .utility-actions .toggle-text,
+  .utility-actions .lang-switch-name,
+  .utility-actions .lang-switch-caret {
+    display: none;
   }
 
   .controls-panel,

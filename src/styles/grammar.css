@@ -1,104 +1,137 @@
-/* Standalone per-grammar-point study page (#281). Reuses the .grammar-note
-   card (feedback.css) for the curated reference; these rules cover the page
-   shell, header, exam-derived examples, and the practice entry. */
+/* Per-grammar-point study page (#281, redesigned #339). Card-based layout: a
+   hero banner, reference cards (curated .grammar-note from feedback.css, or a
+   usage card), an examples card, and a practice CTA. */
 .grammar-point {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  max-width: 46rem;
+  gap: 1.1rem;
+  max-width: 44rem;
   margin: 0 auto;
 }
 
-.grammar-point-back {
+.gp-back {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
 }
 
-.grammar-point-back svg,
-.grammar-point-practice svg {
+.gp-back svg,
+.gp-practice svg {
   width: 1.05rem;
   height: 1.05rem;
 }
 
-.grammar-point-head {
+/* Hero banner: the grammar point + its meaning, on a tinted card so the page
+   opens with a clear focal point instead of bare text. */
+.gp-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.5rem 1.5rem 1.6rem;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--matcha) 14%, var(--paper)), var(--paper));
+  box-shadow: var(--shadow);
+}
+
+.gp-hero-row {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 
-.grammar-point-head h1 {
+.gp-surface {
   margin: 0;
   font-family: var(--font-japanese-display);
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  line-height: 1.2;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.15;
   color: var(--surface-ink);
 }
 
-.grammar-point-level {
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 0.15rem 0.55rem;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border);
-  color: var(--muted);
+.gp-level {
+  flex: 0 0 auto;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  padding: 0.22rem 0.6rem;
+  border-radius: var(--radius-pill);
+  background: var(--matcha-dark);
+  color: var(--selected-text, #fff);
 }
 
-.grammar-point-meaning {
+.gp-meaning {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  font-weight: 700;
   color: var(--ink);
 }
 
-.grammar-point-rule p {
-  margin: 0.3rem 0;
+/* Content cards (usage / examples). The curated reference uses .grammar-note. */
+.gp-card {
+  padding: 1.1rem 1.25rem 1.2rem;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  background: var(--paper);
+}
+
+.gp-card-title {
+  margin: 0 0 0.7rem;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--matcha-dark);
+}
+
+.gp-usage {
+  margin: 0.4rem 0;
+  line-height: 1.75;
   color: var(--muted);
-  line-height: 1.7;
 }
 
-.grammar-point-examples {
-  margin-top: 0.2rem;
-}
-
-.grammar-point-label {
-  margin: 0 0 0.3rem;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-.grammar-point-examples ul {
+.gp-examples {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.85rem;
 }
 
-.grammar-point-examples li {
-  border-left: 3px solid var(--matcha);
-  padding-left: 0.75rem;
+.gp-examples li {
+  padding-left: 0.85rem;
+  border-left: 3px solid color-mix(in srgb, var(--matcha) 60%, var(--panel-border));
 }
 
-.grammar-point-ex-ja {
+.gp-ex-ja {
   display: block;
   font-family: var(--font-japanese);
-  color: var(--surface-ink);
+  font-size: 1.05rem;
   line-height: 1.6;
+  color: var(--surface-ink);
 }
 
-.grammar-point-ex-zh {
+.gp-ex-zh {
   display: block;
-  margin-top: 0.15rem;
-  font-size: 0.9rem;
+  margin-top: 0.2rem;
+  font-size: 0.92rem;
   color: var(--muted);
 }
 
-.grammar-point-practice {
+/* Reuse the curated GrammarNoteCard look but let it sit flush as a page card. */
+.grammar-point .grammar-note {
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  padding: 1.1rem 1.25rem 1.2rem;
+  background: var(--paper);
+}
+
+.gp-practice {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
+  margin-top: 0.2rem;
 }

@@ -16,6 +16,7 @@ export type Copy = {
   furiganaHide: string;
   flowLabel: string;
   loading: string;
+  updateAvailable: string;
   home: string;
   learn: string;
   rules: string;

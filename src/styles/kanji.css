@@ -24,7 +24,7 @@
 .kanji-search {
   flex: 1 1 12rem;
   padding: 0.5rem 0.75rem;
-  border-radius: 0.6rem;
+  border-radius: var(--radius-md);
   border: 1px solid var(--panel-border);
   background: var(--paper);
   color: var(--ink);
@@ -33,7 +33,7 @@
 .kanji-card {
   border: 1px solid color-mix(in srgb, var(--matcha) 45%, var(--panel-border));
   background: color-mix(in srgb, var(--matcha) 10%, var(--paper));
-  border-radius: 0.85rem;
+  border-radius: var(--radius-lg);
   padding: 1rem;
 }
 
@@ -164,7 +164,7 @@
   align-items: flex-start;
   gap: 0.15rem;
   padding: 0.6rem;
-  border-radius: 0.6rem;
+  border-radius: var(--radius-md);
   border: 1px solid var(--panel-border);
   background: var(--paper);
   cursor: pointer;

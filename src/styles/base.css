@@ -37,7 +37,22 @@
   --indigo: #647c5c; /* repurposed -> matcha; see palette note above */
   --gold: #b7791f;
   --green: #4f7a3f;
+  /* Radius ladder (#359): consolidates ~20 ad-hoc radii into 5 steps so corner
+     rounding stays consistent. Values snap to the nearest existing radius
+     (max shift ~2px), theme-independent. */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
   --shadow: 0 6px 18px rgba(120, 95, 55, 0.09);
+  /* Elevation tokens (#359): the heavier overlay/modal shadows that were
+     hardcoded per component. Same values as before (no visual change). */
+  --shadow-md: 0 8px 24px rgba(23, 33, 38, 0.28);
+  --shadow-lg: 0 16px 48px rgba(23, 33, 38, 0.32);
+  /* Overlay tokens (#359): modal scrim + subtle row tint, previously inline. */
+  --overlay-bg: rgba(23, 33, 38, 0.55);
+  --overlay-subtle: rgba(0, 0, 0, 0.04);
   --body-grid-row: transparent;
   --body-grid-column: transparent;
   --bg-glow-primary: transparent;
@@ -184,7 +199,7 @@ select {
 button {
   align-items: center;
   border: 1px solid var(--button-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   color: var(--button-text);
   cursor: pointer;
   display: inline-flex;

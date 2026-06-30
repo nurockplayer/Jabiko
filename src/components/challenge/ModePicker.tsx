@@ -77,7 +77,6 @@ export function ModePicker({
   isVerbCapable,
   availableFocusOptions,
   focusSummary,
-  activeModeCopyKey,
   reviewQueue,
   modeCounts,
   handlePartOfSpeechChange,
@@ -100,7 +99,6 @@ export function ModePicker({
   | "isVerbCapable"
   | "availableFocusOptions"
   | "focusSummary"
-  | "activeModeCopyKey"
   | "reviewQueue"
   | "modeCounts"
   | "handlePartOfSpeechChange"
@@ -252,12 +250,11 @@ export function ModePicker({
             </label>
           ) : null}
         </>
-      ) : (
-        <div className="mode-description">
-          <p>{t.modeOptions[activeModeCopyKey].subtitle}</p>
-        </div>
-      )}
+      ) : null}
 
+      {/* Non-basic modes: the focus-summary line below already shows the active
+          mode's subtitle (focusSummary falls back to it), so a separate
+          mode-description block would duplicate it (#358). */}
       <p className="focus-summary">{focusSummary}</p>
 
       <button className="ghost-button" type="button" onClick={resetSession}>

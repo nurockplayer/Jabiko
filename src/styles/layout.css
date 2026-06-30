@@ -89,17 +89,32 @@
   color: var(--selected-text);
 }
 
-/* Language switcher (#326): pill button (Globe icon in vermilion + the current
-   language's native name) that opens the LanguagePicker. The icon colour makes
-   this the first thing the eye lands on in the header row. */
+/* Language switcher (#326, #360): a prominent pill showing the current
+   language's flag + native name + a caret, so it reads clearly as a language
+   menu. Flags are SVGs (emoji flags don't render on Windows). A teal-tinted
+   border makes it the first thing the eye lands on in the header row. */
 .lang-switch-button {
   align-items: center;
+  border-color: color-mix(in srgb, var(--teal) 42%, var(--button-border));
   display: inline-flex;
   gap: 0.4rem;
 }
 
-.lang-switch-icon {
-  color: var(--vermilion);
+.lang-flag {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  display: block;
+  flex: 0 0 auto;
+  height: auto;
+  object-fit: cover;
+  width: 1.3rem;
+}
+
+.lang-switch-caret {
+  color: var(--muted);
+  height: 0.9rem;
+  width: 0.9rem;
 }
 
 .lang-switch-name {
@@ -107,6 +122,44 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* "New version available" toast (#327): a fixed pill at the bottom centre,
+   above everything. Non-intrusive -- the learner taps it to reload when ready,
+   instead of being yanked off the page mid-drill. */
+.update-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  z-index: 1200;
+  max-width: calc(100% - 2rem);
+}
+
+.update-toast-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--matcha);
+  border-radius: var(--radius-pill);
+  background: var(--matcha-dark);
+  color: var(--selected-text, #fff);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+}
+
+.update-toast-button:hover {
+  filter: brightness(1.06);
+}
+
+.update-toast-button svg {
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
 .auth-button {
@@ -194,7 +247,7 @@
   animation: panel-rise 240ms ease both;
   background: var(--paper);
   border: 1px solid var(--panel-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   margin: 0 auto;
   max-width: 1220px;

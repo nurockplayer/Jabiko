@@ -1,11 +1,14 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { Globe, Languages, Moon, Sun } from "lucide-react";
+import { ChevronDown, Languages, Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import { countDueReviews } from "./domain/srs";
 import { copy, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
 import { LanguagePicker } from "./components/LanguagePicker";
+import { LanguageFlag } from "./components/LanguageFlag";
+import { UpdateToast } from "./components/UpdateToast";
+import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { JabikoMark } from "./components/JabikoMark";
 import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
@@ -16,6 +19,7 @@ import { isSupabaseConfigured } from "./lib/supabase";
 import { useAuth } from "./hooks/useAuth";
 import { useProgressAttempts } from "./hooks/useProgressAttempts";
 import type { SessionInit } from "./hooks/usePracticeSession";
+import { challengeInitFromQuery } from "./domain/challengeDeepLink";
 import { readLevelPreference, writeLevelPreference } from "./domain/levelPreference";
 import type { LevelRange } from "./domain/levelRange";
 import "./styles.css";
@@ -131,6 +135,10 @@ export default function App() {
       const route = parseRoute(window.location.pathname);
       setAppView(route.view);
       setGrammarSurface(route.grammarSurface);
+      // Restore the drill from a /challenge?mode=&level= deep link on back/forward.
+      if (route.view === "challenge") {
+        setLaunch(challengeInitFromQuery(window.location.search));
+      }
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
@@ -147,6 +155,8 @@ export default function App() {
   const t = copy[language];
   // Language picker, opened from the header Globe button (#326).
   const [langPickerOpen, setLangPickerOpen] = useState(false);
+  // Service-worker update prompt (#327): toast when a new build is ready.
+  const { needRefresh, updateApp } = usePwaUpdate();
 
   const { theme, toggleTheme } = useTheme();
   // Global furigana (ruby) preference, default OFF (#134). The hook owns the
@@ -166,7 +176,14 @@ export default function App() {
   // the "start X" actions just before navigating; undefined = the default
   // basic drill. Read once when ChallengePanel mounts (it owns the
   // session), so changing it while already in the challenge is a no-op.
-  const [launch, setLaunch] = useState<SessionInit | undefined>(undefined);
+  // Seed from a /challenge?mode=&level= deep link on a direct hit / refresh
+  // (#264), so a shared or bookmarked drill restores; a bare /challenge or any
+  // other route stays undefined (default landing).
+  const [launch, setLaunch] = useState<SessionInit | undefined>(() =>
+    parseRoute(window.location.pathname).view === "challenge"
+      ? challengeInitFromQuery(window.location.search)
+      : undefined
+  );
   // Global target-level preference (#199), read once at startup. Seeds the
   // fresh-pool level range (今日練習 / 綜合 / 単字) and drives the first-run
   // onboarding card; the home card persists it.
@@ -212,6 +229,7 @@ export default function App() {
 
   return (
     <main className="app-shell">
+      {needRefresh && <UpdateToast label={t.updateAvailable} onUpdate={updateApp} />}
       {langPickerOpen && (
         <LanguagePicker
           current={language}
@@ -274,22 +292,24 @@ export default function App() {
                 aria-haspopup="dialog"
                 onClick={() => setLangPickerOpen(true)}
               >
-                <Globe aria-hidden="true" className="lang-switch-icon" />
+                <LanguageFlag language={language} className="lang-switch-flag" />
                 <span className="lang-switch-name">{copy[language].languageName}</span>
+                <ChevronDown aria-hidden="true" className="lang-switch-caret" />
               </button>
             )}
             <button
               className={`theme-toggle furigana-toggle${furiganaEnabled ? " active" : ""}`}
               type="button"
               aria-pressed={furiganaEnabled}
+              aria-label={furiganaToggleLabel}
               onClick={toggleFurigana}
             >
               <Languages aria-hidden="true" />
-              {furiganaToggleLabel}
+              <span className="toggle-text">{furiganaToggleLabel}</span>
             </button>
-            <button className="theme-toggle" type="button" onClick={toggleTheme}>
+            <button className="theme-toggle" type="button" aria-label={themeToggleLabel} onClick={toggleTheme}>
               <ThemeIcon aria-hidden="true" />
-              {themeToggleLabel}
+              <span className="toggle-text">{themeToggleLabel}</span>
             </button>
           </div>
         </div>
@@ -353,7 +373,9 @@ export default function App() {
           language={language}
           progressAttempts={progressAttempts}
           reviewCount={reviewCount}
-          onNavigate={(target) => (target === "challenge" ? openChallenge() : setAppView(target))}
+          onNavigate={(target) =>
+            target === "challenge" ? openChallenge({ mode: "daily" }) : setAppView(target)
+          }
           onStartReview={() => openChallenge({ mode: "review" })}
           onStartVocab={() => openChallenge({ mode: "vocab" })}
           onStartDaily={() => openChallenge({ mode: "daily" })}
@@ -395,7 +417,7 @@ export default function App() {
           <GrammarPointPage
             surface={grammarSurface ?? ""}
             language={language}
-            onPractice={() => openChallenge()}
+            onPractice={() => openChallenge({ mode: "daily" })}
             onBack={() => setAppView("home")}
           />
         </Suspense>
