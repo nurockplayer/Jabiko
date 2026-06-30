@@ -94,6 +94,9 @@
 }
 
 .lang-picker-option {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
   padding: 0.85rem 0.8rem;
   border: 1px solid var(--field-border);
   border-radius: var(--radius-lg);
@@ -106,6 +109,10 @@
     border-color 0.15s ease,
     background 0.15s ease,
     transform 0.05s ease;
+}
+
+.lang-picker-flag {
+  width: 1.6rem;
 }
 
 .lang-picker-option:hover {

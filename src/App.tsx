@@ -1,11 +1,12 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { Globe, Languages, Moon, Sun } from "lucide-react";
+import { ChevronDown, Languages, Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import { countDueReviews } from "./domain/srs";
 import { copy, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
 import { LanguagePicker } from "./components/LanguagePicker";
+import { LanguageFlag } from "./components/LanguageFlag";
 import { UpdateToast } from "./components/UpdateToast";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { JabikoMark } from "./components/JabikoMark";
@@ -291,8 +292,9 @@ export default function App() {
                 aria-haspopup="dialog"
                 onClick={() => setLangPickerOpen(true)}
               >
-                <Globe aria-hidden="true" className="lang-switch-icon" />
+                <LanguageFlag language={language} className="lang-switch-flag" />
                 <span className="lang-switch-name">{copy[language].languageName}</span>
+                <ChevronDown aria-hidden="true" className="lang-switch-caret" />
               </button>
             )}
             <button
