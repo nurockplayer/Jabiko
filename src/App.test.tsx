@@ -45,8 +45,8 @@ describe("App", () => {
     const { unmount } = render(<App />);
     await user.click(screen.getByRole("button", { name: "挑戰" }));
     await screen.findByRole("region", { name: "目前題目" }, { timeout: 30000 });
-    await user.click(screen.getByRole("button", { name: "模擬考" }));
-    await screen.findByRole("region", { name: "模擬考" }, { timeout: 30000 });
+    await user.click(screen.getByRole("button", { name: "題型練習" }));
+    await screen.findByRole("region", { name: "題型練習" }, { timeout: 30000 });
     await user.click(screen.getByRole("button", { name: "漢字" }));
     await screen.findByRole("heading", { name: /漢字音読み/ }, { timeout: 30000 });
     unmount();
@@ -69,7 +69,7 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "學習" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "規則表" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "模擬考" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "題型練習" })).toBeInTheDocument();
     // Home hero copy + at least one entry card heading.
     expect(screen.getByRole("heading", { name: /今天想練什麼/ })).toBeInTheDocument();
     // Chapter index belongs to Learn view; not visible on Home.
@@ -471,7 +471,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "模擬考" }));
+    await user.click(screen.getByRole("button", { name: "題型練習" }));
 
     // Section cards from the N2 blueprint render; the grammar section has
     // items, so its card is enabled and clickable.
