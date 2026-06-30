@@ -87,7 +87,7 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
             </button>
           ))}
         </div>
-        <div className="segmented" role="group" aria-label={t.kanjiLevelFilter}>
+        <div className="segmented level-segmented" role="group" aria-label={t.kanjiLevelFilter}>
           {LEVELS.map((option) => (
             <button
               key={option}

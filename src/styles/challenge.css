@@ -100,6 +100,13 @@ legend,
   grid-template-columns: 1fr;
 }
 
+/* Level chip rows (漢字 N5–N1 filter, 題型練習 N3/N2/N1). Short chips flow as
+   one equal-width row instead of the default 2-col grid that orphaned an odd
+   last chip (#358). Wraps cleanly on narrow screens. */
+.level-segmented {
+  grid-template-columns: repeat(auto-fit, minmax(2.8rem, 1fr));
+}
+
 /* 自訂題數: manual count entry below the session-length presets. */
 .session-length-custom {
   display: flex;
