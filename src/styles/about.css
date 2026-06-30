@@ -39,7 +39,7 @@
 .about-section {
   background: var(--paper);
   border: 1px solid var(--rule);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-lg);
   padding: 1.1rem 1.2rem;
 }
 

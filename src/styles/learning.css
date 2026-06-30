@@ -219,7 +219,7 @@
     linear-gradient(135deg, color-mix(in srgb, var(--vermilion) 16%, transparent), transparent 72%),
     var(--field-bg);
   border: 1px solid var(--summary-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   color: var(--summary-text);
   display: flex;
   flex-wrap: wrap;
@@ -249,7 +249,7 @@
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 92%, transparent), color-mix(in srgb, var(--paper-deep) 74%, transparent));
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   min-width: 0;
   padding: 0.95rem;
 }
@@ -344,7 +344,7 @@
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 96%, var(--indigo) 4%), var(--field-bg));
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   display: grid;
   gap: 0.62rem;
   min-width: 0;
@@ -386,7 +386,7 @@
 .quick-start-card code {
   background: var(--summary-bg);
   border: 1px solid var(--summary-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--summary-text);
   font-family: var(--font-japanese-ui);
   font-weight: 700;
@@ -463,7 +463,7 @@
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 96%, var(--teal) 4%), var(--field-bg));
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   display: grid;
   gap: 0.65rem;
   min-width: 0;
@@ -490,7 +490,7 @@
 .sound-table {
   background: var(--field-bg);
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
@@ -552,7 +552,7 @@
 .pipeline-card code {
   background: var(--summary-bg);
   border: 1px solid var(--summary-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   overflow-wrap: anywhere;
   padding: 0.55rem 0.62rem;
 }
@@ -565,7 +565,7 @@
 .block-pitfalls {
   background: color-mix(in srgb, var(--vermilion) 10%, var(--paper));
   border: 1px solid color-mix(in srgb, var(--vermilion) 36%, var(--rule));
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 0.7rem 0.9rem;
 }
 
@@ -596,7 +596,7 @@
 .block-drill-note {
   background: var(--summary-bg);
   border: 1px dashed var(--summary-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   color: var(--summary-text);
   font-size: 0.84rem;
   line-height: 1.55;
@@ -631,7 +631,7 @@
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--field-bg) 96%, var(--indigo) 4%), var(--field-bg));
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   display: grid;
   gap: 0.7rem;
   min-height: 17rem;
@@ -664,7 +664,7 @@
 .formula-row code {
   background: var(--summary-bg);
   border: 1px solid var(--summary-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--summary-text);
   font-family: var(--font-japanese-ui);
   font-weight: 700;

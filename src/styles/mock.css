@@ -17,7 +17,7 @@
   gap: 1.4rem;
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
-  border-radius: 1.1rem;
+  border-radius: var(--radius-xl);
   padding: 1.6rem 1.8rem;
   box-shadow: var(--shadow);
 }
@@ -95,7 +95,7 @@
   padding: 0.65rem 0.9rem;
   background: var(--paper);
   border: 1px solid var(--rule);
-  border-radius: 0.7rem;
+  border-radius: var(--radius-lg);
 }
 
 .mock-section-row.empty {
@@ -117,9 +117,9 @@
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--prompt-chip-text);
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--overlay-subtle);
   border: 1px solid var(--prompt-chip-border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 
 .mock-section-meta {
@@ -192,7 +192,7 @@
   padding: 0.85rem 1rem;
   background: var(--paper);
   border: 1px solid var(--panel-border);
-  border-radius: 0.8rem;
+  border-radius: var(--radius-lg);
   cursor: pointer;
   min-height: 0;
 }
@@ -257,7 +257,7 @@
   padding: 0.4rem 0.7rem;
   background: var(--summary-bg);
   border: 1px solid var(--summary-border);
-  border-radius: 0.6rem;
+  border-radius: var(--radius-md);
   font-variant-numeric: tabular-nums;
   color: var(--summary-text);
 }
@@ -273,7 +273,7 @@
   padding: 1rem 1.1rem;
   background: var(--paper);
   border: 1px solid var(--rule);
-  border-radius: 0.9rem;
+  border-radius: var(--radius-xl);
 }
 
 .mock-question .prompt-header {
@@ -287,9 +287,9 @@
 .mock-question .prompt-header span {
   display: inline-flex;
   padding: 0.15rem 0.6rem;
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--overlay-subtle);
   border: 1px solid var(--prompt-chip-border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 
 .mock-nav {
@@ -334,7 +334,7 @@
   padding: 0.55rem 0.8rem;
   background: var(--feedback-revealed-bg);
   border: 1px solid var(--feedback-revealed-border);
-  border-radius: 0.6rem;
+  border-radius: var(--radius-md);
   color: var(--feedback-revealed-title);
   font-size: 0.92rem;
 }
@@ -352,7 +352,7 @@
   padding: 0.85rem 1rem;
   background: var(--paper);
   border: 1px solid var(--rule);
-  border-radius: 0.7rem;
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   gap: 0.45rem;

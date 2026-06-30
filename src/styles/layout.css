@@ -127,14 +127,14 @@
   gap: 0.5rem;
   padding: 0.6rem 1.1rem;
   border: 1px solid var(--matcha);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--matcha-dark);
   color: var(--selected-text, #fff);
   font: inherit;
   font-weight: 700;
   font-size: 0.92rem;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(23, 33, 38, 0.28);
+  box-shadow: var(--shadow-md);
   white-space: nowrap;
 }
 
@@ -232,7 +232,7 @@
   animation: panel-rise 240ms ease both;
   background: var(--paper);
   border: 1px solid var(--panel-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   margin: 0 auto;
   max-width: 1220px;

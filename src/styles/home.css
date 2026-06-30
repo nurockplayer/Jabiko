@@ -47,7 +47,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.4rem 0.85rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--panel-border);
   background: var(--paper);
   color: var(--teal-dark);
@@ -78,7 +78,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: rgba(23, 33, 38, 0.5);
+  background: var(--overlay-bg);
 }
 
 .feedback-form {
@@ -91,9 +91,9 @@
   gap: 0.6rem;
   padding: 1rem 1.1rem 1.1rem;
   border: 1px solid var(--panel-border);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-lg);
   background: var(--paper);
-  box-shadow: 0 12px 40px rgba(23, 33, 38, 0.28);
+  box-shadow: var(--shadow-lg);
   text-align: left;
 }
 
@@ -127,7 +127,7 @@
   width: 100%;
   padding: 0.55rem 0.7rem;
   border: 1px solid var(--field-border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   background: var(--field-bg);
   color: var(--button-text);
   font: inherit;
@@ -188,7 +188,7 @@
   font: inherit;
   font-size: 0.8rem;
   cursor: pointer;
-  border-radius: 0.35rem;
+  border-radius: var(--radius-sm);
   flex-wrap: wrap;
   max-width: 100%;
   white-space: normal;
@@ -214,7 +214,7 @@
   margin-top: 0.8rem;
   padding: 0.45rem 0.8rem;
   border: 1px solid color-mix(in srgb, var(--matcha) 55%, var(--panel-border));
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: color-mix(in srgb, var(--matcha) 12%, transparent);
   color: var(--matcha-dark);
   font: inherit;
@@ -261,7 +261,7 @@
      center crop would clip the books and emphasise the empty wood
      foreground. */
   object-position: center 38%;
-  border-radius: 0.95rem;
+  border-radius: var(--radius-xl);
   border: 1px solid var(--panel-border);
   background: var(--paper);
   display: block;
@@ -305,7 +305,7 @@
   gap: 0.45rem;
   margin-top: 0.5rem;
   padding: 0.5rem 1.05rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid color-mix(in srgb, var(--teal) 55%, var(--panel-border));
   background: color-mix(in srgb, var(--teal) 18%, var(--paper));
   color: var(--teal-dark);
@@ -339,7 +339,7 @@
   align-items: center;
   gap: 0.8rem;
   padding: 1rem 1.15rem;
-  border-radius: 0.85rem;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--panel-border);
   cursor: pointer;
   text-align: left;
@@ -410,7 +410,7 @@
   padding: 0.9rem 1.1rem;
   background: var(--paper);
   border: 1px solid var(--rule);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-lg);
 }
 
 .home-stats-cell {
@@ -466,7 +466,7 @@
   padding: 1rem 1.1rem;
   background: var(--paper);
   border: 1px solid var(--rule);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-lg);
 }
 
 /* Accuracy ring */
@@ -561,7 +561,7 @@
   display: block;
   height: 0.5rem;
   background: var(--rule);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 
@@ -569,7 +569,7 @@
   display: block;
   height: 100%;
   background: var(--matcha);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   transition: width 0.3s ease;
 }
 
@@ -595,7 +595,7 @@
   padding: 0.9rem 1.1rem;
   background: var(--paper);
   border: 1px solid var(--rule);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-lg);
 }
 
 .activity-trend-head {
@@ -654,7 +654,7 @@
   padding: 0.9rem 1.1rem;
   background: var(--paper);
   border: 1px solid var(--rule);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-lg);
 }
 
 .type-bars-head {
@@ -693,7 +693,7 @@
   content: "";
   width: 0.55rem;
   height: 0.55rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--rule);
 }
 
@@ -737,7 +737,7 @@
   display: block;
   height: 0.5rem;
   background: var(--rule);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 
@@ -745,7 +745,7 @@
   display: block;
   height: 100%;
   background: var(--matcha);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   transition: width 0.3s ease;
 }
 
@@ -796,7 +796,7 @@
   padding: 1.05rem 1.1rem 1.2rem;
   background: var(--paper);
   border: 1px solid var(--panel-border);
-  border-radius: 0.95rem;
+  border-radius: var(--radius-xl);
   text-align: left;
   cursor: pointer;
   transition: box-shadow 0.16s ease, transform 0.16s ease;
@@ -825,7 +825,7 @@
   color: var(--matcha-dark);
   background: transparent;
   border: 1px solid color-mix(in srgb, var(--matcha) 42%, var(--rule));
-  border-radius: 0.4rem;
+  border-radius: var(--radius-sm);
   line-height: 1;
 }
 
@@ -892,7 +892,7 @@
   gap: 0.75rem;
   padding: 1rem 1.1rem;
   border: 1px solid var(--panel-border);
-  border-radius: 0.95rem;
+  border-radius: var(--radius-xl);
   background: var(--paper);
 }
 
