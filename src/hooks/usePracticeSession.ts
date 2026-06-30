@@ -17,6 +17,7 @@ import {
   buildPracticeQuestions,
   uniqueForms
 } from "../domain/sessionPools";
+import { collectAttemptedIds } from "../domain/unattempted";
 import type { Attempt, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
 import { readStored, writeStored } from "../domain/safeStorage";
 import { copy, type Language } from "../i18n";
@@ -197,6 +198,12 @@ export function usePracticeSession({
     [progressAttempts, allKnownQuestions]
   );
 
+  // Snapshot of every question the learner has attempted, so the exam pool
+  // surfaces 新題 (unattempted) first (#385). Like reviewQueue it's fed into
+  // the pool builder but kept OUT of the `questions` memo deps below -- a fresh
+  // snapshot is captured on mode change / reset, never reshuffled mid-session.
+  const attemptedIds = useMemo(() => collectAttemptedIds(progressAttempts), [progressAttempts]);
+
   // Pool size per practice mode, shown on the mode cards so the learner
   // can see how big each bank is before picking. Static pools are
   // computed once; "basic" is intentionally omitted (its size depends on
@@ -248,7 +255,8 @@ export function usePracticeSession({
         targetForms,
         levelRange,
         reviewQueue,
-        sessionLength
+        sessionLength,
+        attemptedIds
       });
     },
     // INTENTIONALLY excluding `reviewQueue` from deps. The live queue
