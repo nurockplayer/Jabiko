@@ -23,9 +23,9 @@ interface PageSeo {
 
 export const VIEW_SEO: Record<Exclude<SeoView, "grammar">, PageSeo> = {
   home: {
-    title: "Jabiko · JLPT 日檢自習室｜N5–N1 文法單字模擬考",
+    title: "Jabiko · JLPT 日檢自習室｜N5–N1 文法單字題型練習",
     description:
-      "免費、免註冊、開源的 JLPT 日檢自習室：N5〜N1 文法、漢字、單字與依官方題型的整卷模擬考，答錯自動排進間隔重複複習，支援跨裝置同步，打開就能練、免安裝。",
+      "免費、免註冊、開源的 JLPT 日檢自習室：N5〜N1 文法、漢字、單字與依官方題型分區練習，答錯自動排進間隔重複複習，支援跨裝置同步，打開就能練、免安裝。",
     path: "/"
   },
   learn: {

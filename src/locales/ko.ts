@@ -5,7 +5,7 @@ export const ko: Copy = {
   languageSwitchLabel: "언어 변경",
   appIntroLabel: "Jabiko 소개",
   appTitle: "Jabiko · JLPT 자습실",
-  appTagline: "JLPT N5〜N1 문법, 한자, 어휘, 모의고사 — 한자리에서 모두 연습하세요.",
+  appTagline: "JLPT N5〜N1 문법, 한자, 어휘, 유형별 연습 — 한자리에서 모두 연습하세요.",
   themeLight: "라이트 모드",
   themeDark: "다크 모드",
   furiganaShow: "후리가나 표시",
@@ -29,7 +29,7 @@ export const ko: Copy = {
     "Jabiko(ジャビ子)는 처음에 일본어 동사 활용을 몸에 밸 때까지 연습하려는 작은 도구로 시작했습니다. 이름을 풀어 보면: JA는 Japanese, bi는 동사 활용(bi-yō)에서, 그리고 ko는 일본어 이름에 자주 보이는 그 귀여운 「子」예요. 그렇게 ジャビ子가 태어났습니다 — 머리에 활용표 노트를 얹고 균형을 잡으며, ます형, て형, 가능형을 하나씩 함께 짚어 주는 작은 도우미 로봇이죠.",
   aboutStoryTitle: "시작부터 지금까지",
   aboutStoryBody:
-    "처음엔 기초 활용 연습뿐이었습니다. 시간이 지나면서 문장 빈칸 채우기, 문형 판별, 완전한 JLPT 문제 은행, 모의고사, 한자 읽기, 간격 복습, 학습 대시보드까지 — 한 걸음씩, 점점 더 완성도 있게 자라났습니다.",
+    "처음엔 기초 활용 연습뿐이었습니다. 시간이 지나면서 문장 빈칸 채우기, 문형 판별, 완전한 JLPT 문제 은행, 유형별 연습, 한자 읽기, 간격 복습, 학습 대시보드까지 — 한 걸음씩, 점점 더 완성도 있게 자라났습니다.",
   aboutAuthorTitle: "제작자",
   aboutAuthorName: "花雪 (HanaYukii)",
   aboutAuthorBody:
@@ -38,7 +38,7 @@ export const ko: Copy = {
     "이 그룹들을 오랜 세월 응원해 왔습니다 (몇몇은 이미 해체했어요): 私立恵比寿中学・TEAM SHACHI・超ときめき♡宣伝部・高嶺のなでしこ・ももいろクローバーZ・ukka・=LOVE・TrySail・Aqours",
   aboutAuthorLink: "제작자에 대해 더 보기 →",
   homeHeroTitle: "오늘은 무엇을 연습할까요?",
-  homeHeroIntro: "기초 활용부터 N1 감각까지. 문법, 한자, 어휘, 전체 모의고사 — 모두 한자리에.",
+  homeHeroIntro: "기초 활용부터 N1 감각까지. 문법, 한자, 어휘, 유형별 연습 — 모두 한자리에.",
   homeGuideLink: "사용 설명서",
   homeFooterWish: "한 걸음씩 천천히. 행운을 빌어요 — 멋지게 합격하시길.",
   feedbackWish: "기능 요청",
@@ -249,7 +249,7 @@ export const ko: Copy = {
   shareCopied: "게시글 텍스트가 복사됐어요!",
   shareSiteTitle: "Jabiko 공유하기",
   shareSiteText:
-    "저는 Jabiko로 JLPT를 준비하고 있어요: N5〜N1 문법, 한자, 어휘, 모의고사를 한자리에서 — 같이 공부한다면 당신에게도 추천해요👇",
+    "저는 Jabiko로 JLPT를 준비하고 있어요: N5〜N1 문법, 한자, 어휘, 유형별 연습를 한자리에서 — 같이 공부한다면 당신에게도 추천해요👇",
   resetSession: "이번 세션 초기화",
   currentQuestion: "현재 문제",
   questionNumber: (value) => `${value}번 문제`,
