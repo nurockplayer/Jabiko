@@ -5,7 +5,7 @@ export const en: Copy = {
   languageSwitchLabel: "Change language",
   appIntroLabel: "About Jabiko",
   appTitle: "Jabiko · JLPT Study Room",
-  appTagline: "JLPT N5〜N1 grammar, kanji, vocabulary, and mock exams — drill them all in one place.",
+  appTagline: "JLPT N5〜N1 grammar, kanji, vocabulary, and question-type practice — drill them all in one place.",
   themeLight: "Light mode",
   themeDark: "Dark mode",
   furiganaShow: "Show furigana",
@@ -29,7 +29,7 @@ export const en: Copy = {
     "Jabiko (ジャビ子) started out as a tiny tool just to drill Japanese verb conjugation until it stuck. Break the name down: JA for Japanese, bi from verb conjugation (bi-yō), and ko — that cute 「子」 you see in Japanese names. And so ジャビ子 was born — a little helper robot balancing a conjugation-table notebook on her head, walking you one step at a time through ます form, て form, potential form, one at a time.",
   aboutStoryTitle: "From the start to now",
   aboutStoryBody:
-    "At first it was only basic conjugation drills. Over time it grew sentence-cloze questions, pattern recognition, a full JLPT question bank, mock exams, kanji readings, spaced review, and a study dashboard — step by step, more complete each time.",
+    "At first it was only basic conjugation drills. Over time it grew sentence-cloze questions, pattern recognition, a full JLPT question bank, question-type practice, kanji readings, spaced review, and a study dashboard — step by step, more complete each time.",
   aboutAuthorTitle: "Author",
   aboutAuthorName: "花雪 (HanaYukii)",
   aboutAuthorBody:
@@ -38,7 +38,7 @@ export const en: Copy = {
     "Following these over the years (a few have disbanded): 私立恵比寿中学・TEAM SHACHI・超ときめき♡宣伝部・高嶺のなでしこ・ももいろクローバーZ・ukka・=LOVE・TrySail・Aqours",
   aboutAuthorLink: "More about the author →",
   homeHeroTitle: "What do you want to practice today?",
-  homeHeroIntro: "From basic conjugation to N1 instinct. Grammar, kanji, vocabulary, full mock exams — all in one place.",
+  homeHeroIntro: "From basic conjugation to N1 instinct. Grammar, kanji, vocabulary, question-type practice — all in one place.",
   homeGuideLink: "User guide",
   homeFooterWish: "One step at a time. Good luck — may you pass with flying colors.",
   feedbackWish: "Request a feature",
@@ -249,7 +249,7 @@ export const en: Copy = {
   shareCopied: "Post text copied!",
   shareSiteTitle: "Share Jabiko",
   shareSiteText:
-    "I'm using Jabiko to prep for the JLPT: N5〜N1 grammar, kanji, vocabulary, and mock exams all in one place — sharing it with you if you're studying too👇",
+    "I'm using Jabiko to prep for the JLPT: N5〜N1 grammar, kanji, vocabulary, and question-type practice all in one place — sharing it with you if you're studying too👇",
   resetSession: "Reset this session",
   currentQuestion: "Current question",
   questionNumber: (value) => `Question ${value}`,

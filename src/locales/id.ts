@@ -5,7 +5,7 @@ export const id: Copy = {
   languageSwitchLabel: "Ganti bahasa",
   appIntroLabel: "Tentang Jabiko",
   appTitle: "Jabiko · Ruang Belajar Mandiri JLPT",
-  appTagline: "Tata bahasa, kanji, kosakata, dan simulasi ujian JLPT N5〜N1 — latih sampai lancar di satu tempat.",
+  appTagline: "Tata bahasa, kanji, kosakata, dan latihan per jenis soal JLPT N5〜N1 — latih sampai lancar di satu tempat.",
   themeLight: "Mode terang",
   themeDark: "Mode gelap",
   furiganaShow: "Tampilkan furigana",
@@ -29,7 +29,7 @@ export const id: Copy = {
     "Jabiko（ジャビ子）awalnya hanyalah ide untuk membuat alat kecil yang bisa \"melatih konjugasi kata kerja Jepang sampai lancar\". Kalau dipecah: JA dari Japanese, bi dari konjugasi kata kerja, dan ko adalah \"子\" yang imut dalam bahasa Jepang. Jadilah ジャビ子 — robot asisten kecil dengan buku tabel konjugasi di atas kepalanya, yang menemani kamu one step at a time untuk menghafal bentuk ます, bentuk て, dan bentuk potensial satu per satu.",
   aboutStoryTitle: "Dari awal mula hingga sekarang",
   aboutStoryBody:
-    "Awalnya hanya ada latihan konjugasi dasar, lalu perlahan tumbuh menjadi isian dalam kalimat, penilaian pola kalimat, bank soal komprehensif JLPT, simulasi ujian, bacaan kanji, pengulangan berjeda, dan dasbor belajar — selangkah demi selangkah, makin lama makin lengkap.",
+    "Awalnya hanya ada latihan konjugasi dasar, lalu perlahan tumbuh menjadi isian dalam kalimat, penilaian pola kalimat, bank soal komprehensif JLPT, latihan per jenis soal, bacaan kanji, pengulangan berjeda, dan dasbor belajar — selangkah demi selangkah, makin lama makin lengkap.",
   aboutAuthorTitle: "Penulis",
   aboutAuthorName: "花雪（HanaYukii）",
   aboutAuthorBody:
@@ -38,7 +38,7 @@ export const id: Copy = {
     "Idol yang diikuti selama bertahun-tahun ini (beberapa sudah bubar): 私立恵比寿中学・TEAM SHACHI・超ときめき♡宣伝部・高嶺のなでしこ・ももいろクローバーZ・ukka・=LOVE・TrySail・Aqours",
   aboutAuthorLink: "Selengkapnya tentang penulis →",
   homeHeroTitle: "Mau latihan apa hari ini?",
-  homeHeroIntro: "Dari konjugasi dasar sampai feeling soal N1. Tata bahasa, kanji, kosakata, dan simulasi ujian lengkap — semua di satu tempat.",
+  homeHeroIntro: "Dari konjugasi dasar sampai feeling soal N1. Tata bahasa, kanji, kosakata, dan latihan per jenis soal — semua di satu tempat.",
   homeGuideLink: "Panduan pemakaian",
   homeFooterWish: "Selangkah demi selangkah, semoga kamu lulus ujian dengan lancar.",
   feedbackWish: "Usulkan fitur",
@@ -249,7 +249,7 @@ export const id: Copy = {
   shareCopied: "Teks postingan tersalin!",
   shareSiteTitle: "Bagikan Jabiko",
   shareSiteText:
-    "Aku pakai Jabiko untuk latihan JLPT: tata bahasa, kanji, kosakata, dan simulasi ujian N5〜N1 bisa dilatih sampai lancar di satu tempat, kubagikan untuk kamu yang juga sedang persiapan👇",
+    "Aku pakai Jabiko untuk latihan JLPT: tata bahasa, kanji, kosakata, dan latihan per jenis soal N5〜N1 bisa dilatih sampai lancar di satu tempat, kubagikan untuk kamu yang juga sedang persiapan👇",
   resetSession: "Atur ulang sesi ini",
   currentQuestion: "Soal saat ini",
   questionNumber: (value) => `Soal ke-${value}`,

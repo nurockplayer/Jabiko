@@ -5,7 +5,7 @@ export const ja: Copy = {
   languageSwitchLabel: "言語を切り替え",
   appIntroLabel: "Jabiko について",
   appTitle: "Jabiko · JLPT 自習室",
-  appTagline: "JLPT N5〜N1 の文法・漢字・単語・模擬試験を、ひとつの机でまとめて練習。",
+  appTagline: "JLPT N5〜N1 の文法・漢字・単語・問題形式別の練習を、ひとつの机でまとめて練習。",
   themeLight: "ライトモード",
   themeDark: "ダークモード",
   furiganaShow: "ふりがなを表示",
@@ -30,7 +30,7 @@ export const ja: Copy = {
     "Jabiko（ジャビ子）は、もともと「日本語の動詞活用を覚えきる」ための小さなツールを作りたい、という思いから始まりました。名前を分けると、JA は Japanese、bi は動詞の活用から、ko は日本語のかわいい「子」。こうして生まれたのが ジャビ子——頭に動詞活用表の小さな本をのせたアシスタントロボットです。one step at a time で、ます形・て形・可能形をひとつずつ覚えていくお手伝いをします。",
   aboutStoryTitle: "始まりから今まで",
   aboutStoryBody:
-    "最初は基礎の活用練習だけでしたが、そこから文中の穴埋め、文型の判別、JLPT 総合問題集、模擬試験、漢字の読み、間隔反復、学習ダッシュボードへと、少しずつ機能が育っていきました。一歩ずつ、より充実したものになっています。",
+    "最初は基礎の活用練習だけでしたが、そこから文中の穴埋め、文型の判別、JLPT 総合問題集、問題形式別の練習、漢字の読み、間隔反復、学習ダッシュボードへと、少しずつ機能が育っていきました。一歩ずつ、より充実したものになっています。",
   aboutAuthorTitle: "作者",
   aboutAuthorName: "花雪（HanaYukii）",
   aboutAuthorBody:
@@ -39,7 +39,7 @@ export const ja: Copy = {
     "この数年で追ってきた（中には解散したグループも）：私立恵比寿中学・TEAM SHACHI・超ときめき♡宣伝部・高嶺のなでしこ・ももいろクローバーZ・ukka・=LOVE・TrySail・Aqours",
   aboutAuthorLink: "作者についてもっと見る →",
   homeHeroTitle: "今日は何を練習する？",
-  homeHeroIntro: "基礎の活用から N1 の問題感覚まで。文法・漢字・単語・一回分の模擬試験を、ここでまとめて。",
+  homeHeroIntro: "基礎の活用から N1 の問題感覚まで。文法・漢字・単語・問題形式別の練習を、ここでまとめて。",
   homeGuideLink: "使い方ガイド",
   homeFooterWish: "一歩ずつ進めて、試験の合格を祈っています。",
   feedbackWish: "機能リクエスト",
@@ -257,7 +257,7 @@ export const ja: Copy = {
   shareCopied: "投稿テキストをコピーしました！",
   shareSiteTitle: "Jabiko をシェア",
   shareSiteText:
-    "Jabiko で日本語能力試験の練習をしています：N5〜N1 の文法・漢字・単語・模擬試験を一か所でまとめて練習。同じく受験勉強中のあなたにシェア👇",
+    "Jabiko で日本語能力試験の練習をしています：N5〜N1 の文法・漢字・単語・問題形式別の練習を一か所でまとめて練習。同じく受験勉強中のあなたにシェア👇",
   resetSession: "今回をリセット",
   currentQuestion: "現在の問題",
   questionNumber: (value) => `第 ${value} 問`,

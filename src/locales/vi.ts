@@ -5,7 +5,7 @@ export const vi: Copy = {
   languageSwitchLabel: "Đổi ngôn ngữ",
   appIntroLabel: "Giới thiệu Jabiko",
   appTitle: "Jabiko · Phòng tự học JLPT",
-  appTagline: "Ngữ pháp, kanji, từ vựng và đề thi thử JLPT N5〜N1 — luyện tất cả ở một nơi.",
+  appTagline: "Ngữ pháp, kanji, từ vựng và luyện theo dạng đề JLPT N5〜N1 — luyện tất cả ở một nơi.",
   themeLight: "Chế độ sáng",
   themeDark: "Chế độ tối",
   furiganaShow: "Hiện furigana",
@@ -29,7 +29,7 @@ export const vi: Copy = {
     "Jabiko (ジャビ子) khởi đầu chỉ là một công cụ nhỏ để luyện chia động từ tiếng Nhật cho đến khi thuộc nằm lòng. Tách tên ra mà xem: JA là Japanese (tiếng Nhật), bi lấy từ chia động từ (bi-yō), và ko — chữ 「子」 dễ thương mà bạn hay thấy trong tên tiếng Nhật. Và thế là ジャビ子 ra đời — một chú robot nhỏ trợ giúp đội trên đầu cuốn sổ bảng chia động từ, dẫn bạn đi từng bước một qua thể ます, thể て, thể khả năng, từng cái một.",
   aboutStoryTitle: "Từ buổi đầu đến hôm nay",
   aboutStoryBody:
-    "Ban đầu chỉ có những bài luyện chia động từ cơ bản. Dần dần nó lớn lên với câu điền khuyết, nhận diện mẫu câu, một ngân hàng đề JLPT đầy đủ, đề thi thử, cách đọc kanji, ôn tập giãn cách và một bảng điều khiển học tập — từng bước một, mỗi lần lại hoàn thiện hơn.",
+    "Ban đầu chỉ có những bài luyện chia động từ cơ bản. Dần dần nó lớn lên với câu điền khuyết, nhận diện mẫu câu, một ngân hàng đề JLPT đầy đủ, luyện theo dạng đề, cách đọc kanji, ôn tập giãn cách và một bảng điều khiển học tập — từng bước một, mỗi lần lại hoàn thiện hơn.",
   aboutAuthorTitle: "Tác giả",
   aboutAuthorName: "花雪 (HanaYukii)",
   aboutAuthorBody:
@@ -38,7 +38,7 @@ export const vi: Copy = {
     "Theo dõi những nhóm này suốt nhiều năm qua (một số đã giải tán): 私立恵比寿中学・TEAM SHACHI・超ときめき♡宣伝部・高嶺のなでしこ・ももいろクローバーZ・ukka・=LOVE・TrySail・Aqours",
   aboutAuthorLink: "Tìm hiểu thêm về tác giả →",
   homeHeroTitle: "Hôm nay bạn muốn luyện gì?",
-  homeHeroIntro: "Từ chia động từ cơ bản đến phản xạ N1. Ngữ pháp, kanji, từ vựng, đề thi thử trọn vẹn — tất cả ở một nơi.",
+  homeHeroIntro: "Từ chia động từ cơ bản đến phản xạ N1. Ngữ pháp, kanji, từ vựng, luyện theo dạng đề — tất cả ở một nơi.",
   homeGuideLink: "Hướng dẫn sử dụng",
   homeFooterWish: "Từng bước một. Chúc bạn may mắn — mong bạn đậu với điểm số rực rỡ.",
   feedbackWish: "Đề xuất tính năng",
@@ -249,7 +249,7 @@ export const vi: Copy = {
   shareCopied: "Đã sao chép nội dung bài đăng!",
   shareSiteTitle: "Chia sẻ Jabiko",
   shareSiteText:
-    "Mình đang dùng Jabiko để ôn JLPT: ngữ pháp, kanji, từ vựng và đề thi thử N5〜N1 đều ở một nơi — chia sẻ cho bạn nếu bạn cũng đang học nhé👇",
+    "Mình đang dùng Jabiko để ôn JLPT: ngữ pháp, kanji, từ vựng và luyện theo dạng đề N5〜N1 đều ở một nơi — chia sẻ cho bạn nếu bạn cũng đang học nhé👇",
   resetSession: "Đặt lại phiên này",
   currentQuestion: "Câu hiện tại",
   questionNumber: (value) => `Câu ${value}`,

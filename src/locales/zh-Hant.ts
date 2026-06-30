@@ -5,7 +5,7 @@ export const zhHant: Copy = {
   languageSwitchLabel: "切換語言",
   appIntroLabel: "Jabiko 介紹",
   appTitle: "Jabiko · JLPT 自習室",
-  appTagline: "JLPT N5〜N1 文法、漢字、單字、模擬考，一個桌上練到熟。",
+  appTagline: "JLPT N5〜N1 文法、漢字、單字、題型練習，一個桌上練到熟。",
   themeLight: "淺色模式",
   themeDark: "深色模式",
   furiganaShow: "顯示註音",
@@ -29,7 +29,7 @@ export const zhHant: Copy = {
     "Jabiko（ジャビ子）最初只是想做一個「把日語動詞變化練到熟」的小工具。名字拆開看：JA 是 Japanese、bi 取自動詞變化、ko 是日文裡那個可愛的「子」。於是有了 ジャビ子——一隻頭上頂著動詞變化表小書本的助理機器人，陪你 one step at a time，把ます形、て形、可能形一個一個記起來。",
   aboutStoryTitle: "從緣起到現在",
   aboutStoryBody:
-    "最早只有基礎變化練習，後來慢慢長出句中填空、句型判斷、JLPT 綜合題庫、模擬考、漢字讀音、間隔複習與學習儀表板——一步一步，越做越完整。",
+    "最早只有基礎變化練習，後來慢慢長出句中填空、句型判斷、JLPT 綜合題庫、題型練習、漢字讀音、間隔複習與學習儀表板——一步一步，越做越完整。",
   aboutAuthorTitle: "作者",
   aboutAuthorName: "花雪（HanaYukii）",
   aboutAuthorBody:
@@ -38,7 +38,7 @@ export const zhHant: Copy = {
     "這些年陸續在追（也有幾團已經解散）：私立恵比寿中学・TEAM SHACHI・超ときめき♡宣伝部・高嶺のなでしこ・ももいろクローバーZ・ukka・=LOVE・TrySail・Aqours",
   aboutAuthorLink: "更多關於作者 →",
   homeHeroTitle: "今天想練什麼？",
-  homeHeroIntro: "從基礎變化到 N1 題感。文法、漢字、單字、整卷模擬，一處解決。",
+  homeHeroIntro: "從基礎變化到 N1 題感。文法、漢字、單字、題型練習，一處解決。",
   homeGuideLink: "使用說明書",
   homeFooterWish: "一步一步來，祝你考試順利合格。",
   feedbackWish: "許願功能",
@@ -249,7 +249,7 @@ export const zhHant: Copy = {
   shareCopied: "已複製貼文文字！",
   shareSiteTitle: "分享 Jabiko",
   shareSiteText:
-    "我在用 Jabiko 練日檢：N5〜N1 文法、漢字、單字、模擬考一站練到熟，分享給也在備考的你👇",
+    "我在用 Jabiko 練日檢：N5〜N1 文法、漢字、單字、題型練習一站練到熟，分享給也在備考的你👇",
   resetSession: "重設本次",
   currentQuestion: "目前題目",
   questionNumber: (value) => `第 ${value} 題`,
