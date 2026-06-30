@@ -376,6 +376,48 @@ describe("FeedbackPanel report-this-question entry (#299)", () => {
   });
 });
 
+describe("FeedbackPanel localized explanation (#378)", () => {
+  const base = {
+    ...readingPool[0],
+    explanation: "這題在問動詞的て形。",
+    explanationI18n: { en: "This asks about the verb te-form." }
+  };
+
+  it("shows the zh-Hant explanation by default (source locale)", () => {
+    render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question: base, submittedAnswer: null }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    expect(screen.getByText("這題在問動詞的て形。")).toBeInTheDocument();
+  });
+
+  it("shows the localized explanation when the language has an overlay entry", () => {
+    render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question: base, submittedAnswer: null }}
+        language="en"
+        options={[]}
+      />
+    );
+    expect(screen.getByText("This asks about the verb te-form.")).toBeInTheDocument();
+    expect(screen.queryByText("這題在問動詞的て形。")).toBeNull();
+  });
+
+  it("falls back to the zh source when the language has no overlay entry", () => {
+    render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question: base, submittedAnswer: null }}
+        language="ja"
+        options={[]}
+      />
+    );
+    expect(screen.getByText("這題在問動詞的て形。")).toBeInTheDocument();
+  });
+});
+
 describe("FeedbackPanel furigana (#134)", () => {
   // Override the example with a pre-baked sentence (学校 -> がっこう) so the
   // ruby path has data. The feedback example is POST-answer, so it shows

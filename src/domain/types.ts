@@ -4,6 +4,21 @@ export type VerbGroup = "godan" | "ichidan" | "irregular";
 
 export type JlptLevel = "N5" | "N4" | "N3" | "N2" | "N1";
 
+/**
+ * Supported UI locale codes. Single source of truth in the domain layer so
+ * content overlays (e.g. `explanationI18n`) and the i18n `Language` type can
+ * both reference it without the UI layer owning a domain concept. `i18n.ts`
+ * derives `Language` from this.
+ */
+export type LocaleCode = "zh-Hant" | "ja" | "en" | "th" | "id" | "ko" | "vi" | "my";
+
+/**
+ * Per-locale translation overlay for a Chinese-source content field. Absent
+ * locales fall back to the zh-Hant source (see `pickLocalized`). AI-assisted
+ * translation (#378) only ever writes these overlays, never the source.
+ */
+export type LocalizedText = Partial<Record<LocaleCode, string>>;
+
 export type TargetForm =
   | "dictionary"
   | "masu"
@@ -56,6 +71,8 @@ export interface PracticeQuestion {
   targetForm: TargetForm;
   expectedAnswers: string[];
   explanation: string;
+  /** Per-locale translations of `explanation`; falls back to the zh source (#378). */
+  explanationI18n?: LocalizedText;
   promptLabel?: string;
   promptText?: string;
   /**

@@ -1,4 +1,4 @@
-import type { JlptLevel, TargetForm } from "../types";
+import type { JlptLevel, LocalizedText, TargetForm } from "../types";
 
 export type ExamQuestionInput = {
   id: string;
@@ -21,6 +21,11 @@ export type ExamQuestionInput = {
   expectedAnswer: string;
   options: string[];
   explanation: string;
+  /**
+   * Per-locale translations of `explanation` (#378). AI-assisted translation
+   * writes only this overlay; absent locales fall back to the Chinese source.
+   */
+  explanationI18n?: LocalizedText;
   /**
    * Override the auto-generated example sentence. Needed for question types
    * (e.g. 用法 / 言い換え類義) where the prompt is an instruction or the
