@@ -362,12 +362,24 @@
   color: var(--summary-text);
 }
 
-/* Primary daily-practice entry: matcha accent so it reads as the
-   headline action, distinct from the vermilion review banner. */
+/* Primary daily-practice entry: matcha accent + a heavier frame, larger
+   padding and bigger title so it reads as the single headline action above
+   the secondary banners and entry cards (#360 "主 CTA 化"). */
 .home-banner-daily {
-  background: color-mix(in srgb, var(--matcha) 12%, var(--paper));
-  border-color: color-mix(in srgb, var(--matcha) 45%, var(--panel-border));
+  background: color-mix(in srgb, var(--matcha) 16%, var(--paper));
+  border-color: color-mix(in srgb, var(--matcha) 58%, var(--panel-border));
+  border-width: 2px;
   color: var(--matcha-dark);
+  padding: 1.3rem 1.35rem;
+}
+
+.home-banner-daily .home-banner-text strong {
+  font-size: 1.2rem;
+}
+
+.home-banner-daily > svg:first-child {
+  height: 1.45rem;
+  width: 1.45rem;
 }
 
 .home-banner-text {
@@ -834,15 +846,17 @@
 .home-card-spot {
   grid-area: icon;
   align-self: start;
-  width: 2.7rem;
-  height: 2.7rem;
+  /* Slightly smaller than before so the entry cards read as secondary to the
+     primary 今日練習 CTA above (#360). */
+  width: 2.4rem;
+  height: 2.4rem;
   margin-top: 0.05rem;
 }
 
 .home-card h2 {
   grid-area: title;
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: var(--ink);
 }
 
