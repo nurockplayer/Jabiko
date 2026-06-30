@@ -11,6 +11,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.108.2
         version: 2.108.2
+      flag-icons:
+        specifier: ^7.5.0
+        version: 7.5.0
       lucide-react:
         specifier: ^0.561.0
         version: 0.561.0(react@19.2.6)
@@ -1691,6 +1694,9 @@ packages:
 
   filelist@1.0.6:
     resolution: {integrity: sha512-5giy2PkLYY1cP39p17Ech+2xlpTRL9HLspOfEgm0L6CwBXBTgsK5ou0JtzYuepxkaQ/tvhCFIJ5uXo0OrM2DxA==}
+
+  flag-icons@7.5.0:
+    resolution: {integrity: sha512-kd+MNXviFIg5hijH766tt+3x76ele1AXlo4zDdCxIvqWZhKt4T83bOtxUOOMlTx/EcFdUMH5yvQgYlFh1EqqFg==}
 
   for-each@0.3.5:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
@@ -4332,6 +4338,8 @@ snapshots:
   filelist@1.0.6:
     dependencies:
       minimatch: 5.1.9
+
+  flag-icons@7.5.0: {}
 
   for-each@0.3.5:
     dependencies:

@@ -142,7 +142,8 @@
   }
 
   .utility-actions .toggle-text,
-  .utility-actions .lang-switch-name {
+  .utility-actions .lang-switch-name,
+  .utility-actions .lang-switch-caret {
     display: none;
   }
 

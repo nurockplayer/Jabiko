@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { copy, type Language } from "../i18n";
+import { LanguageFlag } from "./LanguageFlag";
 
 // Language picker (#313 first-visit + #326 on-demand). The heading is
 // deliberately multilingual -- on a first visit the user hasn't chosen a
@@ -92,6 +93,7 @@ export function LanguagePicker({
                 lang={code}
                 onClick={() => onChoose(code)}
               >
+                <LanguageFlag language={code} className="lang-picker-flag" />
                 {copy[code].languageName}
               </button>
             );

@@ -89,17 +89,32 @@
   color: var(--selected-text);
 }
 
-/* Language switcher (#326): pill button (Globe icon in vermilion + the current
-   language's native name) that opens the LanguagePicker. The icon colour makes
-   this the first thing the eye lands on in the header row. */
+/* Language switcher (#326, #360): a prominent pill showing the current
+   language's flag + native name + a caret, so it reads clearly as a language
+   menu. Flags are SVGs (emoji flags don't render on Windows). A teal-tinted
+   border makes it the first thing the eye lands on in the header row. */
 .lang-switch-button {
   align-items: center;
+  border-color: color-mix(in srgb, var(--teal) 42%, var(--button-border));
   display: inline-flex;
   gap: 0.4rem;
 }
 
-.lang-switch-icon {
-  color: var(--vermilion);
+.lang-flag {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  display: block;
+  flex: 0 0 auto;
+  height: auto;
+  object-fit: cover;
+  width: 1.3rem;
+}
+
+.lang-switch-caret {
+  color: var(--muted);
+  height: 0.9rem;
+  width: 0.9rem;
 }
 
 .lang-switch-name {
