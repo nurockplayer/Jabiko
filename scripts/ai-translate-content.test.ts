@@ -172,3 +172,57 @@ describe("applyOverlays (multi-field)", () => {
     expect(x2.lines.some((l) => l.includes('"en"'))).toBe(false);
   });
 });
+
+// A hand-edited/reflowed overlay object that spans several lines must NOT fool
+// the gap check into re-translating an existing locale (which would write a
+// duplicate object key -> TS1117 build break / corrupt content file).
+describe("multi-line overlay safety", () => {
+  const MULTILINE = `import { examQuestion } from "../helpers";
+
+export const n5Items = [
+  examQuestion({
+    id: "m-1",
+    level: "N5",
+    surface: "行く",
+    reading: "いく",
+    meaningZh: "去",
+    meaningI18n: {
+      "ja": "行く",
+      "en": "to go"
+    },
+    promptLabel: "文法形式選擇",
+    instructionZh: "選最自然的詞語。",
+    promptText: "毎日 学校___行きます。",
+    promptContextZh: "描述每天上學。",
+    hintZh: "說明去某地。",
+    expectedAnswer: "に",
+    options: ["に", "を", "で", "が"],
+    explanation: "答案是に。"
+  })
+];
+`;
+
+  it("findTargets skips a field whose locale lives in a multi-line overlay", () => {
+    const en = findTargets(MULTILINE, "en", 1)[0];
+    expect(en).toBeDefined();
+    // meaningI18n already has "en" (on its own line) -> not a gap
+    expect(Object.keys(en.fields)).not.toContain("meaningZh");
+    // ...but the other fields with no overlay still are gaps
+    expect(Object.keys(en.fields)).toContain("instructionZh");
+  });
+
+  it("findTargets still finds a locale missing from a multi-line overlay", () => {
+    const th = findTargets(MULTILINE, "th", 1)[0];
+    expect(th.fields.meaningZh).toBe("去"); // no "th" key in the multi-line object
+  });
+
+  it("applyOverlays does NOT add a duplicate key for an existing multi-line locale", () => {
+    // Even if a caller wrongly asks to re-translate meaningZh for "en",
+    // the pre-scan must detect the existing multi-line "en" and skip it.
+    const out = applyOverlays(MULTILINE, [{ id: "m-1", fields: { meaningZh: "DUP" } }], "en");
+    const enKeys = out.split("\n").filter((l) => /^\s*"en"\s*:/.test(l));
+    expect(enKeys).toHaveLength(1); // exactly one "en" -> no duplicate object key
+    expect(out).not.toContain('"en": "DUP"');
+    expect(splitItemBlocks(out)).toHaveLength(1);
+  });
+});

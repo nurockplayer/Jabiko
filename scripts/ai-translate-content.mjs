@@ -113,8 +113,24 @@ const rawFieldOf = (blockLines, name) => {
   return null;
 };
 
-const hasOverlayLocale = (blockLines, overlayField, locale) =>
-  blockLines.some((l) => new RegExp(`^ {4}${overlayField}:`).test(l) && l.includes(`"${locale}"`));
+// Whether an item's `<overlayField>` object already has a value for `locale`.
+// Multi-line-aware (a hand-reflowed overlay may span several lines) and matches
+// the locale as an object KEY (`"en":`) so a value that merely CONTAINS the
+// text "en" never false-skips a real gap -- and, critically, a multi-line
+// overlay never fools the gap check into re-translating an existing locale
+// (which would write a duplicate object key and break the build).
+const overlayHasLocale = (blockLines, overlayField, locale) => {
+  const startRe = new RegExp(`^ {4}${overlayField}:`);
+  const keyRe = new RegExp(`"${locale}"\\s*:`);
+  const start = blockLines.findIndex((l) => startRe.test(l));
+  if (start < 0) return false;
+  if (keyRe.test(blockLines[start])) return true; // single-line object
+  for (let i = start + 1; i < blockLines.length; i++) {
+    if (keyRe.test(blockLines[i])) return true;
+    if (/^ {4}\S/.test(blockLines[i])) break; // back to field indent -> object closed
+  }
+  return false;
+};
 
 const hasOverlayField = (blockLines, overlayField) =>
   blockLines.some((l) => new RegExp(`^ {4}${overlayField}:`).test(l));
@@ -132,7 +148,7 @@ export function findTargets(text, locale, limit) {
     for (const { source, overlay } of FIELDS) {
       const val = stringFieldOf(b.lines, source);
       if (val == null || val.trim() === "") continue; // nothing to translate
-      if (hasOverlayLocale(b.lines, overlay, locale)) continue; // already done
+      if (overlayHasLocale(b.lines, overlay, locale)) continue; // already done
       fields[source] = val;
     }
     if (Object.keys(fields).length === 0) continue;
@@ -206,13 +222,18 @@ export function validateTranslations(parsed, requested) {
 export function applyOverlays(text, items, locale) {
   const transById = new Map(items.map((it) => [it.id, it.fields]));
 
-  // Pre-scan: which (id, overlayField) already exist -> merge vs insert.
-  const existing = new Set(); // key `${id}\0${overlay}`
+  // Pre-scan per (id, overlayField): does the field exist (merge vs insert),
+  // and does it already have this locale (never re-add -> guards against a
+  // duplicate object key when an overlay was hand-reflowed onto several lines).
+  const existing = new Set();
+  const alreadyLocale = new Set();
   for (const b of splitItemBlocks(text)) {
     const id = idOf(b.lines);
     if (!id || !transById.has(id)) continue;
     for (const { overlay } of FIELDS) {
-      if (hasOverlayField(b.lines, overlay)) existing.add(`${id} ${overlay}`);
+      const key = `${id} ${overlay}`;
+      if (hasOverlayField(b.lines, overlay)) existing.add(key);
+      if (overlayHasLocale(b.lines, overlay, locale)) alreadyLocale.add(key);
     }
   }
 
@@ -231,7 +252,8 @@ export function applyOverlays(text, items, locale) {
       let merged = null;
       for (const { source, overlay } of FIELDS) {
         if (!(source in trans)) continue;
-        if (!existing.has(`${curId} ${overlay}`)) continue;
+        const key = `${curId} ${overlay}`;
+        if (!existing.has(key) || alreadyLocale.has(key)) continue;
         if (new RegExp(`^ {4}${overlay}:\\s*\\{`).test(line)) {
           merged = line.includes(`"${locale}"`)
             ? line
@@ -251,7 +273,8 @@ export function applyOverlays(text, items, locale) {
     if (trans) {
       for (const { source, overlay } of FIELDS) {
         if (!(source in trans)) continue;
-        if (existing.has(`${curId} ${overlay}`)) continue;
+        const key = `${curId} ${overlay}`;
+        if (existing.has(key) || alreadyLocale.has(key)) continue;
         const m = line.match(new RegExp(`^( {4}${source}:\\s*"(?:[^"\\\\]|\\\\.)*")(,?)\\s*$`));
         if (m) {
           if (m[2] !== ",") out[out.length - 1] = m[1] + ",";
