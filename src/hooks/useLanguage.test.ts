@@ -12,15 +12,33 @@ function setLocationSearch(search: string) {
   window.location.search = search;
 }
 
-// Priority: URL ?lang= > stored > ja default (no navigator detection).
+// Override navigator.languages / navigator.language (getters on the prototype)
+// with own shadowing properties, so browser-language detection can be exercised
+// deterministically. Cleaned up in afterEach.
+function setBrowserLanguages(languages: string[]) {
+  Object.defineProperty(window.navigator, "languages", { configurable: true, get: () => languages });
+  Object.defineProperty(window.navigator, "language", { configurable: true, get: () => languages[0] });
+}
+
+function resetBrowserLanguages() {
+  Reflect.deleteProperty(window.navigator, "languages");
+  Reflect.deleteProperty(window.navigator, "language");
+}
+
+// Priority: URL ?lang= > stored > browser language (navigator) > ja fallback.
 describe("useLanguage", () => {
   beforeEach(() => {
     localStorage.clear();
+    // Default to an unsupported browser language so, unless a test opts in,
+    // detection falls through to the ja fallback.
+    setBrowserLanguages(["fr-FR"]);
   });
 
   afterEach(() => {
     localStorage.clear();
     document.documentElement.removeAttribute("lang");
+    resetBrowserLanguages();
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -32,7 +50,7 @@ describe("useLanguage", () => {
     expect(result.current.language).toBe("zh-Hant");
   });
 
-  it("ignores an invalid stored value and defaults to ja", () => {
+  it("ignores an invalid stored value and falls back to ja (browser unsupported)", () => {
     localStorage.setItem(KEY, "fr");
 
     const { result } = renderHook(() => useLanguage());
@@ -40,10 +58,18 @@ describe("useLanguage", () => {
     expect(result.current.language).toBe("ja");
   });
 
-  it("defaults to ja when nothing is stored", () => {
+  it("falls back to ja when nothing is stored and the browser language is unsupported", () => {
     const { result } = renderHook(() => useLanguage());
 
     expect(result.current.language).toBe("ja");
+  });
+
+  it("detects the browser language when nothing is stored (zh-TW -> zh-Hant)", () => {
+    setBrowserLanguages(["zh-TW"]);
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("zh-Hant");
   });
 
   it("sets document.documentElement.lang to the active language", () => {
@@ -65,14 +91,17 @@ describe("useLanguage", () => {
   });
 });
 
-describe("getInitialLanguage with URL param", () => {
+describe("getInitialLanguage priority", () => {
   beforeEach(() => {
     localStorage.clear();
+    setBrowserLanguages(["fr-FR"]); // unsupported by default
   });
 
   afterEach(() => {
     localStorage.clear();
     document.documentElement.removeAttribute("lang");
+    resetBrowserLanguages();
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -83,8 +112,9 @@ describe("getInitialLanguage with URL param", () => {
     expect(getInitialLanguage()).toBe("en");
   });
 
-  it("URL param wins over everything", () => {
+  it("URL param wins over stored and browser language", () => {
     localStorage.setItem(KEY, "zh-Hant");
+    setBrowserLanguages(["ja"]);
     setLocationSearch("?lang=id");
 
     expect(getInitialLanguage()).toBe("id");
@@ -109,7 +139,7 @@ describe("getInitialLanguage with URL param", () => {
     expect(getInitialLanguage()).toBe("ja");
   });
 
-  it("no stored + no ?lang= -> ja default", () => {
+  it("no stored + no ?lang= + unsupported browser -> ja fallback", () => {
     setLocationSearch("");
 
     expect(getInitialLanguage()).toBe("ja");
@@ -118,6 +148,44 @@ describe("getInitialLanguage with URL param", () => {
   it("?lang= with no value falls through to stored", () => {
     localStorage.setItem(KEY, "ja");
     setLocationSearch("?lang=");
+
+    expect(getInitialLanguage()).toBe("ja");
+  });
+
+  // ---- Browser-language detection (navigator layer) ----
+
+  it("detects a supported browser language when nothing is stored (ko-KR -> ko)", () => {
+    setLocationSearch("");
+    setBrowserLanguages(["ko-KR"]);
+
+    expect(getInitialLanguage()).toBe("ko");
+  });
+
+  it("picks the first supported entry from navigator.languages", () => {
+    setLocationSearch("");
+    setBrowserLanguages(["fr-FR", "de", "ko", "en"]);
+
+    expect(getInitialLanguage()).toBe("ko");
+  });
+
+  it("maps zh variants to zh-Hant (zh-CN -> zh-Hant)", () => {
+    setLocationSearch("");
+    setBrowserLanguages(["zh-CN"]);
+
+    expect(getInitialLanguage()).toBe("zh-Hant");
+  });
+
+  it("stored preference wins over the browser language", () => {
+    localStorage.setItem(KEY, "th");
+    setLocationSearch("");
+    setBrowserLanguages(["ja"]);
+
+    expect(getInitialLanguage()).toBe("th");
+  });
+
+  it("falls back to ja when the browser language is unsupported (fr -> ja)", () => {
+    setLocationSearch("");
+    setBrowserLanguages(["fr-FR"]);
 
     expect(getInitialLanguage()).toBe("ja");
   });
