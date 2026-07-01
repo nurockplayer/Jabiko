@@ -286,6 +286,12 @@ export function HomePanel({
         </button>
       ) : null}
 
+      {/* Names the entry-card grid as a self-serve section (a plain,
+          non-anaphoric label -- no "or" -- so it can't dangle in any of the
+          8 locales). Reuses the muted .home-progress-title treatment so it
+          stays secondary to the primary 今日練習 CTA above (#360). */}
+      <h2 className="home-progress-title">{t.homeGridLabel}</h2>
+
       <div className="home-grid">
         {/* Each card carries a single-CJK "stage badge" (學 / 練 / 背 /
             考 / 補) instead of a lucide-react icon. The icons read as

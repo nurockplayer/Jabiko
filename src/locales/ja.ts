@@ -127,6 +127,7 @@ export const ja: Copy = {
   homeCardReviewSubActive: (count) => `${count} 問、正解できるまで再挑戦しましょう。`,
   homeCardReviewSubEmpty: "今のところ復習する間違いはありません。",
   homeCardReviewMeta: "間隔反復 · 正解すると次の期限まで自動で延長",
+  homeGridLabel: "好きな分野で練習",
   mockExamLevelLabel: "レベル",
   mockSectionTitle: "問題タイプ別の練習",
   mockSectionIntro:

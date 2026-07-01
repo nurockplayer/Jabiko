@@ -126,6 +126,7 @@ export const en: Copy = {
   homeCardReviewSubActive: (count) => `${count} questions waiting for you to nail them.`,
   homeCardReviewSubEmpty: "No mistakes to review right now.",
   homeCardReviewMeta: "Spaced repetition · correct answers roll forward to the next due date",
+  homeGridLabel: "Pick an area to practice",
   mockExamLevelLabel: "Level",
   mockSectionTitle: "Practice by section",
   mockSectionIntro: "Pick a JLPT question type and drill just that section. See the explanation right after each answer; mistakes go straight into weakness review.",

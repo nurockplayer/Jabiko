@@ -126,6 +126,7 @@ export const id: Copy = {
   homeCardReviewSubActive: (count) => `${count} soal menunggu kamu latih ulang sampai benar.`,
   homeCardReviewSubEmpty: "Saat ini tidak ada soal salah untuk diulang.",
   homeCardReviewMeta: "Pengulangan berjeda · jawaban benar otomatis ditunda ke jatuh tempo berikutnya",
+  homeGridLabel: "Pilih area latihan",
   mockExamLevelLabel: "Level",
   mockSectionTitle: "Latihan per jenis soal",
   mockSectionIntro: "Pilih satu jenis soal JLPT, lalu langsung latih bagian itu. Pembahasan muncul seketika setelah menjawab; soal salah otomatis masuk ke ulangan kelemahan.",

@@ -102,6 +102,7 @@ export type Copy = {
   homeCardReviewSubActive: (count: number) => string;
   homeCardReviewSubEmpty: string;
   homeCardReviewMeta: string;
+  homeGridLabel: string;
   mockExam: string;
   about: string;
   aboutTitle: string;

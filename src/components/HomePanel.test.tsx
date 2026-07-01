@@ -129,6 +129,18 @@ describe("HomePanel newcomer first-screen (onboarding)", () => {
   });
 });
 
+describe("HomePanel grid label", () => {
+  it("labels the entry-card grid with a section heading", () => {
+    renderHome();
+    expect(screen.getByRole("heading", { name: "自己挑一區練習" })).toBeInTheDocument();
+  });
+
+  it("shows the grid label for returning learners too", () => {
+    renderHome({ progressAttempts: [sampleAttempt] });
+    expect(screen.getByRole("heading", { name: "自己挑一區練習" })).toBeInTheDocument();
+  });
+});
+
 describe("HomePanel content total", () => {
   it("renders the grand total of exam + vocab + kanji-readings + patterns", () => {
     renderHome();
