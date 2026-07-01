@@ -111,6 +111,9 @@ export type Copy = {
   aboutAuthorName: string;
   aboutAuthorBody: string;
   aboutAuthorLink: string;
+  aboutAuthor2Title: string;
+  aboutAuthor2Name: string;
+  aboutAuthor2Body: string;
   mockExamLevelLabel: string;
   mockSectionTitle: string;
   mockSectionIntro: string;

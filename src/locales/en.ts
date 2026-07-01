@@ -35,6 +35,9 @@ export const en: Copy = {
   aboutAuthorBody:
     "A competitive-programming background and three years as an engineer at Google; after leaving in 2025, now a Tech Lead at an AI startup. Japanese was an old asset — N2 passed ten years ago and then shelved — until getting back into Japanese idols in 2024 brought it back. With a bit more time after that, the serious practice began — and that's when Jabiko was built: first for personal use, now open to other learners too, with more to come whenever there's a chance.",
   aboutAuthorLink: "More about the author →",
+  aboutAuthor2Title: "Co-author",
+  aboutAuthor2Name: "塔奇巧克力",
+  aboutAuthor2Body: "Currently studying at a Japanese language school.",
   homeHeroTitle: "What do you want to practice today?",
   homeHeroIntro: "From basic conjugation to N1 instinct. Grammar, kanji, vocabulary, question-type practice — all in one place.",
   homeGuideLink: "User guide",
