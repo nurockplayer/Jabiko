@@ -29,10 +29,13 @@ export type LearningBlockOverlays = Record<string, Partial<Record<LocaleCode, Le
 const pick = (value: string | null | undefined, source: string): string =>
   typeof value === "string" && value.trim() !== "" ? value : source;
 
+// Never INVENTS a field the source lacks: an overlay can only replace existing
+// Chinese text, so a stray translated kicker/drillNote cannot conjure UI the
+// source author didn't write.
 const pickOptional = (
   value: string | null | undefined,
   source: string | undefined
-): string | undefined => (typeof value === "string" && value.trim() !== "" ? value : source);
+): string | undefined => (source == null ? undefined : pick(value, source));
 
 /**
  * Return a copy of `block` with its Chinese text fields replaced by the `lang`

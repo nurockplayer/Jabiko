@@ -73,7 +73,10 @@ export function FeedbackPanel({
       return `${reading}（${words.length > 0 ? words.join("／") : t.feedbackNoWord}）`;
     });
   } else if (isGrammarGloss) {
-    const glossed = distractors.map((pattern) => ({ pattern, meaning: lookupPatternMeaning(pattern) }));
+    const glossed = distractors.map((pattern) => ({
+      pattern,
+      meaning: lookupPatternMeaning(pattern, language)
+    }));
     // Only show the block if the bank knew at least one pattern -- otherwise
     // it would just re-list the options with no added information.
     if (glossed.some((entry) => entry.meaning)) {
@@ -109,7 +112,13 @@ export function FeedbackPanel({
       {feedback.question.vocabulary.examples[0] ? (
         <p className="example">
           <Ruby text={feedback.question.vocabulary.examples[0].japanese} />
-          <span>{feedback.question.vocabulary.examples[0].meaningZh}</span>
+          <span>
+            {pickLocalized(
+              feedback.question.vocabulary.examples[0].meaningZh,
+              feedback.question.vocabulary.examples[0].meaningI18n,
+              language
+            )}
+          </span>
         </p>
       ) : null}
       {grammarNote ? (

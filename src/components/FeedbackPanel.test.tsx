@@ -418,6 +418,60 @@ describe("FeedbackPanel localized explanation (#378)", () => {
   });
 });
 
+describe("FeedbackPanel localized example translation (#400 follow-up)", () => {
+  const base = readingPool[0];
+  const question = {
+    ...base,
+    vocabulary: {
+      ...base.vocabulary,
+      examples: [
+        {
+          japanese: "毎朝、パンを食べます。",
+          meaningZh: "每天早上吃麵包。",
+          meaningI18n: { en: "I eat bread every morning." }
+        }
+      ]
+    }
+  };
+
+  it("renders the post-answer example meaning in the active language via the overlay", () => {
+    render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question, submittedAnswer: null }}
+        language="en"
+        options={[]}
+      />
+    );
+    expect(screen.getByText("I eat bread every morning.")).toBeInTheDocument();
+    expect(screen.queryByText("每天早上吃麵包。")).toBeNull();
+  });
+
+  it("falls back to the zh example meaning when the locale has no overlay", () => {
+    render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question, submittedAnswer: null }}
+        language="th"
+        options={[]}
+      />
+    );
+    expect(screen.getByText("每天早上吃麵包。")).toBeInTheDocument();
+  });
+
+  it("threads promptContextI18n onto every exam item's baked example (factory)", () => {
+    // The factory bakes examples[0].meaningZh from promptContextZh when the item
+    // has no custom exampleMeaningZh; the localized variant must ride along, or
+    // en/ja users see Chinese on every post-answer example line.
+    const q = examStyleQuestions.find(
+      (x) =>
+        x.promptContextZh &&
+        x.vocabulary.examples[0]?.meaningZh === x.promptContextZh &&
+        x.promptContextI18n?.en
+    )!;
+    expect(q).toBeDefined();
+    expect(q.vocabulary.examples[0].meaningI18n?.en).toBe(q.promptContextI18n!.en);
+  });
+});
+
 describe("FeedbackPanel furigana (#134)", () => {
   // Override the example with a pre-baked sentence (学校 -> がっこう) so the
   // ruby path has data. The feedback example is POST-answer, so it shows

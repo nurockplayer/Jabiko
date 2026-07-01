@@ -17,7 +17,12 @@ export function examQuestion(input: ExamQuestionInput): PracticeQuestion {
       examples: [
         {
           japanese: input.exampleJapanese ?? input.promptText.replace("___", input.expectedAnswer),
-          meaningZh: input.exampleMeaningZh ?? input.promptContextZh
+          meaningZh: input.exampleMeaningZh ?? input.promptContextZh,
+          // The localized variant must match whichever zh source was baked in:
+          // a custom example meaning gets its own overlay; the promptContext
+          // fallback reuses the (already translated) promptContextI18n.
+          meaningI18n:
+            input.exampleMeaningZh != null ? input.exampleMeaningI18n : input.promptContextI18n
         }
       ],
       level: input.level

@@ -44,6 +44,8 @@ export type TargetForm =
 export interface ExampleSentence {
   japanese: string;
   meaningZh: string;
+  /** Per-locale translations of `meaningZh`; falls back to the zh source (#400). */
+  meaningI18n?: LocalizedText;
 }
 
 export interface VocabularyItem {

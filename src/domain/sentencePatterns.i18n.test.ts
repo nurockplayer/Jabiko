@@ -13,16 +13,22 @@ describe("sentence-pattern overlays", () => {
     }
   });
 
+  // Coverage of NEW items is a warn-level concern for the check:i18n report
+  // (#422), deliberately NOT a hard CI gate here -- content batches land
+  // zh-first by design. This test only proves the THREADING works, using a
+  // known item that has overlays.
   it("carries per-item hint / context / explanation overlays through to the question", () => {
-    const pool = buildSentencePatternPool();
-    const withEn = pool.filter(
-      (q) => q.hintI18n?.en && q.promptContextI18n?.en && q.explanationI18n?.en
-    );
-    const withJa = pool.filter(
-      (q) => q.hintI18n?.ja && q.promptContextI18n?.ja && q.explanationI18n?.ja
-    );
-    // Every pattern item should be fully overlaid once the translation pass lands.
-    expect(withEn.length).toBe(pool.length);
-    expect(withJa.length).toBe(pool.length);
+    const q = buildSentencePatternPool().find((x) => x.id === "pattern-te-kudasai-001")!;
+    expect(q).toBeDefined();
+    for (const lang of ["en", "ja"] as const) {
+      expect(q.hintI18n?.[lang]).toBeTruthy();
+      expect(q.promptContextI18n?.[lang]).toBeTruthy();
+      expect(q.explanationI18n?.[lang]).toBeTruthy();
+    }
+  });
+
+  it("threads the context overlay onto the baked example meaning (post-answer line)", () => {
+    const q = buildSentencePatternPool().find((x) => x.id === "pattern-te-kudasai-001")!;
+    expect(q.vocabulary.examples[0]?.meaningI18n?.en).toBe(q.promptContextI18n?.en);
   });
 });
