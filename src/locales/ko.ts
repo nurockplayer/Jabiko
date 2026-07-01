@@ -35,6 +35,9 @@ export const ko: Copy = {
   aboutAuthorBody:
     "알고리즘 대회 출신으로 Google에서 3년간 엔지니어로 일했고, 2025년 퇴사 후 지금은 AI 스타트업의 Tech Lead입니다. 일본어는 10년 전 N2를 따고 묵혀 둔 오래된 자산이었는데, 2024년 일본 아이돌에 다시 빠지면서 되살아났어요. 그 뒤로 시간이 조금 더 생기면서 본격적인 연습이 시작됐고 — 바로 그때 Jabiko를 만들었습니다. 처음엔 개인용이었지만 지금은 다른 학습자에게도 열려 있고, 기회가 될 때마다 계속 만들어 갈 거예요.",
   aboutAuthorLink: "제작자에 대해 더 보기 →",
+  aboutAuthor2Title: "공동 제작자",
+  aboutAuthor2Name: "塔奇巧克力",
+  aboutAuthor2Body: "일본어 학교에 재학 중입니다.",
   homeHeroTitle: "오늘은 무엇을 연습할까요?",
   homeHeroIntro: "기초 활용부터 N1 감각까지. 문법, 한자, 어휘, 유형별 연습 — 모두 한자리에.",
   homeGuideLink: "사용 설명서",

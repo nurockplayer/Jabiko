@@ -37,6 +37,12 @@ export function AboutPanel({ language }: { language: Language }) {
           {t.aboutAuthorLink}
         </a>
       </article>
+
+      <article className="about-section about-author">
+        <h2>{t.aboutAuthor2Title}</h2>
+        <p className="about-author-name">{t.aboutAuthor2Name}</p>
+        <p>{t.aboutAuthor2Body}</p>
+      </article>
     </section>
   );
 }
