@@ -11,7 +11,8 @@ export default defineConfig({
     // reloaded mid-drill -- the old "auto-inject bare registerSW.js" never
     // reloaded the running page at all, so users were stuck on the old build
     // until they opened an incognito tab. Precaches the built chunks (incl. the
-    // lazy examBlocks ~1MB) so a returning learner can practise offline; the
+    // lazy examBlocks chunk, now several MB with i18n overlays) so a returning
+    // learner can practise offline; the
     // lazy split is unchanged -- precaching runs in the background after load,
     // the initial render still pulls only the index chunk.
     VitePWA({
@@ -48,9 +49,13 @@ export default defineConfig({
         // precached via includeAssets above. Keeping them out of
         // globPatterns avoids duplicate precache entries for the same URL.
         globPatterns: ["**/*.{js,css,html,woff2}"],
-        // The lazy examBlocks chunk is ~1MB; lift the precache size cap so
-        // it's available offline.
-        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024
+        // The lazy examBlocks chunk holds every exam item + its per-locale
+        // content overlays (#400), so it grows with each language we translate
+        // (~3.6MB at en, heading toward ~6MB once ja lands). Lift the precache
+        // size cap so it stays available offline. NOTE: once several more
+        // locales are translated this chunk gets large to precache for every
+        // user -- revisit per-locale code-splitting / runtime caching then.
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024
       }
     })
   ],
