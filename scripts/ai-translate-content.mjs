@@ -39,11 +39,15 @@ const ITEMS_DIR = path.join(REPO_ROOT, "src", "domain", "exam", "items");
 const LOCALES = new Set(["ja", "en", "th", "id", "ko", "vi", "my"]); // zh-Hant is the source
 
 // Every translatable Chinese content field and its per-locale overlay sibling.
+// exampleMeaningZh only exists on items with a CUSTOM example sentence; items
+// without it reuse promptContextZh (whose overlay the factory threads onto the
+// example line), so no per-item gap arises from its absence.
 export const FIELDS = [
   { source: "meaningZh", overlay: "meaningI18n" },
   { source: "instructionZh", overlay: "instructionI18n" },
   { source: "promptContextZh", overlay: "promptContextI18n" },
   { source: "hintZh", overlay: "hintI18n" },
+  { source: "exampleMeaningZh", overlay: "exampleMeaningI18n" },
   { source: "explanation", overlay: "explanationI18n" }
 ];
 

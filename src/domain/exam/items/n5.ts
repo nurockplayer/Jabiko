@@ -120,7 +120,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「学」在「校（こう）」前促音化讀「がっ」、「校」讀長音「こう」，故「学校」＝がっこう。「がくこう」沒促音化；「がっこ」漏掉長音；「かっこう」沒把「学」讀濁音「がっ」（且 かっこう＝格好）。",
     explanationI18n: { "ja": "「学」は「校（こう）」の前で促音化して「がっ」と読み、「校」は長音で「こう」と読むので、「学校」＝がっこう となります。「がくこう」は促音化していません。「がっこ」は長音がぬけています。「かっこう」は「学」を濁音「がっ」で読んでいません（しかも かっこう＝格好 です）。", "en": "Before 「校 (こう)」, 「学」 becomes a geminated 「がっ」, and 「校」 is the long vowel 「こう」, so 「学校」 is がっこう. がくこう lacks the gemination, がっこ drops the long vowel, and かっこう doesn't voice 「学」 into 「がっ」 (and かっこう means 格好)." },
     exampleJapanese: "毎日、自転車で学校へ行きます。",
-    exampleMeaningZh: "每天騎腳踏車去學校。"
+    exampleMeaningZh: "每天騎腳踏車去學校。",
+    exampleMeaningI18n: { "ja": "毎日、自転車で学校へ行きます。", "en": "I ride my bike to school every day." },
   }),
   examQuestion({
     id: "n5-grammar-ha-watashi-gakusei",
@@ -400,7 +401,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「先」讀「せん」、「生」在此讀長音「せい」，故「先生」＝せんせい。「せんせ」漏掉長音；「ぜんせい」把「先」誤濁音化成「ぜん」；「せいせい」把「先」誤讀成「せい」。",
     explanationI18n: { "ja": "「先」は「せん」と読み、「生」はここでは長音で「せい」と読むので、「先生」＝せんせい となります。「せんせ」は長音がぬけています。「ぜんせい」は「先」をまちがって濁音化して「ぜん」と読んでいます。「せいせい」は「先」をまちがって「せい」と読んでいます。", "en": "「先」 reads 「せん」 and 「生」 here reads as the long vowel 「せい」, so 「先生」 is せんせい. せんせ drops the long vowel, ぜんせい wrongly voices 「先」 into 「ぜん」, and せいせい misreads 「先」 as 「せい」." },
     exampleJapanese: "山田先生は とても やさしいです。",
-    exampleMeaningZh: "山田老師非常親切。"
+    exampleMeaningZh: "山田老師非常親切。",
+    exampleMeaningI18n: { "ja": "山田先生はとてもやさしいです。", "en": "Yamada-sensei is very kind." },
   }),
   examQuestion({
     id: "n5-kanji-mainichi",
@@ -420,7 +422,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「毎」讀「まい」、「日」在此讀「にち」，故「毎日」＝まいにち。「めいにち」把「毎」誤讀成「めい」（那是「命日」的讀音）；「まいひ」把「日」讀成訓讀「ひ」；「まいにつ」把「にち」誤讀成促音「につ」。",
     explanationI18n: { "ja": "「毎」は「まい」と読み、「日」はここでは「にち」と読むので、「毎日」＝まいにち となります。「めいにち」は「毎」をまちがって「めい」と読んでいます（それは「命日」の読み方です）。「まいひ」は「日」を訓読みの「ひ」で読んでいます。「まいにつ」は「にち」をまちがって促音の「につ」と読んでいます。", "en": "「毎」 reads 「まい」 and 「日」 here reads 「にち」, so 「毎日」 is まいにち. めいにち misreads 「毎」 as 「めい」 (which is the reading of 「命日」), まいひ reads 「日」 with the kun reading 「ひ」, and まいにつ misreads 「にち」 as the geminated 「につ」." },
     exampleJapanese: "わたしは 毎日 コーヒーを のみます。",
-    exampleMeaningZh: "我每天喝咖啡。"
+    exampleMeaningZh: "我每天喝咖啡。",
+    exampleMeaningI18n: { "ja": "わたしは毎日コーヒーを飲みます。", "en": "I drink coffee every day." },
   }),
   examQuestion({
     id: "n5-kanji-taberu",
@@ -440,7 +443,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「食」訓讀「た」、送りがな「べます」，故「食べます」＝たべます。「だべます」把「た」誤濁音成「だ」；「たへます」沒把「べ」讀濁音；「ためます」把「べ」誤讀成「め」。",
     explanationI18n: { "ja": "「食」は訓読みで「た」、送りがなは「べます」なので、「食べます」＝たべます となります。「だべます」は「た」をまちがって濁音の「だ」にしています。「たへます」は「べ」を濁音で読んでいません。「ためます」は「べ」をまちがって「め」と読んでいます。", "en": "「食」 has the kun reading 「た」 with the okurigana 「べます」, so 「食べます」 is たべます. だべます wrongly voices 「た」 into 「だ」, たへます fails to voice 「べ」, and ためます misreads 「べ」 as 「め」." },
     exampleJapanese: "あさ、くだものを 食べます。",
-    exampleMeaningZh: "早上吃水果。"
+    exampleMeaningZh: "早上吃水果。",
+    exampleMeaningI18n: { "ja": "朝、果物を食べます。", "en": "I eat fruit in the morning." },
   }),
   examQuestion({
     id: "n5-grammar-kara-atama-itai",
@@ -740,7 +744,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「水」單獨當名詞時用訓讀「みず」。「みす」漏掉濁音（ず→す）；「すい」是音讀（用於「水曜日」等複合詞）、單獨的『水』不這樣讀；「みづ」是歷史假名遣的舊寫法、現代標準寫作「みず」。此處單獨名詞唯「みず」成立。",
     explanationI18n: { "ja": "「水」を単独で名詞として使うときは訓読みの「みず」です。「みす」は濁音が抜けています（ず→す）。「すい」は音読みで（「水曜日」などの複合語で使う）、単独の『水』はこう読みません。「みづ」は歴史的仮名遣いの古い表記で、現代では標準的に「みず」と書きます。ここは単独の名詞なので成り立つのは「みず」だけです。", "en": "As a standalone noun, 「水」 takes the kun reading 「みず」. みす drops the voicing (ず→す); すい is the on reading (used in compounds like 「水曜日」) and standalone 「水」 isn't read that way; みづ is the old historical kana spelling, while the modern standard is 「みず」. As a standalone noun here, only みず works." },
     exampleJapanese: "あついので、つめたい水を のみます。",
-    exampleMeaningZh: "因為很熱，所以喝冰涼的水。"
+    exampleMeaningZh: "因為很熱，所以喝冰涼的水。",
+    exampleMeaningI18n: { "ja": "暑いので、冷たい水を飲みます。", "en": "It's hot, so I drink cold water." },
   }),
   examQuestion({
     id: "n5-kanji-tomodachi",
@@ -760,7 +765,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「友」訓讀「とも」、「達」在此讀濁音「だち」，故「友達」＝ともだち。「ともたち」沒把「達」讀濁音（たち→應為だち）；「ゆうだち」把「友」誤用音讀「ゆう」（且 ゆうだち＝夕立、午後雷陣雨）；「とまだち」把「とも」誤讀成「とま」。此處唯「ともだち」成立。",
     explanationI18n: { "ja": "「友」は訓読みで「とも」、「達」はここでは濁音で「だち」と読むので、「友達」＝ともだち、となります。「ともたち」は「達」を濁音で読んでいません（たち→だちが正しい）。「ゆうだち」は「友」を音読みの「ゆう」と誤読しています（しかも ゆうだち＝夕立、午後の雷雨のことです）。「とまだち」は「とも」を「とま」と誤読しています。ここで成り立つのは「ともだち」だけです。", "en": "「友」 has the kun reading 「とも」 and 「達」 here is voiced as 「だち」, so 「友達」 is ともだち. ともたち fails to voice 「達」 (たち → should be だち); ゆうだち wrongly uses the on reading 「ゆう」 for 「友」 (and ゆうだち means 夕立, a sudden afternoon shower); とまだち misreads 「とも」 as 「とま」. Here only ともだち works." },
     exampleJapanese: "あした友達と こうえんで あそびます。",
-    exampleMeaningZh: "明天和朋友在公園玩。"
+    exampleMeaningZh: "明天和朋友在公園玩。",
+    exampleMeaningI18n: { "ja": "明日、友達と公園で遊びます。", "en": "Tomorrow I'm going to play with a friend at the park." },
   }),
   examQuestion({
     id: "n5-kanji-yasumu",
@@ -780,7 +786,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「休」訓讀「やす」、送りがな「みます」，故「休みます」＝やすみます。「やしみます」把「やす」誤讀成「やし」；「きゅうみます」把「休」誤用音讀「きゅう」（用於「休日」等複合詞）；「やすめます」是可能形/別的活用、與辭書形「休む」的ます形不符。此處唯「やすみます」成立。",
     explanationI18n: { "ja": "「休」は訓読みで「やす」、送りがなが「みます」なので、「休みます」＝やすみます、となります。「やしみます」は「やす」を「やし」と誤読しています。「きゅうみます」は「休」を音読みの「きゅう」と誤読しています（「休日」などの複合語で使う読み方です）。「やすめます」は可能形や別の活用で、辞書形「休む」のます形とは一致しません。ここで成り立つのは「やすみます」だけです。", "en": "「休」 has the kun reading 「やす」 with the okurigana 「みます」, so 「休みます」 is やすみます. やしみます misreads 「やす」 as 「やし」; きゅうみます wrongly uses the on reading 「きゅう」 for 「休」 (used in compounds like 「休日」); やすめます is a potential/other conjugation and doesn't match the ます-form of the dictionary form 「休む」. Here only やすみます works." },
     exampleJapanese: "かぜを ひいたので、きょうは かいしゃを 休みます。",
-    exampleMeaningZh: "因為感冒了，今天向公司請假。"
+    exampleMeaningZh: "因為感冒了，今天向公司請假。",
+    exampleMeaningI18n: { "ja": "風邪をひいたので、今日は会社を休みます。", "en": "I caught a cold, so I'm taking today off from work." },
   }),
   examQuestion({
     id: "n5-kanji-ame",
@@ -800,7 +807,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「雨」單獨當名詞時用訓讀「あめ」。「あま」是複合詞時的讀法（如「雨水＝あまみず」）、單獨的『雨』不這樣讀；「う」是音讀（用於「雨天」等）、此處非複合詞；「あね」與「雨」無關（あね＝姉、姊姊）。此處單獨名詞唯「あめ」成立。",
     explanationI18n: { "ja": "「雨」を単独で名詞として使うときは訓読みの「あめ」です。「あま」は複合語のときの読み方で（例：「雨水＝あまみず」）、単独の『雨』はこう読みません。「う」は音読みで（「雨天」などで使う）、ここは複合語ではありません。「あね」は「雨」とは関係ありません（あね＝姉、お姉さんのこと）。ここは単独の名詞なので成り立つのは「あめ」だけです。", "en": "As a standalone noun, 「雨」 takes the kun reading 「あめ」. あま is the reading in compounds (as in 「雨水＝あまみず」) and standalone 「雨」 isn't read that way; う is the on reading (used in 「雨天」 etc.), but this isn't a compound; あね has nothing to do with 「雨」 (あね means 姉, older sister). As a standalone noun here, only あめ works." },
     exampleJapanese: "そとは雨なので、かさを もって いきます。",
-    exampleMeaningZh: "外面在下雨，所以帶傘出門。"
+    exampleMeaningZh: "外面在下雨，所以帶傘出門。",
+    exampleMeaningI18n: { "ja": "外は雨なので、傘を持って行きます。", "en": "It's raining outside, so I'll take an umbrella." },
   }),
   examQuestion({
     id: "n5-syn-takusan",
@@ -822,7 +830,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「たくさん」表示數量多，本句「公園裡有很多小孩」用「いっぱい」（滿滿、很多）替換後語意相同。「すこし」是『一點點』（量少，相反）；「ぜんぜん」是『完全（不）』（用於否定）；「ときどき」是『有時』（頻率，不是數量）。表數量多唯「いっぱい」與「たくさん」同義。",
     explanationI18n: { "ja": "「たくさん」は数量が多いことを表し、この文の「公園に子どもがたくさんいた」は「いっぱい」（いっぱい、たくさん）に置き換えても意味が同じになります。「すこし」は『少し』（量が少なく、反対）です。「ぜんぜん」は『全然（…ない）』（否定に使う）です。「ときどき」は『時々』（頻度であって数量ではない）です。数量が多いことを表すとき「たくさん」と同義になるのは「いっぱい」だけです。", "en": "「たくさん」means a large quantity, so in \"there were lots of children in the park,\" replacing it with「いっぱい」(full; a lot) keeps the same meaning.「すこし」means 'a little' (a small amount — the opposite);「ぜんぜん」means '(not) at all' (used with negatives);「ときどき」means 'sometimes' (frequency, not quantity). For expressing a large quantity, only「いっぱい」is synonymous with「たくさん」." },
     exampleJapanese: "日曜日、こうえんに 子どもが いっぱい いました。",
-    exampleMeaningZh: "星期天，公園裡有很多小孩。"
+    exampleMeaningZh: "星期天，公園裡有很多小孩。",
+    exampleMeaningI18n: { "ja": "日曜日、公園に子どもがたくさんいました。", "en": "On Sunday there were lots of children in the park." },
   }),
   examQuestion({
     id: "n5-syn-totemo",
@@ -844,7 +853,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「とても」修飾形容詞、表示程度很高，本句「這本書非常有趣」用副詞「たいへん」（非常）替換後語意相同。「あまり」是『不太』（用於否定，程度低）；「すこし」是『稍微』（程度低）；「だんだん」是『漸漸』（表變化，不是程度）。表程度高唯「たいへん」與「とても」同義。",
     explanationI18n: { "ja": "「とても」は形容詞を修飾して程度が非常に高いことを表し、この文の「この本はとても面白い」は副詞「たいへん」（大変、非常に）に置き換えても意味が同じになります。「あまり」は『あまり…ない』（否定に使い、程度が低い）です。「すこし」は『少し』（程度が低い）です。「だんだん」は『だんだん』（変化を表し、程度ではない）です。程度が高いことを表すとき「とても」と同義になるのは「たいへん」だけです。", "en": "「とても」modifies adjectives to express a high degree, so in \"this book is very interesting,\" replacing it with the adverb「たいへん」(very; extremely) keeps the same meaning.「あまり」means 'not very' (used with negatives, low degree);「すこし」means 'slightly' (low degree);「だんだん」means 'gradually' (change, not degree). For expressing a high degree, only「たいへん」is synonymous with「とても」." },
     exampleJapanese: "この 本は たいへん おもしろいです。",
-    exampleMeaningZh: "這本書非常有趣。"
+    exampleMeaningZh: "這本書非常有趣。",
+    exampleMeaningI18n: { "ja": "この本はとてもおもしろいです。", "en": "This book is very interesting." },
   }),
   examQuestion({
     id: "n5-syn-tokidoki",
@@ -866,7 +876,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「ときどき」表示頻率不高的「有時」，本句用「たまに」（偶爾）替換後語意相同。「いつも」是『總是』（頻率最高，相反）；「すぐに」是『馬上』（表時間快，不是頻率）；「だんだん」是『漸漸』（表變化）。表頻率中低唯「たまに」與「ときどき」同義。",
     explanationI18n: { "ja": "「ときどき」は頻度が高くない『時々』を表し、この文は「たまに」（たまに）に置き換えても意味が同じになります。「いつも」は『いつも』（頻度が最も高く、反対）です。「すぐに」は『すぐに』（時間の速さを表し、頻度ではない）です。「だんだん」は『だんだん』（変化を表す）です。頻度が中〜低いことを表すとき「ときどき」と同義になるのは「たまに」だけです。", "en": "「ときどき」expresses the low-frequency 'sometimes,' so replacing it with「たまに」(occasionally) keeps the same meaning.「いつも」means 'always' (the highest frequency — the opposite);「すぐに」means 'right away' (speed of timing, not frequency);「だんだん」means 'gradually' (change). For expressing a low-to-moderate frequency, only「たまに」is synonymous with「ときどき」." },
     exampleJapanese: "わたしは たまに きっさてんで コーヒーを 飲みます。",
-    exampleMeaningZh: "我有時會在咖啡店喝咖啡。"
+    exampleMeaningZh: "我有時會在咖啡店喝咖啡。",
+    exampleMeaningI18n: { "ja": "わたしはときどき喫茶店でコーヒーを飲みます。", "en": "I sometimes drink coffee at a café." },
   }),
   examQuestion({
     id: "n5-syn-kyonen",
@@ -888,7 +899,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「きょねん」與「さくねん」都指『去年』，是同義詞，替換後語意完全相同。「らいねん」是『明年』（還沒到，相反方向）；「ことし」是『今年』（現在這一年）；「まいとし」是『每年』（表頻率，不是特定一年）。指前一年唯「さくねん」與「きょねん」同義。",
     explanationI18n: { "ja": "「きょねん」と「さくねん」はどちらも『去年』を指す同義語で、置き換えても意味は全く同じです。「らいねん」は『来年』（まだ来ておらず、反対方向）です。「ことし」は『今年』（今の年）です。「まいとし」は『毎年』（頻度を表し、特定の一年ではない）です。前の年を指すとき「きょねん」と同義になるのは「さくねん」だけです。", "en": "「きょねん」and「さくねん」both mean 'last year' — they are synonyms, so swapping them keeps exactly the same meaning.「らいねん」means 'next year' (still to come — the opposite direction);「ことし」means 'this year' (the current year);「まいとし」means 'every year' (frequency, not a specific year). For referring to the previous year, only「さくねん」is synonymous with「きょねん」." },
     exampleJapanese: "わたしは さくねん 日本へ 行きました。",
-    exampleMeaningZh: "我去年去了日本。"
+    exampleMeaningZh: "我去年去了日本。",
+    exampleMeaningI18n: { "ja": "わたしは去年、日本へ行きました。", "en": "I went to Japan last year." },
   }),
   examQuestion({
     id: "n5-usage-arau",
@@ -910,7 +922,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「洗う」是用水把東西弄乾淨，本句「每天早上起床後洗臉」最自然。修理壞掉的時鐘要用「直す」（直しました）；開電燈要用「つける」；和朋友碰面要用「会う」。後三句搭配皆不通，唯第一句成立。",
     explanationI18n: { "ja": "「洗う」は水でものをきれいにすることで、この文の「毎朝起きてから顔を洗う」が最も自然です。壊れた時計は「直す」（直しました）を使い、電気（明かり）をつけるには「つける」を使い、友達と会うには「会う」を使います。後ろの三文は組み合わせがどれも通らず、成り立つのは一つ目の文だけです。", "en": "「洗う」means to clean something with water, so \"every morning after getting up, I wash my face\" is the most natural.\nRepairing a broken clock needs「直す」(直しました); turning on a light needs「つける」; meeting a friend needs「会う」. The last three sentences don't work — only the first one is valid." },
     exampleJapanese: "まいあさ おきてから、かおを 洗います。",
-    exampleMeaningZh: "每天早上起床後洗臉。"
+    exampleMeaningZh: "每天早上起床後洗臉。",
+    exampleMeaningI18n: { "ja": "毎朝、起きてから顔を洗います。", "en": "I wash my face every morning after getting up." },
   }),
   examQuestion({
     id: "n5-usage-samui",
@@ -932,7 +945,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「寒い」用來形容氣溫低、身體覺得冷的環境，本句「冬天下雪，非常冷」最自然。摸到的水或湯要用「つめたい」（つめたい水／つめたいスープ）；題目難要用「難しい」，不會用「寒い」形容。後三句搭配皆不通，唯第一句成立。",
     explanationI18n: { "ja": "「寒い」は気温が低く体が冷えるような環境を形容するときに使い、この文の「冬は雪が降ってとても寒い」が最も自然です。触れた水やスープには「つめたい」（つめたい水／つめたいスープ）を使い、問題が難しいには「難しい」を使うのであって、「寒い」では形容しません。後ろの三文は組み合わせがどれも通らず、成り立つのは一つ目の文だけです。", "en": "「寒い」describes an environment with a low temperature that makes your body feel cold, so \"in winter it snows and it's very cold\" is the most natural.\nWater or soup you touch needs「つめたい」(つめたい水／つめたいスープ); a hard problem needs「難しい」— you wouldn't use「寒い」for it. The last three sentences don't work — only the first one is valid." },
     exampleJapanese: "ふゆは ゆきが ふって、とても 寒いです。",
-    exampleMeaningZh: "冬天下雪，非常冷。"
+    exampleMeaningZh: "冬天下雪，非常冷。",
+    exampleMeaningI18n: { "ja": "冬は雪が降って、とても寒いです。", "en": "In winter it snows and it's very cold." },
   }),
   examQuestion({
     id: "n5-usage-oyogu",
@@ -954,7 +968,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「泳ぐ」是在水裡前進，本句「喜歡夏天在海裡游泳」最自然。搭電車去公司要用「行く」；吃飯要用「食べる」；看電視要用「見る」。後三句搭配皆不通，唯第一句成立。",
     explanationI18n: { "ja": "「泳ぐ」は水の中で進むことで、この文の「夏に海で泳ぐのが好き」が最も自然です。電車で会社へ行くには「行く」を使い、ご飯を食べるには「食べる」を使い、テレビを見るには「見る」を使います。後ろの三文は組み合わせがどれも通らず、成り立つのは一つ目の文だけです。", "en": "「泳ぐ」means to move through water, so \"I like swimming in the sea in summer\" is the most natural.\nTaking the train to work needs「行く」; eating a meal needs「食べる」; watching TV needs「見る」. The last three sentences don't work — only the first one is valid." },
     exampleJapanese: "なつに うみで 泳ぐのが すきです。",
-    exampleMeaningZh: "喜歡夏天在海裡游泳。"
+    exampleMeaningZh: "喜歡夏天在海裡游泳。",
+    exampleMeaningI18n: { "ja": "夏に海で泳ぐのが好きです。", "en": "I like swimming in the sea in summer." },
   }),
   examQuestion({
     id: "n5-usage-kasu",
@@ -976,7 +991,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「貸す」是把自己的東西讓給別人用（東西從自己流向對方），本句「把筆借給忘記帶筆的朋友」方向正確、最自然。在圖書館取得書是『借入』，要用「借りる」；在蔬果店取得蔬菜要用「買う」；把行李搬到二樓要用「運ぶ」。後三句搭配皆不通，唯第一句成立。",
     explanationI18n: { "ja": "「貸す」は自分のものを人に使わせること（ものが自分から相手へ流れる）で、この文の「ペンを忘れた友達にペンを貸した」は方向が正しく、最も自然です。図書館で本を手に入れるのは『借りる』ので「借りる」を使い、八百屋で野菜を手に入れるには「買う」を使い、荷物を二階へ運ぶには「運ぶ」を使います。後ろの三文は組み合わせがどれも通らず、成り立つのは一つ目の文だけです。", "en": "「貸す」means to let someone else use something of yours (the item flows from you to them), so \"I lent a pen to a friend who had forgotten theirs\" has the right direction and is the most natural.\nGetting a book at the library is 'borrowing,' which needs「借りる」; getting vegetables at a greengrocer needs「買う」; carrying luggage up to the second floor needs「運ぶ」. The last three sentences don't work — only the first one is valid." },
     exampleJapanese: "ペンを わすれた ともだちに、ペンを 貸しました。",
-    exampleMeaningZh: "把筆借給忘記帶筆的朋友。"
+    exampleMeaningZh: "把筆借給忘記帶筆的朋友。",
+    exampleMeaningI18n: { "ja": "ペンを忘れた友達に、ペンを貸しました。", "en": "I lent a pen to a friend who had forgotten theirs." },
   }),
   examQuestion({
     id: "n5-context-soshite",
@@ -998,7 +1014,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "前句「好吃」與後句「便宜」都是優點、方向相同，後句再追加一項，用表並列追加的「そして」（而且）。「でも」是逆接『可是』（好吃與便宜不相反）；「だから」是因果『所以』（『所以便宜』不合邏輯）；「それとも」是選擇『還是』。表同方向追加唯「そして」成立。",
     explanationI18n: { "ja": "前の文「おいしい」と後の文「安い」はどちらも長所で方向が同じで、後の文でもう一つ付け足しているので、並列・追加を表す「そして」（そして）を使います。「でも」は逆接の『でも』（おいしいと安いは反対ではない）です。「だから」は因果の『だから』（『だから安い』は論理が合わない）です。「それとも」は選択の『それとも』です。同じ方向で付け足すとき成り立つのは「そして」だけです。", "en": "Both the first clause 'delicious' and the second 'cheap' are positive points going in the same direction, and the second adds one more, so use「そして」(and; moreover), which lists and adds.「でも」is the contrastive 'but' (delicious and cheap aren't opposites);「だから」is causal 'so' ('so it's cheap' isn't logical);「それとも」is 'or' for choices. For adding a point in the same direction, only「そして」works." },
     exampleJapanese: "この みせの ケーキは おいしいです。そして、ねだんも 安いです。",
-    exampleMeaningZh: "這家店的蛋糕很好吃。而且價錢也便宜。"
+    exampleMeaningZh: "這家店的蛋糕很好吃。而且價錢也便宜。",
+    exampleMeaningI18n: { "ja": "この店のケーキはおいしいです。それに、値段も安いです。", "en": "The cakes at this shop are delicious. And the prices are low, too." },
   }),
   examQuestion({
     id: "n5-context-sorekara",
@@ -1020,7 +1037,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "前句「洗臉」與後句「吃早餐」是依時間先後發生的兩個動作，用表時間順序的「それから」（接著、然後）。「しかし」是逆接『可是』（前後不相反）；「だから」是因果『所以』（『所以吃早餐』不自然）；「それとも」是選擇『還是』。表時間先後唯「それから」成立。",
     explanationI18n: { "ja": "前の文「顔を洗う」と後の文「朝ご飯を食べる」は時間の前後に従って起こる二つの動作なので、時間の順序を表す「それから」（それから、その後）を使います。「しかし」は逆接の『しかし』（前後は反対ではない）です。「だから」は因果の『だから』（『だから朝ご飯を食べる』は不自然）です。「それとも」は選択の『それとも』です。時間の前後を表すとき成り立つのは「それから」だけです。", "en": "The first clause 'washed my face' and the second 'ate breakfast' are two actions that happen in time order, so use「それから」(then; after that), which shows time sequence.「しかし」is the contrastive 'but' (the two aren't opposites);「だから」is causal 'so' ('so I ate breakfast' is unnatural);「それとも」is 'or' for choices. For showing time sequence, only「それから」works." },
     exampleJapanese: "あさ おきて、かおを あらいました。それから、あさごはんを 食べました。",
-    exampleMeaningZh: "早上起床洗了臉。接著吃了早餐。"
+    exampleMeaningZh: "早上起床洗了臉。接著吃了早餐。",
+    exampleMeaningI18n: { "ja": "朝起きて、顔を洗いました。そのあと、朝ごはんを食べました。", "en": "I got up in the morning and washed my face. After that, I ate breakfast." },
   }),
   examQuestion({
     id: "n5-context-shikashi",
@@ -1042,7 +1060,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "前句「昨天好天氣」讓人期待今天也好，後句卻是「下雨」，前後相反，用逆接的「しかし」（但是）。「だから」是因果『所以』（『所以下雨』邏輯矛盾）；「そして」是並列『而且』（無法表轉折）；「それから」是時間先後『接著』（前後不是順接）。表逆接唯「しかし」成立。",
     explanationI18n: { "ja": "前の文「昨日はいい天気だった」からは今日も晴れると期待されますが、後ろの文は「雨」で、前後が反対になっています。逆接を表す「しかし」（けれども）が正解です。「だから」は因果関係の『それゆえに』（『だから雨だ』では論理が矛盾）、「そして」は並列の『そのうえ』（転換を表せない）、「それから」は時間の前後関係の『その次に』（前後が順接になっていない）。逆接を表せるのは「しかし」だけです。", "en": "The first clause 'yesterday was nice' leads you to expect today to be nice too, but the second clause is 'it's raining' — the two are opposed, so use the contrastive「しかし」(but; however).「だから」is causal 'so' ('so it's raining' is a logical contradiction);「そして」is 'and' for listing (can't show a turn);「それから」is the sequential 'then' (this isn't a smooth continuation). For a contrast, only「しかし」works." },
     exampleJapanese: "きのうは いい てんきでした。しかし、きょうは あさから 雨です。",
-    exampleMeaningZh: "昨天是好天氣。但是今天從早上就下雨。"
+    exampleMeaningZh: "昨天是好天氣。但是今天從早上就下雨。",
+    exampleMeaningI18n: { "ja": "昨日はいい天気でした。でも、今日は朝から雨です。", "en": "The weather was nice yesterday. But today it's been raining since morning." },
   }),
   examQuestion({
     id: "n5-context-soretomo",
@@ -1064,7 +1083,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "前後是「咖啡」與「茶」兩個選項，句子在問對方要二擇一，用表選擇的「それとも」（還是）。「そして」是並列『而且』（不是二擇一）；「だから」是因果『所以』（句中無因果）；「しかし」是逆接『可是』（兩者非相反對立）。表二選一的疑問唯「それとも」成立。",
     explanationI18n: { "ja": "前後は「コーヒー」と「お茶」という二つの選択肢で、相手にどちらか一つを選ぶよう尋ねているので、選択を表す「それとも」（あるいは）が正解です。「そして」は並列の『そのうえ』（二者択一ではない）、「だから」は因果関係の『それゆえに』（文中に因果関係はない）、「しかし」は逆接の『けれども』（両者は反対・対立の関係ではない）。二者択一の疑問を表せるのは「それとも」だけです。", "en": "The two options are 'coffee' and 'tea,' and the sentence asks the other person to pick one of the two, so use「それとも」(or), which offers a choice.「そして」is 'and' for listing (not a choice between two);「だから」is causal 'so' (there's no cause here);「しかし」is the contrastive 'but' (the two aren't opposed). For a question offering a choice between two, only「それとも」works." },
     exampleJapanese: "のみものは コーヒーが いいですか。それとも、おちゃが いいですか。",
-    exampleMeaningZh: "飲料要咖啡好呢？還是茶好呢？"
+    exampleMeaningZh: "飲料要咖啡好呢？還是茶好呢？",
+    exampleMeaningI18n: { "ja": "飲み物はコーヒーとお茶、どちらがいいですか。", "en": "Would you like coffee to drink? Or would you prefer tea?" },
   }),
   examQuestion({
     id: "n5-kanji-kawa",
@@ -1084,7 +1104,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「かわ」：「川」單獨當名詞時讀訓讀 かわ，句中是『那條河』，正確。干擾「がわ」：濁音化只在複合詞（例：かわ→がわ 如 みぎがわ 右側）才發生，單獨的「川」不濁音，此語境不成立。干擾「かわあ」：多了長音，N5 的 川 無長音，發音不對。干擾「かっわ」：插入促音，無此讀法。陷阱類型＝清濁混淆＋長音／促音干擾。",
     explanationI18n: { "ja": "正解「かわ」：「川」を単独の名詞として使うときは訓読みの かわ と読み、文中は『あの川』なので正しい読み方です。誤答「がわ」：濁音化は複合語（例：かわ→がわ、みぎがわ 右側 のように）でのみ起こり、単独の「川」は濁りません。この文脈では成り立ちません。誤答「かわあ」：長音が余分に付いており、N5 の 川 に長音はないので発音が違います。誤答「かっわ」：促音が入っていますが、そのような読み方はありません。ひっかけの型＝清濁の混同＋長音・促音による攪乱です。", "en": "Correct answer「かわ」: when「川」stands alone as a noun it takes the kun-reading かわ; here it means 'that river,' so this is correct. Distractor「がわ」: the voicing to が only happens in compounds (e.g. かわ→がわ, as in みぎがわ 'right side'); a standalone「川」isn't voiced, so it doesn't fit here. Distractor「かわあ」: this adds a long vowel, but N5's 川 has no long vowel, so the pronunciation is wrong. Distractor「かっわ」: this inserts a small っ (geminate), which is not a valid reading. Trap type = voiced/unvoiced confusion + long-vowel/geminate distractors." },
     exampleJapanese: "あの川で 魚が およいで います。",
-    exampleMeaningZh: "那條河裡有魚在游。"
+    exampleMeaningZh: "那條河裡有魚在游。",
+    exampleMeaningI18n: { "ja": "あの川で魚が泳いでいます。", "en": "Fish are swimming in that river." },
   }),
   examQuestion({
     id: "n5-kanji-yama",
@@ -1104,7 +1125,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「やま」：「山」單獨名詞讀訓讀 やま，句中『爬上高山』，正確。干擾「さん」：是音讀，只用於複合詞（如 ふじさん 富士山），此處 山 是單獨名詞、前面被『たかい』修飾，不讀音讀，明確不成立。干擾「やあま」：多了長音，發音不對。干擾「やっま」：插入促音，無此讀法。陷阱類型＝音訓混淆＋長音／促音干擾。",
     explanationI18n: { "ja": "正解「やま」：「山」を単独の名詞として使うときは訓読みの やま と読み、文中は『高い山に登った』なので正しい読み方です。誤答「さん」：音読みで、複合語（富士山 ふじさん など）でのみ使います。ここの 山 は単独の名詞で、前を『高い』が修飾しているので音読みにはならず、明らかに成り立ちません。誤答「やあま」：長音が余分に付いており発音が違います。誤答「やっま」：促音が入っていますが、そのような読み方はありません。ひっかけの型＝音読みと訓読みの混同＋長音・促音による攪乱です。", "en": "Correct answer「やま」: as a standalone noun「山」takes the kun-reading やま; here it means 'climbed a high mountain,' so this is correct. Distractor「さん」: this is the on-reading, used only in compounds (e.g. ふじさん 'Mt. Fuji'); here 山 is a standalone noun modified by the preceding 'たかい,' so it isn't read with the on-reading — clearly invalid. Distractor「やあま」: this adds a long vowel, so the pronunciation is wrong. Distractor「やっま」: this inserts a small っ (geminate), which is not a valid reading. Trap type = on/kun confusion + long-vowel/geminate distractors." },
     exampleJapanese: "なつ休みに たかい山に のぼりました。",
-    exampleMeaningZh: "暑假時爬了高高的山。"
+    exampleMeaningZh: "暑假時爬了高高的山。",
+    exampleMeaningI18n: { "ja": "夏休みに高い山に登りました。", "en": "I climbed a tall mountain during summer vacation." },
   }),
   examQuestion({
     id: "n5-kanji-asa",
@@ -1124,7 +1146,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「あさ」：「朝」單獨名詞讀訓讀 あさ，句中『每天早上六點』指時段，正確。干擾「あざ」：把 さ 濁化成 ざ，あざ 是別的詞（瘀青／痣），讀音與語意都不對。干擾「あっさ」：插入促音，無此讀法。干擾「あさあ」：多了長音，發音不對。陷阱類型＝清濁混淆（會變成別的詞）＋促音／長音干擾。",
     explanationI18n: { "ja": "正解「あさ」：「朝」を単独の名詞として使うときは訓読みの あさ と読み、文中の『毎朝六時に』は時間帯を指すので正しい読み方です。誤答「あざ」：さ を濁らせて ざ にしたもので、あざ は別の言葉（あざ＝内出血・ほくろ）になり、読み方も意味も違います。誤答「あっさ」：促音が入っていますが、そのような読み方はありません。誤答「あさあ」：長音が余分に付いており発音が違います。ひっかけの型＝清濁の混同（別の言葉になってしまう）＋促音・長音による攪乱です。", "en": "Correct answer「あさ」: as a standalone noun「朝」takes the kun-reading あさ; here 'six every morning' refers to a time of day, so this is correct. Distractor「あざ」: voicing さ into ざ makes あざ, which is a different word (a bruise / a birthmark) — both the reading and the meaning are wrong. Distractor「あっさ」: this inserts a small っ (geminate), which is not a valid reading. Distractor「あさあ」: this adds a long vowel, so the pronunciation is wrong. Trap type = voiced/unvoiced confusion (produces a different word) + geminate/long-vowel distractors." },
     exampleJapanese: "まいにち朝 六じに おきます。",
-    exampleMeaningZh: "每天早上六點起床。"
+    exampleMeaningZh: "每天早上六點起床。",
+    exampleMeaningI18n: { "ja": "毎日、朝六時に起きます。", "en": "I get up at six every morning." },
   }),
   examQuestion({
     id: "n5-kanji-namae",
@@ -1144,7 +1167,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「なまえ」：「名前」讀 なまえ（名 な＋前 まえ），句意『請在這裡寫上你的名字』，正確。干擾「なまへ」：把 え 寫成近形假名 へ（讀音為 he），不成立。干擾「なめえ」：把第二拍 ま 誤替換成 め（なめえ），假名拼錯，非此詞讀音。干擾「なっまえ」：多插入促音 っ，無此讀法。陷阱類型＝近形假名（え/へ）＋假名替換錯誤＋促音干擾。",
     explanationI18n: { "ja": "正解「なまえ」：「名前」は なまえ（名 な＋前 まえ）と読み、文意は『ここにあなたの名前を書いてください』なので正しい読み方です。誤答「なまへ」：え を形の似た仮名 へ（読みは he）に書き換えたもので、成り立ちません。誤答「なめえ」：二拍目の ま を誤って め に置き換えたもの（なめえ）で、仮名の綴りが間違っており、この語の読み方ではありません。誤答「なっまえ」：促音 っ を余分に入れたもので、そのような読み方はありません。ひっかけの型＝形の似た仮名（え/へ）＋仮名の置き換えミス＋促音による攪乱です。", "en": "Correct answer「なまえ」:「名前」reads なまえ (名 な + 前 まえ), and the sentence means 'please write your name here,' so this is correct. Distractor「なまへ」: this writes the final え as the look-alike kana へ (read 'he'), which is invalid. Distractor「なめえ」: this wrongly replaces the second mora ま with め (なめえ) — the kana is misspelled and isn't this word's reading. Distractor「なっまえ」: this inserts an extra small っ (geminate), which is not a valid reading. Trap type = look-alike kana (え/へ) + kana-substitution error + geminate distractor." },
     exampleJapanese: "ここに あなたの名前を かいて ください。",
-    exampleMeaningZh: "請在這裡寫上你的名字。"
+    exampleMeaningZh: "請在這裡寫上你的名字。",
+    exampleMeaningI18n: { "ja": "ここにあなたの名前を書いてください。", "en": "Please write your name here." },
   }),
   examQuestion({
     id: "n5-kanji-tatsu",
@@ -1164,7 +1188,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「たって」：「立つ」的 て形是 たって（促音便），句中『老師站在前面』，正確。干擾「だって」：把 た 濁化成 だ，だって 是別的詞（接續助詞「可是」），讀音與意思都不對。干擾「たて」：少了促音變成 たて（另是『縱』或命令形語感），與『立って います』的 て形不符，發音也不同。干擾「たあって」：多了長音，發音不對。陷阱類型＝清濁混淆（變別詞）＋促音脫落＋長音干擾。",
     explanationI18n: { "ja": "正解「たって」：「立つ」の て形は たって（促音便）で、文中は『先生が前に立っている』なので正しい読み方です。誤答「だって」：た を濁らせて だ にしたもので、だって は別の言葉（接続助詞の「でも」）になり、読み方も意味も違います。誤答「たて」：促音が抜けて たて になっており（別に『縦』や命令形のような語感になる）、『立って います』の て形とは合わず、発音も違います。誤答「たあって」：長音が余分に付いており発音が違います。ひっかけの型＝清濁の混同（別の言葉になる）＋促音の脱落＋長音による攪乱です。", "en": "Correct answer「たって」: the te-form of「立つ」is たって (with a sound change to っ), and the sentence means 'the teacher is standing in front,' so this is correct. Distractor「だって」: voicing た into だ makes だって, a different word (the conjunctive particle 'but') — both the reading and the meaning are wrong. Distractor「たて」: dropping the small っ gives たて (which has the feel of 'vertical' or an imperative form), which doesn't match the te-form in '立って います' and is pronounced differently. Distractor「たあって」: this adds a long vowel, so the pronunciation is wrong. Trap type = voiced/unvoiced confusion (produces a different word) + dropped geminate + long-vowel distractor." },
     exampleJapanese: "せんせいが きょうしつの まえに 立って います。",
-    exampleMeaningZh: "老師站在教室前面。"
+    exampleMeaningZh: "老師站在教室前面。",
+    exampleMeaningI18n: { "ja": "先生が教室の前に立っています。", "en": "The teacher is standing at the front of the classroom." },
   }),
   examQuestion({
     id: "n5-kanji-takai",
@@ -1184,7 +1209,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「たかい」：「高い」形容詞讀 たかい，句中『大樓非常高』，正確。干擾「だかい」：把開頭 た 濁化成 だ，無此讀法。干擾「たがい」：把 か 濁化成 が，たがい 會聯想到別詞（互い 互相），讀音與意思都不對。干擾「たかあい」：在 か 後加長音，發音不對。陷阱類型＝清濁混淆（兩處）＋長音干擾。",
     explanationI18n: { "ja": "正解「たかい」：「高い」は形容詞で たかい と読み、文中は『ビルがとても高い』なので正しい読み方です。誤答「だかい」：語頭の た を濁らせて だ にしたもので、そのような読み方はありません。誤答「たがい」：か を濁らせて が にしたもので、たがい は別の言葉（互い 互いに）を連想させ、読み方も意味も違います。誤答「たかあい」：か の後に長音を加えたもので発音が違います。ひっかけの型＝清濁の混同（二か所）＋長音による攪乱です。", "en": "Correct answer「たかい」: the adjective「高い」reads たかい, and the sentence means 'the building is very tall,' so this is correct. Distractor「だかい」: voicing the initial た into だ gives an invalid reading. Distractor「たがい」: voicing か into が gives たがい, which evokes a different word (互い 'mutual') — both the reading and the meaning are wrong. Distractor「たかあい」: this adds a long vowel after か, so the pronunciation is wrong. Trap type = voiced/unvoiced confusion (two spots) + long-vowel distractor." },
     exampleJapanese: "この ビルは とても 高いです。",
-    exampleMeaningZh: "這棟大樓非常高。"
+    exampleMeaningZh: "這棟大樓非常高。",
+    exampleMeaningI18n: { "ja": "このビルはとても高いです。", "en": "This building is very tall." },
   }),
   examQuestion({
     id: "n5-vocab-denwa",
@@ -1444,7 +1470,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "單獨當「人」這個名詞時訓讀「ひと」。「びと」是錯誤地把詞頭濁化（旅人たびびと那種連濁只在複合詞後半才出現，句首單獨的「人」不濁）；「じん」「にん」都是音讀，只用在日本人にほんじん、三人さんにん這類複合詞，單獨指「那個人」不能用。故只有「ひと」成立。",
     explanationI18n: { "ja": "「人」を単独の名詞として使うときは訓読みの「ひと」です。「びと」は誤って語頭を濁らせたもの（旅人 たびびと のような連濁は複合語の後半にだけ現れ、文頭で単独の「人」は濁りません）、「じん」「にん」はどちらも音読みで、日本人 にほんじん、三人 さんにん のような複合語にだけ使い、単独で「あの人」を指すときには使えません。したがって成り立つのは「ひと」だけです。", "en": "When 「人」 stands alone as this noun, it takes the kun'yomi 「ひと」. 「びと」 wrongly voices the beginning of the word (the sequential voicing in 旅人 たびびと only appears in the second half of a compound; a standalone 「人」 at the head of a phrase is not voiced). 「じん」 and 「にん」 are both on'yomi, used only in compounds like 日本人 にほんじん and 三人 さんにん, and can't be used for a standalone \"that person.\" So only 「ひと」 works." },
     exampleJapanese: "あの人はわたしの となりに すんでいます。",
-    exampleMeaningZh: "那個人住在我的隔壁。"
+    exampleMeaningZh: "那個人住在我的隔壁。",
+    exampleMeaningI18n: { "ja": "あの人はわたしの隣に住んでいます。", "en": "That person lives next door to me." },
   }),
   examQuestion({
     id: "n5-kanji-ue",
@@ -1464,7 +1491,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "表示位置「上面」時訓讀「うえ」。「した」是「下」的讀音、意思相反（下面），語意明確不對；「うへ」把第二拍誤寫成へ，是錯讀；「じょう」是音讀，用在屋上おくじょう這類複合詞，單獨指「桌上」不能用。故只有「うえ」成立。",
     explanationI18n: { "ja": "位置の「上」を表すときは訓読みの「うえ」です。「した」は「下」の読みで意味が反対（下）になり、明らかに合いません。「うへ」は二拍目を誤って へ と書いたもので誤読です。「じょう」は音読みで、屋上 おくじょう のような複合語に使い、単独で「机の上」を指すときには使えません。したがって成り立つのは「うえ」だけです。", "en": "When it indicates the position \"on top,\" 「上」 takes the kun'yomi 「うえ」. 「した」 is the reading of 「下」 with the opposite meaning (below), clearly wrong in meaning. 「うへ」 mistakenly writes the second mora as へ and is an incorrect reading. 「じょう」 is the on'yomi, used in compounds like 屋上 おくじょう, and can't be used for a standalone \"on the desk.\" So only 「うえ」 works." },
     exampleJapanese: "つくえの 上に ねこが います。",
-    exampleMeaningZh: "桌子上面有一隻貓。"
+    exampleMeaningZh: "桌子上面有一隻貓。",
+    exampleMeaningI18n: { "ja": "机の上に猫がいます。", "en": "There is a cat on the desk." },
   }),
   examQuestion({
     id: "n5-kanji-en",
@@ -1484,7 +1512,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "貨幣單位「円」讀「えん」。「けん」是「件」「軒」等別字的讀音；「げん」把えん誤濁化、也不是此字讀音；「まる」是圓圈符號「○」的訓讀，不用在金額。一百圓只能用「えん」，故唯一成立。",
     explanationI18n: { "ja": "通貨の単位「円」は「えん」と読みます。「けん」は「件」「軒」など別の字の読み、「げん」は えん を誤って濁らせたもので、これもこの字の読みではありません。「まる」は円の記号「○」の訓読みで、金額には使いません。百円は「えん」しか使えないので、これだけが成り立ちます。", "en": "The currency unit 「円」 is read 「えん」. 「けん」 is the reading of different characters like 「件」 and 「軒」. 「げん」 mistakenly voices えん and isn't a reading of this character. 「まる」 is the kun'yomi for the circle symbol 「○」 and isn't used for money amounts. \"One hundred yen\" can only be 「えん」, so it's the only one that works." },
     exampleJapanese: "この りんごは ひゃく円です。",
-    exampleMeaningZh: "這顆蘋果是一百日圓。"
+    exampleMeaningZh: "這顆蘋果是一百日圓。",
+    exampleMeaningI18n: { "ja": "このりんごは百円です。", "en": "This apple costs 100 yen." },
   }),
   examQuestion({
     id: "n5-kanji-deru",
@@ -1504,7 +1533,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "自動詞「出る」的ます形是「でます」（出去、離開）。「てます」漏掉濁點是錯讀；「だします」是他動詞「出す」（拿出、交出）的讀音，需要受詞、和「いえを出る＝離開家」的自動詞用法不同（這裡的を是離開的起點）；「ではます」多塞了は是錯讀。故只有「でます」成立。",
     explanationI18n: { "ja": "自動詞「出る」のます形は「でます」（出て行く、離れる）です。「てます」は濁点が抜けており誤読です。「だします」は他動詞「出す」（取り出す、提出する）の読みで、目的語を必要とし、「家を出る＝家を離れる」という自動詞の使い方とは異なります（ここの を は出発点を表します）。「ではます」は は が余分に入っており誤読です。したがって成り立つのは「でます」だけです。", "en": "The masu-form of the intransitive verb 「出る」 is 「でます」 (to go out, to leave). 「てます」 drops the voicing mark and is an incorrect reading. 「だします」 is the reading of the transitive verb 「出す」 (to take out, to hand in), which requires an object and differs from the intransitive use in 「いえを出る」 (to leave the house) — here を marks the starting point of departure. 「ではます」 stuffs in an extra は and is an incorrect reading. So only 「でます」 works." },
     exampleJapanese: "まいあさ 七時に いえを 出ます。",
-    exampleMeaningZh: "每天早上七點出門。"
+    exampleMeaningZh: "每天早上七點出門。",
+    exampleMeaningI18n: { "ja": "毎朝七時に家を出ます。", "en": "I leave the house at seven every morning." },
   }),
   examQuestion({
     id: "n5-kanji-haha",
@@ -1524,7 +1554,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "謙稱自己的母親時讀「はは」。「ばば」把詞頭濁化是錯讀（且語感粗俗）；「ちち」是「父」的讀音、指父親、語意相反；「はわ」把第二拍誤寫成わ是錯讀。提到自己的媽媽只能用「はは」，故唯一成立。",
     explanationI18n: { "ja": "自分の母親をへりくだって言うときは「はは」と読みます。「ばば」は語頭を濁らせたもので誤読です（しかも語感が下品になります）。「ちち」は「父」の読みで父親を指し、意味が反対です。「はわ」は二拍目を誤って わ と書いたもので誤読です。自分の母親について言うときは「はは」しか使えないので、これだけが成り立ちます。", "en": "When humbly referring to one's own mother, the reading is 「はは」. 「ばば」 voices the start of the word and is an incorrect reading (and sounds crude). 「ちち」 is the reading of 「父」, meaning father — the opposite meaning. 「はわ」 mistakenly writes the second mora as わ and is an incorrect reading. Referring to your own mom can only be 「はは」, so it's the only one that works." },
     exampleJapanese: "わたしの 母は りょうりが じょうずです。",
-    exampleMeaningZh: "我媽媽很會做菜。"
+    exampleMeaningZh: "我媽媽很會做菜。",
+    exampleMeaningI18n: { "ja": "私の母は料理が上手です。", "en": "My mother is good at cooking." },
   }),
   examQuestion({
     id: "n5-kanji-iu",
@@ -1544,7 +1575,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「言う」的ます形是「いいます」（說）。「います」漏掉一個い、變成存在動詞「居る」的讀音、意思是「在」、語意不對；「ゆいます」是錯讀（言う口語雖唸ゆう，但ます形寫成讀音時是いいます，ゆいます不成立）；「いえます」是可能形「言える」（能說）的讀音、和原句陳述習慣動作的「言います」不同。故只有「いいます」成立。",
     explanationI18n: { "ja": "「言う」のます形は「いいます」（言う・話す）です。「います」は「い」が一つ足りず、存在動詞「居る」の読みになってしまい、「（人が）いる」という意味になるので合いません。「ゆいます」は誤読で、「言う」は話し言葉で「ゆう」と発音することはありますが、ます形を仮名で書くと「いいます」であり、「ゆいます」という形は成り立ちません。「いえます」は可能形「言える」（言うことができる）の読みで、習慣的な動作を述べるこの文の「言います」とは意味が異なります。したがって「いいます」だけが正解です。", "en": "The masu-form of 「言う」 is 「いいます」 (to say). 「います」 drops one い and becomes the reading of the existence verb 「居る」, meaning \"to be present,\" which is wrong in meaning. 「ゆいます」 is an incorrect reading (although 言う is pronounced ゆう in casual speech, its masu-form is written and read as いいます, not ゆいます). 「いえます」 is the reading of the potential form 「言える」 (to be able to say), which differs from 「言います」 stating a habitual action in the original sentence. So only 「いいます」 works." },
     exampleJapanese: "あさ あう とき、「おはよう」と 言います。",
-    exampleMeaningZh: "早上見面時會說「早安」。"
+    exampleMeaningZh: "早上見面時會說「早安」。",
+    exampleMeaningI18n: { "ja": "朝会うとき、「おはよう」と言います。", "en": "When you meet someone in the morning, you say \"good morning.\"" },
   }),
   examQuestion({
     id: "n5-grammar-ka",
@@ -1646,7 +1678,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「待つ」是停在原地直到人或事物到來，本句「在車站等了朋友三十分鐘」最自然。第二句形容蘋果又紅，那是描述狀態，要用「おいしい」之類的形容詞，蘋果無法被『等』；第三句把茶倒進杯子要用「入れる」（入れました）；第四句早上穿上新鞋要用「はく」（はいて）。後三句搭配皆不通，唯第一句成立。",
     explanationI18n: { "ja": "「待つ」は、人や物事が来るまでその場にとどまることを表し、この文「駅で友達を30分待ちました」が最も自然です。二つ目の文はりんごが赤いという状態を表すもので、「おいしい」などの形容詞を使うべきであり、りんごを「待つ」ことはできません。三つ目の文はお茶をコップに注ぐので「入れる」（入れました）を使います。四つ目の文は朝、新しい靴を身につけるので「はく」（はいて）を使います。後ろの三つの文はどれも組み合わせが成り立たず、一つ目の文だけが正しいです。", "en": "「待つ」means to stay where you are until a person or thing arrives, so \"I waited for my friend at the station for thirty minutes\" is the natural fit. The second sentence describes an apple being red, which is a state and needs an adjective like「おいしい」— an apple can't be \"waited\"; the third sentence, about pouring tea into a cup, needs「入れる」(入れました); the fourth, about putting on new shoes in the morning, needs「はく」(はいて). The last three don't work, so only the first is correct." },
     exampleJapanese: "えきで 友達を 30ぷん 待ちました。",
-    exampleMeaningZh: "在車站等了朋友三十分鐘。"
+    exampleMeaningZh: "在車站等了朋友三十分鐘。",
+    exampleMeaningI18n: { "ja": "駅で友達を30分待ちました。", "en": "I waited for my friend at the station for thirty minutes." },
   }),
   examQuestion({
     id: "n5-usage-akarui",
@@ -1668,7 +1701,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「明るい」形容地方光線充足、看得清楚，本句「這個房間窗戶很大，非常明亮」最自然。第二句咖啡加了糖是味道甜，要用「あまい」；第三句題目簡單要用「やさしい／かんたん」，無法用『明亮』形容；第四句行李小是體積，要用「ちいさい」，跟『明亮』無關。後三句搭配皆不通，唯第一句成立。",
     explanationI18n: { "ja": "「明るい」は場所に光が十分にあり、よく見える様子を表し、この文「この部屋は窓が大きくて、とても明るいです」が最も自然です。二つ目の文はコーヒーに砂糖を入れて甘いという意味なので「あまい」を使います。三つ目の文は問題が簡単だという意味なので「やさしい／かんたん」を使い、「明るい」で表すことはできません。四つ目の文は荷物が小さいという体積の話なので「ちいさい」を使い、「明るい」とは関係ありません。後ろの三つの文はどれも組み合わせが成り立たず、一つ目の文だけが正しいです。", "en": "「明るい」describes a place that has plenty of light and is easy to see in, so \"This room has big windows, so it's very bright\" is the natural fit. In the second sentence, coffee with sugar added is sweet, which needs「あまい」; in the third, an easy problem needs「やさしい／かんたん」and can't be described as \"bright\"; in the fourth, a small piece of luggage refers to size and needs「ちいさい」, which has nothing to do with brightness. The last three don't work, so only the first is correct." },
     exampleJapanese: "この へやは まどが おおきくて、とても 明るいです。",
-    exampleMeaningZh: "這個房間窗戶很大，非常明亮。"
+    exampleMeaningZh: "這個房間窗戶很大，非常明亮。",
+    exampleMeaningI18n: { "ja": "この部屋は窓が大きくて、とても明るいです。", "en": "This room has big windows and is very bright." },
   }),
   examQuestion({
     id: "n5-context-demo",
@@ -1750,7 +1784,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「ひま」是沒有事情要做、時間很多，本句「今天沒有工作，非常有空」最自然。第二句拉麵好吃要用「おいしい」，食物無法用『有空』形容；第三句山很高要用「たかい」，山的高度跟『有空』無關；第四句行李重要用「おもい」本身，重量跟『有空』無關。後三句搭配皆不通，唯第一句成立。",
     explanationI18n: { "ja": "「ひま」はすることがなく時間がたくさんある様子を表し、この文「今日は仕事がなくて、とても暇です」が最も自然です。二つ目の文はラーメンがおいしいという意味なので「おいしい」を使い、食べ物を「ひま」で表すことはできません。三つ目の文は山が高いという意味なので「たかい」を使い、山の高さと「ひま」は関係ありません。四つ目の文は荷物が重いという意味なので「おもい」を使い、重さと「ひま」は関係ありません。後ろの三つの文はどれも組み合わせが成り立たず、一つ目の文だけが正しいです。", "en": "「ひま」means having nothing to do and plenty of time, so \"I have no work today, so I'm very free\" is the natural fit. In the second sentence, tasty ramen needs「おいしい」— food can't be described as \"free\"; in the third, a tall mountain needs「たかい」, and a mountain's height has nothing to do with being \"free\"; in the fourth, heavy luggage needs「おもい」itself, and weight has nothing to do with being \"free.\" The last three don't work, so only the first is correct." },
     exampleJapanese: "きょうは しごとが なくて、とても ひまです。",
-    exampleMeaningZh: "今天沒有工作，非常有空。"
+    exampleMeaningZh: "今天沒有工作，非常有空。",
+    exampleMeaningI18n: { "ja": "今日は仕事がなくて、とても暇です。", "en": "I have no work today, so I'm completely free." },
   }),
   examQuestion({
     id: "n5-context-dakara",
@@ -1910,7 +1945,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "謙稱自己的父親時訓讀「ちち」。「はは」是「母」的讀音、指母親、語意相反；「じじ」把詞頭誤濁化（且語感是『老頭』、非父親）；「だい」是無關讀音，與「父」不符。提到自己的爸爸只能用「ちち」，故唯一成立。",
     explanationI18n: { "ja": "自分の父親をへりくだって言うときは訓読みで「ちち」です。「はは」は「母」の読みで母親を指し、意味が反対です。「じじ」は語頭を誤って濁音にしており（しかも語感は「じいさん」で父親ではありません）、誤りです。「だい」は無関係な読みで、「父」には合いません。自分の父親について言うときは「ちち」だけなので、唯一これが正解です。", "en": "When humbly referring to one's own father, the kun reading is「ちち」. 「はは」is the reading of「母」and means mother, which is the opposite; 「じじ」wrongly voices the initial syllable (and its nuance is \"old man,\" not father); 「だい」is an unrelated reading that doesn't match「父」. To refer to one's own dad, only「ちち」works, so it's the only correct answer." },
     exampleJapanese: "わたしの父は かいしゃいんです。",
-    exampleMeaningZh: "我爸爸是上班族。"
+    exampleMeaningZh: "我爸爸是上班族。",
+    exampleMeaningI18n: { "ja": "私の父は会社員です。", "en": "My father is a company employee." },
   }),
   examQuestion({
     id: "n5-kanji-inu",
@@ -1930,7 +1966,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "動物「犬」單獨當名詞時訓讀「いぬ」。「いね」（＝稲、稻子）語意不符；「いの」「えぬ」皆為音形錯讀。唯「いぬ」成立。",
     explanationI18n: { "ja": "動物の「犬」を単独で名詞として使うときは訓読みで「いぬ」です。「いね」（＝稲）は意味が合いません。「いの」「えぬ」はどちらも音や形の誤読です。「いぬ」だけが正しいです。", "en": "When the animal「犬」stands alone as a noun, the kun reading is「いぬ」. 「いね」(＝稲, rice plant) doesn't fit the meaning; 「いの」and「えぬ」are both mistaken readings of the sound/form. Only「いぬ」works." },
     exampleJapanese: "にわで しろい犬が あそんで います。",
-    exampleMeaningZh: "白色的狗在院子裡玩。"
+    exampleMeaningZh: "白色的狗在院子裡玩。",
+    exampleMeaningI18n: { "ja": "庭で白い犬が遊んでいます。", "en": "A white dog is playing in the yard." },
   }),
   examQuestion({
     id: "n5-kanji-kuruma",
@@ -1950,7 +1987,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "交通工具「車」單獨當名詞時訓讀「くるま」。「くろま」「くらま」「くりま」皆為母音/音形錯讀，非此字讀音。唯「くるま」成立。",
     explanationI18n: { "ja": "乗り物の「車」を単独で名詞として使うときは訓読みで「くるま」です。「くろま」「くらま」「くりま」はどれも母音や音の形の誤読で、この字の読みではありません。「くるま」だけが正しいです。", "en": "When the vehicle「車」stands alone as a noun, the kun reading is「くるま」. 「くろま」「くらま」「くりま」are all vowel/sound-form misreadings and aren't the reading of this character. Only「くるま」works." },
     exampleJapanese: "ちちは あたらしい車を かいました。",
-    exampleMeaningZh: "爸爸買了新車。"
+    exampleMeaningZh: "爸爸買了新車。",
+    exampleMeaningI18n: { "ja": "父は新しい車を買いました。", "en": "My father bought a new car." },
   }),
   examQuestion({
     id: "n5-kanji-shiroi",
@@ -1970,7 +2008,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "形容詞「白い」訓讀「しろい」。「じろい」把詞頭誤濁化、是錯讀；「しるい」把第二拍ろ誤讀成る、是近形錯讀；「くろい」是「黒い」（黑色的）的讀音、顏色相反、語意明確不對。形容白雲只能用「しろい」，故唯一成立。",
     explanationI18n: { "ja": "形容詞「白い」は訓読みで「しろい」です。「じろい」は語頭を誤って濁音にした誤読です。「しるい」は二拍目の「ろ」を「る」と誤読した、形の似た誤りです。「くろい」は「黒い」の読みで色が反対であり、明らかに意味が合いません。白い雲を形容するには「しろい」しかないので、唯一これが正解です。", "en": "The adjective「白い」has the kun reading「しろい」. 「じろい」wrongly voices the initial syllable and is a misreading; 「しるい」misreads the second mora ろ as る and is a look-alike misreading; 「くろい」is the reading of「黒い」(black), the opposite color, which is clearly wrong. To describe white clouds, only「しろい」works, so it's the only correct answer." },
     exampleJapanese: "そらに白い くもが あります。",
-    exampleMeaningZh: "天空中有白色的雲。"
+    exampleMeaningZh: "天空中有白色的雲。",
+    exampleMeaningI18n: { "ja": "空に白い雲があります。", "en": "There are white clouds in the sky." },
   }),
   examQuestion({
     id: "n5-kanji-chiisai",
@@ -1990,7 +2029,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "形容詞「小さい」訓讀「ちいさい」（ち＋長音い）。「ちさい」漏掉長音、是錯讀；「ぢいさい」把詞頭誤寫成ぢ（現代標準假名遣寫作ち）、是錯讀；「こいさい」把詞頭誤讀成こ、是近形錯讀。形容包包小只能用「ちいさい」，故唯一成立。",
     explanationI18n: { "ja": "形容詞「小さい」は訓読みで「ちいさい」（ち＋長音の「い」）です。「ちさい」は長音が抜けた誤読です。「ぢいさい」は語頭を誤って「ぢ」と書いており（現代の標準的な仮名遣いでは「ち」と書きます）、誤りです。「こいさい」は語頭を「こ」と誤読した、形の似た誤りです。かばんが小さいことを表すには「ちいさい」しかないので、唯一これが正解です。", "en": "The adjective「小さい」has the kun reading「ちいさい」(ち + the long vowel い). 「ちさい」drops the long vowel and is a misreading; 「ぢいさい」wrongly writes the initial syllable as ぢ (modern standard kana spells it ち) and is a misreading; 「こいさい」misreads the initial syllable as こ and is a look-alike misreading. To describe a small bag, only「ちいさい」works, so it's the only correct answer." },
     exampleJapanese: "この小さい かばんは こどもの ものです。",
-    exampleMeaningZh: "這個小包包是小孩的東西。"
+    exampleMeaningZh: "這個小包包是小孩的東西。",
+    exampleMeaningI18n: { "ja": "この小さいかばんは子どものものです。", "en": "This small bag belongs to a child." },
   }),
   examQuestion({
     id: "n5-kanji-otoko",
@@ -2010,7 +2050,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「男」單獨指男性時訓讀「おとこ」。「おんな」是「女」的讀音、指女性、語意相反；「おとご」把第三拍こ誤濁化成ご、是錯讀；「おどこ」把第二拍と誤濁化成ど、是錯讀。形容那位男性只能用「おとこ」，故唯一成立。",
     explanationI18n: { "ja": "「男」を単独で男性を指すときは訓読みで「おとこ」です。「おんな」は「女」の読みで女性を指し、意味が反対です。「おとご」は三拍目の「こ」を誤って濁音の「ご」にした誤読です。「おどこ」は二拍目の「と」を誤って濁音の「ど」にした誤読です。その男性を表すには「おとこ」しかないので、唯一これが正解です。", "en": "When「男」stands alone to mean a male, the kun reading is「おとこ」. 「おんな」is the reading of「女」and means a woman, which is the opposite; 「おとご」wrongly voices the third mora こ into ご and is a misreading; 「おどこ」wrongly voices the second mora と into ど and is a misreading. To describe that male, only「おとこ」works, so it's the only correct answer." },
     exampleJapanese: "あそこに せの たかい男の ひとが います。",
-    exampleMeaningZh: "那裡有一個個子高的男人。"
+    exampleMeaningZh: "那裡有一個個子高的男人。",
+    exampleMeaningI18n: { "ja": "あそこに背の高い男の人がいます。", "en": "There is a tall man over there." },
   }),
   examQuestion({
     id: "n5-grammar-doko",
@@ -2092,7 +2133,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「まどを 開けます」：房間悶熱、想讓空氣進來，對著窗戶用「開ける」＝打開，方向與搭配都正確。干擾「ぎゅうにゅうを コップに 開けます」：把牛奶倒進杯子要用「入れる」（入れます），液體不能用『打開』；干擾「ベッドから 開けます」：早上睡醒離開床要用「起きる」（起きます），『開ける』不能形容起身；干擾「子どもと 開けます」：和孩子在公園應是『玩』要用「あそぶ」（あそびます），『開ける』不能表示遊玩。四句都含「開ける」，但僅『打開窗戶』的搭配成立。",
     explanationI18n: { "ja": "正解の「まどを 開けます」は、部屋が蒸し暑くて空気を入れたいので、窓に対して「開ける」＝開ける、を使っており、方向も組み合わせも正しいです。誤答「ぎゅうにゅうを コップに 開けます」は、牛乳をコップに注ぐには「入れる（入れます）」を使い、液体に「開ける」は使えません。誤答「ベッドから 開けます」は、朝起きてベッドから離れるには「起きる（起きます）」を使い、起き上がることを「開ける」では表せません。誤答「子どもと 開けます」は、子どもと公園で過ごすのは「あそぶ（あそびます）」で、「開ける」に遊ぶという意味はありません。四つとも「開ける」を含みますが、「窓を開ける」という組み合わせだけが成立します。", "en": "Correct answer「まどを 開けます」: the room is stuffy and hot and you want to let air in, so using「開ける」＝ to open toward the window is correct in both direction and collocation. Distractor「ぎゅうにゅうを コップに 開けます」: pouring milk into a cup should use「入れる」(入れます); liquid cannot be 'opened'. Distractor「ベッドから 開けます」: getting out of bed after waking up should use「起きる」(起きます);『開ける』cannot describe getting up. Distractor「子どもと 開けます」: being with a child in a park should be 'play,' using「あそぶ」(あそびます);『開ける』cannot mean to play. All four sentences contain「開ける」, but only 'opening the window' is a valid collocation." },
     exampleJapanese: "へやが あついので、まどを 開けます。",
-    exampleMeaningZh: "因為房間很熱，所以打開窗戶。"
+    exampleMeaningZh: "因為房間很熱，所以打開窗戶。",
+    exampleMeaningI18n: { "ja": "部屋が暑いので、窓を開けます。", "en": "The room is hot, so I open the window." },
   }),
   examQuestion({
     id: "n5-usage-kirei",
@@ -2114,7 +2156,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「へやが きれいに なりました」：打掃過後房間變得乾淨整潔，這種狀態用「きれい」＝乾淨，最自然。干擾「にもつは きれいなので、一人では もてません」：拿不動是因為行李『重』要用「おもい」，『きれい』不能形容重量；干擾「さとうを 入れて、きれいに のみます」：加糖後咖啡是變『甜』要用「あまい」，『きれい』不能形容味道；干擾「手が きれいに なりました」：天冷手是變『冰冷』要用「つめたい」，『きれい』不能表示冷。四句都含「きれい」，但僅『房間變乾淨』的語境成立。",
     explanationI18n: { "ja": "正解の「へやが きれいに なりました」は、掃除をして部屋がすっきり清潔になった状態を「きれい」＝清潔、で表しており、最も自然です。誤答「にもつは きれいなので、一人では もてません」は、持てないのは荷物が「重い（おもい）」からで、「きれい」で重さは表せません。誤答「さとうを 入れて、きれいに のみます」は、砂糖を入れるとコーヒーは「甘く（あまい）」なるのであって、「きれい」で味は表せません。誤答「手が きれいに なりました」は、寒くて手が「冷たく（つめたい）」なったのであって、「きれい」で冷たさは表せません。四つとも「きれい」を含みますが、「部屋がきれいになる」という文脈だけが成立します。", "en": "Correct answer「へやが きれいに なりました」: after cleaning, the room became neat and tidy, and this state is described with「きれい」＝ clean, which is the most natural. Distractor「にもつは きれいなので、一人では もてません」: you cannot carry it because the luggage is 'heavy,' which needs「おもい」;『きれい』cannot describe weight. Distractor「さとうを 入れて、きれいに のみます」: after adding sugar, the coffee becomes 'sweet,' which needs「あまい」;『きれい』cannot describe taste. Distractor「手が きれいに なりました」: in the cold, your hands become 'cold,' which needs「つめたい」;『きれい』cannot mean cold. All four sentences contain「きれい」, but only 'the room became clean' fits." },
     exampleJapanese: "そうじを したので、へやが きれいに なりました。",
-    exampleMeaningZh: "因為打掃過了，所以房間變乾淨了。"
+    exampleMeaningZh: "因為打掃過了，所以房間變乾淨了。",
+    exampleMeaningI18n: { "ja": "掃除をしたので、部屋がきれいになりました。", "en": "The room is clean now because I tidied it up." },
   }),
   examQuestion({
     id: "n5-usage-wakaru",
@@ -2136,7 +2179,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「わかる」是『懂、明白』。正解『先生に きいたので、もんだいが わかりました』＝問了老師後就懂了。其餘誤用：『パンとたまごをわかりました』應為『食べました』；『本が三さつわかっています』應為『あります』；『えいがをわかります』應為『見ます』。唯第一句成立。",
     explanationI18n: { "ja": "「わかる」は「理解する・のみこむ」という意味です。正解の「先生に きいたので、もんだいが わかりました」は、先生に聞いて理解できた、という意味です。ほかは誤用で、「パンとたまごをわかりました」は「食べました」、「本が三さつわかっています」は「あります」、「えいがをわかります」は「見ます」とすべきです。したがって最初の文だけが成立します。", "en": "「わかる」means 'to understand; to get it.' Correct answer『先生に きいたので、もんだいが わかりました』＝ after asking the teacher, I understood. The others are misuses:『パンとたまごをわかりました』should be『食べました』;『本が三さつわかっています』should be『あります』;『えいがをわかります』should be『見ます』. Only the first sentence works." },
     exampleJapanese: "先生に きいたので、もんだいが わかりました。",
-    exampleMeaningZh: "因為老師為我說明了，所以題目我懂了。"
+    exampleMeaningZh: "因為老師為我說明了，所以題目我懂了。",
+    exampleMeaningI18n: { "ja": "先生が説明してくれたので、問題がわかりました。", "en": "After asking the teacher, I understood the problem." },
   }),
   examQuestion({
     id: "n5-context-sorede",
@@ -2276,7 +2320,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「左」讀作「ひだり」，意為左邊，正解。「びだり」把字首濁音化（ひ→び），不存在這個讀音。「ひたり」把第二音「だ」誤讀成清音「た」，不成立。「ひだと」把詞尾「り」誤成「と」，亦非「左」的讀音。四選項只有「ひだり」成立。",
     explanationI18n: { "ja": "「左」は「ひだり」と読み、左側という意味で、これが正解です。「びだり」は語頭を濁音にした形（ひ→び）ですが、この読み方は存在しません。「ひたり」は二音目の「だ」を清音の「た」と読み誤ったもので、成立しません。「ひだと」は語尾の「り」を「と」に誤ったもので、これも「左」の読み方ではありません。四つの選択肢のうち「ひだり」だけが成立します。", "en": "「左」is read「ひだり」, meaning left, so it is correct.「びだり」voices the first syllable (ひ→び), which is not a real reading.「ひたり」misreads the second syllable「だ」as the voiceless「た」, so it fails.「ひだと」changes the final「り」to「と」, which is also not a reading of「左」. Of the four options, only「ひだり」works." },
     exampleJapanese: "銀行は駅の左にあります。",
-    exampleMeaningZh: "銀行在車站的左邊。"
+    exampleMeaningZh: "銀行在車站的左邊。",
+    exampleMeaningI18n: { "ja": "銀行は駅の左側にあります。", "en": "The bank is to the left of the station." },
   }),
   examQuestion({
     id: "n5-kanji-kane",
@@ -2296,7 +2341,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「お金」讀作「おかね」，意為錢，正解。「おがね」把「か」濁化成「が」，不是正確讀音。「おかれ」把詞尾「ね」誤成形近的「れ」，不成立。「おっかね」多了促音「っ」，並無此讀法。只有「おかね」成立。",
     explanationI18n: { "ja": "「お金」は「おかね」と読み、お金という意味で、これが正解です。「おがね」は「か」を「が」と濁らせたもので、正しい読み方ではありません。「おかれ」は語尾の「ね」を形の似た「れ」と誤ったもので、成立しません。「おっかね」は促音の「っ」が余分に入っており、そのような読み方はありません。「おかね」だけが成立します。", "en": "「お金」is read「おかね」, meaning money, so it is correct.「おがね」voices「か」into「が」, which is not the correct reading.「おかれ」changes the final「ね」to the similar-looking「れ」, so it fails.「おっかね」adds an extra small tsu「っ」, and no such reading exists. Only「おかね」works." },
     exampleJapanese: "財布にお金がありません。",
-    exampleMeaningZh: "錢包裡沒有錢。"
+    exampleMeaningZh: "錢包裡沒有錢。",
+    exampleMeaningI18n: { "ja": "財布の中にお金がありません。", "en": "There is no money in my wallet." },
   }),
   examQuestion({
     id: "n5-kanji-ashita",
@@ -2316,7 +2362,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「明日」在日常口語常讀作「あした」，意為明天，正解。「あしだ」把詞尾「た」濁化成「だ」，不成立。「あった」把「し」誤成促音「っ」，並非此詞讀音。「あさた」把「し」誤成形近的「さ」，亦不成立。四選項僅「あした」成立。",
     explanationI18n: { "ja": "「明日」は日常の話し言葉ではよく「あした」と読み、明日という意味で、これが正解です。「あしだ」は語尾の「た」を「だ」と濁らせたもので、成立しません。「あった」は「し」を促音の「っ」と誤ったもので、この語の読み方ではありません。「あさた」は「し」を形の似た「さ」と誤ったもので、これも成立しません。四つの選択肢のうち「あした」だけが成立します。", "en": "「明日」is commonly read「あした」in everyday speech, meaning tomorrow, so it is correct.「あしだ」voices the final「た」into「だ」, so it fails.「あった」changes「し」to the small tsu「っ」, which is not this word's reading.「あさた」changes「し」to the similar-looking「さ」, which also fails. Of the four options, only「あした」works." },
     exampleJapanese: "明日、図書館へ行きます。",
-    exampleMeaningZh: "明天要去圖書館。"
+    exampleMeaningZh: "明天要去圖書館。",
+    exampleMeaningI18n: { "ja": "明日、図書館へ行きます。", "en": "I'm going to the library tomorrow." },
   }),
   examQuestion({
     id: "n5-kanji-eki-no-mae",
@@ -2336,7 +2383,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「前」讀作「まえ」，意為前面，正解。「まへ」把「え」寫成歷史假名「へ」，現代讀音不採用，不成立。「なえ」把字首「ま」誤成形近的「な」，並非此字讀音。「まいえ」多插了一個「い」，無此讀法。只有「まえ」成立。",
     explanationI18n: { "ja": "「前」は「まえ」と読み、前という意味で、これが正解です。「まへ」は「え」を歴史的仮名遣いの「へ」で書いたもので、現代の読み方では採用せず、成立しません。「なえ」は語頭の「ま」を形の似た「な」と誤ったもので、この字の読み方ではありません。「まいえ」は「い」が一つ余分に入っており、そのような読み方はありません。「まえ」だけが成立します。", "en": "「前」is read「まえ」, meaning front, so it is correct.「まへ」writes「え」as the historical kana「へ」, which modern readings do not use, so it fails.「なえ」changes the first syllable「ま」to the similar-looking「な」, which is not this character's reading.「まいえ」inserts an extra「い」, and no such reading exists. Only「まえ」works." },
     exampleJapanese: "コンビニは駅の前にあります。",
-    exampleMeaningZh: "便利商店在車站前面。"
+    exampleMeaningZh: "便利商店在車站前面。",
+    exampleMeaningI18n: { "ja": "コンビニは駅の前にあります。", "en": "The convenience store is in front of the station." },
   }),
   examQuestion({
     id: "n5-syn-isogashii",
@@ -2358,7 +2406,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「することが多い」（要做的事很多）與「いそがしい」（忙碌）意思最接近，代回「今週はしごとで することが多いです」自然成立，兩者都表沒有空閒、事情多。干擾「ひまだ」是「いそがしい」的反義（空閒），明確不成立；「おもしろい」（有趣）描述趣味而非忙碌程度，語意不對；「つかれない」（不累）方向相反且與忙碌無關，皆不可接受。",
     explanationI18n: { "ja": "正解の「することが多い」（やることが多い）は「いそがしい」（忙しい）に最も意味が近く、元の文に戻して「今週はしごとで することが多いです」も自然に成立し、どちらも暇がなく用事が多いことを表します。誤答「ひまだ」は「いそがしい」の反対語（暇）で、明らかに成立しません。「おもしろい」（面白い）は面白さを表すもので忙しさの度合いではなく、意味が合いません。「つかれない」（疲れない）は方向が逆で忙しさとも無関係で、いずれも認められません。", "en": "The correct answer「することが多い」(have a lot to do) is closest to「いそがしい」(busy); substituting back,「今週はしごとで することが多いです」is natural, and both mean having no free time with many things to do. Distractor「ひまだ」is the opposite of「いそがしい」(free), so it clearly fails;「おもしろい」(interesting) describes fun rather than how busy you are, so the meaning is wrong;「つかれない」(not tired) points the opposite direction and has nothing to do with being busy, so none are acceptable." },
     exampleJapanese: "今週はしごとで することが多いです。",
-    exampleMeaningZh: "這一週工作要做的事很多。"
+    exampleMeaningZh: "這一週工作要做的事很多。",
+    exampleMeaningI18n: { "ja": "今週は仕事ですることがたくさんあります。", "en": "I have a lot of work to do this week." },
   }),
   examQuestion({
     id: "n5-syn-taihen",
@@ -2380,7 +2429,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「とてもむずかしい」（很難、很吃力）與「たいへん」（辛苦、不容易）意思最接近。干擾「かんたん」（簡單）是反義，明確不成立；「うれしい」（高興）是情緒，與辛苦程度無關；「しずか」（安靜）描述環境聲音，語意完全不對，皆不可接受。",
     explanationI18n: { "ja": "正解の「とてもむずかしい」（とても難しい・骨が折れる）は「たいへん」（大変・容易でない）に最も意味が近いです。誤答「かんたん」（簡単）は反対語で、明らかに成立しません。「うれしい」（うれしい）は感情で、大変さの度合いとは無関係です。「しずか」（静か）は環境の音を表すもので、意味がまったく合わず、いずれも認められません。", "en": "The correct answer「とてもむずかしい」(very hard, very demanding) is closest to「たいへん」(tough, not easy). Distractor「かんたん」(easy) is the opposite, so it clearly fails;「うれしい」(happy) is an emotion, unrelated to how demanding something is;「しずか」(quiet) describes the sound of a place, entirely the wrong meaning, so none are acceptable." },
     exampleJapanese: "ひとりでこのしごとをするのはとてもむずかしいです。",
-    exampleMeaningZh: "一個人做這份工作很難、很吃力。"
+    exampleMeaningZh: "一個人做這份工作很難、很吃力。",
+    exampleMeaningI18n: { "ja": "一人でこの仕事をするのは、とても難しくて骨が折れます。", "en": "Doing this job alone is very difficult and demanding." },
   }),
   examQuestion({
     id: "n5-syn-kitanai",
@@ -2402,7 +2452,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「よごれている」（弄髒了、不乾淨）與「きたない」（髒）意思最接近。干擾「ひろい」（寬敞）講空間大小，與乾淨與否無關；「あたらしい」（新的）講新舊，且髒亂房間多半不新，方向不對；「あかるい」（明亮）講光線，皆與髒乾淨無關，不可接受。",
     explanationI18n: { "ja": "正解の「よごれている」（汚れている・清潔でない）は「きたない」（汚い）に最も意味が近いです。誤答「ひろい」（広い）は空間の大きさを表すもので、清潔かどうかとは無関係です。「あたらしい」（新しい）は新旧を表し、しかも散らかった部屋は新しくないことが多く、方向が合いません。「あかるい」（明るい）は光を表し、いずれも汚いかきれいかとは無関係で、認められません。", "en": "The correct answer「よごれている」(has gotten dirty, not clean) is closest to「きたない」(dirty). Distractor「ひろい」(spacious) is about size, unrelated to being clean or not;「あたらしい」(new) is about newness, and a dirty messy room is usually not new, so the direction is wrong;「あかるい」(bright) is about light, all unrelated to being dirty or clean, so they are not acceptable." },
     exampleJapanese: "このへやはそうじをしていないので、とてもよごれています。",
-    exampleMeaningZh: "這個房間沒有打掃，所以非常髒。"
+    exampleMeaningZh: "這個房間沒有打掃，所以非常髒。",
+    exampleMeaningI18n: { "ja": "この部屋は掃除をしていないので、とても汚れています。", "en": "This room hasn't been cleaned, so it's very dirty." },
   }),
   examQuestion({
     id: "n5-usage-amai",
@@ -2424,7 +2475,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解：「このケーキはとてもあまいです」——蛋糕甜，符合「あまい＝甜」的味覺形容用法。其餘干擾搭配不成立：「コーヒーはとてもあまい音です（咖啡是很甜的聲音）」把味覺的「あまい」硬接到「音（聲音）」上，語意完全錯亂，聲音不能用甜形容；「きょうはあまいですから、まどをしめます（因為今天很甜所以關窗）」天氣不能用甜形容，應是「さむい(冷)」之類；「そのかばんはあまいですね（那個包包很甜）」包包不是可嚐味道的東西，搭配不成立。",
     explanationI18n: { "ja": "正解は「このケーキはとてもあまいです」——ケーキが甘い、で「あまい＝甘い」という味覚の形容の用法に合っています。ほかの誤答は組み合わせが成立しません。「コーヒーはとてもあまい音です（コーヒーは甘い音です）」は味覚の「あまい」を無理に「音」につないでおり、意味がまったく破綻していて、音を甘いとは言えません。「きょうはあまいですから、まどをしめます（今日は甘いので窓を閉めます）」は天気を甘いとは言えず、「さむい（寒い）」などとすべきです。「そのかばんはあまいですね（そのかばんは甘いですね）」はかばんは味わえるものではなく、組み合わせが成立しません。", "en": "Correct answer:「このケーキはとてもあまいです」— the cake is sweet, matching the taste-adjective use of「あまい＝ sweet」. The other distractors are invalid collocations:「コーヒーはとてもあまい音です (the coffee is a very sweet sound)」forces the taste word「あまい」onto「音 (sound)」, which is completely incoherent since sound cannot be sweet;「きょうはあまいですから、まどをしめます (because today is sweet, I close the window)」— weather cannot be described as sweet and should be something like「さむい (cold)」;「そのかばんはあまいですね (that bag is sweet)」— a bag is not something you taste, so the collocation fails." },
     exampleJapanese: "このケーキはとてもあまいです。",
-    exampleMeaningZh: "這個蛋糕非常甜。"
+    exampleMeaningZh: "這個蛋糕非常甜。",
+    exampleMeaningI18n: { "ja": "このケーキはとても甘いです。", "en": "This cake is very sweet." },
   }),
   examQuestion({
     id: "n5-vocab-kiru",
@@ -2524,7 +2576,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「はな」是「花」的訓讀，指花朵，句中「きれいな花がさいています（漂亮的花正在開）」完全成立。干擾「ばな」是把開頭濁音化的錯誤讀音，「花」單獨讀時不濁音，母語者不接受。干擾「はね」是「羽（羽毛）」的讀音、字形相近但語意不對，不能放在「さいています（開花）」前。干擾「はま」是「浜（海濱）」的讀音，與「公園のきれいな○がさく」語境不搭，明確不成立。",
     explanationI18n: { "ja": "正解の「はな」は「花」の訓読みで、花を指し、文中の「きれいな花がさいています（きれいな花が咲いています）」に完全に合います。誤答「ばな」は語頭を濁らせた誤った読み方で、「花」は単独で読むとき濁らず、ネイティブは受け入れません。誤答「はね」は「羽（羽根）」の読み方で、字形は近いものの意味が合わず、「さいています（咲いています）」の前には置けません。誤答「はま」は「浜（海浜）」の読み方で、「公園のきれいな○がさく」という文脈に合わず、明らかに成立しません。", "en": "The answer「はな」is the kun'yomi of「花」, meaning flower, and「きれいな花がさいています（beautiful flowers are blooming）」in the sentence works perfectly. Distractor「ばな」is an incorrect reading that voices the initial sound;「花」on its own is not voiced, so native speakers wouldn't accept it. Distractor「はね」is the reading of「羽（feather）」—the character shape is similar but the meaning is wrong, and it can't go before「さいています（blooming）」. Distractor「はま」is the reading of「浜（seashore）」, which doesn't fit the context of「公園のきれいな○がさく」, so it clearly doesn't work." },
     exampleJapanese: "公園にきれいな花がたくさんさいています。",
-    exampleMeaningZh: "公園裡開著許多漂亮的花。"
+    exampleMeaningZh: "公園裡開著許多漂亮的花。",
+    exampleMeaningI18n: { "ja": "公園にきれいな花がたくさん咲いています。", "en": "Many beautiful flowers are blooming in the park." },
   }),
   examQuestion({
     id: "n5-kanji-soto",
@@ -2544,7 +2597,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「そと」是「外」的訓讀，指外面，句中「外であそびません（不在外面玩）」自然成立。干擾「そど」把第二音濁音化，「外」沒有這個讀音，母語者不接受。干擾「そとう」加了多餘長音，並非「外」的讀法。干擾「とそ」是把音節順序顛倒的錯誤形，字義不通，明確不成立。",
     explanationI18n: { "ja": "正解の「そと」は「外」の訓読みで、外を指し、文中の「外であそびません（外で遊びません）」が自然に成立します。誤答「そど」は二音目を濁らせたもので、「外」にこの読み方はなく、ネイティブは受け入れません。誤答「そとう」は余分な長音を加えたもので、「外」の読み方ではありません。誤答「とそ」は音節の順序を入れ替えた誤った形で、字義が通らず、明らかに成立しません。", "en": "The answer「そと」is the kun'yomi of「外」, meaning outside, and「外であそびません（not playing outside）」works naturally in the sentence. Distractor「そど」voices the second sound;「外」has no such reading, so native speakers wouldn't accept it. Distractor「そとう」adds an unnecessary long vowel and is not how「外」is read. Distractor「とそ」is an incorrect form with the syllable order reversed—it makes no sense, so it clearly doesn't work." },
     exampleJapanese: "さむいので、外であそびません。",
-    exampleMeaningZh: "因為很冷，所以不在外面玩。"
+    exampleMeaningZh: "因為很冷，所以不在外面玩。",
+    exampleMeaningI18n: { "ja": "寒いので、外では遊びません。", "en": "It's cold, so we don't play outside." },
   }),
   examQuestion({
     id: "n5-kanji-chikara",
@@ -2564,7 +2618,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「ちから」是「力」的訓讀，指力氣，句中「力が ありません（沒有力氣）」完全成立。干擾「ぢから」是用「ぢ」取代「ち」的錯誤假名，單獨的「力」開頭不濁，母語者不接受。干擾「ちがら」把第三音濁音化，並非「力」的讀音。干擾「ちかり」把詞尾「ら」誤成「り」，字形相近但不是正確讀法，明確不成立。",
     explanationI18n: { "ja": "正解の「ちから」は「力」の訓読みで、力・パワーを表し、文中の「力が ありません（力がない）」にぴったり合います。誤答「ぢから」は「ち」を「ぢ」に置き換えた誤った仮名で、単独の「力」は語頭が濁らないため、母語話者には受け入れられません。誤答「ちがら」は三つ目の音を濁音にしたもので、「力」の読み方ではありません。誤答「ちかり」は語末の「ら」を「り」と取り違えたもので、字形は似ていますが正しい読みではなく、明らかに成り立ちません。", "en": "The answer「ちから」is the kun'yomi of「力」, meaning strength, and「力が ありません（have no strength）」in the sentence works perfectly. Distractor「ぢから」is incorrect kana that replaces「ち」with「ぢ」; on its own,「力」doesn't start with a voiced sound, so native speakers wouldn't accept it. Distractor「ちがら」voices the third sound and is not the reading of「力」. Distractor「ちかり」mistakes the ending「ら」for「り」—the shape is similar but it's not the correct reading, so it clearly doesn't work." },
     exampleJapanese: "つかれて、もう力がありません。",
-    exampleMeaningZh: "累了，已經沒有力氣了。"
+    exampleMeaningZh: "累了，已經沒有力氣了。",
+    exampleMeaningI18n: { "ja": "疲れて、もう力がありません。", "en": "I'm tired and have no strength left." },
   }),
   examQuestion({
     id: "n5-syn-chikai",
@@ -2586,7 +2641,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「近い」表示距離短，與「遠くない」（不遠）意思最接近，故為正解。「遠い」是「近い」的反義詞，距離長，明確相反。「古い」指時間久遠、陳舊，與距離無關。「広い」指空間寬闊，與距離遠近無關。三個干擾在此語境都不成立，只有「遠くない」說得通。",
     explanationI18n: { "ja": "「近い」は距離が短いことを表し、「遠くない」と意味が最も近いため、これが正解です。「遠い」は「近い」の反対語で距離が長く、意味が明らかに逆です。「古い」は時間が経っている・古びていることを指し、距離とは関係ありません。「広い」は空間が広いことを指し、距離の遠近とは無関係です。三つの誤答はこの文脈では成り立たず、「遠くない」だけが自然につながります。", "en": "「近い」means a short distance, which is closest in meaning to「遠くない」(not far), so that is the answer.「遠い」is the antonym of「近い」—a long distance—so it's clearly the opposite.「古い」means old or long-established in time, unrelated to distance.「広い」means spacious, unrelated to how near or far something is. None of the three distractors work in this context; only「遠くない」makes sense." },
     exampleJapanese: "わたしの 家は 駅から 遠くないです。",
-    exampleMeaningZh: "我家離車站不遠。"
+    exampleMeaningZh: "我家離車站不遠。",
+    exampleMeaningI18n: { "ja": "私の家は駅から遠くありません。", "en": "My house is not far from the station." },
   }),
   examQuestion({
     id: "n5-syn-sugu",
@@ -2608,7 +2664,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「すぐに」表示動作毫不拖延地立刻發生，與「ただちに」（立刻、馬上）意思最接近且代入自然，故為正解。「あとで」是「之後、稍後」，時間上明確相反，不是立刻。「ゆっくり」是「慢慢地」，速度相反，與立刻矛盾。「もう一度」是「再一次」，表示次數重複，與時間的快慢無關。只有「ただちに」成立。",
     explanationI18n: { "ja": "「すぐに」は動作が遅れずただちに起こることを表し、「ただちに」と意味が最も近く、代入しても自然なので、これが正解です。「あとで」は「後で・後ほど」で、時間的に明らかに逆であり、すぐにではありません。「ゆっくり」は「ゆっくりと」で、速さが逆であり、すぐにという意味と矛盾します。「もう一度」は「もう一度」で、回数の繰り返しを表し、時間の速さとは無関係です。「ただちに」だけが成り立ちます。", "en": "「すぐに」means an action happens instantly with no delay, which is closest in meaning to「ただちに」(immediately, right away) and fits naturally when substituted in, so that is the answer.「あとで」means「later, afterward」, which is the clear opposite in timing—not immediate.「ゆっくり」means「slowly」, the opposite in speed and contradicting「immediately」.「もう一度」means「once more」, indicating repetition, unrelated to how fast or slow the timing is. Only「ただちに」works." },
     exampleJapanese: "電話が なったので、ただちに 出ました。",
-    exampleMeaningZh: "因為電話響了，所以立刻接了。"
+    exampleMeaningZh: "因為電話響了，所以立刻接了。",
+    exampleMeaningI18n: { "ja": "電話が鳴ったので、ただちに出ました。", "en": "The phone rang, so I answered it right away." },
   }),
   examQuestion({
     id: "n5-syn-shinsetsu",
@@ -2630,7 +2687,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「親切」表示待人體貼和善，與「やさしい」（溫柔、和善）意思最接近，故為正解。「こわい」是「可怕的」，態度令人害怕，與和善明確相反。「ねむい」是「想睡的」，描述生理狀態，與待人態度無關。「つよい」是「強壯、強的」，描述力量或強度，不是待人的和善。只有「やさしい」成立。",
     explanationI18n: { "ja": "「親切」は人に思いやりがあり優しいことを表し、「やさしい」と意味が最も近いため、これが正解です。「こわい」は「怖い」で、態度が人を怖がらせるものであり、優しさとは明らかに逆です。「ねむい」は「眠い」で、生理的な状態を表し、人への態度とは関係ありません。「つよい」は「強い」で、力や強さを表し、人への優しさではありません。「やさしい」だけが成り立ちます。", "en": "「親切」means being thoughtful and kind to others, which is closest in meaning to「やさしい」(gentle, kind), so that is the answer.「こわい」means「scary」—an intimidating manner—clearly the opposite of kind.「ねむい」means「sleepy」, describing a physical state, unrelated to how one treats others.「つよい」means「strong」, describing power or strength, not kindness toward others. Only「やさしい」works." },
     exampleJapanese: "あの 店の 人は とても やさしいです。",
-    exampleMeaningZh: "那家店的人非常和善。"
+    exampleMeaningZh: "那家店的人非常和善。",
+    exampleMeaningI18n: { "ja": "あの店の人はとても優しいです。", "en": "The people at that shop are very kind." },
   }),
   examQuestion({
     id: "n5-usage-oshieru",
@@ -2652,7 +2710,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「教える」是把知識或方法傳授給別人，本句「老師教學生漢字」搭配與語意都自然，唯一成立。干擾「じしょに 教えます」：不認識的詞要用字典「調べる」（調べます）去查，「じしょに教える」是把詞「教給字典」的明確誤用；干擾「でんしゃに 教えます」：搭電車要用「乗る」（乗ります），『教える』不能表示搭乘；干擾「しゃしんを ともだちに 教えます」：把照片給朋友看要用「見せる」（見せます），照片是給人看不是教。四句都含「教える」，但僅老師傳授漢字的搭配成立。",
     explanationI18n: { "ja": "「教える」は知識ややり方を人に伝えることで、この文「先生が学生に漢字を教える」は組み合わせも意味も自然で、唯一成り立ちます。誤答「じしょに 教えます」：知らない言葉は辞書で「調べる（調べます）」もので、「じしょに教える」は言葉を「辞書に教える」という明らかな誤用です。誤答「でんしゃに 教えます」：電車には「乗る（乗ります）」もので、「教える」に乗るという意味はありません。誤答「しゃしんを ともだちに 教えます」：写真は友だちに「見せる（見せます）」もので、写真は人に見せるものであって教えるものではありません。四文すべてに「教える」が含まれますが、先生が漢字を伝えるという組み合わせだけが成り立ちます。", "en": "「教える」means passing knowledge or a method on to someone, and this sentence,「the teacher teaches the students kanji」, works naturally in both pairing and meaning—the only one that fits. Distractor「じしょに 教えます」: for a word you don't know, you look it up in a dictionary with「調べる」(調べます), so「じしょに教える」is a clear misuse that「teaches the word to the dictionary」. Distractor「でんしゃに 教えます」: to board a train you use「乗る」(乗ります);「教える」can't express boarding. Distractor「しゃしんを ともだちに 教えます」: to show a friend a photo you use「見せる」(見せます)—a photo is shown, not taught. All four sentences contain「教える」, but only the teacher-teaching-kanji pairing works." },
     exampleJapanese: "先生は 学生に かんじを 教えます。",
-    exampleMeaningZh: "老師教學生漢字。"
+    exampleMeaningZh: "老師教學生漢字。",
+    exampleMeaningI18n: { "ja": "先生は学生に漢字を教えます。", "en": "The teacher teaches kanji to the students." },
   }),
   examQuestion({
     id: "n5-usage-kirai",
@@ -2674,7 +2733,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「嫌い」表示對人事物的厭惡，本句「妹妹討厭狗，一看到就逃走」用『逃走』把厭惡的情緒鎖死，唯一成立。干擾「嫌いで、とても おいしいです」：蛋糕好吃應該是喜歡，要用「好き」，與『おいしい』搭配矛盾；干擾「てんきが 嫌いで、そとで あそびます」：在外面玩表示天氣好，要用「いい」（てんきが いい），與討厭矛盾；干擾「サービスが 嫌いで、また 来たいです」：還想再來表示喜歡那家店，要用「いい／好き」，與『また来たい』矛盾。四句都含「嫌い」，但僅妹妹怕狗逃走的句子語意一致。",
     explanationI18n: { "ja": "「嫌い」は人や物事への嫌悪を表し、この文「妹は犬が嫌いで、見ると逃げる」は「逃げる」で嫌悪の気持ちを裏づけており、唯一成り立ちます。誤答「嫌いで、とても おいしいです」：ケーキがおいしいなら好きなはずで「好き」を使うべきであり、「おいしい」との組み合わせが矛盾します。誤答「てんきが 嫌いで、そとで あそびます」：外で遊ぶのは天気がよいことを表し「いい（てんきが いい）」を使うべきで、嫌いと矛盾します。誤答「サービスが 嫌いで、また 来たいです」：また来たいのはその店が好きなことを表し「いい／好き」を使うべきで、「また来たい」と矛盾します。四文すべてに「嫌い」が含まれますが、妹が犬を怖がって逃げる文だけが意味的に一貫しています。", "en": "「嫌い」expresses dislike for a person or thing, and this sentence,「my little sister hates dogs and runs away when she sees one」, locks in that feeling of aversion with「runs away」—the only one that works. Distractor「嫌いで、とても おいしいです」: if the cake is delicious you'd like it, so you'd use「好き」; it contradicts「おいしい」. Distractor「てんきが 嫌いで、そとで あそびます」: playing outside means the weather is good, so you'd use「いい」(てんきが いい), contradicting「dislike」. Distractor「サービスが 嫌いで、また 来たいです」: wanting to come again means you like the shop, so you'd use「いい／好き」, contradicting「また来たい」. All four sentences contain「嫌い」, but only the one about the sister fearing dogs and running away is consistent in meaning." },
     exampleJapanese: "いもうとは いぬが 嫌いで、見ると にげます。",
-    exampleMeaningZh: "妹妹討厭狗，一看到就逃走。"
+    exampleMeaningZh: "妹妹討厭狗，一看到就逃走。",
+    exampleMeaningI18n: { "ja": "妹は犬が嫌いで、見ると逃げます。", "en": "My little sister hates dogs and runs away whenever she sees one." },
   }),
   examQuestion({
     id: "n5-context-deha",
@@ -2794,7 +2854,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「学生」唯一正讀為「がくせい」，指就學中的人，此句說哥哥是大學的學生，語境與讀音皆成立。「がくぜい」把第二音節錯成濁音「ぜ」，日語無此讀法；「かくせい」首音清化成「か」，「学」在此須讀濁音「が」，不成立；「がくせえ」把長音以「え」拼寫，「せい」的長音須寫「せい」，拼寫錯誤。三個干擾皆為清濁、長音或拼寫之誤，母語者均不接受。",
     explanationI18n: { "ja": "「学生」の唯一の正しい読みは「がくせい」で、学んでいる人を指します。この文は兄が大学の学生だと言っており、文脈も読みも成り立ちます。「がくぜい」は二つ目の音節を誤って濁音「ぜ」にしたもので、日本語にこの読みはありません。「かくせい」は語頭を清音「か」にしたもので、ここでの「学」は濁音「が」と読む必要があり、成り立ちません。「がくせえ」は長音を「え」で表記したもので、「せい」の長音は「せい」と書く必要があり、表記の誤りです。三つの誤答はいずれも清濁・長音・表記の誤りで、母語話者には受け入れられません。", "en": "The only correct reading of「学生」is「がくせい」, meaning someone enrolled in school; this sentence says the older brother is a university student, so both context and reading hold.「がくぜい」wrongly voices the second syllable into「ぜ」—Japanese has no such reading.「かくせい」unvoices the first sound into「か」, but「学」must be read with the voiced「が」here, so it doesn't work.「がくせえ」spells the long vowel with「え」, but the long vowel of「せい」must be written「せい」—a spelling error. All three distractors are errors of voicing, long vowels, or spelling that native speakers wouldn't accept." },
     exampleJapanese: "わたしの あには だいがくの「学生」です。",
-    exampleMeaningZh: "我哥哥是大學的學生。"
+    exampleMeaningZh: "我哥哥是大學的學生。",
+    exampleMeaningI18n: { "ja": "私の兄は大学の学生です。", "en": "My older brother is a university student." },
   }),
   examQuestion({
     id: "n5-kanji-shigoto",
@@ -2814,7 +2875,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「仕事」唯一正讀為「しごと」，意為工作，此句說父親每天早上去工作，讀音與語境相符。「じごと」把首音「し」濁化成「じ」，不存在此讀；「しこと」把「ご」清化成「こ」，「事」在此須讀濁音「ご」，不成立；「しごど」把詞尾「と」濁化成「ど」，亦無此讀法。三個干擾都是清濁混淆的誤讀，母語者皆不接受。",
     explanationI18n: { "ja": "「仕事」の唯一の正しい読みは「しごと」で、仕事を意味します。この文は父が毎朝仕事に行くと言っており、読みも文脈も合っています。「じごと」は語頭の「し」を濁らせて「じ」にしたもので、この読みは存在しません。「しこと」は「ご」を清音「こ」にしたもので、ここでの「事」は濁音「ご」と読む必要があり、成り立ちません。「しごど」は語末の「と」を濁らせて「ど」にしたもので、この読みもありません。三つの誤答はいずれも清濁を取り違えた誤読で、母語話者には受け入れられません。", "en": "The only correct reading of「仕事」is「しごと」, meaning work; this sentence says the father goes to work every morning, so reading and context match.「じごと」voices the first sound「し」into「じ」—no such reading exists.「しこと」unvoices「ご」into「こ」, but「事」must be read with the voiced「ご」here, so it doesn't work.「しごど」voices the ending「と」into「ど」, and there's no such reading either. All three distractors are misreadings that confuse voiced and unvoiced sounds, which native speakers wouldn't accept." },
     exampleJapanese: "ちちは まいあさ「仕事」に 行きます。",
-    exampleMeaningZh: "父親每天早上去工作。"
+    exampleMeaningZh: "父親每天早上去工作。",
+    exampleMeaningI18n: { "ja": "父は毎朝、仕事に行きます。", "en": "My father goes to work every morning." },
   }),
   examQuestion({
     id: "n5-kanji-kyou",
@@ -2834,7 +2896,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「今日」唯一正讀為「きょう」，意為今天，此句聊到今天天氣很好，讀音與語境相符。「きょお」把長音以「お」拼寫，「きょう」的長音須寫「う」，拼寫錯誤；「きよう」少了拗音小字「ょ」，變成不同音節組合，並非此詞讀法；「きゅう」把拗音換成「ゅ」，讀成別的音，亦不成立。三個干擾分別為長音拼寫、拗音脫落與拗音換音之誤，母語者皆不接受。",
     explanationI18n: { "ja": "「今日」の唯一の正しい読みは「きょう」で、今日を意味します。この文は今日の天気がとてもよいと話しており、読みも文脈も合っています。「きょお」は長音を「お」で表記したもので、「きょう」の長音は「う」と書く必要があり、表記の誤りです。「きよう」は拗音の小さい「ょ」がなく、別の音節の組み合わせになってしまい、この語の読みではありません。「きゅう」は拗音を「ゅ」に変えたもので、別の音になってしまい、これも成り立ちません。三つの誤答はそれぞれ長音の表記・拗音の脱落・拗音の入れ替えの誤りで、母語話者には受け入れられません。", "en": "The only correct reading of「今日」is「きょう」, meaning today; this sentence chats about the nice weather today, so reading and context match.「きょお」spells the long vowel with「お」, but the long vowel of「きょう」must be written「う」—a spelling error.「きよう」drops the small contracted-sound「ょ」, becoming a different syllable combination that isn't this word's reading.「きゅう」swaps the contracted sound to「ゅ」, reading it as a different sound, so it doesn't work either. The three distractors are errors of long-vowel spelling, dropping the contracted sound, and swapping the contracted sound, none of which native speakers would accept." },
     exampleJapanese: "「今日」は とても いい てんきですね。",
-    exampleMeaningZh: "今天天氣真的很好呢。"
+    exampleMeaningZh: "今天天氣真的很好呢。",
+    exampleMeaningI18n: { "ja": "今日はとてもいい天気ですね。", "en": "The weather is really nice today, isn't it?" },
   }),
   examQuestion({
     id: "n5-syn-benri",
@@ -2856,7 +2919,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「便利」指方便、好用，與「使いやすい（好用、用起來方便）」意思最接近，皆形容對生活有幫助、用起來順手。干擾項：「つまらない」是無聊，與方便無關且方向不同；「きびしい」是嚴格／嚴峻，用在規定或態度上，不能形容車站的方便；「さびしい」是寂寞、冷清，與「店も多くて」矛盾，方向完全相反。只有「使いやすい」能在此句成立。",
     explanationI18n: { "ja": "「便利」は便利で使いやすいことを指し、「使いやすい」と意味が最も近く、どちらも生活の役に立ち、使い勝手がよいことを表します。誤答：「つまらない」はつまらないという意味で、便利とは無関係で方向も違います。「きびしい」は厳しい・厳格という意味で、規則や態度に使うもので、駅の便利さを表せません。「さびしい」は寂しい・ひっそりしているという意味で、「店も多くて」と矛盾し、方向が完全に逆です。「使いやすい」だけがこの文で成り立ちます。", "en": "「便利」means convenient and handy, which is closest in meaning to「使いやすい（easy to use, convenient to use）」—both describe something helpful for daily life and easy to make use of. Distractors:「つまらない」means boring, unrelated to convenience and pointing a different direction;「きびしい」means strict/harsh, used for rules or attitudes and can't describe a station's convenience;「さびしい」means lonely or deserted, contradicting「店も多くて」and pointing in the completely opposite direction. Only「使いやすい」works in this sentence." },
     exampleJapanese: "この駅は店も多くて、とても使いやすいです。",
-    exampleMeaningZh: "這個車站商店也很多，非常好用。"
+    exampleMeaningZh: "這個車站商店也很多，非常好用。",
+    exampleMeaningI18n: { "ja": "この駅はお店も多くて、とても使いやすいです。", "en": "This station has lots of shops, too, and is very handy." },
   }),
   examQuestion({
     id: "n5-syn-yumei",
@@ -2878,7 +2942,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「有名」指出名、廣為人知，與「よく知られている（廣為人知）」意思最接近。干擾項：「ねむそうだ」是看起來想睡，與是否出名無關；「つかれている」是疲累，不能形容拉麵的知名度；「こわれている」是壞掉、故障，用在物品損壞上，與「全国で」這個範圍語境衝突。只有「よく知られている」成立。",
     explanationI18n: { "ja": "「有名」は名が知られ、広く知られていることを指し、「よく知られている」と意味が最も近いです。誤答：「ねむそうだ」は眠そうだという意味で、有名かどうかとは無関係です。「つかれている」は疲れているという意味で、ラーメンの知名度を表せません。「こわれている」は壊れている・故障しているという意味で、物が壊れることに使うもので、「全国で」という範囲の文脈と衝突します。「よく知られている」だけが成り立ちます。", "en": "「有名」means famous or widely known, which is closest to「よく知られている」(widely known). Distractors: 「ねむそうだ」means looking sleepy, which has nothing to do with fame; 「つかれている」means tired, which cannot describe how well-known ramen is; 「こわれている」means broken or out of order, used for damaged objects, and clashes with the「全国で」(nationwide) context. Only 「よく知られている」works." },
     exampleJapanese: "この町のラーメンは全国でよく知られています。",
-    exampleMeaningZh: "這個鎮的拉麵全國各地都廣為人知。"
+    exampleMeaningZh: "這個鎮的拉麵全國各地都廣為人知。",
+    exampleMeaningI18n: { "ja": "この町のラーメンは、全国でよく知られています。", "en": "This town's ramen is well known all over the country." },
   }),
   examQuestion({
     id: "n5-syn-tabun",
@@ -2900,7 +2965,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「たぶん」表示推測、大概，與「おそらく（恐怕、大概）」意思最接近，兩者都用於不確定的預測並常配「でしょう」。干擾項：「ぜんぜん」後接否定，意為完全（不），與肯定推測句不合；「やっと」是好不容易、終於，強調等待後實現，與這裡的天氣推測語意不符；「もう」是已經，指動作完成，與「降るでしょう」這個未發生的推測矛盾。只有「おそらく」成立。",
     explanationI18n: { "ja": "「たぶん」は推測・おそらくを表し、「おそらく」と意味が最も近く、どちらも不確かな予測に使われ、よく「でしょう」と一緒に用いられます。誤答：「ぜんぜん」は後ろに否定を伴い「まったく（〜ない）」という意味で、肯定の推測文とは合いません。「やっと」はやっと・ようやくという意味で、待った末に実現したことを強調し、ここでの天気の推測とは意味が合いません。「もう」はもうという意味で、動作の完了を指し、「降るでしょう」というまだ起きていない推測と矛盾します。「おそらく」だけが成り立ちます。", "en": "「たぶん」expresses a guess or likelihood, closest to「おそらく」(probably, likely); both are used for uncertain predictions and often pair with「でしょう」. Distractors: 「ぜんぜん」is followed by a negative and means \"(not) at all,\" which does not fit an affirmative prediction; 「やっと」means finally or at last, stressing something realized after waiting, which does not match a weather forecast; 「もう」means already and refers to a completed action, contradicting「降るでしょう」, which predicts something that has not yet happened. Only 「おそらく」works." },
     exampleJapanese: "空が暗いから、おそらく雨が降るでしょう。",
-    exampleMeaningZh: "因為天空很暗，大概會下雨吧。"
+    exampleMeaningZh: "因為天空很暗，大概會下雨吧。",
+    exampleMeaningI18n: { "ja": "空が暗いから、たぶん雨が降るでしょう。", "en": "The sky is dark, so it will probably rain." },
   }),
   examQuestion({
     id: "n5-syn-isogu",
@@ -2922,7 +2988,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「急ぐ」指趕緊、加快動作，「急ぎましょう」與「いそいで行きましょう（趕快走吧）」意思最接近，都是催促對方加快腳步前往。干擾項：「止まりましょう」是停下來，與趕時間方向相反；「休みましょう」是休息吧，剩五分鐘還休息語意矛盾；「並びましょう」是排隊吧，與催促加速無關。只有「いそいで行きましょう」成立。",
     explanationI18n: { "ja": "「急ぐ」は急ぐ・動作を速めることを指し、「急ぎましょう」は「いそいで行きましょう」と意味が最も近く、どちらも相手に足を速めて向かうよう促すものです。誤答：「止まりましょう」は止まろうという意味で、時間を急ぐのとは方向が逆です。「休みましょう」は休もうという意味で、あと五分なのに休むのは意味が矛盾します。「並びましょう」は並ぼうという意味で、急ぐよう促すこととは無関係です。「いそいで行きましょう」だけが成り立ちます。", "en": "「急ぐ」means to hurry or move faster, so「急ぎましょう」is closest to「いそいで行きましょう」(let's hurry and go); both urge the other person to pick up the pace and get moving. Distractors: 「止まりましょう」means let's stop, the opposite of hurrying; 「休みましょう」means let's rest, which contradicts hurrying with only five minutes left; 「並びましょう」means let's line up, unrelated to urging someone to speed up. Only 「いそいで行きましょう」works." },
     exampleJapanese: "電車の時間まであと五分だから、いそいで行きましょう。",
-    exampleMeaningZh: "距離電車發車只剩五分鐘，趕快走吧。"
+    exampleMeaningZh: "距離電車發車只剩五分鐘，趕快走吧。",
+    exampleMeaningI18n: { "ja": "電車の時間まであと五分しかないので、急いで行きましょう。", "en": "There are only five minutes until the train leaves, so let's hurry." },
   }),
   examQuestion({
     id: "n5-usage-aruku",
@@ -2944,7 +3011,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「うちは学校に近いので、毎朝歩いて行きます」：距離近、用雙腳步行去學校，「歩く」用法正確自然。干擾一「空に鳥が…歩いています」：鳥在天空中應是「飛ぶ（飛）」，天上不能「歩く」，語意明確不成立。干擾二「プールで一時間ぐらい歩く」：在游泳池裡一小時應是「泳ぐ（游）」才自然，雖文法接得上但搭配明確錯誤。干擾三「バスに歩いて」：搭巴士應是「バスに乗って（乘坐）」，「バスに歩いて」語意不通。故只有第一句成立。",
     explanationI18n: { "ja": "正解「うちは学校に近いので、毎朝歩いて行きます」：距離が近く、自分の足で歩いて学校へ行くので、「歩く」の使い方が正しく自然です。誤答一「空に鳥が…歩いています」：鳥は空では「飛ぶ」ものであり、空を「歩く」ことはできず、意味が明らかに成り立ちません。誤答二「プールで一時間ぐらい歩く」：プールでの一時間は「泳ぐ」が自然で、文法はつながっても組み合わせが明らかに誤りです。誤答三「バスに歩いて」：バスには「バスに乗って」と言うべきで、「バスに歩いて」は意味が通りません。したがって最初の文だけが成り立ちます。", "en": "Correct answer「うちは学校に近いので、毎朝歩いて行きます」: the distance is short and one goes to school on foot, so「歩く」is used correctly and naturally. Distractor 1「空に鳥が…歩いています」: a bird in the sky should「飛ぶ」(fly); you cannot「歩く」in the sky, so it clearly fails. Distractor 2「プールで一時間ぐらい歩く」: spending an hour in a pool should be「泳ぐ」(swim) to be natural; although grammatically it connects, the collocation is clearly wrong. Distractor 3「バスに歩いて」: taking a bus should be「バスに乗って」(to ride); 「バスに歩いて」makes no sense. So only the first sentence works." },
     exampleJapanese: "うちは学校に近いので、毎朝歩いて行きます。",
-    exampleMeaningZh: "我家離學校很近，所以每天早上走路去。"
+    exampleMeaningZh: "我家離學校很近，所以每天早上走路去。",
+    exampleMeaningI18n: { "ja": "うちは学校から近いので、毎朝歩いて行きます。", "en": "My house is close to the school, so I walk there every morning." },
   }),
   examQuestion({
     id: "n5-usage-urusai",
@@ -2966,7 +3034,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「となりのテレビの音がうるさくて、よく寝られません」：因為聲音很吵而睡不好，「音がうるさい」搭配正確自然。干擾一「ラーメンはうるさいので」：對食物的負評應是「まずい（難吃）」，味道不會用「うるさい」，語意明確錯誤。干擾二「夜になると道がうるさくて、何も見えません」：看不見東西的原因應是「暗い（くらい，昏暗）」，「うるさい」與「看不見」無關。干擾三「この川はうるさいですから」：水深危險不能進去應是「深い（ふかい，深的）」，河川不會因「吵」而不能進去。故只有第一句成立。",
     explanationI18n: { "ja": "正解「となりのテレビの音がうるさくて、よく寝られません」：音がうるさくてよく眠れないので、「音がうるさい」の組み合わせが正しく自然です。誤答一「ラーメンはうるさいので」：食べ物への悪評は「まずい」であるべきで、味に「うるさい」は使わず、意味が明らかに誤りです。誤答二「夜になると道がうるさくて、何も見えません」：何も見えない原因は「暗い（くらい）」であるべきで、「うるさい」は「見えない」とは無関係です。誤答三「この川はうるさいですから」：水が深くて危険で入れないなら「深い（ふかい）」であるべきで、川は「うるさい」から入れないわけではありません。したがって最初の文だけが成り立ちます。", "en": "Correct answer「となりのテレビの音がうるさくて、よく寝られません」: unable to sleep well because the sound is loud, so「音がうるさい」is a correct, natural collocation. Distractor 1「ラーメンはうるさいので」: a negative comment about food should be「まずい」(tastes bad); flavor is not described with「うるさい」, so it is clearly wrong. Distractor 2「夜になると道がうるさくて、何も見えません」: the reason you can't see should be「暗い」(dark); 「うるさい」has nothing to do with not being able to see. Distractor 3「この川はうるさいですから」: a river being too dangerous to enter should be「深い」(deep); a river is not off-limits because it is \"noisy.\" So only the first sentence works." },
     exampleJapanese: "となりのテレビの音がうるさくて、よく寝られません。",
-    exampleMeaningZh: "隔壁電視的聲音很吵，讓我睡不好。"
+    exampleMeaningZh: "隔壁電視的聲音很吵，讓我睡不好。",
+    exampleMeaningI18n: { "ja": "となりのテレビの音がうるさくて、よく眠れません。", "en": "The TV next door is so noisy that I can't sleep well." },
   }),
   examQuestion({
     id: "n5-context-keredomo",
@@ -3146,7 +3215,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「手」單獨當名詞時用訓讀「て」，「手をあらいます」＝洗手。「で」是把「て」誤讀成濁音的干擾；「た」是把母音由え段誤讀成あ段的干擾；「ち」是假名字形/發音相近的干擾，皆非「手」單獨成詞時的讀音。此處唯「て」成立。",
     explanationI18n: { "ja": "「手」が単独で名詞のときは訓読みの「て」で、「手をあらいます」＝手を洗う、です。「で」は「て」を濁音に読み間違えた誤答、「た」は母音をえ段からあ段に読み間違えた誤答、「ち」は仮名の字形や発音が似ていることによる誤答で、いずれも「手」が単独で語になるときの読みではありません。ここでは「て」だけが成り立ちます。", "en": "When「手」stands alone as a noun it takes the kun reading「て」, so「手をあらいます」= wash one's hands. 「で」is a distractor that misreads「て」as a voiced sound; 「た」is a distractor that shifts the vowel from the え-row to the あ-row; 「ち」is a distractor with a similar kana shape and sound—none is the reading of「手」as a standalone word. Here only「て」works." },
     exampleJapanese: "ごはんの まえに、せっけんで 手を あらいます。",
-    exampleMeaningZh: "吃飯前用肥皂洗手。"
+    exampleMeaningZh: "吃飯前用肥皂洗手。",
+    exampleMeaningI18n: { "ja": "ご飯の前に、せっけんで手を洗います。", "en": "I wash my hands with soap before eating." },
   }),
   examQuestion({
     id: "n5-kanji-mise",
@@ -3166,7 +3236,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「店」單獨當名詞時用訓讀「みせ」，「この店」＝這家店。「みぜ」把「せ」誤讀成濁音（せ→ぜ）；「みす」把「せ」誤讀成「す」、不成讀音；「めせ」把第一個假名「み」誤讀成「め」。此處單獨名詞唯「みせ」成立。",
     explanationI18n: { "ja": "「店」が単独で名詞のときは訓読みの「みせ」で、「この店」＝この店、です。「みぜ」は「せ」を濁音に読み間違えたもの（せ→ぜ）、「みす」は「せ」を「す」に読み間違えたもので読みとして成り立ちません。「めせ」は最初の仮名「み」を「め」に読み間違えたものです。ここでは単独の名詞として「みせ」だけが成り立ちます。", "en": "When「店」stands alone as a noun it takes the kun reading「みせ」, so「この店」= this shop. 「みぜ」misreads「せ」as a voiced sound (せ→ぜ); 「みす」misreads「せ」as「す」, which is not a valid reading; 「めせ」misreads the first kana「み」as「め」. For this standalone noun, only「みせ」works." },
     exampleJapanese: "この店では やすい くだものを うっています。",
-    exampleMeaningZh: "這家店賣便宜的水果。"
+    exampleMeaningZh: "這家店賣便宜的水果。",
+    exampleMeaningI18n: { "ja": "この店では、安い果物を売っています。", "en": "This shop sells inexpensive fruit." },
   }),
   examQuestion({
     id: "n5-kanji-sakana",
@@ -3186,7 +3257,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「魚」單獨當名詞時用訓讀「さかな」，「魚をやいて」＝烤魚。「さがな」把「か」誤讀成濁音（か→が）；「ざかな」把第一個假名「さ」誤讀成濁音（さ→ざ）；「さなか」把「か」「な」順序對調、不成讀音。此處單獨名詞唯「さかな」成立。",
     explanationI18n: { "ja": "「魚」が単独で名詞のときは訓読みの「さかな」で、「魚をやいて」＝魚を焼いて、です。「さがな」は「か」を濁音に読み間違えたもの（か→が）、「ざかな」は最初の仮名「さ」を濁音に読み間違えたもの（さ→ざ）、「さなか」は「か」と「な」の順序を入れ替えたもので読みとして成り立ちません。ここでは単独の名詞として「さかな」だけが成り立ちます。", "en": "When「魚」stands alone as a noun it takes the kun reading「さかな」, so「魚をやいて」= grill fish. 「さがな」misreads「か」as a voiced sound (か→が); 「ざかな」misreads the first kana「さ」as a voiced sound (さ→ざ); 「さなか」swaps the order of「か」and「な」, which is not a valid reading. For this standalone noun, only「さかな」works." },
     exampleJapanese: "ばんごはんに、おいしい 魚を やいて たべました。",
-    exampleMeaningZh: "晚餐烤了好吃的魚來吃。"
+    exampleMeaningZh: "晚餐烤了好吃的魚來吃。",
+    exampleMeaningI18n: { "ja": "晩ご飯に、おいしい魚を焼いて食べました。", "en": "For dinner, I grilled some delicious fish and ate it." },
   }),
   examQuestion({
     id: "n5-syn-amari",
@@ -3208,7 +3280,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「あまり〜ない」表示程度不高，與「そんなに〜ない」同義，都是「不太、不怎麼」，代回「そんなにおいしくない」自然成立。「とても」是「非常」，語意相反（程度高），不對。「ぜんぶ」是「全部」，與程度無關，搭配「ない」語意不成立。「もっと」是「更加」，方向相反且語意不通。只有「そんなに」成立。",
     explanationI18n: { "ja": "「あまり〜ない」は程度が高くないことを表し、「そんなに〜ない」と同義で、どちらも「あまり、それほど～ない」の意味です。当てはめると「そんなにおいしくない」が自然に成り立ちます。「とても」は「非常に」で、程度が高く意味が逆になるので違います。「ぜんぶ」は「全部」で程度とは関係がなく、「ない」との組み合わせでも意味が通りません。「もっと」は「さらに」で方向が逆で意味も通りません。「そんなに」だけが成り立ちます。", "en": "「あまり〜ない」indicates a low degree, synonymous with「そんなに〜ない」; both mean \"not very, not particularly,\" so「そんなにおいしくない」fits naturally. 「とても」means \"very,\" the opposite in meaning (a high degree), so it's wrong. 「ぜんぶ」means \"all,\" unrelated to degree, and doesn't make sense paired with「ない」. 「もっと」means \"more,\" the opposite direction and nonsensical here. Only 「そんなに」works." },
     exampleJapanese: "この料理はそんなにおいしくないです。",
-    exampleMeaningZh: "這道菜不怎麼好吃。"
+    exampleMeaningZh: "這道菜不怎麼好吃。",
+    exampleMeaningI18n: { "ja": "この料理は、あまりおいしくないです。", "en": "This dish isn't very tasty." },
   }),
   examQuestion({
     id: "n5-syn-joubu",
@@ -3230,7 +3303,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「じょうぶ」指東西結實耐用、不容易壞，與「こわれにくい」（不易損壞）語意最接近，代回「このかばんはこわれにくいですね」自然成立。「こわれやすい」是「容易壞」，語意完全相反，不對。「かるい」是「輕」，講的是重量不是堅固度，語意不同。「ふるい」是「舊」，與耐用無關。只有「こわれにくい」成立。",
     explanationI18n: { "ja": "「じょうぶ」は物が頑丈で長持ちし、壊れにくいことを指し、「こわれにくい」（壊れにくい）が最も意味が近く、当てはめると「このかばんはこわれにくいですね」が自然に成り立ちます。「こわれやすい」は「壊れやすい」で意味が正反対なので違います。「かるい」は「軽い」で重さのことであり頑丈さの話ではないので意味が異なります。「ふるい」は「古い」で長持ちとは関係がありません。「こわれにくい」だけが成り立ちます。", "en": "「じょうぶ」describes something sturdy and durable, not easily broken, closest to「こわれにくい」(hard to break), so「このかばんはこわれにくいですね」fits naturally. 「こわれやすい」means \"easily broken,\" the exact opposite, so it's wrong. 「かるい」means \"light,\" referring to weight rather than durability, so the meaning differs. 「ふるい」means \"old,\" unrelated to durability. Only 「こわれにくい」works." },
     exampleJapanese: "このかばんはこわれにくいですね。",
-    exampleMeaningZh: "這個包包很耐用呢。"
+    exampleMeaningZh: "這個包包很耐用呢。",
+    exampleMeaningI18n: { "ja": "このかばんは丈夫で、長持ちしますね。", "en": "This bag is really sturdy, isn't it?" },
   }),
   examQuestion({
     id: "n5-syn-mainichi",
@@ -3252,7 +3326,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「いつも」表示「總是、每次都這樣」，與「まいにち」（每天）在「天天都固定如此」的語意上最接近，代回「わたしはまいにち六時におきます」自然成立。「ときどき」是「偶爾」，頻率明顯較低且非總是，語意不同。「たまに」是「偶爾、難得」，頻率低、與每次相反，不成立。「もう」是「已經」，講的不是頻率，語意不通。只有「まいにち」與「いつも」同義。",
     explanationI18n: { "ja": "「いつも」は「いつも、毎回そうする」ことを表し、「まいにち」（毎日）と「毎日決まってそうする」という意味で最も近く、当てはめると「わたしはまいにち六時におきます」が自然に成り立ちます。「ときどき」は「ときどき」で頻度が明らかに低く、いつもではないので意味が異なります。「たまに」は「たまに、まれに」で頻度が低く「毎回」とは逆なので成り立ちません。「もう」は「もう、すでに」で頻度の話ではなく意味が通りません。「まいにち」だけが「いつも」と同義です。", "en": "「いつも」means \"always, every time,\" closest to「まいにち」(every day) in the sense of \"doing the same thing regularly day after day,\" so「わたしはまいにち六時におきます」fits naturally. 「ときどき」means \"sometimes,\" a clearly lower frequency and not \"always,\" so the meaning differs. 「たまに」means \"occasionally, rarely,\" a low frequency and the opposite of \"every time,\" so it fails. 「もう」means \"already,\" which is not about frequency and makes no sense here. Only 「まいにち」is synonymous with「いつも」." },
     exampleJapanese: "わたしはまいにち六時におきます。",
-    exampleMeaningZh: "我每天六點起床。"
+    exampleMeaningZh: "我每天六點起床。",
+    exampleMeaningI18n: { "ja": "わたしは毎日、六時に起きます。", "en": "I get up at six o'clock every day." },
   }),
   examQuestion({
     id: "n5-usage-ushiro",
@@ -3274,7 +3349,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「わたしの いすの 後ろに かばんが あります」用「Xの後ろに」表示位置在椅子背後，是後ろ的標準用法。「あの店は後ろが高いです」要表達價格貴應用「値段」，後ろ在此不通。「りんごを後ろ食べました」是時間先後，應用「あとで」，後ろ(空間)不能修飾動詞。「きょうは後ろがいい天気です」要講今天天氣應直接說「きょうはいい天気です」，後ろ在此完全不成立。",
     explanationI18n: { "ja": "正解「わたしの いすの 後ろに かばんが あります」は「Xの後ろに」で位置が椅子の背後にあることを表しており、後ろの標準的な使い方です。「あの店は後ろが高いです」は値段が高いことを言いたいなら「値段」を使うべきで、後ろではここで通りません。「りんごを後ろ食べました」は時間の前後を言いたいので「あとで」を使うべきで、（空間の）後ろは動詞を修飾できません。「きょうは後ろがいい天気です」は今日の天気を言うなら「きょうはいい天気です」と言えばよく、後ろはここでは全く成り立ちません。", "en": "Correct answer「わたしの いすの 後ろに かばんが あります」uses「Xの後ろに」to place the location behind the chair—the standard use of 後ろ. 「あの店は後ろが高いです」should use「値段」to say the price is high; 後ろ makes no sense here. 「りんごを後ろ食べました」refers to time order and should use「あとで」; 後ろ (spatial) cannot modify a verb. 「きょうは後ろがいい天気です」should simply say「きょうはいい天気です」to talk about today's weather; 後ろ does not work here at all." },
     exampleJapanese: "わたしの いすの 後ろに かばんが あります。",
-    exampleMeaningZh: "我的椅子後面有一個包包。"
+    exampleMeaningZh: "我的椅子後面有一個包包。",
+    exampleMeaningI18n: { "ja": "わたしのいすの後ろに、かばんがあります。", "en": "There is a bag behind my chair." },
   }),
   examQuestion({
     id: "n5-usage-motsu",
@@ -3296,7 +3372,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「かばんを手に持って、駅へ行きました」用「Nを持つ」表示用手拿著包包，是持つ的核心用法。「あさ七時に持ちました」要表達起床的時間動作，意思不成立，這裡需要的是別的動詞。「ともだちと公園を持ちました」要表達在公園散步或玩，持つ不能搭配公園這樣的場所做受詞。「このみずはとても持ちます」要形容水的性質(冷、好喝等)，持つ無法形容水，語意完全不通。",
     explanationI18n: { "ja": "正解「かばんを手に持って、駅へ行きました」は「Nを持つ」で手にかばんを持っていることを表しており、持つの中心的な使い方です。「あさ七時に持ちました」は起きる時間の動作を表したいなら意味が成り立たず、ここでは別の動詞が必要です。「ともだちと公園を持ちました」は公園で散歩したり遊んだりすることを表したいのでしょうが、持つは公園のような場所を目的語にできません。「このみずはとても持ちます」は水の性質（冷たい、おいしいなど）を表したいのでしょうが、持つは水を形容できず、意味が全く通りません。", "en": "The correct answer, \"かばんを手に持って、駅へ行きました,\" uses the pattern \"Nを持つ\" to mean holding a bag in your hand — the core use of 持つ. \"あさ七時に持ちました\" is trying to express the action of getting up at a certain time, which makes no sense; a different verb is needed here. \"ともだちと公園を持ちました\" is trying to say strolling or playing in a park, but 持つ cannot take a place like a park as its object. \"このみずはとても持ちます\" is trying to describe a quality of water (cold, tasty, etc.), but 持つ cannot describe water, so the meaning is completely broken." },
     exampleJapanese: "かばんを 手に 持って、駅へ 行きました。",
-    exampleMeaningZh: "手上拿著包包去了車站。"
+    exampleMeaningZh: "手上拿著包包去了車站。",
+    exampleMeaningI18n: { "ja": "かばんを手に持って、駅へ行きました。", "en": "I went to the station carrying a bag in my hand." },
   }),
   examQuestion({
     id: "n5-usage-byouki",
@@ -3318,7 +3395,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「病気できょうは学校を休みました」用「病気で」表示因為生病而請假，是病気的典型用法。「このりょうりはとても病気です」要形容料理(好吃、辣等)，病気不能形容食物味道。「あの山は病気がたかいです」要說山的高度應用「高さ」，病気在此完全不通。「あたらしいくつを病気で買いました」要說在某地或用某種方式買鞋，病気不能當買鞋的手段或場所，語意不成立。",
     explanationI18n: { "ja": "正解「病気できょうは学校を休みました」は「病気で」で病気のために休んだことを表しており、病気の典型的な使い方です。「このりょうりはとても病気です」は料理の味（おいしい、辛いなど）を表したいのでしょうが、病気は食べ物の味を形容できません。「あの山は病気がたかいです」は山の高さを言うなら「高さ」を使うべきで、病気はここでは全く通りません。「あたらしいくつを病気で買いました」はどこで、あるいはどんな方法で靴を買ったかを言いたいのでしょうが、病気は靴を買う手段や場所にはできず、意味が成り立ちません。", "en": "The correct answer, \"病気できょうは学校を休みました,\" uses \"病気で\" to mean taking time off because of illness — the typical use of 病気. \"このりょうりはとても病気です\" is trying to describe food (delicious, spicy, etc.), but 病気 cannot describe the taste of food. \"あの山は病気がたかいです\" is trying to state a mountain's height, which should use \"高さ\"; 病気 makes no sense here. \"あたらしいくつを病気で買いました\" is trying to say buying shoes somewhere or by some means, but 病気 cannot serve as the means or place for buying shoes, so the meaning doesn't hold." },
     exampleJapanese: "病気で きょうは 学校を 休みました。",
-    exampleMeaningZh: "因為生病，今天向學校請了假。"
+    exampleMeaningZh: "因為生病，今天向學校請了假。",
+    exampleMeaningI18n: { "ja": "病気で、今日は学校を休みました。", "en": "I was sick, so I stayed home from school today." },
   }),
   examQuestion({
     id: "n5-context-suruto",
@@ -3518,7 +3596,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「右」訓讀「みぎ」（後字濁音ぎ）。「みき」漏掉濁點，是「幹（みき）」的讀音，非此字；「にぎ」把首音み誤成に，是近形誤讀，不是右的讀音；「みぎり」多了一個り，非「右」單字的讀音，此語境也只能讀みぎ。",
     explanationI18n: { "ja": "「右」は訓読みで「みぎ」（後ろの字は濁音ぎ）です。「みき」は濁点が抜けており、「幹（みき）」の読みで、この字ではありません。「にぎ」は最初の音「み」を「に」に読み間違えたもので、字形が似ていることによる誤読で、右の読みではありません。「みぎり」は「り」が余分で、「右」単体の読みではなく、この文脈でも「みぎ」としか読めません。", "en": "「右」 has the kun reading \"みぎ\" (the second syllable is voiced, ぎ). \"みき\" drops the voicing mark and is the reading of \"幹 (みき, trunk),\" not this character; \"にぎ\" mistakes the first sound み for に, a similar-looking misreading and not the reading of 右; \"みぎり\" adds an extra り and is not the reading of the single word \"右,\" which in this context can only be read みぎ." },
     exampleJapanese: "つぎの かどを 右に まがって ください。",
-    exampleMeaningZh: "請在下一個路口往右轉。"
+    exampleMeaningZh: "請在下一個路口往右轉。",
+    exampleMeaningI18n: { "ja": "次の角を右に曲がってください。", "en": "Please turn right at the next corner." },
   }),
   examQuestion({
     id: "n5-kanji-ima",
@@ -3538,7 +3617,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「今」單獨使用時讀訓讀「いま」。「いな」把第二音ま誤成な，近形誤讀，非此字讀音；「いわ」把ま誤成わ，是「岩（いわ）」的讀音，非此字；「きん」是別字「金」的音讀，與「今」無關。此語境問現在幾點，只能讀いま。",
     explanationI18n: { "ja": "「今」を単独で使うときは訓読みの「いま」と読みます。「いな」は二番目の音「ま」を「な」に読み間違えたもので、字形が似ていることによる誤読であり、この字の読みではありません。「いわ」は「ま」を「わ」に読み間違えたもので、「岩（いわ）」の読みで、この字ではありません。「きん」は別の字「金」の音読みで、「今」とは関係がありません。この文脈は今何時かをたずねており、「いま」としか読めません。", "en": "When 「今」 is used on its own, it takes the kun reading \"いま.\" \"いな\" mistakes the second sound ま for な, a similar-looking misreading and not this character's reading; \"いわ\" mistakes ま for わ and is the reading of \"岩 (いわ, rock),\" not this character; \"きん\" is the on reading of the different character \"金\" and has nothing to do with \"今.\" In this context asking the current time, it can only be read いま." },
     exampleJapanese: "今、なんじですか。",
-    exampleMeaningZh: "現在幾點呢？"
+    exampleMeaningZh: "現在幾點呢？",
+    exampleMeaningI18n: { "ja": "今、何時ですか。", "en": "What time is it now?" },
   }),
   examQuestion({
     id: "n5-kanji-mimi",
@@ -3558,7 +3638,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "「耳」訓讀「みみ」（兩音皆清音み）。「みび」把第二音誤加濁點，非此字讀音；「めめ」把み誤成め，近形誤讀，不成詞；「みめ」是「見目（みめ／容貌）」的讀音，與身體部位「耳」無關。此語境講身體部位變紅，只能讀みみ。",
     explanationI18n: { "ja": "「耳」は訓読みで「みみ」（どちらの音も清音のみ）です。「みび」は二番目の音に濁点を付け足したもので、この字の読みではありません。「めめ」は「み」を「め」に読み間違えたもので、字形が似ていることによる誤読で、語になりません。「みめ」は「見目（みめ／容貌）」の読みで、体の部位である「耳」とは関係がありません。この文脈は体の部位が赤くなったと言っており、「みみ」としか読めません。", "en": "「耳」 has the kun reading \"みみ\" (both syllables are voiceless み). \"みび\" wrongly adds a voicing mark to the second syllable and isn't this character's reading; \"めめ\" mistakes み for め, a similar-looking misreading that isn't a word; \"みめ\" is the reading of \"見目 (みめ, appearance)\" and has nothing to do with the body part \"ear.\" In this context about a body part turning red, it can only be read みみ." },
     exampleJapanese: "さむいので 耳が あかく なった。",
-    exampleMeaningZh: "因為很冷，耳朵變紅了。"
+    exampleMeaningZh: "因為很冷，耳朵變紅了。",
+    exampleMeaningI18n: { "ja": "寒くて、耳が赤くなりました。", "en": "It was so cold that my ears turned red." },
   }),
   examQuestion({
     id: "n5-syn-dandan",
@@ -3580,7 +3661,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「少しずつ」＝一點一點地，與「だんだん」(漸漸地、隨時間逐步變化) 同義，代回句子「少しずつあたたかくなりました」自然成立。干擾「急に」＝突然，與「逐步」相反，方向相左不成立。「もうすぐ」＝再過不久(指未來尚未發生)，但句尾已是「なりました」過去完成，語意不合。「ときどき」＝有時(表頻率非表程度漸進)，無法描述持續變暖的過程，母語者不會接受。只有「少しずつ」成立。",
     explanationI18n: { "ja": "正解「少しずつ」＝少しずつ、で、「だんだん」（だんだん、時間とともに徐々に変わる）と同義であり、文に戻すと「少しずつあたたかくなりました」が自然に成り立ちます。誤答「急に」＝突然、で「徐々に」とは逆で、方向が食い違うため成り立ちません。「もうすぐ」＝もうすぐ（まだ起きていない未来を指す）ですが、文末はすでに「なりました」と過去完了なので意味が合いません。「ときどき」＝ときどき（頻度を表し、程度の漸進は表さない）で、続けて暖かくなる過程を描写できず、母語話者は受け入れません。「少しずつ」だけが成り立ちます。", "en": "The correct answer, \"少しずつ\" = little by little, is synonymous with \"だんだん\" (gradually, changing step by step over time), and plugging it back in gives the natural \"少しずつあたたかくなりました.\" The distractor \"急に\" = suddenly is the opposite of \"gradually,\" so its direction is wrong and it fails. \"もうすぐ\" = soon (referring to something in the future that hasn't happened yet), but the sentence ends in \"なりました,\" a completed past, so the meaning doesn't fit. \"ときどき\" = sometimes (marking frequency, not progressive degree) cannot describe an ongoing process of warming, and a native speaker wouldn't accept it. Only \"少しずつ\" works." },
     exampleJapanese: "三月になって、少しずつあたたかくなりました。",
-    exampleMeaningZh: "進入三月後，一點一點地變暖了。"
+    exampleMeaningZh: "進入三月後，一點一點地變暖了。",
+    exampleMeaningI18n: { "ja": "三月になって、少しずつ暖かくなりました。", "en": "Once March came, it gradually got warmer, little by little." },
   }),
   examQuestion({
     id: "n5-syn-taitei",
@@ -3602,7 +3684,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「ほとんどいつも」＝幾乎總是，與「たいてい」(大多數情況、大抵) 同義，代回「ほとんどいつも家にいます」自然成立。干擾「たまに」＝偶爾(頻率低)，與「大抵=高頻」相反不成立。「ぜんぜん」＝完全(不)，後面須接否定，與肯定句「います」搭配錯誤且語意相反。「これから」＝從現在起(指未來)，無法表達習慣性高頻率，母語者不會接受。只有「ほとんどいつも」成立。",
     explanationI18n: { "ja": "正解「ほとんどいつも」は「たいてい」（多くの場合・大部分）と同じ意味で、入れ替えても「ほとんどいつも家にいます」と自然に成り立ちます。誤答の「たまに」は『時々』（頻度が低い）で、『たいてい＝高い頻度』とは反対なので合いません。「ぜんぜん」は『全く（〜ない）』で後ろに否定が必要なため、肯定文の「います」とは結びつかず、意味も逆になります。「これから」は『これから先』（未来を指す）で、習慣的な高い頻度は表せず、日本語話者には受け入れられません。成り立つのは「ほとんどいつも」だけです。", "en": "The correct answer, \"ほとんどいつも\" = almost always, is synonymous with \"たいてい\" (in most cases, usually), and plugging it back in gives the natural \"ほとんどいつも家にいます.\" The distractor \"たまに\" = occasionally (low frequency) is the opposite of \"usually = high frequency,\" so it fails. \"ぜんぜん\" = (not) at all must be followed by a negative, so it mismatches the affirmative \"います\" and means the opposite. \"これから\" = from now on (referring to the future) cannot express a habitual high frequency, and a native speaker wouldn't accept it. Only \"ほとんどいつも\" works." },
     exampleJapanese: "わたしは日曜日、ほとんどいつも家にいます。",
-    exampleMeaningZh: "我星期天幾乎總是待在家裡。"
+    exampleMeaningZh: "我星期天幾乎總是待在家裡。",
+    exampleMeaningI18n: { "ja": "わたしは日曜日、ほとんどいつも家にいます。", "en": "On Sundays I'm almost always at home." },
   }),
   examQuestion({
     id: "n5-syn-zenbu",
@@ -3624,7 +3707,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「のこらず」＝一點不剩、全部，與「ぜんぶ」(全部) 同義，代回「りょうりをのこらず食べました」自然成立。干擾「はんぶん」＝一半，數量明確不同。「すこし」＝一點點，與「全部」量相反。「べつべつに」＝分開地(指方式而非數量，例如各付各的)，無法表示份量全部，母語者不會接受。只有「のこらず」成立。",
     explanationI18n: { "ja": "正解「のこらず」は『少しも残さず・全部』という意味で「ぜんぶ」（全部）と同じであり、入れ替えても「料理をのこらず食べました」と自然に成り立ちます。誤答の「はんぶん」は『半分』で、数量がはっきり異なります。「すこし」は『少しだけ』で、『全部』とは量が逆になります。「べつべつに」は『別々に』（数量ではなく方法を表す。例：会計を別々にする）で、量がすべてであることは表せず、日本語話者には受け入れられません。成り立つのは「のこらず」だけです。", "en": "The correct answer, \"のこらず\" = without leaving any, all of it, is synonymous with \"ぜんぶ\" (all), and plugging it back in gives the natural \"りょうりをのこらず食べました.\" The distractor \"はんぶん\" = half is a clearly different quantity. \"すこし\" = a little bit is the opposite amount of \"all.\" \"べつべつに\" = separately (referring to manner rather than quantity, e.g. paying separately) can't express eating the whole amount, and a native speaker wouldn't accept it. Only \"のこらず\" works." },
     exampleJapanese: "お皿のりょうりをのこらず食べました。",
-    exampleMeaningZh: "把盤子裡的菜一點不剩地全吃完了。"
+    exampleMeaningZh: "把盤子裡的菜一點不剩地全吃完了。",
+    exampleMeaningI18n: { "ja": "お皿の料理を、残さず全部食べました。", "en": "I ate everything on the plate without leaving a single bite." },
   }),
   examQuestion({
     id: "n5-usage-hiroi",
@@ -3646,7 +3730,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「この部屋はとても広いです」中，「広い」用來形容房間的空間寬敞，搭配自然。干擾一「このコーヒーは広いです」應改用「熱い」(燙)，咖啡無法用「廣」形容。干擾二「きょうは…広いです」應改用「寒い」(冷)，天氣冷暖不會用「廣」。干擾三「この本は広いので」應改用「おもしろい」(有趣)或「やさしい」(簡單)，書能不能兩小時讀完取決於難易或趣味，而非寬廣。三個干擾雖接續正確，但語意與搭配都不成立，故唯一正解為房間句。",
     explanationI18n: { "ja": "正解「この部屋はとても広いです」では、「広い」が部屋の空間が広々としている様子を表していて、組み合わせが自然です。誤答一「このコーヒーは広いです」は「熱い」にすべきで、コーヒーを『広い』とは言えません。誤答二「きょうは…広いです」は「寒い」にすべきで、天気の寒暖に『広い』は使いません。誤答三「この本は広いので」は「おもしろい」（面白い）か「やさしい」（易しい）にすべきで、本を二時間で読めるかどうかは難易や面白さによるもので、広さとは関係ありません。三つの誤答は接続こそ正しいものの、意味も組み合わせも成り立たないため、唯一の正解は部屋の文です。", "en": "In the correct answer \"この部屋はとても広いです,\" \"広い\" describes the room being spacious, which is a natural pairing. Distractor 1 \"このコーヒーは広いです\" should use \"熱い\" (hot) instead, since coffee can't be described as \"wide.\" Distractor 2 \"きょうは…広いです\" should use \"寒い\" (cold) instead, since weather warmth/coldness isn't described with \"wide.\" Distractor 3 \"この本は広いので\" should use \"おもしろい\" (interesting) or \"やさしい\" (easy) instead, since whether a book can be read in two hours depends on its difficulty or interest, not on being wide. Though the three distractors attach grammatically, their meaning and collocation both fail, so the only correct answer is the room sentence." },
     exampleJapanese: "この部屋はとても広いです。",
-    exampleMeaningZh: "這個房間非常寬敞。"
+    exampleMeaningZh: "這個房間非常寬敞。",
+    exampleMeaningI18n: { "ja": "この部屋はとても広いです。", "en": "This room is very spacious." },
   }),
   examQuestion({
     id: "n5-usage-nugu",
@@ -3668,7 +3753,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「家に入る前に、くつを脱ぎます」中，「脱ぐ」用於脫鞋，搭配自然。干擾一「ぎゅうにゅうを脱ぎます」應改用「飲む」(喝)，牛奶是用喝的。干擾二「本を脱ぎました」應改用「読む」(讀)，書是用讀的。干擾三「手紙を脱ぎました」應改用「書く」(寫)，信是用寫的。三個干擾的受詞都不能用「脫」，語意明確錯誤，故唯一正解為脫鞋句。",
     explanationI18n: { "ja": "正解「家に入る前に、くつを脱ぎます」では、「脱ぐ」が靴を脱ぐ動作に使われていて、組み合わせが自然です。誤答一「ぎゅうにゅうを脱ぎます」は「飲む」にすべきで、牛乳は飲むものです。誤答二「本を脱ぎました」は「読む」にすべきで、本は読むものです。誤答三「手紙を脱ぎました」は「書く」にすべきで、手紙は書くものです。三つの誤答はどれも目的語に『脱ぐ』が使えず、意味がはっきり間違っているため、唯一の正解は靴を脱ぐ文です。", "en": "In the correct answer \"家に入る前に、くつを脱ぎます,\" \"脱ぐ\" is used for taking off shoes, a natural pairing. Distractor 1 \"ぎゅうにゅうを脱ぎます\" should use \"飲む\" (drink) instead, since milk is drunk. Distractor 2 \"本を脱ぎました\" should use \"読む\" (read) instead, since a book is read. Distractor 3 \"手紙を脱ぎました\" should use \"書く\" (write) instead, since a letter is written. None of the three distractors' objects can take \"take off,\" so their meanings are clearly wrong, and the only correct answer is the taking-off-shoes sentence." },
     exampleJapanese: "家に入る前に、くつを脱ぎます。",
-    exampleMeaningZh: "進屋之前要脫鞋子。"
+    exampleMeaningZh: "進屋之前要脫鞋子。",
+    exampleMeaningI18n: { "ja": "家に入る前に、くつを脱ぎます。", "en": "I take off my shoes before going into the house." },
   }),
   examQuestion({
     id: "n5-usage-eiga",
@@ -3690,7 +3776,8 @@ export const n5Items: PracticeQuestion[] = [
     explanation: "正解「週末に友達と映画を見ました」中，「映画」搭配「見る」(看)，是看電影的自然說法。干擾一「映画を飲みました」應改用「お茶」或「水」，喉嚨渴是喝飲料而非電影。干擾二「映画を食べました」應改用「ごはん」或「ごはん類」，早餐吃的是食物而非電影。干擾三「映画で帰りました」應改用「電車」或「バス」，從車站回家的交通工具不是電影。三個干擾的動詞與助詞都把語意鎖死，唯一成立的是看電影句。",
     explanationI18n: { "ja": "正解「週末に友達と映画を見ました」では、「映画」が「見る」と組み合わさっていて、映画を見るという自然な言い方になっています。誤答一「映画を飲みました」は「お茶」か「水」にすべきで、のどが渇いたら飲むのは飲み物であって映画ではありません。誤答二「映画を食べました」は「ごはん」などにすべきで、朝食に食べるのは食べ物であって映画ではありません。誤答三「映画で帰りました」は「電車」か「バス」にすべきで、駅から家へ帰る交通手段は映画ではありません。三つの誤答は動詞と助詞によって意味が固定されてしまい、成り立つのは映画を見る文だけです。", "en": "In the correct answer \"週末に友達と映画を見ました,\" \"映画\" pairs with \"見る\" (watch) — the natural way to say watching a movie. Distractor 1 \"映画を飲みました\" should use \"お茶\" or \"水\" instead, since when you're thirsty you drink a beverage, not a movie. Distractor 2 \"映画を食べました\" should use \"ごはん\" or something in the rice/meal category instead, since breakfast is food, not a movie. Distractor 3 \"映画で帰りました\" should use \"電車\" or \"バス\" instead, since the means of getting home from the station isn't a movie. In all three distractors the verb and particle lock the meaning down, so the only sentence that works is the watching-a-movie one." },
     exampleJapanese: "週末に友達と映画を見ました。",
-    exampleMeaningZh: "週末和朋友一起看了電影。"
+    exampleMeaningZh: "週末和朋友一起看了電影。",
+    exampleMeaningI18n: { "ja": "週末に友達と映画を見ました。", "en": "I watched a movie with a friend on the weekend." },
   }),
   examQuestion({
     id: "n5-grammar-ichiban-se-takai",

@@ -76,15 +76,16 @@ describe("findTargets (multi-field)", () => {
     expect(x1.context.options).toContain('"に"');
   });
 
-  it("does NOT confuse meaningZh with exampleMeaningZh (anchored field match)", () => {
+  it("keeps meaningZh and exampleMeaningZh apart (anchored field match)", () => {
     const withExample = FIXTURE.replace(
       '    meaningZh: "去",',
       '    meaningZh: "去",\n    exampleMeaningZh: "去學校的例句意思",'
     );
     const x1 = findTargets(withExample, "en", 1)[0];
+    // Each field is matched at its own anchor -- no cross-contamination in
+    // either direction now that exampleMeaningZh is itself translatable.
     expect(x1.fields.meaningZh).toBe("去");
-    // exampleMeaningZh is not a translatable field
-    expect(Object.keys(x1.fields)).not.toContain("exampleMeaningZh");
+    expect(x1.fields.exampleMeaningZh).toBe("去學校的例句意思");
   });
 });
 

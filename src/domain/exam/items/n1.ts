@@ -696,6 +696,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "来月から、新しい 委員会が 発足する 予定だ。",
     exampleJapanese: "来月から、新しい 委員会が 発足する 予定だ。",
     exampleMeaningZh: "下個月起新委員會將正式成立。",
+    exampleMeaningI18n: { "ja": "来月から新しい委員会が正式にスタートする予定です。", "en": "A new committee is set to be launched next month." },
     options: [
       "来月から、新しい 委員会が 発足する 予定だ。",
       "桜の 季節が 今年は 早めに 発足した。",
@@ -723,6 +724,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "彼は これまでに 多くの 著名な 建築物を 手がけて きた。",
     exampleJapanese: "彼は これまでに 多くの 著名な 建築物を 手がけて きた。",
     exampleMeaningZh: "他至今操刀過許多著名建築。",
+    exampleMeaningI18n: { "ja": "彼はこれまで数多くの有名な建築物の設計・施工に携わってきました。", "en": "He has worked on many famous buildings so far." },
     options: [
       "彼は これまでに 多くの 著名な 建築物を 手がけて きた。",
       "弟は 階段で 転んで 手を 手がけて しまった。",
@@ -750,6 +752,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "校正で 細かい 誤字を いくつか 見落として しまった。",
     exampleJapanese: "校正で 細かい 誤字を いくつか 見落として しまった。",
     exampleMeaningZh: "校稿時把幾個小錯字看漏了。",
+    exampleMeaningI18n: { "ja": "校正のとき、小さな誤字をいくつか見逃してしまいました。", "en": "I overlooked a few small typos while proofreading." },
     options: [
       "校正で 細かい 誤字を いくつか 見落として しまった。",
       "山の 頂上から 街全体を 見落として 写真を 撮った。",
@@ -777,6 +780,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "来週の 会議の 議題に ついて、課長と 打ち合わせた。",
     exampleJapanese: "来週の 会議の 議題に ついて、課長と 打ち合わせた。",
     exampleMeaningZh: "我跟課長協商了下週會議的議題。",
+    exampleMeaningI18n: { "ja": "来週の会議の議題について、課長と事前に相談しました。", "en": "I discussed the agenda for next week's meeting with the section chief." },
     options: [
       "来週の 会議の 議題に ついて、課長と 打ち合わせた。",
       "二人は 目を 打ち合わせて、互いに 微笑んだ。",
@@ -1210,6 +1214,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "けんちょ",
     exampleJapanese: "近年、環境問題の影響は顕著に現れている。",
     exampleMeaningZh: "近年來環境問題的影響顯而易見。",
+    exampleMeaningI18n: { "ja": "近年、環境問題の影響がはっきりと現れています。", "en": "In recent years, the impact of environmental problems has become strikingly apparent." },
     options: ["けんちょ", "けんしょ", "げんちょ", "けんちょう"],
     explanation: "「顕」音讀「けん」，「著」音讀「ちょ」→ けんちょ。「けんしょ」是清濁混淆；「げんちょ」是首字濁音；「けんちょう」是多餘的長音（撞到「県庁」）。",
     explanationI18n: { "ja": "「顕」の音読みは「けん」、「著」の音読みは「ちょ」で、けんちょ となります。「けんしょ」は清濁の混同、「げんちょ」は最初の字を濁音にした誤り、「けんちょう」は余分な長音（「県庁」との混同）です。", "en": "「顕」is read 「けん」and 「著」is read 「ちょ」→ けんちょ. 「けんしょ」confuses voiced/voiceless kana; 「げんちょ」voices the first syllable; 「けんちょう」adds a superfluous long vowel (colliding with 「県庁」)." },
@@ -1230,6 +1235,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "すいこう",
     exampleJapanese: "与えられた任務を確実に遂行する。",
     exampleMeaningZh: "確實執行所受託付的任務。",
+    exampleMeaningI18n: { "ja": "与えられた任務を確実にやり遂げます。", "en": "Carry out the assigned task without fail." },
     options: ["すいこう", "ついこう", "ずいこう", "すいぎょう"],
     explanation: "「遂」音讀「すい」，「行」音讀「こう」→ すいこう。「ついこう」是首字子音錯誤；「ずいこう」是「随行」（濁音化）；「すいぎょう」是「行」誤讀為「ぎょう」（修行 しゅぎょう 的類推）。",
     explanationI18n: { "ja": "「遂」の音読みは「すい」、「行」の音読みは「こう」で、すいこう となります。「ついこう」は最初の子音の誤り、「ずいこう」は「随行」（濁音化）、「すいぎょう」は「行」を「ぎょう」と誤読したもの（「修行 しゅぎょう」からの類推）です。", "en": "「遂」is read 「すい」and 「行」is read 「こう」→ すいこう. 「ついこう」has the wrong initial consonant on the first syllable; 「ずいこう」is 「随行」(voiced); 「すいぎょう」misreads 「行」as 「ぎょう」(by analogy with 修行 しゅぎょう)." },
@@ -1250,6 +1256,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "だきょう",
     exampleJapanese: "この問題で安易な妥協はできない。",
     exampleMeaningZh: "在這個問題上不能輕易妥協。",
+    exampleMeaningI18n: { "ja": "この問題では安易に譲歩することはできません。", "en": "We cannot make an easy compromise on this issue." },
     options: ["だきょう", "たきょう", "だこう", "だぎょう"],
     explanation: "「妥」音讀「だ」，「協」音讀「きょう」→ だきょう。「たきょう」是清濁混淆；「だこう」是「蛇行」（次字錯讀）；「だぎょう」是次字濁音化。",
     explanationI18n: { "ja": "「妥」の音読みは「だ」、「協」の音読みは「きょう」で、だきょう となります。「たきょう」は清濁の混同、「だこう」は「蛇行」（二字目の誤読）、「だぎょう」は二字目の濁音化です。", "en": "「妥」is read 「だ」and 「協」is read 「きょう」→ だきょう. 「たきょう」confuses voiced/voiceless kana; 「だこう」is 「蛇行」(the second character misread); 「だぎょう」voices the second character." },
@@ -1270,6 +1277,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "あんもく",
     exampleJapanese: "チーム内には暗黙のルールがある。",
     exampleMeaningZh: "團隊內存在默契性的規則。",
+    exampleMeaningI18n: { "ja": "チームの中には、口に出さなくても皆が了解しているルールがあります。", "en": "There are unspoken rules within the team." },
     options: ["あんもく", "あんぼく", "あんしょう", "あんめい"],
     explanation: "「暗」音讀「あん」，「黙」音讀「もく」→ あんもく。「あんぼく」是次字濁音；「あんしょう」是「暗証／暗唱」（次字錯讀）；「あんめい」是「暗冥」類錯讀。",
     explanationI18n: { "ja": "「暗」の音読みは「あん」、「黙」の音読みは「もく」で、あんもく となります。「あんぼく」は二字目の濁音、「あんしょう」は「暗証／暗唱」（二字目の誤読）、「あんめい」は「暗冥」のような誤読です。", "en": "「暗」is read 「あん」and 「黙」is read 「もく」→ あんもく. 「あんぼく」voices the second character; 「あんしょう」is 「暗証／暗唱」(the second character misread); 「あんめい」is a misreading along the lines of 「暗冥」." },
@@ -1290,6 +1298,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "とどこおって",
     exampleJapanese: "作業の進行が予定より滞っている。",
     exampleMeaningZh: "工作進度比預定還要拖延。",
+    exampleMeaningI18n: { "ja": "作業の進み具合が予定より遅れています。", "en": "Progress on the work is falling behind schedule." },
     options: ["とどこおって", "とどまって", "とどろいて", "たくおって"],
     explanation: "「滞」訓讀「とどこお-る」→ とどこおって。「とどまって」是「留まる／止まる」（同字根 とど- 但不同字）；「とどろいて」是「轟いて」（同字根，意為轟鳴）；「たくおって」是無對應字的擬音陷阱。",
     explanationI18n: { "ja": "「滞」の訓読みは「とどこお-る」で、とどこおって となります。「とどまって」は「留まる／止まる」（同じ「とど-」で始まるが別の字）、「とどろいて」は「轟いて」（同じ語頭で「とどろく＝鳴り響く」の意）、「たくおって」は対応する字のない語呂合わせの罠です。", "en": "「滞」has the kun reading 「とどこお-る」→ とどこおって. 「とどまって」is 「留まる／止まる」(same 「とど-」root but a different character); 「とどろいて」is 「轟いて」(same root, meaning \"to roar\"); 「たくおって」is a sound-alike trap with no corresponding character." },
@@ -1310,6 +1319,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "つちかう",
     exampleJapanese: "豊かな感性を培う教育を目指している。",
     exampleMeaningZh: "致力於培養豐富感性的教育。",
+    exampleMeaningI18n: { "ja": "豊かな感性を育てる教育を目指しています。", "en": "We aim for an education that cultivates rich sensitivity." },
     options: ["つちかう", "ばいかう", "つちこう", "つくろう"],
     explanation: "「培」訓讀「つちか-う」→ つちかう。「ばいかう」是把訓讀換成音讀「ばい」的陷阱；「つちこう」是次音節母音錯誤；「つくろう」是「繕う」（修補，不同字）。",
     explanationI18n: { "ja": "「培」の訓読みは「つちか-う」で、つちかう となります。「ばいかう」は訓読みを音読みの「ばい」に置き換えた罠、「つちこう」は二つ目の音節の母音の誤り、「つくろう」は「繕う」（修繕する、別の字）です。", "en": "「培」has the kun reading 「つちか-う」→ つちかう. 「ばいかう」is a trap that swaps in the on reading 「ばい」; 「つちこう」has a wrong vowel in the second syllable; 「つくろう」is 「繕う」(to mend, a different character)." },
@@ -2530,6 +2540,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "うながす",
     exampleJapanese: "改善を促す声が市民の間で高まっている。",
     exampleMeaningZh: "市民之間要求改善的呼聲越來越高。",
+    exampleMeaningI18n: { "ja": "改善を求める声が市民の間でますます高まっています。", "en": "Calls urging improvement are growing among the citizens." },
     options: ["うながす","そくす","もよおす","せかす"],
     explanation: "「促」訓讀「うなが-す」→ うながす。「そくす」是直接套音讀「そく」（如「促進」）的錯讀；「もよおす」是「催す」（不同字，意思接近）；「せかす」是「急かす」（口語近義詞，不同字）。",
     explanationI18n: { "ja": "「促」の訓読みは「うなが-す」で、「うながす」となります。「そくす」は音読みの「そく」（例：促進）をそのまま当てた誤読、「もよおす」は「催す」（別字・意味は近い）、「せかす」は「急かす」（口語の類義語・別字）です。", "en": "「促」has the kun'yomi「うなが-す」→ うながす. 「そくす」wrongly applies the on'yomi「そく」directly (as in「促進」). 「もよおす」is「催す」(a different kanji, close in meaning). 「せかす」is「急かす」(a colloquial near-synonym written with a different kanji)." },
@@ -2550,6 +2561,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "こばんだ",
     exampleJapanese: "彼は最後まで提案を拒んだ。",
     exampleMeaningZh: "他直到最後都拒絕了那個提案。",
+    exampleMeaningI18n: { "ja": "彼は最後までその提案を受け入れませんでした。", "en": "He refused the proposal right up to the end." },
     options: ["こばんだ","ふせいだ","はばんだ","ことわった"],
     explanation: "「拒」訓讀「こば-む」→ こばんだ（た形）。「ふせいだ」是「防いだ」（防止，不同字）；「はばんだ」是「阻んだ」（阻擋，字形相近但訓讀不同）；「ことわった」是「断った」（拒絕，同義字但漢字不同）。",
     explanationI18n: { "ja": "「拒」の訓読みは「こば-む」で、た形は「こばんだ」です。「ふせいだ」は「防いだ」（別字）、「はばんだ」は「阻んだ」（字形は似ているが訓読みが異なる）、「ことわった」は「断った」（同義だが漢字が異なる）です。", "en": "「拒」has the kun'yomi「こば-む」→ こばんだ (past form). 「ふせいだ」is「防いだ」(to prevent — a different kanji). 「はばんだ」is「阻んだ」(to block — similar in shape but a different kun'yomi). 「ことわった」is「断った」(to refuse — a synonym written with a different kanji)." },
@@ -2570,6 +2582,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "はばむ",
     exampleJapanese: "高い壁が彼の野心を阻む。",
     exampleMeaningZh: "一道高牆阻擋著他的野心。",
+    exampleMeaningI18n: { "ja": "高い壁が彼の野心の前に立ちはだかっています。", "en": "A high wall blocks his ambition." },
     options: ["はばむ","こばむ","ふせぐ","そむ"],
     explanation: "「阻」訓讀「はば-む」→ はばむ。「こばむ」是「拒む」（字形相近，但拒む是「拒絕」，阻む是「阻擋」）；「ふせぐ」是「防ぐ」（不同字）；「そむ」是把音讀「そ」（如「阻止」）+ 訓尾的錯讀。",
     explanationI18n: { "ja": "「阻」の訓読みは「はば-む」で、「はばむ」となります。「こばむ」は「拒む」（字形は似ているが、拒むは「拒絶する」、阻むは「さまたげる」で意味が異なる）、「ふせぐ」は「防ぐ」（別字）、「そむ」は音読みの「そ」（例：阻止）に訓読みの語尾を付けた誤読です。", "en": "「阻」has the kun'yomi「はば-む」→ はばむ. 「こばむ」is「拒む」(similar in shape, but 拒む means \"to refuse\" while 阻む means \"to block\"). 「ふせぐ」is「防ぐ」(a different kanji). 「そむ」is a wrong reading combining the on'yomi「そ」(as in「阻止」) with a kun-style ending." },
@@ -2590,6 +2603,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "つのって",
     exampleJapanese: "不安が日に日に募ってきた。",
     exampleMeaningZh: "不安一天比一天強烈。",
+    exampleMeaningI18n: { "ja": "不安が日ごとに強くなってきました。", "en": "My anxiety grew stronger day by day." },
     options: ["つのって","ぼって","ぼしゅうって","あつまって"],
     explanation: "「募」訓讀「つの-る」→ つのって（て形）。「ぼって」是直接套音讀「ぼ」的錯讀；「ぼしゅうって」是把熟語「募集」拆出讀法的陷阱；「あつまって」是「集まって」（聚集，意義接近但不同字）。注意「募る」是自他兩用：自動詞義「（情感）增強」、他動詞義「徵集」。",
     explanationI18n: { "ja": "「募」の訓読みは「つの-る」で、て形は「つのって」です。「ぼって」は音読みの「ぼ」をそのまま当てた誤読、「ぼしゅうって」は熟語「募集」の読みを分けて当てたひっかけ、「あつまって」は「集まって」（意味は近いが別字）です。なお「募る」は自他両用で、自動詞では「（感情が）強まる」、他動詞では「集める」の意味になります。", "en": "「募」has the kun'yomi「つの-る」→ つのって (て-form). 「ぼって」wrongly applies the on'yomi「ぼ」directly. 「ぼしゅうって」is a trap pulling a reading out of the compound「募集」. 「あつまって」is「集まって」(to gather — close in meaning but a different kanji). Note that「募る」works both ways: intransitively it means \"(emotion) intensifies,\" and transitively it means \"to recruit/solicit.\"" },
@@ -2610,6 +2624,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "あやつる",
     exampleJapanese: "彼は四つの言語を自在に操る。",
     exampleMeaningZh: "他能自如地運用四種語言。",
+    exampleMeaningI18n: { "ja": "彼は四つの言語を自由自在に使いこなします。", "en": "He handles four languages with ease." },
     options: ["あやつる","そうる","あつる","みさおる"],
     explanation: "「操」訓讀「あやつ-る」→ あやつる。「そうる」是直接套音讀「そう」（如「操作」）的錯讀；「あつる」是縮短訓讀的造詞陷阱；「みさおる」是把名詞「操」（みさお＝節操）誤當動詞訓讀。",
     explanationI18n: { "ja": "「操」の訓読みは「あやつ-る」で、「あやつる」となります。「そうる」は音読みの「そう」（例：操作）をそのまま当てた誤読、「あつる」は訓読みを縮めた造語のひっかけ、「みさおる」は名詞の「操（みさお＝節操）」を動詞の訓読みと取り違えたものです。", "en": "「操」has the kun'yomi「あやつ-る」→ あやつる. 「そうる」wrongly applies the on'yomi「そう」directly (as in「操作」). 「あつる」is a made-up trap using a shortened kun'yomi. 「みさおる」mistakenly turns the noun「操」(みさお = integrity) into a kun-read verb." },
@@ -2630,6 +2645,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "たいのう",
     exampleJapanese: "家賃の滞納が三ヶ月続いている。",
     exampleMeaningZh: "房租已經拖欠了三個月。",
+    exampleMeaningI18n: { "ja": "家賃の支払いが三か月も遅れたままになっています。", "en": "The rent has been overdue for three months now." },
     options: ["たいのう","とどこおりおさめ","たいなん","ちのう"],
     explanation: "「滞」音讀「たい」、「納」音讀「のう」→ たいのう。「とどこおりおさめ」是把兩字訓讀拼起來的陷阱；「たいなん」是「納」誤讀為「なん」；「ちのう」是「滞」誤讀為「ち」。注意 N1 也常考「滞る」的訓讀「とどこお-る」，是同字多音的典型。",
     explanationI18n: { "ja": "「滞」は音読みで「たい」、「納」は音読みで「のう」なので「たいのう」となります。「とどこおりおさめ」は二字の訓読みをつなげたひっかけ、「たいなん」は「納」を「なん」と誤読したもの、「ちのう」は「滞」を「ち」と誤読したものです。なお、N1では「滞る」の訓読み「とどこお-る」もよく問われ、同じ字で読みが複数ある典型例です。", "en": "「滞」has the on'yomi「たい」and「納」has the on'yomi「のう」→ たいのう. 「とどこおりおさめ」is a trap stringing together the kun'yomi of both characters. 「たいなん」misreads「納」as「なん」. 「ちのう」misreads「滞」as「ち」. Note that N1 also frequently tests the kun'yomi「とどこお-る」for「滞る」— a classic case of one character having multiple readings." },
@@ -2650,6 +2666,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "てっかい",
     exampleJapanese: "彼は前言を撤回した。",
     exampleMeaningZh: "他撤回了之前說過的話。",
+    exampleMeaningI18n: { "ja": "彼は前に言ったことを取り消しました。", "en": "He retracted what he had said earlier." },
     options: ["てっかい","てつかい","ちょっかい","てっき"],
     explanation: "「撤」音讀「てつ」＋ 「回」音讀「かい」，連音促音化後 → てっかい。「てつかい」是漏掉促音的錯讀；「ちょっかい」是不相關的常見詞（騷擾義）陷阱；「てっき」是「回」誤為「き」。",
     explanationI18n: { "ja": "「撤」の音読み「てつ」と「回」の音読み「かい」が連なり、促音化して「てっかい」となります。「てつかい」は促音を落とした誤読、「ちょっかい」は無関係な既存語（「干渉・いたずら」の意）のひっかけ、「てっき」は「回」を「き」と誤ったものです。", "en": "「撤」has the on'yomi「てつ」and「回」has the on'yomi「かい」; with the sound change to a geminate consonant → てっかい. 「てつかい」is a wrong reading that drops the small tsu. 「ちょっかい」is a trap using an unrelated common word (meaning \"meddling/harassment\"). 「てっき」misreads「回」as「き」." },
@@ -2670,6 +2687,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "こうみょう",
     exampleJapanese: "犯人の巧妙な手口に警察は手を焼いている。",
     exampleMeaningZh: "罪犯巧妙的手法讓警方很頭疼。",
+    exampleMeaningI18n: { "ja": "犯人の巧みな手口に、警察は手を焼いています。", "en": "The criminal's clever tricks have the police struggling." },
     options: ["こうみょう","ぎょうみょう","こうべん","たくみょう"],
     explanation: "「巧」音讀「こう」＋ 「妙」音讀「みょう」→ こうみょう。「ぎょうみょう」是「巧」誤讀為「ぎょう」（字形相似的混淆）；「こうべん」是「妙」誤讀；「たくみょう」是「巧」混入訓讀「たくみ」（巧み）的錯讀。",
     explanationI18n: { "ja": "「巧」の音読み「こう」と「妙」の音読み「みょう」で「こうみょう」となります。「ぎょうみょう」は「巧」を「ぎょう」と誤読したもの（字形の似た字との混同）、「こうべん」は「妙」の誤読、「たくみょう」は「巧」に訓読みの「たくみ（巧み）」を混ぜた誤読です。", "en": "「巧」has the on'yomi「こう」and「妙」has the on'yomi「みょう」→ こうみょう. 「ぎょうみょう」misreads「巧」as「ぎょう」(confusion with a similar-looking character). 「こうべん」misreads「妙」. 「たくみょう」wrongly mixes in the kun'yomi「たくみ」(巧み) for「巧」." },
@@ -2690,6 +2708,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "かたよらない",
     exampleJapanese: "意見が一方に偏らないよう、複数の専門家に意見を聞いた。",
     exampleMeaningZh: "為了不讓意見偏向一方，徵詢了多位專家的意見。",
+    exampleMeaningI18n: { "ja": "意見が一方にかたよらないように、複数の専門家に意見を聞きました。", "en": "To keep opinions from leaning to one side, we consulted several experts." },
     options: ["かたよらない","へんよらない","かたまらない","へんらない"],
     explanation: "「偏」訓讀「かたよ-る」→ かたよらない（ない形）。「へんよらない」是直接套音讀「へん」（如「偏見」）的錯讀；「かたまらない」是「固まらない」（凝固，訓讀接近但不同字）；「へんらない」是音讀＋無訓尾的陷阱。",
     explanationI18n: { "ja": "「偏」の訓読みは「かたよ-る」で、ない形は「かたよらない」です。「へんよらない」は音読みの「へん」（例：偏見）をそのまま当てた誤読、「かたまらない」は「固まらない」（訓読みは近いが別字）、「へんらない」は音読みに訓読みの語尾を欠いたひっかけです。", "en": "「偏」has the kun'yomi「かたよ-る」→ かたよらない (negative form). 「へんよらない」wrongly applies the on'yomi「へん」directly (as in「偏見」). 「かたまらない」is「固まらない」(to harden — close in kun'yomi but a different kanji). 「へんらない」is a trap using the on'yomi with no kun-ending." },
@@ -2710,6 +2729,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "そこなう",
     exampleJapanese: "信頼を損なうような行動は慎むべきだ。",
     exampleMeaningZh: "應該避免做出損害信任的行為。",
+    exampleMeaningI18n: { "ja": "信頼を傷つけるような行動は控えるべきです。", "en": "You should refrain from actions that would damage trust." },
     options: ["そこなう","そんなう","そこわす","うしなう"],
     explanation: "「損」訓讀「そこ-なう」→ そこなう。「そんなう」是直接套音讀「そん」（如「損失」）的錯讀；「そこわす」是訓尾「なう」誤為「わす」；「うしなう」是「失う」（失去，同義字但不同字）。",
     explanationI18n: { "ja": "「損」の訓読みは「そこ-なう」で、「そこなう」となります。「そんなう」は音読みの「そん」（例：損失）をそのまま当てた誤読、「そこわす」は訓読みの語尾「なう」を「わす」と誤ったもの、「うしなう」は「失う」（同義だが別字）です。", "en": "「損」has the kun'yomi「そこ-なう」→ そこなう. 「そんなう」wrongly applies the on'yomi「そん」directly (as in「損失」). 「そこわす」mistakes the kun-ending「なう」for「わす」. 「うしなう」is「失う」(to lose — a synonym written with a different kanji)." },
@@ -2730,6 +2750,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "したって",
     exampleJapanese: "彼は今でも亡き恩師を心から慕っている。",
     exampleMeaningZh: "他至今仍打從心底懷念已故的恩師。",
+    exampleMeaningI18n: { "ja": "彼は今でも亡くなった恩師を心から敬愛し、なつかしんでいます。", "en": "Even now, he cherishes the memory of his late mentor from the bottom of his heart." },
     options: ["したって","ぼって","おもって","あがめって"],
     explanation: "「慕」訓讀「した-う」→ したって（て形）。「ぼって」是直接套音讀「ぼ」（如「思慕」）的錯讀；「おもって」是「思って」（不同字）；「あがめって」是把「崇める（あがめる）」混入的造詞陷阱。",
     explanationI18n: { "ja": "「慕」の訓読みは「した-う」で、て形は「したって」です。「ぼって」は音読みの「ぼ」（例：思慕）をそのまま当てた誤読、「おもって」は「思って」（別字）、「あがめって」は「崇める（あがめる）」を混ぜた造語のひっかけです。", "en": "「慕」has the kun'yomi「した-う」→ したって (て-form). 「ぼって」wrongly applies the on'yomi「ぼ」directly (as in「思慕」). 「おもって」is「思って」(a different kanji). 「あがめって」is a made-up trap mixing in「崇める（あがめる）」." },
@@ -2750,6 +2771,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "になう",
     exampleJapanese: "若い世代が次の時代を担うのだ。",
     exampleMeaningZh: "由年輕世代來承擔下一個時代。",
+    exampleMeaningI18n: { "ja": "次の時代を支えていくのは若い世代です。", "en": "It is the younger generation that will carry the next era." },
     options: ["になう","かたぐう","たんがう","せおう"],
     explanation: "「担」訓讀「にな-う」→ になう。「かたぐう」是把「肩（かた）」混入的造詞陷阱；「たんがう」是直接套音讀「たん」（如「担当」）的錯讀；「せおう」是「背負う」（同義字但不同字）。",
     explanationI18n: { "ja": "「担」の訓読みは「にな-う」で、「になう」となります。「かたぐう」は「肩（かた）」を混ぜた造語のひっかけ、「たんがう」は音読みの「たん」（例：担当）をそのまま当てた誤読、「せおう」は「背負う」（同義だが別字）です。", "en": "「担」has the kun'yomi「にな-う」→ になう. 「かたぐう」is a made-up trap mixing in「肩（かた）」. 「たんがう」wrongly applies the on'yomi「たん」directly (as in「担当」). 「せおう」is「背負う」(a synonym written with a different kanji)." },
@@ -2770,6 +2792,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "もうける",
     exampleJapanese: "新しい部署を社内に設ける予定だ。",
     exampleMeaningZh: "預計在公司內部設立新部門。",
+    exampleMeaningI18n: { "ja": "社内に新しい部署を作る予定です。", "en": "We plan to set up a new department within the company." },
     options: ["もうける","せつける","もとめる","そなえる"],
     explanation: "「設」訓讀「もう-ける」→ もうける。「せつける」是直接套音讀「せつ」（如「設置」）的錯讀；「もとめる」是「求める」（不同字）；「そなえる」是「備える」（同義字但不同字）。注意同音字「儲ける」（賺錢）讀法相同但漢字不同。",
     explanationI18n: { "ja": "「設」の訓読みは「もう-ける」で、「もうける」となります。「せつける」は音読みの「せつ」（例：設置）をそのまま当てた誤読、「もとめる」は「求める」（別字）、「そなえる」は「備える」（同義だが別字）です。なお、同音の「儲ける」（お金をもうける）は読みは同じですが漢字が異なります。", "en": "「設」has the kun'yomi「もう-ける」→ もうける. 「せつける」wrongly applies the on'yomi「せつ」directly (as in「設置」). 「もとめる」is「求める」(a different kanji). 「そなえる」is「備える」(a synonym written with a different kanji). Note that the homophone「儲ける」(to earn money) has the same reading but a different kanji." },
@@ -2790,6 +2813,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "へだたった",
     exampleJapanese: "故郷から遠く隔たった場所で暮らしている。",
     exampleMeaningZh: "住在離故鄉很遠的地方。",
+    exampleMeaningI18n: { "ja": "故郷から遠く離れた場所で暮らしています。", "en": "I live in a place far removed from my hometown." },
     options: ["へだたった","へだてた","へだまった","かくたった"],
     explanation: "「隔」訓讀「へだ-たる」（自動詞）→ へだたった（た形）。「へだてた」是「隔てた」（他動詞「隔開」，訓讀對但語幹不同）；「へだまった」是訓尾誤；「かくたった」是直接套音讀「かく」（如「隔離」）的錯讀。「隔たる／隔てる」是自他成對動詞。",
     explanationI18n: { "ja": "「隔」の訓読みは「へだ-たる」（自動詞）で、た形は「へだたった」です。「へだてた」は「隔てた」（他動詞「隔てる＝間を空ける」で、訓読みは合うが語幹が異なる）、「へだまった」は語尾の誤り、「かくたった」は音読みの「かく」（例：隔離）をそのまま当てた誤読です。「隔たる／隔てる」は自他が対になった動詞です。", "en": "「隔」has the kun'yomi「へだ-たる」(intransitive) → へだたった (past form). 「へだてた」is「隔てた」(the transitive \"to separate\" — same kun'yomi but a different stem). 「へだまった」has a wrong kun-ending. 「かくたった」wrongly applies the on'yomi「かく」directly (as in「隔離」). 「隔たる／隔てる」are a paired intransitive/transitive set." },
@@ -2810,6 +2834,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "まかなって",
     exampleJapanese: "彼は奨学金で生活費を賄っている。",
     exampleMeaningZh: "他用獎學金來支付生活費。",
+    exampleMeaningI18n: { "ja": "彼は奨学金で生活費をやりくりしています。", "en": "He covers his living expenses with a scholarship." },
     options: ["まかなって","わいろって","おぎなって","やしなって"],
     explanation: "「賄」訓讀「まかな-う」→ まかなって（て形）。「わいろって」是把「賄賂（わいろ）」當動詞訓讀的陷阱（賄賂是名詞）；「おぎなって」是「補って」（補足，同義字但不同字）；「やしなって」是「養って」（撫養，相關但不同字）。",
     explanationI18n: { "ja": "「賄」の訓読みは「まかな-う」で、て形は「まかなって」です。「わいろって」は名詞の「賄賂（わいろ）」を動詞の訓読みと取り違えたひっかけ（賄賂は名詞）、「おぎなって」は「補って」（同義だが別字）、「やしなって」は「養って」（関連はあるが別字）です。", "en": "「賄」has the kun'yomi「まかな-う」→ まかなって (て-form). 「わいろって」is a trap treating「賄賂（わいろ）」as a kun-read verb (賄賂 is a noun). 「おぎなって」is「補って」(to supplement — a synonym written with a different kanji). 「やしなって」is「養って」(to raise/support — related but a different kanji)." },
@@ -2830,6 +2855,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "いちじるしい",
     exampleJapanese: "技術の進歩が著しい業界では、常に学び続ける必要がある。",
     exampleMeaningZh: "在技術進步顯著的業界，必須持續學習。",
+    exampleMeaningI18n: { "ja": "技術の進歩がめざましい業界では、常に学び続ける必要があります。", "en": "In an industry where technology advances remarkably fast, you need to keep learning at all times." },
     options: ["いちじるしい","ちょしい","あらわしい","めずらしい"],
     explanation: "「著」訓讀「いちじる-しい」→ いちじるしい。「ちょしい」是直接套音讀「ちょ」（如「著名」）的錯讀；「あらわしい」是把「著す（あらわす）」的訓讀套形容詞語尾的造詞錯誤；「めずらしい」是「珍しい」（不同字）。",
     explanationI18n: { "ja": "「著」の訓読みは「いちじる-しい」で、「いちじるしい」となります。「ちょしい」は音読みの「ちょ」（例：著名）をそのまま当てた誤読、「あらわしい」は「著す（あらわす）」の訓読みに形容詞の語尾を付けた造語の誤り、「めずらしい」は「珍しい」（別字）です。", "en": "「著」has the kun'yomi「いちじる-しい」→ いちじるしい. 「ちょしい」wrongly applies the on'yomi「ちょ」directly (as in「著名」). 「あらわしい」is a made-up error tacking an adjective ending onto the kun'yomi of「著す（あらわす）」. 「めずらしい」is「珍しい」(a different kanji)." },
@@ -2850,6 +2876,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "すこやか",
     exampleJapanese: "子供たちは健やかに育っている。",
     exampleMeaningZh: "孩子們健康地成長著。",
+    exampleMeaningI18n: { "ja": "子どもたちは元気にすくすくと育っています。", "en": "The children are growing up healthy and strong." },
     options: ["すこやか","けんやか","けんこうやか","おだやか"],
     explanation: "「健」訓讀「すこ-やか」→ すこやか。「けんやか」是直接套音讀「けん」（如「健康」）的錯讀；「けんこうやか」是把熟語「健康」拆出來再加訓尾的陷阱；「おだやか」是「穏やか」（不同字，平穩）。",
     explanationI18n: { "ja": "「健」の訓読みは「すこ-やか」で、「すこやか」となります。「けんやか」は音読みの「けん」（例：健康）をそのまま当てた誤読、「けんこうやか」は熟語「健康」を分けて訓読みの語尾を付けたひっかけ、「おだやか」は「穏やか」（別字・「おだやか」）です。", "en": "「健」has the kun'yomi「すこ-やか」→ すこやか. 「けんやか」wrongly applies the on'yomi「けん」directly (as in「健康」). 「けんこうやか」is a trap pulling apart the compound「健康」and adding a kun-ending. 「おだやか」is「穏やか」(a different kanji, meaning \"calm\")." },
@@ -2870,6 +2897,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "あざやか",
     exampleJapanese: "夕日が空を鮮やかに染めていた。",
     exampleMeaningZh: "夕陽將天空染上了鮮豔的色彩。",
+    exampleMeaningI18n: { "ja": "夕日が空をあざやかな色に染めていました。", "en": "The setting sun dyed the sky in vivid colors." },
     options: ["あざやか","せんやか","あらやか","つややか"],
     explanation: "「鮮」訓讀「あざ-やか」→ あざやか。「せんやか」是直接套音讀「せん」（如「新鮮」）的錯讀；「あらやか」是「新やか」式的造詞陷阱；「つややか」是「艶やか」（光澤，不同字）。",
     explanationI18n: { "ja": "「鮮」の訓読みは「あざ-やか」で、「あざやか」となります。「せんやか」は音読みの「せん」（例：新鮮）をそのまま当てた誤読、「あらやか」は「新やか」風の造語のひっかけ、「つややか」は「艶やか」（別字・つや）です。", "en": "「鮮」has the kun'yomi「あざ-やか」→ あざやか. 「せんやか」wrongly applies the on'yomi「せん」directly (as in「新鮮」). 「あらやか」is a made-up trap on the pattern of「新やか」. 「つややか」is「艶やか」(glossy — a different kanji)." },
@@ -2890,6 +2918,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "いつわって",
     exampleJapanese: "経歴を偽って就職するのは犯罪だ。",
     exampleMeaningZh: "偽造履歷去就職是犯罪行為。",
+    exampleMeaningI18n: { "ja": "経歴をごまかして就職するのは犯罪です。", "en": "Getting a job by falsifying your credentials is a crime." },
     options: ["いつわって","ぎって","うそって","ぎぞうって"],
     explanation: "「偽」訓讀「いつわ-る」→ いつわって（て形）。「ぎって」是直接套音讀「ぎ」（如「偽物」）的錯讀；「うそって」是把名詞「嘘（うそ）」當動詞訓讀的陷阱；「ぎぞうって」是把熟語「偽造」拆出來的錯讀。",
     explanationI18n: { "ja": "「偽」の訓読みは「いつわ-る」で、て形は「いつわって」です。「ぎって」は音読みの「ぎ」（例：偽物）をそのまま当てた誤読、「うそって」は名詞の「嘘（うそ）」を動詞の訓読みと取り違えたひっかけ、「ぎぞうって」は熟語「偽造」を分けて当てた誤読です。", "en": "「偽」has the kun'yomi「いつわ-る」→ いつわって (て-form). 「ぎって」wrongly applies the on'yomi「ぎ」directly (as in「偽物」). 「うそって」is a trap treating the noun「嘘（うそ）」as a kun-read verb. 「ぎぞうって」is a wrong reading pulled from the compound「偽造」." },
@@ -2910,6 +2939,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "はずんで",
     exampleJapanese: "話が弾んで、つい時間を忘れてしまった。",
     exampleMeaningZh: "聊得很起勁，不知不覺忘了時間。",
+    exampleMeaningI18n: { "ja": "会話が盛り上がって、つい時間を忘れてしまいました。", "en": "The conversation got so lively that we completely lost track of time." },
     options: ["はずんで","だんで","たまんで","とんで"],
     explanation: "「弾」訓讀「はず-む」→ はずんで（て形）。「だんで」是直接套音讀「だん」（如「爆弾」）的錯讀；「たまんで」是把名詞「弾（たま＝彈丸）」當動詞訓讀的陷阱；「とんで」是「飛んで」（不同字）。注意「弾む」可接「話／ボール／体／心」等廣泛主語。",
     explanationI18n: { "ja": "「弾」の訓読みは「はず-む」で、て形は「はずんで」です。「だんで」は音読みの「だん」（例：爆弾）をそのまま当てた誤読、「たまんで」は名詞の「弾（たま＝弾丸）」を動詞の訓読みと取り違えたひっかけ、「とんで」は「飛んで」（別字）です。なお「弾む」は「話／ボール／体／心」など幅広い主語を取ります。", "en": "「弾」has the kun'yomi「はず-む」→ はずんで (て-form). 「だんで」wrongly applies the on'yomi「だん」directly (as in「爆弾」). 「たまんで」is a trap treating the noun「弾（たま = bullet）」as a kun-read verb. 「とんで」is「飛んで」(a different kanji). Note that「弾む」can take a wide range of subjects — 話／ボール／体／心 and so on." },
@@ -3610,6 +3640,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "こばむ",
     exampleJapanese: "彼は最後まで条件の変更を拒む姿勢を崩さなかった。",
     exampleMeaningZh: "他直到最後都沒有改變拒絕變更條件的態度。",
+    exampleMeaningI18n: { "ja": "彼は最後まで、条件の変更を受け入れない姿勢を変えなかった。", "en": "Right up to the very end, he never wavered in his refusal to change the conditions." },
     options: ["こばむ", "はばむ", "そむく", "ふせぐ"],
     explanation: "「拒」訓讀「こば-む」→ こばむ。「はばむ」是「阻む」（阻擋、妨礙，字形相近但訓讀不同）；「そむく」是「背く」（違背、背叛，不同字）；「ふせぐ」是「防ぐ」（防止，不同字）。表「拒絕」的「拒む」讀作 こばむ。",
     explanationI18n: { "ja": "「拒」の訓読みは「こば-む」→ こばむ。「はばむ」は「阻む」（さえぎる・妨げる。字形は似るが訓読みが異なる）、「そむく」は「背く」（そむく・裏切る。別の字）、「ふせぐ」は「防ぐ」（防止する。別の字）。「拒否する」意味の「拒む」は こばむ と読む。", "en": "拒 has the kun'yomi 「こば-む」 → こばむ. 「はばむ」 is 「阻む」 (to block, obstruct—similar-looking kanji but a different kun'yomi); 「そむく」 is 「背く」 (to go against, betray—a different kanji); 「ふせぐ」 is 「防ぐ」 (to prevent—a different kanji). 拒む, meaning \"to refuse,\" is read こばむ." },
@@ -3670,6 +3701,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "とどこおる",
     exampleJapanese: "申請が一部の部署で滞ると、全体の承認スケジュールにも影響が出る。",
     exampleMeaningZh: "申請若在部分部門卡住，整體的審核時程也會受影響。",
+    exampleMeaningI18n: { "ja": "申請が一部の部署で止まってしまうと、全体の承認スケジュールにも影響が出る。", "en": "If applications get held up in some departments, the overall approval schedule is affected as well." },
     options: ["とどこおる", "とどまる", "たちどまる", "とどける"],
     explanation: "「滞」訓讀「とどこお-る」→ とどこおる，指手續、付款的進行受阻而停滯。「とどまる」是「留まる／止まる」（停留，同字根 とど- 但不同字）；「たちどまる」是「立ち止まる」（停下腳步，不同字）；「とどける」是「届ける」（送達，同字根的混淆陷阱）。",
     explanationI18n: { "ja": "「滞」の訓読みは「とどこお-る」→ とどこおる。手続きや支払いの進行が妨げられて停滞することを指す。「とどまる」は「留まる／止まる」（とどまる。同じ とど- の語根だが別の字）、「たちどまる」は「立ち止まる」（歩みを止める。別の字）、「とどける」は「届ける」（送り届ける。同じ語根に見える混同の罠）。", "en": "滞 has the kun'yomi 「とどこお-る」 → とどこおる, referring to a procedure or payment being held up and stalling. 「とどまる」 is 「留まる／止まる」 (to remain, stop—shares the とど- root but is a different kanji); 「たちどまる」 is 「立ち止まる」 (to stop in one's tracks—a different kanji); 「とどける」 is 「届ける」 (to deliver—a same-root trap)." },
@@ -3690,6 +3722,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "したわれて",
     exampleJapanese: "その医師は誠実な人柄で、地域の人々から長く慕われてきた。",
     exampleMeaningZh: "那位醫師為人誠懇，長年受到當地居民的愛戴。",
+    exampleMeaningI18n: { "ja": "その医師は誠実な人柄で、長年にわたり地域の人々に敬愛されてきた。", "en": "That doctor's sincere character has earned the lasting affection of the local community." },
     options: ["したわれて", "うやまわれて", "おそれられて", "ねたまれて"],
     explanation: "「慕」訓讀「した-う」，受身形「慕われて」→ したわれて。「うやまわれて」是「敬われて」（被尊敬，近義字但不同字）；「おそれられて」是「恐れられて」（被畏懼，意思相反）；「ねたまれて」是「妬まれて」（被嫉妒，意思相反）。",
     explanationI18n: { "ja": "「慕」の訓読みは「した-う」で、受身形「慕われて」→ したわれて。「うやまわれて」は「敬われて」（尊敬される。近い意味だが別の字）、「おそれられて」は「恐れられて」（畏れられる。意味が逆）、「ねたまれて」は「妬まれて」（ねたまれる。意味が逆）。", "en": "慕 has the kun'yomi 「した-う」, and the passive form 「慕われて」 → したわれて. 「うやまわれて」 is 「敬われて」 (to be respected—a near-synonym but a different kanji); 「おそれられて」 is 「恐れられて」 (to be feared—the opposite meaning); 「ねたまれて」 is 「妬まれて」 (to be envied—the opposite meaning)." },
@@ -3710,6 +3743,7 @@ export const n1Items: PracticeQuestion[] = [
     expectedAnswer: "したう",
     exampleJapanese: "故郷を慕う気持ちは、何年海外で暮らしても薄れなかった。",
     exampleMeaningZh: "懷念故鄉的心情，在海外住了多少年也未曾淡去。",
+    exampleMeaningI18n: { "ja": "故郷を恋しく思う気持ちは、何年海外で暮らしても薄れることがなかった。", "en": "My longing for my hometown never faded, no matter how many years I lived abroad." },
     options: ["したう", "ねがう", "うたう", "さそう"],
     explanation: "「慕」訓讀「した-う」→ したう，亦可用於懷念故鄉或往昔。「ねがう」是「願う」（祈願）；「うたう」是「歌う／謳う」（歌詠，韻母近似的陷阱）；「さそう」是「誘う」（邀約），三者皆不同字。",
     explanationI18n: { "ja": "「慕」の訓読みは「した-う」→ したう。故郷や昔を懐かしむ意味でも使える。「ねがう」は「願う」（祈願する）、「うたう」は「歌う／謳う」（うたう。母音が近く紛らわしい罠）、「さそう」は「誘う」（さそう）。いずれも別の字。", "en": "慕 has the kun'yomi 「した-う」 → したう, which can also mean yearning for one's hometown or the past. 「ねがう」 is 「願う」 (to wish, pray); 「うたう」 is 「歌う／謳う」 (to sing, extol—a trap with a similar vowel sound); 「さそう」 is 「誘う」 (to invite)—all three are different kanji." },
@@ -4072,7 +4106,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「慕う」訓讀「した-う」，「慕っている」讀作「したっている」。「したがっている」是「従っている」（順從）；「うやまっている」是「敬っている」（尊敬）；「あこがれている」是「憧れている」（憧憬），三者皆為別字的讀音，唯「したっている」正確。",
     explanationI18n: { "ja": "「慕う」は訓読みで「した-う」、「慕っている」は「したっている」と読む。「したがっている」は「従っている」(服従する)、「うやまっている」は「敬っている」(尊敬する)、「あこがれている」は「憧れている」(憧れる)で、いずれも別の語の読みであり、正しいのは「したっている」だけ。", "en": "「慕う」has the kun reading 「した-う」, so 「慕っている」is read 「したっている」. 「したがっている」is 「従っている」(to obey); 「うやまっている」is 「敬っている」(to respect); 「あこがれている」is 「憧れている」(to yearn for) — all three are readings of different kanji, so only 「したっている」is correct." },
     exampleJapanese: "卒業後も、多くの学生がその先生を慕っている。",
-    exampleMeaningZh: "畢業之後，許多學生仍敬慕著那位老師。"
+    exampleMeaningZh: "畢業之後，許多學生仍敬慕著那位老師。",
+    exampleMeaningI18n: { "ja": "卒業した後も、多くの学生がその先生を敬愛し続けている。", "en": "Even after graduating, many students still look up to that teacher with affection." },
   }),
   examQuestion({
     id: "issue79-grammar-sobakara-mistake",
@@ -4192,7 +4227,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「漸減」讀作「ぜんげん」，指一點一點地減少。「ざんげん」是把「漸」誤讀成「ざん」的語頭誤讀；「ぜんけん」是把後半「減（げん）」清濁讀錯；「ぜんしょう」是混入「減少（げんしょう）」等別的語形。唯「ぜんげん」正確。",
     explanationI18n: { "ja": "「漸減」は「ぜんげん」と読み、少しずつ減っていくことを指す。「ざんげん」は「漸」を「ざん」と読み間違えた語頭の誤読、「ぜんけん」は後半の「減(げん)」の清濁を読み間違えたもの、「ぜんしょう」は「減少(げんしょう)」など別の語形が混じったもの。正しいのは「ぜんげん」だけ。", "en": "「漸減」is read 「ぜんげん」, meaning to decrease little by little. 「ざんげん」misreads the initial 「漸」as 「ざん」; 「ぜんけん」gets the voicing wrong on the latter part 「減（げん）」; 「ぜんしょう」mixes in a different word form like 「減少（げんしょう）」. Only 「ぜんげん」is correct." },
     exampleJapanese: "人口は十年前をピークに漸減している。",
-    exampleMeaningZh: "人口以十年前為高峰，正逐漸減少。"
+    exampleMeaningZh: "人口以十年前為高峰，正逐漸減少。",
+    exampleMeaningI18n: { "ja": "人口は十年前をピークに、少しずつ減り続けている。", "en": "The population peaked ten years ago and has been gradually declining ever since." },
   }),
   examQuestion({
     id: "reinforce-stubborn-nishiro-estimate",
@@ -6694,7 +6730,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「心がける」＝平時刻意去做（習慣性的努力），後接「自己要做的行為」。①養成每天走路的習慣＝正解。②注意腳下是「気をつける」。③祈求合格是「願う」。④把恩情記在心上是「心に留める」。",
     explanationI18n: { "ja": "「心がける」＝ふだんから意識して行う（習慣的な努力）で、後には「自分がしようとする行為」が来ます。①毎日歩く習慣を身につける＝正解。②足元に注意するのは「気をつける」。③合格を祈るのは「願う」。④受けた親切を心に留めるのは「心に留める」。", "en": "「心がける」 = deliberately doing something as a matter of habit (a habitual effort), followed by \"an action one intends to do oneself.\" (1) Making a point of walking every day = the correct answer. (2) Watching your step is 「気をつける」. (3) Wishing to pass is 「願う」. (4) Keeping a kindness in mind is 「心に留める」." },
     exampleJapanese: "健康のため、毎日歩くことを心がけている。",
-    exampleMeaningZh: "為了健康，我留心每天走路。"
+    exampleMeaningZh: "為了健康，我留心每天走路。",
+    exampleMeaningI18n: { "ja": "健康のために、毎日歩くことを日ごろから意識している。", "en": "For my health, I make a point of walking every day." },
   }),
   examQuestion({
     id: "n1-usage-kojitsukeru",
@@ -6716,7 +6753,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「こじつける」＝牽強附會（硬把不相干的道理/理由扯在一起）。①為遲到硬掰牽強的理由＝正解。②勉強讓機器運轉是「だましだまし／工夫して」。③把兩張桌子拼起來是「くっつける」。④用鐵橇撬開門是「こじ開ける」（近形詞）。「こじつける」對象是理由/道理，不用於物理動作。",
     explanationI18n: { "ja": "「こじつける」＝無理に理屈や理由をつける（関係のないものを無理やり結びつける）。①遅刻のために苦しい理由を無理につける＝正解。②機械をなんとか動かすのは「だましだまし／工夫して」。③二つの机を合わせるのは「くっつける」。④バールで扉を開けるのは「こじ開ける」（似た形の語）。「こじつける」の対象は理由や理屈で、物理的な動作には使いません。", "en": "「こじつける」 = to force a connection (forcibly tying together unrelated reasoning/excuses). (1) Trumping up a strained reason for being late = the correct answer. (2) Getting a machine to run somehow is 「だましだまし／工夫して」. (3) Joining two desks together is 「くっつける」. (4) Prying a door open with a crowbar is 「こじ開ける」 (a similar-looking word). The object of 「こじつける」 is a reason or line of reasoning; it isn't used for physical actions." },
     exampleJapanese: "彼は遅刻の言い訳に、苦しい理由をこじつけた。",
-    exampleMeaningZh: "他為遲到的藉口硬掰了個牽強的理由。"
+    exampleMeaningZh: "他為遲到的藉口硬掰了個牽強的理由。",
+    exampleMeaningI18n: { "ja": "彼は遅刻の言い訳として、無理やり苦しい理由をひねり出した。", "en": "He cooked up a strained, far-fetched excuse for being late." },
   }),
   examQuestion({
     id: "n1-usage-misebirakasu",
@@ -6738,7 +6776,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「見せびらかす」＝得意地炫耀。①逢人就炫耀新錶＝正解。②指路而出示地圖是「見せる」。③在法庭提出證據是「提示する」。④不好意思露臉是「見せられない」。帶炫耀語感，不用於中性出示。",
     explanationI18n: { "ja": "「見せびらかす」＝得意になって見せつける。①会う人ごとに新しい腕時計を自慢げに見せる＝正解。②道案内で地図を示すのは「見せる」。③法廷で証拠を出すのは「提示する」。④恥ずかしくて顔を出せないのは「見せられない」。誇示のニュアンスがあり、中立的に「見せる」場面には使いません。", "en": "「見せびらかす」 = to flaunt with satisfaction. (1) Showing off a new watch to everyone he meets = the correct answer. (2) Showing a map to give directions is 「見せる」. (3) Presenting evidence in court is 「提示する」. (4) Being too embarrassed to show one's face is 「見せられない」. It carries a boastful nuance and isn't used for neutral displaying." },
     exampleJapanese: "彼は新しい腕時計を、会う人ごとに見せびらかした。",
-    exampleMeaningZh: "他逢人就炫耀他的新手錶。"
+    exampleMeaningZh: "他逢人就炫耀他的新手錶。",
+    exampleMeaningI18n: { "ja": "彼は会う人ごとに、新しい腕時計を自慢して見せた。", "en": "He showed off his new watch to everyone he met." },
   }),
   examQuestion({
     id: "n1-usage-uchiakeru",
@@ -6760,7 +6799,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「打ち明ける」＝把藏在心裡的秘密/煩惱坦白傾訴，對象是私人心事。①向摯友吐露煩惱＝正解。②天亮是「夜が明ける」。③播報速報是「伝える／報じる」（速報是公開播報，非私下吐露）。④拉開窗簾是「開ける」。",
     explanationI18n: { "ja": "「打ち明ける」＝心の中の秘密や悩みを正直に打ち明けることで、対象は個人的な心の内です。①親友に悩みを打ち明ける＝正解。②夜が明けるのは「夜が明ける」。③速報を伝えるのは「伝える／報じる」（速報は公に伝えるもので、私的な告白ではありません）。④カーテンを開けるのは「開ける」。", "en": "「打ち明ける」 = to frankly confide a secret or worry hidden in one's heart, with a private, personal matter as the object. (1) Confiding one's worries to a close friend = the correct answer. (2) Daybreak is 「夜が明ける」. (3) Broadcasting a bulletin is 「伝える／報じる」 (a bulletin is a public broadcast, not a private confidence). (4) Drawing back the curtains is 「開ける」." },
     exampleJapanese: "彼女は誰にも言えなかった悩みを、親友に打ち明けた。",
-    exampleMeaningZh: "她把無法對人啟齒的煩惱向摯友吐露了。"
+    exampleMeaningZh: "她把無法對人啟齒的煩惱向摯友吐露了。",
+    exampleMeaningI18n: { "ja": "彼女は誰にも言えなかった悩みを、親友に正直に話した。", "en": "She confided to her best friend the worries she hadn't been able to tell anyone." },
   }),
   examQuestion({
     id: "n1-usage-iiharu",
@@ -6782,7 +6822,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「言い張る」＝不顧反對、固執地堅稱（自己的主張）。①堅稱自己無辜＝正解。②大聲說是「言う／叫ぶ」。③提問是「質問する」。④致詞是「述べる」。帶「強硬不退讓」語感，不用於一般陳述。",
     explanationI18n: { "ja": "「言い張る」＝反対されても頑固に（自分の主張を）言い通す。①自分は無実だと言い張る＝正解。②大声で言うのは「言う／叫ぶ」。③質問するのは「質問する」。④スピーチをするのは「述べる」。「強硬に引き下がらない」というニュアンスがあり、ふつうの陳述には使いません。", "en": "「言い張る」 = to stubbornly insist (on one's own claim) despite opposition. (1) Insisting he is innocent = the correct answer. (2) Speaking loudly is 「言う／叫ぶ」. (3) Asking a question is 「質問する」. (4) Giving a speech is 「述べる」. It carries a nuance of \"forcefully refusing to back down\" and isn't used for ordinary statements." },
     exampleJapanese: "彼は最後まで、自分は無実だと言い張った。",
-    exampleMeaningZh: "他到最後都堅稱自己是無辜的。"
+    exampleMeaningZh: "他到最後都堅稱自己是無辜的。",
+    exampleMeaningI18n: { "ja": "彼は最後まで、自分は無実だと主張し続けた。", "en": "He insisted to the very end that he was innocent." },
   }),
   examQuestion({
     id: "n1-usage-kuichigau",
@@ -6804,7 +6845,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「食い違う」＝（內容/說法/意見）彼此不一致、有出入。①兩人證詞有出入＝正解。②鈕扣扣錯是「掛け違える」。③錯過碰面是「行き違う」。④搭錯車是「乗り間違える」。指抽象內容對不上，不用於物理動作之「錯」。",
     explanationI18n: { "ja": "「食い違う」＝（内容や言い分、意見が）互いに一致しない、食い違いがある。①二人の証言が食い違う＝正解。②ボタンをかけ間違えるのは「掛け違える」。③待ち合わせですれ違うのは「行き違う」。④電車を乗り間違えるのは「乗り間違える」。抽象的な内容が合わないことを指し、物理的な「間違い」には使いません。", "en": "「食い違う」 = (of content/accounts/opinions) to be at odds with each other, to differ. (1) The two people's testimonies don't match = the correct answer. (2) Buttoning something up wrong is 「掛け違える」. (3) Missing each other at a meeting spot is 「行き違う」. (4) Boarding the wrong train is 「乗り間違える」. It refers to abstract content that doesn't line up, not a physical \"getting it wrong.\"" },
     exampleJapanese: "二人の証言が食い違っていて、どちらが本当か分からない。",
-    exampleMeaningZh: "兩人的證詞有出入，不知道哪邊才是真的。"
+    exampleMeaningZh: "兩人的證詞有出入，不知道哪邊才是真的。",
+    exampleMeaningI18n: { "ja": "二人の証言が一致せず、どちらが本当なのか分からない。", "en": "The two people's testimonies contradict each other, and there's no telling which one is true." },
   }),
   examQuestion({
     id: "n1-usage-iiwatasu",
@@ -6826,7 +6868,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「言い渡す」＝（上對下、正式地）宣告、宣判（判決/處分/命令）。①法官宣判＝正解。②跟朋友聊近況是「話す」（近況不是可「宣告」的決定/命令）。③向記者公布是「発表する」。④告知路怎麼走是「教える」。「言い渡す」帶正式、由上而下的宣告語感，不用於平輩閒談或對外發表。",
     explanationI18n: { "ja": "「言い渡す」＝（上の立場から下へ、正式に）宣告する、言い渡す（判決・処分・命令）。①裁判官が判決を言い渡す＝正解。②友人と近況を話すのは「話す」（近況は「言い渡す」ような決定や命令ではありません）。③記者に公表するのは「発表する」。④道順を教えるのは「教える」。「言い渡す」は正式で、上から下へ告げるニュアンスがあり、対等な相手との雑談や対外的な発表には使いません。", "en": "「言い渡す」 = to (formally, from a superior to a subordinate) pronounce or hand down (a verdict/penalty/order). (1) A judge handing down a sentence = the correct answer. (2) Catching up on recent news with a friend is 「話す」 (recent news isn't a decision or order that can be \"pronounced\"). (3) Announcing to reporters is 「発表する」. (4) Telling someone the way to a place is 「教える」. 「言い渡す」 carries a formal, top-down nuance and isn't used for chatting among equals or making a public announcement." },
     exampleJapanese: "裁判官は被告に、懲役三年の判決を言い渡した。",
-    exampleMeaningZh: "法官對被告宣判了三年有期徒刑。"
+    exampleMeaningZh: "法官對被告宣判了三年有期徒刑。",
+    exampleMeaningI18n: { "ja": "裁判官は被告に、懲役三年の判決を正式に告げた。", "en": "The judge sentenced the defendant to three years in prison." },
   }),
   examQuestion({
     id: "n1-syn-arakajime",
@@ -7148,7 +7191,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「踏まえる」＝以（事實/經驗/前提）為依據、立足於某基礎之上。①以前次的反省為基礎重訂計畫＝正解。②③④皆把「踏まえる」當成物理上的「踩」：踩扁空缶、踩到小石、踩到別人的腳，這些都是「踏む／踏みつける」。「踏まえる」是抽象的「以…為前提」，不用於用腳踩踏實物。",
     explanationI18n: { "ja": "「踏まえる」＝（事実・経験・前提を）土台・よりどころとすること。①前回の反省を土台に計画を立て直す＝正解。②③④はいずれも「踏まえる」を物理的に「踏む」意味で使っています。空き缶を踏みつぶす、小石を踏む、人の足を踏むは、すべて「踏む／踏みつける」です。「踏まえる」は抽象的な「…を前提にする」であって、足で実物を踏む意味では使いません。", "en": "「踏まえる」means to base something on (a fact/experience/premise), to build on a foundation. Sentence ① revises the plan based on the previous reflection = correct. Sentences ②③④ all treat 「踏まえる」as physically \"stepping on\"—crushing a can, stepping on a pebble, stepping on someone's foot—which are 「踏む／踏みつける」. 「踏まえる」is the abstract \"taking as a premise\" and is not used for physically stepping on objects." },
     exampleJapanese: "前回の反省を踏まえて、今回の計画を立て直した。",
-    exampleMeaningZh: "記取上次的反省，重新擬定了這次的計畫。"
+    exampleMeaningZh: "記取上次的反省，重新擬定了這次的計畫。",
+    exampleMeaningI18n: { "ja": "前回の反省を土台にして、今回の計画を立て直した。", "en": "Taking the lessons from last time on board, we redrew the plan for this round." },
   }),
   examQuestion({
     id: "n1-usage-hakadoru",
@@ -7170,7 +7214,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「はかどる」＝（工作/作業）進展順利、效率高地往前推進，主語是「事情/作業」。①工作進展順利＝正解。②自行車前進不了是「進まない」（物體位移）。③上樓梯吃力是「きつい／つらい」（體力）。④車流動不了是「進まない」。「はかどる」針對作業的進度，不用於物體本身的移動。",
     explanationI18n: { "ja": "「はかどる」＝（仕事・作業が）順調に、効率よく進むことで、主語は「物事・作業」です。①仕事が順調に進んだ＝正解。②自転車が前に進めないのは「進まない」（物体の移動）。③階段を上るのが大変なのは「きつい／つらい」（体力）。④車が動かないのは「進まない」。「はかどる」は作業の進み具合を表し、物体そのものの移動には使いません。", "en": "「はかどる」means (of work/a task) to progress smoothly and efficiently, with the subject being \"the task.\" Sentence ① has work progressing well = correct. In ②, a bicycle not moving forward is 「進まない」(physical movement of an object). In ③, struggling up stairs is 「きつい／つらい」(physical strain). In ④, traffic not moving is 「進まない」. 「はかどる」refers to a task's progress, not to the movement of an object itself." },
     exampleJapanese: "静かな環境のおかげで、今日は仕事がずいぶんはかどった。",
-    exampleMeaningZh: "多虧環境安靜，今天工作進展了不少。"
+    exampleMeaningZh: "多虧環境安靜，今天工作進展了不少。",
+    exampleMeaningI18n: { "ja": "静かな環境のおかげで、今日は仕事がどんどん進んだ。", "en": "Thanks to the quiet surroundings, I got a lot of work done today." },
   }),
   examQuestion({
     id: "n1-usage-kuisagaru",
@@ -7192,7 +7237,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「食い下がる」＝不輕言放棄、緊咬不放地與對手周旋追問。①記者不服而緊追大臣不放＝正解。②埋頭大吃是「食らいつく／がつがつ食べる」。③猴子攀掛在樹枝上是「ぶら下がる」（近形詞）。④放棄購買是「あきらめた／見送った」，與「食い下がる（不放棄）」語意相反。「食い下がる」是面對對手的不退讓糾纏。",
     explanationI18n: { "ja": "「食い下がる」＝簡単に引き下がらず、しつこく相手にくらいついて追及すること。①記者が納得せず大臣に食い付いて離れない＝正解。②夢中でがつがつ食べるのは「食らいつく／がつがつ食べる」。③猿が枝にぶら下がっているのは「ぶら下がる」（形の似た語）。④購入をあきらめたのは「あきらめた／見送った」で、「食い下がる（あきらめない）」とは意味が逆です。「食い下がる」は相手に対して引かずに粘ることを表します。", "en": "「食い下がる」means to refuse to give up easily, clinging on and pressing an opponent. Sentence ① has the reporter, unconvinced, doggedly pursuing the minister = correct. In ②, wolfing down food is 「食らいつく／がつがつ食べる」. In ③, a monkey clinging to a branch is 「ぶら下がる」(a similar-looking word). In ④, giving up on a purchase is 「あきらめた／見送った」, the opposite of 「食い下がる」(not giving up). 「食い下がる」is about tenaciously refusing to yield when facing an opponent." },
     exampleJapanese: "記者は納得せず、大臣にしつこく食い下がって質問を続けた。",
-    exampleMeaningZh: "記者不服氣，緊咬著大臣不放繼續追問。"
+    exampleMeaningZh: "記者不服氣，緊咬著大臣不放繼續追問。",
+    exampleMeaningI18n: { "ja": "記者は納得できず、大臣に粘り強く質問を重ね続けた。", "en": "Unconvinced, the reporter doggedly pressed the minister and kept firing questions." },
   }),
   examQuestion({
     id: "n1-usage-tashinameru",
@@ -7214,7 +7260,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「たしなめる」＝（對不當言行）委婉地規勸、責備。①母親委婉勸誡吵鬧的孩子＝正解。②有茶道書道的素養是「たしなむ」（嗜好/有造詣，近形他動詞）。③慢慢品味一杯酒也是「たしなむ」。④繼續前進是「続けた」。「たしなめる」是勸戒他人，與表「愛好/有修養」的「たしなむ」是不同的詞，勿混。",
     explanationI18n: { "ja": "「たしなめる」＝（不適切な言動を）やんわりと注意する・叱ること。①母親が騒ぐ子どもをやんわり注意する＝正解。②茶道や書道の心得があるのは「たしなむ」（趣味・素養がある。形の似た他動詞）。③一杯の酒をゆっくり味わうのも「たしなむ」。④前進を続けたのは「続けた」。「たしなめる」は他人を戒めることで、「好む・素養がある」を表す「たしなむ」とは別の語なので混同しないようにしましょう。", "en": "「たしなめる」means to gently reprove or admonish (improper words or actions). Sentence ① has the mother gently admonishing the noisy child = correct. In ②, being accomplished in tea ceremony and calligraphy is 「たしなむ」(to have as a hobby / be skilled in—a similar-looking transitive verb). In ③, slowly savoring a drink is also 「たしなむ」. In ④, continuing forward is 「続けた」. 「たしなめる」is admonishing others—a different word from 「たしなむ」(\"to enjoy / be cultivated in\"); don't confuse them." },
     exampleJapanese: "騒ぐ子どもを、母親が「静かにしなさい」とやんわりたしなめた。",
-    exampleMeaningZh: "母親委婉地告誡吵鬧的孩子要安靜。"
+    exampleMeaningZh: "母親委婉地告誡吵鬧的孩子要安靜。",
+    exampleMeaningI18n: { "ja": "母親は騒ぐ子どもに、静かにするようやんわりと注意した。", "en": "The mother gently admonished her noisy child to quiet down." },
   }),
   examQuestion({
     id: "n1-usage-moteamasu",
@@ -7236,7 +7283,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「もてあます」＝（多到/難搞到）無法妥善處理而傷腦筋、不知如何是好。①退休後多出的時間多得不知怎麼打發＝正解。②心懷感謝是「感謝して」。③用心款待客人應是「もてなした」（近形詞，此處誤用了「もてあます」）。④拿去存起來是「回す／充てる」。「もてあます」帶「處理不來而困擾」的負面語感，不表款待，也不表正面運用。",
     explanationI18n: { "ja": "「もてあます」＝（多すぎて／手に負えず）うまく処理できずに困る・どうしてよいか分からないこと。①退職後にあり余る時間をどう過ごせばよいか困る＝正解。②感謝の気持ちを抱くのは「感謝して」。③客を心を込めてもてなすのは「もてなした」（形の似た語。ここでは誤って「もてあます」を使っている）。④貯金に充てるのは「回す／充てる」。「もてあます」は「処理しきれず困る」という否定的なニュアンスがあり、もてなしや前向きな活用は表しません。", "en": "「もてあます」means to be at a loss, unable to handle something properly (because there is too much of it or it is too troublesome). Sentence ① has one unsure how to fill the excess time after retirement = correct. In ②, feeling grateful is 「感謝して」. In ③, wholeheartedly hosting a guest should be 「もてなした」(a similar-looking word; here 「もてあます」is used by mistake). In ④, setting money aside is 「回す／充てる」. 「もてあます」carries the negative sense of \"being troubled by not being able to handle it,\" and does not mean hosting or a positive use." },
     exampleJapanese: "退職してから、有り余る時間をもてあましている。",
-    exampleMeaningZh: "退休之後，多出來的時間多得不知如何打發。"
+    exampleMeaningZh: "退休之後，多出來的時間多得不知如何打發。",
+    exampleMeaningI18n: { "ja": "退職してから、あり余る時間の使い道に困っている。", "en": "Since retiring, I've had more free time on my hands than I know what to do with." },
   }),
   examQuestion({
     id: "n1-usage-wakimaeru",
@@ -7258,7 +7306,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「わきまえる」＝懂得分寸、明辨（場合/立場/道理）並照此行事。①懂得自身立場、不踰矩＝正解。②分門別類整理是「分ける／仕分ける」。③還沒決定是「決めていない／迷っている」。④把空氣吸入胸中是「吸い込む」。「わきまえる」的對象是場合、立場、是非分寸等抽象判斷，不用於分類物品或物理動作。",
     explanationI18n: { "ja": "「わきまえる」＝分別を持ち、（場・立場・道理を）見分けてそれに従って行動すること。①自分の立場を心得て出過ぎたことをしない＝正解。②種類ごとに整理するのは「分ける／仕分ける」。③まだ決めていないのは「決めていない／迷っている」。④空気を胸に吸い込むのは「吸い込む」。「わきまえる」の対象は場・立場・善悪といった抽象的な判断であり、物の分類や物理的な動作には使いません。", "en": "「わきまえる」means to know one's bounds, to discern (the situation/one's position/what is right) and act accordingly. Sentence ① has him knowing his place and not overstepping = correct. In ②, sorting things by category is 「分ける／仕分ける」. In ③, not yet having decided is 「決めていない／迷っている」. In ④, drawing air into one's chest is 「吸い込む」. The object of 「わきまえる」is abstract judgment—the situation, one's position, right and wrong—not sorting objects or physical actions." },
     exampleJapanese: "彼は立場をわきまえ、出すぎたまねは決してしない。",
-    exampleMeaningZh: "他清楚自己的本分，絕不做逾越的事。"
+    exampleMeaningZh: "他清楚自己的本分，絕不做逾越的事。",
+    exampleMeaningI18n: { "ja": "彼は自分の立場をよく理解していて、出過ぎたことは決してしない。", "en": "He knows his place and never oversteps his bounds." },
   }),
   examQuestion({
     id: "n1-usage-mihakarau",
@@ -7280,7 +7329,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「見計らう」＝（看準）斟酌、抓準適當的時機/分量。①看準對方心情好的時機才開口＝正解。②看清腳下是「確かめる／注意する」。③再次核對是「見直す／確かめる」。④目測山高是「見積もる／目測する」。「見計らう」核心在「抓準時機/恰當程度」，不用於確認對錯或單純估算數值。",
     explanationI18n: { "ja": "「見計らう」＝（見きわめて）適当な時機・加減を見はからうこと。①相手の機嫌がよさそうな頃合いをとらえてから切り出す＝正解。②足元を見きわめるのは「確かめる／注意する」。③もう一度照合するのは「見直す／確かめる」。④山の高さを目測するのは「見積もる／目測する」。「見計らう」の核心は「時機・程度をとらえる」ことにあり、正誤の確認や単なる数値の見積もりには使いません。", "en": "「見計らう」means to gauge or judge the right timing/amount. Sentence ① has one waiting for the moment when the other person seems to be in a good mood before speaking = correct. In ②, watching one's footing is 「確かめる／注意する」. In ③, checking again is 「見直す／確かめる」. In ④, estimating a mountain's height is 「見積もる／目測する」. 「見計らう」centers on \"gauging the right timing/degree,\" not on confirming correctness or simply estimating a figure." },
     exampleJapanese: "相手の機嫌がよさそうな頃合いを見計らって、話を切り出した。",
-    exampleMeaningZh: "瞄準對方似乎心情不錯的時候，才開口談起。"
+    exampleMeaningZh: "瞄準對方似乎心情不錯的時候，才開口談起。",
+    exampleMeaningI18n: { "ja": "相手の機嫌がよさそうなタイミングを選んで、話を切り出した。", "en": "I waited for a moment when the other person seemed to be in a good mood before bringing up the subject." },
   }),
   examQuestion({
     id: "n1-usage-azamuku",
@@ -7302,7 +7352,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「あざむく」＝欺騙、蒙蔽（使人信以為真）。①以巧言欺騙交易對象詐財＝正解。②為自己感到羞愧是「恥じた」。③大為光火是「怒っていた／憤慨していた」。④嚇得縮起身子是「すくめた／こわばらせた」。「あざむく」是「使人受騙」，與羞愧、憤怒、身體反應均無關。",
     explanationI18n: { "ja": "「あざむく」＝欺く・だます（本当だと信じ込ませる）こと。①巧みな嘘で取引相手をだまして金を取る＝正解。②自分を情けなく思うのは「恥じた」。③ひどく腹を立てるのは「怒っていた／憤慨していた」。④びくっと身をすくめるのは「すくめた／こわばらせた」。「あざむく」は「人をだます」ことで、羞恥や怒り、身体の反応とは関係ありません。", "en": "「あざむく」means to deceive or mislead (making someone believe something false). Sentence ① has him deceiving a trading partner with clever lies to swindle money = correct. In ②, feeling ashamed of oneself is 「恥じた」. In ③, being furious is 「怒っていた／憤慨していた」. In ④, flinching in fright is 「すくめた／こわばらせた」. 「あざむく」is \"making someone fall for a deception,\" unrelated to shame, anger, or physical reactions." },
     exampleJapanese: "彼は巧みな嘘で取引相手をあざむき、大金をだまし取った。",
-    exampleMeaningZh: "他用巧妙的謊言瞞騙交易對象，騙走了大筆金錢。"
+    exampleMeaningZh: "他用巧妙的謊言瞞騙交易對象，騙走了大筆金錢。",
+    exampleMeaningI18n: { "ja": "彼は巧みな嘘で取引相手をだまし、大金を奪い取った。", "en": "He deceived his business partner with clever lies and swindled them out of a large sum of money." },
   }),
   examQuestion({
     id: "n1-syn-tekkiri",
@@ -7644,7 +7695,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「見極める」＝看到底、徹底辨明本質或真偽（對象是真假、好壞、實情等抽象判斷）。①在混亂情報中冷靜辨明何者為真＝正解。②記住約定時間是「確かめる」（時間不是『辨明真偽』的對象，搭配不符）。③終於找到鑰匙是「見つける」（找出實物，方向不對）。④瞄準遠處的靶是「狙う／見定める」（『見極める』不用於用眼瞄準目標物）。三個干擾皆把抽象的『徹底辨明』錯用為確認時間、找物、瞄準等具體動作，放進去語意不通。",
     explanationI18n: { "ja": "「見極める」＝最後まで見て本質や真偽を徹底的に見分けること（対象は真偽・善し悪し・実情などの抽象的な判断）。①錯綜した情報の中で冷静に何が真実かを見分ける＝正解。②約束の時間を覚えておくのは「確かめる」（時間は『真偽を見分ける』対象ではなく、組み合わせが合わない）。③ようやく鍵を見つけるのは「見つける」（実物を見つけ出すことで方向が違う）。④遠くの的をねらうのは「狙う／見定める」（『見極める』は目で目標物をねらう意味には使わない）。三つの誤答はいずれも抽象的な『徹底的に見分ける』を、時間の確認・物探し・照準といった具体的な動作に誤用しており、当てはめても意味が通りません。", "en": "「見極める」means to see to the bottom of something, to thoroughly discern its true nature or veracity (the object is an abstract judgment—truth vs. falsehood, good vs. bad, the real situation, etc.). Sentence 1, calmly discerning what is true amid a tangle of information, is the correct answer. Sentence 2, remembering an appointment time, should be 「確かめる」 (a time is not something whose \"truth is discerned,\" so the collocation is wrong). Sentence 3, finally finding a key, should be 「見つける」 (locating a physical object—wrong direction). Sentence 4, taking aim at a distant target, should be 「狙う／見定める」 (「見極める」 is not used for visually aiming at a target object). All three distractors misapply the abstract \"thorough discernment\" to concrete actions like confirming a time, finding an object, or aiming, and make no sense when inserted." },
     exampleJapanese: "情報が錯綜する中、何が真実なのかを冷静に見極める必要がある。",
-    exampleMeaningZh: "在情報錯綜之中，必須冷靜地辨明何者才是真相。"
+    exampleMeaningZh: "在情報錯綜之中，必須冷靜地辨明何者才是真相。",
+    exampleMeaningI18n: { "ja": "情報が入り乱れる中で、何が真実なのかを冷静に判断して確かめる必要がある。", "en": "Amid a tangle of conflicting information, you have to calmly discern what is actually true." },
   }),
   examQuestion({
     id: "n1-usage-tsukitomeru",
@@ -7666,7 +7718,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「突き止める」＝經追查而查明、找出（原因、犯人、下落等隱藏的真相）。①追查到案件的犯人＝正解。②追回被吹走的帽子是「追いかけて取り戻す」（追實物，搭配不符）。③拒絕無理要求是「断る／突っぱねる」（『突き止める』與拒絕無關，方向相反）。④把計畫延後是「先延ばしにする」（延期是『推遲』，與『查明』語意不通）。三個干擾分別把『查明真相』誤用為追物、拒絕、延期，放入句中皆不成立。",
     explanationI18n: { "ja": "「突き止める」＝追及して、原因・犯人・行方などの隠れた真相を明らかにし、探り当てること。①捜査の末に事件の犯人を探り当てる＝正解。②飛ばされた帽子を追うのは「追いかけて取り戻す」（実物を追うことで、組み合わせが合わない）。③理不尽な要求を退けるのは「断る／突っぱねる」（『突き止める』は拒絶とは無関係で、方向が逆）。④計画を先送りにするのは「先延ばしにする」（延期は『先へ延ばす』ことで、『明らかにする』とは意味が通らない）。三つの誤答はそれぞれ『真相を明らかにする』を、物を追う・拒絶する・延期するに誤用しており、当てはめても成立しません。", "en": "「突き止める」means to ascertain or find out through investigation (a hidden truth such as a cause, culprit, or whereabouts). Sentence 1, tracking down the culprit of the case, is the correct answer. Sentence 2, retrieving a hat blown away, should be 「追いかけて取り戻す」 (chasing a physical object—wrong collocation). Sentence 3, refusing an unreasonable demand, should be 「断る／突っぱねる」 (「突き止める」 has nothing to do with refusing—opposite direction). Sentence 4, postponing a plan, should be 「先延ばしにする」 (postponing is \"delaying,\" which makes no sense as \"ascertaining\"). The three distractors respectively misapply \"ascertaining the truth\" to chasing an object, refusing, and postponing, and none hold up when inserted." },
     exampleJapanese: "警察は粘り強い捜査の末、事件の犯人をついに突き止めた。",
-    exampleMeaningZh: "警方歷經鍥而不捨的偵辦，終於查出了案件的犯人。"
+    exampleMeaningZh: "警方歷經鍥而不捨的偵辦，終於查出了案件的犯人。",
+    exampleMeaningI18n: { "ja": "警察は粘り強い捜査の末、事件の犯人をついに特定した。", "en": "After a tenacious investigation, the police finally tracked down the culprit in the case." },
   }),
   examQuestion({
     id: "n1-usage-torihakarau",
@@ -7688,7 +7741,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「取り計らう」＝（為使事情順利）酌情妥善地安排、處置事務。①為避免大家受損而妥善安排＝正解。②合力搬運重物是「運ぶ」（搬東西不是『安排事務』，搭配不符）。③堅持反對意見是「押し通す／突っぱねる」（『取り計らう』是設法調處，與固執己見方向相反）。④快速算出是「計算する」（『取り計らう』非算數，雖含『計』字仍語意不通）。三個干擾皆非『安排調處事務』，放進句中不成立。",
     explanationI18n: { "ja": "「取り計らう」＝（物事がうまく運ぶように）状況に応じて適切に事務を手配・処置すること。①皆が損をしないようにうまく手配する＝正解。②力を合わせて重い荷物を運ぶのは「運ぶ」（物を運ぶことは『事務を手配する』ことではなく、組み合わせが合わない）。③反対意見を押し通すのは「押し通す／突っぱねる」（『取り計らう』はうまく調整して処置することで、自説に固執するのとは方向が逆）。④素早く計算するのは「計算する」（『取り計らう』は計算ではなく、『計』の字を含んでいても意味が通らない）。三つの誤答はいずれも『事務を手配・調整する』ではなく、当てはめても成立しません。", "en": "「取り計らう」means to arrange and handle affairs appropriately and at one's discretion (so that things go smoothly). Sentence 1, making arrangements so that no one suffers a loss, is the correct answer. Sentence 2, joining forces to carry a heavy load, should be 「運ぶ」 (carrying an object is not \"arranging affairs\"—wrong collocation). Sentence 3, sticking to one's opposing view, should be 「押し通す／突っぱねる」 (「取り計らう」 means to mediate and arrange, the opposite of stubbornly insisting). Sentence 4, quickly working out a calculation, should be 「計算する」 (「取り計らう」 is not arithmetic; despite containing the character 「計」 it still makes no sense). None of the three distractors is about \"arranging and handling affairs,\" so they do not hold up when inserted." },
     exampleJapanese: "ご事情は理解しましたので、皆様に不利益が出ないよう取り計らいます。",
-    exampleMeaningZh: "您的情況我已明白，會盡力安排好，不讓各位蒙受任何損失。"
+    exampleMeaningZh: "您的情況我已明白，會盡力安排好，不讓各位蒙受任何損失。",
+    exampleMeaningI18n: { "ja": "ご事情は理解しましたので、皆様に不利益が生じないよう、うまく対処いたします。", "en": "I understand your situation, and I will see to it that none of you comes to any disadvantage." },
   }),
   examQuestion({
     id: "n1-usage-mokuromu",
@@ -7710,7 +7764,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「もくろむ」＝（多為不正當地）暗中策劃、圖謀（計畫、陰謀）。①團夥圖謀大膽的犯案＝正解。②發呆望窗外是「ぼんやりする」（『もくろむ』是有意圖地謀劃，與放空相反）。③拚命爬坡是「あえぐ／頑張る」（爬坡是體力動作，非謀劃，搭配不符）。④曬太陽打盹是「うとうとする／くつろぐ」（與『圖謀』語意不通）。三個干擾皆無『暗中謀劃』之意，放入句中明顯不成立。",
     explanationI18n: { "ja": "「もくろむ」＝（多くは不正なことを）ひそかにたくらみ、企てること（計画・陰謀）。①一味が大胆な犯行をたくらむ＝正解。②窓の外をぼんやり眺めるのは「ぼんやりする」（『もくろむ』は意図をもって企てることで、ぼんやりするのとは逆）。③必死に坂を登るのは「あえぐ／頑張る」（坂登りは体力を使う動作で企てではなく、組み合わせが合わない）。④日差しを浴びてうとうとするのは「うとうとする／くつろぐ」（『たくらむ』とは意味が通らない）。三つの誤答はいずれも『ひそかに企てる』意味を持たず、当てはめると明らかに成立しません。", "en": "「もくろむ」means to plot or scheme secretly (a plan or conspiracy), usually in an illicit sense. Sentence 1, the gang plotting a bold crime, is the correct answer. Sentence 2, blankly gazing out the window, should be 「ぼんやりする」 (「もくろむ」 is deliberate scheming, the opposite of spacing out). Sentence 3, desperately climbing a slope, should be 「あえぐ／頑張る」 (climbing is a physical exertion, not scheming—wrong collocation). Sentence 4, dozing in the sun, should be 「うとうとする／くつろぐ」 (makes no sense as \"scheming\"). None of the three distractors carries the sense of \"secret plotting,\" so they clearly do not hold up when inserted." },
     exampleJapanese: "その一味は、銀行の金庫を破る大胆な犯行をもくろんでいた。",
-    exampleMeaningZh: "那一夥人正圖謀著要撬開銀行金庫的大膽犯案。"
+    exampleMeaningZh: "那一夥人正圖謀著要撬開銀行金庫的大膽犯案。",
+    exampleMeaningI18n: { "ja": "その一味は、銀行の金庫を破るという大胆な犯行を計画していた。", "en": "The gang was scheming a bold crime: breaking into the bank's vault." },
   }),
   examQuestion({
     id: "n1-usage-tajirogu",
@@ -7732,7 +7787,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「たじろぐ」＝（受對方氣勢或壓力而）畏縮、退卻、為之氣餒。①被對方逼人氣勢震得一瞬畏縮＝正解。②開心得不得了是「喜ぶ／はしゃぐ」（高興與畏縮相反，方向不對）。③睡得香甜是「眠る」（『たじろぐ』與睡眠無關，搭配不符）。④洋洋得意是「得意になる」（得意自滿與退縮相反）。三個干擾分別為喜悅、熟睡、自得，都與『受壓畏縮』相反或不相干，放入句中不成立。",
     explanationI18n: { "ja": "「たじろぐ」＝（相手の勢いや圧力に）気おされてひるみ、後ずさりし、気持ちがくじけること。①相手の迫力に気おされて一瞬ひるむ＝正解。②うれしくてたまらないのは「喜ぶ／はしゃぐ」（喜びとひるみは逆で、方向が違う）。③ぐっすり眠るのは「眠る」（『たじろぐ』は睡眠とは無関係で、組み合わせが合わない）。④得意になるのは「得意になる」（得意満面とひるみは逆）。三つの誤答はそれぞれ喜び・熟睡・得意で、いずれも『気おされてひるむ』とは逆か無関係であり、当てはめても成立しません。", "en": "「たじろぐ」means to flinch, shrink back, or lose one's nerve (under another's force or pressure). Sentence 1, momentarily flinching at the other party's intimidating force, is the correct answer. Sentence 2, being overjoyed, should be 「喜ぶ／はしゃぐ」 (joy is the opposite of flinching—wrong direction). Sentence 3, sleeping soundly, should be 「眠る」 (「たじろぐ」 has nothing to do with sleep—wrong collocation). Sentence 4, being smug, should be 「得意になる」 (self-satisfaction is the opposite of shrinking back). The three distractors—joy, deep sleep, and smugness—are each opposite to or unrelated to \"shrinking under pressure,\" so they do not hold up when inserted." },
     exampleJapanese: "相手の鋭い剣幕に、さすがの彼も一瞬たじろいだ。",
-    exampleMeaningZh: "面對對方凌厲的氣勢，連他也一瞬間怯了陣。"
+    exampleMeaningZh: "面對對方凌厲的氣勢，連他也一瞬間怯了陣。",
+    exampleMeaningI18n: { "ja": "相手のすさまじい剣幕に、さすがの彼も一瞬ひるんでしまった。", "en": "Faced with the other party's fierce intensity, even he flinched for a moment." },
   }),
   examQuestion({
     id: "n1-usage-negirau",
@@ -7754,7 +7810,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「ねぎらう」＝慰勞、犒賞（對方付出的辛勞），帶上對下感謝其努力的暖意。①社長慰勞通宵工作的員工＝正解。②嚴厲斥責部下是「叱る／戒める」（責備與慰勞相反，方向不對）。③為前途憂慮是「思い悩む／案じる」（『ねぎらう』是體恤他人辛勞，與自己煩惱無關）。④把價錢殺到半價是「値切る」（議價與慰勞語意不通，搭配不符）。三個干擾皆非『體恤慰勞辛勞』，放進句中不成立。",
     explanationI18n: { "ja": "「ねぎらう」＝（相手が尽くした苦労を）いたわり、その労にむくいることで、上の者が下の者の努力に感謝する温かみを伴います。①社長が徹夜で働いた社員をねぎらう＝正解。②部下を厳しく叱るのは「叱る／戒める」（叱責といたわりは逆で、方向が違う）。③将来を憂えるのは「思い悩む／案じる」（『ねぎらう』は他人の苦労をいたわることで、自分が悩むのとは無関係）。④値段を半額まで下げるのは「値切る」（値引き交渉といたわりは意味が通らず、組み合わせが合わない）。三つの誤答はいずれも『苦労をいたわる』ものではなく、当てはめても成立しません。", "en": "「ねぎらう」means to thank or reward someone for their hard work, carrying the warmth of a superior appreciating a subordinate's effort. Sentence 1, the president thanking employees who worked through the night, is the correct answer. Sentence 2, harshly scolding a subordinate, should be 「叱る／戒める」 (reproach is the opposite of appreciation—wrong direction). Sentence 3, worrying about one's future, should be 「思い悩む／案じる」 (「ねぎらう」 is about appreciating another's effort, not one's own worries). Sentence 4, haggling down a price, should be 「値切る」 (bargaining makes no sense as appreciation—wrong collocation). None of the three distractors is about \"appreciating and rewarding effort,\" so they do not hold up when inserted." },
     exampleJapanese: "社長は徹夜で働いた社員一人ひとりに、その労をねぎらった。",
-    exampleMeaningZh: "社長對每一位徹夜工作的員工表達了慰勞之意。"
+    exampleMeaningZh: "社長對每一位徹夜工作的員工表達了慰勞之意。",
+    exampleMeaningI18n: { "ja": "社長は徹夜で働いた社員一人ひとりに、その苦労をいたわる言葉をかけた。", "en": "The company president personally thanked each employee who had worked through the night for their hard work." },
   }),
   examQuestion({
     id: "n1-usage-odateru",
@@ -7776,7 +7833,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「おだてる」＝（為使對方得意而順其意去做）吹捧、奉承慫恿。①被旁人一捧就得意地接下幹事＝正解。②激烈批評上司是「非難する／責める」（吹捧與責難相反，方向不對）。③用柱子撐住快倒的牆是「支える」（『おだてる』非物理支撐，搭配不符）。④擔心計畫失敗是「心配する／案じる」（與『捧高慫恿』語意不通）。三個干擾分別為責難、支撐、擔憂，皆無『奉承慫恿』之意，放入句中不成立。",
     explanationI18n: { "ja": "「おだてる」＝（相手を得意にさせて思うように動かそうと）持ち上げてほめそやし、けしかけること。①周りに持ち上げられてその気になり幹事を引き受ける＝正解。②上司を激しく批判するのは「非難する／責める」（おだてと非難は逆で、方向が違う）。③倒れそうな塀を柱で支えるのは「支える」（『おだてる』は物理的に支えることではなく、組み合わせが合わない）。④計画の失敗を心配するのは「心配する／案じる」（『持ち上げてけしかける』とは意味が通らない）。三つの誤答はそれぞれ非難・支え・心配で、いずれも『おだててその気にさせる』意味を持たず、当てはめても成立しません。", "en": "「おだてる」means to flatter and butter up (to make someone feel good and go along with something). Sentence 1, being buttered up and gladly taking on the organizer role, is the correct answer. Sentence 2, harshly criticizing one's boss, should be 「非難する／責める」 (flattery is the opposite of criticism—wrong direction). Sentence 3, propping up a collapsing wall with a beam, should be 「支える」 (「おだてる」 is not physical support—wrong collocation). Sentence 4, worrying that a plan might fail, should be 「心配する／案じる」 (makes no sense as \"flattering to egg on\"). The three distractors—criticizing, propping up, and worrying—none carry the sense of \"flattering to egg on,\" so they do not hold up when inserted." },
     exampleJapanese: "周りがうまくおだてるので、彼はその気になって幹事を引き受けた。",
-    exampleMeaningZh: "旁人巧妙地一捧，他就得意起來接下了幹事的工作。"
+    exampleMeaningZh: "旁人巧妙地一捧，他就得意起來接下了幹事的工作。",
+    exampleMeaningI18n: { "ja": "周りが上手にほめて持ち上げたので、彼はその気になって幹事を引き受けた。", "en": "With everyone around him laying on the flattery, he got carried away and agreed to be the organizer." },
   }),
   examQuestion({
     id: "n1-usage-tatekaeru",
@@ -7798,7 +7856,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「立て替える」＝（替別人）先行墊付款項，事後再收回。①暫時替大家墊付聚餐費＝正解。②拆掉舊房重蓋是「建て替える」（同音近形詞，指『重建房屋』，非墊錢）。③把書架靠牆固定是「立てかける」（近形詞，指斜靠，搭配不符）。④把會議改到隔天是「延期する／ずらす」（更改日程與墊款語意不通）。三個干擾分別誤用為重建、斜靠、改期，皆非『代為墊付款項』，放進句中不成立。",
     explanationI18n: { "ja": "「立て替える」＝（他人の代わりに）代金を先に払っておき、あとで回収すること。①とりあえず皆の飲み会代を立て替える＝正解。②古い家を壊して建て直すのは「建て替える」（同音で字形も近い語で、『建物を建て直す』意味であり、金を払うことではない）。③本棚を壁に立てて固定するのは「立てかける」（字形の近い語で、斜めに寄りかからせる意味であり、組み合わせが合わない）。④会議を翌日に移すのは「延期する／ずらす」（日程を変えることは立て替えとは意味が通らない）。三つの誤答はそれぞれ建て直し・立てかけ・日程変更に誤用しており、いずれも『代金を立て替える』ではなく、当てはめても成立しません。", "en": "「立て替える」means to pay on someone's behalf up front and collect it back later. Sentence 1, temporarily covering the party bill for everyone, is the correct answer. Sentence 2, tearing down an old house and rebuilding it, should be 「建て替える」 (a homophone with a similar spelling meaning \"to rebuild a house,\" not to advance money). Sentence 3, propping a bookcase against the wall, should be 「立てかける」 (a similar-looking word meaning to lean at an angle—wrong collocation). Sentence 4, moving a meeting to the next day, should be 「延期する／ずらす」 (changing a schedule makes no sense as advancing money). The three distractors are respectively misused as rebuilding, leaning, and rescheduling, none of which is \"paying on someone's behalf,\" so they do not hold up when inserted." },
     exampleJapanese: "今は手持ちがないので、飲み会の代金はとりあえず私が立て替えておく。",
-    exampleMeaningZh: "我現在身上沒帶錢，聚餐的費用就先由我代付。"
+    exampleMeaningZh: "我現在身上沒帶錢，聚餐的費用就先由我代付。",
+    exampleMeaningI18n: { "ja": "手元にお金がないため、飲み会の代金はとりあえず私が代わりに払っておく。", "en": "There's no cash on hand right now, so I'll front the money for the get-together for the time being." },
   }),
   examQuestion({
     id: "n1-usage-habakaru",
@@ -7820,7 +7879,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「はばかる」＝有所顧忌、忌憚而不敢放開（在意他人眼光、有所收斂）。①顧忌旁人目光而避人相會＝正解。②毫不顧忌地直言應是「はばからず」（句中『少しもはばかって口にする』語意自相矛盾，正確要用否定）。③聲音響徹會場是「響き渡る」（『はばかる』非聲音擴散，搭配不符）。④堤防擋住濁流是「せき止める／防ぐ」（攔阻水流是物理動作，與『心理顧忌』語意不通）。三個干擾皆非『顧忌收斂』，放入句中不成立。",
     explanationI18n: { "ja": "「はばかる」＝遠慮し、気兼ねして思い切ってできないこと（他人の目を気にして控えめになる）。①周囲の目をはばかって人目を避けて会う＝正解。②少しも遠慮せずに言うのは「はばからず」（文中の『少しもはばかって口にする』は意味が自己矛盾しており、正しくは否定形を使う）。③声が会場に響き渡るのは「響き渡る」（『はばかる』は音が広がることではなく、組み合わせが合わない）。④堤防が濁流をせき止めるのは「せき止める／防ぐ」（水流をせき止めるのは物理的な動作で、『心理的な気兼ね』とは意味が通らない）。三つの誤答はいずれも『遠慮して控える』ものではなく、当てはめても成立しません。", "en": "「はばかる」means to hold back out of reserve or hesitation (being mindful of others' eyes and restraining oneself). Sentence 1, being mindful of others' eyes and meeting away from public view, is the correct answer. Sentence 2, speaking one's mind without any hesitation, should use 「はばからず」 (in the sentence 「少しもはばかって口にする」 is self-contradictory in meaning; the negative form is required). Sentence 3, a voice resounding across the venue, should be 「響き渡る」 (「はばかる」 is not about sound spreading—wrong collocation). Sentence 4, a levee blocking muddy water, should be 「せき止める／防ぐ」 (holding back a current is a physical action, which makes no sense as \"psychological reserve\"). None of the three distractors is about \"holding back out of reserve,\" so they do not hold up when inserted." },
     exampleJapanese: "周囲の目をはばかって、二人は人目につかない店で会っていた。",
-    exampleMeaningZh: "顧忌著周遭的眼光，兩人總在不顯眼的店裡碰面。"
+    exampleMeaningZh: "顧忌著周遭的眼光，兩人總在不顯眼的店裡碰面。",
+    exampleMeaningI18n: { "ja": "周囲の目を気にして、二人は人目につかない店で会っていた。", "en": "Wary of the eyes of those around them, the two always met in out-of-the-way places where they wouldn't be noticed." },
   }),
   examQuestion({
     id: "n1-usage-mitsukurou",
@@ -7842,7 +7902,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「見繕う」＝（衡量場合、需要而）斟酌挑選、酌量張羅出合適的東西。①酌情挑選討喜的伴手禮＝正解。②修理壞掉的鐘是「修理する／直す」（『見繕う』非修繕，搭配不符）。③再三核對有無錯誤是「見直す／確認する」（檢查與挑選張羅語意不通）。④看清人臉是「見分ける／識別する」（辨認與酌量挑選不同，方向不對）。三個干擾分別誤用為修理、核對、辨認，皆非『斟酌挑選張羅』，放進句中不成立。",
     explanationI18n: { "ja": "「見繕う」＝（場や必要を見計らって）適当なものを選び、見計らって用意すること。①喜ばれそうな土産を適当に見繕う＝正解。②壊れた時計を修理するのは「修理する／直す」（『見繕う』は修繕することではなく、組み合わせが合わない）。③誤りがないか何度も確かめるのは「見直す／確認する」（点検と、見計らって用意することは意味が通らない）。④人の顔をはっきり見分けるのは「見分ける／識別する」（識別と見計らって選ぶことは異なり、方向が違う）。三つの誤答はそれぞれ修理・点検・識別に誤用しており、いずれも『見計らって選び用意する』ではなく、当てはめても成立しません。", "en": "「見繕う」means to select and put together suitable items at one's discretion (judging the occasion and what is needed). Sentence 1, picking out pleasing souvenirs at one's discretion, is the correct answer. Sentence 2, repairing a broken clock, should be 「修理する／直す」 (「見繕う」 is not repairing—wrong collocation). Sentence 3, checking over and over for errors, should be 「見直す／確認する」 (checking makes no sense as selecting and putting together). Sentence 4, seeing a person's face clearly, should be 「見分ける／識別する」 (recognizing differs from discerningly selecting—wrong direction). The three distractors are respectively misused as repairing, checking, and recognizing, none of which is \"discerningly selecting and putting together,\" so they do not hold up when inserted." },
     exampleJapanese: "予算は任せるので、お土産に喜ばれそうな品を適当に見繕ってください。",
-    exampleMeaningZh: "預算就交給你，麻煩斟酌挑些當伴手禮會討喜的東西。"
+    exampleMeaningZh: "預算就交給你，麻煩斟酌挑些當伴手禮會討喜的東西。",
+    exampleMeaningI18n: { "ja": "予算は任せるので、お土産として喜ばれそうな品物をほどよく選んでください、という意味。", "en": "I'll leave the budget to you, so please use your judgment and pick out some items that would make well-received souvenirs." },
   }),
   examQuestion({
     id: "n1-syn-assari",
@@ -8184,7 +8245,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「おびただしい」表示數量極多，代回「非常に多い数の段ボール箱（非常多的紙箱）」自然成立，故正解為「非常に多い」。「騒がしい（吵鬧）」是聲音層面，箱子不會吵，語境不通。「慌ただしい（匆忙慌亂）」描述時間或氣氛上的忙亂，無法修飾箱子的數量。「微々たる（微不足道、極少）」與「數量極多」恰為相反，代回後語意完全顛倒，明確不成立。四者皆形容詞性質，僅「非常に多い」成立。",
     explanationI18n: { "ja": "「おびただしい」は数量が非常に多いことを表し、「非常に多い数の段ボール箱」と入れ替えても自然に成立するため、正解は「非常に多い」。「騒がしい」は音の面のことで、箱が騒ぐことはなく文脈が通らない。「慌ただしい」は時間や雰囲気の面での慌ただしさを表し、箱の数量を修飾できない。「微々たる」はごくわずか・取るに足らないことで、「数量が非常に多い」とは正反対であり、入れ替えると意味が完全に逆転して明らかに成立しない。四つとも形容詞的な語だが、「非常に多い」のみが成立する。", "en": "「おびただしい」 indicates an extremely large quantity, and substituting it gives a natural 「非常に多い数の段ボール箱」 (a very large number of boxes), so the correct answer is 「非常に多い」. 「騒がしい」 (noisy) is about sound, and boxes can't be noisy, so it doesn't fit the context. 「慌ただしい」 (hurried and hectic) describes busyness of time or atmosphere and cannot modify the quantity of boxes. 「微々たる」 (trivial, minuscule) is exactly the opposite of \"extremely numerous,\" and substituting it flips the meaning entirely, so it clearly fails. All four are adjectival in nature, but only 「非常に多い」 works." },
     exampleJapanese: "倉庫には、まだ仕分けされていない非常に多い数の段ボール箱が積み上げられていた。",
-    exampleMeaningZh: "倉庫裡堆積著大量尚未分類的紙箱。"
+    exampleMeaningZh: "倉庫裡堆積著大量尚未分類的紙箱。",
+    exampleMeaningI18n: { "ja": "倉庫には、まだ仕分けされていない非常に多くの段ボール箱が積み上げられていた。", "en": "An enormous number of cardboard boxes, still unsorted, were piled up in the warehouse." },
   }),
   examQuestion({
     id: "n1-usage-ichigaini",
@@ -8206,7 +8268,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "正解：「悪いとは一概に言えない」表示不能籠統地一概斷定，後接否定，是「一概に」的典型用法，母語者完全接受。干擾一「一概に遅れてきて」要表達「總是、每次」應用「いつも／決まって」，「一概に」無此義，搭配不成立。干擾二「一概に治る」要表達「一定、必定」應用「必ず／きっと」，「一概に」不能修飾肯定的必然結果。干擾三「傘を一概に持って」要表達「以防萬一、姑且」應用「一応／念のため」，與「一概に」毫無關係。三個干擾語意/搭配均明確不成立。",
     explanationI18n: { "ja": "正解：「悪いとは一概に言えない」は、大ざっぱに一括りにして断定はできないことを表し、後ろに否定を伴う「一概に」の典型的な用法で、母語話者も完全に受け入れる。誤答一「一概に遅れてきて」は「いつも・毎回」を表したいのであり「いつも／決まって」を使うべきで、「一概に」にその意味はなく、結びつかない。誤答二「一概に治る」は「必ず・きっと」を表したいのであり「必ず／きっと」を使うべきで、「一概に」は肯定的な必然の結果を修飾できない。誤答三「傘を一概に持って」は「念のため・とりあえず」を表したいのであり「一応／念のため」を使うべきで、「一概に」とは無関係である。三つの誤答はいずれも意味・結びつきが明らかに成立しない。", "en": "Correct: 「悪いとは一概に言えない」 means you can't sweepingly conclude something across the board; followed by a negative, this is the typical use of 「一概に」, fully accepted by native speakers. Distractor 1, 「一概に遅れてきて」, wants to say \"always / every time\" and should use 「いつも／決まって」; 「一概に」 has no such meaning and doesn't collocate. Distractor 2, 「一概に治る」, wants to say \"definitely / for sure\" and should use 「必ず／きっと」; 「一概に」 cannot modify an affirmative certain outcome. Distractor 3, 「傘を一概に持って」, wants to say \"just in case / for now\" and should use 「一応／念のため」, unrelated to 「一概に」. All three distractors clearly fail in meaning or collocation." },
     exampleJapanese: "残業が多いからといって、その会社が悪いとは一概に言えない。",
-    exampleMeaningZh: "雖說加班多，但也不能就此一概斷定那家公司不好。"
+    exampleMeaningZh: "雖說加班多，但也不能就此一概斷定那家公司不好。",
+    exampleMeaningI18n: { "ja": "残業が多いからといって、その会社が悪いと単純に決めつけることはできない、という意味。", "en": "Just because there's a lot of overtime doesn't mean you can flatly conclude that the company is a bad one." },
   }),
   examQuestion({
     id: "n1-usage-nagori",
@@ -8228,7 +8291,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "正解：「城があったことを示す名残だ」表示過去事物留存下來的痕跡，是「名残」的典型用法，母語者接受。干擾一「名残もなく働き続けて」要表達「不間斷地、毫不停歇」應用「休みなく／絶え間なく」，「名残もなく」無此義，搭配不成立。干擾二「名残を取ってから」要表達「取得許可／聯絡確認」應用「許可を取って／連絡を取って」，「名残を取る」不成詞。干擾三「名残をもって取り組む」要表達「慎重、認真」應用「慎重に／真剣に」，「名残をもって」無此義。三個干擾搭配均明確不成立。",
     explanationI18n: { "ja": "正解：「城があったことを示す名残だ」は、過去の事物が残した痕跡を表し、「名残」の典型的な用法で、母語話者も受け入れる。誤答一「名残もなく働き続けて」は「途切れることなく・絶え間なく」を表したいのであり「休みなく／絶え間なく」を使うべきで、「名残もなく」にその意味はなく、結びつかない。誤答二「名残を取ってから」は「許可を取る／連絡して確認する」を表したいのであり「許可を取って／連絡を取って」を使うべきで、「名残を取る」は語として成り立たない。誤答三「名残をもって取り組む」は「慎重に・真剣に」を表したいのであり「慎重に／真剣に」を使うべきで、「名残をもって」にその意味はない。三つの誤答はいずれも結びつきが明らかに成立しない。", "en": "Correct: 「城があったことを示す名残だ」 means a trace left behind by something from the past, the typical use of 「名残」, accepted by native speakers. Distractor 1, 「名残もなく働き続けて」, wants to say \"without a break / ceaselessly\" and should use 「休みなく／絶え間なく」; 「名残もなく」 has no such meaning and doesn't collocate. Distractor 2, 「名残を取ってから」, wants to say \"get permission / make contact to confirm\" and should use 「許可を取って／連絡を取って」; 「名残を取る」 is not a real phrase. Distractor 3, 「名残をもって取り組む」, wants to say \"carefully / seriously\" and should use 「慎重に／真剣に」; 「名残をもって」 has no such meaning. All three distractors clearly fail as collocations." },
     exampleJapanese: "この古い石垣は、かつてここに城があったことを示す名残だ。",
-    exampleMeaningZh: "這道古老的石牆，是從前此地曾有城堡留下的遺跡。"
+    exampleMeaningZh: "這道古老的石牆，是從前此地曾有城堡留下的遺跡。",
+    exampleMeaningI18n: { "ja": "この古い石垣は、かつてここに城があったことを今に伝える、昔の面影を残すものだ。", "en": "This old stone wall is a remnant showing that a castle once stood here." },
   }),
   examQuestion({
     id: "n1-context-tokoroka",
@@ -8270,7 +8334,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「応酬」指雙方針鋒相對地互相反駁、你來我往的激烈對答，最接近「やり取り」（你來我往的對答、往返交鋒），且搭「激しい」自然成立。「打ち合わせ」是事前的協商討論，氣氛是合作而非對立，語意明確不符；「問い合わせ」是向對方詢問、查詢，只有單向發問沒有互相往來，方向錯誤；「話し合い」是平和地商量、協商，缺乏「応酬」所含的激烈交鋒色彩，與「激しい」搭配時語意偏弱、不對等。故唯一正解為「やり取り」。",
     explanationI18n: { "ja": "「応酬」は、双方が真っ向から互いに言い返し合う、激しいやり取りを指し、「やり取り（言葉のやり取り、行き交い）」が最も近く、「激しい」とも自然に結びついて成立する。「打ち合わせ」は事前の相談・協議で、雰囲気は対立ではなく協力であり、意味が明らかに合わない。「問い合わせ」は相手に尋ねる・照会することで、一方的に問うだけで互いのやり取りがなく、方向が誤っている。「話し合い」は穏やかに相談・協議することで、「応酬」の持つ激しい応戦の色合いを欠き、「激しい」と結びつくと意味が弱く、対等ではない。したがって唯一の正解は「やり取り」である。", "en": "「応酬」 refers to a fierce exchange in which two sides rebut each other tit for tat, back and forth, closest to 「やり取り」 (a back-and-forth exchange), and it naturally combines with 「激しい」. 「打ち合わせ」 is a prior consultation/discussion, cooperative rather than confrontational in tone, clearly not matching. 「問い合わせ」 is inquiring of / querying the other party, only one-directional questioning with no mutual back-and-forth, the wrong direction. 「話し合い」 is a peaceful discussion/consultation, lacking the fierce clash 「応酬」 carries, and pairs weakly and unevenly with 「激しい」. Therefore the only correct answer is 「やり取り」." },
     exampleJapanese: "討論会では、両者の激しいやり取りが一時間以上も続いた。",
-    exampleMeaningZh: "在討論會上，雙方激烈的你來我往持續了一個多小時。"
+    exampleMeaningZh: "在討論會上，雙方激烈的你來我往持續了一個多小時。",
+    exampleMeaningI18n: { "ja": "討論会では、両者の激しい言葉のやり取りが一時間以上も続いた。", "en": "At the debate, the heated back-and-forth between the two sides went on for more than an hour." },
   }),
   examQuestion({
     id: "n1-syn-kanyo",
@@ -8292,7 +8357,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「寛容」指能容忍他人過失、不苛責的寬厚態度，最接近「寛大」（寬大、度量大）。「厳格」是嚴格、不留情面，與「寛容」正好相反，明確不成立；「慎重」是謹慎小心，描述的是做事態度而非對人過失的容忍度，語意不對應；「誠実」是誠實、真摯，講的是品格的正直，與「容忍他人錯誤」毫無關係。故唯一正解為「寛大」。",
     explanationI18n: { "ja": "「寛容」は、他人の過ちを受け入れとがめだてしない、心の広い態度を指し、「寛大（心が広く度量が大きい）」が最も近い。「厳格」は厳しく容赦しないことで、「寛容」とは正反対であり、明らかに成立しない。「慎重」は注意深く用心することで、物事に取り組む態度を表し、他人の過ちに対する寛容さとは対応しない。「誠実」は誠実・真摯なことで、人柄の正直さを言うものであり、「他人の過ちを受け入れる」こととは無関係である。したがって唯一の正解は「寛大」である。", "en": "「寛容」 refers to a generous attitude that tolerates others' faults without harsh reproach, closest to 「寛大」 (magnanimous, big-hearted). 「厳格」 is strict and unsparing, exactly the opposite of 「寛容」, clearly failing. 「慎重」 is cautious and careful, describing how one does things rather than tolerance of others' faults, so it doesn't correspond. 「誠実」 is sincere and earnest, about integrity of character, with no relation to tolerating others' mistakes. Therefore the only correct answer is 「寛大」." },
     exampleJapanese: "彼は部下のミスに対して非常に寛大な上司だ。",
-    exampleMeaningZh: "他是一位對下屬犯錯非常寬大的主管。"
+    exampleMeaningZh: "他是一位對下屬犯錯非常寬大的主管。",
+    exampleMeaningI18n: { "ja": "彼は、部下のミスを厳しく責めない、心の広い上司だ。", "en": "He is a boss who is very forgiving of his subordinates' mistakes." },
   }),
   examQuestion({
     id: "n1-syn-zehi",
@@ -8314,7 +8380,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「是非を問う」是固定用法，指追究、質問某事的對錯與正當與否，最接近「善し悪しを問う」（追問好壞、是非）。「見通しを問う」是詢問對未來的預測、展望，講的是前景而非對錯判斷，語意不符；「手応えを問う」是問做某事後感受到的反應、回饋手感，與「對錯」無關；「成り行きを問う」是問事情自然發展的趨勢、結果走向，並非評斷其正當與否。把整個述部「を問う」放入選項後，唯一等義的是「善し悪しを問う」。",
     explanationI18n: { "ja": "「是非を問う」は決まった言い方で、ある事の正しさ・正当性の是非を追及・問いただすことを指し、「善し悪しを問う（良いか悪いか、是非を問う）」が最も近い。「見通しを問う」は将来の予測・展望を尋ねることで、先行きを言うものであり是非の判断ではないため、意味が合わない。「手応えを問う」は何かをした後に感じた反応・手応えを問うことで、「正しさ」とは無関係である。「成り行きを問う」は物事が自然に進む流れ・結果の行方を問うことで、その正当性を評価するものではない。述部「を問う」まで含めて選択肢に入れると、等しい意味になるのは「善し悪しを問う」のみである。", "en": "「是非を問う」 is a fixed expression meaning to probe/question the rightness and justification of something, closest to 「善し悪しを問う」 (to question the good and bad, the rights and wrongs). 「見通しを問う」 is asking about a forecast/outlook for the future, about prospects rather than a judgment of right and wrong, so it doesn't match. 「手応えを問う」 is asking about the response/feedback felt after doing something, unrelated to \"right and wrong.\" 「成り行きを問う」 is asking about the natural trend/course an event takes, not judging its legitimacy. Placing the whole predicate 「を問う」 into the options, the only equivalent is 「善し悪しを問う」." },
     exampleJapanese: "委員会では、この政策の善し悪しを問う声が上がった。",
-    exampleMeaningZh: "委員會上，出現了質問這項政策好壞（是非）的聲音。"
+    exampleMeaningZh: "委員會上，出現了質問這項政策好壞（是非）的聲音。",
+    exampleMeaningI18n: { "ja": "委員会では、この政策の良し悪し（是か非か）を問いただす声が上がった。", "en": "At the committee meeting, voices were raised questioning the merits (the rights and wrongs) of this policy." },
   }),
   examQuestion({
     id: "n1-usage-tekozuru",
@@ -8336,7 +8403,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「てこずる」＝（某件事）難搞、處理起來費盡工夫。①軟體操作複雜，設定費了好大勁＝正解。②感受到雙親的溫暖是「触れた／ほっとした」，てこずる不能搭配正面情緒。③考上第一志願是「合格した」，てこずる沒有「達成目標」之意。④被精彩演奏吸引而聽得入神是「聞き入った／聞きほれた」，てこずる沒有「陶醉、入迷」之意。てこずる的對象是難對付的事情或人，不用於情感體驗或達成成果。",
     explanationI18n: { "ja": "「てこずる」は、あることが扱いにくく、処理に手間がかかることを表す。①ソフトの操作が複雑で、設定にひどく手こずった＝正解。②両親の温かさを感じるのは「触れた／ほっとした」であり、てこずるは肯定的な感情には結びつかない。③第一志望に受かるのは「合格した」であり、てこずるに「目標を達成する」意味はない。④見事な演奏に引き込まれ聞き入るのは「聞き入った／聞きほれた」であり、てこずるに「陶酔・夢中になる」意味はない。てこずるの対象は扱いにくい物事や人であり、感情の体験や成果の達成には使わない。", "en": "「てこずる」 means (something) is hard to handle and takes great effort to deal with. ① The software is complex to operate and setup took a huge struggle = correct. ② Feeling the warmth of one's parents is 「触れた／ほっとした」; 「てこずる」 cannot pair with a positive emotion. ③ Getting into one's first-choice university is 「合格した」; 「てこずる」 has no sense of \"achieving a goal.\" ④ Being drawn in and absorbed by a splendid performance is 「聞き入った／聞きほれた」; 「てこずる」 has no sense of \"being enthralled / captivated.\" The object of 「てこずる」 is a hard-to-handle matter or person, not used for emotional experiences or achieving results." },
     exampleJapanese: "新しいソフトの操作が複雑で、設定にすっかりてこずってしまった。",
-    exampleMeaningZh: "新軟體的操作很複雜，設定時費了好大一番工夫。"
+    exampleMeaningZh: "新軟體的操作很複雜，設定時費了好大一番工夫。",
+    exampleMeaningI18n: { "ja": "新しいソフトの操作が複雑で、設定にすっかり手間取ってしまった、という意味。", "en": "The new software is so complicated to operate that I had a real struggle getting it set up." },
   }),
   examQuestion({
     id: "n1-usage-mikubiru",
@@ -8358,7 +8426,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「見くびる」＝把對方的實力或難度估得太低、瞧不起。①把對手當外行而小看，結果反被逆襲＝正解。②費力辨認遠處招牌的字是「見定めた／読み取った」，見くびる沒有「辨視」之意。③逐一核對來客姓名是「見て／照合して」，見くびる不是「確認」。④為了卸責而掩飾自己的過失是「ごまかした／隠した」，見くびる的對象是別人的本領，不能用在「自己的失敗」上。見くびる帶「低估而失算」的語感，不用於物理觀看或掩飾。",
     explanationI18n: { "ja": "「見くびる」は、相手の実力や難しさを実際より低く見積もる・見くだすことを表す。①相手を素人だと見くびり、逆に反撃を食らった＝正解。②遠くの看板の字をやっとのことで読み取るのは「見定めた／読み取った」であり、見くびるに「見分ける」意味はない。③来客の名前を一人ずつ照らし合わせるのは「見て／照合して」であり、見くびるは「確認する」ではない。④責任逃れのため自分の過失をごまかすのは「ごまかした／隠した」であり、見くびるの対象は他人の力量であって「自分の失敗」には使えない。見くびるは「低く見積もって当てが外れる」という語感を持ち、物理的に見ることやごまかしには使わない。", "en": "「見くびる」 means to estimate the other party's strength or the difficulty too low, to look down on them. ① Underestimating the opponent as an amateur and then getting counterattacked = correct. ② Straining to make out the letters on a distant sign is 「見定めた／読み取った」; 「見くびる」 has no sense of \"discerning by sight.\" ③ Checking visitors' names one by one is 「見て／照合して」; 「見くびる」 is not \"confirming.\" ④ Covering up one's own failure to dodge responsibility is 「ごまかした／隠した」; the object of 「見くびる」 is another's ability, and it cannot be used on \"one's own failure.\" 「見くびる」 carries the nuance of \"miscalculating by underestimating,\" not used for physical viewing or covering up." },
     exampleJapanese: "相手を素人だと見くびっていたら、思わぬ反撃にあって負けた。",
-    exampleMeaningZh: "我把對手當成外行而小看，結果遭到意想不到的反擊輸掉了。"
+    exampleMeaningZh: "我把對手當成外行而小看，結果遭到意想不到的反擊輸掉了。",
+    exampleMeaningI18n: { "ja": "相手を素人だと軽く見ていたら、思いがけない反撃を受けて負けてしまった、という意味。", "en": "I dismissed my opponent as an amateur, only to be hit by an unexpected counterattack and lose." },
   }),
   examQuestion({
     id: "n1-context-woiikotoni",
@@ -8440,7 +8509,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「いざこざ」指小規模的爭執、糾紛，與「もめごと」(爭吵、紛爭) 意思最接近，代回「些細なことでもめごとが絶えず」完全自然。「うわさ」是傳聞、流言，部門之間傳聞不斷與「對應に追われる」搭不上，語意不同。「へだたり」是距離、隔閡，指的是差距而非衝突事件，無法說「へだたりが絶えず、その対応に追われる」。「ふけいき」是不景氣、生意蕭條，與部門間摩擦完全無關。四者只有「もめごと」成立。",
     explanationI18n: { "ja": "「いざこざ」は小規模ないさかい・もめごとを指し、「もめごと（いさかい、紛争）」と意味が最も近く、「ささいなことでもめごとが絶えず」に入れ替えても完全に自然である。「うわさ」は伝聞・風説で、部署間でうわさが絶えないのでは「対応に追われる」とかみ合わず、意味が異なる。「へだたり」は距離・隔たりで、差を指すもので衝突の出来事ではなく、「へだたりが絶えず、その対応に追われる」とは言えない。「ふけいき」は不景気・商売の落ち込みで、部署間の摩擦とはまったく無関係である。四つのうち「もめごと」のみが成立する。", "en": "「いざこざ」 refers to small-scale quarrels and disputes, closest in meaning to 「もめごと」 (squabbles, disputes), and substituting it gives a fully natural 「些細なことでもめごとが絶えず」. 「うわさ」 is rumor/gossip; constant rumors between departments don't fit 「対応に追われる」, so the meaning differs. 「へだたり」 is distance/estrangement, referring to a gap rather than a clash event, and one cannot say 「へだたりが絶えず、その対応に追われる」. 「ふけいき」 is a recession / poor business, entirely unrelated to inter-department friction. Of the four, only 「もめごと」 works." },
     exampleJapanese: "隣の部署とは些細なことでもめごとが絶えず、課長はその対応に追われている。",
-    exampleMeaningZh: "和隔壁部門為了一些小事糾紛不斷，課長忙於應對。"
+    exampleMeaningZh: "和隔壁部門為了一些小事糾紛不斷，課長忙於應對。",
+    exampleMeaningI18n: { "ja": "隣の部署とはささいなことでもめ事が絶えず、課長はその対応に追われている。", "en": "There are constant squabbles with the neighboring department over trivial matters, and the section chief is kept busy dealing with them." },
   }),
   examQuestion({
     id: "n1-syn-netsuzou",
@@ -8462,7 +8532,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「でっち上げる」指無中生有地編造假的事實或數據，與「ねつ造する（捏造、偽造）」意思最接近，代回「データをねつ造していた」完全成立且同為刻意造假。「言い訳して」是辯解、找藉口，研究者並非在辯解而是偽造數據，方向不對。「思い込んで」是主觀認定、先入為主，屬於誤判而非蓄意造假，語意不同。「勘違いして」是誤會、弄錯，是無意的失誤，與「発覚し追放された」所暗示的故意不當行為矛盾。只有「ねつ造して」與蓄意造假的語意一致。",
     explanationI18n: { "ja": "「でっち上げる」は、何もないところから偽の事実やデータを作り上げることを指し、「ねつ造する（捏造・偽造する）」と意味が最も近く、「データをねつ造していた」に入れ替えても完全に成立し、ともに意図的な作り物である。「言い訳して」は弁解・口実で、研究者は弁解しているのではなくデータを偽造しており、方向が違う。「思い込んで」は主観的な決めつけ・先入観で、誤った判断であって意図的な偽造ではなく、意味が異なる。「勘違いして」は誤解・取り違えで、無意識の過失であり、「発覚し追放された」が示す故意の不正行為と矛盾する。「ねつ造して」のみが意図的な偽造という意味と一致する。", "en": "「でっち上げる」 means to concoct false facts or data out of nothing, closest in meaning to 「ねつ造する」 (to fabricate, to forge), and substituting it gives a fully valid 「データをねつ造していた」, both being deliberate falsification. 「言い訳して」 is to make excuses / offer justifications; the researcher wasn't excusing himself but forging data, the wrong direction. 「思い込んで」 is to be subjectively convinced / have a preconception, a misjudgment rather than deliberate fabrication, so the meaning differs. 「勘違いして」 is to misunderstand / get something wrong, an unintentional slip, which contradicts the deliberate wrongdoing implied by 「発覚し追放された」. Only 「ねつ造して」 matches the sense of deliberate falsification." },
     exampleJapanese: "その研究者は実験データをねつ造していたことが発覚し、学界を追放された。",
-    exampleMeaningZh: "那名研究者捏造實驗數據的事被揭發，遭學界驅逐。"
+    exampleMeaningZh: "那名研究者捏造實驗數據的事被揭發，遭學界驅逐。",
+    exampleMeaningI18n: { "ja": "その研究者は、実験データを偽って作り上げていたことが発覚し、学界から追放された。", "en": "It came to light that the researcher had fabricated experimental data, and he was expelled from the academic community." },
   }),
   examQuestion({
     id: "n1-usage-kigane",
@@ -8484,7 +8555,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "正解句：「近所に気兼ねする必要がなくなった」＝不必再顧慮鄰居、放得開地行動，這正是「気兼ね」（顧慮他人、拘束自己、不好意思）的典型用法，搭配「〜に気兼ねする」助詞與語境完全成立。「初心者には気兼ねしないように」＝這裡要表達的是「不要因不懂而退縮／不要慌」，但「気兼ね」是顧慮他人感受，對著說明書並無他人需顧慮，語意不通，應改用「気後れ」「物怖じ」等。「結果が気兼ねで一睡もできなかった」＝這是擔心、掛念結果，應為「気がかり」；「気兼ね」不表示心中掛念某事，且「結果が気兼ね」搭配不成立。「思わず気兼ねするほど美しかった」＝面對美景的反應應是「息をのむ」「見とれる」，「気兼ね」與美景無關，語意完全錯置。故僅有正解句的「顧慮他人而拘束」情境成立。",
     explanationI18n: { "ja": "正解の文：「近所に気兼ねする必要がなくなった」は、もう近所に遠慮せずのびのび行動できるという意味で、これはまさに「気兼ね」（他人に遠慮し、自分を窮屈にし、気詰まりに思うこと）の典型的な用法であり、「～に気兼ねする」という助詞も文脈も完全に成立する。「初心者には気兼ねしないように」は、ここで表したいのは「わからなくて尻込みしない／慌てない」ことだが、「気兼ね」は他人の気持ちへの遠慮であって、説明書に対しては遠慮すべき他人がおらず、文意が通らない。「気後れ」「物怖じ」などを使うべきである。「結果が気兼ねで一睡もできなかった」は、結果を心配し気にかけているのであって「気がかり」とすべきで、「気兼ね」は心中で何かを気にかける意味ではなく、「結果が気兼ね」という結びつきも成立しない。「思わず気兼ねするほど美しかった」は、美しい景色への反応は「息をのむ」「見とれる」であるべきで、「気兼ね」は美しい景色とは無関係で、意味が完全にずれている。したがって正解の文の「他人に遠慮して窮屈になる」場面のみが成立する。", "en": "Correct sentence: 「近所に気兼ねする必要がなくなった」 = no longer having to be self-conscious about the neighbors, acting freely — the typical use of 「気兼ね」 (being mindful of others, constraining oneself, feeling awkward), with the particle collocation 「〜に気兼ねする」 and the context fully valid. 「初心者には気兼ねしないように」: here the intended meaning is \"don't shy away or panic because you don't understand,\" but 「気兼ね」 is being mindful of others' feelings, and there is no other person to consider before a manual, so it makes no sense; use 「気後れ」 or 「物怖じ」 instead. 「結果が気兼ねで一睡もできなかった」: this is worrying/being anxious about the result, which should be 「気がかり」; 「気兼ね」 does not mean fretting over something in one's mind, and 「結果が気兼ね」 doesn't collocate. 「思わず気兼ねするほど美しかった」: the reaction to beautiful scenery should be 「息をのむ」 or 「見とれる」; 「気兼ね」 is unrelated to scenery, entirely misplaced. So only the correct sentence's \"being constrained out of consideration for others\" scenario works." },
     exampleJapanese: "一戸建てに引っ越してからは、夜中にピアノを弾いても近所に気兼ねする必要がなくなった。",
-    exampleMeaningZh: "搬進獨棟房子後，半夜彈鋼琴也不必再顧慮鄰居了。"
+    exampleMeaningZh: "搬進獨棟房子後，半夜彈鋼琴也不必再顧慮鄰居了。",
+    exampleMeaningI18n: { "ja": "一戸建てに引っ越してからは、夜中にピアノを弾いても近所に遠慮する必要がなくなった、という意味。", "en": "Since moving into a detached house, I no longer have to worry about the neighbors even when I play the piano in the middle of the night." },
   }),
   examQuestion({
     id: "n1-usage-tachigie",
@@ -8506,7 +8578,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "正解句：「合併話は…いつのまにか立ち消えになってしまった」＝原本熱烈的計畫／話題在中途無疾而終、不了了之，正是「立ち消え」最典型的抽象用法（多搭配計畫・話題・企画），語意與搭配完全成立。干擾1「世界的な評価へと立ち消えになった」＝研究獲得高評價是正向結果，與「無疾而終」語意相反，應用「結実する」「至る」等；「立ち消え」帶負面消失之意，方向矛盾。干擾2「かかとがすっかり立ち消えになった」＝鞋跟磨損應用「すり減る」，物理上的磨損與「（計畫）無疾而終」的「立ち消え」毫無關係，搭配完全不成立。干擾3「約束の時間に立ち消えになりそう」＝這是怕來不及、要遲到，應用「遅れる」「間に合わない」；「立ち消え」不能修飾「趕不上時間」，搭配不成立。故僅正解句的「計畫不了了之」情境成立。",
     explanationI18n: { "ja": "正解の文：「合併話は…いつのまにか立ち消えになってしまった」は、盛り上がっていた計画や話題が途中でうやむやになり終わることで、まさに「立ち消え」の最も典型的な抽象的用法（多く計画・話題・企画と結びつく）であり、意味も結びつきも完全に成立する。誤答1「世界的な評価へと立ち消えになった」は、研究が高い評価を得るのは前向きな結果で、「うやむやに終わる」とは意味が逆であり「結実する」「至る」などを使うべきで、「立ち消え」は否定的に消える意味であって方向が矛盾する。誤答2「かかとがすっかり立ち消えになった」は、靴のかかとがすり減るのは「すり減る」を使うべきで、物理的なすり減りと「（計画が）うやむやに終わる」意味の「立ち消え」とはまったく無関係で、結びつきが全く成立しない。誤答3「約束の時間に立ち消えになりそう」は、間に合わない・遅れることを心配しているのであり「遅れる」「間に合わない」を使うべきで、「立ち消え」は「時間に間に合わない」ことを修飾できず、結びつきが成立しない。したがって正解の文の「計画がうやむやに終わる」場面のみが成立する。", "en": "Correct sentence: 「合併話は…いつのまにか立ち消えになってしまった」 = a once-lively plan/topic ending midway with nothing coming of it — exactly the most typical abstract use of 「立ち消え」 (usually with plans, topics, or projects), fully valid in meaning and collocation. Distractor 1, 「世界的な評価へと立ち消えになった」: the research earning high acclaim is a positive outcome, the opposite of \"fizzling out\"; use 「結実する」 or 「至る」; 「立ち消え」 carries a negative sense of disappearing, the wrong direction. Distractor 2, 「かかとがすっかり立ち消えになった」: worn-down heels should be 「すり減る」; physical wear has no relation to the \"(plan) fizzling out\" of 「立ち消え」, and the collocation entirely fails. Distractor 3, 「約束の時間に立ち消えになりそう」: this is fearing being late / not making it, which should be 「遅れる」 or 「間に合わない」; 「立ち消え」 cannot modify \"not making it in time,\" so the collocation fails. So only the correct sentence's \"a plan coming to nothing\" scenario works." },
     exampleJapanese: "あれほど盛り上がった両社の合併話は、責任者の交代を機にいつのまにか立ち消えになってしまった。",
-    exampleMeaningZh: "曾經那麼熱烈的兩家公司合併案，隨著負責人換人，不知不覺就無疾而終了。"
+    exampleMeaningZh: "曾經那麼熱烈的兩家公司合併案，隨著負責人換人，不知不覺就無疾而終了。",
+    exampleMeaningI18n: { "ja": "あれほど盛り上がっていた両社の合併話は、責任者の交代をきっかけに、いつのまにか実現しないまま消えてしまった、という意味。", "en": "The merger talks between the two companies, once so full of momentum, quietly fizzled out after the person in charge was replaced." },
   }),
   examQuestion({
     id: "n1-context-tewahabakaranai",
@@ -8588,7 +8661,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「如実に」意為「如實地、毫不掩飾地反映真實樣貌」，與「ありのままに（照原樣、真實地）」最接近，正解成立。干擾一「おおざっぱに（粗略地、大致地）」語意相反，統計是精確反映而非粗略，明確不成立。干擾二「ひそかに（暗中地、偷偷地）」指隱密進行，與「如實呈現於眾」方向相反，不成立。干擾三「意外にも（出乎意料地）」帶有驚訝/反預期語感，原句只是客觀陳述資料真實反映現況，並無意外之意，不成立。四者皆為副詞、詞性一致。",
     explanationI18n: { "ja": "「如実に」は『ありのままに、少しも飾らず真実の姿を映し出して』という意味で、「ありのままに（そのまま、真実のとおりに）」に最も近く、正解となる。誤答一「おおざっぱに（大まかに、ざっと）」は意味が逆で、統計は正確に反映するものであって大まかにではないため明らかに不成立。誤答二「ひそかに（こっそりと、密かに）」は隠れて行うことを指し、『真実を人前に映し出す』とは方向が逆で不成立。誤答三「意外にも（予想に反して）」は驚き・予想外のニュアンスを帯びるが、原文はデータが現状を客観的に反映していると述べているだけで意外性はなく不成立。四つはいずれも副詞で品詞は一致している。", "en": "「如実に」 means 'faithfully, reflecting the true state of things without concealment,' which is closest to 「ありのままに (as it is, truthfully)」, so this is the answer. Distractor one, 「おおざっぱに (roughly, in broad strokes)」, means the opposite—statistics reflect things precisely, not roughly—so it clearly doesn't work. Distractor two, 「ひそかに (secretly, covertly)」, refers to doing something in a hidden way, the opposite direction from 'faithfully presenting to everyone,' so it doesn't work. Distractor three, 「意外にも (unexpectedly)」, carries a sense of surprise or something counter to expectation, but the original sentence merely states objectively that the data truthfully reflects the current situation, with no sense of surprise, so it doesn't work. All four are adverbs, matching in part of speech." },
     exampleJapanese: "この統計は、地方の人口減少という問題をありのままに物語っている。",
-    exampleMeaningZh: "這份統計如實地（照原樣地）道出了地方人口減少這個問題。"
+    exampleMeaningZh: "這份統計如實地（照原樣地）道出了地方人口減少這個問題。",
+    exampleMeaningI18n: { "ja": "この統計は、地方の人口減少という問題を、事実そのまま（ありのままに）物語っている。", "en": "These statistics vividly convey (show exactly as it is) the problem of rural population decline." },
   }),
   examQuestion({
     id: "n1-syn-uttetsuke",
@@ -8610,7 +8684,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「うってつけ」意為「再適合不過、正好合適」，與「最適（最適合）」意思最接近，正解成立。干擾一「不向き（不合適、不適任）」語意完全相反，原句是稱讚他適合此工作，不成立。干擾二「無関心（漠不關心）」描述的是態度而非適合度，與「性格適合工作」的脈絡不符，不成立。干擾三「見当違い（估計錯誤、搞錯方向）」指判斷有誤，原句並無判斷失準之意，且與「適合」無同義關係，不成立。四者皆為名詞性（ナ形容詞用法）、詞性一致。",
     explanationI18n: { "ja": "「うってつけ」は『これ以上ないほど適している、ちょうどよくぴったりだ』という意味で、「最適（最も適している）」に最も近く、正解となる。誤答一「不向き（適していない、向いていない）」は意味が正反対で、原文は彼がこの仕事に適していると称賛しているので不成立。誤答二「無関心（まったく関心がない）」は適性ではなく態度を表すもので、『性格が仕事に適している』という文脈に合わず不成立。誤答三「見当違い（見込み違い、方向を誤る）」は判断の誤りを指し、原文には判断の誤りという意味はなく、また「適している」と同義の関係にもないため不成立。四つはいずれも名詞的（ナ形容詞用法）で品詞は一致している。", "en": "「うってつけ」 means 'perfectly suited, just right,' which is closest in meaning to 「最適 (most suitable)」, so this is the answer. Distractor one, 「不向き (unsuited, ill-suited)」, is the complete opposite in meaning—the original sentence praises how well he fits the job—so it doesn't work. Distractor two, 「無関心 (indifferent)」, describes an attitude rather than suitability, which doesn't match the context of 'a personality suited to the work,' so it doesn't work. Distractor three, 「見当違い (a wrong guess, off the mark)」, refers to a mistaken judgment, but the original sentence has no sense of misjudgment and is not a synonym for 'suitable,' so it doesn't work. All four are nominal (used as na-adjectives), matching in part of speech." },
     exampleJapanese: "彼の冷静で几帳面な性格は、経理の仕事に最適だ。",
-    exampleMeaningZh: "他冷靜又一絲不苟的性格，對會計工作來說最適合不過。"
+    exampleMeaningZh: "他冷靜又一絲不苟的性格，對會計工作來說最適合不過。",
+    exampleMeaningI18n: { "ja": "彼の冷静で几帳面な性格は、経理の仕事にこの上なく向いている。", "en": "His calm, meticulous personality makes him a perfect fit for accounting work." },
   }),
   examQuestion({
     id: "n1-context-ngatameni",
@@ -8692,7 +8767,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「真に受ける」＝把本不必當真的話（玩笑、客套、謊言）信以為真。①把單純的玩笑當真而動了真火＝正解。②認真承接被託付的工作應是「引き受ける／真剣に取り組む」，受け持つ責任不是「真に受ける」。③埋頭認真讀書是「真面目に」，「真に受ける」不修飾讀書態度。④把老師的說明仔細抄到筆記上是「書き留める／そのまま写す」，這裡並非「把可疑的話信以為真」，故不成立。三個干擾都把「真に」誤當成「認真地」，但「真に受ける」是固定慣用，只用於『輕信不該信的話』。",
     explanationI18n: { "ja": "「真に受ける」＝本気にする必要のない言葉（冗談・社交辞令・嘘）を本当のことだと思い込むこと。①単なる冗談を本気にして本当に怒ってしまった＝正解。②頼まれた仕事を責任をもって引き受けるのは「引き受ける／真剣に取り組む」であって、任された責任を担うことは「真に受ける」ではない。③一日中机に向かって熱心に勉強するのは「真面目に」であり、「真に受ける」は勉強の態度を修飾しない。④先生の説明を丁寧にノートに書き写すのは「書き留める／そのまま写す」であって、ここは『疑わしい言葉を本当だと思い込む』場面ではないため不成立。三つの誤答はいずれも「真に」を『真剣に』と取り違えているが、「真に受ける」は固定した慣用表現で、『信じるべきでない言葉を軽々しく信じる』ときにしか使わない。", "en": "「真に受ける」 ＝ to take words that shouldn't be taken seriously (jokes, pleasantries, lies) as literally true. ① Taking a simple joke seriously and genuinely getting angry ＝ the answer. ② Earnestly taking on entrusted work should be 「引き受ける／真剣に取り組む」; bearing responsibility isn't 「真に受ける」. ③ Studying hard with one's head down is 「真面目に」; 「真に受ける」 doesn't modify a study attitude. ④ Carefully copying the teacher's explanation into notes is 「書き留める／そのまま写す」; this is not 'taking dubious words as true,' so it doesn't work. All three distractors mistake 「真に」 for 'earnestly,' but 「真に受ける」 is a fixed idiom used only for 'gullibly believing what shouldn't be believed.'" },
     exampleJapanese: "ただの冗談を真に受けて、彼は本気で怒ってしまった。",
-    exampleMeaningZh: "他把單純的玩笑當真，竟然真的生氣了。"
+    exampleMeaningZh: "他把單純的玩笑當真，竟然真的生氣了。",
+    exampleMeaningI18n: { "ja": "ただの冗談を本当のことだと受け取って、彼は本気で怒ってしまった、という意味。", "en": "He took a simple joke at face value and actually got angry." },
   }),
   examQuestion({
     id: "n1-usage-ninoashiwofumu",
@@ -8714,7 +8790,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「二の足を踏む」＝因猶豫、顧慮而遲遲無法踏出第二步、下不了決心。①條件太不利，誰都對簽約躊躇不前＝正解。②在暗路沒注意到落差差點跌倒，是「踏み外す」，與『猶豫』無關，靠語境鎖死。③重蹈覆轍、再次犯同樣的錯是「二の舞を演じる」這個近形慣用句，並非『猶豫』之意。④懊悔得在地上又跺又叫是「地団駄を踏む」，表示憤恨跺腳，方向與『躊躇』相反。三個干擾都含『足／踏む』類意象來誘導，但唯有①是『因顧慮而遲疑』的語境。",
     explanationI18n: { "ja": "「二の足を踏む」＝ためらいや懸念からなかなか二歩目が踏み出せず、決心がつかないこと。①条件があまりに不利で、誰もが契約にためらった＝正解。②暗い道で段差に気づかず転びそうになったのは「踏み外す」であって『ためらう』とは無関係で、文脈で判別できる。③同じ失敗を繰り返し、再び同じ過ちを犯すのは「二の舞を演じる」という似た形の慣用句であって、『ためらう』の意味ではない。④悔しさのあまり地面で足を踏み鳴らして叫ぶのは「地団駄を踏む」で、怒りや悔しさで足を踏み鳴らすことを表し、『ためらう』とは方向が逆。三つの誤答はいずれも『足／踏む』系のイメージで誘導しているが、『懸念からためらう』文脈なのは①だけである。", "en": "「二の足を踏む」 ＝ to hesitate and be unable to take the second step, unable to make up one's mind, due to wavering or misgivings. ① The conditions are too unfavorable, so everyone hesitates over signing ＝ the answer. ② Almost tripping on a step in the dark without noticing is 「踏み外す」, which has nothing to do with 'hesitating'—ruled out by context. ③ Repeating the same mistake, making the same error again, is the similar-looking idiom 「二の舞を演じる」, not 'hesitating.' ④ Stamping the ground and crying out in frustration is 「地団駄を踏む」, expressing angry foot-stamping, the opposite direction from 'hesitating.' All three distractors use imagery involving 「足／踏む」 to mislead, but only ① fits the context of 'hesitating out of misgivings.'" },
     exampleJapanese: "条件があまりに不利で、契約には誰もが二の足を踏んだ。",
-    exampleMeaningZh: "條件實在太不利，無論是誰都對簽約躊躇不前。"
+    exampleMeaningZh: "條件實在太不利，無論是誰都對簽約躊躇不前。",
+    exampleMeaningI18n: { "ja": "条件があまりに不利だったので、誰もが契約をためらった、という意味。", "en": "The terms were so unfavorable that everyone balked at signing the contract." },
   }),
   examQuestion({
     id: "n1-kanji-hakanai",
@@ -8734,7 +8811,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「儚い」讀作「はかない」,意為短暫虛幻、轉瞬即逝。「はがない」把第二音節濁化,「ばかない」把首音節濁化,「はかなえ」改了詞尾,三者皆非此字的讀法,故唯一正解為「はかない」。",
     explanationI18n: { "ja": "「儚い」は「はかない」と読み、束の間で幻のよう、あっという間に消えてしまうという意味。「はがない」は第二音節を濁らせたもの、「ばかない」は最初の音節を濁らせたもの、「はかなえ」は語尾を変えたもので、いずれもこの字の読み方ではないため、唯一の正解は「はかない」。", "en": "「儚い」 is read 「はかない」, meaning fleeting and ephemeral, gone in an instant. 「はがない」 voices the second syllable, 「ばかない」 voices the first syllable, and 「はかなえ」 changes the ending—none is a valid reading of this word, so the only answer is 「はかない」." },
     exampleJapanese: "夜空に開いた花火の光は「儚い」からこそ、心に深く残るのだと思う。",
-    exampleMeaningZh: "我想,夜空中綻放的花火之光正因為短暫,才會深深留在心裡。"
+    exampleMeaningZh: "我想,夜空中綻放的花火之光正因為短暫,才會深深留在心裡。",
+    exampleMeaningI18n: { "ja": "夜空に開く花火の光は、すぐに消えてしまうものだからこそ、心に深く残るのだと思う。", "en": "I think it's precisely because the light of fireworks blooming in the night sky is so fleeting that it lingers so deeply in the heart." },
   }),
   examQuestion({
     id: "n1-kanji-hisomu",
@@ -8754,7 +8832,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「潜む」讀作「ひそむ」,指某種事物隱藏、潛藏於內部不外顯,此處形容執著潛伏在溫柔背後。「ひそぶ」是把詞尾錯讀成濁音的誤導;「しずむ」是近形漢字「沈む」(下沉)的讀音,語境不成立;「ひしむ」為近形拼讀的非詞。",
     explanationI18n: { "ja": "「潜む」は「ひそむ」と読み、あるものが内部に隠れて表に出ないことを指し、ここでは執着が優しさの裏に潜んでいることを表す。「ひそぶ」は語尾を誤って濁音にした引っ掛け、「しずむ」は字形の近い「沈む」の読みで文脈上成立しない、「ひしむ」は近い綴りの実在しない語である。", "en": "「潜む」 is read 「ひそむ」, referring to something hidden or lurking within without showing outwardly; here it describes obsession lurking behind gentleness. 「ひそぶ」 is a misreading that voices the ending; 「しずむ」 is the reading of the similar-looking kanji 「沈む (to sink)」, which doesn't fit the context; 「ひしむ」 is a non-word formed from a similar-looking spelling." },
     exampleJapanese: "優しい言葉の裏に「潜む」執着に、彼女はようやく気づいた。",
-    exampleMeaningZh: "她終於察覺到,潛藏在那些溫柔話語背後的執著。"
+    exampleMeaningZh: "她終於察覺到,潛藏在那些溫柔話語背後的執著。",
+    exampleMeaningI18n: { "ja": "優しい言葉の裏に隠れていた執着に、彼女はようやく気づいた。", "en": "She finally noticed the obsession lurking behind those gentle words." },
   }),
   examQuestion({
     id: "n1-kanji-norou",
@@ -8774,7 +8853,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「呪う」讀作「のろう」,意為詛咒、對命運懷恨,符合此處對奪走戀人之命運的怨恨。「のろお」是把語尾「う」誤拼成長音「お」;「ころう」把首音清濁/子音換成誤導非詞;「のうろ」是音節順序錯置的近形誤導。",
     explanationI18n: { "ja": "「呪う」は「のろう」と読み、呪う・運命に恨みを抱くという意味で、ここでは恋人の命を奪った運命への恨みに合う。「のろお」は語尾の「う」を長音「お」と誤って綴ったもの、「ころう」は最初の音の清濁や子音を変えた誤りの非語、「のうろ」は音節の順序を入れ替えた近い形の引っ掛けである。", "en": "「呪う」 is read 「のろう」, meaning to curse or to bear a grudge against fate, fitting the resentment here toward the fate that took away her beloved. 「のろお」 mistakes the ending 「う」 for a long vowel 「お」; 「ころう」 is a misleading non-word that changes the first syllable's voicing/consonant; 「のうろ」 is a misleading form with the syllable order scrambled." },
     exampleJapanese: "彼を奪った運命を「呪う」ほど、その想いは深く濁っていった。",
-    exampleMeaningZh: "深到甚至想詛咒那奪走他的命運,這份情感就這樣愈發混濁。"
+    exampleMeaningZh: "深到甚至想詛咒那奪走他的命運,這份情感就這樣愈發混濁。",
+    exampleMeaningI18n: { "ja": "彼を奪った運命を恨まずにはいられないほど、その想いは深く濁っていった。", "en": "Deep enough to make her curse the fate that took him from her, those feelings grew ever murkier." },
   }),
   examQuestion({
     id: "n1-kanji-kattou",
@@ -8794,7 +8874,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「葛藤」讀作「かっとう」,指內心相反欲求並存而難以取捨的矛盾,此處正是想離開卻離不開的心理糾葛。「かつとう」漏掉促音;「がっとう」首音誤加濁音;「かつどう」是近形熟語「活動」的讀音,語境不成立。",
     explanationI18n: { "ja": "「葛藤」は「かっとう」と読み、心の中で相反する欲求が併存して割り切れない矛盾を指し、ここはまさに離れたいのに離れられない心の葛藤である。「かつとう」は促音が抜けている、「がっとう」は最初の音に濁音を誤って加えている、「かつどう」は字形の近い熟語「活動」の読みで文脈上成立しない。", "en": "「葛藤」 is read 「かっとう」, referring to the inner conflict of opposing desires coexisting and being hard to choose between; here it is exactly the psychological conflict of wanting to leave but being unable to. 「かつとう」 drops the geminate consonant; 「がっとう」 wrongly voices the first syllable; 「かつどう」 is the reading of the similar-looking compound 「活動 (activity)」, which doesn't fit the context." },
     exampleJapanese: "離れたいのに離れられない「葛藤」に、夜ごと胸を締めつけられた。",
-    exampleMeaningZh: "想離開卻離不開的糾葛,每晚都讓胸口被緊緊揪住。"
+    exampleMeaningZh: "想離開卻離不開的糾葛,每晚都讓胸口被緊緊揪住。",
+    exampleMeaningI18n: { "ja": "離れたいのに離れられない、心の中のせめぎ合いに、毎晩胸を締めつけられた。", "en": "The inner conflict of wanting to leave yet being unable to gripped my chest tight night after night." },
   }),
   examQuestion({
     id: "n1-kanji-mujun",
@@ -8814,7 +8895,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「矛盾」讀作「むじゅん」。「矛」音讀為む、「盾」音讀為じゅん。干擾項「むしゅん」把濁音じゅ誤清化為しゅ;「ぼうじゅん」把「矛」誤讀成形近的「ぼう」;「むじゅう」把語尾ん誤拉成長音う,均非此詞讀法。",
     explanationI18n: { "ja": "「矛盾」は「むじゅん」と読む。「矛」は音読みで「む」、「盾」は音読みで「じゅん」。誤答「むしゅん」は濁音の「じゅ」を誤って清音の「しゅ」にしたもの、「ぼうじゅん」は「矛」を字形の近い「ぼう」と誤って読んだもの、「むじゅう」は語尾の「ん」を誤って長音「う」に伸ばしたもので、いずれもこの語の読みではない。", "en": "「矛盾」 is read 「むじゅん」. 「矛」 has the on-reading む, and 「盾」 has the on-reading じゅん. The distractor 「むしゅん」 wrongly unvoices じゅ to しゅ; 「ぼうじゅん」 misreads 「矛」 as the similar-looking 「ぼう」; 「むじゅう」 wrongly stretches the final ん into a long vowel う—none is a valid reading of this word." },
     exampleJapanese: "天使でいたいのに堕ちたいと願う自分の矛盾を、誰にも見せないまま抱えている。",
-    exampleMeaningZh: "明明想當天使卻又渴望墜落,我把自身的矛盾藏著,不讓任何人看見。"
+    exampleMeaningZh: "明明想當天使卻又渴望墜落,我把自身的矛盾藏著,不讓任何人看見。",
+    exampleMeaningI18n: { "ja": "天使でいたいのに堕ちたいと願う、自分の中のつじつまの合わない気持ちを、誰にも見せないまま抱えている。", "en": "Wanting to remain an angel yet longing to fall—I carry that contradiction inside me, letting no one see it." },
   }),
   examQuestion({
     id: "n1-kanji-shoudou",
@@ -8834,7 +8916,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「衝動」讀作「しょうどう」。「衝」音讀為しょう(含長音)、「動」音讀為どう。干擾項「しょどう」脫落了長音う;「しょうとう」把濁音どう誤清化為とう;「じょうどう」把しょう誤濁化為じょう,皆不成立。",
     explanationI18n: { "ja": "「衝動」は「しょうどう」と読む。「衝」は音読みで「しょう」（長音を含む）、「動」は音読みで「どう」。誤答「しょどう」は長音の「う」が脱落している、「しょうとう」は濁音の「どう」を誤って清音の「とう」にしている、「じょうどう」は「しょう」を誤って濁音の「じょう」にしており、いずれも成立しない。", "en": "「衝動」 is read 「しょうどう」. 「衝」 has the on-reading しょう (with a long vowel), and 「動」 has the on-reading どう. The distractor 「しょどう」 drops the long vowel う; 「しょうとう」 wrongly unvoices どう to とう; 「じょうどう」 wrongly voices しょう to じょう—none works." },
     exampleJapanese: "甘い言葉の奥に潜む毒へ手を伸ばしたくなる衝動を、夜ごと懸命に抑え込んでいる。",
-    exampleMeaningZh: "對藏在甜言蜜語深處的毒,那股想伸手的衝動,我每晚都拚命壓抑著。"
+    exampleMeaningZh: "對藏在甜言蜜語深處的毒,那股想伸手的衝動,我每晚都拚命壓抑著。",
+    exampleMeaningI18n: { "ja": "甘い言葉の奥に潜む毒へ、思わず手を伸ばしたくなる強い気持ちを、毎晩懸命に抑え込んでいる。", "en": "Night after night, I desperately hold back the urge to reach for the poison hidden deep within those sweet words." },
   }),
   examQuestion({
     id: "n1-kanji-kirameku",
@@ -8854,7 +8937,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「煌めく」讀作「きらめく」，正貼合星屑在夜空閃爍生輝的意象。其餘干擾項讀音相近、字尾同為「めく」：「ひらめく」「ざわめく」「うごめく」皆與「煌」字無對應，代回句中唯有「きらめく」自然成立。",
     explanationI18n: { "ja": "「煌めく」は「きらめく」と読み、星屑が夜空できらきらと輝くイメージにぴったり合う。ほかの誤答は読みが近く、語尾も同じ「めく」である。「ひらめく」「ざわめく」「うごめく」はいずれも「煌」の字に対応せず、文に戻して自然に成立するのは「きらめく」だけである。", "en": "「煌めく」 is read 「きらめく」, matching the image of stardust sparkling in the night sky. The other distractors have similar readings and share the 「めく」 ending: 「ひらめく」「ざわめく」「うごめく」 none correspond to the character 「煌」, and substituting them back into the sentence, only 「きらめく」 works naturally." },
     exampleJapanese: "君のいない夜空に煌めく星屑を、ただひとつの願いのように数えていたい。",
-    exampleMeaningZh: "在沒有你的夜空，把閃爍的星塵當作唯一的願望般細數著。"
+    exampleMeaningZh: "在沒有你的夜空，把閃爍的星塵當作唯一的願望般細數著。",
+    exampleMeaningI18n: { "ja": "あなたのいない夜空に光る星くずを、たったひとつの願いのように数えていたい。", "en": "In a night sky without you, I want to keep counting the glittering stardust as if it were my one and only wish." },
   }),
   examQuestion({
     id: "n1-kanji-nijimu",
@@ -8874,7 +8958,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「滲む」讀作「にじむ」,指光因淚水而暈開、滲染顯得模糊,契合「涙で光が滲む」的抒情畫面。干擾項「ひそむ(潜む/潛藏)」表示隱匿不現,與光暈染開來的意象相反;「うらむ(恨む/怨恨)」是情緒動詞,主語不可為光;「からむ(絡む/纏繞、糾纏)」指交纏,光線在此並非互相纏繞。逐一代回,僅「にじむ」描述光暈染成立。",
     explanationI18n: { "ja": "「滲む」は「にじむ」と読み、光が涙でぼやけて広がりかすんで見えることを指し、「涙で光が滲む」という抒情的な情景に合う。誤答「ひそむ（潜む）」は隠れて表に出ないことを表し、光が広がるイメージと逆、「うらむ（恨む）」は感情の動詞で主語が光にはなり得ない、「からむ（絡む）」は絡み合うことを指すが、ここで光線が互いに絡み合っているわけではない。一つずつ戻してみると、光がにじむと描写できるのは「にじむ」だけである。", "en": "「滲む」 is read 「にじむ」, referring to light blurring and bleeding into haze because of tears, fitting the lyrical image of 「涙で光が滲む」. The distractor 「ひそむ (潜む/to lurk)」 means to hide unseen, the opposite of light bleeding out; 「うらむ (恨む/to resent)」 is an emotion verb whose subject cannot be light; 「からむ (絡む/to entwine, to entangle)」 refers to intertwining, but the light here is not entwining with anything. Substituting each back in, only 「にじむ」 describes light blurring, so it works." },
     exampleJapanese: "涙で滲むプラネタリウムの光は、もう届かない夢のようだろうか。",
-    exampleMeaningZh: "因淚水而暈染開來的星象儀光芒,是否就像再也觸不到的夢呢。"
+    exampleMeaningZh: "因淚水而暈染開來的星象儀光芒,是否就像再也觸不到的夢呢。",
+    exampleMeaningI18n: { "ja": "涙でぼやけて広がるプラネタリウムの光は、もう届かない夢のようなものなのだろうか。", "en": "Is the planetarium's light, blurring through my tears, like a dream that can no longer be reached?" },
   }),
   examQuestion({
     id: "n1-kanji-samayou",
@@ -8894,7 +8979,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「彷徨う」讀作「さまよう」,意為無目的地徘徊、漂泊,正合「行く先も知らぬまま果てを彷徨う」的流浪意象。干擾項「ただよう(漂う/飄盪)」雖語意相近,卻是「漂」字的讀音,不能當「彷徨」的讀法(且本句強調無目的遊走而非隨波飄浮);「うるおう(潤う/滋潤)」與漂泊無關;「つくろう(繕う/修補、掩飾)」意思完全不同。唯有「さまよう」為「彷徨う」之正讀。",
     explanationI18n: { "ja": "「彷徨う」は「さまよう」と読み、あてもなくさまよい漂うという意味で、「行く先も知らぬまま果てを彷徨う」という放浪のイメージにぴったり合う。誤答「ただよう（漂う）」は語意こそ近いが「漂」の字の読みであって「彷徨」の読みにはならない（しかもこの文はあてもなく歩き回ることを強調しており、波に任せて漂うことではない）。「うるおう（潤う）」は漂うことと無関係、「つくろう（繕う）」は意味がまったく異なる。「彷徨う」の正しい読みは「さまよう」だけである。", "en": "「彷徨う」 is read 「さまよう」, meaning to wander aimlessly or drift, fitting the roaming image of 「行く先も知らぬまま果てを彷徨う」. The distractor 「ただよう (漂う/to float)」, though close in meaning, is the reading of the character 「漂」 and cannot serve as the reading of 「彷徨」 (and this sentence emphasizes aimless roaming rather than floating with the current); 「うるおう (潤う/to be moistened)」 has nothing to do with drifting; 「つくろう (繕う/to mend, to gloss over)」 has a completely different meaning. Only 「さまよう」 is the correct reading of 「彷徨う」." },
     exampleJapanese: "行く先も知らぬまま銀河の果てを彷徨う流れ星に、わたしはなりたい。",
-    exampleMeaningZh: "我想成為那不知去向、在銀河盡頭漂泊徘徊的流星。"
+    exampleMeaningZh: "我想成為那不知去向、在銀河盡頭漂泊徘徊的流星。",
+    exampleMeaningI18n: { "ja": "行き先も分からないまま銀河の果てをあてもなくさすらう流れ星に、わたしはなりたい。", "en": "I want to become a shooting star that wanders the far edge of the galaxy, not knowing where it is headed." },
   }),
   examQuestion({
     id: "n1-kanji-matataku",
@@ -8914,7 +9000,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「瞬く」在此意為星光忽明忽暗地閃爍,讀作「またたく」。干擾項「まだたく」是第二音誤濁、「またたぐ」是字尾誤濁、「まなたく」是中段母音偏移,三者皆非「瞬」字的實際讀音,母語者都不會接受,故唯一正解為「またたく」。",
     explanationI18n: { "ja": "「瞬く」はここでは星の光が明滅してきらめくという意味で、「またたく」と読む。誤答「まだたく」は第二音を誤って濁らせたもの、「またたぐ」は語尾を誤って濁らせたもの、「まなたく」は中間の母音がずれたもので、いずれも「瞬」の字の実際の読みではなく、母語話者なら受け入れないため、唯一の正解は「またたく」である。", "en": "「瞬く」 here means starlight twinkling on and off, read 「またたく」. The distractor 「まだたく」 wrongly voices the second syllable, 「またたぐ」 wrongly voices the ending, and 「まなたく」 shifts the middle vowel—none is an actual reading of the character 「瞬」, and no native speaker would accept them, so the only answer is 「またたく」." },
     exampleJapanese: "遠い夜空で瞬く星のように、あなたの名を呼びたい。",
-    exampleMeaningZh: "想像遙遠夜空裡閃爍的星星那樣,輕喚你的名字。"
+    exampleMeaningZh: "想像遙遠夜空裡閃爍的星星那樣,輕喚你的名字。",
+    exampleMeaningI18n: { "ja": "遠い夜空でちらちらと光る星のように、あなたの名前を呼びたい。", "en": "I want to call your name softly, like a star twinkling in the distant night sky." },
   }),
   examQuestion({
     id: "n1-kanji-furuu",
@@ -8934,7 +9021,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「奮う」讀作「ふるう」,意為振奮、鼓起、發揮。「ふくう」「ふろう」為近形誤讀,「ぶるう」誤加濁音,皆非此字讀法。",
     explanationI18n: { "ja": "「奮う」は「ふるう」と読み、ふるい起こす・発揮するという意味。「ふくう」「ふろう」は字形の近い誤読、「ぶるう」は濁音を誤って加えたもので、いずれもこの字の読みではない。", "en": "「奮う」 is read 「ふるう」, meaning to rouse, to summon up, to wield. 「ふくう」 and 「ふろう」 are misreadings based on similar forms, and 「ぶるう」 wrongly adds a voiced consonant—none is a valid reading of this word." },
     exampleJapanese: "今日のライブは仲間が見てる、ここで勇気を奮うしかないと、汗まみれの僕は前を向いた。",
-    exampleMeaningZh: "今天的演唱會夥伴正看著,我滿身大汗地心想此刻唯有鼓起勇氣,然後抬頭向前。"
+    exampleMeaningZh: "今天的演唱會夥伴正看著,我滿身大汗地心想此刻唯有鼓起勇氣,然後抬頭向前。",
+    exampleMeaningI18n: { "ja": "今日のライブは仲間が見ている。ここで勇気を出すしかないと、汗まみれの僕は前を向いた。", "en": "My bandmates are watching today's live show—drenched in sweat, I told myself this was the moment to summon my courage, and faced forward." },
   }),
   examQuestion({
     id: "n1-kanji-idomu",
@@ -8954,7 +9042,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「挑む」讀作「いどむ」,意為挑戰、發起進攻。「いとむ」清音化、「いどぶ」「いどう」皆為近形誤讀,均非正確讀音。",
     explanationI18n: { "ja": "「挑む」は「いどむ」と読み、挑む・立ち向かうという意味。「いとむ」は清音化、「いどぶ」「いどう」はいずれも字形の近い誤読で、正しい読みではない。", "en": "「挑む」 is read 「いどむ」, meaning to challenge or to take on. 「いとむ」 unvoices the consonant, and 「いどぶ」「いどう」 are both misreadings based on similar forms—none is the correct reading." },
     exampleJapanese: "あの夢の頂きに、もう一度本気で挑むと決めたあの夜、僕らは駆け上がる覚悟を交わした。",
-    exampleMeaningZh: "在決定要再一次認真地向那夢想之巔挑戰的那個夜晚,我們交換了一路衝上去的覺悟。"
+    exampleMeaningZh: "在決定要再一次認真地向那夢想之巔挑戰的那個夜晚,我們交換了一路衝上去的覺悟。",
+    exampleMeaningI18n: { "ja": "あの夢の頂きにもう一度本気で立ち向かうと決めたあの夜、僕らは駆け上がる覚悟を交わし合った。", "en": "On the night we decided to take on the summit of that dream in earnest once more, we pledged to each other our resolve to race all the way up." },
   }),
   examQuestion({
     id: "n1-kanji-kidou",
@@ -8974,7 +9063,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「軌道」讀作「きどう」,指運行的路線、正軌。干擾「きとう」少了濁音(且為「祈祷」之音)、「ぎどう」首音誤濁、「けいどう」誤把「軌」當「径」類字音,在此語境皆不成立。",
     explanationI18n: { "ja": "「軌道」は「きどう」と読み、運行の経路・正しい道筋を指す。誤答「きとう」は濁音が抜けており（しかも「祈祷」の読み）、「ぎどう」は最初の音を誤って濁らせたもの、「けいどう」は「軌」を「径」の類の字と誤って読んだもので、この文脈ではいずれも成立しない。", "en": "「軌道」 is read 「きどう」, referring to a course of motion or the right track. The distractor 「きとう」 lacks the voiced consonant (and is the reading of 「祈祷」); 「ぎどう」 wrongly voices the first syllable; 「けいどう」 mistakes 「軌」 for a character read like 「径」—none works in this context." },
     exampleJapanese: "幾度も崩れては立ち上がり、わたしたちはようやく自分の軌道へと帰っていく。",
-    exampleMeaningZh: "幾度崩塌又重新站起,我們終於回到自己的軌道上。"
+    exampleMeaningZh: "幾度崩塌又重新站起,我們終於回到自己的軌道上。",
+    exampleMeaningI18n: { "ja": "何度も崩れては立ち上がり、わたしたちはようやく自分の進むべき道筋へと帰っていく。", "en": "After crumbling and rising again time after time, we are finally returning to an orbit of our own." },
   }),
   examQuestion({
     id: "n1-kanji-senkou",
@@ -8994,7 +9084,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「閃光」讀作「せんこう」。干擾項「せんごう」尾音誤濁、「ぜんこう」首音誤濁、「せんこ」缺長音,皆不成立,只有「せんこう」正確。",
     explanationI18n: { "ja": "「閃光」は「せんこう」と読む。誤答「せんごう」は語尾を誤って濁らせたもの、「ぜんこう」は最初の音を誤って濁らせたもの、「せんこ」は長音が抜けており、いずれも成立せず、正しいのは「せんこう」だけである。", "en": "「閃光」 is read 「せんこう」. The distractor 「せんごう」 wrongly voices the final syllable, 「ぜんこう」 wrongly voices the first syllable, and 「せんこ」 lacks the long vowel—none works, and only 「せんこう」 is correct." },
     exampleJapanese: "灰の底から跳ね上がった瞬間、夜明けを切り裂く一筋の閃光になりたかった。",
-    exampleMeaningZh: "從灰燼底部躍起的那一瞬,只想成為劃破黎明的一道閃光。"
+    exampleMeaningZh: "從灰燼底部躍起的那一瞬,只想成為劃破黎明的一道閃光。",
+    exampleMeaningI18n: { "ja": "灰の底から跳ね上がったその一瞬、夜明けを切り裂くひとすじの光になりたかった。", "en": "In the instant I leapt up from the bottom of the ashes, all I wanted was to become a single flash of light tearing through the dawn." },
   }),
   examQuestion({
     id: "n1-kanji-tsubasa",
@@ -9014,7 +9105,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「翼」訓讀作「つばさ」,意為翅膀。干擾「つばめ」為「燕」、「つるぎ」為「剣」、「つぼみ」為「蕾」,皆是近形或同氛圍的別字之讀,在「展開飛向天空」的語境下唯有「つばさ」成立。",
     explanationI18n: { "ja": "「翼」は訓読みで「つばさ」と読み、翼を意味する。誤答「つばめ」は「燕」、「つるぎ」は「剣」、「つぼみ」は「蕾」で、いずれも字形の近い、あるいは同じ雰囲気の別の字の読みであり、「翼を広げて空へ飛ぶ」という文脈で成立するのは「つばさ」だけである。", "en": "「翼」 has the kun-reading 「つばさ」, meaning wings. The distractor 「つばめ」 is 「燕 (swallow)」, 「つるぎ」 is 「剣 (sword)」, and 「つぼみ」 is 「蕾 (bud)」—all readings of similar-looking or similar-mood characters, and in the context of 'spreading wings to fly into the sky,' only 「つばさ」 works." },
     exampleJapanese: "焦げついた過去さえ風に変えて、わたしは新しい翼を広げて空へ駆け上がる。",
-    exampleMeaningZh: "連燒焦的過去也化作風,我展開嶄新的雙翼朝天空奔躍而上。"
+    exampleMeaningZh: "連燒焦的過去也化作風,我展開嶄新的雙翼朝天空奔躍而上。",
+    exampleMeaningI18n: { "ja": "焦げついた過去さえ風に変えて、私は真新しい羽を大きく広げ、空へと駆け上がっていく。", "en": "Turning even my scorched past into wind, I spread my brand-new wings and soar up into the sky." },
   }),
   examQuestion({
     id: "n1-kanji-hitomi",
@@ -9034,7 +9126,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「瞳」訓讀為「ひとみ」，指眼眸、瞳孔。「ひどみ」是濁音化的誤讀；「ひとめ」是「一目」的讀音，意思與字形不符；「ひだみ」為近形捏造讀音，均不成立。語境描述拭淚後眼中的光芒，唯有「ひとみ」成立。",
     explanationI18n: { "ja": "「瞳」は訓読みで「ひとみ」と読み、目・瞳を指す。「ひどみ」は濁音化した誤読、「ひとめ」は「一目」の読みで意味が字形と合わない、「ひだみ」は字形の近い作り物の読みで、いずれも成立しない。涙をぬぐったあとの目に宿る光を描く文脈で成立するのは「ひとみ」だけである。", "en": "「瞳」 has the kun-reading 「ひとみ」, referring to the eyes or pupil. 「ひどみ」 is a voiced misreading; 「ひとめ」 is the reading of 「一目」, whose meaning doesn't match the character; 「ひだみ」 is a fabricated reading from a similar form—none works. The context describes the light in her eyes after wiping away tears, so only 「ひとみ」 works." },
     exampleJapanese: "涙をぬぐったその瞳には、もう迷いはなく、闇を貫くほどの強い光が宿っていた。",
-    exampleMeaningZh: "她拭去淚水後的那雙眼眸裡，已無迷惘，棲宿著足以貫穿黑暗的強光。"
+    exampleMeaningZh: "她拭去淚水後的那雙眼眸裡，已無迷惘，棲宿著足以貫穿黑暗的強光。",
+    exampleMeaningI18n: { "ja": "涙を拭いた後の彼女のその目には、もう迷いはなく、闇を貫くほどの強い光が宿っていた。", "en": "In those eyes, once the tears were wiped away, there was no hesitation left—only a light strong enough to pierce the darkness." },
   }),
   examQuestion({
     id: "n1-kanji-chikau",
@@ -9054,7 +9147,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「誓う」訓讀為「ちかう」。「ちがう」是「違う」的讀音（濁音之差）；「ちこう」為長音化的誤讀；「ちかる」為近形捏造讀音，皆非「誓う」的正確讀法，唯「ちかう」成立。",
     explanationI18n: { "ja": "「誓う」は訓読みで「ちかう」と読む。「ちがう」は「違う」の読み（濁音の違い）、「ちこう」は長音化した誤読、「ちかる」は字形の近い作り物の読みで、いずれも「誓う」の正しい読みではなく、成立するのは「ちかう」だけである。", "en": "「誓う」 has the kun-reading 「ちかう」. 「ちがう」 is the reading of 「違う」 (differing by a voiced consonant); 「ちこう」 is a misreading with a lengthened vowel; 「ちかる」 is a fabricated reading from a similar form—none is the correct reading of 「誓う」, so only 「ちかう」 works." },
     exampleJapanese: "大切な人を必ず守り抜くと、星空の下で彼女は静かに誓うのだった。",
-    exampleMeaningZh: "她在星空下靜靜地發誓，一定要守護住最珍視的人到底。"
+    exampleMeaningZh: "她在星空下靜靜地發誓，一定要守護住最珍視的人到底。",
+    exampleMeaningI18n: { "ja": "星空の下、彼女はいちばん大切な人を最後まで守り抜くと、静かに固く心に約束した。", "en": "Under the starry sky, she quietly vowed to protect the person she treasured most, no matter what." },
   }),
   examQuestion({
     id: "n1-kanji-kuyamu",
@@ -9074,7 +9168,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「悔やむ」讀作「くやむ」,意為懊悔、後悔。干擾項中「くゆむ」是把第二音節誤讀為近形假名、「くやす」誤把語尾改成他動詞風的「す」、「ぐやむ」則誤加濁點;三者皆非該字讀音,語境裡只有「くやむ」成立。",
     explanationI18n: { "ja": "「悔やむ」は「くやむ」と読み、後悔する・悔しく思うという意味です。誤答のうち「くゆむ」は第二音節を形の似た仮名に読み違えたもの、「くやす」は語尾を他動詞風の「す」に変えたもの、「ぐやむ」は濁点を余分に付けたもので、いずれもこの字の読みではありません。この文脈で成り立つのは「くやむ」だけです。", "en": "「悔やむ」is read くやむ, meaning to regret or feel remorse. Among the distractors, くゆむ misreads the second syllable as a similar-looking kana; くやす wrongly swaps the ending to a transitive-verb-style す; and ぐやむ mistakenly adds a dakuten. None of these is a valid reading of the character, and only くやむ fits the context." },
     exampleJapanese: "転んで遅れたあの日を悔やむより、今すぐ立ち上がって走り出したい。",
-    exampleMeaningZh: "與其懊悔那個跌倒又遲到的日子,不如現在就站起來奔跑出發。"
+    exampleMeaningZh: "與其懊悔那個跌倒又遲到的日子,不如現在就站起來奔跑出發。",
+    exampleMeaningI18n: { "ja": "転んで遅刻してしまったあの日を後悔するより、今すぐ立ち上がって走り出したい。", "en": "Rather than regretting that day I fell and showed up late, I want to get up right now and start running." },
   }),
   examQuestion({
     id: "n1-kanji-sasayaku",
@@ -9094,7 +9189,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「囁く」讀作「ささやく」,意為低聲耳語。「さざやく」清濁有誤、「ささらく」與「さらやく」皆為近形捏造讀音,在此語境都不成立,故唯一正解為「ささやく」。",
     explanationI18n: { "ja": "「囁く」は「ささやく」と読み、小声でそっと話す・ひそひそ言うという意味です。「さざやく」は清濁を誤ったもの、「ささらく」「さらやく」はともに形の似た仮名を並べた作り物の読みで、この文脈では成り立ちません。よって正解は「ささやく」だけです。", "en": "「囁く」is read ささやく, meaning to whisper. さざやく has the wrong voicing, while ささらく and さらやく are made-up readings based on similar-looking kana; none of them work in this context, so the only correct answer is ささやく." },
     exampleJapanese: "このままでいいじゃないかと、怠けたいわたしの内側で誰かが甘く囁く夜は長い。",
-    exampleMeaningZh: "「就這樣下去也不錯吧」——在想偷懶的我心底,有誰甜甜地低語著,這樣的夜晚格外漫長。"
+    exampleMeaningZh: "「就這樣下去也不錯吧」——在想偷懶的我心底,有誰甜甜地低語著,這樣的夜晚格外漫長。",
+    exampleMeaningI18n: { "ja": "「このままでいいじゃないか」――怠けたい私の心の奥で、誰かが甘い声でそっとつぶやいてくる。そんな夜はとりわけ長い。", "en": "\"Isn't it fine to stay just like this?\"—the nights feel endless when someone whispers sweetly like that deep inside the part of me that wants to slack off." },
   }),
   examQuestion({
     id: "n1-syn-hokorashii",
@@ -9116,7 +9212,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「誇らしい」表示因某事而感到值得驕傲、想抬頭挺胸。「鼻が高い」正是「感到光榮、有面子」的慣用同義表達,主語是因夥伴的成就而與有榮焉的說話者,與語境完全契合。干擾項:「気が引ける」是感到不好意思、退縮;「肩身が狭い」是抬不起頭、覺得丟臉;「気が滅入る」是心情低落沮喪——三者皆與「驕傲」相反或無關,在此語境明確不成立。",
     explanationI18n: { "ja": "「誇らしい」は、あることを立派だと感じ、胸を張りたくなるような気持ちを表します。「鼻が高い」はまさに「名誉に思う・面目が立つ」という意味の慣用的な同義表現で、仲間の活躍を自分のことのように誇りに思う話し手の気持ちにぴったり合います。誤答について、「気が引ける」は気後れして遠慮する気持ち、「肩身が狭い」は引け目を感じて恥ずかしく思うこと、「気が滅入る」は気分が沈んで落ち込むことで、いずれも「誇らしさ」とは反対か無関係であり、この文脈では明らかに成り立ちません。", "en": "「誇らしい」means feeling proud of something and wanting to hold your head high. 「鼻が高い」is exactly the idiomatic synonym for feeling honored and proud; here the speaker shares in the glory of a friend's accomplishment, which fits the context perfectly. As for the distractors: 「気が引ける」means feeling awkward or hesitant; 「肩身が狭い」means feeling ashamed and unable to hold your head up; 「気が滅入る」means feeling down and depressed. All three are the opposite of or unrelated to pride and clearly do not work in this context." },
     exampleJapanese: "あんなに練習を重ねてきた仲間が大舞台に立つのを見て、自分のことのように鼻が高くなった。",
-    exampleMeaningZh: "看著一起反覆苦練的夥伴登上大舞台,我彷彿與有榮焉,覺得臉上特別有光。"
+    exampleMeaningZh: "看著一起反覆苦練的夥伴登上大舞台,我彷彿與有榮焉,覺得臉上特別有光。",
+    exampleMeaningI18n: { "ja": "あれほど練習を重ねてきた仲間が大きな舞台に立つのを見て、まるで自分のことのように誇らしい気持ちになった。", "en": "Watching the friends I had practiced so hard with step onto the big stage, I swelled with pride, as if the moment were my own." },
   }),
   examQuestion({
     id: "n1-vocab-otome",
@@ -9196,7 +9293,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「鼓動」讀作「こどう」,指心臟的跳動。干擾項「ごどう」是首音濁化錯誤;「ことう」未將第二字濁化(「動」此處讀どう非とう);「こどお」是長音寫法錯誤(應為どう非どお)。語境「胸の奥で刻まれ続ける」明確指心跳,唯有こどう成立。",
     explanationI18n: { "ja": "「鼓動」は「こどう」と読み、心臓の脈打つ動きを指します。誤答のうち「ごどう」は語頭を濁らせた誤り、「ことう」は二文字目を濁らせておらず（ここでの「動」は「とう」ではなく「どう」）、「こどお」は長音の書き方の誤り（「どお」ではなく「どう」）です。「胸の奥で刻まれ続ける」という文脈は明らかに心臓の鼓動を指しており、成り立つのは「こどう」だけです。", "en": "「鼓動」is read こどう, referring to the beating of the heart. The distractor ごどう wrongly voices the first sound; ことう fails to voice the second character (「動」is read どう here, not とう); こどお uses the wrong long-vowel spelling (it should be どう, not どお). The context 「胸の奥で刻まれ続ける」clearly points to a heartbeat, and only こどう works." },
     exampleJapanese: "誰かの先入観に揺さぶられそうになるたび、胸の奥で確かに刻まれ続ける鼓動に手を当て、これだけは本物だと信じ直した。",
-    exampleMeaningZh: "每當快要被別人的成見動搖,我便把手按在胸口深處那持續確實刻印著的心跳上,重新相信唯有這個是真實的。"
+    exampleMeaningZh: "每當快要被別人的成見動搖,我便把手按在胸口深處那持續確實刻印著的心跳上,重新相信唯有這個是真實的。",
+    exampleMeaningI18n: { "ja": "誰かの先入観に揺さぶられそうになるたびに、胸の奥で確かに刻み続けている心臓の音に手を当て、「これだけは本物だ」ともう一度信じ直した。", "en": "Whenever other people's preconceptions threatened to shake me, I would press a hand to the heartbeat still pulsing steadily deep in my chest and remind myself that this, at least, was real." },
   }),
   examQuestion({
     id: "n1-kanji-tsumugu",
@@ -9216,7 +9314,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「紡ぐ」讀作「つむぐ」，本義為把纖維捻成線，引申為將語言、回憶細細編織起來，呼應把思念化作話語寄向遠星的情境。「つぐむ」是「噤む」（閉口不言）、「つむる」是「瞑る」（閉眼）、「つくろぐ」並非通行詞，皆與此語境不符，故唯一正解為「つむぐ」。",
     explanationI18n: { "ja": "「紡ぐ」は「つむぐ」と読み、本来は繊維をより合わせて糸にすることを指し、そこから言葉や記憶を丁寧に織り上げるという意味に広がります。思いを言葉に変えて遠い星へ送るという情景に呼応します。「つぐむ」は「噤む」（口を閉ざす）、「つむる」は「瞑る」（目を閉じる）、「つくろぐ」は通用しない語で、いずれもこの文脈には合いません。よって正解は「つむぐ」だけです。", "en": "「紡ぐ」is read つむぐ. Its literal sense is to twist fibers into thread, extended to carefully weaving together words and memories, which fits the scene of turning longing into words sent to a distant star. 「つぐむ」is 「噤む」(to keep silent), 「つむる」is 「瞑る」(to close one's eyes), and 「つくろぐ」is not a real word; none fits this context, so the only correct answer is つむぐ." },
     exampleJapanese: "遠い星にだけ届くようにと、過ぎた日々の記憶を一つずつ言葉に紡ぐ夜があった。",
-    exampleMeaningZh: "曾有那樣的夜，只願能傳到那顆遙遠的星，便把逝去的日子一點一點地編織成話語。"
+    exampleMeaningZh: "曾有那樣的夜，只願能傳到那顆遙遠的星，便把逝去的日子一點一點地編織成話語。",
+    exampleMeaningI18n: { "ja": "あの遠い星にだけ届くようにと、過ぎ去った日々の思い出を一つひとつ言葉に織り上げていく、そんな夜があった。", "en": "There were nights when, hoping they might reach that faraway star, I spun the memories of days gone by into words, one by one." },
   }),
   examQuestion({
     id: "n1-kanji-itoshii",
@@ -9236,7 +9335,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「愛しい」讀作「いとしい」，表示對某人深切的憐愛與珍重，契合相隔遙遠仍滿懷思念的情境。「いやしい」是「卑しい」（卑賤、貪婪）為反義語感、「おしい」是「惜しい」（可惜）、「いとなしい」並非通行詞，皆不成立，故唯一正解為「いとしい」。",
     explanationI18n: { "ja": "「愛しい」は「いとしい」と読み、ある人を深く愛おしく大切に思う気持ちを表し、遠く離れていてもなお思い続ける情景に合います。「いやしい」は「卑しい」（下品・貪欲）で反対の語感、「おしい」は「惜しい」（もったいない）、「いとなしい」は通用しない語で、いずれも成り立ちません。よって正解は「いとしい」だけです。", "en": "「愛しい」is read いとしい, expressing deep affection and cherishing for someone, which fits the scene of longing across a vast distance. 「いやしい」is 「卑しい」(base, greedy), an opposite in tone; 「おしい」is 「惜しい」(regrettable); and 「いとなしい」is not a real word. None works, so the only correct answer is いとしい." },
     exampleJapanese: "何光年も隔てた先にいる人を、それでも愛しいと呼べることだけが救いだった。",
-    exampleMeaningZh: "即便對方在隔著好幾光年的彼方，仍能稱之為憐愛之人——光是這一點，便是唯一的救贖。"
+    exampleMeaningZh: "即便對方在隔著好幾光年的彼方，仍能稱之為憐愛之人——光是這一點，便是唯一的救贖。",
+    exampleMeaningI18n: { "ja": "何光年も隔てた彼方にいる人を、それでも愛おしいと呼べる――そのことだけが唯一の救いだった。", "en": "Even with them light-years away, I could still call them beloved—and that alone was my one salvation." },
   }),
   examQuestion({
     id: "n1-vocab-sasai",
@@ -9278,7 +9378,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「もがく」指在困境或苦痛中拚命掙扎、想要脫離,「あがく」同樣指身陷不利處境時竭力掙脫、垂死奮鬥,兩者最接近。「ためらう」是猶豫遲疑,與奮力掙扎相反;「くつろぐ」是放鬆休憩,語境完全不成立;「とどまる」是停留不動,與拚命掙扎前進相反。",
     explanationI18n: { "ja": "「もがく」は苦境や苦痛の中で必死に抜け出そうとしてあがくことを指し、「あがく」も同じく不利な状況に陥ったときに懸命に抜け出そうとして踏ん張ることを指すため、両者が最も近いです。「ためらう」は迷ってぐずぐずすることで、必死にあがくのとは反対です。「くつろぐ」はリラックスして休むことで、この文脈ではまったく成り立ちません。「とどまる」はその場に留まって動かないことで、必死にもがいて進むのとは反対です。", "en": "「もがく」means to struggle desperately in hardship or pain, trying to break free, and 「あがく」likewise means to struggle to escape an unfavorable situation, to fight on against the odds; the two are closest in meaning. 「ためらう」means to hesitate, the opposite of struggling hard; 「くつろぐ」means to relax and rest, which doesn't fit the context at all; 「とどまる」means to stay put, the opposite of struggling forward with all one's might." },
     exampleJapanese: "何度転んでも、夢を諦めきれずに泥まみれであがく彼の姿に胸を打たれた。",
-    exampleMeaningZh: "看著他即使一再跌倒,仍不肯放棄夢想、滿身泥濘地拚命掙扎的身影,我深受觸動。"
+    exampleMeaningZh: "看著他即使一再跌倒,仍不肯放棄夢想、滿身泥濘地拚命掙扎的身影,我深受觸動。",
+    exampleMeaningI18n: { "ja": "何度転んでも夢をあきらめきれず、泥だらけになりながら必死にもがき続ける彼の姿に、深く心を打たれた。", "en": "I was deeply moved by the sight of him struggling on, covered in mud, refusing to give up on his dream no matter how many times he fell." },
   }),
   examQuestion({
     id: "n1-kanji-uzumaku",
@@ -9298,7 +9399,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「渦巻く」讀作「うずまく」,意為如漩渦般翻騰、盤旋洶湧。「渦」訓讀為「うず」,「巻く」為「まく」。干擾項「うずめく」「うすまく」「うずわく」皆非此詞的正確語形:「うずめく」尾音作「めく」、「うすまく」少了濁音、「うずわく」中段作「わく」,三者在語境中皆不成立。",
     explanationI18n: { "ja": "「渦巻く」は「うずまく」と読み、渦のように激しく巻いてうねるという意味です。「渦」は訓読みで「うず」、「巻く」は「まく」です。誤答の「うずめく」「うすまく」「うずわく」はいずれも正しい語形ではなく、「うずめく」は語尾が「めく」、「うすまく」は濁音が抜け、「うずわく」は中ほどが「わく」となっており、この文脈ではいずれも成り立ちません。", "en": "「渦巻く」is read うずまく, meaning to surge and spiral like a whirlpool. 「渦」has the kun reading うず, and 「巻く」is まく. The distractors うずめく, うすまく, and うずわく are all incorrect forms of the word: うずめく ends in めく, うすまく drops the dakuten, and うずわく has わく in the middle. None of them works in this context." },
     exampleJapanese: "台風の影響で、川の水が激しく渦巻くのが見えた。",
-    exampleMeaningZh: "颱風影響下,可以看到河水劇烈地翻騰盤旋。"
+    exampleMeaningZh: "颱風影響下,可以看到河水劇烈地翻騰盤旋。",
+    exampleMeaningI18n: { "ja": "台風の影響で、川の水が激しく渦を巻いて流れているのが見えた。", "en": "Because of the typhoon, you could see the river water churning and swirling violently." },
   }),
   examQuestion({
     id: "n1-vocab-saikai",
@@ -9358,7 +9460,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「駆ける」讀作「かける」，意為奔跑、疾馳。干擾項:「ぬける」對應「抜ける」(穿過/脫落);「かげる」對應「陰る」(轉暗/蒙上陰影);「かかる」對應「掛かる」等(花費/掛上);三者皆為他字之讀音，於本句語境不成立。只有「かける」在此語境成立。",
     explanationI18n: { "ja": "「駆ける」は「かける」と読み、走る・疾走するという意味です。誤答について、「ぬける」は「抜ける」（通り抜ける／抜け落ちる）、「かげる」は「陰る」（暗くなる／かげがさす）、「かかる」は「掛かる」など（費やす／掛ける）に対応する読みで、いずれも別の字の読みであり、この文脈では成り立ちません。ここで成り立つのは「かける」だけです。", "en": "「駆ける」is read かける, meaning to run or dash. The distractors: 「ぬける」corresponds to 「抜ける」(to pass through / to fall out); 「かげる」corresponds to 「陰る」(to darken / to be overshadowed); 「かかる」corresponds to 「掛かる」and the like (to take / to hang). All three are readings of other characters and don't work in this sentence. Only 「かける」fits here." },
     exampleJapanese: "始業のチャイムが鳴り終えた今、後悔より先に脚が動き、息を切らしながら教室へ駆ける自分が、不思議と誇らしかった。",
-    exampleMeaningZh: "上課鈴已響完的此刻，懊悔還來不及，腿卻先動了起來;喘著氣朝教室疾奔的自己，竟有種說不出的自豪。"
+    exampleMeaningZh: "上課鈴已響完的此刻，懊悔還來不及，腿卻先動了起來;喘著氣朝教室疾奔的自己，竟有種說不出的自豪。",
+    exampleMeaningI18n: { "ja": "始業のチャイムが鳴り終わった今、後悔するより先に脚が動き出し、息を切らして教室まで全力で走っていく自分が、不思議と誇らしかった。", "en": "The moment the class bell finished ringing, my legs moved before regret could catch up—and strangely enough, I felt proud of myself, panting as I dashed toward the classroom." },
   }),
   examQuestion({
     id: "n1-kanji-saku",
@@ -9378,7 +9481,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「裂く」讀作「さく」，原意為撕開、撕裂，「二人の仲を裂く」是慣用表現，指離間、拆散兩人的關係。干擾「ぬく」是「抜く」、「わく」是「湧く／沸く」、「はく」是「履く／吐く」的讀音，皆非「裂」字的讀法，在此語境也不成立。",
     explanationI18n: { "ja": "「裂く」は「さく」と読み、本来は引き裂くという意味で、「二人の仲を裂く」は仲を引き離す・引き裂くことを表す慣用的な言い回しです。誤答の「ぬく」は「抜く」、「わく」は「湧く／沸く」、「はく」は「履く／吐く」の読みで、いずれも「裂」の字の読みではなく、この文脈でも成り立ちません。", "en": "「裂く」is read さく, originally meaning to tear apart, and 「二人の仲を裂く」is an idiomatic expression meaning to drive a wedge between two people and break up their relationship. The distractors ぬく is 「抜く」, わく is 「湧く／沸く」, and はく is 「履く／吐く」; none of these is a reading of 「裂」, and none works in this context." },
     exampleJapanese: "二人の仲を裂くような根も葉もない噂が、いつの間にか広まっていた。",
-    exampleMeaningZh: "一個足以離間兩人、毫無根據的謠言，不知不覺間散布了開來。"
+    exampleMeaningZh: "一個足以離間兩人、毫無根據的謠言，不知不覺間散布了開來。",
+    exampleMeaningI18n: { "ja": "二人の仲を引き離すような、根も葉もないうわさが、いつの間にか広まっていた。", "en": "Before anyone noticed, a completely groundless rumor had spread—one that threatened to tear the two of them apart." },
   }),
   examQuestion({
     id: "n1-vocab-maboroshi",
@@ -9418,7 +9522,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「弾ける」讀作「はじける」，意為迸開、綻放迸發，呼應光芒在夜空一齊炸開的絢爛瞬間。「はぜける」混用了近義詞「爆ぜる（はぜる）」的讀法，並非「弾ける」的讀音；「ほどける」是「解ける」（鬆開）；「くだける」是「砕ける」（粉碎），語境皆不成立，唯一正解為「はじける」。",
     explanationI18n: { "ja": "「弾ける」は「はじける」と読み、ぱっと弾ける・弾け咲くという意味で、光が夜空で一斉に炸裂する華やかな一瞬に呼応します。「はぜける」は近い意味の「爆ぜる（はぜる）」の読みを混ぜたもので、「弾ける」の読みではありません。「ほどける」は「解ける」（ほどける）、「くだける」は「砕ける」（砕ける）で、いずれも文脈に合わず、正解は「はじける」だけです。", "en": "「弾ける」is read はじける, meaning to burst or bloom outward, echoing the dazzling moment of lights exploding together in the night sky. 「はぜける」mixes in the reading of the near-synonym 「爆ぜる（はぜる）」and is not the reading of 「弾ける」; 「ほどける」is 「解ける」(to come loose); 「くだける」is 「砕ける」(to shatter). None fits the context, and the only correct answer is はじける." },
     exampleJapanese: "夜空に打ち上がった光が一斉に弾けるその一瞬、胸の高鳴りも溢れ出した。",
-    exampleMeaningZh: "絢爛的光在夜空中一齊綻放迸發的那一刻，心中的悸動也滿溢而出。"
+    exampleMeaningZh: "絢爛的光在夜空中一齊綻放迸發的那一刻，心中的悸動也滿溢而出。",
+    exampleMeaningI18n: { "ja": "夜空に打ち上げられた光が一斉にぱっと開いて飛び散るその一瞬、胸の高鳴りもあふれ出した。", "en": "The instant the dazzling lights burst open all at once in the night sky, the pounding in my chest overflowed as well." },
   }),
   examQuestion({
     id: "n1-kanji-sumu",
@@ -9438,7 +9543,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「澄む」讀作「すむ」，意為澄澈透明，呼應流星劃過後一片清澈的夜空。「にじむ」是「滲む」（暈染滲開）、「かすむ」是「霞む」（朦朧），二者與「澄澈」語意相反；「ひずむ」是「歪む」（扭曲變形），皆不成立。四個選項皆為辭書形、互異，唯一正解為「すむ」。",
     explanationI18n: { "ja": "「澄む」は「すむ」と読み、澄みわたる・透き通るという意味で、流星が流れたあとの一面清らかな夜空に呼応します。「にじむ」は「滲む」（にじみ広がる）、「かすむ」は「霞む」（ぼんやりかすむ）で、いずれも「澄む」とは意味が反対です。「ひずむ」は「歪む」（ゆがみ変形する）で、いずれも成り立ちません。四つの選択肢はすべて辞書形で互いに異なり、正解は「すむ」だけです。", "en": "「澄む」is read すむ, meaning to be clear and transparent, echoing the crystalline night sky after a meteor streaks by. 「にじむ」is 「滲む」(to blur, to seep), and 「かすむ」is 「霞む」(to be hazy); both are opposite in meaning to 'clear.' 「ひずむ」is 「歪む」(to warp, to distort); none works. All four options are dictionary forms and distinct, and the only correct answer is すむ." },
     exampleJapanese: "流れ星が消えたあと、夜空が果てしなく澄むほど、願いだけが胸に残った。",
-    exampleMeaningZh: "流星消失之後，夜空澄澈到無邊無際，只留下了那個願望。"
+    exampleMeaningZh: "流星消失之後，夜空澄澈到無邊無際，只留下了那個願望。",
+    exampleMeaningI18n: { "ja": "流れ星が消えた後、夜空は果てしなく澄みわたり、胸にはあの願いだけが残った。", "en": "After the shooting star vanished, the night sky grew endlessly clear, and only that wish stayed in my heart." },
   }),
   examQuestion({
     id: "n1-vocab-tenmetsu",
@@ -9478,7 +9584,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「静寂」唸作「せいじゃく」,指萬籟俱寂的寂靜。「せいせき」清音化錯讀且非此義;「しずじゃく」誤把「静」當訓讀;「せいじゃか」末尾濁音/清音與長音皆錯。四者僅「せいじゃく」於此夜空靜謐之境成立。",
     explanationI18n: { "ja": "「静寂」は「せいじゃく」と読み、しんと静まりかえった静けさを指します。「せいせき」は清音化して読み違えたうえに意味も異なり、「しずじゃく」は「静」を訓読みしてしまった誤り、「せいじゃか」は末尾の清濁と長音がともに誤っています。四つのうち、この夜空の静けさの情景に成り立つのは「せいじゃく」だけです。", "en": "「静寂」is read せいじゃく, meaning utter silence. 「せいせき」wrongly reads it with a plain (unvoiced) sound and isn't this meaning; 「しずじゃく」wrongly takes 「静」as a kun reading; 「せいじゃか」has the wrong voicing/unvoicing and long vowel at the end. Of the four, only せいじゃく works in this hushed night-sky scene." },
     exampleJapanese: "深夜、ひとり夜空を見上げると、銀色の月の光が地面に降りそそぎ、街の音が消えた静寂の中で胸の奥がそっとほどけていった。",
-    exampleMeaningZh: "深夜獨自仰望夜空,銀色月光灑落地面,在街聲消失的寂靜中,心底深處悄然鬆開。"
+    exampleMeaningZh: "深夜獨自仰望夜空,銀色月光灑落地面,在街聲消失的寂靜中,心底深處悄然鬆開。",
+    exampleMeaningI18n: { "ja": "深夜にひとり夜空を見上げると、銀色の月の光が地面に降り注ぎ、街の音が消えた静けさの中で、心の奥がそっとほどけていった。", "en": "Late at night, gazing up at the sky alone, silver moonlight pouring down onto the ground, I felt something deep in my chest quietly come undone in the stillness where the sounds of the town had faded away." },
   }),
   examQuestion({
     id: "n1-kanji-iyasu",
@@ -9498,7 +9605,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「癒す」唸作「いやす」,意為療癒、撫平傷痛。「いえす」「ゆやす」「くやす」皆非「癒す」的正確讀音:「いえす」混淆相關自動詞「癒える(いえる)」且尾音錯;「ゆやす」首音誤讀;「くやす」為形近的胡亂讀法。在撫平記憶之痛的語境中,唯「いやす」成立且活用形相符。",
     explanationI18n: { "ja": "「癒す」は「いやす」と読み、癒す・傷や痛みを和らげるという意味です。「いえす」「ゆやす」「くやす」はいずれも「癒す」の正しい読みではありません。「いえす」は関連する自動詞「癒える（いえる）」と混同したうえ語尾も誤っており、「ゆやす」は語頭の読み違い、「くやす」は形の似た仮名を並べたでたらめな読みです。記憶の痛みを和らげるという文脈では、活用形も合致する「いやす」だけが成り立ちます。", "en": "「癒す」is read いやす, meaning to heal or soothe pain. 「いえす」, 「ゆやす」, and 「くやす」are none of them the correct reading of 「癒す」: 「いえす」confuses it with the related intransitive verb 「癒える（いえる）」and has the wrong ending; 「ゆやす」misreads the first sound; 「くやす」is a nonsense reading based on look-alike shapes. In the context of soothing the pain of memory, only いやす works and matches the conjugated form." },
     exampleJapanese: "見えない鎖でつながった君を思いながら、こぼれ落ちた月光のかけらを拾い集めれば、ばらばらだった記憶の痛みを少しずつ癒すことができる気がした。",
-    exampleMeaningZh: "想著與被看不見的鎖鏈相連的你,把灑落的月光碎片拾起,彷彿就能一點一點撫平那些零散記憶裡的疼痛。"
+    exampleMeaningZh: "想著與被看不見的鎖鏈相連的你,把灑落的月光碎片拾起,彷彿就能一點一點撫平那些零散記憶裡的疼痛。",
+    exampleMeaningI18n: { "ja": "見えない鎖でつながった君を思いながら、こぼれ落ちた月光のかけらを拾い集めれば、ばらばらになった記憶の痛みを少しずつ和らげられる気がした。", "en": "Thinking of you, joined to me by an invisible chain, I gathered up the fallen shards of moonlight, and it felt as though I could soothe, little by little, the pain in those scattered memories." },
   }),
   examQuestion({
     id: "n1-vocab-tabiji",
@@ -9538,7 +9646,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「漂う」讀作「ただよう」,意為飄盪、漂浮、瀰漫,此處描寫香煙在空中靜靜飄散的意象,活用為「漂って(ただよって)」。干擾項:「滞って(とどこおって)」意為停滯、淤積,與煙裊裊飄散的流動感矛盾;「潤って(うるおって)」意為濕潤、滋潤,語境不成立;「繕って(つくろって)」意為修補、掩飾,與此景無關。四者活用形一致,僅「ただよって」符合香煙瀰漫的語境,為唯一正解。",
     explanationI18n: { "ja": "「漂う」は「ただよう」と読み、ただよう・浮かぶ・立ちこめるという意味で、ここでは香の煙が空中に静かに漂う様子を描いており、活用して「漂って（ただよって）」となります。誤答について、「滞って（とどこおって）」は停滞する・たまるという意味で、煙がゆらゆらと漂う流れる感じと矛盾します。「潤って（うるおって）」は湿る・潤うという意味で、この文脈では成り立ちません。「繕って（つくろって）」は繕う・取りつくろうという意味で、この情景とは無関係です。四つは活用形が一致しており、香の煙が立ちこめる文脈に合うのは「ただよって」だけなので、これが唯一の正解です。", "en": "「漂う」is read ただよう, meaning to drift, float, or waft, here depicting incense smoke wafting quietly through the air, conjugated as 「漂って（ただよって）」. The distractors: 「滞って（とどこおって）」means to stagnate or accumulate, contradicting the flowing sense of smoke wafting up; 「潤って（うるおって）」means to be moist or nourished, which doesn't fit the context; 「繕って（つくろって）」means to mend or gloss over, unrelated to this scene. All conjugate consistently, and only ただよって fits the context of drifting incense smoke, making it the sole correct answer." },
     exampleJapanese: "終わりの見えない旅路の途中、私の周りには香の煙が静かに漂っていて、移ろい続ける世界の中で変わらぬ祈りだけを探していた。",
-    exampleMeaningZh: "在看不見盡頭的旅途中,香煙在四周靜靜地飄盪,而我在不停流轉的世界裡只尋找著永不改變的祈願。"
+    exampleMeaningZh: "在看不見盡頭的旅途中,香煙在四周靜靜地飄盪,而我在不停流轉的世界裡只尋找著永不改變的祈願。",
+    exampleMeaningI18n: { "ja": "終わりの見えない旅の途中、私の周りではお香の煙が静かにゆらゆらと浮かんでいて、移ろい続ける世界の中で、変わらない祈りだけを探していた。", "en": "Partway through a journey with no end in sight, incense smoke drifted quietly around me, and in this ever-shifting world I searched only for a prayer that would never change." },
   }),
   examQuestion({
     id: "n1-kanji-fuujiru",
@@ -9558,7 +9667,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「封じる」唸作「ふうじる」,此處活用為「封じて」即「ふうじて」,意為把脆弱壓制、封鎖在心底。四個選項都保留相同的送假名「〜て」,只在「封」字的音上設陷阱:「ほうじて」把首音「ふ」誤讀成「ほ」;「ふうちて」把濁音「じ」清音化又近形誤成「ち」;「ぶうじて」把首音濁化成「ぶ」。三者皆非「封じる」的正確讀音,唯一正解為「ふうじて」。",
     explanationI18n: { "ja": "「封じる」は「ふうじる」と読み、ここでは活用して「封じて」すなわち「ふうじて」となり、弱さを心の奥に抑え込み封じ込めるという意味です。四つの選択肢はいずれも同じ送り仮名「〜て」を保ち、「封」の字の音だけに罠を仕掛けています。「ほうじて」は語頭の「ふ」を「ほ」に読み違えたもの、「ふうちて」は濁音の「じ」を清音化したうえ形の似た「ち」に誤ったもの、「ぶうじて」は語頭を濁らせて「ぶ」にしたものです。三つはいずれも「封じる」の正しい読みではなく、正解は「ふうじて」だけです。", "en": "「封じる」is read ふうじる, conjugated here as 「封じて」, i.e. ふうじて, meaning to suppress and seal one's weakness deep in the heart. All four options keep the same okurigana 「〜て」and set the trap only on the sound of the character 「封」: 「ほうじて」misreads the first sound ふ as ほ; 「ふうちて」unvoices the voiced 「じ」and further misreads it as the look-alike 「ち」; 「ぶうじて」voices the first sound into 「ぶ」. None of these is the correct reading of 「封じる」, and the only correct answer is ふうじて." },
     exampleJapanese: "悪夢から目を覚ました明け方、僕は震える弱さを胸の奥に固く封じて、白く光る空へ一歩を踏み出した。",
-    exampleMeaningZh: "從惡夢中醒來的破曉時分,我把顫抖的脆弱牢牢封進心底,朝著泛白發光的天空邁出一步。"
+    exampleMeaningZh: "從惡夢中醒來的破曉時分,我把顫抖的脆弱牢牢封進心底,朝著泛白發光的天空邁出一步。",
+    exampleMeaningI18n: { "ja": "悪夢から目覚めた明け方、僕は震える弱さを胸の奥深くに固く閉じ込めて、白く光る空へ一歩を踏み出した。", "en": "At daybreak, waking from a nightmare, I sealed my trembling weakness firmly away deep in my chest and took a step toward the whitening, glowing sky." },
   }),
   examQuestion({
     id: "n1-vocab-konton",
@@ -9618,7 +9728,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「捧げる」讀作「ささげる」,意為「獻上、奉獻」,此處指把真誠的心意奉獻交付給對方。四個選項都保留相同的送假名「〜げる」,只在前段設陷阱:「さざげる」把第二音「さ」誤濁化成「ざ」;「ささける」把濁音「げ」清音化成「け」;「しさげる」把首音「さ」誤讀成「し」。三者皆非「捧げる」的正確讀音,唯一正解為「ささげる」。",
     explanationI18n: { "ja": "「捧げる」は「ささげる」と読み、差し出す・ささげ尽くすという意味で、ここでは真心をそのまま相手に捧げ差し出すことを表す。四つの選択肢はいずれも同じ送り仮名「〜げる」を保ちつつ、前半に罠を仕掛けている。「さざげる」は二音目の「さ」を誤って濁音「ざ」にしたもの。「ささける」は濁音「げ」を清音「け」にしたもの。「しさげる」は語頭の「さ」を誤って「し」と読んだもの。いずれも「捧げる」の正しい読みではなく、唯一の正解は「ささげる」。", "en": "捧げる is read ささげる, meaning 'to offer up, to dedicate.' Here it refers to offering one's sincere feelings to another person. All four options keep the same okurigana 「〜げる」 and set their traps only in the earlier part: さざげる wrongly voices the second syllable 「さ」 into 「ざ」; ささける de-voices the voiced 「げ」 into 「け」; しさげる misreads the first syllable 「さ」 as 「し」. None of these is the correct reading of 捧げる, so the only correct answer is ささげる." },
     exampleJapanese: "嘘をつく大人にはなりたくないから、まっすぐな気持ちをそのまま君に捧げると決めた。",
-    exampleMeaningZh: "因為不想成為說謊的大人,所以決定把這份筆直的心意原原本本地獻給你。"
+    exampleMeaningZh: "因為不想成為說謊的大人,所以決定把這份筆直的心意原原本本地獻給你。",
+    exampleMeaningI18n: { "ja": "嘘をつく大人にはなりたくないから、このまっすぐな気持ちをそのまま君に差し出そうと決めた。", "en": "Because I don't want to become the kind of adult who lies, I decided to offer you these honest, unbending feelings exactly as they are." },
   }),
   examQuestion({
     id: "n1-kanji-kogasu",
@@ -9638,7 +9749,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「焦がす」讀作「こがす」,意為燒焦、烤焦。此處描寫正午烈日把肌膚曬得發燙的夏日意象。四個選項都保留相同的送假名「〜がす」結尾,只在「焦」字音與清濁上設陷阱:「ごがす」把首音「こ」誤濁化成「ご」;「こがず」把結尾「す」誤濁化成「ず」;「くがす」把首音「こ」誤讀成「く」。三者皆非此字的正確讀法,故唯一正解為「こがす」。",
     explanationI18n: { "ja": "「焦がす」は「こがす」と読み、焼き焦がすという意味。ここでは真昼の強い日差しが肌を焼くように熱くする夏のイメージを描いている。四つの選択肢はいずれも同じ送り仮名「〜がす」で終わり、「焦」の音や清濁に罠を仕掛けている。「ごがす」は語頭の「こ」を誤って濁音「ご」にしたもの。「こがず」は語末の「す」を誤って濁音「ず」にしたもの。「くがす」は語頭の「こ」を誤って「く」と読んだもの。いずれもこの字の正しい読みではなく、唯一の正解は「こがす」。", "en": "焦がす is read こがす, meaning 'to scorch, to burn.' Here it paints a summer image of the noon sun searing the skin hot. All four options keep the same ending okurigana 「〜がす」 and set their traps only on the sound and voicing of 「焦」: ごがす wrongly voices the first syllable 「こ」 into 「ご」; こがず wrongly voices the final 「す」 into 「ず」; くがす misreads the first syllable 「こ」 as 「く」. None of these is the correct reading, so the only correct answer is こがす." },
     exampleJapanese: "真上から照りつける正午の日差しが、僕の素肌をじりじりと焦がすほど、夏の鼓動が熱く高鳴っていた。",
-    exampleMeaningZh: "從正上方直射而下的正午陽光,熱得幾乎要把我的肌膚烤焦,夏天的心跳也滾燙地高鳴著。"
+    exampleMeaningZh: "從正上方直射而下的正午陽光,熱得幾乎要把我的肌膚烤焦,夏天的心跳也滾燙地高鳴著。",
+    exampleMeaningI18n: { "ja": "真上から照りつける正午の日差しは、僕の素肌をじりじりと焼くほど強く、夏の鼓動も熱く高鳴っていた。", "en": "The midday sun beating straight down was hot enough to all but scorch my bare skin, and the heartbeat of summer pounded just as fiercely." },
   }),
   examQuestion({
     id: "n1-vocab-fumihazusu",
@@ -9678,7 +9790,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「切り開く」讀作「きりひらく」,意為開闢、闖出一條路。四個選項都保留相同的「きり〜く」骨架,只在中段與首音設陷阱:「きりびらく」把「ひ」誤濁化成「び」;「きりはらく」把「ひら」誤讀成近形的「はら」;「ぎりひらく」把首音「き」誤濁化成「ぎ」。三者皆非此字的正確讀音,唯有「きりひらく」在此「在荒地硬闢出一條路」的語境下成立。",
     explanationI18n: { "ja": "「切り開く」は「きりひらく」と読み、道を切り開く・開拓する意味。四つの選択肢はいずれも同じ「きり〜く」の骨格を保ちつつ、中ほどと語頭に罠を仕掛けている。「きりびらく」は「ひ」を誤って濁音「び」にしたもの。「きりはらく」は「ひら」を誤って形の近い「はら」と読んだもの。「ぎりひらく」は語頭の「き」を誤って濁音「ぎ」にしたもの。いずれもこの字の正しい読みではなく、「荒れ地に一本の道を切り開く」というこの文脈で成立するのは「きりひらく」のみ。", "en": "切り開く is read きりひらく, meaning 'to open up, to carve out a path.' All four options keep the same 「きり〜く」 frame and set their traps in the middle and the first sound: きりびらく wrongly voices 「ひ」 into 「び」; きりはらく misreads the similar-looking 「ひら」 as 「はら」; ぎりひらく wrongly voices the first syllable 「き」 into 「ぎ」. None of these is the correct reading, so only きりひらく works in this context of forcibly carving out a path across barren ground." },
     exampleJapanese: "目の前の高い壁に体当たりした俺は、誰も通ったことのない荒れ地に、自分の手で一本の道を切り開くと決めた。",
-    exampleMeaningZh: "撞向眼前高牆的我,決意要在無人走過的荒地上,用自己的雙手闢出一條路。"
+    exampleMeaningZh: "撞向眼前高牆的我,決意要在無人走過的荒地上,用自己的雙手闢出一條路。",
+    exampleMeaningI18n: { "ja": "目の前の高い壁に体当たりした俺は、誰も通ったことのない荒れ地に、自分の手で一本の道を作り出すと心に決めた。", "en": "Throwing myself against the high wall in front of me, I resolved to carve out a path with my own two hands across a wasteland no one had ever crossed." },
   }),
   examQuestion({
     id: "n1-kanji-gyakkyou",
@@ -9698,7 +9811,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「逆境」讀作「ぎゃっきょう」。「逆」在此為促音化的「ぎゃっ」,「境」讀「きょう」。其餘三個只改了「逆」的音(長音化、無促音、清音化),送假名相同但讀法不成立。",
     explanationI18n: { "ja": "「逆境」は「ぎゃっきょう」と読む。「逆」はここでは促音化して「ぎゃっ」、「境」は「きょう」と読む。他の三つはいずれも「逆」の音だけを変えたもの（長音化・促音なし・清音化）で、送り仮名は同じでも読み方として成立しない。", "en": "逆境 is read ぎゃっきょう. Here 「逆」 takes the geminated (small-tsu) form 「ぎゃっ」, and 「境」 is read 「きょう」. The other three only alter the reading of 「逆」 (lengthening it, dropping the geminate, or de-voicing it); the okurigana is the same but the readings don't hold up." },
     exampleJapanese: "どんな逆境に置かれても、君なら必ず光をつかめると信じている。",
-    exampleMeaningZh: "無論身陷怎樣的逆境,我都相信你一定能抓住屬於自己的光。"
+    exampleMeaningZh: "無論身陷怎樣的逆境,我都相信你一定能抓住屬於自己的光。",
+    exampleMeaningI18n: { "ja": "どんなに苦しい状況に置かれても、君ならきっと自分の光をつかめると信じている。", "en": "No matter what adversity you find yourself in, I believe you will surely seize a light of your own." },
   }),
   examQuestion({
     id: "n1-kanji-shiren",
@@ -9718,7 +9832,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「試練」讀作「しれん」。「試」讀「し」,「練」讀「れん」。其餘三個分別把「試」濁音化、把「練」改成別的音(し→じ、れん→えん/れい),送假名一致但讀法不成立。",
     explanationI18n: { "ja": "「試練」は「しれん」と読む。「試」は「し」、「練」は「れん」。他の三つはそれぞれ「試」を濁音化したり、「練」を別の音に変えたり（し→じ、れん→えん／れい）したもので、送り仮名は同じでも読み方として成立しない。", "en": "試練 is read しれん. 「試」 is read 「し」 and 「練」 is read 「れん」. The other three respectively voice 「試」 or change 「練」 to a different sound (し→じ, れん→えん/れい); the okurigana matches but the readings don't hold up." },
     exampleJapanese: "仲間と分け合った試練の日々が、今の自分を主役にしてくれた。",
-    exampleMeaningZh: "與同伴一同分擔的那些試煉歲月,造就了如今成為主角的自己。"
+    exampleMeaningZh: "與同伴一同分擔的那些試煉歲月,造就了如今成為主角的自己。",
+    exampleMeaningI18n: { "ja": "仲間と分かち合った厳しい試練の日々が、今、主役として立つ自分を作ってくれた。", "en": "Those days of trials shared with my companions are what made me the protagonist I am today." },
   }),
   examQuestion({
     id: "n1-vocab-zenshinzenrei",
@@ -9758,7 +9873,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「邁進」讀作「まいしん」,意為奮力向前、勇往直前。「邁」音讀為「まい」,「進」音讀為「しん」。干擾項「ばいしん」把「邁」誤讀成濁音、「まいじん」把「進」誤讀成濁音、「めいしん」則把「邁」的「まい」誤讀為母音相近的「めい」,皆非正確讀音。",
     explanationI18n: { "ja": "「邁進」は「まいしん」と読み、ひたむきに前進する・勇往邁進する意味。「邁」の音読みは「まい」、「進」の音読みは「しん」。誤答の「ばいしん」は「邁」を誤って濁音に、「まいじん」は「進」を誤って濁音に、「めいしん」は「邁」の「まい」を母音の近い「めい」と誤読したもので、いずれも正しい読みではない。", "en": "邁進 is read まいしん, meaning 'to forge ahead, to press forward boldly.' 「邁」 is read 「まい」 and 「進」 is read 「しん」. The distractor ばいしん wrongly voices 「邁」; まいじん wrongly voices 「進」; and めいしん misreads 「まい」 in 「邁」 as the vowel-similar 「めい」 — none are the correct reading." },
     exampleJapanese: "見えない明日が怖くても、君となら刺激にできる。だから僕は夢へ邁進する。",
-    exampleMeaningZh: "即使看不見的明天令人害怕,只要和你在一起就能化為刺激。所以我朝著夢想奮力向前。"
+    exampleMeaningZh: "即使看不見的明天令人害怕,只要和你在一起就能化為刺激。所以我朝著夢想奮力向前。",
+    exampleMeaningI18n: { "ja": "見えない明日が怖くても、君と一緒なら刺激に変えられる。だから僕は夢に向かってひたすら突き進む。", "en": "Even if the unseen tomorrow is frightening, with you it turns into a thrill. That is why I press forward toward my dream." },
   }),
   examQuestion({
     id: "n1-vocab-toushindai",
@@ -9798,7 +9914,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「仰ぐ」讀作「あおぐ」,意為仰望、抬頭看。其餘三項皆保留送假名「ぐ」,只更動漢字部分的讀音以製造近形誤讀:「あうぐ」把「お」誤拉成「う」段音、「あごぐ」把「お」混作濁音「ご」、「あよぐ」把「お」誤作や行的「よ」,三者作為「仰ぐ」的讀音皆不成立。",
     explanationI18n: { "ja": "「仰ぐ」は「あおぐ」と読み、見上げる・上を向いて見る意味。他の三つはいずれも送り仮名「ぐ」を残しつつ、漢字部分の読みだけを変えて形の近い誤読を作っている。「あうぐ」は「お」を誤って「う」段の音に、「あごぐ」は「お」を濁音「ご」と取り違え、「あよぐ」は「お」を誤ってや行の「よ」にしたもので、いずれも「仰ぐ」の読みとして成立しない。", "en": "仰ぐ is read あおぐ, meaning 'to look up at, to gaze upward.' The other three all keep the okurigana 「ぐ」 and only alter the reading of the kanji part to create look-alike misreadings: あうぐ stretches 「お」 into a 「う」-column sound, あごぐ confuses 「お」 with the voiced 「ご」, and あよぐ mistakes 「お」 for the ya-row 「よ」 — none holds up as a reading of 仰ぐ." },
     exampleJapanese: "傘を投げ捨て、紺碧の空を仰ぐと、不安も少し軽くなった。",
-    exampleMeaningZh: "扔開傘、仰望紺碧的天空,不安也稍稍減輕了些。"
+    exampleMeaningZh: "扔開傘、仰望紺碧的天空,不安也稍稍減輕了些。",
+    exampleMeaningI18n: { "ja": "傘を投げ捨てて紺碧の空を見上げると、不安も少し軽くなった。", "en": "Tossing my umbrella aside and looking up at the deep-blue sky, I felt my anxiety lighten just a little." },
   }),
   examQuestion({
     id: "n1-vocab-konpeki",
@@ -9918,7 +10035,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「彩る」讀作「いろどる」，意為點綴、增添色彩。其餘三項皆保留送假名「る」，只更動漢字部分的讀音：「いるどる」把「ろ」誤成「る」、「いろとる」把濁音「ど」誤成清音「と」、「えろどる」把首音「い」誤成母音相近的「え」，皆不成立，故唯一正解為「いろどる」。",
     explanationI18n: { "ja": "「彩る」は「いろどる」と読み、色をつけて飾る・いろどりを添える意味。他の三つはいずれも送り仮名「る」を残しつつ、漢字部分の読みだけを変えている。「いるどる」は「ろ」を誤って「る」に、「いろとる」は濁音「ど」を誤って清音「と」に、「えろどる」は語頭の「い」を母音の近い「え」に誤ったもので、いずれも成立しない。したがって唯一の正解は「いろどる」。", "en": "彩る is read いろどる, meaning 'to color, to add color.' The other three all keep the okurigana 「る」 and only alter the reading of the kanji part: いるどる mistakes 「ろ」 for 「る」, いろとる changes the voiced 「ど」 to the voiceless 「と」, and えろどる changes the first sound 「い」 to the vowel-similar 「え」 — none holds up, so the only correct answer is いろどる." },
     exampleJapanese: "相談に乗っているうちに、春の日差しが部屋を彩るように、わたしの胸も明るくなった。",
-    exampleMeaningZh: "在替人做諮詢的過程中，就像春日的陽光為房間增添色彩般，我的心也變得明亮起來。"
+    exampleMeaningZh: "在替人做諮詢的過程中，就像春日的陽光為房間增添色彩般，我的心也變得明亮起來。",
+    exampleMeaningI18n: { "ja": "相談に乗っているうちに、春の日差しが部屋に色を添えるように、私の心も明るくなっていった。", "en": "As I listened to someone's troubles, my heart brightened too, the way spring sunlight brings color to a room." },
   }),
   examQuestion({
     id: "n1-kanji-ikizuku",
@@ -9938,7 +10056,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「息づく」讀作「いきづく」，意為（如生命般）生氣勃勃地存在、呼吸。其餘三項皆保留送假名形式（〜づく/ずく），只更動漢字部分的讀音：「いきずく」把「づ」誤成同音近形的「ず」、「いぎづく」把清音「き」誤成濁音「ぎ」、「いきぢく」把「づ」誤成同行近形的「ぢ」，皆不成立，故唯一正解為「いきづく」。",
     explanationI18n: { "ja": "「息づく」は「いきづく」と読み、（命あるかのように）生き生きと存在する・呼吸する意味。他の三つはいずれも送り仮名の形（〜づく／ずく）を残しつつ、漢字部分の読みだけを変えている。「いきずく」は「づ」を同音で形の近い「ず」に、「いぎづく」は清音「き」を濁音「ぎ」に、「いきぢく」は「づ」を同行で形の近い「ぢ」に誤ったもので、いずれも成立しない。したがって唯一の正解は「いきづく」。", "en": "息づく is read いきづく, meaning 'to be alive with vitality, to breathe.' The other three all keep the okurigana form (〜づく/ずく) and only alter the reading of the kanji part: いきずく mistakes 「づ」 for the homophonous, look-alike 「ず」; いぎづく voices the voiceless 「き」 into 「ぎ」; and いきぢく mistakes 「づ」 for the same-row look-alike 「ぢ」 — none holds up, so the only correct answer is いきづく." },
     exampleJapanese: "放課後の窓辺で、芽生えたばかりの気持ちが静かに息づくのを感じた。",
-    exampleMeaningZh: "放學後在窗邊，我感覺到剛萌生的心情正靜靜地、彷彿有了生命般存在著。"
+    exampleMeaningZh: "放學後在窗邊，我感覺到剛萌生的心情正靜靜地、彷彿有了生命般存在著。",
+    exampleMeaningI18n: { "ja": "放課後の窓辺で、芽生えたばかりの気持ちが、静かに息をするように確かに生きているのを感じた。", "en": "By the window after school, I could feel a newly budding feeling quietly stirring, as if it had come to life." },
   }),
   examQuestion({
     id: "n1-kanji-eigou",
@@ -9958,7 +10077,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「永劫」讀作「えいごう」。「えきごう」誤把「永(えい)」讀成入聲式的「えき」;「えいごお」把長音的假名拼錯(應作「ごう」非「ごお」);「えいこう」把「劫(ごう)」清音化讀成「こう」。四者皆全平假名且互異,只有「えいごう」在此語境成立,為唯一正解。",
     explanationI18n: { "ja": "「永劫」は「えいごう」と読む。「えきごう」は「永（えい）」を入声風の「えき」と誤読したもの。「えいごお」は長音の仮名を書き誤ったもの（「ごう」であって「ごお」ではない）。「えいこう」は「劫（ごう）」を清音化して「こう」と読んだもの。四つとも全て平仮名で互いに異なるが、この文脈で成立するのは「えいごう」のみで、唯一の正解。", "en": "永劫 is read えいごう. えきごう wrongly reads 「永(えい)」 as the entering-tone-like 「えき」; えいごお misspells the long vowel in kana (it should be 「ごう」, not 「ごお」); えいこう de-voices 「劫(ごう)」 into 「こう」. All four are fully in hiragana and mutually distinct, but only えいごう works in this context, making it the sole correct answer." },
     exampleJapanese: "この惑星が永劫の昔から繰り返してきた営みを、彼は静かに語り続けた。",
-    exampleMeaningZh: "他靜靜地不斷述說著這顆行星自極遙遠的過去以來反覆進行的活動。"
+    exampleMeaningZh: "他靜靜地不斷述說著這顆行星自極遙遠的過去以來反覆進行的活動。",
+    exampleMeaningI18n: { "ja": "この惑星が果てしなく遠い昔から繰り返してきた営みを、彼は静かに語り続けた。", "en": "He went on quietly recounting the workings this planet has repeated since time immemorial." },
   }),
   examQuestion({
     id: "n1-vocab-manuke",
@@ -10078,7 +10198,8 @@ export const n1Items: PracticeQuestion[] = [
     explanation: "「木漏れ日」是熟字訓：木＝こ、漏れ＝もれ、日濁化＝び，讀「こもれび」。「きもれび」誤把木讀成き；「こもれひ」漏掉日的濁音；「こぼれび」把漏れ(もれ)誤成こぼれ(零れ)。",
     explanationI18n: { "ja": "「木漏れ日」は熟字訓で、木＝こ、漏れ＝もれ、日は連濁して＝びとなり、「こもれび」と読みます。「きもれび」は木を「き」と読んでしまった誤り。「こもれひ」は日の連濁（濁点）が抜けています。「こぼれび」は漏れ（もれ）を「こぼれ（零れ）」と取り違えたものです。", "en": "「木漏れ日」is a special compound reading (熟字訓): 木＝こ, 漏れ＝もれ, and 日 becomes voiced to び, giving こもれび. 「きもれび」wrongly reads 木 as き; 「こもれひ」drops the voicing on 日; 「こぼれび」mistakes 漏れ (もれ) for こぼれ (零れ)." },
     exampleJapanese: "森の中を歩くと、木漏れ日がとてもきれいだった。",
-    exampleMeaningZh: "走在森林裡，從樹葉間灑落的陽光很美。"
+    exampleMeaningZh: "走在森林裡，從樹葉間灑落的陽光很美。",
+    exampleMeaningI18n: { "ja": "森の中を歩いていると、木の葉の間から差し込む日の光がとてもきれいだった。", "en": "Walking through the forest, the sunlight filtering down through the leaves was beautiful." },
   }),
   examQuestion({
     id: "niarumajiki-wk1-1",
