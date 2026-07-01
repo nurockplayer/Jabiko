@@ -216,4 +216,25 @@ describe("ExamPrompt content localization (#400)", () => {
     const { container: c2 } = render(<ExamPrompt question={noOverlay} language="en" />);
     expect(c2.querySelector("p.reading")?.textContent).toContain("等待");
   });
+
+  it("falls back to the localized promptContextZh hint when there is no hintZh", async () => {
+    const user = userEvent.setup();
+    const q = makeQuestion({ hintZh: undefined, hintI18n: undefined });
+    const { container } = render(<ExamPrompt question={q} language="en" />);
+    await user.click(container.querySelector(".hint-toggle") as HTMLElement);
+    expect(screen.getByText("English context")).toBeInTheDocument();
+    expect(screen.queryByText("情境中文")).not.toBeInTheDocument();
+  });
+
+  it("an empty-string hintZh suppresses the hint instead of leaking promptContextZh", () => {
+    // Regression guard (Codex must-fix): a nullish -- not truthy -- check means
+    // an authored empty hint is "no hint", NOT a fall-through to the
+    // answer-leaky promptContextZh.
+    const { container } = render(
+      <ExamPrompt question={makeQuestion({ hintZh: "", hintI18n: undefined })} language="en" />
+    );
+    expect(container.querySelector(".hint-toggle")).toBeNull();
+    expect(screen.queryByText("English context")).not.toBeInTheDocument();
+    expect(screen.queryByText("情境中文")).not.toBeInTheDocument();
+  });
 });

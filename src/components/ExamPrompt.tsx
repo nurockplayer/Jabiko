@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { GraduationCap } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { PracticeQuestion } from "../domain/types";
-import { pickLocalized } from "../domain/localizedContent";
+import { pickLocalized, pickLocalizedOptional } from "../domain/localizedContent";
 import { shuffleOrderFragments } from "../domain/wordOrder";
 import { isReadingPrompt } from "../domain/furigana";
 import { Ruby } from "./Ruby";
@@ -48,16 +48,17 @@ export function ExamPrompt({ question, language }: { question: PracticeQuestion;
   // FeedbackPanel post-answer via vocabulary.examples[0].meaningZh.
   // Each Chinese field is read through its per-locale overlay (#400) so a
   // non-Chinese learner sees the target language, falling back to zh source.
-  const localizedHint = question.hintZh
-    ? pickLocalized(question.hintZh, question.hintI18n, language)
-    : undefined;
-  const localizedContext = question.promptContextZh
-    ? pickLocalized(question.promptContextZh, question.promptContextI18n, language)
-    : undefined;
+  // pickLocalizedOptional keeps NULLISH (not truthy) semantics so an authored
+  // empty hint still suppresses via `hint ?? context` instead of falling
+  // through to the answer-leaky promptContextZh.
+  const localizedHint = pickLocalizedOptional(question.hintZh, question.hintI18n, language);
+  const localizedContext = pickLocalizedOptional(
+    question.promptContextZh,
+    question.promptContextI18n,
+    language
+  );
   const preAnswerHint = localizedHint ?? localizedContext;
-  const instruction = question.instructionZh
-    ? pickLocalized(question.instructionZh, question.instructionI18n, language)
-    : question.instructionZh;
+  const instruction = pickLocalizedOptional(question.instructionZh, question.instructionI18n, language);
   const meaning = pickLocalized(
     question.vocabulary.meaningZh,
     question.vocabulary.meaningI18n,
