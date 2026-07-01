@@ -315,6 +315,41 @@ describe("composeDailySet", () => {
   });
 });
 
+describe("buildPracticeQuestions unattempted-first exam ordering (#385)", () => {
+  it("surfaces unattempted exam items before attempted ones (綜合)", () => {
+    const pool = buildExamQuestionPool("all");
+    const attemptedIds = new Set(pool.slice(0, 8).map((q) => q.id));
+    const out = buildPracticeQuestions(
+      poolParams({ isExamFocus: true, levelRange: "all", attemptedIds })
+    );
+    // membership unchanged...
+    expect(new Set(out.map((q) => q.id))).toEqual(new Set(pool.map((q) => q.id)));
+    // ...and every attempted item comes after every unattempted item.
+    const flags = out.map((q) => attemptedIds.has(q.id));
+    const firstAttempted = flags.indexOf(true);
+    const lastFresh = flags.lastIndexOf(false);
+    expect(firstAttempted).toBeGreaterThan(lastFresh);
+  });
+
+  it("a capped session pulls unattempted items first (#385 + #154)", () => {
+    const pool = buildExamQuestionPool("all");
+    const attemptedIds = new Set(pool.slice(0, 10).map((q) => q.id));
+    const capped = buildPracticeQuestions(
+      poolParams({ isExamFocus: true, levelRange: "all", sessionLength: 20, attemptedIds })
+    );
+    expect(capped.length).toBe(20);
+    // The bank has far more than 20 unattempted, so a capped set is all fresh.
+    expect(capped.every((q) => !attemptedIds.has(q.id))).toBe(true);
+  });
+
+  it("no attemptedIds: membership unchanged (fresh learner sees the plain pool)", () => {
+    const out = buildPracticeQuestions(poolParams({ isExamFocus: true, levelRange: "all" }));
+    expect(new Set(out.map((q) => q.id))).toEqual(
+      new Set(buildExamQuestionPool("all").map((q) => q.id))
+    );
+  });
+});
+
 describe("buildQuestionPool part-of-speech handling (#60)", () => {
   it("does not generate conjugation drills for adverbs", () => {
     const adverb = jlptVocabulary.find((item) => item.partOfSpeech === "adverb");

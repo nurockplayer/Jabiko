@@ -24,6 +24,7 @@ import {
   shuffleQuestions
 } from "./practice";
 import type { PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./types";
+import { prioritizeUnattempted } from "./unattempted";
 import { vocabulary } from "./vocabulary";
 import { jlptVocabulary } from "./vocabulary-jlpt";
 
@@ -167,6 +168,10 @@ export type PracticePoolParams = {
   // <=0 means no cap (the old endless behaviour). review (clears the whole
   // due queue) and 今日練習 (already a fixed ~20 set) are NEVER capped.
   sessionLength?: number | null;
+  // Ids the learner has already attempted. When provided, the 綜合 / 備考 exam
+  // pool surfaces unattempted (新題) items first (#385). Empty / omitted = no
+  // reordering (logged-out or fresh learner sees the plain shuffle).
+  attemptedIds?: Set<string>;
 };
 
 // Derives the active question pool for the current mode. This is the body
@@ -189,8 +194,11 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     targetForms,
     levelRange,
     reviewQueue,
-    sessionLength
+    sessionLength,
+    attemptedIds
   } = params;
+  const fresh = (pool: PracticeQuestion[]): PracticeQuestion[] =>
+    attemptedIds ? prioritizeUnattempted(pool, attemptedIds) : pool;
 
   // Cap the endless drill modes to the chosen session length (#154). A
   // null / non-positive length leaves the pool whole (old behaviour).
@@ -213,8 +221,11 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
         )
       );
     }
-    // 綜合考題庫: optionally narrowed to a level range (N1+N2 / N2+N3).
-    return cap(shuffleQuestions(buildExamQuestionPool(levelsForRange(levelRange) ?? "all")));
+    // 綜合考題庫 + 備考 presets: optionally narrowed to a level range, then
+    // unattempted (新題) items first so a capped session pulls new content
+    // before anything already done (#385). The section-filtered mock path
+    // above keeps its pure shuffle (a mock test shouldn't reorder by history).
+    return cap(fresh(shuffleQuestions(buildExamQuestionPool(levelsForRange(levelRange) ?? "all"))));
   }
 
   if (isClozeFocus) {

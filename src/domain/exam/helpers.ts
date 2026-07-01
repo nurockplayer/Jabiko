@@ -9,6 +9,7 @@ export function examQuestion(input: ExamQuestionInput): PracticeQuestion {
       surface: input.surface,
       reading: input.reading,
       meaningZh: input.meaningZh,
+      meaningI18n: input.meaningI18n,
       partOfSpeech: "noun",
       group: null,
       lesson: null,
@@ -24,11 +25,15 @@ export function examQuestion(input: ExamQuestionInput): PracticeQuestion {
     targetForm: input.targetForm ?? "reading",
     expectedAnswers: [input.expectedAnswer],
     explanation: input.explanation,
+    explanationI18n: input.explanationI18n,
     promptLabel: input.promptLabel,
     promptText: input.promptText,
     promptContextZh: input.promptContextZh,
+    promptContextI18n: input.promptContextI18n,
     hintZh: input.hintZh,
+    hintI18n: input.hintI18n,
     instructionZh: input.instructionZh,
+    instructionI18n: input.instructionI18n,
     options: input.options
   };
 }

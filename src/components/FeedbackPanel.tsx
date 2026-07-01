@@ -5,6 +5,7 @@ import { lookupWordsByReading } from "../domain/readingLookup";
 import { lookupPatternMeaning } from "../domain/patternMeaning";
 import { lookupGrammarNote } from "../domain/grammarNotes";
 import { hasGrammarPoint } from "../domain/grammarPoints";
+import { pickLocalized } from "../domain/localizedContent";
 import { GrammarNoteCard } from "./GrammarNoteCard";
 import { QuestionReportForm } from "./QuestionReportForm";
 import { Ruby } from "./Ruby";
@@ -94,7 +95,7 @@ export function FeedbackPanel({
         ) : null}
       </div>
       <p className="answer-key">{t.answerKey}：{feedback.question.expectedAnswers.join(" / ")}</p>
-      <p>{feedback.question.explanation}</p>
+      <p>{pickLocalized(feedback.question.explanation, feedback.question.explanationI18n, language)}</p>
       {distractorGlosses.length > 0 ? (
         <div className="distractor-gloss">
           <p className="distractor-gloss-label">{t.feedbackOtherOptions}：</p>

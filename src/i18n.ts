@@ -1,8 +1,11 @@
-import type { PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
+import type { LocaleCode, PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
 import type { QuestionType } from "./domain/analytics/questionType";
 import type { ModeCopyKey } from "./domain/practiceMode";
 
-export type Language = "zh-Hant" | "ja" | "en" | "th" | "id" | "ko" | "vi" | "my";
+// Single source of truth for the locale code union lives in the domain layer
+// (src/domain/types.ts) so content overlays can reference it too; `Language`
+// is the same set, kept as the UI-facing name.
+export type Language = LocaleCode;
 
 export type Copy = {
   languageName: string;
@@ -27,6 +30,9 @@ export type Copy = {
   homeHeroTitle: string;
   homeHeroIntro: string;
   homeGuideLink: string;
+  homeHeroKicker: string;
+  homeHowText: string;
+  homeHowDismiss: string;
   homeFooterWish: string;
   feedbackWish: string;
   feedbackBug: string;
@@ -96,6 +102,7 @@ export type Copy = {
   homeCardReviewSubActive: (count: number) => string;
   homeCardReviewSubEmpty: string;
   homeCardReviewMeta: string;
+  homeGridLabel: string;
   mockExam: string;
   about: string;
   aboutTitle: string;
@@ -107,8 +114,10 @@ export type Copy = {
   aboutAuthorTitle: string;
   aboutAuthorName: string;
   aboutAuthorBody: string;
-  aboutAuthorIdols: string;
   aboutAuthorLink: string;
+  aboutAuthor2Title: string;
+  aboutAuthor2Name: string;
+  aboutAuthor2Body: string;
   mockExamLevelLabel: string;
   mockSectionTitle: string;
   mockSectionIntro: string;

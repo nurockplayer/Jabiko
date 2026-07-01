@@ -12,7 +12,7 @@
   max-width: 1220px;
 }
 
-.app-heading h1,
+.app-heading .app-title,
 .app-heading p,
 .brand-lockup p,
 .brand-lockup h2,
@@ -34,7 +34,7 @@
   width: 3rem;
 }
 
-.app-heading h1 {
+.app-heading .app-title {
   color: var(--ink);
   font-family: var(--font-title);
   font-size: 2rem;
@@ -122,6 +122,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Globe affordance for the language switcher: hidden on desktop (the flag +
+   native name already read as a language menu), shown on mobile in place of
+   the flag so the icon-only control still reads as "change language" rather
+   than a decorative national flag (#326 discoverability). */
+.lang-switch-globe {
+  display: none;
+  color: var(--teal-dark);
 }
 
 /* "New version available" toast (#327): a fixed pill at the bottom centre,

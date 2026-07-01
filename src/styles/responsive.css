@@ -93,7 +93,7 @@
     padding: 0.75rem;
   }
 
-  .app-heading h1 {
+  .app-heading .app-title {
     font-size: 1.65rem;
   }
 
@@ -125,6 +125,20 @@
     justify-content: center;
   }
 
+  /* Signed-out sign-in is optional (the app needs no account), so on the
+     first mobile screen it hugs its content on the right instead of a
+     full-width login-wall button that competes with the primary action. */
+  .heading-auth-guest {
+    align-items: flex-end;
+  }
+
+  .heading-auth-guest .auth-button {
+    align-self: flex-end;
+    width: auto;
+    font-size: 0.82rem;
+    padding-block: 0.4rem;
+  }
+
   /* Language / furigana / theme controls collapse to a compact icon-only row
      on small screens instead of stacking full-width and dominating the first
      screen (#358). aria-label on each button keeps the accessible name; the
@@ -137,14 +151,28 @@
   }
 
   .utility-actions .theme-toggle {
+    /* Icon-only on mobile, so pin the hit area to a full 44px WCAG 2.5.5
+       target (the global button min-height already gives 44px tall; this
+       closes the width axis, 38px -> 44px). box-sizing:border-box keeps the
+       0.62rem padding inside the 44px, so the icon just centers -- no visual
+       bloat, desktop (labelled, wider) never hits this breakpoint. */
     gap: 0;
+    min-width: 44px;
     padding-inline: 0.62rem;
   }
 
   .utility-actions .toggle-text,
   .utility-actions .lang-switch-name,
-  .utility-actions .lang-switch-caret {
+  .utility-actions .lang-switch-caret,
+  .utility-actions .lang-switch-flag {
     display: none;
+  }
+
+  /* Swap the flag for a globe on mobile so the icon-only language control
+     reads as "change language" (not a decorative flag) -- first-time
+     visitors default to Japanese and need an obvious way out. */
+  .utility-actions .lang-switch-globe {
+    display: inline-flex;
   }
 
   .controls-panel,

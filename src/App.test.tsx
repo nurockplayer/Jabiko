@@ -76,6 +76,52 @@ describe("App", () => {
     expect(screen.queryByRole("heading", { name: "一章一章解鎖" })).not.toBeInTheDocument();
   });
 
+  it("marks the active nav tab with aria-current=page and moves it on navigation", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const nav = screen.getByRole("navigation", { name: "學習流程" });
+    // Default view is home -> 首頁 is the current page, and the only one.
+    expect(screen.getByRole("button", { name: "首頁" })).toHaveAttribute("aria-current", "page");
+    expect(
+      within(nav)
+        .getAllByRole("button")
+        .filter((button) => button.getAttribute("aria-current") === "page")
+    ).toHaveLength(1);
+
+    // Navigating moves aria-current to the new tab and clears the old one.
+    await user.click(screen.getByRole("button", { name: "規則表" }));
+    expect(screen.getByRole("button", { name: "規則表" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("button", { name: "首頁" })).not.toHaveAttribute("aria-current");
+  });
+
+  it("home has a single h1 (the persistent app title); the hero is demoted to h2", () => {
+    render(<App />);
+
+    const h1s = screen.getAllByRole("heading", { level: 1 });
+    expect(h1s).toHaveLength(1);
+    expect(h1s[0]).toHaveTextContent("Jabiko");
+    // The hero heading stays visible but is now a level-2 heading.
+    expect(screen.getByRole("heading", { name: "今天想練什麼？", level: 2 })).toBeInTheDocument();
+  });
+
+  it("grammar route: the single h1 is the grammar surface, and the app title yields to h2", async () => {
+    const { allGrammarSurfaces } = await import("./domain/grammarPoints");
+    const surface = allGrammarSurfaces()[0];
+    window.history.replaceState({}, "", `/grammar/${encodeURIComponent(surface)}`);
+    render(<App />);
+
+    await screen.findByRole("heading", { name: surface, level: 1 });
+    // Exactly one h1 on the SEO landing page, and it's the page-specific surface.
+    const h1s = screen.getAllByRole("heading", { level: 1 });
+    expect(h1s).toHaveLength(1);
+    expect(h1s[0]).toHaveTextContent(surface);
+    // The persistent app title is still present, but demoted to h2 on this route.
+    expect(screen.getByRole("heading", { name: /Jabiko/, level: 2 })).toBeInTheDocument();
+
+    window.history.replaceState({}, "", "/");
+  });
+
   it("opens the rules reference page after clicking the 規則表 tab", async () => {
     const user = userEvent.setup();
     render(<App />);

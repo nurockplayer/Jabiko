@@ -13,7 +13,7 @@ export function RulesPanel({ language }: { language: Language }) {
       <header className="rules-header">
         <BrushSpot className="panel-header-spot" />
         <p className="eyebrow">{t.rulesEyebrow}</p>
-        <h1>{t.rulesPanelTitle}</h1>
+        <h2>{t.rulesPanelTitle}</h2>
         <p>{t.rulesPanelIntro}</p>
       </header>
       {CONJUGATION_TABLES.map((table) => (

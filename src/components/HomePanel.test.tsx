@@ -102,6 +102,58 @@ describe("HomePanel donate link", () => {
   });
 });
 
+describe("HomePanel newcomer first-screen (onboarding)", () => {
+  it("hides the 繼續學 continue banner for a brand-new visitor (no attempts)", () => {
+    renderHome();
+    expect(screen.queryByText("上次還沒完成的章節。")).not.toBeInTheDocument();
+  });
+
+  it("still shows the continue banner for a returning learner with an incomplete chapter", () => {
+    renderHome({ progressAttempts: [sampleAttempt], reviewCount: 0 });
+    expect(screen.getByText("上次還沒完成的章節。")).toBeInTheDocument();
+  });
+
+  it("shows a first-time 'how it works' strip only for brand-new visitors", () => {
+    renderHome();
+    expect(screen.getByText(/第一次來/)).toBeInTheDocument();
+  });
+
+  it("hides the 'how it works' strip for returning learners", () => {
+    renderHome({ progressAttempts: [sampleAttempt] });
+    expect(screen.queryByText(/第一次來/)).not.toBeInTheDocument();
+  });
+
+  it("lets a newcomer dismiss the 'how it works' strip", () => {
+    renderHome();
+    fireEvent.click(screen.getByRole("button", { name: /知道了/ }));
+    expect(screen.queryByText(/第一次來/)).not.toBeInTheDocument();
+  });
+
+  it("renders the free / no-signup kicker above the hero", () => {
+    renderHome();
+    expect(screen.getByText(/免註冊/)).toBeInTheDocument();
+  });
+
+  it("places the primary 開始今日練習 CTA before the hero heading in DOM order", () => {
+    renderHome();
+    const cta = screen.getByRole("button", { name: /開始今日練習/ });
+    const heroHeading = screen.getByText("今天想練什麼？");
+    expect(cta.compareDocumentPosition(heroHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+});
+
+describe("HomePanel grid label", () => {
+  it("labels the entry-card grid with a section heading", () => {
+    renderHome();
+    expect(screen.getByRole("heading", { name: "自己挑一區練習" })).toBeInTheDocument();
+  });
+
+  it("shows the grid label for returning learners too", () => {
+    renderHome({ progressAttempts: [sampleAttempt] });
+    expect(screen.getByRole("heading", { name: "自己挑一區練習" })).toBeInTheDocument();
+  });
+});
+
 describe("HomePanel content total", () => {
   it("renders the grand total of exam + vocab + kanji-readings + patterns", () => {
     renderHome();

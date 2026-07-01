@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { ChevronDown, Languages, Moon, Sun } from "lucide-react";
+import { ChevronDown, Globe, Languages, Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import { countDueReviews } from "./domain/srs";
@@ -247,13 +247,22 @@ export default function App() {
           <JabikoMark className="app-brand-mark" />
           <div>
             <p className="eyebrow">Your JLPT self-study room.</p>
-            <h1>{t.appTitle}</h1>
+            {/* The persistent brand title is the site's single h1 -- except on
+                the /grammar/<surface> SEO landing route, where the grammar
+                surface is the page-specific h1, so the brand title yields to h2
+                to keep exactly one h1 per view. Styling rides the .app-title
+                class, not the tag, so the level change is purely semantic. */}
+            {appView === "grammar" ? (
+              <h2 className="app-title">{t.appTitle}</h2>
+            ) : (
+              <h1 className="app-title">{t.appTitle}</h1>
+            )}
           </div>
         </div>
         <div className="heading-actions">
           <p>{t.appTagline}</p>
           {isSupabaseConfigured && (
-            <div className="heading-auth">
+            <div className={`heading-auth${user ? "" : " heading-auth-guest"}`}>
               {user ? (
                 <div className="heading-auth-row">
                   <span className="heading-user">{t.authSignedInAs(user.user_metadata.full_name ?? user.email ?? "")}</span>
@@ -292,6 +301,7 @@ export default function App() {
                 aria-haspopup="dialog"
                 onClick={() => setLangPickerOpen(true)}
               >
+                <Globe aria-hidden="true" className="lang-switch-globe" />
                 <LanguageFlag language={language} className="lang-switch-flag" />
                 <span className="lang-switch-name">{copy[language].languageName}</span>
                 <ChevronDown aria-hidden="true" className="lang-switch-caret" />
@@ -319,6 +329,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "home" ? "selected" : ""}
+          aria-current={appView === "home" ? "page" : undefined}
           onClick={() => setAppView("home")}
         >
           {t.home}
@@ -326,6 +337,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "learn" ? "selected" : ""}
+          aria-current={appView === "learn" ? "page" : undefined}
           onClick={() => setAppView("learn")}
         >
           {t.learn}
@@ -333,6 +345,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "rules" ? "selected" : ""}
+          aria-current={appView === "rules" ? "page" : undefined}
           onClick={() => setAppView("rules")}
         >
           {t.rules}
@@ -340,6 +353,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "kanji" ? "selected" : ""}
+          aria-current={appView === "kanji" ? "page" : undefined}
           onClick={() => setAppView("kanji")}
         >
           {t.kanji}
@@ -347,6 +361,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "challenge" ? "selected" : ""}
+          aria-current={appView === "challenge" ? "page" : undefined}
           onClick={() => openChallenge({ mode: "daily" })}
         >
           {t.challenge}
@@ -354,6 +369,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "mock" ? "selected" : ""}
+          aria-current={appView === "mock" ? "page" : undefined}
           onClick={() => setAppView("mock")}
         >
           {t.mockExam}
@@ -361,6 +377,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "about" ? "selected" : ""}
+          aria-current={appView === "about" ? "page" : undefined}
           onClick={() => setAppView("about")}
         >
           {t.about}

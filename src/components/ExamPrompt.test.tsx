@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { ExamPrompt } from "./ExamPrompt";
+import type { PracticeQuestion } from "../domain/types";
 import { FuriganaContext } from "./furiganaContext";
 import { examStyleQuestions } from "../domain/examBlocks";
 import { buildClozeQuestionPool } from "../domain/cloze";
@@ -146,5 +147,94 @@ describe("ExamPrompt furigana (#134)", () => {
     const { container } = renderOn(grammarReading);
     const readings = Array.from(container.querySelectorAll(".exam-prompt rt")).map((n) => n.textContent);
     expect(readings).toContain("がっこう");
+  });
+});
+
+describe("ExamPrompt content localization (#400)", () => {
+  // A cloze-style item whose vocab row IS shown (surface not in answers, no
+  // exam_style / sentence_pattern tag) so the instruction / hint / meaning all
+  // render, letting us assert the per-locale overlays with a Chinese fallback.
+  const makeQuestion = (overrides: Partial<PracticeQuestion> = {}): PracticeQuestion => ({
+    id: "loc-1",
+    vocabulary: {
+      id: "loc-1",
+      surface: "待つ",
+      reading: "まつ",
+      meaningZh: "等待",
+      meaningI18n: { en: "to wait" },
+      partOfSpeech: "verb",
+      group: null,
+      lesson: null,
+      tags: [],
+      examples: []
+    },
+    targetForm: "reading",
+    expectedAnswers: ["待って"],
+    explanation: "解說",
+    promptLabel: "句中填空",
+    promptText: "ちょっと ___ ください。",
+    promptContextZh: "情境中文",
+    promptContextI18n: { en: "English context" },
+    hintZh: "提示中文",
+    hintI18n: { en: "English hint" },
+    instructionZh: "說明中文",
+    instructionI18n: { en: "English instruction" },
+    options: ["待って", "待つ", "待ち", "待った"],
+    ...overrides
+  });
+
+  it("renders the instruction in the target locale when an overlay exists", () => {
+    render(<ExamPrompt question={makeQuestion()} language="en" />);
+    expect(screen.getByText("English instruction")).toBeInTheDocument();
+    expect(screen.queryByText("說明中文")).not.toBeInTheDocument();
+  });
+
+  it("falls back to the Chinese instruction when the locale has no overlay", () => {
+    render(<ExamPrompt question={makeQuestion({ instructionI18n: { ja: "x" } })} language="en" />);
+    expect(screen.getByText("說明中文")).toBeInTheDocument();
+  });
+
+  it("localizes the pre-answer hint once revealed", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<ExamPrompt question={makeQuestion()} language="en" />);
+    await user.click(container.querySelector(".hint-toggle") as HTMLElement);
+    expect(screen.getByText("English hint")).toBeInTheDocument();
+    expect(screen.queryByText("提示中文")).not.toBeInTheDocument();
+  });
+
+  it("localizes the vocab-row meaning, falling back to Chinese when the overlay is absent", () => {
+    // The vocab row is a single <p> "surface・reading・meaning", so assert on
+    // its combined text content rather than an exact-text element match.
+    const { container, unmount } = render(<ExamPrompt question={makeQuestion()} language="en" />);
+    const row = container.querySelector("p.reading");
+    expect(row?.textContent).toContain("to wait");
+    expect(row?.textContent).not.toContain("等待");
+    unmount();
+
+    const noOverlay = makeQuestion();
+    noOverlay.vocabulary = { ...noOverlay.vocabulary, meaningI18n: undefined };
+    const { container: c2 } = render(<ExamPrompt question={noOverlay} language="en" />);
+    expect(c2.querySelector("p.reading")?.textContent).toContain("等待");
+  });
+
+  it("falls back to the localized promptContextZh hint when there is no hintZh", async () => {
+    const user = userEvent.setup();
+    const q = makeQuestion({ hintZh: undefined, hintI18n: undefined });
+    const { container } = render(<ExamPrompt question={q} language="en" />);
+    await user.click(container.querySelector(".hint-toggle") as HTMLElement);
+    expect(screen.getByText("English context")).toBeInTheDocument();
+    expect(screen.queryByText("情境中文")).not.toBeInTheDocument();
+  });
+
+  it("an empty-string hintZh suppresses the hint instead of leaking promptContextZh", () => {
+    // Regression guard (Codex must-fix): a nullish -- not truthy -- check means
+    // an authored empty hint is "no hint", NOT a fall-through to the
+    // answer-leaky promptContextZh.
+    const { container } = render(
+      <ExamPrompt question={makeQuestion({ hintZh: "", hintI18n: undefined })} language="en" />
+    );
+    expect(container.querySelector(".hint-toggle")).toBeNull();
+    expect(screen.queryByText("English context")).not.toBeInTheDocument();
+    expect(screen.queryByText("情境中文")).not.toBeInTheDocument();
   });
 });

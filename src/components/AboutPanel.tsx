@@ -15,7 +15,7 @@ export function AboutPanel({ language }: { language: Language }) {
       <header className="about-hero">
         <JabikoMark className="about-hero-mark" />
         <p className="eyebrow">{t.about}</p>
-        <h1>{t.aboutTitle}</h1>
+        <h2>{t.aboutTitle}</h2>
         <p className="about-tagline">{t.aboutTagline}</p>
       </header>
 
@@ -33,10 +33,15 @@ export function AboutPanel({ language }: { language: Language }) {
         <h2>{t.aboutAuthorTitle}</h2>
         <p className="about-author-name">{t.aboutAuthorName}</p>
         <p>{t.aboutAuthorBody}</p>
-        <p className="about-author-idols">{t.aboutAuthorIdols}</p>
         <a className="about-link" href={ABOUT_URL} target="_blank" rel="noopener noreferrer">
           {t.aboutAuthorLink}
         </a>
+      </article>
+
+      <article className="about-section about-author">
+        <h2>{t.aboutAuthor2Title}</h2>
+        <p className="about-author-name">{t.aboutAuthor2Name}</p>
+        <p>{t.aboutAuthor2Body}</p>
       </article>
     </section>
   );

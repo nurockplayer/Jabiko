@@ -1,4 +1,4 @@
-import type { JlptLevel, TargetForm } from "../types";
+import type { JlptLevel, LocalizedText, TargetForm } from "../types";
 
 export type ExamQuestionInput = {
   id: string;
@@ -6,11 +6,17 @@ export type ExamQuestionInput = {
   surface: string;
   reading: string;
   meaningZh: string;
+  /** Per-locale `meaningZh` overlay (#400); AI translation writes only this. */
+  meaningI18n?: LocalizedText;
   targetForm?: TargetForm;
   promptLabel: string;
   instructionZh: string;
+  /** Per-locale `instructionZh` overlay (#400). */
+  instructionI18n?: LocalizedText;
   promptText: string;
   promptContextZh: string;
+  /** Per-locale `promptContextZh` overlay (#400). */
+  promptContextI18n?: LocalizedText;
   /**
    * Pre-answer neutral situation hint. Optional during the staged
    * audit -- items without it fall back to promptContextZh (which
@@ -18,9 +24,16 @@ export type ExamQuestionInput = {
    * should never go back to nullable hintZh.
    */
   hintZh?: string;
+  /** Per-locale `hintZh` overlay (#400). */
+  hintI18n?: LocalizedText;
   expectedAnswer: string;
   options: string[];
   explanation: string;
+  /**
+   * Per-locale translations of `explanation` (#378). AI-assisted translation
+   * writes only this overlay; absent locales fall back to the Chinese source.
+   */
+  explanationI18n?: LocalizedText;
   /**
    * Override the auto-generated example sentence. Needed for question types
    * (e.g. 用法 / 言い換え類義) where the prompt is an instruction or the

@@ -307,7 +307,7 @@
   text-transform: uppercase;
 }
 
-.home-hero-text h1 {
+.home-hero-text h2 {
   margin: 0;
   font-size: clamp(1.6rem, 3vw, 2.1rem);
   color: var(--ink);
@@ -357,6 +357,59 @@
   .home-hero-image {
     max-height: 200px;
   }
+}
+
+/* Free / no-signup reassurance kicker above the hero title (mobile
+   onboarding) -- states the pitch in visible copy, not just the auth hint. */
+.home-hero-kicker {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--teal-dark);
+}
+
+/* First-run "how it works" strip: one orientation line + a quiet dismiss.
+   Teal-tinted like the guide pill so it reads as a gentle hint, not a CTA. */
+.home-howto {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: space-between;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--teal) 40%, var(--panel-border));
+  background: color-mix(in srgb, var(--teal) 12%, var(--paper));
+}
+
+.home-howto-text {
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.home-howto-dismiss {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.6rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+  border-radius: var(--radius-pill);
+}
+
+.home-howto-dismiss:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.home-howto-dismiss svg {
+  width: 0.95rem;
+  height: 0.95rem;
 }
 
 .home-banner {
