@@ -12,7 +12,7 @@
   max-width: 1220px;
 }
 
-.app-heading h1,
+.app-heading .app-title,
 .app-heading p,
 .brand-lockup p,
 .brand-lockup h2,
@@ -34,7 +34,7 @@
   width: 3rem;
 }
 
-.app-heading h1 {
+.app-heading .app-title {
   color: var(--ink);
   font-family: var(--font-title);
   font-size: 2rem;

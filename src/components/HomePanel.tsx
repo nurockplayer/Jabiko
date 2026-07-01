@@ -233,7 +233,7 @@ export function HomePanel({
         />
         <div className="home-hero-text">
           <p className="home-hero-kicker">{t.homeHeroKicker}</p>
-          <h1>{t.homeHeroTitle}</h1>
+          <h2>{t.homeHeroTitle}</h2>
           <p>{t.homeHeroIntro}</p>
           <a
             className="home-hero-guide"

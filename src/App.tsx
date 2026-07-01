@@ -247,7 +247,16 @@ export default function App() {
           <JabikoMark className="app-brand-mark" />
           <div>
             <p className="eyebrow">Your JLPT self-study room.</p>
-            <h1>{t.appTitle}</h1>
+            {/* The persistent brand title is the site's single h1 -- except on
+                the /grammar/<surface> SEO landing route, where the grammar
+                surface is the page-specific h1, so the brand title yields to h2
+                to keep exactly one h1 per view. Styling rides the .app-title
+                class, not the tag, so the level change is purely semantic. */}
+            {appView === "grammar" ? (
+              <h2 className="app-title">{t.appTitle}</h2>
+            ) : (
+              <h1 className="app-title">{t.appTitle}</h1>
+            )}
           </div>
         </div>
         <div className="heading-actions">

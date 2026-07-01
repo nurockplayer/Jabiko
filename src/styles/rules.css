@@ -134,7 +134,7 @@
   font-size: 0.78rem;
 }
 
-.rules-header h1 {
+.rules-header h2 {
   margin: 0;
   font-family: var(--font-japanese-display);
   font-size: clamp(1.7rem, 3vw, 2.2rem);

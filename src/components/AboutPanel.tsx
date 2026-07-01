@@ -15,7 +15,7 @@ export function AboutPanel({ language }: { language: Language }) {
       <header className="about-hero">
         <JabikoMark className="about-hero-mark" />
         <p className="eyebrow">{t.about}</p>
-        <h1>{t.aboutTitle}</h1>
+        <h2>{t.aboutTitle}</h2>
         <p className="about-tagline">{t.aboutTagline}</p>
       </header>
 
