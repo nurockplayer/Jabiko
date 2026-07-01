@@ -30,6 +30,9 @@ export type Copy = {
   homeHeroTitle: string;
   homeHeroIntro: string;
   homeGuideLink: string;
+  homeHeroKicker: string;
+  homeHowText: string;
+  homeHowDismiss: string;
   homeFooterWish: string;
   feedbackWish: string;
   feedbackBug: string;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, ArrowRight, BookOpen, Bug, CalendarCheck, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowRight, BookOpen, Bug, CalendarCheck, Sparkles, X } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
 import type { LevelRange } from "../domain/levelRange";
@@ -62,6 +62,19 @@ const TREND_DAYS = 14;
 // Cap the weakness breakdown to the few weakest types -- a "weakness" callout
 // is the soft spots, not an exhaustive list of every type practised.
 const TYPE_WEAKNESS_ROWS = 5;
+
+// Dismissible "how it works" strip (mobile onboarding): a one-time,
+// newcomer-only orientation line. The dismiss is remembered locally so it
+// doesn't nag on the next visit.
+const HOW_IT_WORKS_DISMISS_KEY = "jabiko:howItWorksDismissed";
+
+function readHowItWorksDismissed(): boolean {
+  try {
+    return localStorage.getItem(HOW_IT_WORKS_DISMISS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 // First view the learner lands on. Three layers:
 //   1. Context-aware banner ("review N items" if any, else "continue
@@ -139,8 +152,39 @@ export function HomePanel({
   // footer buttons; the form submits anonymously to Supabase.
   const [feedbackKind, setFeedbackKind] = useState<FeedbackCategory | null>(null);
 
+  // Dismissible newcomer "how it works" strip -- shown only to brand-new
+  // visitors (same gate as the level card) and remembered once dismissed.
+  const [howItWorksDismissed, setHowItWorksDismissed] = useState(readHowItWorksDismissed);
+  const dismissHowItWorks = () => {
+    setHowItWorksDismissed(true);
+    try {
+      localStorage.setItem(HOW_IT_WORKS_DISMISS_KEY, "1");
+    } catch {
+      /* ignore: private mode / storage disabled */
+    }
+  };
+  const showHowItWorks = showLevelOnboarding && !howItWorksDismissed;
+
   return (
     <section className="home-panel" aria-label={t.home}>
+      {/* First-time orientation: a single "how it works" line shown only to
+          brand-new visitors (in-app, so they don't have to leave for the
+          blog). Dismissible and remembered. */}
+      {showHowItWorks ? (
+        <div className="home-howto" role="note">
+          <span className="home-howto-text">{t.homeHowText}</span>
+          <button
+            type="button"
+            className="home-howto-dismiss"
+            onClick={dismissHowItWorks}
+            aria-label={t.homeHowDismiss}
+          >
+            <X aria-hidden="true" />
+            <span>{t.homeHowDismiss}</span>
+          </button>
+        </div>
+      ) : null}
+
       {showLevelOnboarding ? (
         <div className="home-level-card" role="group" aria-label={t.levelOnboarding.title}>
           <div className="home-level-card-copy">
@@ -163,6 +207,19 @@ export function HomePanel({
         </div>
       ) : null}
 
+      {/* Primary daily entry: the one-tap "今日練習" that builds a
+          due-reviews-first + mixed-section session. Hoisted above the hero
+          art so the one honest primary action is the first thing a visitor
+          reaches on the first screen (mobile onboarding). */}
+      <button type="button" className="home-banner home-banner-daily" onClick={onStartDaily}>
+        <CalendarCheck aria-hidden="true" />
+        <span className="home-banner-text">
+          <strong>{t.homeDailyMain}</strong>
+          <small>{t.homeDailySub}</small>
+        </span>
+        <ArrowRight aria-hidden="true" />
+      </button>
+
       <header className="home-hero">
         {/* Decorative hero -- the heading below carries the actual
             message, so alt is intentionally empty (avoids the screen
@@ -175,6 +232,7 @@ export function HomePanel({
           height={900}
         />
         <div className="home-hero-text">
+          <p className="home-hero-kicker">{t.homeHeroKicker}</p>
           <h1>{t.homeHeroTitle}</h1>
           <p>{t.homeHeroIntro}</p>
           <a
@@ -188,18 +246,6 @@ export function HomePanel({
           </a>
         </div>
       </header>
-
-      {/* Primary daily entry: the one-tap "今日練習" that builds a
-          due-reviews-first + mixed-section session. Top of the page so
-          it's the default action a returning learner reaches for. */}
-      <button type="button" className="home-banner home-banner-daily" onClick={onStartDaily}>
-        <CalendarCheck aria-hidden="true" />
-        <span className="home-banner-text">
-          <strong>{t.homeDailyMain}</strong>
-          <small>{t.homeDailySub}</small>
-        </span>
-        <ArrowRight aria-hidden="true" />
-      </button>
 
       {/* Content-volume strip: tells first-time visitors what they're
           walking into without resorting to SaaS-style metric tiles.
@@ -225,7 +271,7 @@ export function HomePanel({
           </span>
           <ArrowRight aria-hidden="true" />
         </button>
-      ) : nextIncompleteChapter ? (
+      ) : totalAttempts > 0 && nextIncompleteChapter ? (
         <button
           type="button"
           className="home-banner home-banner-continue"
