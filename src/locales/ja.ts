@@ -332,7 +332,7 @@ export const ja: Copy = {
   authSignIn: "Google でログイン",
   authSignOut: "ログアウト",
   authSignedInAs: (name) => `${name}`,
-  authSignInHint: "ログインすると間違いや学習の進捗を端末間で同期できます。ログインなしでも使え、記録は端末内にのみ保存されます。",
+  authSignInHint: "ログインなしでも使えて、記録はこの端末に保存されます。複数の端末で同期したいときだけログインしてください。",
   authSyncingHint: "同期中…",
   authSyncedHint: "間違いと学習の進捗を端末間で同期しました。",
   authSyncErrorHint: "同期に失敗しましたが、端末内の記録は残っています。次回ログイン時に再試行します。",

@@ -324,7 +324,7 @@ export const en: Copy = {
   authSignIn: "Sign in with Google",
   authSignOut: "Sign out",
   authSignedInAs: (name) => `${name}`,
-  authSignInHint: "Sign in to sync mistakes and progress across devices; you can use it without signing in too, but records stay on this device only.",
+  authSignInHint: "No sign-in needed — your progress is saved on this device; sign in only if you want to sync across devices.",
   authSyncingHint: "Syncing…",
   authSyncedHint: "Mistakes and progress are synced across devices.",
   authSyncErrorHint: "Sync failed — your local records are safe; it'll try again next sign-in.",

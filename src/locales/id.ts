@@ -324,7 +324,7 @@ export const id: Copy = {
   authSignIn: "Masuk dengan Google",
   authSignOut: "Keluar",
   authSignedInAs: (name) => `${name}`,
-  authSignInHint: "Setelah masuk, soal salah dan progres belajar tersinkron lintas perangkat; tanpa masuk pun bisa dipakai, tapi catatan hanya tersimpan di perangkat ini.",
+  authSignInHint: "Bisa dipakai tanpa masuk — progres tersimpan di perangkat ini; masuk hanya jika ingin sinkron antarperangkat.",
   authSyncingHint: "Menyinkronkan…",
   authSyncedHint: "Soal salah dan progres belajar sudah tersinkron lintas perangkat.",
   authSyncErrorHint: "Sinkronisasi gagal, catatan di perangkat tetap aman; akan dicoba lagi saat masuk berikutnya.",
