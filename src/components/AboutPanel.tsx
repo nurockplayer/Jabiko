@@ -33,7 +33,6 @@ export function AboutPanel({ language }: { language: Language }) {
         <h2>{t.aboutAuthorTitle}</h2>
         <p className="about-author-name">{t.aboutAuthorName}</p>
         <p>{t.aboutAuthorBody}</p>
-        <p className="about-author-idols">{t.aboutAuthorIdols}</p>
         <a className="about-link" href={ABOUT_URL} target="_blank" rel="noopener noreferrer">
           {t.aboutAuthorLink}
         </a>
