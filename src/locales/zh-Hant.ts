@@ -126,6 +126,7 @@ export const zhHant: Copy = {
   homeCardReviewSubActive: (count) => `${count} 題等你重練到對。`,
   homeCardReviewSubEmpty: "目前沒有錯題可複習。",
   homeCardReviewMeta: "間隔重複 · 答對自動延到下次到期",
+  homeGridLabel: "自己挑一區練習",
   mockExamLevelLabel: "等級",
   mockSectionTitle: "題型分區練習",
   mockSectionIntro: "選一個 JLPT 題型，直接練那一區。每題作答後即時看解析；錯題會自動進弱點複習。",

@@ -126,6 +126,7 @@ export const vi: Copy = {
   homeCardReviewSubActive: (count) => `${count} câu đang chờ bạn làm cho đúng.`,
   homeCardReviewSubEmpty: "Hiện không có câu sai nào để ôn.",
   homeCardReviewMeta: "Lặp lại giãn cách · câu trả lời đúng được dời tới ngày đến hạn kế tiếp",
+  homeGridLabel: "Chọn phần để luyện tập",
   mockExamLevelLabel: "Cấp độ",
   mockSectionTitle: "Luyện theo từng phần",
   mockSectionIntro: "Chọn một dạng câu JLPT và chỉ luyện riêng phần đó. Xem giải thích ngay sau mỗi câu trả lời; câu sai đi thẳng vào phần ôn điểm yếu.",

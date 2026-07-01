@@ -126,6 +126,7 @@ export const ko: Copy = {
   homeCardReviewSubActive: (count) => `${count}문제가 당신이 맞히길 기다리고 있어요.`,
   homeCardReviewSubEmpty: "지금 복습할 오답이 없어요.",
   homeCardReviewMeta: "간격 반복 · 정답은 다음 복습 기한으로 넘어가요",
+  homeGridLabel: "연습할 영역 선택",
   mockExamLevelLabel: "레벨",
   mockSectionTitle: "섹션별 연습",
   mockSectionIntro: "JLPT 문제 유형을 골라 그 섹션만 집중 연습하세요. 답을 고른 직후 바로 해설을 볼 수 있고, 오답은 곧장 약점 복습으로 들어갑니다.",

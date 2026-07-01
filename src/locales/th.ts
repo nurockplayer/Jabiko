@@ -127,6 +127,7 @@ export const th: Copy = {
   homeCardReviewSubActive: (count) => `${count} ข้อรอคุณฝึกซ้ำจนตอบถูก`,
   homeCardReviewSubEmpty: "ตอนนี้ยังไม่มีข้อผิดให้ทบทวน",
   homeCardReviewMeta: "ทบทวนแบบเว้นช่วง · ตอบถูกจะเลื่อนไปครั้งถัดไปอัตโนมัติ",
+  homeGridLabel: "เลือกหมวดที่อยากฝึก",
   mockExamLevelLabel: "ระดับ",
   mockSectionTitle: "ฝึกแบ่งโซนตามประเภทโจทย์",
   mockSectionIntro: "เลือกประเภทโจทย์ JLPT หนึ่งแบบ แล้วฝึกโซนนั้นได้เลย ตอบแต่ละข้อเสร็จดูเฉลยทันที ข้อที่ผิดจะเข้าทบทวนจุดอ่อนอัตโนมัติ",
