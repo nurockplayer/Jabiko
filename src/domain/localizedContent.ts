@@ -14,3 +14,19 @@ export function pickLocalized(
   const value = overlay?.[lang];
   return typeof value === "string" && value.trim() !== "" ? value : source;
 }
+
+/**
+ * Same as {@link pickLocalized} but for OPTIONAL source fields (e.g. hintZh,
+ * instructionZh, promptContextZh). Returns `undefined` only when the source is
+ * genuinely absent (null/undefined) -- an empty string is a real value and is
+ * kept, so a nullish (not truthy) fallback chain like
+ * `hint ?? context` preserves its original semantics: an authored empty hint
+ * suppresses rather than falling through to the (answer-leaky) context.
+ */
+export function pickLocalizedOptional(
+  source: string | undefined,
+  overlay: LocalizedText | undefined,
+  lang: LocaleCode
+): string | undefined {
+  return source == null ? undefined : pickLocalized(source, overlay, lang);
+}
