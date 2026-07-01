@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { GraduationCap } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { PracticeQuestion } from "../domain/types";
+import { pickLocalized } from "../domain/localizedContent";
 import { shuffleOrderFragments } from "../domain/wordOrder";
 import { isReadingPrompt } from "../domain/furigana";
 import { Ruby } from "./Ruby";
@@ -45,7 +46,23 @@ export function ExamPrompt({ question, language }: { question: PracticeQuestion;
   // to the full translation for items that haven't been audited yet
   // (legacy exam items). The full translation still appears in the
   // FeedbackPanel post-answer via vocabulary.examples[0].meaningZh.
-  const preAnswerHint = question.hintZh ?? question.promptContextZh;
+  // Each Chinese field is read through its per-locale overlay (#400) so a
+  // non-Chinese learner sees the target language, falling back to zh source.
+  const localizedHint = question.hintZh
+    ? pickLocalized(question.hintZh, question.hintI18n, language)
+    : undefined;
+  const localizedContext = question.promptContextZh
+    ? pickLocalized(question.promptContextZh, question.promptContextI18n, language)
+    : undefined;
+  const preAnswerHint = localizedHint ?? localizedContext;
+  const instruction = question.instructionZh
+    ? pickLocalized(question.instructionZh, question.instructionI18n, language)
+    : question.instructionZh;
+  const meaning = pickLocalized(
+    question.vocabulary.meaningZh,
+    question.vocabulary.meaningI18n,
+    language
+  );
   // 語順組合 prompts list their fragments in answer order (［a / b / c / d］),
   // which spells out the answer. Shuffle them at render time (seeded by id so
   // it's stable and never reshuffles mid-question). Other labels render as-is.
@@ -57,7 +74,7 @@ export function ExamPrompt({ question, language }: { question: PracticeQuestion;
     <>
       <p className="word-kind">
         <GraduationCap aria-hidden="true" />
-        {question.instructionZh}
+        {instruction}
       </p>
       <p className="exam-prompt">
         {promptText ? (
@@ -82,7 +99,7 @@ export function ExamPrompt({ question, language }: { question: PracticeQuestion;
       ) : null}
       {showVocabRow ? (
         <p className="reading">
-          {question.vocabulary.surface}・{question.vocabulary.reading}・{question.vocabulary.meaningZh}
+          {question.vocabulary.surface}・{question.vocabulary.reading}・{meaning}
         </p>
       ) : null}
     </>

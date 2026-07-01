@@ -6,11 +6,17 @@ export type ExamQuestionInput = {
   surface: string;
   reading: string;
   meaningZh: string;
+  /** Per-locale `meaningZh` overlay (#400); AI translation writes only this. */
+  meaningI18n?: LocalizedText;
   targetForm?: TargetForm;
   promptLabel: string;
   instructionZh: string;
+  /** Per-locale `instructionZh` overlay (#400). */
+  instructionI18n?: LocalizedText;
   promptText: string;
   promptContextZh: string;
+  /** Per-locale `promptContextZh` overlay (#400). */
+  promptContextI18n?: LocalizedText;
   /**
    * Pre-answer neutral situation hint. Optional during the staged
    * audit -- items without it fall back to promptContextZh (which
@@ -18,6 +24,8 @@ export type ExamQuestionInput = {
    * should never go back to nullable hintZh.
    */
   hintZh?: string;
+  /** Per-locale `hintZh` overlay (#400). */
+  hintI18n?: LocalizedText;
   expectedAnswer: string;
   options: string[];
   explanation: string;

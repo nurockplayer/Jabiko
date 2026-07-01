@@ -51,6 +51,8 @@ export interface VocabularyItem {
   surface: string;
   reading: string;
   meaningZh: string;
+  /** Per-locale translations of `meaningZh`; falls back to the zh source (#378/#400). */
+  meaningI18n?: LocalizedText;
   partOfSpeech: PartOfSpeech;
   group: VerbGroup | null;
   lesson: number | null;
@@ -82,6 +84,8 @@ export interface PracticeQuestion {
    * which is why pre-answer display switched from this to `hintZh`.
    */
   promptContextZh?: string;
+  /** Per-locale translations of `promptContextZh`; falls back to the zh source (#400). */
+  promptContextI18n?: LocalizedText;
   /**
    * Pre-answer "neutral situation" hint shown above the prompt. Should
    * describe WHO/WHERE/WHAT the context is without naming the answer's
@@ -89,7 +93,11 @@ export interface PracticeQuestion {
    * compatibility shim for items that haven't been audited yet.
    */
   hintZh?: string;
+  /** Per-locale translations of `hintZh`; falls back to the zh source (#400). */
+  hintI18n?: LocalizedText;
   instructionZh?: string;
+  /** Per-locale translations of `instructionZh`; falls back to the zh source (#400). */
+  instructionI18n?: LocalizedText;
   options?: string[];
 }
 
