@@ -726,7 +726,10 @@ function toPracticeQuestion(item: SentencePatternItem): PracticeQuestion {
     examples: [
       {
         japanese: item.promptText.replace("___", item.expectedAnswer),
-        meaningZh: item.promptContextZh
+        meaningZh: item.promptContextZh,
+        // Same source as promptContextZh, so it shares that overlay -- keeps
+        // the post-answer example line in the UI language (#400).
+        meaningI18n: sentencePatternI18n[item.id]?.promptContextI18n
       }
     ],
     level: "N5"

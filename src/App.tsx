@@ -26,7 +26,8 @@ import "./styles.css";
 
 // Lazy routes. The challenge view owns the practice engine, which
 // statically imports the entire question bank (examBlocks alone is
-// ~288 KB); the mock-exam picker reads the exam pool too. Loading them
+// several MB and grows with each content locale, #420); the mock-exam
+// picker reads the exam pool too. Loading them
 // with React.lazy keeps that data out of the initial bundle -- it's
 // fetched only when the learner actually opens those views. They're
 // imported straight from their modules (not the components barrel) on

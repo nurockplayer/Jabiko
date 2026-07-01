@@ -41,4 +41,6 @@ export type ExamQuestionInput = {
    */
   exampleJapanese?: string;
   exampleMeaningZh?: string;
+  /** Per-locale `exampleMeaningZh` overlay (#400). */
+  exampleMeaningI18n?: LocalizedText;
 };

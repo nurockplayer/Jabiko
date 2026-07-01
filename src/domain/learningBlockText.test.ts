@@ -82,6 +82,15 @@ describe("localizeLearningBlock", () => {
     expect(out.pitfalls).toEqual(["pitfall one", "陷阱二"]);
   });
 
+  it("never invents kicker or drillNote the source block lacks", () => {
+    const bare: LearningBlock = { ...baseBlock, kicker: undefined, drillNote: undefined };
+    const out = localizeLearningBlock(bare, "en", {
+      [bare.id]: { en: { kicker: "Invented kicker", drillNote: "Invented note" } }
+    });
+    expect(out.kicker).toBeUndefined();
+    expect(out.drillNote).toBeUndefined();
+  });
+
   it("never touches Japanese/logic fields", () => {
     const out = localizeLearningBlock(
       baseBlock,
