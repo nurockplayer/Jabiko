@@ -151,7 +151,13 @@
   }
 
   .utility-actions .theme-toggle {
+    /* Icon-only on mobile, so pin the hit area to a full 44px WCAG 2.5.5
+       target (the global button min-height already gives 44px tall; this
+       closes the width axis, 38px -> 44px). box-sizing:border-box keeps the
+       0.62rem padding inside the 44px, so the icon just centers -- no visual
+       bloat, desktop (labelled, wider) never hits this breakpoint. */
     gap: 0;
+    min-width: 44px;
     padding-inline: 0.62rem;
   }
 
