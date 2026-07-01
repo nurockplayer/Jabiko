@@ -36,13 +36,36 @@ function urlLanguage(): Language | null {
   return languageFromSearch(window.location.search);
 }
 
-// Priority: URL ?lang= > stored > ja (no navigator detection).
+// Best supported match from the browser's preferred languages (navigator),
+// in the browser's own priority order. Returns null when none of the
+// browser's languages map to one we ship -- callers then fall back to ja.
+function navigatorLanguage(): Language | null {
+  if (typeof navigator === "undefined") return null;
+  const tags =
+    navigator.languages && navigator.languages.length > 0
+      ? navigator.languages
+      : navigator.language
+        ? [navigator.language]
+        : [];
+  for (const tag of tags) {
+    const mapped = languageForTag(tag);
+    if (mapped) return mapped;
+  }
+  return null;
+}
+
+// Priority: URL ?lang= > stored preference > browser language > ja fallback.
+// ja is the deliberate fallback (Japanese-language-school audience) for
+// visitors whose browser language we don't ship.
 export function getInitialLanguage(): Language {
   const fromUrl = urlLanguage();
   if (fromUrl) return fromUrl;
 
   const stored = readStored(LANGUAGE_STORAGE_KEY);
   if (isSupportedLanguage(stored)) return stored;
+
+  const fromNavigator = navigatorLanguage();
+  if (fromNavigator) return fromNavigator;
 
   return "ja";
 }
