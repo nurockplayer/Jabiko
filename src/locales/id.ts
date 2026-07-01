@@ -34,8 +34,6 @@ export const id: Copy = {
   aboutAuthorName: "花雪（HanaYukii）",
   aboutAuthorBody:
     "Berlatar belakang kompetisi pemrograman, sempat tiga tahun jadi insinyur di Google, dan setelah keluar pada 2025 kini menjadi Tech Lead di sebuah startup AI. Bahasa Jepang adalah modal lama yang ditinggalkan setelah lulus N2 sepuluh tahun lalu, sampai mulai mengejar idol Jepang lagi pada 2024 dan kembali menekuninya. Setelah itu ada sedikit waktu luang, lalu mulai serius melatihnya — dan dari sinilah Jabiko lahir: awalnya untuk dipakai sendiri, sekarang juga dibuka untuk orang lain yang sedang belajar, dan akan terus dikembangkan perlahan kalau ada kesempatan.",
-  aboutAuthorIdols:
-    "Idol yang diikuti selama bertahun-tahun ini (beberapa sudah bubar): 私立恵比寿中学・TEAM SHACHI・超ときめき♡宣伝部・高嶺のなでしこ・ももいろクローバーZ・ukka・=LOVE・TrySail・Aqours",
   aboutAuthorLink: "Selengkapnya tentang penulis →",
   homeHeroTitle: "Mau latihan apa hari ini?",
   homeHeroIntro: "Dari konjugasi dasar sampai feeling soal N1. Tata bahasa, kanji, kosakata, dan latihan per jenis soal — semua di satu tempat.",

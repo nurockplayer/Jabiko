@@ -34,8 +34,6 @@ export const vi: Copy = {
   aboutAuthorName: "花雪 (HanaYukii)",
   aboutAuthorBody:
     "Xuất thân từ lập trình thi đấu và ba năm làm kỹ sư tại Google; sau khi rời đi năm 2025, hiện là Tech Lead tại một startup AI. Tiếng Nhật là một vốn liếng cũ — đậu N2 mười năm trước rồi gác lại — cho đến khi quay lại với idol Nhật năm 2024 đã làm nó sống dậy. Sau đó có thêm chút thời gian, việc luyện tập nghiêm túc mới bắt đầu — và đó cũng là lúc Jabiko ra đời: đầu tiên để dùng cho bản thân, giờ mở ra cho cả những người học khác, và sẽ còn làm tiếp mỗi khi có dịp.",
-  aboutAuthorIdols:
-    "Theo dõi những nhóm này suốt nhiều năm qua (một số đã giải tán): 私立恵比寿中学・TEAM SHACHI・超ときめき♡宣伝部・高嶺のなでしこ・ももいろクローバーZ・ukka・=LOVE・TrySail・Aqours",
   aboutAuthorLink: "Tìm hiểu thêm về tác giả →",
   homeHeroTitle: "Hôm nay bạn muốn luyện gì?",
   homeHeroIntro: "Từ chia động từ cơ bản đến phản xạ N1. Ngữ pháp, kanji, từ vựng, luyện theo dạng đề — tất cả ở một nơi.",

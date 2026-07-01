@@ -34,8 +34,6 @@ export const en: Copy = {
   aboutAuthorName: "花雪 (HanaYukii)",
   aboutAuthorBody:
     "A competitive-programming background and three years as an engineer at Google; after leaving in 2025, now a Tech Lead at an AI startup. Japanese was an old asset — N2 passed ten years ago and then shelved — until getting back into Japanese idols in 2024 brought it back. With a bit more time after that, the serious practice began — and that's when Jabiko was built: first for personal use, now open to other learners too, with more to come whenever there's a chance.",
-  aboutAuthorIdols:
-    "Following these over the years (a few have disbanded): 私立恵比寿中学・TEAM SHACHI・超ときめき♡宣伝部・高嶺のなでしこ・ももいろクローバーZ・ukka・=LOVE・TrySail・Aqours",
   aboutAuthorLink: "More about the author →",
   homeHeroTitle: "What do you want to practice today?",
   homeHeroIntro: "From basic conjugation to N1 instinct. Grammar, kanji, vocabulary, question-type practice — all in one place.",
