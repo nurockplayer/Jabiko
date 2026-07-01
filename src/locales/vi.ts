@@ -327,7 +327,7 @@ export const vi: Copy = {
   authSignIn: "Đăng nhập bằng Google",
   authSignOut: "Đăng xuất",
   authSignedInAs: (name) => `${name}`,
-  authSignInHint: "Đăng nhập để đồng bộ câu sai và tiến độ giữa các thiết bị; bạn cũng có thể dùng mà không đăng nhập, nhưng dữ liệu chỉ lưu trên thiết bị này.",
+  authSignInHint: "Không đăng nhập vẫn dùng được, tiến trình được lưu trên máy này; chỉ cần đăng nhập nếu muốn đồng bộ giữa các thiết bị.",
   authSyncingHint: "Đang đồng bộ…",
   authSyncedHint: "Câu sai và tiến độ đã được đồng bộ giữa các thiết bị.",
   authSyncErrorHint: "Đồng bộ thất bại — dữ liệu trên máy của bạn vẫn an toàn; nó sẽ thử lại ở lần đăng nhập sau.",

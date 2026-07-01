@@ -327,7 +327,7 @@ export const ko: Copy = {
   authSignIn: "Google로 로그인",
   authSignOut: "로그아웃",
   authSignedInAs: (name) => `${name}`,
-  authSignInHint: "로그인하면 오답과 진행 상황을 기기 간에 동기화할 수 있어요. 로그인 없이도 쓸 수 있지만, 기록은 이 기기에만 남습니다.",
+  authSignInHint: "로그인 없이도 사용할 수 있고 기록은 이 기기에 저장돼요. 여러 기기에서 동기화하려면 로그인하세요.",
   authSyncingHint: "동기화 중…",
   authSyncedHint: "오답과 진행 상황이 기기 간에 동기화됐어요.",
   authSyncErrorHint: "동기화에 실패했어요 — 로컬 기록은 안전하며, 다음 로그인 때 다시 시도합니다.",

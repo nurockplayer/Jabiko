@@ -253,7 +253,7 @@ export default function App() {
         <div className="heading-actions">
           <p>{t.appTagline}</p>
           {isSupabaseConfigured && (
-            <div className="heading-auth">
+            <div className={`heading-auth${user ? "" : " heading-auth-guest"}`}>
               {user ? (
                 <div className="heading-auth-row">
                   <span className="heading-user">{t.authSignedInAs(user.user_metadata.full_name ?? user.email ?? "")}</span>

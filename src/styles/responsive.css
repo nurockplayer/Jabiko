@@ -125,6 +125,20 @@
     justify-content: center;
   }
 
+  /* Signed-out sign-in is optional (the app needs no account), so on the
+     first mobile screen it hugs its content on the right instead of a
+     full-width login-wall button that competes with the primary action. */
+  .heading-auth-guest {
+    align-items: flex-end;
+  }
+
+  .heading-auth-guest .auth-button {
+    align-self: flex-end;
+    width: auto;
+    font-size: 0.82rem;
+    padding-block: 0.4rem;
+  }
+
   /* Language / furigana / theme controls collapse to a compact icon-only row
      on small screens instead of stacking full-width and dominating the first
      screen (#358). aria-label on each button keeps the accessible name; the

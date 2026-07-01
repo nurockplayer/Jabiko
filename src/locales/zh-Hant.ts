@@ -327,7 +327,7 @@ export const zhHant: Copy = {
   authSignIn: "Google 登入",
   authSignOut: "登出",
   authSignedInAs: (name) => `${name}`,
-  authSignInHint: "登入後錯題與學習進度可跨裝置同步；不登入也能用，紀錄僅存於本機。",
+  authSignInHint: "免登入也能用，紀錄存在本機；想跨裝置同步再登入。",
   authSyncingHint: "同步中…",
   authSyncedHint: "錯題與學習進度已跨裝置同步。",
   authSyncErrorHint: "同步失敗，本機紀錄仍在；下次登入會再試。",
