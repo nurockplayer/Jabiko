@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowRight } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
@@ -8,6 +8,11 @@ import {
   learningBlocks,
   type LearningBlockDrillPreset
 } from "../domain/learningBlocks";
+import {
+  localizeCategory,
+  localizeLearningBlock,
+  type LearningBlockOverlays
+} from "../domain/learningBlockText";
 import type { SentencePatternId } from "../domain/sentencePatterns";
 import { SproutSpot, TeaCupSpot } from "../illustrations";
 
@@ -34,12 +39,27 @@ export function LearningPanel({
   onStartExamSection: (level: "N1" | "N2" | "N3", promptLabel: string) => void;
 }) {
   const t = copy[language];
+  // Study-chapter translations are heavy and grow per language, so they're
+  // dynamically imported here (kept out of the eager home bundle). Until the
+  // chunk resolves, chapters render in their zh source and re-render on arrival.
+  const [overlays, setOverlays] = useState<LearningBlockOverlays>({});
+  useEffect(() => {
+    let alive = true;
+    import("../domain/learningBlocks.i18n").then((module) => {
+      if (alive) setOverlays(module.learningBlockI18n);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   // PR A: surface only the "basic" learning blocks. PR C will introduce
   // exam-prep blocks alongside these.
   const blockCards = learningBlocks
     .filter((block) => block.group === "basic")
     .map((block) => ({
       block,
+      disp: localizeLearningBlock(block, language, overlays),
       complete: isLearningBlockComplete(progressAttempts, block),
       incompletePrereqs: getIncompletePrereqs(progressAttempts, block)
     }));
@@ -50,7 +70,10 @@ export function LearningPanel({
 
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const activeCard = blockCards.find((card) => card.block.id === selectedBlockId) ?? recommended;
-  const active = activeCard.block;
+  // Localized copy of the active block. localizeLearningBlock preserves every
+  // logic field (id / drills / examDrill / requiredForms …) and only swaps the
+  // Chinese display text, so it's safe to use for both rendering and handlers.
+  const active = localizeLearningBlock(activeCard.block, language, overlays);
 
   // Group chapters by category so the rail reads as a few labelled sections
   // instead of one long flat list where every card repeats a coloured kicker
@@ -65,7 +88,11 @@ export function LearningPanel({
     }
     groupMap.get(category)!.push(card);
   }
-  const chapterGroups = groupOrder.map((category) => ({ category, cards: groupMap.get(category)! }));
+  const chapterGroups = groupOrder.map((category) => ({
+    category,
+    label: localizeCategory(category, language, learningBlocks, overlays),
+    cards: groupMap.get(category)!
+  }));
 
   // Resolve the drill button label from the i18n copy table. The schema
   // stores a plain string key so new drill labels don't require schema
@@ -77,7 +104,7 @@ export function LearningPanel({
 
   const blockTitleById = (id: string): string => {
     const found = learningBlocks.find((b) => b.id === id);
-    return found ? found.title : id;
+    return found ? localizeLearningBlock(found, language, overlays).title : id;
   };
 
   // Lightweight dashboard stats: derived from the same attemptStore the
@@ -132,10 +159,10 @@ export function LearningPanel({
           </div>
 
           <div className="chapter-list">
-            {chapterGroups.map(({ category, cards }) => (
+            {chapterGroups.map(({ category, label, cards }) => (
               <div className="chapter-group" key={category}>
-                <p className="chapter-group-title">{category}</p>
-                {cards.map(({ block, complete, incompletePrereqs }) => {
+                <p className="chapter-group-title">{label}</p>
+                {cards.map(({ block, disp, complete, incompletePrereqs }) => {
                   // Card no longer carries the category kicker (the group
                   // header owns it); keep only a status marker when relevant.
                   // Reference chapters always read "參考" (they're material,
@@ -150,16 +177,16 @@ export function LearningPanel({
                       key={block.id}
                       type="button"
                       className={`chapter-list-button${block.id === active.id ? " selected" : ""}${complete ? " complete" : ""}`}
-                      aria-label={t.chapterViewLabel(block.title)}
+                      aria-label={t.chapterViewLabel(disp.title)}
                       aria-pressed={block.id === active.id}
                       onClick={() => setSelectedBlockId(block.id)}
                     >
                       {status ? <span>{status}</span> : null}
-                      <strong>{block.title}</strong>
+                      <strong>{disp.title}</strong>
                       <small>
                         {incompletePrereqs.length > 0
                           ? t.chapterPrereqHint(incompletePrereqs.map(blockTitleById).join("、"))
-                          : block.subtitle}
+                          : disp.subtitle}
                       </small>
                     </button>
                   );
