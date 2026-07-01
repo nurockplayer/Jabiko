@@ -1,4 +1,5 @@
 import type { PracticeQuestion, VocabularyItem } from "./types";
+import { patternInstructionI18n, sentencePatternI18n } from "./sentencePatterns.i18n";
 
 export type SentencePatternId =
   | "te-kudasai"
@@ -730,17 +731,22 @@ function toPracticeQuestion(item: SentencePatternItem): PracticeQuestion {
     ],
     level: "N5"
   };
+  const overlay = sentencePatternI18n[item.id];
   return {
     id: item.id,
     vocabulary,
     targetForm: "reading",
     expectedAnswers: [item.expectedAnswer],
     explanation: item.explanation,
+    explanationI18n: overlay?.explanationI18n,
     promptLabel: `句型練習：${PATTERN_LABEL_ZH[item.patternId]}`,
     promptText: item.promptText,
     promptContextZh: item.promptContextZh,
+    promptContextI18n: overlay?.promptContextI18n,
     hintZh: item.hintZh,
+    hintI18n: overlay?.hintI18n,
     instructionZh: "依語境選最自然的句型。",
+    instructionI18n: patternInstructionI18n,
     options: item.options
   };
 }
