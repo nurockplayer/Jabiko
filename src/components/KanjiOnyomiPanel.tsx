@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { copy, type Language } from "../i18n";
 import type { JlptLevel } from "../domain/types";
 import { kanjiOnyomi, kanjiExamples, type KanjiOnyomiEntry } from "../domain/kanjiOnyomi";
+import { kanjiMeaning } from "../domain/kanjiOnyomi.i18n";
 import { SpeakButton } from "./SpeakButton";
 import { InkstoneSpot, MagnifierKanjiSpot } from "../illustrations";
 
@@ -36,7 +37,7 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
         entry.kanji.includes(q) ||
         entry.onyomi.some((reading) => reading.includes(q)) ||
         entry.kunyomi.some((reading) => reading.includes(q)) ||
-        entry.meaningZh.includes(q)
+        kanjiMeaning(entry, language).toLowerCase().includes(q.toLowerCase())
       );
     });
     const byReading = new Map<string, KanjiOnyomiEntry[]>();
@@ -51,7 +52,7 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
     return [...byReading.entries()].sort(
       (a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], "ja")
     );
-  }, [query, level, readingType]);
+  }, [query, level, readingType, language]);
 
   const detail = selected ? kanjiOnyomi.find((entry) => entry.kanji === selected) ?? null : null;
   const examples = detail ? kanjiExamples(detail.kanji) : [];
@@ -120,7 +121,7 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
                 </p>
               ) : null}
               <p className="kanji-card-mean">
-                {detail.meaningZh}
+                {kanjiMeaning(detail, language)}
                 {detailSpeak ? <SpeakButton text={detailSpeak} language={language} /> : null}
               </p>
             </div>
@@ -171,7 +172,7 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
                       <span className="kanji-cell-kun">{t.kanjiCellKunPrefix} {entry.kunyomi.join("・")}</span>
                     ) : null}
                   </span>
-                  <span className="kanji-cell-mean">{entry.meaningZh}</span>
+                  <span className="kanji-cell-mean">{kanjiMeaning(entry, language)}</span>
                 </button>
               ))}
             </div>
