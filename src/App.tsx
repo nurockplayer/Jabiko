@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { ChevronDown, Languages, Moon, Sun } from "lucide-react";
+import { ChevronDown, Globe, Languages, Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import { countDueReviews } from "./domain/srs";
@@ -292,6 +292,7 @@ export default function App() {
                 aria-haspopup="dialog"
                 onClick={() => setLangPickerOpen(true)}
               >
+                <Globe aria-hidden="true" className="lang-switch-globe" />
                 <LanguageFlag language={language} className="lang-switch-flag" />
                 <span className="lang-switch-name">{copy[language].languageName}</span>
                 <ChevronDown aria-hidden="true" className="lang-switch-caret" />

@@ -124,6 +124,15 @@
   white-space: nowrap;
 }
 
+/* Globe affordance for the language switcher: hidden on desktop (the flag +
+   native name already read as a language menu), shown on mobile in place of
+   the flag so the icon-only control still reads as "change language" rather
+   than a decorative national flag (#326 discoverability). */
+.lang-switch-globe {
+  display: none;
+  color: var(--teal-dark);
+}
+
 /* "New version available" toast (#327): a fixed pill at the bottom centre,
    above everything. Non-intrusive -- the learner taps it to reload when ready,
    instead of being yanked off the page mid-drill. */

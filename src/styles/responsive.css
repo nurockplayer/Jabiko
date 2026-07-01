@@ -157,8 +157,16 @@
 
   .utility-actions .toggle-text,
   .utility-actions .lang-switch-name,
-  .utility-actions .lang-switch-caret {
+  .utility-actions .lang-switch-caret,
+  .utility-actions .lang-switch-flag {
     display: none;
+  }
+
+  /* Swap the flag for a globe on mobile so the icon-only language control
+     reads as "change language" (not a decorative flag) -- first-time
+     visitors default to Japanese and need an obvious way out. */
+  .utility-actions .lang-switch-globe {
+    display: inline-flex;
   }
 
   .controls-panel,
