@@ -1,32 +1,32 @@
 #!/usr/bin/env node
 // =============================================================================
-// ai-translate-content.mjs -- Gemini-assisted exam-content translation (#378)
+// ai-translate-content.mjs -- Gemini-assisted exam-content translation (#378/#400)
 // =============================================================================
 //
-// Reads exam items, finds ones missing a per-locale `explanationI18n` overlay
-// for the target locale, asks Gemini for STRICT JSON translations, validates
-// them hard, and writes ONLY the `explanationI18n` overlay back into the item
-// file. It never touches protected fields (id / expectedAnswer / options /
+// Reads exam items and, for the target locale, finds the Chinese content fields
+// that are still missing a per-locale overlay, asks Gemini for STRICT JSON
+// translations (using the question's Japanese prompt / answer / options as
+// context so the result reads NATURALLY, not word-for-word), validates them
+// hard, and writes ONLY the `<field>I18n` overlays back into the item file.
+//
+// Translatable fields (source -> overlay):
+//   meaningZh       -> meaningI18n
+//   instructionZh   -> instructionI18n
+//   promptContextZh -> promptContextI18n
+//   hintZh          -> hintI18n
+//   explanation     -> explanationI18n
+//
+// It NEVER touches protected fields (id / expectedAnswer / options / surface /
 // reading / level / the Chinese source) -- the write transform only adds or
-// merges the `explanationI18n` field.
+// merges the `<field>I18n` overlays.
 //
 // The actual Gemini call runs in CI (GitHub Actions) with the GEMINI_API_KEY
 // repository secret. There is no API key in the repo or the frontend.
 //
 // Usage
 //   node scripts/ai-translate-content.mjs --locale en --level N5 --limit 10
-//   node scripts/ai-translate-content.mjs --locale ko --limit 10 --source-report .tmp/i18n-coverage.json
+//   node scripts/ai-translate-content.mjs --locale ja --limit 10 --dry-run
 //   (env GEMINI_API_KEY required for the live call; --dry-run skips the call)
-//
-// Args
-//   --locale <code>       target locale (ja|en|th|id|ko|vi|my). required.
-//   --level <N1..N5>      JLPT level file to translate. default N5.
-//   --limit <n>           max items this run. default 10.
-//   --source-report <p>   optional coverage report (accepted for workflow
-//                         compatibility; the script also detects gaps itself).
-//   --model <name>        Gemini model. default gemini-2.0-flash.
-//   --dry-run             find + print targets, skip the Gemini call + write.
-//   --summary <path>      write a short markdown run summary (for the PR body).
 // =============================================================================
 
 import fs from "node:fs";
@@ -37,11 +37,18 @@ import { fileURLToPath } from "node:url";
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ITEMS_DIR = path.join(REPO_ROOT, "src", "domain", "exam", "items");
 const LOCALES = new Set(["ja", "en", "th", "id", "ko", "vi", "my"]); // zh-Hant is the source
-const SOURCE_FIELD = "explanation";
-const OVERLAY_FIELD = "explanationI18n";
+
+// Every translatable Chinese content field and its per-locale overlay sibling.
+export const FIELDS = [
+  { source: "meaningZh", overlay: "meaningI18n" },
+  { source: "instructionZh", overlay: "instructionI18n" },
+  { source: "promptContextZh", overlay: "promptContextI18n" },
+  { source: "hintZh", overlay: "hintI18n" },
+  { source: "explanation", overlay: "explanationI18n" }
+];
 
 // ---------------------------------------------------------------------------
-// string escaping for TS string literals (mirrors import-exam-items.mjs)
+// string escaping / unescaping for TS string literals
 // ---------------------------------------------------------------------------
 export const esc = (s) =>
   String(s)
@@ -51,14 +58,15 @@ export const esc = (s) =>
     .replace(/\r/g, "\\r")
     .replace(/\t/g, "\\t");
 
+const unescapeTs = (s) =>
+  s.replace(/\\([\\"ntr])/g, (_, c) => ({ "\\": "\\", '"': '"', n: "\n", t: "\t", r: "\r" })[c]);
+
 // ---------------------------------------------------------------------------
 // parse item file into blocks (one examQuestion({...}) each)
-// Format is the importer's: a line `  examQuestion({`, 4-space fields, then a
-// closing line `  })` / `  }),`.
 // ---------------------------------------------------------------------------
 export function splitItemBlocks(text) {
   const lines = text.split("\n");
-  const blocks = []; // { startLine, endLine, lines: [...] }
+  const blocks = [];
   let cur = null;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -84,31 +92,75 @@ const idOf = (blockLines) => {
   return null;
 };
 
-const sourceTextOf = (blockLines) => {
+// Extract a 4-space-indented `name: "..."` string field, unescaped. The exact
+// `name:` anchor means `meaningZh` never matches `exampleMeaningZh`, etc.
+const stringFieldOf = (blockLines, name) => {
+  const re = new RegExp(`^ {4}${name}:\\s*"((?:[^"\\\\]|\\\\.)*)"`);
   for (const l of blockLines) {
-    const m = l.match(/^ {4}explanation:\s*"((?:[^"\\]|\\.)*)"/);
-    if (m) {
-      return m[1]
-        .replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
-    }
+    const m = l.match(re);
+    if (m) return unescapeTs(m[1]);
   }
   return null;
 };
 
-const hasOverlayLocale = (blockLines, locale) =>
-  blockLines.some((l) => l.includes(`${OVERLAY_FIELD}:`) && l.includes(`"${locale}"`));
+// Raw single-line value (e.g. the options array literal) for prompt context.
+const rawFieldOf = (blockLines, name) => {
+  const re = new RegExp(`^ {4}${name}:\\s*(.+?),?\\s*$`);
+  for (const l of blockLines) {
+    const m = l.match(re);
+    if (m) return m[1];
+  }
+  return null;
+};
+
+// Whether an item's `<overlayField>` object already has a value for `locale`.
+// Multi-line-aware (a hand-reflowed overlay may span several lines) and matches
+// the locale as an object KEY (`"en":`) so a value that merely CONTAINS the
+// text "en" never false-skips a real gap -- and, critically, a multi-line
+// overlay never fools the gap check into re-translating an existing locale
+// (which would write a duplicate object key and break the build).
+const overlayHasLocale = (blockLines, overlayField, locale) => {
+  const startRe = new RegExp(`^ {4}${overlayField}:`);
+  const keyRe = new RegExp(`"${locale}"\\s*:`);
+  const start = blockLines.findIndex((l) => startRe.test(l));
+  if (start < 0) return false;
+  if (keyRe.test(blockLines[start])) return true; // single-line object
+  for (let i = start + 1; i < blockLines.length; i++) {
+    if (keyRe.test(blockLines[i])) return true;
+    if (/^ {4}\S/.test(blockLines[i])) break; // back to field indent -> object closed
+  }
+  return false;
+};
+
+const hasOverlayField = (blockLines, overlayField) =>
+  blockLines.some((l) => new RegExp(`^ {4}${overlayField}:`).test(l));
 
 // ---------------------------------------------------------------------------
-// find items missing the overlay for `locale`
+// find items with >=1 field missing the overlay for `locale`
+// returns [{ id, context: {promptText, expectedAnswer, options}, fields: {source: zh} }]
 // ---------------------------------------------------------------------------
 export function findTargets(text, locale, limit) {
   const out = [];
   for (const b of splitItemBlocks(text)) {
     const id = idOf(b.lines);
-    const source = sourceTextOf(b.lines);
-    if (!id || !source) continue;
-    if (hasOverlayLocale(b.lines, locale)) continue;
-    out.push({ id, source });
+    if (!id) continue;
+    const fields = {};
+    for (const { source, overlay } of FIELDS) {
+      const val = stringFieldOf(b.lines, source);
+      if (val == null || val.trim() === "") continue; // nothing to translate
+      if (overlayHasLocale(b.lines, overlay, locale)) continue; // already done
+      fields[source] = val;
+    }
+    if (Object.keys(fields).length === 0) continue;
+    out.push({
+      id,
+      context: {
+        promptText: stringFieldOf(b.lines, "promptText"),
+        expectedAnswer: stringFieldOf(b.lines, "expectedAnswer"),
+        options: rawFieldOf(b.lines, "options")
+      },
+      fields
+    });
     if (out.length >= limit) break;
   }
   return out;
@@ -116,87 +168,119 @@ export function findTargets(text, locale, limit) {
 
 // ---------------------------------------------------------------------------
 // validate Gemini's response against the request (HARD fail on any mismatch)
+// requested = [{ id, fieldKeys: [...] }]
 // ---------------------------------------------------------------------------
-export function validateTranslations(parsed, requestedIds) {
-  const want = new Set(requestedIds);
+export function validateTranslations(parsed, requested) {
+  const wantById = new Map(requested.map((r) => [r.id, new Set(r.fieldKeys)]));
   if (!Array.isArray(parsed)) return { ok: false, error: "response is not a JSON array" };
-  if (parsed.length !== requestedIds.length) {
-    return { ok: false, error: `count mismatch: got ${parsed.length}, requested ${requestedIds.length}` };
+  if (parsed.length !== requested.length) {
+    return { ok: false, error: `count mismatch: got ${parsed.length}, requested ${requested.length}` };
   }
   const seen = new Set();
+  const items = [];
   for (const entry of parsed) {
     if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
       return { ok: false, error: "entry is not an object" };
     }
     const keys = Object.keys(entry);
-    if (keys.length !== 2 || !keys.includes("id") || !keys.includes("translation")) {
-      return { ok: false, error: `entry must have exactly {id, translation}; got keys [${keys.join(", ")}]` };
+    if (keys.length !== 2 || !keys.includes("id") || !keys.includes("fields")) {
+      return { ok: false, error: `entry must have exactly {id, fields}; got [${keys.join(", ")}]` };
     }
-    if (typeof entry.id !== "string" || !want.has(entry.id)) {
+    if (typeof entry.id !== "string" || !wantById.has(entry.id)) {
       return { ok: false, error: `unexpected or non-string id: ${JSON.stringify(entry.id)}` };
     }
     if (seen.has(entry.id)) return { ok: false, error: `duplicate id: ${entry.id}` };
     seen.add(entry.id);
-    if (typeof entry.translation !== "string" || entry.translation.trim() === "") {
-      return { ok: false, error: `empty/non-string translation for ${entry.id}` };
+    const want = wantById.get(entry.id);
+    const f = entry.fields;
+    if (f === null || typeof f !== "object" || Array.isArray(f)) {
+      return { ok: false, error: `fields must be an object for ${entry.id}` };
     }
+    const fkeys = Object.keys(f);
+    if (fkeys.length !== want.size || !fkeys.every((k) => want.has(k))) {
+      return { ok: false, error: `field mismatch for ${entry.id}: got [${fkeys.join(", ")}], want [${[...want].join(", ")}]` };
+    }
+    for (const k of fkeys) {
+      if (typeof f[k] !== "string" || f[k].trim() === "") {
+        return { ok: false, error: `empty/non-string ${k} for ${entry.id}` };
+      }
+    }
+    items.push({ id: entry.id, fields: { ...f } });
   }
-  if (seen.size !== want.size) {
-    const missing = [...want].filter((id) => !seen.has(id));
+  if (seen.size !== wantById.size) {
+    const missing = [...wantById.keys()].filter((id) => !seen.has(id));
     return { ok: false, error: `missing translations for: ${missing.join(", ")}` };
   }
-  return { ok: true, items: parsed.map((e) => ({ id: e.id, translation: e.translation })) };
+  return { ok: true, items };
 }
 
 // ---------------------------------------------------------------------------
-// apply overlay -- the ONLY write. Adds/merges `explanationI18n[locale]` into
-// each target item block; never alters any other field.
+// apply overlays -- the ONLY write. For each target item, insert or merge each
+// translated field's `<overlay>[locale]` sibling. Never alters other fields.
+// items = [{ id, fields: {source: translation} }]
 // ---------------------------------------------------------------------------
-export function applyExplanationOverlay(text, translations, locale) {
-  const byId = new Map(translations.map((t) => [t.id, t.translation]));
-  // Pre-scan: which TARGET items already carry an explanationI18n field, so we
-  // merge into that line instead of inserting a duplicate after `explanation`.
-  const overlayRe = new RegExp(`^ {4}${OVERLAY_FIELD}:`);
-  const hasOverlayField = new Set();
+export function applyOverlays(text, items, locale) {
+  const transById = new Map(items.map((it) => [it.id, it.fields]));
+
+  // Pre-scan per (id, overlayField): does the field exist (merge vs insert),
+  // and does it already have this locale (never re-add -> guards against a
+  // duplicate object key when an overlay was hand-reflowed onto several lines).
+  const existing = new Set();
+  const alreadyLocale = new Set();
   for (const b of splitItemBlocks(text)) {
     const id = idOf(b.lines);
-    if (id && byId.has(id) && b.lines.some((l) => overlayRe.test(l))) hasOverlayField.add(id);
+    if (!id || !transById.has(id)) continue;
+    for (const { overlay } of FIELDS) {
+      const key = `${id} ${overlay}`;
+      if (hasOverlayField(b.lines, overlay)) existing.add(key);
+      if (overlayHasLocale(b.lines, overlay, locale)) alreadyLocale.add(key);
+    }
   }
 
   const lines = text.split("\n");
   const out = [];
   let curId = null;
-  let pending = null; // translation to apply for the current target block
 
   for (const line of lines) {
-    if (line === "  examQuestion({")  { curId = null; pending = null; }
+    if (line === "  examQuestion({") curId = null;
     const idM = line.match(/^ {4}id:\s*"((?:[^"\\]|\\.)*)"/);
-    if (idM) {
-      curId = idM[1];
-      pending = byId.has(curId) ? byId.get(curId) : null;
-    }
+    if (idM) curId = idM[1];
+    const trans = curId ? transById.get(curId) : null;
 
-    // Merge path: existing explanationI18n line (single-line object).
-    if (pending !== null && curId && hasOverlayField.has(curId) && new RegExp(`^ {4}${OVERLAY_FIELD}:\\s*\\{`).test(line)) {
-      const merged = line.includes(`"${locale}"`)
-        ? line
-        : line.replace(/\{\s*/, `{ "${locale}": "${esc(pending)}", `);
-      out.push(merged);
-      pending = null;
-      continue;
+    // Merge path: an existing overlay line for a field we translated.
+    if (trans) {
+      let merged = null;
+      for (const { source, overlay } of FIELDS) {
+        if (!(source in trans)) continue;
+        const key = `${curId} ${overlay}`;
+        if (!existing.has(key) || alreadyLocale.has(key)) continue;
+        if (new RegExp(`^ {4}${overlay}:\\s*\\{`).test(line)) {
+          merged = line.includes(`"${locale}"`)
+            ? line
+            : line.replace(/\{\s*/, `{ "${locale}": "${esc(trans[source])}", `);
+          break;
+        }
+      }
+      if (merged !== null) {
+        out.push(merged);
+        continue;
+      }
     }
 
     out.push(line);
 
-    // Insert path: only for target items WITHOUT an existing overlay field.
-    if (pending !== null && curId && !hasOverlayField.has(curId)) {
-      const expM = line.match(/^( {4}explanation:\s*"(?:[^"\\]|\\.)*")(,?)\s*$/);
-      if (expM) {
-        // ensure the explanation line ends with a comma, then add the overlay
-        // (a trailing comma on the overlay is valid TS even if it ends up last).
-        if (expM[2] !== ",") out[out.length - 1] = expM[1] + ",";
-        out.push(`    ${OVERLAY_FIELD}: { "${locale}": "${esc(pending)}" },`);
-        pending = null;
+    // Insert path: after a source-field line whose overlay does not yet exist.
+    if (trans) {
+      for (const { source, overlay } of FIELDS) {
+        if (!(source in trans)) continue;
+        const key = `${curId} ${overlay}`;
+        if (existing.has(key) || alreadyLocale.has(key)) continue;
+        const m = line.match(new RegExp(`^( {4}${source}:\\s*"(?:[^"\\\\]|\\\\.)*")(,?)\\s*$`));
+        if (m) {
+          if (m[2] !== ",") out[out.length - 1] = m[1] + ",";
+          out.push(`    ${overlay}: { "${locale}": "${esc(trans[source])}" },`);
+          break; // one source field per line
+        }
       }
     }
   }
@@ -211,26 +295,38 @@ const LOCALE_NAME = {
   ko: "Korean", vi: "Vietnamese", my: "Burmese"
 };
 
+const FIELD_NOTE = {
+  meaningZh: "the word/phrase meaning",
+  instructionZh: "the task instruction (e.g. 'choose the most natural word')",
+  promptContextZh: "situational context for the sentence",
+  hintZh: "a neutral pre-answer hint",
+  explanation: "why the correct answer is right and the distractors are wrong"
+};
+
 export function buildPrompt(items, locale) {
   const name = LOCALE_NAME[locale] ?? locale;
   return [
-    `You translate JLPT study explanations from Traditional Chinese into ${name}.`,
-    `These explain why a Japanese grammar/vocab answer is correct and why the distractors are wrong.`,
+    `You are a professional JLPT-study localizer. Translate the given Traditional Chinese exam-content fields into natural, native ${name}.`,
+    `Each item is a Japanese-language exam question. Use the provided CONTEXT (the Japanese prompt, the correct answer, and the options) so the translation is accurate and reads the way a ${name} teacher would write it -- NOT a word-for-word calque.`,
+    `Field meanings: ${Object.entries(FIELD_NOTE).map(([k, v]) => `${k} = ${v}`).join("; ")}.`,
     `Rules:`,
-    `- Keep all Japanese terms, kana, kanji and example fragments EXACTLY as written (do not translate the Japanese itself).`,
-    `- Translate only the Chinese explanatory prose into natural ${name}.`,
-    `- Keep each translation faithful and concise; do not add or drop information.`,
-    `- Return STRICT JSON only: an array of objects {"id": string, "translation": string}.`,
-    `- One object per input id, same ids, no extra keys, no markdown, no commentary.`,
+    `- Keep ALL Japanese (kana, kanji, example fragments) and JLPT level tags EXACTLY as written; translate ONLY the Chinese prose.`,
+    `- Natural, idiomatic, concise ${name}; faithful (never add or drop meaning).`,
+    `- For each item, translate ONLY the fields under "translate" and return the SAME field keys.`,
+    `- Return STRICT JSON only: an array of {"id": string, "fields": { <fieldKey>: <${name} translation>, ... }}.`,
+    `- Same ids as the input, no extra keys, no markdown, no commentary.`,
     ``,
     `Input (${items.length} items):`,
-    JSON.stringify(items.map((it) => ({ id: it.id, zh: it.source })), null, 2)
+    JSON.stringify(
+      items.map((it) => ({ id: it.id, context: it.context, translate: it.fields })),
+      null,
+      2
+    )
   ].join("\n");
 }
 
 export function parseGeminiJson(raw) {
   let s = String(raw).trim();
-  // defensive: strip ```json ... ``` fences if a model adds them
   const fence = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
   if (fence) s = fence[1].trim();
   return JSON.parse(s);
@@ -272,6 +368,12 @@ function parseArgs(argv) {
   return o;
 }
 
+function fieldCounts(targets) {
+  const counts = {};
+  for (const t of targets) for (const k of Object.keys(t.fields)) counts[k] = (counts[k] ?? 0) + 1;
+  return counts;
+}
+
 async function main() {
   const o = parseArgs(process.argv.slice(2));
   if (!o.locale || !LOCALES.has(o.locale)) {
@@ -290,16 +392,17 @@ async function main() {
   const text = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
   const targets = findTargets(text, o.locale, o.limit);
 
-  console.log(`[ai-translate] level=${o.level} locale=${o.locale} limit=${o.limit} -> ${targets.length} target(s)`);
+  const fc = fieldCounts(targets);
+  console.log(`[ai-translate] level=${o.level} locale=${o.locale} limit=${o.limit} -> ${targets.length} item(s), fields ${JSON.stringify(fc)}`);
   if (o.sourceReport) console.log(`[ai-translate] (source-report ${o.sourceReport} noted; gaps detected directly)`);
   if (targets.length === 0) {
     console.log("[ai-translate] nothing to translate; exiting 0");
-    if (o.summary) fs.writeFileSync(o.summary, `No untranslated ${o.level} \`explanation\` items for \`${o.locale}\`.\n`);
+    if (o.summary) fs.writeFileSync(o.summary, `No untranslated ${o.level} content fields for \`${o.locale}\`.\n`);
     return;
   }
 
   if (o.dryRun) {
-    for (const t of targets) console.log(`  - ${t.id}`);
+    for (const t of targets) console.log(`  - ${t.id} [${Object.keys(t.fields).join(", ")}]`);
     console.log("[ai-translate] --dry-run: skipped Gemini call + write");
     return;
   }
@@ -319,14 +422,15 @@ async function main() {
     console.error(`Gemini did not return valid JSON: ${e.message}`);
     process.exit(1);
   }
-  const v = validateTranslations(parsed, targets.map((t) => t.id));
+  const requested = targets.map((t) => ({ id: t.id, fieldKeys: Object.keys(t.fields) }));
+  const v = validateTranslations(parsed, requested);
   if (!v.ok) {
     console.error(`translation validation failed: ${v.error}`);
     process.exit(1);
   }
 
   const before = splitItemBlocks(text).length;
-  const next = applyExplanationOverlay(text, v.items, o.locale);
+  const next = applyOverlays(text, v.items, o.locale);
   const after = splitItemBlocks(next).length;
   if (after !== before) {
     console.error(`internal error: item count changed ${before} -> ${after}; aborting write`);
@@ -337,24 +441,24 @@ async function main() {
     process.exit(1);
   }
   fs.writeFileSync(file, next);
-  console.log(`[ai-translate] wrote ${v.items.length} ${o.locale} overlay(s) -> ${path.relative(REPO_ROOT, file)}`);
+  const totalFields = v.items.reduce((n, it) => n + Object.keys(it.fields).length, 0);
+  console.log(`[ai-translate] wrote ${totalFields} ${o.locale} overlay field(s) across ${v.items.length} item(s) -> ${path.relative(REPO_ROOT, file)}`);
 
   if (o.summary) {
     const lines = [
       `AI-assisted i18n translation (Gemini ${o.model})`,
       ``,
-      `- locale: \`${o.locale}\` · level: \`${o.level}\` · items: ${v.items.length}`,
-      `- field: \`explanation\` -> \`explanationI18n.${o.locale}\` (overlay only; source untouched)`,
+      `- locale: \`${o.locale}\` · level: \`${o.level}\` · items: ${v.items.length} · fields: ${totalFields}`,
+      `- fields covered: ${Object.keys(fc).map((k) => `\`${k}\``).join(", ")} (overlay only; Chinese source untouched)`,
       ``,
       `Please review translation quality before merge.`,
       ``,
-      ...v.items.map((t) => `- \`${t.id}\``)
+      ...v.items.map((t) => `- \`${t.id}\` [${Object.keys(t.fields).join(", ")}]`)
     ];
     fs.writeFileSync(o.summary, lines.join("\n") + "\n");
   }
 }
 
-// run only when invoked directly (so tests can import the pure helpers)
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   main().catch((e) => {
     console.error(e?.stack || String(e));

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain .mjs tooling module, no types
 import {
   validateTranslations,
-  applyExplanationOverlay,
+  applyOverlays,
   findTargets,
   splitItemBlocks
 } from "./ai-translate-content.mjs";
@@ -16,13 +16,14 @@ export const n5Items = [
     surface: "行く",
     reading: "いく",
     meaningZh: "去",
-    promptLabel: "漢字読み",
-    instructionZh: "讀音",
-    promptText: "「行く」",
-    promptContextZh: "去",
-    expectedAnswer: "いく",
-    options: ["いく", "ゆく", "こう", "ぎょう"],
-    explanation: "答案是いく。"
+    promptLabel: "文法形式選擇",
+    instructionZh: "選最自然的詞語。",
+    promptText: "毎日 学校___行きます。",
+    promptContextZh: "描述每天上學。",
+    hintZh: "說明去某地。",
+    expectedAnswer: "に",
+    options: ["に", "を", "で", "が"],
+    explanation: "答案是に。"
   }),
   examQuestion({
     id: "x-2",
@@ -42,81 +43,186 @@ export const n5Items = [
 ];
 `;
 
-describe("findTargets", () => {
-  it("finds items missing the locale overlay, respecting limit", () => {
+describe("findTargets (multi-field)", () => {
+  it("finds items with any missing overlay field, respecting limit", () => {
     expect(findTargets(FIXTURE, "en", 10).map((t) => t.id)).toEqual(["x-1", "x-2"]);
     expect(findTargets(FIXTURE, "en", 1).map((t) => t.id)).toEqual(["x-1"]);
   });
-  it("skips items that already have the locale overlay", () => {
-    expect(findTargets(FIXTURE, "ja", 10).map((t) => t.id)).toEqual(["x-1"]);
+
+  it("collects every translatable field for an item with no overlays", () => {
+    const x1 = findTargets(FIXTURE, "en", 1)[0];
+    expect(Object.keys(x1.fields).sort()).toEqual(
+      ["explanation", "hintZh", "instructionZh", "meaningZh", "promptContextZh"].sort()
+    );
+    expect(x1.fields.meaningZh).toBe("去");
+    expect(x1.fields.instructionZh).toBe("選最自然的詞語。");
   });
-  it("extracts the unescaped source explanation", () => {
-    expect(findTargets(FIXTURE, "en", 1)[0].source).toBe("答案是いく。");
+
+  it("skips a field that already has the overlay for the locale, keeps the rest", () => {
+    // x-2 has explanationI18n.ja, so for ja: explanation is skipped but the
+    // other Chinese fields (which have no ja overlay) are still gaps.
+    const x2 = findTargets(FIXTURE, "ja", 10).find((t) => t.id === "x-2");
+    expect(x2).toBeDefined();
+    expect(Object.keys(x2.fields)).not.toContain("explanation");
+    expect(Object.keys(x2.fields).sort()).toEqual(
+      ["instructionZh", "meaningZh", "promptContextZh"].sort()
+    );
+  });
+
+  it("attaches question context (prompt / answer / options) for the prompt", () => {
+    const x1 = findTargets(FIXTURE, "en", 1)[0];
+    expect(x1.context.expectedAnswer).toBe("に");
+    expect(x1.context.promptText).toBe("毎日 学校___行きます。");
+    expect(x1.context.options).toContain('"に"');
+  });
+
+  it("does NOT confuse meaningZh with exampleMeaningZh (anchored field match)", () => {
+    const withExample = FIXTURE.replace(
+      '    meaningZh: "去",',
+      '    meaningZh: "去",\n    exampleMeaningZh: "去學校的例句意思",'
+    );
+    const x1 = findTargets(withExample, "en", 1)[0];
+    expect(x1.fields.meaningZh).toBe("去");
+    // exampleMeaningZh is not a translatable field
+    expect(Object.keys(x1.fields)).not.toContain("exampleMeaningZh");
   });
 });
 
-describe("validateTranslations", () => {
-  const ids = ["x-1", "x-2"];
-  it("accepts a well-formed response", () => {
-    const r = validateTranslations([{ id: "x-1", translation: "a" }, { id: "x-2", translation: "b" }], ids);
+describe("validateTranslations (multi-field)", () => {
+  const requested = [
+    { id: "x-1", fieldKeys: ["meaningZh", "explanation"] },
+    { id: "x-2", fieldKeys: ["meaningZh"] }
+  ];
+  const good = [
+    { id: "x-1", fields: { meaningZh: "to go", explanation: "The answer is ni." } },
+    { id: "x-2", fields: { meaningZh: "to see" } }
+  ];
+
+  it("accepts a well-formed multi-field response", () => {
+    const r = validateTranslations(good, requested);
     expect(r.ok).toBe(true);
     expect(r.items).toHaveLength(2);
+    expect(r.items[0].fields.meaningZh).toBe("to go");
   });
+
   it("rejects a count mismatch", () => {
-    expect(validateTranslations([{ id: "x-1", translation: "a" }], ids).ok).toBe(false);
+    expect(validateTranslations([good[0]], requested).ok).toBe(false);
   });
-  it("rejects extra keys (protected-field guard)", () => {
-    const r = validateTranslations(
-      [{ id: "x-1", translation: "a", expectedAnswer: "hacked" }, { id: "x-2", translation: "b" }],
-      ids
-    );
-    expect(r.ok).toBe(false);
+
+  it("rejects an extra top-level key (protected-field guard)", () => {
+    const bad = [{ id: "x-1", fields: { meaningZh: "x", explanation: "y" }, expectedAnswer: "hacked" }, good[1]];
+    expect(validateTranslations(bad, requested).ok).toBe(false);
   });
-  it("rejects an unknown id", () => {
-    expect(validateTranslations([{ id: "x-1", translation: "a" }, { id: "zzz", translation: "b" }], ids).ok).toBe(false);
+
+  it("rejects a field-key mismatch (missing a requested field)", () => {
+    const bad = [{ id: "x-1", fields: { meaningZh: "x" } }, good[1]]; // explanation missing
+    expect(validateTranslations(bad, requested).ok).toBe(false);
   });
-  it("rejects a duplicate id", () => {
-    expect(validateTranslations([{ id: "x-1", translation: "a" }, { id: "x-1", translation: "b" }], ids).ok).toBe(false);
+
+  it("rejects an extra (unrequested) field key", () => {
+    const bad = [{ id: "x-1", fields: { meaningZh: "x", explanation: "y", hintZh: "z" } }, good[1]];
+    expect(validateTranslations(bad, requested).ok).toBe(false);
   });
-  it("rejects an empty translation", () => {
-    expect(validateTranslations([{ id: "x-1", translation: "  " }, { id: "x-2", translation: "b" }], ids).ok).toBe(false);
+
+  it("rejects an unknown id, a duplicate id, an empty value, and a non-array", () => {
+    expect(validateTranslations([{ id: "zzz", fields: { meaningZh: "x" } }, good[1]], requested).ok).toBe(false);
+    expect(validateTranslations([good[0], good[0]], requested).ok).toBe(false);
+    expect(validateTranslations([{ id: "x-1", fields: { meaningZh: "  ", explanation: "y" } }, good[1]], requested).ok).toBe(false);
+    expect(validateTranslations({ id: "x-1" }, requested).ok).toBe(false);
   });
-  it("rejects a non-array", () => {
-    expect(validateTranslations({ id: "x-1", translation: "a" }, ids).ok).toBe(false);
+
+  it("rejects a non-object fields value", () => {
+    expect(validateTranslations([{ id: "x-1", fields: "nope" }, good[1]], requested).ok).toBe(false);
   });
 });
 
-describe("applyExplanationOverlay", () => {
-  it("inserts a fresh overlay after the explanation field (adds the comma) and keeps item count", () => {
-    const out = applyExplanationOverlay(FIXTURE, [{ id: "x-1", translation: "The answer is iku." }], "en");
-    expect(out).toContain('explanationI18n: { "en": "The answer is iku." },');
-    // explanation line for x-1 now ends with a comma
-    expect(out).toContain('explanation: "答案是いく。",');
-    // protected fields untouched, block count stable
+describe("applyOverlays (multi-field)", () => {
+  it("inserts fresh overlays after each source field, adds commas, keeps item count", () => {
+    const out = applyOverlays(
+      FIXTURE,
+      [{ id: "x-1", fields: { meaningZh: "to go", instructionZh: "Choose the most natural word." } }],
+      "en"
+    );
+    expect(out).toContain('meaningI18n: { "en": "to go" },');
+    expect(out).toContain('instructionI18n: { "en": "Choose the most natural word." },');
+    expect(out).toContain('meaningZh: "去",');
+    expect(out).toContain('instructionZh: "選最自然的詞語。",');
     expect(splitItemBlocks(out)).toHaveLength(2);
-    expect(out).toContain('expectedAnswer: "いく"');
-    expect(out).toContain('options: ["いく", "ゆく", "こう", "ぎょう"]');
+    // protected fields untouched
+    expect(out).toContain('expectedAnswer: "に"');
+    expect(out).toContain('options: ["に", "を", "で", "が"]');
   });
 
-  it("merges into an existing overlay, preserving the other locale", () => {
-    const out = applyExplanationOverlay(FIXTURE, [{ id: "x-2", translation: "The answer is miru." }], "en");
+  it("merges into an existing overlay line, preserving the other locale", () => {
+    const out = applyOverlays(FIXTURE, [{ id: "x-2", fields: { explanation: "The answer is miru." } }], "en");
     expect(out).toContain('"en": "The answer is miru."');
-    expect(out).toContain('"ja": "答えはみる。"'); // existing locale preserved
-    // x-2 still one block, single explanationI18n line
+    expect(out).toContain('"ja": "答えはみる。"');
     const x2 = splitItemBlocks(out).find((b) => b.lines.some((l) => l.includes('id: "x-2"')));
-    const overlayLines = x2.lines.filter((l) => l.includes("explanationI18n:"));
-    expect(overlayLines).toHaveLength(1);
+    expect(x2.lines.filter((l) => l.includes("explanationI18n:"))).toHaveLength(1);
   });
 
-  it("escapes quotes and newlines in the translation", () => {
-    const out = applyExplanationOverlay(FIXTURE, [{ id: "x-1", translation: 'a "quote"\nnext' }], "en");
-    expect(out).toContain('"en": "a \\"quote\\"\\nnext"');
+  it("escapes quotes and newlines in a translation", () => {
+    const out = applyOverlays(FIXTURE, [{ id: "x-1", fields: { meaningZh: 'a "q"\nb' } }], "en");
+    expect(out).toContain('meaningI18n: { "en": "a \\"q\\"\\nb" },');
   });
 
-  it("does not touch items not in the translation set", () => {
-    const out = applyExplanationOverlay(FIXTURE, [{ id: "x-1", translation: "x" }], "en");
-    // x-2 line unchanged (still only ja overlay)
+  it("does not touch items outside the translation set", () => {
+    const out = applyOverlays(FIXTURE, [{ id: "x-1", fields: { meaningZh: "to go" } }], "en");
     const x2 = splitItemBlocks(out).find((b) => b.lines.some((l) => l.includes('id: "x-2"')));
     expect(x2.lines.some((l) => l.includes('"en"'))).toBe(false);
+  });
+});
+
+// A hand-edited/reflowed overlay object that spans several lines must NOT fool
+// the gap check into re-translating an existing locale (which would write a
+// duplicate object key -> TS1117 build break / corrupt content file).
+describe("multi-line overlay safety", () => {
+  const MULTILINE = `import { examQuestion } from "../helpers";
+
+export const n5Items = [
+  examQuestion({
+    id: "m-1",
+    level: "N5",
+    surface: "行く",
+    reading: "いく",
+    meaningZh: "去",
+    meaningI18n: {
+      "ja": "行く",
+      "en": "to go"
+    },
+    promptLabel: "文法形式選擇",
+    instructionZh: "選最自然的詞語。",
+    promptText: "毎日 学校___行きます。",
+    promptContextZh: "描述每天上學。",
+    hintZh: "說明去某地。",
+    expectedAnswer: "に",
+    options: ["に", "を", "で", "が"],
+    explanation: "答案是に。"
+  })
+];
+`;
+
+  it("findTargets skips a field whose locale lives in a multi-line overlay", () => {
+    const en = findTargets(MULTILINE, "en", 1)[0];
+    expect(en).toBeDefined();
+    // meaningI18n already has "en" (on its own line) -> not a gap
+    expect(Object.keys(en.fields)).not.toContain("meaningZh");
+    // ...but the other fields with no overlay still are gaps
+    expect(Object.keys(en.fields)).toContain("instructionZh");
+  });
+
+  it("findTargets still finds a locale missing from a multi-line overlay", () => {
+    const th = findTargets(MULTILINE, "th", 1)[0];
+    expect(th.fields.meaningZh).toBe("去"); // no "th" key in the multi-line object
+  });
+
+  it("applyOverlays does NOT add a duplicate key for an existing multi-line locale", () => {
+    // Even if a caller wrongly asks to re-translate meaningZh for "en",
+    // the pre-scan must detect the existing multi-line "en" and skip it.
+    const out = applyOverlays(MULTILINE, [{ id: "m-1", fields: { meaningZh: "DUP" } }], "en");
+    const enKeys = out.split("\n").filter((l) => /^\s*"en"\s*:/.test(l));
+    expect(enKeys).toHaveLength(1); // exactly one "en" -> no duplicate object key
+    expect(out).not.toContain('"en": "DUP"');
+    expect(splitItemBlocks(out)).toHaveLength(1);
   });
 });

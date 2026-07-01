@@ -1,9 +1,10 @@
 name: AI i18n Translation
 
-# Manual, small-batch, PR-only AI-assisted translation of exam content (#378).
-# Generates a per-locale `explanationI18n` overlay with Gemini and opens a PR
-# for human review. It never auto-merges, never pushes to main, and never
-# touches protected fields (the script only adds/merges the overlay).
+# Manual, small-batch, PR-only AI-assisted translation of exam content (#378/#400).
+# Generates per-locale content overlays (meaning / instruction / context / hint /
+# explanation) with Gemini and opens a PR for human review. It never auto-merges,
+# never pushes to main, and never touches protected fields (the script only
+# adds/merges the `<field>I18n` overlays).
 #
 # Requires repository secret GEMINI_API_KEY, and (for the PR step) the repo
 # setting "Allow GitHub Actions to create and approve pull requests".
@@ -75,8 +76,8 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           branch: ai/i18n-${{ inputs.locale }}-${{ inputs.level }}-${{ github.run_id }}
-          title: "i18n: ${{ inputs.locale }} ${{ inputs.level }} explanation translations (Gemini)"
-          commit-message: "i18n: add ${{ inputs.locale }} ${{ inputs.level }} explanation overlay (Gemini)"
+          title: "i18n: ${{ inputs.locale }} ${{ inputs.level }} content translations (Gemini)"
+          commit-message: "i18n: add ${{ inputs.locale }} ${{ inputs.level }} content overlays (Gemini)"
           body-path: .tmp/i18n-summary.md
           add-paths: src/domain/exam/items/*.ts
           labels: i18n, ai-generated
