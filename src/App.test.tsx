@@ -76,6 +76,25 @@ describe("App", () => {
     expect(screen.queryByRole("heading", { name: "一章一章解鎖" })).not.toBeInTheDocument();
   });
 
+  it("marks the active nav tab with aria-current=page and moves it on navigation", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const nav = screen.getByRole("navigation", { name: "學習流程" });
+    // Default view is home -> 首頁 is the current page, and the only one.
+    expect(screen.getByRole("button", { name: "首頁" })).toHaveAttribute("aria-current", "page");
+    expect(
+      within(nav)
+        .getAllByRole("button")
+        .filter((button) => button.getAttribute("aria-current") === "page")
+    ).toHaveLength(1);
+
+    // Navigating moves aria-current to the new tab and clears the old one.
+    await user.click(screen.getByRole("button", { name: "規則表" }));
+    expect(screen.getByRole("button", { name: "規則表" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("button", { name: "首頁" })).not.toHaveAttribute("aria-current");
+  });
+
   it("opens the rules reference page after clicking the 規則表 tab", async () => {
     const user = userEvent.setup();
     render(<App />);

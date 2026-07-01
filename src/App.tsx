@@ -320,6 +320,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "home" ? "selected" : ""}
+          aria-current={appView === "home" ? "page" : undefined}
           onClick={() => setAppView("home")}
         >
           {t.home}
@@ -327,6 +328,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "learn" ? "selected" : ""}
+          aria-current={appView === "learn" ? "page" : undefined}
           onClick={() => setAppView("learn")}
         >
           {t.learn}
@@ -334,6 +336,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "rules" ? "selected" : ""}
+          aria-current={appView === "rules" ? "page" : undefined}
           onClick={() => setAppView("rules")}
         >
           {t.rules}
@@ -341,6 +344,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "kanji" ? "selected" : ""}
+          aria-current={appView === "kanji" ? "page" : undefined}
           onClick={() => setAppView("kanji")}
         >
           {t.kanji}
@@ -348,6 +352,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "challenge" ? "selected" : ""}
+          aria-current={appView === "challenge" ? "page" : undefined}
           onClick={() => openChallenge({ mode: "daily" })}
         >
           {t.challenge}
@@ -355,6 +360,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "mock" ? "selected" : ""}
+          aria-current={appView === "mock" ? "page" : undefined}
           onClick={() => setAppView("mock")}
         >
           {t.mockExam}
@@ -362,6 +368,7 @@ export default function App() {
         <button
           type="button"
           className={appView === "about" ? "selected" : ""}
+          aria-current={appView === "about" ? "page" : undefined}
           onClick={() => setAppView("about")}
         >
           {t.about}
