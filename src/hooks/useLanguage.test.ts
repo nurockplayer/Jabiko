@@ -26,6 +26,10 @@ function resetBrowserLanguages() {
 }
 
 // Priority: URL ?lang= > stored > browser language (navigator) > ja fallback.
+// Only the LAUNCHED languages (zh-Hant / ja / en) are selectable anywhere;
+// locales whose CONTENT isn't translated yet (th/id/ko/vi/my) are ignored at
+// every layer until they ship, so their visitors get the ja fallback instead
+// of a UI-only translation over Chinese content.
 describe("useLanguage", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -58,6 +62,15 @@ describe("useLanguage", () => {
     expect(result.current.language).toBe("ja");
   });
 
+  it("ignores a stored NOT-YET-LAUNCHED locale and falls back to ja", () => {
+    // e.g. a preference stored before the launch set was narrowed.
+    localStorage.setItem(KEY, "ko");
+
+    const { result } = renderHook(() => useLanguage());
+
+    expect(result.current.language).toBe("ja");
+  });
+
   it("falls back to ja when nothing is stored and the browser language is unsupported", () => {
     const { result } = renderHook(() => useLanguage());
 
@@ -83,11 +96,11 @@ describe("useLanguage", () => {
   it("setLanguage updates the value and persists it", () => {
     const { result } = renderHook(() => useLanguage());
 
-    act(() => result.current.setLanguage("ko"));
+    act(() => result.current.setLanguage("en"));
 
-    expect(result.current.language).toBe("ko");
-    expect(localStorage.getItem(KEY)).toBe("ko");
-    expect(document.documentElement.lang).toBe("ko");
+    expect(result.current.language).toBe("en");
+    expect(localStorage.getItem(KEY)).toBe("en");
+    expect(document.documentElement.lang).toBe("en");
   });
 });
 
@@ -115,22 +128,29 @@ describe("getInitialLanguage priority", () => {
   it("URL param wins over stored and browser language", () => {
     localStorage.setItem(KEY, "zh-Hant");
     setBrowserLanguages(["ja"]);
-    setLocationSearch("?lang=id");
+    setLocationSearch("?lang=en");
 
-    expect(getInitialLanguage()).toBe("id");
+    expect(getInitialLanguage()).toBe("en");
   });
 
-  it("accepts a BCP-47 tag and maps it by prefix (?lang=vi-VN -> vi)", () => {
-    setLocationSearch("?lang=vi-VN");
+  it("ignores a NOT-YET-LAUNCHED ?lang= and falls through to stored (?lang=id)", () => {
+    localStorage.setItem(KEY, "zh-Hant");
+    setLocationSearch("?lang=id");
 
-    expect(getInitialLanguage()).toBe("vi");
+    expect(getInitialLanguage()).toBe("zh-Hant");
+  });
+
+  it("accepts a BCP-47 tag and maps it by prefix (?lang=en-US -> en)", () => {
+    setLocationSearch("?lang=en-US");
+
+    expect(getInitialLanguage()).toBe("en");
   });
 
   it("ignores an unsupported ?lang= and falls through to stored", () => {
-    localStorage.setItem(KEY, "th");
+    localStorage.setItem(KEY, "zh-Hant");
     setLocationSearch("?lang=fr");
 
-    expect(getInitialLanguage()).toBe("th");
+    expect(getInitialLanguage()).toBe("zh-Hant");
   });
 
   it("case-insensitive ?lang= matching (JA -> ja)", () => {
@@ -154,18 +174,26 @@ describe("getInitialLanguage priority", () => {
 
   // ---- Browser-language detection (navigator layer) ----
 
-  it("detects a supported browser language when nothing is stored (ko-KR -> ko)", () => {
+  it("detects a launched browser language when nothing is stored (en-US -> en)", () => {
+    setLocationSearch("");
+    setBrowserLanguages(["en-US"]);
+
+    expect(getInitialLanguage()).toBe("en");
+  });
+
+  it("a NOT-YET-LAUNCHED browser language gets the ja fallback (ko-KR -> ja)", () => {
     setLocationSearch("");
     setBrowserLanguages(["ko-KR"]);
 
-    expect(getInitialLanguage()).toBe("ko");
+    expect(getInitialLanguage()).toBe("ja");
   });
 
-  it("picks the first supported entry from navigator.languages", () => {
+  it("picks the first LAUNCHED entry from navigator.languages", () => {
     setLocationSearch("");
+    // fr/de unsupported, ko not launched -> en is the first usable entry.
     setBrowserLanguages(["fr-FR", "de", "ko", "en"]);
 
-    expect(getInitialLanguage()).toBe("ko");
+    expect(getInitialLanguage()).toBe("en");
   });
 
   it("maps zh variants to zh-Hant (zh-CN -> zh-Hant)", () => {
@@ -176,11 +204,11 @@ describe("getInitialLanguage priority", () => {
   });
 
   it("stored preference wins over the browser language", () => {
-    localStorage.setItem(KEY, "th");
+    localStorage.setItem(KEY, "zh-Hant");
     setLocationSearch("");
     setBrowserLanguages(["ja"]);
 
-    expect(getInitialLanguage()).toBe("th");
+    expect(getInitialLanguage()).toBe("zh-Hant");
   });
 
   it("falls back to ja when the browser language is unsupported (fr -> ja)", () => {

@@ -7,6 +7,14 @@ import type { ModeCopyKey } from "./domain/practiceMode";
 // is the same set, kept as the UI-facing name.
 export type Language = LocaleCode;
 
+// Languages that are LIVE for users: picker options, URL ?lang=, stored
+// preference, and browser detection all gate on this list. A locale stays off
+// it until its CONTENT (exam bank, study chapters, …) is translated -- UI
+// chrome alone would render menus in the user's language over Chinese
+// content. th/id/ko/vi/my ship their Copy files already; launching one later
+// is just adding it here.
+export const LAUNCHED_LANGUAGES: readonly Language[] = ["zh-Hant", "ja", "en"];
+
 export type Copy = {
   languageName: string;
   languageSwitchLabel: string;
