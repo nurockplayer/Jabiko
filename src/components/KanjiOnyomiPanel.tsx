@@ -3,6 +3,7 @@ import { copy, type Language } from "../i18n";
 import type { JlptLevel } from "../domain/types";
 import { kanjiOnyomi, kanjiExamples, type KanjiOnyomiEntry } from "../domain/kanjiOnyomi";
 import { kanjiMeaning } from "../domain/kanjiOnyomi.i18n";
+import { pickLocalized } from "../domain/localizedContent";
 import { SpeakButton } from "./SpeakButton";
 import { InkstoneSpot, MagnifierKanjiSpot } from "../illustrations";
 
@@ -136,7 +137,9 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
                     <SpeakButton text={example.surface} language={language} />
                   </span>
                   <span className="kanji-example-reading">{example.reading}</span>
-                  <span className="kanji-example-mean">{example.meaningZh}</span>
+                  <span className="kanji-example-mean">
+                    {pickLocalized(example.meaningZh, example.meaningI18n, language)}
+                  </span>
                 </li>
               ))}
             </ul>
