@@ -2,9 +2,16 @@ import { useCallback, useEffect, useState } from "react";
 import type { AuthError, User } from "@supabase/supabase-js";
 import { getSupabase, isSupabaseConfigured } from "../lib/supabase";
 
+/**
+ * Machine-readable auth failure codes (#427). The hook has no UI language,
+ * so it never produces display text -- the render site maps these through
+ * the locale Copy (`t.authErrors[code]`).
+ */
+export type AuthErrorCode = "sessionFetchFailed" | "authUnavailable" | "signOutFailed";
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AuthErrorCode | null>(null);
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
@@ -21,7 +28,7 @@ export function useAuth() {
           .then(({ data: { session }, error: err }) => {
             if (err) {
               console.error("Supabase getSession error:", err);
-              setError("無法取得登入狀態");
+              setError("sessionFetchFailed");
             }
             setUser(session?.user ?? null);
           })
@@ -50,7 +57,7 @@ export function useAuth() {
   const signInWithGoogle = useCallback(async () => {
     const client = await getSupabase();
     if (!client) {
-      setError("登入服務不可用");
+      setError("authUnavailable");
       return { error: new Error("Supabase not configured") as AuthError };
     }
     return client.auth.signInWithOAuth({
@@ -67,7 +74,7 @@ export function useAuth() {
     const { error: err } = await client.auth.signOut();
     if (err) {
       console.error("Sign out error:", err);
-      setError("登出失敗");
+      setError("signOutFailed");
     }
   }, []);
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AlertTriangle, ArrowRight, ClipboardList } from "lucide-react";
 import { copy, type Language } from "../i18n";
-import { getMockExamBlueprint, type MockExamLevel } from "../domain/mockExam";
+import { getMockExamBlueprint, sectionSubtitle, type MockExamLevel } from "../domain/mockExam";
 import { buildExamQuestionPool } from "../domain/examBlocks";
 import { BooksSpot } from "../illustrations";
 
@@ -63,13 +63,14 @@ export function MockExamPanel({
           // info row ("準備中"), NOT a disabled button -- you can't drill
           // an empty pool, so it shouldn't look like a dead action.
           // Sections with questions are clickable cards.
+          const subtitle = sectionSubtitle(section, language);
           if (count === 0) {
             return (
               <li key={section.id}>
                 <div className="mock-section-card empty">
                   <div className="mock-section-meta">
                     <strong>{section.labelJa}</strong>
-                    <small>{section.labelZh}</small>
+                    {subtitle ? <small>{subtitle}</small> : null}
                   </div>
                   <span className="mock-section-warn">
                     <AlertTriangle aria-hidden="true" />
@@ -88,7 +89,7 @@ export function MockExamPanel({
               >
                 <div className="mock-section-meta">
                   <strong>{section.labelJa}</strong>
-                  <small>{section.labelZh}</small>
+                  {subtitle ? <small>{subtitle}</small> : null}
                 </div>
                 <span className="mock-section-count">{t.mockSectionCount(count)}</span>
                 <ArrowRight className="mock-section-arrow" aria-hidden="true" />

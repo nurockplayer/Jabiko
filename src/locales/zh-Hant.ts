@@ -333,6 +333,11 @@ export const zhHant: Copy = {
   authSyncingHint: "同步中…",
   authSyncedHint: "錯題與學習進度已跨裝置同步。",
   authSyncErrorHint: "同步失敗，本機紀錄仍在；下次登入會再試。",
+  authErrors: {
+    sessionFetchFailed: "無法取得登入狀態",
+    authUnavailable: "登入服務不可用",
+    signOutFailed: "登出失敗"
+  },
   partOfSpeech: {
     verb: "動詞",
     i_adjective: "い形容詞",

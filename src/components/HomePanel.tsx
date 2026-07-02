@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowRight, BookOpen, Bug, CalendarCheck, Heart, Sparkles, X } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
 import type { LevelRange } from "../domain/levelRange";
 import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
+import { localizeLearningBlock, type LearningBlockOverlays } from "../domain/learningBlockText";
 import { CONTENT_STATS } from "../domain/contentStats";
 import { computeProgressStats } from "../domain/stats";
 import { computeActivityTrend } from "../domain/analytics/trend";
@@ -110,6 +111,21 @@ export function HomePanel({
   onChooseLevel: (range: LevelRange) => void;
 }) {
   const t = copy[language];
+
+  // Chapter-title translations live in the heavy learningBlocks.i18n chunk,
+  // so it's dynamically imported (same pattern as LearningPanel) to keep the
+  // eager home bundle light. Until it resolves, the continue banner shows the
+  // zh source title and re-renders on arrival (#427).
+  const [chapterOverlays, setChapterOverlays] = useState<LearningBlockOverlays>({});
+  useEffect(() => {
+    let alive = true;
+    import("../domain/learningBlocks.i18n").then((module) => {
+      if (alive) setChapterOverlays(module.learningBlockI18n);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // First-run "choose your level" card: only for a brand-new learner -- no
   // saved preference AND no answer history -- so it's a one-time nudge, never
@@ -279,7 +295,11 @@ export function HomePanel({
         >
           <BookOpen aria-hidden="true" />
           <span className="home-banner-text">
-            <strong>{t.homeBannerContinueMain(nextIncompleteChapter.title)}</strong>
+            <strong>
+              {t.homeBannerContinueMain(
+                localizeLearningBlock(nextIncompleteChapter, language, chapterOverlays).title
+              )}
+            </strong>
             <small>{t.homeBannerContinueSub}</small>
           </span>
           <ArrowRight aria-hidden="true" />

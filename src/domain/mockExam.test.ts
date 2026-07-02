@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getMockExamBlueprint, N1_BLUEPRINT, N2_BLUEPRINT, N3_BLUEPRINT } from "./mockExam";
+import { getMockExamBlueprint, N1_BLUEPRINT, N2_BLUEPRINT, N3_BLUEPRINT, sectionSubtitle } from "./mockExam";
 
 // 模擬考 is now a section picker built on these blueprints (the timed
 // full-paper composer was removed). These tests pin the section metadata:
@@ -42,6 +42,20 @@ describe("getMockExamBlueprint", () => {
         expect(section.promptLabel.length).toBeGreaterThan(0);
         expect(section.labelJa.length).toBeGreaterThan(0);
         expect(section.targetCount).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("localizes section subtitles: en label per section, none in ja UI (#427)", () => {
+    const HAN = /[㐀-鿿]/;
+    for (const bp of [N1_BLUEPRINT, N2_BLUEPRINT, N3_BLUEPRINT]) {
+      for (const section of bp.sections) {
+        expect(section.labelEn, `${bp.level}:${section.id}`).toBeTruthy();
+        expect(HAN.test(section.labelEn), `${bp.level}:${section.id} labelEn must be Han-free`).toBe(false);
+        expect(sectionSubtitle(section, "en")).toBe(section.labelEn);
+        // The main label already IS the official Japanese name -- no subtitle.
+        expect(sectionSubtitle(section, "ja")).toBeNull();
+        expect(sectionSubtitle(section, "zh-Hant")).toBe(section.labelZh);
       }
     }
   });
