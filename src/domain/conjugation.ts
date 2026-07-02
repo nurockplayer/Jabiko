@@ -1,4 +1,13 @@
-import type { ConjugationResult, TargetForm, VocabularyItem } from "./types";
+import {
+  LOCALE_CODES,
+  SOURCE_LOCALE,
+  type ConjugationResult,
+  type ContentLocale,
+  type LocaleCode,
+  type LocalizedText,
+  type TargetForm,
+  type VocabularyItem
+} from "./types";
 
 // Keys are ordered so る comes first. When rule candidates are generated for an
 // ichidan verb (all of which end in る) the godan-style "wrong rule" attempt --
@@ -135,9 +144,11 @@ export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   plainPastNegative: "普通形・過去否定"
 };
 
-// en/ja counterparts of TARGET_FORM_LABELS for localized explanations (#427).
-// zh stays in TARGET_FORM_LABELS as the canonical source.
-export const TARGET_FORM_LABELS_I18N: Record<TargetForm, { en: string; ja: string }> = {
+// Per-CONTENT_LOCALE counterparts of TARGET_FORM_LABELS for localized
+// explanations (#427). zh stays in TARGET_FORM_LABELS as the canonical source.
+// Typed against the locale registry (#434): adding a code to CONTENT_LOCALES
+// compile-forces a label for it in every entry here.
+export const TARGET_FORM_LABELS_I18N: Record<TargetForm, Record<ContentLocale, string>> = {
   dictionary: { en: "dictionary form", ja: "辞書形" },
   masu: { en: "ます form", ja: "ます形" },
   nai: { en: "ない form", ja: "ない形" },
@@ -161,23 +172,24 @@ export const TARGET_FORM_LABELS_I18N: Record<TargetForm, { en: string; ja: strin
 };
 
 /**
- * Explanation text in the three launched content locales. zh is the canonical
- * source stored on `explanation`; en/ja feed `explanationI18n` (#427). Absent
- * locales in the UI fall back to zh via `pickLocalized`.
+ * Explanation text for one drill. `zh` is the canonical source stored on
+ * `explanation`; the locale keys feed `explanationI18n` (#427). Every
+ * CONTENT_LOCALE is REQUIRED (so adding one to the registry compile-forces a
+ * string in every template, #434); any other locale is optional, letting a
+ * pilot language (#435) add strings without joining CONTENT_LOCALES. Absent
+ * locales in the UI fall back via `pickLocalized`.
  */
-interface LocalizedExplanation {
-  zh: string;
-  en: string;
-  ja: string;
-}
+type LocalizedExplanation = { zh: string } & Record<ContentLocale, string> &
+  Partial<Record<LocaleCode, string>>;
 
 function explained(targetForm: TargetForm, answers: string[], text: LocalizedExplanation): ConjugationResult {
-  return {
-    targetForm,
-    answers,
-    explanation: text.zh,
-    explanationI18n: { en: text.en, ja: text.ja }
-  };
+  const explanationI18n: LocalizedText = {};
+  for (const code of LOCALE_CODES) {
+    if (code === SOURCE_LOCALE) continue; // zh-Hant is the source, not an overlay
+    const value = text[code];
+    if (typeof value === "string") explanationI18n[code] = value;
+  }
+  return { targetForm, answers, explanation: text.zh, explanationI18n };
 }
 
 export const VERB_FORMS: TargetForm[] = [

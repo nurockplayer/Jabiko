@@ -33,10 +33,12 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { LOCALE_NAME, TARGET_LOCALES } from "./_locales.mjs";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ITEMS_DIR = path.join(REPO_ROOT, "src", "domain", "exam", "items");
-const LOCALES = new Set(["ja", "en", "th", "id", "ko", "vi", "my"]); // zh-Hant is the source
+// Translation targets from the single locale registry (#434); zh-Hant is the source.
+const LOCALES = new Set(TARGET_LOCALES);
 
 // Every translatable Chinese content field and its per-locale overlay sibling.
 // exampleMeaningZh only exists on items with a CUSTOM example sentence; items
@@ -294,11 +296,6 @@ export function applyOverlays(text, items, locale) {
 // ---------------------------------------------------------------------------
 // prompt + Gemini call
 // ---------------------------------------------------------------------------
-const LOCALE_NAME = {
-  ja: "Japanese", en: "English", th: "Thai", id: "Indonesian",
-  ko: "Korean", vi: "Vietnamese", my: "Burmese"
-};
-
 const FIELD_NOTE = {
   meaningZh: "the word/phrase meaning",
   instructionZh: "the task instruction (e.g. 'choose the most natural word')",

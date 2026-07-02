@@ -46,13 +46,15 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { NON_HAN_LOCALES, SOURCE_LOCALE } from "./_locales.mjs";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const LOCALES_DIR = path.join(REPO_ROOT, "src", "locales");
 const EXAM_ITEMS_DIR = path.join(REPO_ROOT, "src", "domain", "exam", "items");
-const SOURCE_LOCALE = "zh-Hant";
-// locales whose script is NOT Han-based; Han ideographs there are suspected residue.
-const NON_HAN_LOCALES = new Set(["en", "th", "id", "vi"]);
+// SOURCE_LOCALE + NON_HAN_LOCALES come from the single locale registry (#434):
+// non-Han = every locale except zh-Hant (source) and ja, so ko/my are covered
+// (the old hardcoded set omitted them). Han ideographs in a non-Han locale are
+// suspected untranslated residue.
 
 const HAN_RE = /[一-鿿㐀-䶿]/;
 
