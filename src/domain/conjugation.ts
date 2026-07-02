@@ -135,6 +135,51 @@ export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   plainPastNegative: "普通形・過去否定"
 };
 
+// en/ja counterparts of TARGET_FORM_LABELS for localized explanations (#427).
+// zh stays in TARGET_FORM_LABELS as the canonical source.
+export const TARGET_FORM_LABELS_I18N: Record<TargetForm, { en: string; ja: string }> = {
+  dictionary: { en: "dictionary form", ja: "辞書形" },
+  masu: { en: "ます form", ja: "ます形" },
+  nai: { en: "ない form", ja: "ない形" },
+  negativeTe: { en: "negative て form (ないで)", ja: "否定て形・ないで" },
+  negativeContinuative: { en: "negative connective (なくて)", ja: "否定接続・なくて" },
+  adverbial: { en: "adverbial form (く/に)", ja: "連用修飾・く/に" },
+  obligationPast: { en: "past obligation (なければならなかった)", ja: "必要過去・なければならなかった" },
+  te: { en: "て form", ja: "て形" },
+  ta: { en: "た form", ja: "た形" },
+  potential: { en: "potential form", ja: "可能形" },
+  volitional: { en: "volitional form", ja: "意向形" },
+  causative: { en: "causative form", ja: "使役形" },
+  passive: { en: "passive form", ja: "受身形" },
+  desiderative: { en: "desiderative (たい form)", ja: "願望・たい形" },
+  reading: { en: "reading", ja: "読み方" },
+  meaning: { en: "meaning", ja: "意味" },
+  plainPresentAffirmative: { en: "plain non-past affirmative", ja: "普通形・非過去肯定" },
+  plainPresentNegative: { en: "plain non-past negative", ja: "普通形・非過去否定" },
+  plainPastAffirmative: { en: "plain past affirmative", ja: "普通形・過去肯定" },
+  plainPastNegative: { en: "plain past negative", ja: "普通形・過去否定" }
+};
+
+/**
+ * Explanation text in the three launched content locales. zh is the canonical
+ * source stored on `explanation`; en/ja feed `explanationI18n` (#427). Absent
+ * locales in the UI fall back to zh via `pickLocalized`.
+ */
+interface LocalizedExplanation {
+  zh: string;
+  en: string;
+  ja: string;
+}
+
+function explained(targetForm: TargetForm, answers: string[], text: LocalizedExplanation): ConjugationResult {
+  return {
+    targetForm,
+    answers,
+    explanation: text.zh,
+    explanationI18n: { en: text.en, ja: text.ja }
+  };
+}
+
 export const VERB_FORMS: TargetForm[] = [
   "dictionary",
   "masu",
@@ -302,20 +347,26 @@ function pushNominalLikeCandidates(out: string[], base: string, targetForm: Targ
 export const VOCAB_FORMS: TargetForm[] = ["reading", "meaning"];
 
 export function conjugate(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
+  // Displayed glosses prefer the per-locale translation; the zh source is the
+  // graceful fallback until vocab meaningI18n data lands. Answer logic never
+  // localizes: the meaning drill's accepted answer stays meaningZh verbatim.
+  const meaningEn = item.meaningI18n?.en ?? item.meaningZh;
+  const meaningJa = item.meaningI18n?.ja ?? item.meaningZh;
+
   if (targetForm === "reading") {
-    return {
-      targetForm,
-      answers: [item.reading],
-      explanation: `「${item.surface}」的念法是「${item.reading}」。意思：${item.meaningZh}。`
-    };
+    return explained(targetForm, [item.reading], {
+      zh: `「${item.surface}」的念法是「${item.reading}」。意思：${item.meaningZh}。`,
+      en: `「${item.surface}」 is read 「${item.reading}」. Meaning: ${meaningEn}.`,
+      ja: `「${item.surface}」の読み方は「${item.reading}」です。意味：${meaningJa}。`
+    });
   }
 
   if (targetForm === "meaning") {
-    return {
-      targetForm,
-      answers: [item.meaningZh],
-      explanation: `「${item.surface}」（${item.reading}）的意思是「${item.meaningZh}」。`
-    };
+    return explained(targetForm, [item.meaningZh], {
+      zh: `「${item.surface}」（${item.reading}）的意思是「${item.meaningZh}」。`,
+      en: `「${item.surface}」 (${item.reading}) means "${meaningEn}".`,
+      ja: `「${item.surface}」（${item.reading}）の意味は「${meaningJa}」です。`
+    });
   }
 
   if (item.partOfSpeech === "verb") {
@@ -343,12 +394,7 @@ export function validateAnswer(submittedAnswer: string, expectedAnswers: string[
 }
 
 function conjugateVerb(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
-  const answers = verbAnswers(item, targetForm);
-  return {
-    targetForm,
-    answers,
-    explanation: explainVerb(item, targetForm)
-  };
+  return explained(targetForm, verbAnswers(item, targetForm), explainVerb(item, targetForm));
 }
 
 function verbAnswers(item: VocabularyItem, targetForm: TargetForm): string[] {
@@ -501,11 +547,7 @@ function conjugateIAdjective(item: VocabularyItem, targetForm: TargetForm): Conj
     plainPastNegative: [`${stem}くなかった`]
   };
 
-  return {
-    targetForm,
-    answers: answersByForm[targetForm] ?? [item.surface],
-    explanation: explainIAdjective(targetForm)
-  };
+  return explained(targetForm, answersByForm[targetForm] ?? [item.surface], explainIAdjective(targetForm));
 }
 
 function conjugateNominal(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
@@ -520,151 +562,294 @@ function conjugateNominal(item: VocabularyItem, targetForm: TargetForm): Conjuga
     plainPastNegative: [`${item.surface}ではなかった`, `${item.surface}じゃなかった`]
   };
 
-  return {
-    targetForm,
-    answers: answersByForm[targetForm] ?? [item.surface],
-    explanation: explainNominal(item, targetForm)
-  };
+  return explained(targetForm, answersByForm[targetForm] ?? [item.surface], explainNominal(item, targetForm));
 }
 
-function explainVerb(item: VocabularyItem, targetForm: TargetForm): string {
+function explainVerb(item: VocabularyItem, targetForm: TargetForm): LocalizedExplanation {
   if (targetForm === "dictionary" || targetForm === "plainPresentAffirmative") {
-    return "辭書形本身就是普通形的非過去肯定。";
+    return {
+      zh: "辭書形本身就是普通形的非過去肯定。",
+      en: "The dictionary form is itself the plain non-past affirmative.",
+      ja: "辞書形はそのまま普通形の非過去肯定として使えます。"
+    };
   }
 
   if (targetForm === "plainPastNegative") {
-    return "否定過去不是從た形變來，而是先做ない形，再把最後的「ない」換成「なかった」。";
+    return {
+      zh: "否定過去不是從た形變來，而是先做ない形，再把最後的「ない」換成「なかった」。",
+      en: "The negative past is not built from the た form: make the ない form first, then replace the final 「ない」 with 「なかった」.",
+      ja: "否定過去はた形からではなく、まずない形を作り、最後の「ない」を「なかった」に変えます。"
+    };
   }
 
   if (targetForm === "obligationPast") {
-    return "必要過去「なければならなかった」先做ない形，再把最後的「ない」換成「なければならなかった」。過去放在最後的「ならない -> ならなかった」。";
+    return {
+      zh: "必要過去「なければならなかった」先做ない形，再把最後的「ない」換成「なければならなかった」。過去放在最後的「ならない -> ならなかった」。",
+      en: "For 「なければならなかった」, make the ない form first, then replace the final 「ない」 with 「なければならなかった」. The past tense goes on the very end: 「ならない -> ならなかった」.",
+      ja: "必要過去「なければならなかった」は、まずない形を作り、最後の「ない」を「なければならなかった」に変えます。過去は最後の「ならない → ならなかった」に付けます。"
+    };
   }
 
   if (targetForm === "negativeTe") {
-    return "否定て形「ないで」不是從て形變否定，而是先做ない形，再接成「ないで」。常用在「不要做...」或「不做...而...」。";
+    return {
+      zh: "否定て形「ないで」不是從て形變否定，而是先做ない形，再接成「ないで」。常用在「不要做...」或「不做...而...」。",
+      en: "The negative て form 「ないで」 is not the て form made negative: make the ない form first, then attach 「で」. Common in \"please don't ...\" and \"do ... without doing ...\".",
+      ja: "否定て形「ないで」はて形を否定にしたものではなく、まずない形を作ってから「ないで」の形にします。「〜しないでください」や「〜しないで…する」でよく使います。"
+    };
   }
 
   if (targetForm === "negativeContinuative") {
-    return "否定接續「なくて」也是先做ない形，再把最後的「ない」換成「なくて」。常用在說明理由或把否定狀態接到後句。";
+    return {
+      zh: "否定接續「なくて」也是先做ない形，再把最後的「ない」換成「なくて」。常用在說明理由或把否定狀態接到後句。",
+      en: "The negative connective 「なくて」 also starts from the ない form: replace the final 「ない」 with 「なくて」. Often used to give a reason or link a negative state to the next clause.",
+      ja: "否定接続「なくて」もまずない形を作り、最後の「ない」を「なくて」に変えます。理由を述べたり、否定の内容を後ろの文につなげたりするときに使います。"
+    };
   }
 
   if (targetForm === "plainPastAffirmative") {
     if (item.group === "godan") {
-      return "普通形過去肯定就是た形。一類動詞的た形會依最後一個假名產生音便，例如「く -> いた」、「む -> んだ」、「す -> した」。";
+      return {
+        zh: "普通形過去肯定就是た形。一類動詞的た形會依最後一個假名產生音便，例如「く -> いた」、「む -> んだ」、「す -> した」。",
+        en: "The plain past affirmative is the た form. Group I (godan) verbs take a sound change based on the final kana, e.g. 「く -> いた」, 「む -> んだ」, 「す -> した」.",
+        ja: "普通形・過去肯定はた形です。五段動詞のた形は最後の仮名によって音便が起こります。例：「く → いた」「む → んだ」「す → した」。"
+      };
     }
 
     if (item.group === "ichidan") {
-      return "普通形過去肯定就是た形。二類動詞先去掉最後的「る」，再接「た」。";
+      return {
+        zh: "普通形過去肯定就是た形。二類動詞先去掉最後的「る」，再接「た」。",
+        en: "The plain past affirmative is the た form. Group II (ichidan) verbs drop the final 「る」 and attach 「た」.",
+        ja: "普通形・過去肯定はた形です。一段動詞は最後の「る」を取って「た」を付けます。"
+      };
     }
 
-    return "普通形過去肯定就是た形。三類動詞是不規則變化，要直接記住「する -> した」、「来る -> 来た」以及「名詞 + する -> 名詞 + した」。";
+    return {
+      zh: "普通形過去肯定就是た形。三類動詞是不規則變化，要直接記住「する -> した」、「来る -> 来た」以及「名詞 + する -> 名詞 + した」。",
+      en: "The plain past affirmative is the た form. Group III verbs are irregular — memorize 「する -> した」, 「来る -> 来た」, and noun + する -> noun + した.",
+      ja: "普通形・過去肯定はた形です。不規則動詞はそのまま覚えましょう：「する → した」「来る → 来た」「名詞＋する → 名詞＋した」。"
+    };
   }
 
   if (item.group === "ichidan") {
-    return `二類動詞先去掉最後的「る」，再接上${TARGET_FORM_LABELS[targetForm]}需要的語尾。`;
+    const label = TARGET_FORM_LABELS_I18N[targetForm];
+    return {
+      zh: `二類動詞先去掉最後的「る」，再接上${TARGET_FORM_LABELS[targetForm]}需要的語尾。`,
+      en: `Group II (ichidan) verbs drop the final 「る」 and attach the ending for the ${label.en}.`,
+      ja: `一段動詞は最後の「る」を取って、${label.ja}の語尾を付けます。`
+    };
   }
 
   if (item.group === "irregular") {
     if (targetForm === "potential") {
-      return "「する」的可能形是不規則的「できる」；「来る」變成「来られる」（と同形於受身）。";
+      return {
+        zh: "「する」的可能形是不規則的「できる」；「来る」變成「来られる」（と同形於受身）。",
+        en: "The potential of 「する」 is the irregular 「できる」; 「来る」 becomes 「来られる」 (same form as the passive).",
+        ja: "「する」の可能形は不規則な「できる」です。「来る」は「来られる」になります（受身と同じ形）。"
+      };
     }
     if (targetForm === "volitional") {
-      return "「する」的意向形是「しよう」；「来る」變成「来よう」。";
+      return {
+        zh: "「する」的意向形是「しよう」；「来る」變成「来よう」。",
+        en: "The volitional of 「する」 is 「しよう」; 「来る」 becomes 「来よう」.",
+        ja: "「する」の意向形は「しよう」、「来る」は「来よう」になります。"
+      };
     }
     if (targetForm === "causative") {
-      return "「する」的使役形是「させる」；「来る」變成「来させる」。注意「させる」與受身的「される」不同。";
+      return {
+        zh: "「する」的使役形是「させる」；「来る」變成「来させる」。注意「させる」與受身的「される」不同。",
+        en: "The causative of 「する」 is 「させる」; 「来る」 becomes 「来させる」. Note that causative 「させる」 differs from passive 「される」.",
+        ja: "「する」の使役形は「させる」、「来る」は「来させる」になります。使役の「させる」と受身の「される」を混同しないように注意しましょう。"
+      };
     }
     if (targetForm === "passive") {
-      return "「する」的受身形是「される」（與使役「させる」差一個假名）；「来る」變成「来られる」（與可能同形）。";
+      return {
+        zh: "「する」的受身形是「される」（與使役「させる」差一個假名）；「来る」變成「来られる」（與可能同形）。",
+        en: "The passive of 「する」 is 「される」 (one kana away from causative 「させる」); 「来る」 becomes 「来られる」 (same form as the potential).",
+        ja: "「する」の受身形は「される」です（使役の「させる」と一字違い）。「来る」は「来られる」になります（可能形と同じ形）。"
+      };
     }
-    return "三類動詞是不規則變化，要直接記住「する / 来る」以及「名詞 + する」的形式。";
+    return {
+      zh: "三類動詞是不規則變化，要直接記住「する / 来る」以及「名詞 + する」的形式。",
+      en: "Group III verbs are irregular — memorize the forms of 「する」, 「来る」, and noun + する directly.",
+      ja: "不規則動詞は「する」「来る」「名詞＋する」の形をそのまま覚えましょう。"
+    };
   }
 
   if (targetForm === "te" || targetForm === "ta") {
-    return "一類動詞的て形 / た形會依最後一個假名產生音便，例如「く -> いて」、「む -> んで」、「す -> して」。";
+    return {
+      zh: "一類動詞的て形 / た形會依最後一個假名產生音便，例如「く -> いて」、「む -> んで」、「す -> して」。",
+      en: "The て / た forms of group I (godan) verbs take a sound change based on the final kana, e.g. 「く -> いて」, 「む -> んで」, 「す -> して」.",
+      ja: "五段動詞のて形・た形は最後の仮名によって音便が起こります。例：「く → いて」「む → んで」「す → して」。"
+    };
   }
 
   if (targetForm === "nai" || targetForm === "plainPresentNegative") {
-    return "一類動詞ない形把最後一個假名換成あ段後接「ない」，但「う」要變成「わない」。";
+    return {
+      zh: "一類動詞ない形把最後一個假名換成あ段後接「ない」，但「う」要變成「わない」。",
+      en: "For the ない form of group I (godan) verbs, change the final kana to its あ row and attach 「ない」; 「う」 becomes 「わない」.",
+      ja: "五段動詞のない形は最後の仮名をあ段に変えて「ない」を付けます。ただし「う」は「わない」になります。"
+    };
   }
 
   if (targetForm === "potential") {
-    return "一類動詞可能形把最後一個假名換成え段後接「る」，例如「書く -> 書ける」、「読む -> 読める」。";
+    return {
+      zh: "一類動詞可能形把最後一個假名換成え段後接「る」，例如「書く -> 書ける」、「読む -> 読める」。",
+      en: "For the potential form of group I (godan) verbs, change the final kana to its え row and attach 「る」, e.g. 「書く -> 書ける」, 「読む -> 読める」.",
+      ja: "五段動詞の可能形は最後の仮名をえ段に変えて「る」を付けます。例：「書く → 書ける」「読む → 読める」。"
+    };
   }
 
   if (targetForm === "volitional") {
-    return "一類動詞意向形把最後一個假名換成お段後接「う」，例如「書く -> 書こう」、「読む -> 読もう」。";
+    return {
+      zh: "一類動詞意向形把最後一個假名換成お段後接「う」，例如「書く -> 書こう」、「読む -> 読もう」。",
+      en: "For the volitional form of group I (godan) verbs, change the final kana to its お row and attach 「う」, e.g. 「書く -> 書こう」, 「読む -> 読もう」.",
+      ja: "五段動詞の意向形は最後の仮名をお段に変えて「う」を付けます。例：「書く → 書こう」「読む → 読もう」。"
+    };
   }
 
   if (targetForm === "causative") {
-    return "一類動詞使役形把最後一個假名換成あ段後接「せる」，例如「書く -> 書かせる」、「読む -> 読ませる」。う結尾要變「わせる」。";
+    return {
+      zh: "一類動詞使役形把最後一個假名換成あ段後接「せる」，例如「書く -> 書かせる」、「読む -> 読ませる」。う結尾要變「わせる」。",
+      en: "For the causative form of group I (godan) verbs, change the final kana to its あ row and attach 「せる」, e.g. 「書く -> 書かせる」, 「読む -> 読ませる」; 「う」 becomes 「わせる」.",
+      ja: "五段動詞の使役形は最後の仮名をあ段に変えて「せる」を付けます。例：「書く → 書かせる」「読む → 読ませる」。「う」で終わる動詞は「わせる」になります。"
+    };
   }
 
   if (targetForm === "passive") {
-    return "一類動詞受身形把最後一個假名換成あ段後接「れる」，例如「書く -> 書かれる」、「読む -> 読まれる」。う結尾要變「われる」。注意二類動詞的受身與可能同形。";
+    return {
+      zh: "一類動詞受身形把最後一個假名換成あ段後接「れる」，例如「書く -> 書かれる」、「読む -> 読まれる」。う結尾要變「われる」。注意二類動詞的受身與可能同形。",
+      en: "For the passive form of group I (godan) verbs, change the final kana to its あ row and attach 「れる」, e.g. 「書く -> 書かれる」, 「読む -> 読まれる」; 「う」 becomes 「われる」. Note that for group II verbs the passive and potential share the same form.",
+      ja: "五段動詞の受身形は最後の仮名をあ段に変えて「れる」を付けます。例：「書く → 書かれる」「読む → 読まれる」。「う」で終わる動詞は「われる」になります。一段動詞では受身と可能が同じ形になる点に注意しましょう。"
+    };
   }
 
   if (targetForm === "desiderative") {
-    return "願望形（〜たい）等於ます形把「ます」換成「たい」：書く -> 書きたい、食べる -> 食べたい、する -> したい。";
+    return {
+      zh: "願望形（〜たい）等於ます形把「ます」換成「たい」：書く -> 書きたい、食べる -> 食べたい、する -> したい。",
+      en: "The desiderative 「〜たい」 is the ます form with 「ます」 replaced by 「たい」: 書く -> 書きたい, 食べる -> 食べたい, する -> したい.",
+      ja: "願望の「〜たい」はます形の「ます」を「たい」に変えた形です：書く → 書きたい、食べる → 食べたい、する → したい。"
+    };
   }
 
-  return "一類動詞ます形把最後一個假名換成い段後接「ます」。";
+  return {
+    zh: "一類動詞ます形把最後一個假名換成い段後接「ます」。",
+    en: "For the ます form of group I (godan) verbs, change the final kana to its い row and attach 「ます」.",
+    ja: "五段動詞のます形は最後の仮名をい段に変えて「ます」を付けます。"
+  };
 }
 
-function explainIAdjective(targetForm: TargetForm): string {
+function explainIAdjective(targetForm: TargetForm): LocalizedExplanation {
   if (targetForm === "adverbial") {
-    return "い形容詞修飾動詞時，去掉最後的「い」，接「く」。";
+    return {
+      zh: "い形容詞修飾動詞時，去掉最後的「い」，接「く」。",
+      en: "When an い adjective modifies a verb, drop the final 「い」 and attach 「く」.",
+      ja: "い形容詞が動詞を修飾するときは、最後の「い」を取って「く」を付けます。"
+    };
   }
 
   if (targetForm === "obligationPast") {
-    return "い形容詞要先變成「くなる」的否定必要形：去い加く，再接「ならなければならなかった」。";
+    return {
+      zh: "い形容詞要先變成「くなる」的否定必要形：去い加く，再接「ならなければならなかった」。",
+      en: "An い adjective first becomes 「くなる」: drop 「い」, add 「く」, then attach 「ならなければならなかった」.",
+      ja: "い形容詞はまず「くなる」の形にします：「い」を取って「く」を付け、「ならなければならなかった」を続けます。"
+    };
   }
 
   if (targetForm === "plainPresentNegative") {
-    return "い形容詞否定：去掉最後的「い」，接「くない」。";
+    return {
+      zh: "い形容詞否定：去掉最後的「い」，接「くない」。",
+      en: "い adjective negative: drop the final 「い」 and attach 「くない」.",
+      ja: "い形容詞の否定は最後の「い」を取って「くない」を付けます。"
+    };
   }
 
   if (targetForm === "negativeContinuative") {
-    return "い形容詞否定接續：先變「くない」，再把「ない」換成「なくて」。";
+    return {
+      zh: "い形容詞否定接續：先變「くない」，再把「ない」換成「なくて」。",
+      en: "い adjective negative connective: make 「くない」 first, then replace 「ない」 with 「なくて」.",
+      ja: "い形容詞の否定接続は、まず「くない」にしてから「ない」を「なくて」に変えます。"
+    };
   }
 
   if (targetForm === "plainPastAffirmative") {
-    return "い形容詞過去：去掉最後的「い」，接「かった」。";
+    return {
+      zh: "い形容詞過去：去掉最後的「い」，接「かった」。",
+      en: "い adjective past: drop the final 「い」 and attach 「かった」.",
+      ja: "い形容詞の過去は最後の「い」を取って「かった」を付けます。"
+    };
   }
 
   if (targetForm === "plainPastNegative") {
-    return "い形容詞否定過去：去掉最後的「い」，接「くなかった」。";
+    return {
+      zh: "い形容詞否定過去：去掉最後的「い」，接「くなかった」。",
+      en: "い adjective negative past: drop the final 「い」 and attach 「くなかった」.",
+      ja: "い形容詞の否定過去は最後の「い」を取って「くなかった」を付けます。"
+    };
   }
 
-  return "い形容詞現在肯定直接使用原形。";
+  return {
+    zh: "い形容詞現在肯定直接使用原形。",
+    en: "The plain present affirmative of an い adjective is just its dictionary form.",
+    ja: "い形容詞の現在肯定はそのままの形を使います。"
+  };
 }
 
-function explainNominal(item: VocabularyItem, targetForm: TargetForm): string {
+function explainNominal(item: VocabularyItem, targetForm: TargetForm): LocalizedExplanation {
   const label = item.partOfSpeech === "noun" ? "名詞" : "な形容詞";
+  // 名詞/な形容詞 read naturally in Japanese as-is; only English needs its own label.
+  const labelEn = item.partOfSpeech === "noun" ? "nouns" : "な adjectives";
 
   if (targetForm === "plainPresentNegative") {
-    return `${label}否定像名詞句一樣接「ではない」，口語也常用「じゃない」。`;
+    return {
+      zh: `${label}否定像名詞句一樣接「ではない」，口語也常用「じゃない」。`,
+      en: `The negative of ${labelEn} attaches 「ではない」 like a noun sentence; 「じゃない」 is common in speech.`,
+      ja: `${label}の否定は名詞文と同じように「ではない」を付けます。話し言葉では「じゃない」もよく使います。`
+    };
   }
 
   if (targetForm === "adverbial") {
-    return `${label}修飾動詞時接「に」，例如「静かに話す」「学生になる」。`;
+    return {
+      zh: `${label}修飾動詞時接「に」，例如「静かに話す」「学生になる」。`,
+      en: `When ${labelEn} modify a verb, attach 「に」, e.g. 「静かに話す」「学生になる」.`,
+      ja: `${label}が動詞を修飾するときは「に」を付けます。例：「静かに話す」「学生になる」。`
+    };
   }
 
   if (targetForm === "obligationPast") {
-    return `${label}要先接「に」進入「なる」：${label} + に + ならなければならなかった。過去只放在最後的「ならなかった」。`;
+    return {
+      zh: `${label}要先接「に」進入「なる」：${label} + に + ならなければならなかった。過去只放在最後的「ならなかった」。`,
+      en: `${labelEn === "nouns" ? "Nouns" : "な adjectives"} first take 「に」 before 「なる」: ${labelEn} + に + ならなければならなかった. The past tense goes only on the final 「ならなかった」.`,
+      ja: `${label}はまず「に」を付けて「なる」につなげます：${label}＋に＋ならなければならなかった。過去は最後の「ならなかった」だけに付けます。`
+    };
   }
 
   if (targetForm === "negativeContinuative") {
-    return `${label}否定接續像名詞句一樣接「ではなくて」，口語也常用「じゃなくて」。`;
+    return {
+      zh: `${label}否定接續像名詞句一樣接「ではなくて」，口語也常用「じゃなくて」。`,
+      en: `The negative connective of ${labelEn} attaches 「ではなくて」 like a noun sentence; 「じゃなくて」 is common in speech.`,
+      ja: `${label}の否定接続は名詞文と同じように「ではなくて」です。話し言葉では「じゃなくて」もよく使います。`
+    };
   }
 
   if (targetForm === "plainPastAffirmative") {
-    return `${label}過去肯定要接「だった」，不是接い形容詞的「かった」。`;
+    return {
+      zh: `${label}過去肯定要接「だった」，不是接い形容詞的「かった」。`,
+      en: `The past affirmative of ${labelEn} is 「だった」 — not the い-adjective ending 「かった」.`,
+      ja: `${label}の過去肯定は「だった」を付けます。い形容詞の「かった」ではありません。`
+    };
   }
 
   if (targetForm === "plainPastNegative") {
-    return `${label}否定過去接「ではなかった」，口語也常用「じゃなかった」。`;
+    return {
+      zh: `${label}否定過去接「ではなかった」，口語也常用「じゃなかった」。`,
+      en: `The negative past of ${labelEn} is 「ではなかった」; 「じゃなかった」 is common in speech.`,
+      ja: `${label}の否定過去は「ではなかった」です。話し言葉では「じゃなかった」もよく使います。`
+    };
   }
 
-  return `${label}普通形現在肯定要接「だ」。`;
+  return {
+    zh: `${label}普通形現在肯定要接「だ」。`,
+    en: `The plain present affirmative of ${labelEn} attaches 「だ」.`,
+    ja: `${label}の普通形・現在肯定は「だ」を付けます。`
+  };
 }

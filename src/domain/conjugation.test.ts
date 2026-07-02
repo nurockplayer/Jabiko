@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
+  ADJECTIVE_FORMS,
   conjugate,
   getRuleExplanation,
   normalizeAnswer,
-  validateAnswer
+  TARGET_FORM_LABELS,
+  TARGET_FORM_LABELS_I18N,
+  validateAnswer,
+  VERB_FORMS
 } from "./conjugation";
-import type { VocabularyItem } from "./types";
+import type { TargetForm, VocabularyItem } from "./types";
 
 const word = (
   overrides: Partial<VocabularyItem> & Pick<VocabularyItem, "surface" | "reading" | "meaningZh" | "partOfSpeech">
@@ -231,5 +235,78 @@ describe("rule explanations", () => {
     expect(getRuleExplanation(kaku, "plainPastAffirmative")).toContain("た形");
     expect(getRuleExplanation(kaku, "plainPastAffirmative")).toContain("音便");
     expect(getRuleExplanation(kaku, "plainPastAffirmative")).not.toContain("ます形");
+  });
+});
+
+describe("explanation localization (#427)", () => {
+  it("localizes reading explanations, preferring meaningI18n and falling back to meaningZh", () => {
+    const suitou = word({
+      surface: "出納",
+      reading: "すいとう",
+      meaningZh: "出納",
+      partOfSpeech: "noun",
+      meaningI18n: { en: "cash receipts and payments", ja: "金銭の出し入れ" }
+    });
+
+    const result = conjugate(suitou, "reading");
+    expect(result.explanation).toBe("「出納」的念法是「すいとう」。意思：出納。");
+    expect(result.explanationI18n?.en).toBe("「出納」 is read 「すいとう」. Meaning: cash receipts and payments.");
+    expect(result.explanationI18n?.ja).toBe("「出納」の読み方は「すいとう」です。意味：金銭の出し入れ。");
+
+    const bare = word({ surface: "出納", reading: "すいとう", meaningZh: "出納", partOfSpeech: "noun" });
+    expect(conjugate(bare, "reading").explanationI18n?.en).toBe("「出納」 is read 「すいとう」. Meaning: 出納.");
+  });
+
+  it("localizes meaning explanations", () => {
+    const kaku = word({
+      surface: "書く",
+      reading: "かく",
+      meaningZh: "寫",
+      partOfSpeech: "verb",
+      group: "godan",
+      meaningI18n: { en: "to write", ja: "書く" }
+    });
+
+    const result = conjugate(kaku, "meaning");
+    expect(result.explanation).toBe("「書く」（かく）的意思是「寫」。");
+    expect(result.explanationI18n?.en).toBe('「書く」 (かく) means "to write".');
+    expect(result.explanationI18n?.ja).toBe("「書く」（かく）の意味は「書く」です。");
+  });
+
+  it("provides non-empty en/ja rule explanations for every generatable form", () => {
+    const samples = [
+      word({ surface: "書く", reading: "かく", meaningZh: "寫", partOfSpeech: "verb", group: "godan" }),
+      word({ surface: "食べる", reading: "たべる", meaningZh: "吃", partOfSpeech: "verb", group: "ichidan" }),
+      word({ surface: "する", reading: "する", meaningZh: "做", partOfSpeech: "verb", group: "irregular" }),
+      word({ surface: "高い", reading: "たかい", meaningZh: "高", partOfSpeech: "i_adjective" }),
+      word({ surface: "静か", reading: "しずか", meaningZh: "安靜", partOfSpeech: "na_adjective" }),
+      word({ surface: "学生", reading: "がくせい", meaningZh: "學生", partOfSpeech: "noun" })
+    ];
+
+    for (const item of samples) {
+      const forms = item.partOfSpeech === "verb" ? VERB_FORMS : ADJECTIVE_FORMS;
+      for (const form of forms) {
+        const result = conjugate(item, form);
+        expect(result.explanationI18n?.en, `${item.surface}:${form}:en`).toBeTruthy();
+        expect(result.explanationI18n?.ja, `${item.surface}:${form}:ja`).toBeTruthy();
+        expect(result.explanationI18n?.en, `${item.surface}:${form}:en differs from zh`).not.toBe(result.explanation);
+      }
+    }
+  });
+
+  it("localizes the interpolated target-form label in the ichidan generic rule", () => {
+    const taberu = word({ surface: "食べる", reading: "たべる", meaningZh: "吃", partOfSpeech: "verb", group: "ichidan" });
+
+    const result = conjugate(taberu, "potential");
+    expect(result.explanation).toContain("可能形");
+    expect(result.explanationI18n?.en).toContain("potential form");
+    expect(result.explanationI18n?.ja).toContain("可能形");
+  });
+
+  it("exposes en/ja labels for every target form", () => {
+    for (const form of Object.keys(TARGET_FORM_LABELS) as TargetForm[]) {
+      expect(TARGET_FORM_LABELS_I18N[form]?.en, form).toBeTruthy();
+      expect(TARGET_FORM_LABELS_I18N[form]?.ja, form).toBeTruthy();
+    }
   });
 });

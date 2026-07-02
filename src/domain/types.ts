@@ -67,6 +67,8 @@ export interface ConjugationResult {
   targetForm: TargetForm;
   answers: string[];
   explanation: string;
+  /** Per-locale translations of `explanation`; falls back to the zh source (#427). */
+  explanationI18n?: LocalizedText;
 }
 
 export interface PracticeQuestion {

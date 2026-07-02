@@ -52,7 +52,8 @@ export function buildQuestionPool(vocabulary: VocabularyItem[], options: Questio
             vocabulary: item,
             targetForm,
             expectedAnswers: result.answers,
-            explanation: result.explanation
+            explanation: result.explanation,
+            explanationI18n: result.explanationI18n
           };
         })
     )
