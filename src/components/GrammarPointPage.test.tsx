@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { GrammarPointPage } from "./GrammarPointPage";
+import { cleanExplanation, GrammarPointPage } from "./GrammarPointPage";
 import { allGrammarSurfaces, buildGrammarPoint } from "../domain/grammarPoints";
 import { grammarNotes } from "../domain/grammarNotes";
 import { copy } from "../i18n";
@@ -45,5 +45,30 @@ describe("GrammarPointPage", () => {
     expect(screen.getByRole("heading", { level: 1, name: "存在しない文法zzz" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: t.reviewDoneExit }));
     expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders localized meaning and usage notes for an un-noted point in en (#427)", () => {
+    const surface = allGrammarSurfaces().find((s) => {
+      const p = buildGrammarPoint(s);
+      return p !== null && !p.note && p.explanations.length > 0 && Boolean(p.meaningI18n?.en);
+    })!;
+    const point = buildGrammarPoint(surface)!;
+    render(<GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />);
+
+    expect(screen.getByText(point.meaningI18n!.en!)).toBeInTheDocument();
+    const firstUsage = point.explanations
+      .map((entry) => cleanExplanation(entry.i18n?.en ?? entry.zh))
+      .filter(Boolean)[0];
+    expect(firstUsage).toBeTruthy();
+    expect(screen.getByText(firstUsage)).toBeInTheDocument();
+  });
+
+  it("strips the quiz answer lead-in per locale (#427)", () => {
+    expect(cleanExplanation("正解是「たとえ」，因為後句是假設。")).toBe("因為後句是假設。");
+    expect(cleanExplanation("正解は「たとえ」です。後半は仮定を表します。")).toBe("後半は仮定を表します。");
+    expect(cleanExplanation("The correct answer is 「たとえ」: it pairs with a hypothetical.")).toBe(
+      "it pairs with a hypothetical."
+    );
+    expect(cleanExplanation("沒有前綴的內容原樣通過。")).toBe("沒有前綴的內容原樣通過。");
   });
 });

@@ -7,23 +7,32 @@
 // new authored content. This module reaches into examBlocks + grammarNotes, so
 // it carries the lazy exam-bank weight -- it MUST only be imported by the lazy
 // GrammarPointPage, never from an eager path (see bundle-codesplit discipline).
-import type { JlptLevel, PracticeQuestion } from "./types";
+import type { JlptLevel, LocalizedText, PracticeQuestion } from "./types";
 import { examStyleQuestions } from "./examBlocks";
 import { grammarNotes, type GrammarNote } from "./grammarNotes";
 
-export type GrammarPointExample = { ja: string; zh: string };
+export type GrammarPointExample = { ja: string; zh: string; zhI18n?: LocalizedText };
+
+/** One usage note with its per-locale overlay, so the page can pickLocalized. */
+export type GrammarPointExplanation = { zh: string; i18n?: LocalizedText };
 
 export type GrammarPoint = {
   /** The grammar-point surface; also the route id (`/grammar/<surface>`). */
   surface: string;
   level: JlptLevel | null;
   meaningZh: string;
+  /**
+   * Per-locale meaning overlay (#427). Only set for un-noted points (the only
+   * case the page renders `meaningZh` -- noted points show GrammarNoteCard's
+   * own localized meaning), so it always pairs with the vocab-derived source.
+   */
+  meaningI18n?: LocalizedText;
   /** Curated reference note (rule / usage / confusions), when one exists. */
   note: GrammarNote | null;
   /** Worked example sentences: curated first, then exam-item-derived. */
   examples: GrammarPointExample[];
   /** Distinct exam explanations -- the "rule" content for un-noted points. */
-  explanations: string[];
+  explanations: GrammarPointExplanation[];
   /** How many exam questions drill this point (a "練習這個文法" entry hint). */
   questionCount: number;
 };
@@ -45,7 +54,7 @@ function exampleFromQuestion(question: PracticeQuestion): GrammarPointExample | 
   const ja = question.promptText.includes(BLANK)
     ? question.promptText.replace(BLANK, answer)
     : question.promptText;
-  return { ja, zh: question.promptContextZh ?? "" };
+  return { ja, zh: question.promptContextZh ?? "", zhI18n: question.promptContextI18n };
 }
 
 // Curated note lookup, tolerant of a leading 〜/～ on the surface.
@@ -96,12 +105,20 @@ export function buildGrammarPoint(surface: string): GrammarPoint | null {
     examples.push(example);
   }
 
-  const explanations = [...new Set(items.map((item) => item.explanation).filter(Boolean))];
+  // Dedupe by the zh text (the stable key), keeping each note's i18n overlay.
+  const seenExplanations = new Set<string>();
+  const explanations: GrammarPointExplanation[] = [];
+  for (const item of items) {
+    if (!item.explanation || seenExplanations.has(item.explanation)) continue;
+    seenExplanations.add(item.explanation);
+    explanations.push({ zh: item.explanation, i18n: item.explanationI18n });
+  }
 
   return {
     surface,
     level: items[0].vocabulary.level ?? note?.jlptLevel ?? null,
     meaningZh: note?.meaningZh ?? items[0].vocabulary.meaningZh,
+    meaningI18n: note ? undefined : items[0].vocabulary.meaningI18n,
     note,
     examples,
     explanations,

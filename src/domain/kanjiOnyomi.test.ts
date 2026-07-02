@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { kanjiOnyomi, kanjiExamples } from "./kanjiOnyomi";
+import type { VocabularyItem } from "./types";
 
 // Readings are stored as plain hiragana (long-vowel ー allowed), no okurigana
 // dots -- matching the reading drills + the panel's grouping/display.
@@ -54,5 +55,27 @@ describe("kanjiOnyomi", () => {
       .filter((entry) => kanjiExamples(entry.kanji).length === 0)
       .map((entry) => entry.kanji);
     expect(empty, `kanji with no example words: ${empty.join(", ")}`).toEqual([]);
+  });
+
+  it("passes vocab meaningI18n through to kanji example words (#427)", () => {
+    const deck: VocabularyItem[] = [
+      {
+        id: "x-書道",
+        surface: "書道",
+        reading: "しょどう",
+        meaningZh: "書法",
+        meaningI18n: { en: "calligraphy", ja: "毛筆で文字を書く芸術" },
+        partOfSpeech: "noun",
+        group: null,
+        lesson: null,
+        tags: [],
+        examples: []
+      }
+    ];
+
+    const examples = kanjiExamples("書", 6, deck);
+    expect(examples).toHaveLength(1);
+    expect(examples[0].meaningI18n?.en).toBe("calligraphy");
+    expect(examples[0].meaningI18n?.ja).toBe("毛筆で文字を書く芸術");
   });
 });

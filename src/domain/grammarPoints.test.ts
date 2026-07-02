@@ -57,4 +57,20 @@ describe("grammarPoints", () => {
     // Curated examples are folded into the example list.
     expect(point!.examples.length).toBeGreaterThanOrEqual(point!.note!.examples.length);
   });
+
+  it("threads the exam items' i18n overlays into the point (#427)", () => {
+    // Every exam item carries meaningI18n / explanationI18n / promptContextI18n
+    // since #400; the aggregation must not drop them. Use an un-noted point so
+    // the tested fields are the ones the page actually renders.
+    const surface = allGrammarSurfaces().find((s) => {
+      const p = buildGrammarPoint(s);
+      return p !== null && !p.note && p.explanations.length > 0 && p.examples.length > 0;
+    });
+    expect(surface).toBeDefined();
+
+    const point = buildGrammarPoint(surface!)!;
+    expect(point.meaningI18n?.en).toBeTruthy();
+    expect(point.explanations.some((entry) => entry.i18n?.en)).toBe(true);
+    expect(point.examples.some((example) => example.zhI18n?.en)).toBe(true);
+  });
 });

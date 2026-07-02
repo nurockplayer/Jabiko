@@ -1,4 +1,4 @@
-import type { JlptLevel } from "./types";
+import type { JlptLevel, LocalizedText, VocabularyItem } from "./types";
 import { vocabulary } from "./vocabulary";
 
 // 漢字 reading study table (#195) -- a self-authored set, NOT imported from
@@ -696,19 +696,31 @@ export const kanjiOnyomi: KanjiOnyomiEntry[] = [
   { kanji: "狼", onyomi: ["ろう"], kunyomi: ["おおかみ"], meaningZh: "狼、狼狽", level: "N1" }
 ];
 
-export type KanjiExample = { surface: string; reading: string; meaningZh: string };
+export type KanjiExample = {
+  surface: string;
+  reading: string;
+  meaningZh: string;
+  /** Per-locale translations of `meaningZh`; falls back to the zh source (#427). */
+  meaningI18n?: LocalizedText;
+};
 
 /**
  * Real words from the vocab deck that contain this kanji -- the example
  * compounds shown on the kanji card. Sorted shortest-first (the simplest
  * compound reads most clearly) and capped, since a kanji card only needs a
  * few illustrative words. Uses the full `vocabulary` deck (basic N5 + JLPT
- * N2/N1) so lower-level kanji also resolve example words.
+ * N2/N1) so lower-level kanji also resolve example words. `deck` is
+ * injectable for tests only.
  */
-export function kanjiExamples(kanji: string, limit = 6): KanjiExample[] {
-  return vocabulary
+export function kanjiExamples(kanji: string, limit = 6, deck: VocabularyItem[] = vocabulary): KanjiExample[] {
+  return deck
     .filter((item) => item.surface.includes(kanji))
     .sort((a, b) => a.surface.length - b.surface.length)
     .slice(0, limit)
-    .map((item) => ({ surface: item.surface, reading: item.reading, meaningZh: item.meaningZh }));
+    .map((item) => ({
+      surface: item.surface,
+      reading: item.reading,
+      meaningZh: item.meaningZh,
+      meaningI18n: item.meaningI18n
+    }));
 }

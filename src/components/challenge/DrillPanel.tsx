@@ -3,6 +3,7 @@ import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
 import { DarumaSpot, PaperNoteSpot, TeaCupSpot } from "../../illustrations";
 import { isReadingPrompt } from "../../domain/furigana";
+import { pickLocalized } from "../../domain/localizedContent";
 import { ExamPrompt } from "../ExamPrompt";
 import { FeedbackPanel } from "../FeedbackPanel";
 import { Ruby } from "../Ruby";
@@ -159,7 +160,13 @@ export function DrillPanel({
                   />
                 </p>
                 {currentQuestion.targetForm === "meaning" ? null : (
-                  <p className="meaning">{currentQuestion.vocabulary.meaningZh}</p>
+                  <p className="meaning">
+                    {pickLocalized(
+                      currentQuestion.vocabulary.meaningZh,
+                      currentQuestion.vocabulary.meaningI18n,
+                      language
+                    )}
+                  </p>
                 )}
               </>
             )}
