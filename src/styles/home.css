@@ -68,6 +68,32 @@
   box-shadow: var(--button-hover-shadow);
 }
 
+.home-donate-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: var(--paper);
+  color: var(--vermilion);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.home-donate-link svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.home-donate-link:hover {
+  border-color: var(--vermilion);
+  box-shadow: var(--button-hover-shadow);
+}
+
 /* Anonymous feedback form -- a centered modal opened by the footer buttons
    (so the learner never has to scroll down to find it). */
 .feedback-overlay {

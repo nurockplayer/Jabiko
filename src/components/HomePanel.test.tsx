@@ -89,6 +89,19 @@ describe("HomePanel feedback entry", () => {
   });
 });
 
+describe("HomePanel donate link", () => {
+  const ecpayUrl =
+    "https://payment.ecpay.com.tw/Broadcaster/Donate/57DD8DC811013DF1C576D7ED22ACF911";
+
+  it("renders a donate link to ECPay that opens safely in a new tab", () => {
+    renderHome();
+    const link = screen.getByRole("link", { name: /小額贊助 Jabiko/ });
+    expect(link).toHaveAttribute("href", ecpayUrl);
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link.getAttribute("rel") ?? "").toContain("noopener noreferrer");
+  });
+});
+
 describe("HomePanel newcomer first-screen (onboarding)", () => {
   it("hides the 繼續學 continue banner for a brand-new visitor (no attempts)", () => {
     renderHome();

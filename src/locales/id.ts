@@ -255,6 +255,7 @@ export const id: Copy = {
   shareSiteTitle: "Bagikan Jabiko",
   shareSiteText:
     "Aku pakai Jabiko untuk latihan JLPT: tata bahasa, kanji, kosakata, dan latihan per jenis soal N5〜N1 bisa dilatih sampai lancar di satu tempat, kubagikan untuk kamu yang juga sedang persiapan👇",
+  donate: "Dukung Jabiko",
   resetSession: "Atur ulang sesi ini",
   currentQuestion: "Soal saat ini",
   questionNumber: (value) => `Soal ke-${value}`,

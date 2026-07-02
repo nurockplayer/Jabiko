@@ -255,6 +255,7 @@ export const my: Copy = {
   shareSiteTitle: "Jabiko ကို မျှဝေရန်",
   shareSiteText:
     "ကျွန်တော်/ကျွန်မ JLPT ပြင်ဆင်ရန် Jabiko ကို သုံးနေပါတယ်— N5〜N1 သဒ္ဒါ၊ ခန်းဂျိ၊ ဝေါဟာရနဲ့ ပုံစံအလိုက် လေ့ကျင့်ခြင်း အကုန် တစ်နေရာတည်းမှာ — သင်လည်း လေ့လာနေတယ်ဆိုရင် မျှဝေပေးလိုက်ပါတယ်👇",
+  donate: "Jabiko ကို ထောက်ပံ့ရန်",
   resetSession: "ဤလေ့ကျင့်ခန်းကို ပြန်လည်စတင်ရန်",
   currentQuestion: "လက်ရှိ မေးခွန်း",
   questionNumber: (value) => `မေးခွန်း ${value}`,

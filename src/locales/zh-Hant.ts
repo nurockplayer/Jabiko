@@ -255,6 +255,7 @@ export const zhHant: Copy = {
   shareSiteTitle: "分享 Jabiko",
   shareSiteText:
     "我在用 Jabiko 練日檢：N5〜N1 文法、漢字、單字、題型練習一站練到熟，分享給也在備考的你👇",
+  donate: "小額贊助 Jabiko",
   resetSession: "重設本次",
   currentQuestion: "目前題目",
   questionNumber: (value) => `第 ${value} 題`,

@@ -256,6 +256,7 @@ export const th: Copy = {
   shareSiteTitle: "แชร์ Jabiko",
   shareSiteText:
     "ฉันใช้ Jabiko ฝึกสอบวัดระดับญี่ปุ่น: ไวยากรณ์ คันจิ คำศัพท์ และฝึกตามประเภทโจทย์ N5〜N1 ฝึกให้คล่องครบในที่เดียว แชร์ให้เพื่อนที่กำลังเตรียมสอบเหมือนกัน👇",
+  donate: "สนับสนุน Jabiko",
   resetSession: "รีเซ็ตรอบนี้",
   currentQuestion: "โจทย์ปัจจุบัน",
   questionNumber: (value) => `ข้อที่ ${value}`,

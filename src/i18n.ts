@@ -236,6 +236,7 @@ export type Copy = {
   shareCopied: string;
   shareSiteTitle: string;
   shareSiteText: string;
+  donate: string;
   resetSession: string;
   currentQuestion: string;
   questionNumber: (value: number) => string;
