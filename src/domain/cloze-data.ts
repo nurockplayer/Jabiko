@@ -13,6 +13,7 @@ const teRequestSentences: ClozeSentence[] = [
     targetForm: "te",
     grammarPoint: "〜てください",
     translationZh: "請稍等。",
+    translationI18n: { en: "Please wait a moment.", ja: "すこしのあいだ そのままで いてほしい、というおねがい。" },
     level: "N5"
   },
   {
@@ -23,6 +24,7 @@ const teRequestSentences: ClozeSentence[] = [
     targetForm: "te",
     grammarPoint: "〜てください",
     translationZh: "請在這裡寫名字。",
+    translationI18n: { en: "Please write your name here.", ja: "このばしょに なまえを きにゅうしてほしい、というおねがい。" },
     level: "N5"
   },
   {
@@ -33,6 +35,7 @@ const teRequestSentences: ClozeSentence[] = [
     targetForm: "te",
     grammarPoint: "〜てください",
     translationZh: "請再說一次。",
+    translationI18n: { en: "Please say it one more time.", ja: "おなじことを もういちど いってほしい、というおねがい。" },
     level: "N5"
   },
   {
@@ -43,6 +46,7 @@ const teRequestSentences: ClozeSentence[] = [
     targetForm: "te",
     grammarPoint: "〜てください",
     translationZh: "請吃這個藥。",
+    translationI18n: { en: "Please take this medicine.", ja: "このくすりを ふくようしてほしい、というおねがい。" },
     level: "N5"
   },
   {
@@ -53,6 +57,7 @@ const teRequestSentences: ClozeSentence[] = [
     targetForm: "te",
     grammarPoint: "〜てください",
     translationZh: "請讀這本書。",
+    translationI18n: { en: "Please read this book.", ja: "このほんに めを とおしてほしい、というおねがい。" },
     level: "N5"
   },
   {
@@ -63,6 +68,7 @@ const teRequestSentences: ClozeSentence[] = [
     targetForm: "te",
     grammarPoint: "〜てください",
     translationZh: "請看這張照片。",
+    translationI18n: { en: "Please look at this photo.", ja: "このしゃしんを ごらんになってほしい、というおねがい。" },
     level: "N5"
   },
   {
@@ -73,6 +79,7 @@ const teRequestSentences: ClozeSentence[] = [
     targetForm: "te",
     grammarPoint: "〜てください",
     translationZh: "請快點來。",
+    translationI18n: { en: "Please come quickly.", ja: "はやく こちらに とうちゃくしてほしい、というおねがい。" },
     level: "N5"
   },
   {
@@ -83,6 +90,7 @@ const teRequestSentences: ClozeSentence[] = [
     targetForm: "te",
     grammarPoint: "〜てください",
     translationZh: "請打開窗戶。",
+    translationI18n: { en: "Please open the window.", ja: "まどを ひらいてほしい、というおねがい。" },
     level: "N5"
   },
   {
@@ -93,6 +101,7 @@ const teRequestSentences: ClozeSentence[] = [
     targetForm: "te",
     grammarPoint: "〜てください",
     translationZh: "請借我筆。",
+    translationI18n: { en: "Please lend me your pen.", ja: "ペンを すこしのあいだ つかわせてほしい、というおねがい。" },
     level: "N5"
   },
   {
@@ -103,6 +112,7 @@ const teRequestSentences: ClozeSentence[] = [
     targetForm: "te",
     grammarPoint: "〜てください",
     translationZh: "請多吃一點飯。",
+    translationI18n: { en: "Please eat plenty of rice.", ja: "ごはんを たくさん くちにしてほしい、というおねがい。" },
     level: "N5"
   }
 ];
@@ -116,6 +126,7 @@ const desiderativeSentences: ClozeSentence[] = [
     targetForm: "desiderative",
     grammarPoint: "〜たいです",
     translationZh: "想喝冰水。",
+    translationI18n: { en: "I want to drink some cold water.", ja: "ひえた みずが ほしい、というきもち。" },
     level: "N5"
   },
   {
@@ -126,6 +137,7 @@ const desiderativeSentences: ClozeSentence[] = [
     targetForm: "desiderative",
     grammarPoint: "〜たいです",
     translationZh: "暑假想去日本。",
+    translationI18n: { en: "I want to go to Japan during summer vacation.", ja: "なつやすみは にほんを おとずれたい、というきもち。" },
     level: "N5"
   },
   {
@@ -136,6 +148,7 @@ const desiderativeSentences: ClozeSentence[] = [
     targetForm: "desiderative",
     grammarPoint: "〜たいです",
     translationZh: "今天想吃拉麵。",
+    translationI18n: { en: "Today I feel like eating ramen.", ja: "きょうは ラーメンの きぶんだ、といういみ。" },
     level: "N5"
   },
   {
@@ -146,6 +159,7 @@ const desiderativeSentences: ClozeSentence[] = [
     targetForm: "desiderative",
     grammarPoint: "〜たいです",
     translationZh: "想見家鄉的朋友。",
+    translationI18n: { en: "I want to see my friends back home.", ja: "こきょうの ともだちが こいしい、というきもち。" },
     level: "N5"
   },
   {
@@ -156,6 +170,7 @@ const desiderativeSentences: ClozeSentence[] = [
     targetForm: "desiderative",
     grammarPoint: "〜たいです",
     translationZh: "已經想回家了。",
+    translationI18n: { en: "I already want to go home.", ja: "そろそろ いえに もどりたい、というきもち。" },
     level: "N5"
   },
   {
@@ -166,6 +181,7 @@ const desiderativeSentences: ClozeSentence[] = [
     targetForm: "desiderative",
     grammarPoint: "〜たいです",
     translationZh: "想更深入學日文。",
+    translationI18n: { en: "I want to study Japanese more.", ja: "にほんごを もっと ふかく まなびたい、というきもち。" },
     level: "N5"
   },
   {
@@ -176,6 +192,7 @@ const desiderativeSentences: ClozeSentence[] = [
     targetForm: "desiderative",
     grammarPoint: "〜たいです",
     translationZh: "想看新電影。",
+    translationI18n: { en: "I want to watch the new movie.", ja: "あたらしい えいがを かんしょうしたい、というきもち。" },
     level: "N5"
   },
   {
@@ -186,6 +203,7 @@ const desiderativeSentences: ClozeSentence[] = [
     targetForm: "desiderative",
     grammarPoint: "〜たいです",
     translationZh: "想再多說一點。",
+    translationI18n: { en: "I want to talk a little more.", ja: "かいわを もうすこし つづけたい、というきもち。" },
     level: "N5"
   },
   {
@@ -196,6 +214,7 @@ const desiderativeSentences: ClozeSentence[] = [
     targetForm: "desiderative",
     grammarPoint: "〜たいです",
     translationZh: "想買那本書。",
+    translationI18n: { en: "I want to buy that book.", ja: "あのほんを こうにゅうしたい、というきもち。" },
     level: "N5"
   },
   {
@@ -206,6 +225,7 @@ const desiderativeSentences: ClozeSentence[] = [
     targetForm: "desiderative",
     grammarPoint: "〜たいです",
     translationZh: "週末想打網球。",
+    translationI18n: { en: "I want to play tennis on the weekend.", ja: "しゅうまつに テニスを やりたい、というきもち。" },
     level: "N5"
   }
 ];

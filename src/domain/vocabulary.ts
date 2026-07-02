@@ -1,7 +1,10 @@
 import type { VerbGroup, VocabularyItem } from "./types";
 import { jlptVocabulary } from "./vocabulary-jlpt";
+import { applyVocabularyI18n } from "./vocabulary.i18n";
 
-export const vocabulary: VocabularyItem[] = [
+// applyVocabularyI18n attaches the generated en/ja gloss overlays (#427); the
+// jlpt items arrive already attached, re-applying is a no-op for them.
+export const vocabulary: VocabularyItem[] = applyVocabularyI18n([
   verb("kaku", "書く", "かく", "寫", "godan", "私はノートに漢字を書く。", "我在筆記本寫漢字。"),
   verb("kiku", "聞く", "きく", "聽、問", "godan", "好きな音楽を聞く。", "聽喜歡的音樂。"),
   verb("iku", "行く", "いく", "去", "godan", "明日学校へ行く。", "明天去學校。"),
@@ -73,7 +76,7 @@ export const vocabulary: VocabularyItem[] = [
   noun("gakkou", "学校", "がっこう", "學校", "ここは学校だ。", "這裡是學校。"),
   ...extraVerbs(),
   ...jlptVocabulary
-];
+]);
 
 function extraVerbs(): VocabularyItem[] {
   const godan: Array<[string, string, string]> = [
