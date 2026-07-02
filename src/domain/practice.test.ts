@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { vocabulary } from "./vocabulary";
-import { buildClozeQuestionPool } from "./cloze";
+import { buildClozeQuestionPool, type ClozeSentence } from "./cloze";
 import { clozeSentences } from "./cloze-data";
 import { buildExamQuestionPool } from "./examBlocks";
 import {
@@ -60,6 +60,37 @@ describe("buildClozeQuestionPool", () => {
     expect(all.length).toBeGreaterThan(0);
     expect(n5.length).toEqual(all.length);
     expect(n1.length).toEqual(0);
+  });
+
+  it("localizes cloze explanations and instructions (#427)", () => {
+    const questions = buildClozeQuestionPool(clozeSentences, vocabulary);
+    const matsuTe = questions.find((question) => question.id === "cloze:te-request-matsu");
+
+    expect(matsuTe).toBeDefined();
+    expect(matsuTe!.explanation).toContain("句意：");
+    expect(matsuTe!.explanationI18n?.en).toContain("Grammar point:");
+    expect(matsuTe!.explanationI18n?.en).toContain("待って");
+    expect(matsuTe!.explanationI18n?.ja).toContain("文法ポイント：");
+    expect(matsuTe!.instructionI18n?.en).toBeTruthy();
+    expect(matsuTe!.instructionI18n?.ja).toBeTruthy();
+  });
+
+  it("threads cloze translationI18n into promptContext and the meaning line (#427)", () => {
+    const sentence: ClozeSentence = {
+      id: "test-te",
+      prefix: "ここで",
+      suffix: "ください。",
+      vocabularyId: "matsu",
+      targetForm: "te",
+      grammarPoint: "〜てください",
+      translationZh: "請在這裡等。",
+      translationI18n: { en: "Please wait here.", ja: "ここで待ってください。" }
+    };
+
+    const [question] = buildClozeQuestionPool([sentence], vocabulary);
+    expect(question.promptContextI18n?.en).toBe("Please wait here.");
+    expect(question.explanationI18n?.en).toContain("Sentence meaning: Please wait here.");
+    expect(question.explanationI18n?.ja).toContain("文の意味：ここで待ってください。");
   });
 });
 
@@ -146,6 +177,20 @@ describe("buildQuestionPool", () => {
       questions.find((question) => question.vocabulary.surface === "高い" && question.targetForm === "plainPastNegative")
         ?.expectedAnswers
     ).toEqual(["高くなかった"]);
+  });
+
+  it("threads explanationI18n from the conjugator into pool questions (#427)", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      targetForms: ["te", "reading", "meaning", "plainPastNegative"]
+    });
+
+    expect(questions.length).toBeGreaterThan(0);
+    for (const question of questions) {
+      expect(question.explanationI18n?.en, `${question.id}:en`).toBeTruthy();
+      expect(question.explanationI18n?.ja, `${question.id}:ja`).toBeTruthy();
+    }
   });
 
   it("filters out trivial questions where the expected answer equals the prompt surface", () => {
