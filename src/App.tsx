@@ -3,7 +3,7 @@ import { ChevronDown, Globe, Languages, Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import { countDueReviews } from "./domain/srs";
-import { copy, type Language } from "./i18n";
+import { copy, LAUNCHED_LANGUAGES, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
 import { LanguagePicker } from "./components/LanguagePicker";
 import { LanguageFlag } from "./components/LanguageFlag";
@@ -53,9 +53,10 @@ const GrammarPointPage = lazy(() =>
 type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about" | "grammar";
 type DrillPreset = LearningBlockDrillPreset;
 
-// The UI locales, in menu order, for the header language <select>. Each
+// The LAUNCHED locales, in menu order, for the header language picker. Each
 // option's label is that locale's own native name (copy[code].languageName).
-const LANGUAGE_OPTIONS: readonly Language[] = ["zh-Hant", "ja", "en", "th", "id", "ko", "vi", "my"];
+// Locales with untranslated content stay hidden until they ship (i18n.ts).
+const LANGUAGE_OPTIONS: readonly Language[] = LAUNCHED_LANGUAGES;
 
 // Lightweight URL routing: each top-level view maps to a path so the browser
 // back/forward buttons, refresh, and shareable/bookmarkable links all work

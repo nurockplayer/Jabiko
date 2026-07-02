@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { readStored, writeStored } from "../domain/safeStorage";
-import type { Language } from "../i18n";
+import { LAUNCHED_LANGUAGES, type Language } from "../i18n";
 
 const LANGUAGE_STORAGE_KEY = "jabiko.lang";
 
-const SUPPORTED_LANGUAGES: readonly Language[] = ["zh-Hant", "ja", "en", "th", "id", "ko", "vi", "my"];
-
+// Every selection layer (URL / stored / navigator) gates on the LAUNCHED set:
+// a locale whose content isn't translated yet behaves as if it doesn't exist
+// (its visitors get the ja fallback), and a preference stored before the
+// launch set was narrowed degrades gracefully instead of resurfacing it.
 function isSupportedLanguage(value: string | null): value is Language {
-  return value !== null && (SUPPORTED_LANGUAGES as readonly string[]).includes(value);
+  return value !== null && (LAUNCHED_LANGUAGES as readonly string[]).includes(value);
 }
 
 function languageForTag(tag: string | undefined): Language | null {
@@ -15,12 +17,9 @@ function languageForTag(tag: string | undefined): Language | null {
   const lower = tag.toLowerCase();
   if (lower.startsWith("ja")) return "ja";
   if (lower.startsWith("en")) return "en";
-  if (lower.startsWith("th")) return "th";
-  if (lower.startsWith("id")) return "id";
-  if (lower.startsWith("ko")) return "ko";
-  if (lower.startsWith("vi")) return "vi";
-  if (lower.startsWith("my")) return "my";
   if (lower.startsWith("zh")) return "zh-Hant";
+  // th/id/ko/vi/my: Copy files exist but their content isn't launched yet --
+  // deliberately unmapped so detection falls through to the ja fallback.
   return null;
 }
 
