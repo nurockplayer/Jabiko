@@ -341,6 +341,11 @@ export const ja: Copy = {
   authSyncingHint: "同期中…",
   authSyncedHint: "間違いと学習の進捗を端末間で同期しました。",
   authSyncErrorHint: "同期に失敗しましたが、端末内の記録は残っています。次回ログイン時に再試行します。",
+  authErrors: {
+    sessionFetchFailed: "ログイン状態を取得できませんでした",
+    authUnavailable: "ログインサービスを利用できません",
+    signOutFailed: "ログアウトに失敗しました"
+  },
   partOfSpeech: {
     verb: "動詞",
     i_adjective: "い形容詞",

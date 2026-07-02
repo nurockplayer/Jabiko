@@ -333,6 +333,11 @@ export const en: Copy = {
   authSyncingHint: "Syncing…",
   authSyncedHint: "Mistakes and progress are synced across devices.",
   authSyncErrorHint: "Sync failed — your local records are safe; it'll try again next sign-in.",
+  authErrors: {
+    sessionFetchFailed: "Couldn't check your sign-in status",
+    authUnavailable: "Sign-in service unavailable",
+    signOutFailed: "Sign-out failed"
+  },
   partOfSpeech: {
     verb: "Verb",
     i_adjective: "い-adjective",

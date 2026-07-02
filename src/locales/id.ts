@@ -333,6 +333,11 @@ export const id: Copy = {
   authSyncingHint: "Menyinkronkan…",
   authSyncedHint: "Soal salah dan progres belajar sudah tersinkron lintas perangkat.",
   authSyncErrorHint: "Sinkronisasi gagal, catatan di perangkat tetap aman; akan dicoba lagi saat masuk berikutnya.",
+  authErrors: {
+    sessionFetchFailed: "Tidak dapat memeriksa status masuk",
+    authUnavailable: "Layanan masuk tidak tersedia",
+    signOutFailed: "Gagal keluar"
+  },
   partOfSpeech: {
     verb: "Kata kerja",
     i_adjective: "Kata sifat-い",

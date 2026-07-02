@@ -333,6 +333,11 @@ export const vi: Copy = {
   authSyncingHint: "Đang đồng bộ…",
   authSyncedHint: "Câu sai và tiến độ đã được đồng bộ giữa các thiết bị.",
   authSyncErrorHint: "Đồng bộ thất bại — dữ liệu trên máy của bạn vẫn an toàn; nó sẽ thử lại ở lần đăng nhập sau.",
+  authErrors: {
+    sessionFetchFailed: "Không thể kiểm tra trạng thái đăng nhập",
+    authUnavailable: "Dịch vụ đăng nhập không khả dụng",
+    signOutFailed: "Đăng xuất không thành công"
+  },
   partOfSpeech: {
     verb: "Động từ",
     i_adjective: "Tính từ い",

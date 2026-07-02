@@ -3,6 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import { HomePanel } from "./HomePanel";
 import type { Attempt } from "../domain/types";
 import { CONTENT_STATS } from "../domain/contentStats";
+import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlocks";
+import { learningBlockI18n } from "../domain/learningBlocks.i18n";
+import { localizeLearningBlock } from "../domain/learningBlockText";
+import { copy } from "../i18n";
 
 const noop = () => {};
 
@@ -163,5 +167,20 @@ describe("HomePanel content total", () => {
       CONTENT_STATS.kanjiReadings +
       CONTENT_STATS.patternChecks;
     expect(screen.getByText(new RegExp(total.toLocaleString()))).toBeInTheDocument();
+  });
+});
+
+describe("HomePanel continue banner i18n (#427)", () => {
+  it("localizes the next-chapter title once the overlay chunk loads (en)", async () => {
+    renderHome({ language: "en", progressAttempts: [sampleAttempt] });
+
+    // Mirror HomePanel's own next-chapter pick, then expect its en title.
+    const trackable = learningBlocks.filter(
+      (block) => block.group === "basic" && block.completionMode !== "reference"
+    );
+    const next = trackable.find((block) => !isLearningBlockComplete([sampleAttempt], block))!;
+    const enTitle = localizeLearningBlock(next, "en", learningBlockI18n).title;
+
+    expect(await screen.findByText(copy.en.homeBannerContinueMain(enTitle))).toBeInTheDocument();
   });
 });

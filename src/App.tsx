@@ -279,7 +279,7 @@ export default function App() {
               )}
               {authError ? (
                 <span className="heading-auth-error" role="alert">
-                  {authError}
+                  {t.authErrors[authError]}
                 </span>
               ) : (
                 <span className="auth-hint">

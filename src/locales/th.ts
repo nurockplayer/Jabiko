@@ -334,6 +334,11 @@ export const th: Copy = {
   authSyncingHint: "กำลังซิงก์…",
   authSyncedHint: "ข้อที่ผิดและความคืบหน้าการเรียนซิงก์ข้ามอุปกรณ์แล้ว",
   authSyncErrorHint: "ซิงก์ไม่สำเร็จ ข้อมูลในเครื่องยังอยู่; ครั้งหน้าที่เข้าสู่ระบบจะลองใหม่",
+  authErrors: {
+    sessionFetchFailed: "ไม่สามารถตรวจสอบสถานะการเข้าสู่ระบบได้",
+    authUnavailable: "บริการเข้าสู่ระบบไม่พร้อมใช้งาน",
+    signOutFailed: "ออกจากระบบไม่สำเร็จ"
+  },
   partOfSpeech: {
     verb: "คำกริยา",
     i_adjective: "คำคุณศัพท์ い",

@@ -333,6 +333,11 @@ export const ko: Copy = {
   authSyncingHint: "동기화 중…",
   authSyncedHint: "오답과 진행 상황이 기기 간에 동기화됐어요.",
   authSyncErrorHint: "동기화에 실패했어요 — 로컬 기록은 안전하며, 다음 로그인 때 다시 시도합니다.",
+  authErrors: {
+    sessionFetchFailed: "로그인 상태를 확인할 수 없습니다",
+    authUnavailable: "로그인 서비스를 사용할 수 없습니다",
+    signOutFailed: "로그아웃에 실패했습니다"
+  },
   partOfSpeech: {
     verb: "동사",
     i_adjective: "い형용사",

@@ -1,6 +1,7 @@
 import type { LocaleCode, PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
 import type { QuestionType } from "./domain/analytics/questionType";
 import type { ModeCopyKey } from "./domain/practiceMode";
+import type { AuthErrorCode } from "./hooks/useAuth";
 
 // Single source of truth for the locale code union lives in the domain layer
 // (src/domain/types.ts) so content overlays can reference it too; `Language`
@@ -300,6 +301,7 @@ export type Copy = {
   authSyncingHint: string;
   authSyncedHint: string;
   authSyncErrorHint: string;
+  authErrors: Record<AuthErrorCode, string>;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
   focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast", string>;
