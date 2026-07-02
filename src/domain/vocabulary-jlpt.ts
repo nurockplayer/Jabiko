@@ -1,4 +1,5 @@
 import type { JlptLevel, PartOfSpeech, VocabularyItem } from "./types";
+import { applyVocabularyI18n } from "./vocabulary.i18n";
 
 function entry(
   level: JlptLevel,
@@ -618,4 +619,6 @@ const n1Vocabulary: VocabularyItem[] = [
   n1A("億劫", "おっくう", "嫌麻煩")
 ];
 
-export const jlptVocabulary: VocabularyItem[] = [...n2Vocabulary, ...n1Vocabulary];
+// Gloss overlays (#427) attach here so every direct importer (sessionPools,
+// readingLookup, ...) sees localized meanings, not just the combined deck.
+export const jlptVocabulary: VocabularyItem[] = applyVocabularyI18n([...n2Vocabulary, ...n1Vocabulary]);
