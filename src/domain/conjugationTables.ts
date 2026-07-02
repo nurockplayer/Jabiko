@@ -16,6 +16,7 @@
 //   - い形容詞 / な形容詞 / 名詞 variation
 //   - 必要過去 step-by-step
 //   - Sentence-pattern quick lookup (てください / なくてもいい / etc.)
+import type { LocaleCode } from "./types";
 
 export interface ConjugationTable {
   /** Stable id used as React key. */
@@ -30,6 +31,30 @@ export interface ConjugationTable {
   rows: Array<readonly string[]>;
   /** Optional pitfall bullets shown under the table. */
   pitfalls?: string[];
+}
+
+/** The translatable text layer of a table (#427) -- everything but the id. */
+export type ConjugationTableText = Pick<
+  ConjugationTable,
+  "title" | "caption" | "columns" | "rows" | "pitfalls"
+>;
+
+/** Per-table, per-locale overlays; the data lives in conjugationTables.i18n.ts. */
+export type ConjugationTableOverlays = Record<string, Partial<Record<LocaleCode, ConjugationTableText>>>;
+
+/**
+ * Swap a table's text layer to `locale` when an overlay exists; zh-Hant (and
+ * any locale without an overlay) falls back to the base table. The overlay
+ * data is passed in so the heavy i18n module can stay dynamically imported
+ * by the view (RulesPanel is an eager route).
+ */
+export function localizeConjugationTable(
+  table: ConjugationTable,
+  locale: LocaleCode,
+  overlays: ConjugationTableOverlays
+): ConjugationTable {
+  const overlay = overlays[table.id]?.[locale];
+  return overlay ? { ...table, ...overlay } : table;
 }
 
 const verbGroups: ConjugationTable = {
@@ -223,7 +248,7 @@ const sentencePatterns: ConjugationTable = {
   pitfalls: [
     "授受視角是這四個句型最大的坑：「別人為我做」是てくれる家族，不能用てあげる。",
     "對上位 / 長輩用敬語：てもらう → ていただく；てくれる → てくださる。",
-    "と思う／と言う 接續吃普通形，な形容詞・名詞要保留だ（雨だと思う、學生だと言った）。",
+    "と思う／と言う 接續吃普通形，な形容詞・名詞要保留だ（雨だと思う、学生だと言った）。",
     "「ないでください」（請不要...）比「てはいけません」（禁止）軟，請對方時用前者比較自然。"
   ]
 };
