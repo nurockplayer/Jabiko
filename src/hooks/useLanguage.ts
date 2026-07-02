@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { readStored, writeStored } from "../domain/safeStorage";
+import { LOCALE_CODES } from "../domain/types";
 import { LAUNCHED_LANGUAGES, type Language } from "../i18n";
 
 const LANGUAGE_STORAGE_KEY = "jabiko.lang";
@@ -12,15 +13,20 @@ function isSupportedLanguage(value: string | null): value is Language {
   return value !== null && (LAUNCHED_LANGUAGES as readonly string[]).includes(value);
 }
 
+// Primary BCP-47 subtag -> locale code, derived from the registry (#434):
+// "zh-Hant" -> "zh", "ja" -> "ja", … So a new locale is detectable the moment
+// it launches, with no hand-maintained prefix table.
+const PRIMARY_SUBTAG_TO_CODE: Record<string, Language> = Object.fromEntries(
+  LOCALE_CODES.map((code) => [code.split("-")[0], code])
+);
+
 function languageForTag(tag: string | undefined): Language | null {
   if (!tag) return null;
-  const lower = tag.toLowerCase();
-  if (lower.startsWith("ja")) return "ja";
-  if (lower.startsWith("en")) return "en";
-  if (lower.startsWith("zh")) return "zh-Hant";
-  // th/id/ko/vi/my: Copy files exist but their content isn't launched yet --
-  // deliberately unmapped so detection falls through to the ja fallback.
-  return null;
+  const primary = tag.toLowerCase().split("-")[0];
+  const code = PRIMARY_SUBTAG_TO_CODE[primary];
+  // Only launched locales resolve; a gated locale's tag falls through to the
+  // ja fallback, so unfinished content is never surfaced by detection.
+  return code && isSupportedLanguage(code) ? code : null;
 }
 
 export function languageFromSearch(search: string): Language | null {
