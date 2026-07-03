@@ -82,6 +82,16 @@ export interface ResolvedSeo {
  */
 export function seoForView(view: SeoView, grammarSurface?: string | null): ResolvedSeo {
   if (view === "grammar" && grammarSurface) {
+    // JLPT level route (e.g., /grammar/n5): show index-page metadata, not
+    // a grammar-point title.
+    if (/^[Nn][1-5]$/.test(grammarSurface)) {
+      const level = grammarSurface.toUpperCase();
+      return {
+        title: `JLPT ${level} 文型一覧 · 日檢文法 · Jabiko`,
+        description: `JLPT ${level} 文法文型列表——${level} 範圍內的所有文法點，可搜尋、依重要度／例句類型篩選。`,
+        canonical: `${SITE_ORIGIN}/grammar/${level.toLowerCase()}`
+      };
+    }
     return {
       title: `${grammarSurface} 的意思與用法 · JLPT／日檢文法 · Jabiko`,
       description: `日檢文法「${grammarSurface}」的意思、接續、用法與例句，看完直接練——JLPT 文法逐點攻略。`,
