@@ -58,16 +58,93 @@ export function GrammarPointPage({
     </button>
   );
 
-  // Unknown surface (stale/typo link): minimal, non-crashing shell.
+  // Unknown surface (stale/typo link): neither exam data nor database entry exists.
   if (!point) {
+    if (!dbPattern) {
+      return (
+        <section className="grammar-point grammar-point-missing">
+          {backButton}
+          <header className="gp-hero">
+            <h1 className="gp-surface" lang="ja">
+              {surface}
+            </h1>
+          </header>
+        </section>
+      );
+    }
+
+    // Database-only surface: exists in grammarDatabase but has no exam-bank point.
+    // Show the database content (formation, examples, media, related patterns)
+    // without exam-sourced usage notes or practice exercises.
     return (
-      <section className="grammar-point grammar-point-missing">
+      <section className="grammar-point" aria-label={surface}>
         {backButton}
         <header className="gp-hero">
-          <h1 className="gp-surface" lang="ja">
-            {surface}
-          </h1>
+          <div className="gp-hero-row">
+            <h1 className="gp-surface" lang="ja">
+              {surface}
+            </h1>
+            <span className="gp-level" aria-label={`JLPT ${dbPattern.level}`}>
+              {dbPattern.level}
+            </span>
+          </div>
+          <p className="gp-meaning">{dbPattern.meaningZh}</p>
         </header>
+
+        {dbPattern.examples.length > 0 ? (
+          <section className="gp-card">
+            <h2 className="gp-card-title">{t.grammarDatabaseExamples}</h2>
+            <ul className="gp-examples">
+              {dbPattern.examples.map((ex) => (
+                <li key={ex.japanese}>
+                  <span className="gp-ex-ja" lang="ja">{ex.japanese}</span>
+                  {ex.meaningZh ? <span className="gp-ex-zh">{ex.meaningZh}</span> : null}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {dbPattern.mediaExamples.length > 0 ? (
+          <section className="gp-card gp-media">
+            <h2 className="gp-card-title">
+              <Clapperboard aria-hidden="true" className="gp-card-title-icon" />
+              {t.grammarMediaExamples}
+            </h2>
+            <MediaExamples mediaExamples={dbPattern.mediaExamples} language={language} />
+          </section>
+        ) : null}
+
+        {dbRelated.length > 0 ? (
+          <section className="gp-card">
+            <h2 className="gp-card-title">
+              <BookOpen aria-hidden="true" className="gp-card-title-icon" />
+              {t.grammarRelatedPatterns}
+            </h2>
+            <ul className="gp-related-list">
+              {dbRelated.map((related) => (
+                <li key={related.id} className="gp-related-item">
+                  <span className="gp-related-pattern" lang="ja">{related.pattern}</span>
+                  <p className="gp-related-meaning">{related.meaningZh}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
+          <section className="gp-card">
+            <h2 className="gp-card-title">
+              <AlertTriangle aria-hidden="true" className="gp-card-title-icon" />
+              {t.grammarCommonMistakes}
+            </h2>
+            <ul className="gp-mistakes-list">
+              {dbPattern.commonMistakes.map((mistake, i) => (
+                <li key={i}>{mistake}</li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </section>
     );
   }
