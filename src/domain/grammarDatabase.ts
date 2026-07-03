@@ -63,7 +63,7 @@ const n5Patterns: GrammarPattern[] = [
       { japanese: "明日は休んでもいいですよ。", meaningZh: "明天休息也沒關係喔。" },
     ],
     mediaExamples: [],
-    relatedPatternIds: ["te-wa-ikenai", "te-mo-kamawanai"],
+    relatedPatternIds: ["te-wa-ikenai"],
     commonMistakes: [
       "口語中「〜てもいいですか」常省略為「〜ていいですか」",
     ],
@@ -193,7 +193,7 @@ const n5Patterns: GrammarPattern[] = [
       { japanese: "窓を閉めてください。", meaningZh: "請把窗戶關上。" },
     ],
     mediaExamples: [],
-    relatedPatternIds: ["te-morau"],
+    relatedPatternIds: ["te-mo-ii", "te-wa-ikenai"],
   },
   {
     id: "to-omou",
@@ -352,7 +352,7 @@ const n4Patterns: GrammarPattern[] = [
       { japanese: "宿題を忘れてしまった。", meaningZh: "不小心忘記做功課了。" },
     ],
     mediaExamples: [],
-    relatedPatternIds: ["te-oku", "chau-temau"],
+    relatedPatternIds: ["te-oku"],
   },
   {
     id: "te-miru",
@@ -478,7 +478,7 @@ const n4Patterns: GrammarPattern[] = [
       { japanese: "百円しか持っていない。", meaningZh: "只有一百日元。" },
     ],
     mediaExamples: [],
-    relatedPatternIds: ["dake"],
+    relatedPatternIds: [],
     commonMistakes: [
       "只能接否定形；肯定句用「だけ」",
     ],
@@ -496,7 +496,7 @@ const n4Patterns: GrammarPattern[] = [
       { japanese: "彼はもう着いているはずです。", meaningZh: "他應該已經到了。" },
     ],
     mediaExamples: [],
-    relatedPatternIds: ["youda", "wake"],
+    relatedPatternIds: ["tsumori"],
   },
   {
     id: "tsumori",
@@ -529,7 +529,7 @@ const n4Patterns: GrammarPattern[] = [
       { japanese: "たくさん勉強したのに、試験に落ちた。", meaningZh: "明明讀了很多書，卻沒考過。" },
     ],
     mediaExamples: [],
-    relatedPatternIds: ["nonishitakara", "te-mo"],
+    relatedPatternIds: ["nimo-kakawarazu", "monono"],
     commonMistakes: [
       "「〜のに」帶不滿或意外語氣，客觀事實的逆接用「〜が／〜けど」",
     ],
@@ -643,7 +643,7 @@ const n2Patterns: GrammarPattern[] = [
       { japanese: "間に合わないとしても、行くだけ行ってみよう。", meaningZh: "即使來不及，至少去試試看。" },
     ],
     mediaExamples: [],
-    relatedPatternIds: ["ni-shitemo", "te-mo"],
+    relatedPatternIds: ["ni-shitemo"],
     commonMistakes: [
       "「〜としても」是純粹假設逆接；「〜にしても」可表「從某角度來看」的讓步",
     ],
@@ -711,7 +711,7 @@ const n2Patterns: GrammarPattern[] = [
       { japanese: "彼の言葉を信じたばかりに、大金を失った。", meaningZh: "就因為相信了他的話，損失了一大筆錢。" },
     ],
     mediaExamples: [],
-    relatedPatternIds: ["dake-atte", "sei-de"],
+    relatedPatternIds: ["dake-atte"],
     commonMistakes: [
       "只用在負面結果，不要用於正面原因",
     ],
@@ -747,7 +747,7 @@ const n2Patterns: GrammarPattern[] = [
       { japanese: "さんざん迷ったあげく、買わずに帰った。", meaningZh: "猶豫了半天，最後沒買就回去了。" },
     ],
     mediaExamples: [],
-    relatedPatternIds: ["ueni"],
+    relatedPatternIds: [],
     commonMistakes: [
       "「〜あげく」的結果幾乎總是負面或令人失望的",
     ],
@@ -765,7 +765,7 @@ const n2Patterns: GrammarPattern[] = [
       { japanese: "大事な日に限って、電車が遅れる。", meaningZh: "偏偏在重要的日子，電車就會誤點。" },
     ],
     mediaExamples: [],
-    relatedPatternIds: ["kagiri"],
+    relatedPatternIds: [],
     commonMistakes: [
       "常帶「偏偏在不好的時機發生」的口氣",
     ],
@@ -783,7 +783,7 @@ const n2Patterns: GrammarPattern[] = [
       { japanese: "今日は大事な会議があるので、休むわけにはいかない。", meaningZh: "今天有重要會議，不能請假。" },
     ],
     mediaExamples: [],
-    relatedPatternIds: ["zaruw-o-enai", "nakereba-naranai"],
+    relatedPatternIds: ["zaru-wo-enai", "nakereba-naranai"],
     commonMistakes: [
       "「〜わけにはいかない」是社會常識上或情理上不能做，不是物理上的不可能",
     ],
