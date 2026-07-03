@@ -89,6 +89,7 @@ export function GrammarPointPage({
             </span>
           </div>
           <p className="gp-meaning">{dbPattern.meaningZh}</p>
+          <p className="gp-formation">{dbPattern.formation}</p>
         </header>
 
         {dbPattern.examples.length > 0 ? (

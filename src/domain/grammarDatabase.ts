@@ -90,7 +90,7 @@ const n5Patterns: GrammarPattern[] = [
     pattern: "〜なければならない",
     meaningZh: "必須做～、非做不可",
     meaningJa: "～する義務がある／必要を表す",
-    formation: "動詞ない形（−ない）＋ければならない",
+    formation: "動詞ない形（ない→なければ）＋ならない",
     importance: "must_know",
     tags: ["義務", "必要"],
     examples: [
@@ -109,7 +109,7 @@ const n5Patterns: GrammarPattern[] = [
     pattern: "〜なくてもいい",
     meaningZh: "不用做～、不做也可以",
     meaningJa: "～する必要はない／不要を表す",
-    formation: "動詞ない形（−ない）＋くてもいい",
+    formation: "動詞ない形（ない→なくて）＋もいい",
     importance: "must_know",
     tags: ["不要", "許可"],
     examples: [
