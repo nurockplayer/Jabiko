@@ -317,7 +317,7 @@ export const n2Items: PracticeQuestion[] = [
     instructionZh: "句中填空：依文脈選最自然的文法。",
     instructionI18n: { "ja": "空欄補充：文脈に最も自然に合う文法を選びましょう。", "en": "Fill in the blank: choose the grammar that fits the context most naturally." },
     promptText: "宿題は終わる ___ 、まだ半分もやっていない。",
-    promptContextZh: "別說作業沒寫完，連一半都還沒做。",
+    promptContextZh: "別說寫完了，作業連一半都還沒做。",
     promptContextI18n: { "ja": "宿題は終わるどころか、まだ半分もやっていません。", "en": "Far from finishing the homework, I haven't even done half of it." },
     expectedAnswer: "どころか",
     options: ["どころか", "ばかりか", "うえに", "に加えて"],
