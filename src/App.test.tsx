@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import App from "./App";
@@ -1007,6 +1007,23 @@ describe("App", () => {
     expect(
       await screen.findByRole("heading", { name: "JLPT N5 文型" }, { timeout: 10000 })
     ).toBeInTheDocument();
+
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("gates the grammar-pattern database browse UI to zh-Hant (#438/#427)", async () => {
+    // The database cards render meaningZh/formation as raw Chinese, so the
+    // browse UI is hidden for non-zh locales until its i18n overlay lands.
+    localStorage.setItem("jabiko.lang", "en"); // must be set before App mounts
+    render(<App />);
+
+    // The 文型 (Grammar) index nav entry is not offered in English.
+    expect(screen.queryByRole("button", { name: "Grammar" })).not.toBeInTheDocument();
+
+    // A direct /grammar URL redirects home instead of rendering Chinese cards.
+    window.history.replaceState({}, "", "/grammar");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    await waitFor(() => expect(window.location.pathname).toBe("/"));
 
     window.history.replaceState({}, "", "/");
   });

@@ -135,7 +135,6 @@ export default function App() {
   const grammarLevel = isGrammarLevelRoute
     ? (grammarSurface!.toUpperCase() as JlptLevel)
     : null;
-  const showGrammarIndex = appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute);
 
   // Keep the URL in sync when the view changes (push a history entry only
   // when the path actually differs, so popstate-driven changes don't loop).
@@ -170,6 +169,30 @@ export default function App() {
   // change, so the prop-drilled `language` stays a seam.
   const { language, setLanguage } = useLanguage();
   const t = copy[language];
+
+  // #438: the grammar-pattern DATABASE (index + cards) is Chinese-only content
+  // for now, so its browse UI is gated to zh-Hant until the i18n overlay lands
+  // (#427 invariant: no residual Chinese in en/ja). Per-point study pages
+  // (GrammarPointPage) stay available in every language — their exam-bank
+  // content is already localized and the DB-only extras are gated inside.
+  const grammarIndexAvailable = language === "zh-Hant";
+  const showGrammarIndex =
+    grammarIndexAvailable && appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute);
+
+  // A non-zh visitor who reaches a grammar-INDEX state (direct /grammar or
+  // /grammar/n5 URL, or "back" out of a per-point study page) has no localized
+  // browse UI yet, so send them home rather than render an empty shell. Real
+  // per-point study pages (a concrete surface) stay reachable in every language.
+  useEffect(() => {
+    if (
+      appView === "grammar" &&
+      !grammarIndexAvailable &&
+      (grammarSurface === null || isGrammarLevelRoute)
+    ) {
+      setGrammarSurface(null);
+      setAppView("home");
+    }
+  }, [appView, grammarIndexAvailable, grammarSurface, isGrammarLevelRoute]);
   // Language picker, opened from the header Globe button (#326).
   const [langPickerOpen, setLangPickerOpen] = useState(false);
   // Service-worker update prompt (#327): toast when a new build is ready.
@@ -375,15 +398,17 @@ export default function App() {
         >
           {t.kanji}
         </button>
-        <button
-          type="button"
-          className={appView === "grammar" && grammarSurface === null ? "selected" : ""}
-          aria-current={appView === "grammar" && grammarSurface === null ? "page" : undefined}
-          onClick={() => { setGrammarSurface(null); setAppView("grammar"); }}
-        >
-          <BookOpen aria-hidden="true" size={16} style={{ verticalAlign: "middle", marginRight: "0.2rem" }} />
-          {t.grammar}
-        </button>
+        {grammarIndexAvailable ? (
+          <button
+            type="button"
+            className={appView === "grammar" && grammarSurface === null ? "selected" : ""}
+            aria-current={appView === "grammar" && grammarSurface === null ? "page" : undefined}
+            onClick={() => { setGrammarSurface(null); setAppView("grammar"); }}
+          >
+            <BookOpen aria-hidden="true" size={16} style={{ verticalAlign: "middle", marginRight: "0.2rem" }} />
+            {t.grammar}
+          </button>
+        ) : null}
         <button
           type="button"
           className={appView === "challenge" ? "selected" : ""}
