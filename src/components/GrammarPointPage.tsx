@@ -61,9 +61,12 @@ export function GrammarPointPage({
     </button>
   );
 
-  // Unknown surface (stale/typo link): neither exam data nor database entry exists.
+  // Unknown surface (stale/typo link): neither exam data nor database entry
+  // exists — OR a database-only pattern viewed in a non-zh-Hant locale, whose
+  // content is Chinese-only for now (#438: no residual Chinese in en/ja, the
+  // #427 invariant). Both render the minimal, content-free shell.
   if (!point) {
-    if (!dbPattern) {
+    if (!dbPattern || !isZhHant) {
       return (
         <section className="grammar-point grammar-point-missing">
           {backButton}
