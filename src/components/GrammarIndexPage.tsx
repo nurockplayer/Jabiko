@@ -310,7 +310,7 @@ function PatternCard({
       <button
         type="button"
         className="gi-pattern-card-inner"
-        onClick={() => onOpen(pattern.pattern)}
+        onClick={() => onOpen(pattern.pattern.replace(/^[〜～]/, ""))}
       >
         <div className="gi-pattern-row">
           <span className="gi-pattern-text" lang="ja">{pattern.pattern}</span>
