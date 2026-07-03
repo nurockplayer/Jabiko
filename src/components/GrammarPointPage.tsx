@@ -91,11 +91,11 @@ export function GrammarPointPage({
               {dbPattern.level}
             </span>
           </div>
-          {isZhHant && <p className="gp-meaning">{dbPattern.meaningZh}</p>}
-          {isZhHant && <p className="gp-formation">{dbPattern.formation}</p>}
+          {dbPattern.meaningZh && <p className="gp-meaning">{dbPattern.meaningZh}</p>}
+          {dbPattern.formation && <p className="gp-formation">{dbPattern.formation}</p>}
         </header>
 
-        {isZhHant && dbPattern.examples.length > 0 ? (
+        {dbPattern.examples.length > 0 ? (
           <section className="gp-card">
             <h2 className="gp-card-title">{t.grammarDatabaseExamples}</h2>
             <ul className="gp-examples">
@@ -109,7 +109,7 @@ export function GrammarPointPage({
           </section>
         ) : null}
 
-        {isZhHant && dbPattern.mediaExamples.length > 0 ? (
+        {dbPattern.mediaExamples.length > 0 ? (
           <section className="gp-card gp-media">
             <h2 className="gp-card-title">
               <Clapperboard aria-hidden="true" className="gp-card-title-icon" />
@@ -119,7 +119,7 @@ export function GrammarPointPage({
           </section>
         ) : null}
 
-        {isZhHant && dbRelated.length > 0 ? (
+        {dbRelated.length > 0 ? (
           <section className="gp-card">
             <h2 className="gp-card-title">
               <BookOpen aria-hidden="true" className="gp-card-title-icon" />
@@ -129,14 +129,14 @@ export function GrammarPointPage({
               {dbRelated.map((related) => (
                 <li key={related.id} className="gp-related-item">
                   <span className="gp-related-pattern" lang="ja">{related.pattern}</span>
-                  {isZhHant && <p className="gp-related-meaning">{related.meaningZh}</p>}
+                  {related.meaningZh && <p className="gp-related-meaning">{related.meaningZh}</p>}
                 </li>
               ))}
             </ul>
           </section>
         ) : null}
 
-        {isZhHant && dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
+        {dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
           <section className="gp-card">
             <h2 className="gp-card-title">
               <AlertTriangle aria-hidden="true" className="gp-card-title-icon" />

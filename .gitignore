@@ -21,6 +21,9 @@ coverage/
 .env
 .env.local
 
+# oh-my-claudecode local state (agent sessions, checkpoints; not project source)
+.omc/
+
 # Local visual brainstorming previews
 .superpowers/
 
