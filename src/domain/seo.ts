@@ -87,8 +87,8 @@ export function seoForView(view: SeoView, grammarSurface?: string | null): Resol
     if (/^[Nn][1-5]$/.test(grammarSurface)) {
       const level = grammarSurface.toUpperCase();
       return {
-        title: `JLPT ${level} 文型一覧 · 日檢文法 · Jabiko`,
-        description: `JLPT ${level} 文法文型列表——${level} 範圍內的所有文法點，可搜尋、依重要度／例句類型篩選。`,
+        title: `JLPT ${level} 文型索引 · JLPT／日檢文法 · Jabiko`,
+        description: `JLPT ${level} 日檢文法文型一覽：全部文型、接續、用法與例句，看完直接練——N5–N1 文法逐級攻略。`,
         canonical: `${SITE_ORIGIN}/grammar/${level.toLowerCase()}`
       };
     }

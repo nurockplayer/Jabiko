@@ -59,4 +59,40 @@ describe("seo", () => {
   it("falls back to home metadata if a grammar view arrives with no surface", () => {
     expect(seoForView("grammar").canonical).toBe(seoForView("home").canonical);
   });
+
+  // /grammar/n5 – /grammar/n1 are level-index routes (#437), not grammar-point
+  // pages; they should show level-specific index metadata rather than point SEO.
+  describe("grammar level routes", () => {
+    const LEVELS = ["n5", "n4", "n3", "n2", "n1"];
+
+    it("builds level-index metadata for a level-slug surface", () => {
+      const resolved = seoForView("grammar", "n5");
+      expect(resolved.title).toContain("N5");
+      expect(resolved.title).toMatch(/文型/);
+      expect(resolved.description).toContain("N5");
+      expect(resolved.description).toMatch(/JLPT/);
+      expect(resolved.canonical).toBe(`${SITE_ORIGIN}/grammar/n5`);
+    });
+
+    it("gives every level a distinct title", () => {
+      const titles = new Set(LEVELS.map((l) => seoForView("grammar", l).title));
+      expect(titles.size).toBe(LEVELS.length);
+    });
+
+    it("builds an absolute canonical URL for each level", () => {
+      for (const level of LEVELS) {
+        const resolved = seoForView("grammar", level);
+        expect(resolved.canonical).toBe(`${SITE_ORIGIN}/grammar/${level}`);
+      }
+    });
+
+    it("prefers level-index SEO over grammar-point SEO for level-like surfaces", () => {
+      const resolved = seoForView("grammar", "n5");
+      expect(resolved.title).toContain("N5");
+      expect(resolved.title).toContain("文型");
+      expect(resolved.description).toContain("N5");
+      expect(resolved.description).toMatch(/JLPT/);
+      expect(resolved.title).not.toContain("的意思與用法");
+    });
+  });
 });
