@@ -476,7 +476,7 @@ export default function App() {
             language={language}
             onPractice={() => openChallenge({ mode: "daily" })}
             onBack={() => {
-              // Go back to the level index if the surface was a valid grammar point
+              // Go back to grammar index (overview or level index)
               setGrammarSurface(null);
               setAppView("grammar");
             }}

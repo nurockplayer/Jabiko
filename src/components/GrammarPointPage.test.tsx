@@ -43,7 +43,7 @@ describe("GrammarPointPage", () => {
     );
 
     expect(screen.getByRole("heading", { level: 1, name: "存在しない文法zzz" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: t.reviewDoneExit }));
+    await user.click(screen.getByRole("button", { name: t.grammarBackToIndex }));
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 

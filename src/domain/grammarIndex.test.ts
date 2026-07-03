@@ -13,24 +13,24 @@ import {
 import { grammarPatterns } from "./grammarDatabase";
 
 describe("getPatternsByLevel", () => {
-  it("returns 15 patterns for N5 sorted by id", () => {
+  it("returns 16 patterns for N5 sorted by id", () => {
     const patterns = getPatternsByLevel("N5");
-    expect(patterns).toHaveLength(15);
+    expect(patterns).toHaveLength(16);
     // verify sorted by id
     const ids = patterns.map((p) => p.id);
     expect(ids).toEqual([...ids].sort());
   });
 
-  it("returns 15 patterns for N4 sorted by id", () => {
+  it("returns 14 patterns for N4 sorted by id", () => {
     const patterns = getPatternsByLevel("N4");
-    expect(patterns).toHaveLength(15);
+    expect(patterns).toHaveLength(14);
     const ids = patterns.map((p) => p.id);
     expect(ids).toEqual([...ids].sort());
   });
 
-  it("returns 19 patterns for N2 sorted by id", () => {
+  it("returns 14 patterns for N2 sorted by id", () => {
     const patterns = getPatternsByLevel("N2");
-    expect(patterns).toHaveLength(19);
+    expect(patterns).toHaveLength(14);
     const ids = patterns.map((p) => p.id);
     // production code sorts with localeCompare, verify order is non-decreasing
     for (let i = 1; i < ids.length; i++) {
@@ -38,8 +38,9 @@ describe("getPatternsByLevel", () => {
     }
   });
 
-  it("returns an empty array for N3 (no data yet)", () => {
-    expect(getPatternsByLevel("N3")).toHaveLength(0);
+  it("returns 5 patterns for N3 sorted by id", () => {
+    const patterns = getPatternsByLevel("N3");
+    expect(patterns).toHaveLength(5);
   });
 
   it("returns an empty array for N1 (no data yet)", () => {
@@ -50,16 +51,16 @@ describe("getPatternsByLevel", () => {
 describe("getPatternsGroupedByLevel", () => {
   it("groups patterns by JLPT level with correct counts", () => {
     const grouped = getPatternsGroupedByLevel();
-    expect(grouped.N5).toHaveLength(15);
-    expect(grouped.N4).toHaveLength(15);
-    expect(grouped.N2).toHaveLength(19);
-    expect(grouped.N3).toHaveLength(0);
+    expect(grouped.N5).toHaveLength(16);
+    expect(grouped.N4).toHaveLength(14);
+    expect(grouped.N2).toHaveLength(14);
+    expect(grouped.N3).toHaveLength(5);
     expect(grouped.N1).toHaveLength(0);
   });
 
   it("sorts patterns within each group by id", () => {
     const grouped = getPatternsGroupedByLevel();
-    for (const level of ["N5", "N4", "N2"] as const) {
+    for (const level of ["N5", "N4", "N3", "N2"] as const) {
       const ids = grouped[level].map((p) => p.id);
       for (let i = 1; i < ids.length; i++) {
         expect(ids[i - 1].localeCompare(ids[i])).toBeLessThanOrEqual(0);
@@ -171,15 +172,38 @@ describe("getRelatedPatterns", () => {
     expect(getRelatedPatterns("non-existent-id")).toHaveLength(0);
   });
 
-  it("silently drops related ids that do not exist in the database", () => {
-    // Collect all existing IDs
-    const existingIds = new Set(grammarPatterns.map((p) => p.id));
-    // Verify that every relatedPatternId points to an existing pattern
+  it("verifies every relatedPatternId points to an existing pattern", () => {
     for (const pattern of grammarPatterns) {
-      const related = getRelatedPatterns(pattern.id);
-      for (const r of related) {
-        expect(existingIds.has(r.id)).toBe(true);
+      for (const rid of pattern.relatedPatternIds) {
+        const related = grammarPatterns.find((p) => p.id === rid);
+        expect(related).toBeDefined();
       }
+    }
+  });
+
+  it("reports broken relatedPatternIds after data changes", () => {
+    // Document the correct set of references so a future rename reveals
+    // itself here (each relatedPatternId must exist in grammarPatterns).
+    const allIds = new Set(grammarPatterns.map((p) => p.id));
+    const broken: Array<{ from: string; missing: string }> = [];
+    for (const pattern of grammarPatterns) {
+      for (const rid of pattern.relatedPatternIds) {
+        if (!allIds.has(rid)) broken.push({ from: pattern.id, missing: rid });
+      }
+    }
+    expect(broken).toEqual([]);
+  });
+});
+
+describe("grammarPatterns id integrity", () => {
+  it("all ids are unique", () => {
+    const ids = grammarPatterns.map((p) => p.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("all ids are kebab-case (lowercase letters, digits, hyphens only)", () => {
+    for (const pattern of grammarPatterns) {
+      expect(pattern.id).toMatch(/^[a-z0-9-]+$/u);
     }
   });
 });
@@ -252,10 +276,10 @@ describe("getPatternsByImportance", () => {
 describe("getLevelSummary", () => {
   it("returns correct totals per level", () => {
     const summary = getLevelSummary();
-    expect(summary.N5.total).toBe(15);
-    expect(summary.N4.total).toBe(15);
-    expect(summary.N2.total).toBe(19);
-    expect(summary.N3.total).toBe(0);
+    expect(summary.N5.total).toBe(16);
+    expect(summary.N4.total).toBe(14);
+    expect(summary.N2.total).toBe(14);
+    expect(summary.N3.total).toBe(5);
     expect(summary.N1.total).toBe(0);
   });
 

@@ -288,6 +288,9 @@ export type Copy = {
   grammarMatchZh: string;
   grammarMatchJa: string;
   grammarMatchTag: string;
+  grammarMatchId: string;
+  grammarMatchFieldLabel: (field: string) => string;
+  grammarHasMedia: string;
   grammarConfidenceVerified: string;
   grammarConfidenceSubtitleVerified: string;
   grammarConfidenceApproximate: string;

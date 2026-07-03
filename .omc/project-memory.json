@@ -1,0 +1,532 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1783060705558,
+  "projectRoot": "/Users/tachikoma/Developer/Jabiko",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "react",
+        "version": "19.2.1",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.1",
+        "category": "frontend"
+      },
+      {
+        "name": "vite",
+        "version": "7.2.7",
+        "category": "build"
+      },
+      {
+        "name": "vitest",
+        "version": "4.0.15",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "pnpm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "pnpm build",
+    "testCommand": "pnpm test",
+    "lintCommand": null,
+    "devCommand": "pnpm dev",
+    "scripts": {
+      "dev": "vite",
+      "preview": "vite preview",
+      "build": "tsc --noEmit && vite build",
+      "typecheck": "tsc --noEmit",
+      "test": "vitest run",
+      "test:watch": "vitest",
+      "check:exam": "vitest run src/domain/contentGuard.test.ts",
+      "check:readings": "node scripts/check-readings.mjs",
+      "check:i18n": "node scripts/check-i18n-coverage.mjs",
+      "build:furigana": "node scripts/build-furigana.mjs",
+      "optimize-hero": "node scripts/optimize-hero.mjs",
+      "pre": "pnpm build"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "assets",
+      "docs",
+      "public",
+      "scripts",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "assets": {
+      "path": "assets",
+      "purpose": "Static assets",
+      "fileCount": 1,
+      "lastAccessed": 1783060705524,
+      "keyFiles": [
+        "hero-source.png"
+      ]
+    },
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 16,
+      "lastAccessed": 1783060705524,
+      "keyFiles": [
+        "_headers",
+        "_redirects",
+        "apple-touch-icon.png",
+        "google329373477516a739.html",
+        "hero.webp"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 9,
+      "lastAccessed": 1783060705551,
+      "keyFiles": [
+        "claude-exam-batch-2-short-prompt.md",
+        "claude-exam-grammar-review-prompt.md",
+        "exam-grammar-original-question-list.md",
+        "exam-grammar-rewrite-backlog.md",
+        "exam-public-practice-quality-review-and-batch-2.md"
+      ]
+    },
+    "memory": {
+      "path": "memory",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1783060705552,
+      "keyFiles": [
+        "last-report.md"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 12,
+      "lastAccessed": 1783060705553,
+      "keyFiles": [
+        "_headers",
+        "_redirects",
+        "apple-touch-icon.png",
+        "google329373477516a739.html",
+        "hero.webp"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 18,
+      "lastAccessed": 1783060705553,
+      "keyFiles": [
+        "add-exam-batch2-candidates.mjs",
+        "add-exam-grammar-candidates-2.mjs",
+        "add-exam-grammar-candidates.mjs",
+        "add-exam-hint-batch-1.mjs",
+        "add-hint-zh.mjs"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 8,
+      "lastAccessed": 1783060705553,
+      "keyFiles": [
+        "App.test.tsx",
+        "App.tsx",
+        "i18n.test.ts",
+        "i18n.ts",
+        "illustrations.tsx"
+      ]
+    },
+    "supabase": {
+      "path": "supabase",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1783060705553,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
+    "dist/assets": {
+      "path": "dist/assets",
+      "purpose": "Static assets",
+      "fileCount": 11,
+      "lastAccessed": 1783060705554,
+      "keyFiles": [
+        "ChallengePanel-BBpLGnUo.js",
+        "GrammarNoteCard-DgzncLH2.js",
+        "GrammarPointPage-Dy72yiqD.js"
+      ]
+    },
+    "src/components": {
+      "path": "src/components",
+      "purpose": "UI components",
+      "fileCount": 33,
+      "lastAccessed": 1783060705555,
+      "keyFiles": [
+        "AboutPanel.tsx",
+        "ChallengePanel.tsx",
+        "ExamPrompt.test.tsx"
+      ]
+    },
+    "src/lib": {
+      "path": "src/lib",
+      "purpose": "Library code",
+      "fileCount": 3,
+      "lastAccessed": 1783060705556,
+      "keyFiles": [
+        "speech.test.ts",
+        "speech.ts",
+        "supabase.ts"
+      ]
+    },
+    "supabase/migrations": {
+      "path": "supabase/migrations",
+      "purpose": "Database migrations",
+      "fileCount": 3,
+      "lastAccessed": 1783060705558,
+      "keyFiles": [
+        "0001_create_attempts.sql",
+        "0002_create_feedback.sql",
+        "0003_rls_perf.sql"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/components/GrammarPointPage.tsx",
+      "accessCount": 42,
+      "lastAccessed": 1783097434670,
+      "type": "file"
+    },
+    {
+      "path": "src/components/GrammarIndexPage.tsx",
+      "accessCount": 41,
+      "lastAccessed": 1783097865698,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/grammarDatabase.ts",
+      "accessCount": 39,
+      "lastAccessed": 1783098052665,
+      "type": "file"
+    },
+    {
+      "path": "src/App.tsx",
+      "accessCount": 31,
+      "lastAccessed": 1783097414281,
+      "type": "file"
+    },
+    {
+      "path": "src/i18n.ts",
+      "accessCount": 15,
+      "lastAccessed": 1783097375693,
+      "type": "file"
+    },
+    {
+      "path": "src/styles/grammar.css",
+      "accessCount": 13,
+      "lastAccessed": 1783097546355,
+      "type": "file"
+    },
+    {
+      "path": "scripts/ai-translate-content.mjs",
+      "accessCount": 12,
+      "lastAccessed": 1782922858403,
+      "type": "file"
+    },
+    {
+      "path": "memory/last-report.md",
+      "accessCount": 11,
+      "lastAccessed": 1783080396597,
+      "type": "file"
+    },
+    {
+      "path": "src/locales/zh-Hant.ts",
+      "accessCount": 11,
+      "lastAccessed": 1783097396468,
+      "type": "file"
+    },
+    {
+      "path": "src/locales/en.ts",
+      "accessCount": 10,
+      "lastAccessed": 1783097397054,
+      "type": "file"
+    },
+    {
+      "path": "src/locales/ja.ts",
+      "accessCount": 8,
+      "lastAccessed": 1783097397941,
+      "type": "file"
+    },
+    {
+      "path": "src/locales/th.ts",
+      "accessCount": 8,
+      "lastAccessed": 1783097398616,
+      "type": "file"
+    },
+    {
+      "path": "src/locales/id.ts",
+      "accessCount": 8,
+      "lastAccessed": 1783097399400,
+      "type": "file"
+    },
+    {
+      "path": "src/locales/ko.ts",
+      "accessCount": 8,
+      "lastAccessed": 1783097400262,
+      "type": "file"
+    },
+    {
+      "path": "src/locales/vi.ts",
+      "accessCount": 8,
+      "lastAccessed": 1783097401110,
+      "type": "file"
+    },
+    {
+      "path": "src/locales/my.ts",
+      "accessCount": 8,
+      "lastAccessed": 1783097402365,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/types.ts",
+      "accessCount": 6,
+      "lastAccessed": 1783075647083,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/contentStats.test.ts",
+      "accessCount": 6,
+      "lastAccessed": 1783075652296,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/exam/types.ts",
+      "accessCount": 5,
+      "lastAccessed": 1783060906270,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/contentStats.ts",
+      "accessCount": 5,
+      "lastAccessed": 1783061884481,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/grammarIndex.ts",
+      "accessCount": 5,
+      "lastAccessed": 1783096489037,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/learningBlocks.ts",
+      "accessCount": 4,
+      "lastAccessed": 1783060905277,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/exam/helpers.ts",
+      "accessCount": 4,
+      "lastAccessed": 1783060906621,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/grammarNotes.ts",
+      "accessCount": 3,
+      "lastAccessed": 1783060949076,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/localizedContent.ts",
+      "accessCount": 3,
+      "lastAccessed": 1783061001279,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/exam/items/n5.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782842116788,
+      "type": "file"
+    },
+    {
+      "path": ".claude/settings.local.json",
+      "accessCount": 2,
+      "lastAccessed": 1782844075241,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 2,
+      "lastAccessed": 1783060896326,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/examBlocks.ts",
+      "accessCount": 2,
+      "lastAccessed": 1783060904642,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/sentencePatterns.ts",
+      "accessCount": 2,
+      "lastAccessed": 1783060905672,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/grammarPoints.ts",
+      "accessCount": 2,
+      "lastAccessed": 1783060949319,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/grammarNotes.i18n.ts",
+      "accessCount": 2,
+      "lastAccessed": 1783060949580,
+      "type": "file"
+    },
+    {
+      "path": "src/components/GrammarNoteCard.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1783060955351,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/grammarNoteText.ts",
+      "accessCount": 2,
+      "lastAccessed": 1783060975123,
+      "type": "file"
+    },
+    {
+      "path": "docs/item-quality-rubric.md",
+      "accessCount": 1,
+      "lastAccessed": 1782841947189,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/contentGuard.test.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782841966502,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/exam/items/n4.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782841989082,
+      "type": "file"
+    },
+    {
+      "path": "docs/llm-judge-quality.md",
+      "accessCount": 1,
+      "lastAccessed": 1782841990336,
+      "type": "file"
+    },
+    {
+      "path": "tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1782842354255,
+      "type": "file"
+    },
+    {
+      "path": "scripts/ai-translate-content.test.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782922858705,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/localizedContent.test.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782922859912,
+      "type": "file"
+    },
+    {
+      "path": "src/main.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1783060894662,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/vocabulary.ts",
+      "accessCount": 1,
+      "lastAccessed": 1783060895306,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/vocabulary-jlpt.ts",
+      "accessCount": 1,
+      "lastAccessed": 1783060895532,
+      "type": "file"
+    },
+    {
+      "path": "src/components/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1783060895961,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/practiceMode.ts",
+      "accessCount": 1,
+      "lastAccessed": 1783060900162,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/practice.ts",
+      "accessCount": 1,
+      "lastAccessed": 1783060900385,
+      "type": "file"
+    },
+    {
+      "path": "src/domain/exam/items/n3.ts",
+      "accessCount": 1,
+      "lastAccessed": 1783060906064,
+      "type": "file"
+    },
+    {
+      "path": "src/components/challenge/DrillPanel.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1783060906886,
+      "type": "file"
+    },
+    {
+      "path": "src/styles/feedback.css",
+      "accessCount": 1,
+      "lastAccessed": 1783061389566,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

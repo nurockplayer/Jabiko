@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, BookOpen, Search, Clapperboard, BarChart3 } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import {
@@ -54,6 +54,7 @@ export function GrammarIndexPage({
     meaningZh: t.grammarMatchZh,
     meaningJa: t.grammarMatchJa,
     tag: t.grammarMatchTag,
+    id: t.grammarMatchId,
   };
 
   /** 篩選單一等級的列表 */
@@ -84,83 +85,61 @@ export function GrammarIndexPage({
       else if (p.meaningZh.includes(q)) field = "meaningZh";
       else if (p.meaningJa?.includes(q)) field = "meaningJa";
       else if (p.tags.some((tag) => tag.includes(q))) field = "tag";
+      else if (p.id.includes(q)) field = "id";
       return { pattern: p, matchedField: matchedFieldLabels[field] };
     });
-  }, [searchQuery, grouped]);
+  }, [searchQuery, grouped, matchedFieldLabels]);
 
-  // 如果正在搜尋且沒有選定等級，顯示跨等級結果
-  if (!level && globalSearchResults) {
-    return (
-      <section className="grammar-index" aria-label={t.grammarIndexTitle}>
-        <div className="gi-header">
-          <button type="button" className="ghost-button" onClick={onBack}>
-            <ArrowLeft aria-hidden="true" />
-            {t.reviewDoneExit}
-          </button>
-        </div>
+  /** 在 overview 隱藏等級篩選器時同步重設，避免 filter 隱形滲漏 */
+  useEffect(() => {
+    if (level === null) {
+      setShowMediaOnly(false);
+      setShowImportanceFilter(null);
+    }
+  }, [level]);
 
-        <div className="gi-search-bar">
-          <Search className="gi-search-icon" aria-hidden="true" size={18} />
-          <input
-            type="search"
-            className="gi-search-input"
-            aria-label={t.grammarSearchPlaceholder}
-            placeholder={t.grammarSearchPlaceholder}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            autoFocus
-          />
-        </div>
+  /** 共用搜尋列 — 在三個分支外層統一只渲染一份，避免查詢時 IME 因 remount 被中斷 */
+  const renderSearchBar = (
+    <div className="gi-search-bar" key="search-bar">
+      <Search className="gi-search-icon" aria-hidden="true" size={18} />
+      <input
+        type="search"
+        className="gi-search-input"
+        aria-label={t.grammarSearchPlaceholder}
+        placeholder={t.grammarSearchPlaceholder}
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+    </div>
+  );
 
-        <div className="gi-section">
-          <h2 className="gi-section-title">
-            {t.grammarSearchResults}（{globalSearchResults.length}）
-          </h2>
-          {globalSearchResults.length === 0 ? (
-            <p className="gi-empty">{t.grammarSearchEmpty}</p>
-          ) : (
-            <ul className="gi-pattern-list">
-              {globalSearchResults.map(({ pattern: p, matchedField }) => (
-                <PatternCard
-                  key={p.id}
-                  pattern={p}
-                  importanceLabels={importanceLabels}
-                  matchedField={matchedField}
-                  onOpen={onOpenPattern}
-                />
-              ))}
-            </ul>
-          )}
-        </div>
-      </section>
-    );
-  }
+  const showGlobalSearch = !level && globalSearchResults !== null;
+  const showLevel = level !== null;
+  const showOverview = !showGlobalSearch && !showLevel;
+  const levelPatterns = level ? filterPatterns(grouped[level]) : [];
 
-  // 特定等級檢視
-  if (level) {
-    const patterns = filterPatterns(grouped[level]);
-    return (
-      <section className="grammar-index" aria-label={`JLPT ${level} ${t.grammar}`}>
-        <div className="gi-header">
-          <button type="button" className="ghost-button" onClick={onBack}>
-            <ArrowLeft aria-hidden="true" />
-            {t.reviewDoneExit}
-          </button>
+  return (
+    <section className="grammar-index" aria-label={t.grammarIndexTitle}>
+      <div className="gi-header">
+        <button type="button" className="ghost-button" onClick={onBack}>
+          <ArrowLeft aria-hidden="true" />
+          {t.reviewDoneExit}
+        </button>
+        {showLevel && (
           <h1 className="gi-hero-title">JLPT {level} {t.grammar}</h1>
-        </div>
+        )}
+        {showOverview && (
+          <h1 className="gi-hero-title">{t.grammarIndexTitle}</h1>
+        )}
+      </div>
 
-        <div className="gi-search-bar">
-          <Search className="gi-search-icon" aria-hidden="true" size={18} />
-          <input
-            type="search"
-            className="gi-search-input"
-            aria-label={t.grammarSearchPlaceholder}
-            placeholder={t.grammarSearchPlaceholder}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+      {showOverview && (
+        <p className="gi-hero-sub">{t.grammarIndexIntro}</p>
+      )}
 
+      {renderSearchBar}
+
+      {showLevel && (
         <div className="gi-filters">
           <button
             type="button"
@@ -184,102 +163,104 @@ export function GrammarIndexPage({
             ))}
           </select>
         </div>
+      )}
 
-        {patterns.length === 0 ? (
-          <p className="gi-empty">{t.grammarNoPatterns}</p>
-        ) : (
-          <ul className="gi-pattern-list">
-            {patterns.map((p) => (
-              <PatternCard
-                key={p.id}
-                pattern={p}
-                importanceLabels={importanceLabels}
-                matchedField={null}
-                onOpen={onOpenPattern}
-              />
-            ))}
+      {showGlobalSearch ? (
+        <div className="gi-section">
+          <h2 className="gi-section-title">
+            {t.grammarSearchResults}（{globalSearchResults.length}）
+          </h2>
+          {globalSearchResults.length === 0 ? (
+            <p className="gi-empty">{t.grammarSearchEmpty}</p>
+          ) : (
+            <ul className="gi-pattern-list">
+              {globalSearchResults.map(({ pattern: p, matchedField }) => (
+                <PatternCard
+                  key={p.id}
+                  pattern={p}
+                  importanceLabels={importanceLabels}
+                  matchedField={matchedField}
+                  onOpen={onOpenPattern}
+                  grammarHasMedia={t.grammarHasMedia}
+                  grammarMatchFieldLabel={t.grammarMatchFieldLabel}
+                />
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : showLevel && levelPatterns.length === 0 ? (
+        <p className="gi-empty">{t.grammarNoPatterns}</p>
+      ) : showLevel ? (
+        <ul className="gi-pattern-list">
+          {levelPatterns.map((p) => (
+            <PatternCard
+              key={p.id}
+              pattern={p}
+              importanceLabels={importanceLabels}
+              matchedField={null}
+              onOpen={onOpenPattern}
+              grammarHasMedia={t.grammarHasMedia}
+              grammarMatchFieldLabel={t.grammarMatchFieldLabel}
+            />
+          ))}
           </ul>
-        )}
+        ) : (
+        (["N5", "N4", "N3", "N2", "N1"] as JlptLevel[]).map((lvl) => {
+          const stats = summary[lvl];
+          const overviewPatterns = filterPatterns(grouped[lvl]);
+          const isExpanded = expandedLevel === lvl;
+          return (
+            <details
+              key={lvl}
+              className="gi-level-group"
+              open={isExpanded}
+              onToggle={(e) => {
+                if ((e.target as HTMLDetailsElement).open) setExpandedLevel(lvl);
+              }}
+            >
+              <summary className="gi-level-summary">
+                <span className="gi-level-badge">{levelLabels[lvl]}</span>
+                <span className="gi-level-stats">
+                  <BookOpen aria-hidden="true" size={14} />
+                  {stats.total} {t.grammar}
+                  {stats.withMediaExamples > 0 && (
+                    <>
+                      <Clapperboard aria-hidden="true" size={14} />
+                      {stats.withMediaExamples}
+                    </>
+                  )}
+                </span>
+              </summary>
+              {overviewPatterns.length === 0 ? (
+                <p className="gi-empty">{t.grammarNoPatterns}</p>
+              ) : (
+                <ul className="gi-pattern-list">
+                  {overviewPatterns.map((p) => (
+                    <PatternCard
+                      key={p.id}
+                      pattern={p}
+                      importanceLabels={importanceLabels}
+                      matchedField={null}
+                      onOpen={onOpenPattern}
+                      grammarHasMedia={t.grammarHasMedia}
+                      grammarMatchFieldLabel={t.grammarMatchFieldLabel}
+                    />
+                  ))}
+                </ul>
+              )}
+            </details>
+          );
+        })
+      )}
 
+      {showLevel && (
         <div className="gi-cta">
           <button type="button" className="ghost-button" onClick={onBackToOverview ?? onBack}>
             <ArrowLeft aria-hidden="true" />
             {t.grammarBackToIndex}
           </button>
         </div>
-      </section>
-    );
-  }
-
-  // 概覽頁（所有等級）
-  return (
-    <section className="grammar-index" aria-label={t.grammarIndexTitle}>
-      <div className="gi-header">
-        <button type="button" className="ghost-button" onClick={onBack}>
-          <ArrowLeft aria-hidden="true" />
-          {t.reviewDoneExit}
-        </button>
-        <h1 className="gi-hero-title">{t.grammarIndexTitle}</h1>
-      </div>
-
-      <p className="gi-hero-sub">{t.grammarIndexIntro}</p>
-
-      <div className="gi-search-bar">
-        <Search className="gi-search-icon" aria-hidden="true" size={18} />
-        <input
-          type="search"
-          className="gi-search-input"
-          aria-label={t.grammarSearchPlaceholder}
-          placeholder={t.grammarSearchPlaceholder}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
-      {(["N5", "N4", "N3", "N2", "N1"] as JlptLevel[]).map((lvl) => {
-        const stats = summary[lvl];
-        const levelPatterns = filterPatterns(grouped[lvl]);
-        const isExpanded = expandedLevel === lvl;
-        return (
-          <details
-            key={lvl}
-            className="gi-level-group"
-            open={isExpanded}
-            onToggle={(e) => {
-              if ((e.target as HTMLDetailsElement).open) setExpandedLevel(lvl);
-            }}
-          >
-            <summary className="gi-level-summary">
-              <span className="gi-level-badge">{levelLabels[lvl]}</span>
-              <span className="gi-level-stats">
-                <BookOpen aria-hidden="true" size={14} />
-                {stats.total} {t.grammar}
-                {stats.withMediaExamples > 0 && (
-                  <>
-                    <Clapperboard aria-hidden="true" size={14} />
-                    {stats.withMediaExamples}
-                  </>
-                )}
-              </span>
-            </summary>
-            {levelPatterns.length === 0 ? (
-              <p className="gi-empty">{t.grammarNoPatterns}</p>
-            ) : (
-              <ul className="gi-pattern-list">
-                {levelPatterns.map((p) => (
-                  <PatternCard
-                    key={p.id}
-                    pattern={p}
-                    importanceLabels={importanceLabels}
-                    matchedField={null}
-                    onOpen={onOpenPattern}
-                  />
-                ))}
-              </ul>
-            )}
-          </details>
-        );
-      })}
+      )}
     </section>
   );
 }
@@ -290,11 +271,15 @@ function PatternCard({
   importanceLabels,
   matchedField,
   onOpen,
+  grammarHasMedia,
+  grammarMatchFieldLabel,
 }: {
   pattern: GrammarPattern;
   importanceLabels: Record<string, string>;
   matchedField: string | null;
   onOpen: (surface: string) => void;
+  grammarHasMedia: string;
+  grammarMatchFieldLabel: (field: string) => string;
 }) {
   const importanceClass = (() => {
     switch (pattern.importance) {
@@ -321,7 +306,7 @@ function PatternCard({
               {importanceLabels[pattern.importance] ?? pattern.importance}
             </span>
             {pattern.mediaExamples.length > 0 && (
-              <span className="gi-has-media" title="含影視例句">
+              <span className="gi-has-media" title={grammarHasMedia}>
                 <Clapperboard aria-hidden="true" size={14} />
               </span>
             )}
@@ -329,7 +314,7 @@ function PatternCard({
         </div>
         <p className="gi-pattern-meaning">{pattern.meaningZh}</p>
         <p className="gi-pattern-formation">{pattern.formation}</p>
-        {matchedField && <span className="gi-match-field">符合「{matchedField}」</span>}
+        {matchedField && <span className="gi-match-field">{grammarMatchFieldLabel(matchedField)}</span>}
       </button>
     </li>
   );

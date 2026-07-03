@@ -73,7 +73,6 @@
   margin: 0;
   font-size: 0.92rem;
   color: var(--muted);
-  font-family: var(--font-japanese);
   line-height: 1.6;
 }
 
@@ -362,13 +361,13 @@
 }
 
 .gi-importance-must {
-  background: #fde8e8;
-  color: #c0392b;
+  background: color-mix(in srgb, var(--danger) 18%, var(--paper));
+  color: var(--danger);
 }
 
 .gi-importance-high {
-  background: #fef3cd;
-  color: #856404;
+  background: color-mix(in srgb, var(--gold) 22%, var(--paper));
+  color: var(--gold);
 }
 
 .gi-has-media {

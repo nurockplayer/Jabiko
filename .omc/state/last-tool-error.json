@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"gh api repos/nurockplayer/Jabiko/pulls/438/comments 2>&1 | python3 -c \\\"import sys,json; data=json.load(sys.stdin); [print(json.dumps({'id':c['id'],'user':c['user']['login'],'body':c['body...",
+  "error": "Exit code 1\n  File \"<string>\", line 1\n    import sys,json; data=json.load(sys.stdin); [print(json.dumps({'id':c['id'],'user':c['user']['login'],'body':c['body'][:200],'path':c.get('path',''),'line':c.get('line','')},ensure_ascii=False)) for c in data] 2>/dev/null\n                                                                                                                                                                                                                      ^\nSyntaxError: invalid...",
+  "timestamp": "2026-07-03T18:32:52.419Z",
+  "retry_count": 1
+}

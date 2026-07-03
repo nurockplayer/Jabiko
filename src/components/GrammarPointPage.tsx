@@ -50,11 +50,14 @@ export function GrammarPointPage({
   const dbRelated = dbPattern
     ? grammarPatterns.filter((p) => dbPattern.relatedPatternIds.includes(p.id))
     : [];
+  // Database content is zh-only (#437 regression of #427); gate enrichment to
+  // zh-Hant until i18n overlay fields are added to GrammarPattern.
+  const isZhHant = language === "zh-Hant";
 
   const backButton = (
     <button type="button" className="ghost-button gp-back" onClick={onBack}>
       <ArrowLeft aria-hidden="true" />
-      {t.reviewDoneExit}
+      {t.grammarBackToIndex}
     </button>
   );
 
@@ -88,11 +91,11 @@ export function GrammarPointPage({
               {dbPattern.level}
             </span>
           </div>
-          <p className="gp-meaning">{dbPattern.meaningZh}</p>
-          <p className="gp-formation">{dbPattern.formation}</p>
+          {isZhHant && <p className="gp-meaning">{dbPattern.meaningZh}</p>}
+          {isZhHant && <p className="gp-formation">{dbPattern.formation}</p>}
         </header>
 
-        {dbPattern.examples.length > 0 ? (
+        {isZhHant && dbPattern.examples.length > 0 ? (
           <section className="gp-card">
             <h2 className="gp-card-title">{t.grammarDatabaseExamples}</h2>
             <ul className="gp-examples">
@@ -106,7 +109,7 @@ export function GrammarPointPage({
           </section>
         ) : null}
 
-        {dbPattern.mediaExamples.length > 0 ? (
+        {isZhHant && dbPattern.mediaExamples.length > 0 ? (
           <section className="gp-card gp-media">
             <h2 className="gp-card-title">
               <Clapperboard aria-hidden="true" className="gp-card-title-icon" />
@@ -116,7 +119,7 @@ export function GrammarPointPage({
           </section>
         ) : null}
 
-        {dbRelated.length > 0 ? (
+        {isZhHant && dbRelated.length > 0 ? (
           <section className="gp-card">
             <h2 className="gp-card-title">
               <BookOpen aria-hidden="true" className="gp-card-title-icon" />
@@ -126,14 +129,14 @@ export function GrammarPointPage({
               {dbRelated.map((related) => (
                 <li key={related.id} className="gp-related-item">
                   <span className="gp-related-pattern" lang="ja">{related.pattern}</span>
-                  <p className="gp-related-meaning">{related.meaningZh}</p>
+                  {isZhHant && <p className="gp-related-meaning">{related.meaningZh}</p>}
                 </li>
               ))}
             </ul>
           </section>
         ) : null}
 
-        {dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
+        {isZhHant && dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
           <section className="gp-card">
             <h2 className="gp-card-title">
               <AlertTriangle aria-hidden="true" className="gp-card-title-icon" />
@@ -214,7 +217,7 @@ export function GrammarPointPage({
 
       {/* `#437`: Database examples — only when curated note is absent (it already
           shows curated examples through GrammarNoteCard) */}
-      {!point.note && dbPattern && dbPattern.examples.length > 0 ? (
+      {isZhHant && !point.note && dbPattern && dbPattern.examples.length > 0 ? (
         <section className="gp-card">
           <h2 className="gp-card-title">{t.grammarDatabaseExamples}</h2>
           <ul className="gp-examples">
@@ -233,7 +236,7 @@ export function GrammarPointPage({
       ) : null}
 
       {/* #437: 日劇／動漫台詞例句 */}
-      {dbPattern && dbPattern.mediaExamples.length > 0 ? (
+      {isZhHant && dbPattern && dbPattern.mediaExamples.length > 0 ? (
         <section className="gp-card gp-media">
           <h2 className="gp-card-title">
             <Clapperboard aria-hidden="true" className="gp-card-title-icon" />
@@ -244,7 +247,7 @@ export function GrammarPointPage({
       ) : null}
 
       {/* #437: 相近文型比較 */}
-      {dbRelated.length > 0 ? (
+      {isZhHant && dbRelated.length > 0 ? (
         <section className="gp-card">
           <h2 className="gp-card-title">
             <BookOpen aria-hidden="true" className="gp-card-title-icon" />
@@ -264,7 +267,7 @@ export function GrammarPointPage({
       ) : null}
 
       {/* #437: 常見錯誤 */}
-      {dbPattern && dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
+      {isZhHant && dbPattern && dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
         <section className="gp-card">
           <h2 className="gp-card-title">
             <AlertTriangle aria-hidden="true" className="gp-card-title-icon" />
