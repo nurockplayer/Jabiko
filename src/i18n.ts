@@ -264,6 +264,21 @@ export type Copy = {
   grammarNoteExamples: string;
   grammarNoteConfusions: string;
   grammarStudyLink: string;
+  // ---- 文型資料庫 (issue #437) ---------------------------------------------
+  grammarIndexTitle: string;
+  grammarIndexIntro: string;
+  grammarSearchPlaceholder: string;
+  grammarSearchResults: string;
+  grammarSearchEmpty: string;
+  grammarNoPatterns: string;
+  grammarFilterMediaOnly: string;
+  grammarFilterAllImportance: string;
+  grammarFilterImportance: string;
+  grammarMediaExamples: string;
+  grammarDatabaseExamples: string;
+  grammarRelatedPatterns: string;
+  grammarCommonMistakes: string;
+  grammarBackToIndex: string;
   keyboardHint: string;
   focusSummaryEmpty: string;
   modeOptions: Record<ModeCopyKey, { title: string; subtitle: string }>;

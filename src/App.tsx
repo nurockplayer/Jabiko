@@ -1,7 +1,8 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { ChevronDown, Globe, Languages, Moon, Sun } from "lucide-react";
+import { BookOpen, ChevronDown, Globe, Languages, Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
+import type { JlptLevel } from "./domain/types";
 import { countDueReviews } from "./domain/srs";
 import { copy, LAUNCHED_LANGUAGES, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
@@ -48,6 +49,11 @@ const KanjiOnyomiPanel = lazy(() =>
 // keep that data out of the initial bundle.
 const GrammarPointPage = lazy(() =>
   import("./components/GrammarPointPage").then((module) => ({ default: module.GrammarPointPage }))
+);
+// Grammar index page (#437). Shows the grammar database overview, level browsing,
+// and search. Lazy-loaded since it imports grammarDatabase.
+const GrammarIndexPage = lazy(() =>
+  import("./components/GrammarIndexPage").then((module) => ({ default: module.GrammarIndexPage }))
 );
 
 type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about" | "grammar";
@@ -121,6 +127,15 @@ export default function App() {
     setGrammarSurface(surface);
     setAppView("grammar");
   };
+
+  // #437: determine whether the current grammar path points to a JLPT level
+  // (e.g., /grammar/n5) or a specific grammar point (/grammar/〜てもいい).
+  const isGrammarLevelRoute =
+    grammarSurface !== null && /^[Nn][1-5]$/.test(grammarSurface);
+  const grammarLevel = isGrammarLevelRoute
+    ? (grammarSurface!.toUpperCase() as JlptLevel)
+    : null;
+  const showGrammarIndex = appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute);
 
   // Keep the URL in sync when the view changes (push a history entry only
   // when the path actually differs, so popstate-driven changes don't loop).
@@ -362,6 +377,15 @@ export default function App() {
         </button>
         <button
           type="button"
+          className={appView === "grammar" && grammarSurface === null ? "selected" : ""}
+          aria-current={appView === "grammar" && grammarSurface === null ? "page" : undefined}
+          onClick={() => { setGrammarSurface(null); setAppView("grammar"); }}
+        >
+          <BookOpen aria-hidden="true" size={16} style={{ verticalAlign: "middle", marginRight: "0.2rem" }} />
+          文型
+        </button>
+        <button
+          type="button"
           className={appView === "challenge" ? "selected" : ""}
           aria-current={appView === "challenge" ? "page" : undefined}
           onClick={() => openChallenge({ mode: "daily" })}
@@ -431,13 +455,28 @@ export default function App() {
             }
           />
         </Suspense>
+      ) : appView === "grammar" && showGrammarIndex ? (
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <GrammarIndexPage
+            language={language}
+            level={grammarLevel}
+            onOpenPattern={(surface) => {
+              setGrammarSurface(surface);
+            }}
+            onBack={() => setAppView("home")}
+          />
+        </Suspense>
       ) : appView === "grammar" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
           <GrammarPointPage
             surface={grammarSurface ?? ""}
             language={language}
             onPractice={() => openChallenge({ mode: "daily" })}
-            onBack={() => setAppView("home")}
+            onBack={() => {
+              // Go back to the level index if the surface was a valid grammar point
+              setGrammarSurface(null);
+              setAppView("grammar");
+            }}
           />
         </Suspense>
       ) : (

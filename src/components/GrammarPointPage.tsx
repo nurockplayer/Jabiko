@@ -1,8 +1,11 @@
-import { ArrowLeft, GraduationCap } from "lucide-react";
+import { ArrowLeft, GraduationCap, Clapperboard, BookOpen, AlertTriangle } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { buildGrammarPoint } from "../domain/grammarPoints";
 import { pickLocalized } from "../domain/localizedContent";
 import { GrammarNoteCard } from "./GrammarNoteCard";
+import { grammarPatterns } from "../domain/grammarDatabase";
+import type { GrammarPattern, MediaLineExample } from "../domain/grammarDatabase";
+import type { JlptLevel } from "../domain/types";
 
 // Strip a leading "正解是「…」，" answer-explanation lead-in (#339): the exam
 // bank's explanations are written for a quiz ("the correct answer is X,
@@ -22,6 +25,10 @@ export function cleanExplanation(text: string): string {
 // GrammarNoteCard when available, otherwise meaning + usage notes from the exam
 // bank), worked examples, and a practice CTA. Deep-linkable at /grammar/<surface>;
 // reaches the lazy exam/notes data so it is itself lazily loaded.
+//
+// Issue #437 extends the page with the grammar database: media examples (日劇／
+// 動漫台詞), related-pattern comparisons, and common-mistakes notes — all from
+// the curated grammarDatabase.ts.
 export function GrammarPointPage({
   surface,
   language,
@@ -35,6 +42,15 @@ export function GrammarPointPage({
 }) {
   const t = copy[language];
   const point = buildGrammarPoint(surface);
+
+  // Database enrichment: match the surface (strip 〜/～ for lookup) to find
+  // media examples, related patterns, and common mistakes.
+  const dbPattern = grammarPatterns.find(
+    (p) => p.pattern === surface || p.pattern === `〜${surface.replace(/^[〜～]/, "")}`
+  );
+  const dbRelated = dbPattern
+    ? grammarPatterns.filter((p) => dbPattern.relatedPatternIds.includes(p.id))
+    : [];
 
   const backButton = (
     <button type="button" className="ghost-button gp-back" onClick={onBack}>
@@ -119,10 +135,111 @@ export function GrammarPointPage({
         </section>
       ) : null}
 
+      {/* #437: Database examples — only when curated note is absent (it already
+          shows curated examples through GrammarNoteCard) */}
+      {point.note && dbPattern && dbPattern.examples.length > 0 ? (
+        <section className="gp-card">
+          <h2 className="gp-card-title">{t.grammarDatabaseExamples}</h2>
+          <ul className="gp-examples">
+            {dbPattern.examples.map((ex) => (
+              <li key={ex.japanese}>
+                <span className="gp-ex-ja" lang="ja">
+                  {ex.japanese}
+                </span>
+                {ex.meaningZh ? (
+                  <span className="gp-ex-zh">{ex.meaningZh}</span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {/* #437: 日劇／動漫台詞例句 */}
+      {dbPattern && dbPattern.mediaExamples.length > 0 ? (
+        <section className="gp-card gp-media">
+          <h2 className="gp-card-title">
+            <Clapperboard aria-hidden="true" style={{ verticalAlign: "middle", marginRight: "0.3rem" }} />
+            {t.grammarMediaExamples}
+          </h2>
+          <MediaExamples mediaExamples={dbPattern.mediaExamples} language={language} />
+        </section>
+      ) : null}
+
+      {/* #437: 相近文型比較 */}
+      {dbRelated.length > 0 ? (
+        <section className="gp-card">
+          <h2 className="gp-card-title">
+            <BookOpen aria-hidden="true" style={{ verticalAlign: "middle", marginRight: "0.3rem" }} />
+            {t.grammarRelatedPatterns}
+          </h2>
+          <ul className="gp-related-list">
+            {dbRelated.map((related) => (
+              <li key={related.id} className="gp-related-item">
+                <span className="gp-related-pattern" lang="ja">
+                  {related.pattern}
+                </span>
+                <p className="gp-related-meaning">{related.meaningZh}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {/* #437: 常見錯誤 */}
+      {dbPattern && dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
+        <section className="gp-card">
+          <h2 className="gp-card-title">
+            <AlertTriangle aria-hidden="true" style={{ verticalAlign: "middle", marginRight: "0.3rem" }} />
+            {t.grammarCommonMistakes}
+          </h2>
+          <ul className="gp-mistakes-list">
+            {dbPattern.commonMistakes.map((mistake, i) => (
+              <li key={i}>{mistake}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       <button type="button" className="next-button gp-practice" onClick={onPractice}>
         <GraduationCap aria-hidden="true" />
         {t.startChallenge}
       </button>
     </section>
+  );
+}
+
+/** 日劇／動漫台詞例句塊 */
+function MediaExamples({ mediaExamples, language }: { mediaExamples: MediaLineExample[]; language: Language }) {
+  const confidenceLabels: Record<string, string> = {
+    verified: "已確認",
+    subtitle_verified: "字幕確認",
+    approximate: "語境近似",
+    inspired_by: "參考改編",
+  };
+
+  return (
+    <ul className="gp-media-list">
+      {mediaExamples.map((m, i) => (
+        <li key={i} className="gp-media-item">
+          <blockquote className="gp-media-line" lang="ja">
+            {m.lineJa}
+          </blockquote>
+          {m.lineZh ? <p className="gp-media-line-zh">{m.lineZh}</p> : null}
+          <div className="gp-media-meta">
+            <span className="gp-media-source">
+              [{m.sourceType === "anime" ? "動漫" : m.sourceType === "drama" ? "日劇" : "電影"}]
+              {m.titleJa}{m.titleZh ? `（${m.titleZh}）` : ""}
+              {m.episode ? ` ${m.episode}` : ""}
+              {m.character ? `・${m.character}` : ""}
+            </span>
+            <span className={`gp-media-confidence gp-confidence-${m.confidence}`}>
+              {confidenceLabels[m.confidence] ?? m.confidence}
+            </span>
+          </div>
+          {m.contextZh ? <p className="gp-media-context">{m.contextZh}</p> : null}
+        </li>
+      ))}
+    </ul>
   );
 }
