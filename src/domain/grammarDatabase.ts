@@ -139,7 +139,7 @@ const n5Patterns: GrammarPattern[] = [
     pattern: "〜ないほうがいい",
     meaningZh: "最好不要做～",
     meaningJa: "～しない方がよい／否定的な勧め",
-    formation: "動詞ない形（−ない）＋ない＋ほうがいい",
+    formation: "動詞ない形＋ほうがいい",
     importance: "must_know",
     tags: ["勸告", "建議"],
     examples: [
