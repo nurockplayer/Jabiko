@@ -986,4 +986,29 @@ describe("App", () => {
     expect(panel).toHaveAttribute("data-expected-answer");
   });
 
+  it("navigates to JLPT level grammar routes", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Click the Grammar nav button to open the grammar index overview
+    await user.click(screen.getByRole("button", { name: "文型" }));
+
+    // GrammarIndexPage is lazy-loaded; wait for the overview heading
+    expect(
+      await screen.findByRole("heading", { name: "JLPT 文型資料庫" }, { timeout: 10000 })
+    ).toBeInTheDocument();
+
+    // Programmatically navigate to /grammar/n5 and trigger popstate
+    // so App's popstate handler reads the new route and sets grammarSurface="n5"
+    window.history.replaceState({}, "", "/grammar/n5");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+
+    // The level-specific view renders with heading "JLPT N5 文型"
+    expect(
+      await screen.findByRole("heading", { name: "JLPT N5 文型" }, { timeout: 10000 })
+    ).toBeInTheDocument();
+
+    window.history.replaceState({}, "", "/");
+  });
+
 });
