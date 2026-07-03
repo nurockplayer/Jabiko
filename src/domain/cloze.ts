@@ -1,5 +1,14 @@
 import { conjugate, TARGET_FORM_LABELS, TARGET_FORM_LABELS_I18N } from "./conjugation";
-import type { ConjugationResult, JlptLevel, LocalizedText, PracticeQuestion, TargetForm, VocabularyItem } from "./types";
+import {
+  CONTENT_LOCALES,
+  type ConjugationResult,
+  type ContentLocale,
+  type JlptLevel,
+  type LocalizedText,
+  type PracticeQuestion,
+  type TargetForm,
+  type VocabularyItem
+} from "./types";
 
 export interface ClozeSentence {
   id: string;
@@ -82,16 +91,13 @@ export function buildClozeQuestionPool(
       targetForm: sentence.targetForm,
       expectedAnswers: correctResult.answers,
       explanation: explanation.zh,
-      explanationI18n: { en: explanation.en, ja: explanation.ja },
+      explanationI18n: explanation.overlay,
       promptLabel: `文中変化・${sentence.grammarPoint}`,
       promptText,
       promptContextZh: sentence.translationZh,
       promptContextI18n: sentence.translationI18n,
       instructionZh: "從句意挑出正確的變化形。",
-      instructionI18n: {
-        en: "Choose the form that fits the meaning of the sentence.",
-        ja: "文の意味に合う形を選んでください。"
-      },
+      instructionI18n: { ...CLOZE_INSTRUCTION },
       options
     });
   }
@@ -99,37 +105,60 @@ export function buildClozeQuestionPool(
   return questions;
 }
 
+// Per-CONTENT_LOCALE chrome for the generated cloze explanation + instruction
+// (#434). Typed against the registry, so adding a code to CONTENT_LOCALES
+// compile-forces its phrasing here. The zh source lives inline in
+// buildExplanation / the `instructionZh` literal.
+const CLOZE_INSTRUCTION: Record<ContentLocale, string> = {
+  en: "Choose the form that fits the meaning of the sentence.",
+  ja: "文の意味に合う形を選んでください。"
+};
+
+const CLOZE_EXPLANATION_TEMPLATE: Record<
+  ContentLocale,
+  { meaningLine: (translation: string) => string; grammarLine: (parts: GrammarLineParts) => string }
+> = {
+  en: {
+    meaningLine: (t) => `Sentence meaning: ${t}`,
+    grammarLine: ({ grammarPoint, label, answer, surface }) =>
+      `Grammar point: ${grammarPoint} → this blank needs the ${label} 「${answer}」 (the ${label} of ${surface}).`
+  },
+  ja: {
+    meaningLine: (t) => `文の意味：${t}`,
+    grammarLine: ({ grammarPoint, label, answer, surface }) =>
+      `文法ポイント：${grammarPoint} → ここには${label}「${answer}」（${surface}の${label}）が入ります。`
+  }
+};
+
+type GrammarLineParts = { grammarPoint: string; label: string; answer: string; surface: string };
+
 function buildExplanation(
   sentence: ClozeSentence,
   vocab: VocabularyItem,
   correctAnswer: string,
   correctResult: ConjugationResult
-): { zh: string; en: string; ja: string } {
+): { zh: string; overlay: LocalizedText } {
   const targetLabel = TARGET_FORM_LABELS[sentence.targetForm] ?? sentence.targetForm;
-  const labelI18n = TARGET_FORM_LABELS_I18N[sentence.targetForm];
-  const labelEn = labelI18n?.en ?? sentence.targetForm;
-  const labelJa = labelI18n?.ja ?? sentence.targetForm;
-  // Sentence translations fall back to zh until per-locale data lands (#427).
-  const translationEn = sentence.translationI18n?.en ?? sentence.translationZh;
-  const translationJa = sentence.translationI18n?.ja ?? sentence.translationZh;
+  const zh = [
+    `句意：${sentence.translationZh}`,
+    `文法重點：${sentence.grammarPoint} → 此處需要${targetLabel}「${correctAnswer}」（${vocab.surface}的${targetLabel}）。`,
+    correctResult.explanation
+  ].join("\n");
 
-  return {
-    zh: [
-      `句意：${sentence.translationZh}`,
-      `文法重點：${sentence.grammarPoint} → 此處需要${targetLabel}「${correctAnswer}」（${vocab.surface}的${targetLabel}）。`,
-      correctResult.explanation
-    ].join("\n"),
-    en: [
-      `Sentence meaning: ${translationEn}`,
-      `Grammar point: ${sentence.grammarPoint} → this blank needs the ${labelEn} 「${correctAnswer}」 (the ${labelEn} of ${vocab.surface}).`,
-      correctResult.explanationI18n?.en ?? correctResult.explanation
-    ].join("\n"),
-    ja: [
-      `文の意味：${translationJa}`,
-      `文法ポイント：${sentence.grammarPoint} → ここには${labelJa}「${correctAnswer}」（${vocab.surface}の${labelJa}）が入ります。`,
-      correctResult.explanationI18n?.ja ?? correctResult.explanation
-    ].join("\n")
-  };
+  const overlay: LocalizedText = {};
+  for (const loc of CONTENT_LOCALES) {
+    const template = CLOZE_EXPLANATION_TEMPLATE[loc];
+    const label = TARGET_FORM_LABELS_I18N[sentence.targetForm]?.[loc] ?? sentence.targetForm;
+    // Sentence translations fall back to zh until per-locale data lands (#427).
+    const translation = sentence.translationI18n?.[loc] ?? sentence.translationZh;
+    const base = correctResult.explanationI18n?.[loc] ?? correctResult.explanation;
+    overlay[loc] = [
+      template.meaningLine(translation),
+      template.grammarLine({ grammarPoint: sentence.grammarPoint, label, answer: correctAnswer, surface: vocab.surface }),
+      base
+    ].join("\n");
+  }
+  return { zh, overlay };
 }
 
 function sortDeterministic(values: string[], seed: string): string[] {

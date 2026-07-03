@@ -5,12 +5,38 @@ export type VerbGroup = "godan" | "ichidan" | "irregular";
 export type JlptLevel = "N5" | "N4" | "N3" | "N2" | "N1";
 
 /**
- * Supported UI locale codes. Single source of truth in the domain layer so
- * content overlays (e.g. `explanationI18n`) and the i18n `Language` type can
- * both reference it without the UI layer owning a domain concept. `i18n.ts`
- * derives `Language` from this.
+ * Every locale code the app knows about, in menu order. THE single source of
+ * truth for the locale set — `LocaleCode` derives from it, `i18n.ts` derives
+ * `Language`, and the `.mjs` scripts read this exact array back out (see
+ * `scripts/_locales.mjs`, guarded by `locales.test.ts`). Keep it on ONE line
+ * so the script-side regex parse stays robust; don't reformat.
  */
-export type LocaleCode = "zh-Hant" | "ja" | "en" | "th" | "id" | "ko" | "vi" | "my";
+export const LOCALE_CODES = ["zh-Hant", "ja", "en", "th", "id", "ko", "vi", "my"] as const;
+
+/**
+ * Supported UI locale codes. Derived from {@link LOCALE_CODES} so the union and
+ * the runtime list can never drift.
+ */
+export type LocaleCode = (typeof LOCALE_CODES)[number];
+
+/**
+ * The zh-Hant SOURCE locale: content is authored here and every `*Zh` field
+ * stores it. Overlays translate away from this base.
+ */
+export const SOURCE_LOCALE = "zh-Hant" satisfies LocaleCode;
+
+/**
+ * Locales with a CONTENT-translation obligation: code that synthesizes
+ * per-locale text (drill explanations, section subtitles, …) produces an
+ * overlay entry for each of these, and adding a code here compile-forces every
+ * such structure to supply that locale's string. Distinct from
+ * `LAUNCHED_LANGUAGES` (user-facing) — a pilot locale can be a CONTENT locale
+ * without being launched, or launched later once its content lands.
+ */
+export const CONTENT_LOCALES = ["ja", "en"] as const satisfies readonly LocaleCode[];
+
+/** A locale that carries authored content overlays (see {@link CONTENT_LOCALES}). */
+export type ContentLocale = (typeof CONTENT_LOCALES)[number];
 
 /**
  * Per-locale translation overlay for a Chinese-source content field. Absent

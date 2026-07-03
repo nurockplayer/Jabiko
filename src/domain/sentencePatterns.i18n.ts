@@ -183,12 +183,12 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "免許と運転の関係。"
     },
     "promptContextI18n": {
-      "en": "Only people who have a license may drive a car.",
-      "ja": "免許を持っている人だけが、車を運転してもいい。"
+      "en": "If you have a license, you may drive a car.",
+      "ja": "免許を持っていれば、車を運転してもいい。"
     },
     "explanationI18n": {
-      "en": "「免許を持っている人だけ」 pins down the condition, and the clause expresses \"only then is it permitted\" → 「てもいい」. 「なくてもいい」 means \"don't have to drive\"; 「なければならない」 means \"must drive\"; 「てはいけない」 means \"must not drive\" (contradicts the first clause).",
-      "ja": "「免許を持っている人だけ」で条件を限定し、後件は「初めて許可される」を表す →「てもいい」。「なくてもいい」は「運転しなくてよい」、「なければならない」は「運転しなければならない」、「てはいけない」は「運転してはいけない」（前件と矛盾）。"
+      "en": "「免許を持っていれば」 states the condition, and the clause expresses \"under this condition it is permitted\" → 「てもいい」. 「なくてもいい」 means \"don't have to drive\"; 「なければならない」 means \"must drive\"; 「てはいけない」 means \"must not drive\" (contradicts the first clause).",
+      "ja": "「免許を持っていれば」で条件を示し、後件は「その条件で許可される」を表す →「てもいい」。「なくてもいい」は「運転しなくてよい」、「なければならない」は「運転しなければならない」、「てはいけない」は「運転してはいけない」（前件と矛盾）。"
     }
   },
   "pattern-nakute-mo-ii-005": {

@@ -231,9 +231,9 @@ const NAKUTE_MO_II_ITEMS: SentencePatternItem[] = [
   {
     id: "pattern-nakute-mo-ii-004",
     patternId: "nakute-mo-ii",
-    promptText: "免許を持っている人だけが、車を ___ 。",
+    promptText: "免許を持っていれば、車を ___ 。",
     hintZh: "駕照與開車的關係。",
-    promptContextZh: "只有有駕照的人才可以開車。",
+    promptContextZh: "有駕照的話，就可以開車。",
     expectedAnswer: "運転してもいい",
     options: [
       "運転してもいい",
@@ -242,7 +242,7 @@ const NAKUTE_MO_II_ITEMS: SentencePatternItem[] = [
       "運転してはいけない"
     ],
     explanation:
-      "「免許を持っている人だけ」鎖定條件，後句表「才獲得許可」→ 「てもいい」。「なくてもいい」是「不必開」；「なければならない」是「必須開」；「てはいけない」是「不可開」（與前句矛盾）。"
+      "「免許を持っていれば」是條件，後句表「在此條件下就獲得許可」→ 「てもいい」。「なくてもいい」是「不必開」；「なければならない」是「必須開」；「てはいけない」是「不可開」（與前句矛盾）。"
   },
   {
     id: "pattern-nakute-mo-ii-005",
