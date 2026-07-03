@@ -267,6 +267,7 @@ export type Copy = {
   // ---- 文型資料庫 (issue #437) ---------------------------------------------
   grammarIndexTitle: string;
   grammarIndexIntro: string;
+  grammar: string;
   grammarSearchPlaceholder: string;
   grammarSearchResults: string;
   grammarSearchEmpty: string;
@@ -279,6 +280,22 @@ export type Copy = {
   grammarRelatedPatterns: string;
   grammarCommonMistakes: string;
   grammarBackToIndex: string;
+  grammarImportanceMustKnow: string;
+  grammarImportanceHighFreq: string;
+  grammarImportanceUnderstand: string;
+  grammarImportanceReference: string;
+  grammarMatchPattern: string;
+  grammarMatchZh: string;
+  grammarMatchJa: string;
+  grammarMatchTag: string;
+  grammarConfidenceVerified: string;
+  grammarConfidenceSubtitleVerified: string;
+  grammarConfidenceApproximate: string;
+  grammarConfidenceInspiredBy: string;
+  grammarSourceAnime: string;
+  grammarSourceDrama: string;
+  grammarSourceMovie: string;
+  grammarSourceOther: string;
   keyboardHint: string;
   focusSummaryEmpty: string;
   modeOptions: Record<ModeCopyKey, { title: string; subtitle: string }>;
