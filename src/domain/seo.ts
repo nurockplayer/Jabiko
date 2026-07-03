@@ -21,7 +21,7 @@ interface PageSeo {
   path: string;
 }
 
-export const VIEW_SEO: Record<Exclude<SeoView, "grammar">, PageSeo> = {
+export const VIEW_SEO: Record<SeoView, PageSeo> = {
   home: {
     title: "Jabiko · JLPT 日檢自習室｜N5–N1 文法單字題型練習",
     description:
@@ -63,6 +63,12 @@ export const VIEW_SEO: Record<Exclude<SeoView, "grammar">, PageSeo> = {
     description:
       "Jabiko 的名字由來與作者介紹——一個免費、開源、和朋友一起做的 JLPT 自習網站。",
     path: "/about"
+  },
+  grammar: {
+    title: "JLPT 文型資料庫 · 日檢文法索引 · Jabiko",
+    description:
+      "JLPT N5–N1 文型一覽：全部文型、接續規則、用法與例句。支援搜尋、等級瀏覽與影視例句篩選——JLPT 文法攻略。",
+    path: "/grammar"
   }
 };
 
@@ -77,11 +83,21 @@ export interface ResolvedSeo {
  * Resolve a view's title/description and its absolute canonical URL. The
  * `/grammar/<surface>` route is dynamic (#281): its metadata is built from the
  * surface so each grammar-point page surfaces its own title/canonical to
- * crawlers. Falls back to the home entry if a grammar view arrives with no
- * surface (shouldn't happen in practice).
+ * crawlers. The grammar overview (/grammar with no surface) has its own SEO
+ * entry distinct from HOME.
  */
 export function seoForView(view: SeoView, grammarSurface?: string | null): ResolvedSeo {
   if (view === "grammar" && grammarSurface) {
+    // JLPT level route (e.g., /grammar/n5): show index-page metadata, not
+    // a grammar-point title.
+    if (/^[Nn][1-5]$/.test(grammarSurface)) {
+      const level = grammarSurface.toUpperCase();
+      return {
+        title: `JLPT ${level} 文型索引 · JLPT／日檢文法 · Jabiko`,
+        description: `JLPT ${level} 日檢文法文型一覽：全部文型、接續、用法與例句，看完直接練——N5–N1 文法逐級攻略。`,
+        canonical: `${SITE_ORIGIN}/grammar/${level.toLowerCase()}`
+      };
+    }
     return {
       title: `${grammarSurface} 的意思與用法 · JLPT／日檢文法 · Jabiko`,
       description: `日檢文法「${grammarSurface}」的意思、接續、用法與例句，看完直接練——JLPT 文法逐點攻略。`,
@@ -89,7 +105,7 @@ export function seoForView(view: SeoView, grammarSurface?: string | null): Resol
     };
   }
 
-  const entry = VIEW_SEO[view === "grammar" ? "home" : view];
+  const entry = VIEW_SEO[view === "grammar" ? "grammar" : view];
   return {
     title: entry.title,
     description: entry.description,

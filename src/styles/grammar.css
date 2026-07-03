@@ -69,6 +69,13 @@
   color: var(--ink);
 }
 
+.gp-formation {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 /* Content cards (usage / examples). The curated reference uses .grammar-note. */
 .gp-card {
   padding: 1.1rem 1.25rem 1.2rem;
@@ -83,6 +90,11 @@
   font-weight: 800;
   letter-spacing: 0.02em;
   color: var(--matcha-dark);
+}
+
+.gp-card-title-icon {
+  vertical-align: middle;
+  margin-right: 0.3rem;
 }
 
 .gp-usage {
@@ -134,4 +146,363 @@
   align-items: center;
   gap: 0.45rem;
   margin-top: 0.2rem;
+}
+
+/* ---- GrammaIndex (issue #437) ---- */
+.grammar-index {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
+.gi-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.gi-hero-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.gi-hero-sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.gi-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  background: var(--paper);
+}
+
+.gi-search-icon {
+  flex: 0 0 auto;
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.gi-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  color: var(--ink);
+  outline: none;
+}
+
+.gi-search-input::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.gi-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.gi-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.gi-filter-btn.active {
+  background: var(--matcha);
+  color: var(--selected-text, #fff);
+  border-color: var(--matcha);
+}
+
+.gi-filter-select {
+  font-size: 0.82rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.gi-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gi-section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.gi-level-group {
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.gi-level-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.gi-level-summary::-webkit-details-marker {
+  display: none;
+}
+
+.gi-level-summary {
+  list-style: none;
+}
+
+.gi-level-summary::marker {
+  content: "";
+}
+
+.gi-level-badge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-pill);
+  background: var(--matcha-dark);
+  color: var(--selected-text, #fff);
+}
+
+.gi-level-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.gi-pattern-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--panel-border);
+}
+
+.gi-pattern-card {
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.gi-pattern-card:last-child {
+  border-bottom: none;
+}
+
+.gi-pattern-card-inner {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+}
+
+.gi-pattern-card-inner:hover {
+  background: color-mix(in srgb, var(--matcha) 6%, var(--paper));
+}
+
+.gi-pattern-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.gi-pattern-text {
+  font-family: var(--font-japanese);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--surface-ink);
+}
+
+.gi-pattern-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.gi-importance {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-pill);
+}
+
+.gi-importance-must {
+  background: color-mix(in srgb, var(--danger) 18%, var(--paper));
+  color: var(--danger);
+}
+
+.gi-importance-high {
+  background: color-mix(in srgb, var(--gold) 22%, var(--paper));
+  color: var(--gold);
+}
+
+.gi-has-media {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.gi-pattern-meaning {
+  margin: 0.1rem 0 0;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.gi-pattern-formation {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.gi-match-field {
+  display: inline-block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--matcha) 12%, var(--paper));
+  color: var(--matcha-dark);
+}
+
+.gi-empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.gi-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+/* ---- Media examples (#437) ---- */
+.gp-media-line {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-japanese);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--surface-ink);
+  quotes: none;
+}
+
+.gp-media-line-zh {
+  margin: 0.15rem 0 0.3rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.gp-media-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.gp-media-source {
+  opacity: 0.7;
+}
+
+.gp-media-confidence {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--matcha) 10%, var(--paper));
+  color: var(--matcha-dark);
+}
+
+.gp-media-context {
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.gp-media-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.gp-media-item {
+  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--panel-border) 50%, transparent);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 2%, var(--paper));
+}
+
+.gp-related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.gp-related-item {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--panel-border) 40%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+.gp-related-pattern {
+  font-family: var(--font-japanese);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--surface-ink);
+}
+
+.gp-related-meaning {
+  margin: 0.1rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.gp-mistakes-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.9rem;
 }

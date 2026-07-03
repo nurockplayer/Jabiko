@@ -1,8 +1,12 @@
-import { ArrowLeft, GraduationCap } from "lucide-react";
+import { ArrowLeft, GraduationCap, Clapperboard, BookOpen, AlertTriangle } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { buildGrammarPoint } from "../domain/grammarPoints";
 import { pickLocalized } from "../domain/localizedContent";
 import { GrammarNoteCard } from "./GrammarNoteCard";
+import { grammarPatterns } from "../domain/grammarDatabase";
+import { findPatternBySurface } from "../domain/grammarIndex";
+import type { GrammarPattern, MediaLineExample } from "../domain/grammarDatabase";
+import type { JlptLevel } from "../domain/types";
 
 // Strip a leading "正解是「…」，" answer-explanation lead-in (#339): the exam
 // bank's explanations are written for a quiz ("the correct answer is X,
@@ -22,6 +26,10 @@ export function cleanExplanation(text: string): string {
 // GrammarNoteCard when available, otherwise meaning + usage notes from the exam
 // bank), worked examples, and a practice CTA. Deep-linkable at /grammar/<surface>;
 // reaches the lazy exam/notes data so it is itself lazily loaded.
+//
+// Issue #437 extends the page with the grammar database: media examples (日劇／
+// 動漫台詞), related-pattern comparisons, and common-mistakes notes — all from
+// the curated grammarDatabase.ts.
 export function GrammarPointPage({
   surface,
   language,
@@ -36,23 +44,114 @@ export function GrammarPointPage({
   const t = copy[language];
   const point = buildGrammarPoint(surface);
 
+  // Database enrichment: match the surface via domain helper to find
+  // media examples, related patterns, and common mistakes.
+  const dbPattern = findPatternBySurface(surface);
+  const dbRelated = dbPattern
+    ? grammarPatterns.filter((p) => dbPattern.relatedPatternIds.includes(p.id))
+    : [];
+  // Database content is zh-only (#437 regression of #427); gate enrichment to
+  // zh-Hant until i18n overlay fields are added to GrammarPattern.
+  const isZhHant = language === "zh-Hant";
+
   const backButton = (
     <button type="button" className="ghost-button gp-back" onClick={onBack}>
       <ArrowLeft aria-hidden="true" />
-      {t.reviewDoneExit}
+      {t.grammarBackToIndex}
     </button>
   );
 
-  // Unknown surface (stale/typo link): minimal, non-crashing shell.
+  // Unknown surface (stale/typo link): neither exam data nor database entry
+  // exists — OR a database-only pattern viewed in a non-zh-Hant locale, whose
+  // content is Chinese-only for now (#438: no residual Chinese in en/ja, the
+  // #427 invariant). Both render the minimal, content-free shell.
   if (!point) {
+    if (!dbPattern || !isZhHant) {
+      return (
+        <section className="grammar-point grammar-point-missing">
+          {backButton}
+          <header className="gp-hero">
+            <h1 className="gp-surface" lang="ja">
+              {surface}
+            </h1>
+          </header>
+        </section>
+      );
+    }
+
+    // Database-only surface: exists in grammarDatabase but has no exam-bank point.
+    // Show the database content (formation, examples, media, related patterns)
+    // without exam-sourced usage notes or practice exercises.
     return (
-      <section className="grammar-point grammar-point-missing">
+      <section className="grammar-point" aria-label={surface}>
         {backButton}
         <header className="gp-hero">
-          <h1 className="gp-surface" lang="ja">
-            {surface}
-          </h1>
+          <div className="gp-hero-row">
+            <h1 className="gp-surface" lang="ja">
+              {surface}
+            </h1>
+            <span className="gp-level" aria-label={`JLPT ${dbPattern.level}`}>
+              {dbPattern.level}
+            </span>
+          </div>
+          {dbPattern.meaningZh && <p className="gp-meaning">{dbPattern.meaningZh}</p>}
+          {dbPattern.formation && <p className="gp-formation">{dbPattern.formation}</p>}
         </header>
+
+        {dbPattern.examples.length > 0 ? (
+          <section className="gp-card">
+            <h2 className="gp-card-title">{t.grammarDatabaseExamples}</h2>
+            <ul className="gp-examples">
+              {dbPattern.examples.map((ex) => (
+                <li key={ex.japanese}>
+                  <span className="gp-ex-ja" lang="ja">{ex.japanese}</span>
+                  {ex.meaningZh ? <span className="gp-ex-zh">{ex.meaningZh}</span> : null}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {dbPattern.mediaExamples.length > 0 ? (
+          <section className="gp-card gp-media">
+            <h2 className="gp-card-title">
+              <Clapperboard aria-hidden="true" className="gp-card-title-icon" />
+              {t.grammarMediaExamples}
+            </h2>
+            <MediaExamples mediaExamples={dbPattern.mediaExamples} language={language} />
+          </section>
+        ) : null}
+
+        {dbRelated.length > 0 ? (
+          <section className="gp-card">
+            <h2 className="gp-card-title">
+              <BookOpen aria-hidden="true" className="gp-card-title-icon" />
+              {t.grammarRelatedPatterns}
+            </h2>
+            <ul className="gp-related-list">
+              {dbRelated.map((related) => (
+                <li key={related.id} className="gp-related-item">
+                  <span className="gp-related-pattern" lang="ja">{related.pattern}</span>
+                  {related.meaningZh && <p className="gp-related-meaning">{related.meaningZh}</p>}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
+          <section className="gp-card">
+            <h2 className="gp-card-title">
+              <AlertTriangle aria-hidden="true" className="gp-card-title-icon" />
+              {t.grammarCommonMistakes}
+            </h2>
+            <ul className="gp-mistakes-list">
+              {dbPattern.commonMistakes.map((mistake, i) => (
+                <li key={i}>{mistake}</li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </section>
     );
   }
@@ -119,10 +218,119 @@ export function GrammarPointPage({
         </section>
       ) : null}
 
+      {/* `#437`: Database examples — only when curated note is absent (it already
+          shows curated examples through GrammarNoteCard) */}
+      {isZhHant && !point.note && dbPattern && dbPattern.examples.length > 0 ? (
+        <section className="gp-card">
+          <h2 className="gp-card-title">{t.grammarDatabaseExamples}</h2>
+          <ul className="gp-examples">
+            {dbPattern.examples.map((ex) => (
+              <li key={ex.japanese}>
+                <span className="gp-ex-ja" lang="ja">
+                  {ex.japanese}
+                </span>
+                {ex.meaningZh ? (
+                  <span className="gp-ex-zh">{ex.meaningZh}</span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {/* #437: 日劇／動漫台詞例句 */}
+      {isZhHant && dbPattern && dbPattern.mediaExamples.length > 0 ? (
+        <section className="gp-card gp-media">
+          <h2 className="gp-card-title">
+            <Clapperboard aria-hidden="true" className="gp-card-title-icon" />
+            {t.grammarMediaExamples}
+          </h2>
+          <MediaExamples mediaExamples={dbPattern.mediaExamples} language={language} />
+        </section>
+      ) : null}
+
+      {/* #437: 相近文型比較 */}
+      {isZhHant && dbRelated.length > 0 ? (
+        <section className="gp-card">
+          <h2 className="gp-card-title">
+            <BookOpen aria-hidden="true" className="gp-card-title-icon" />
+            {t.grammarRelatedPatterns}
+          </h2>
+          <ul className="gp-related-list">
+            {dbRelated.map((related) => (
+              <li key={related.id} className="gp-related-item">
+                <span className="gp-related-pattern" lang="ja">
+                  {related.pattern}
+                </span>
+                <p className="gp-related-meaning">{related.meaningZh}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {/* #437: 常見錯誤 */}
+      {isZhHant && dbPattern && dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
+        <section className="gp-card">
+          <h2 className="gp-card-title">
+            <AlertTriangle aria-hidden="true" className="gp-card-title-icon" />
+            {t.grammarCommonMistakes}
+          </h2>
+          <ul className="gp-mistakes-list">
+            {dbPattern.commonMistakes.map((mistake, i) => (
+              <li key={i}>{mistake}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       <button type="button" className="next-button gp-practice" onClick={onPractice}>
         <GraduationCap aria-hidden="true" />
         {t.startChallenge}
       </button>
     </section>
+  );
+}
+
+/** 日劇／動漫台詞例句塊 */
+function MediaExamples({ mediaExamples, language }: { mediaExamples: MediaLineExample[]; language: Language }) {
+  const t = copy[language];
+  const confidenceLabels: Record<MediaLineExample["confidence"], string> = {
+    verified: t.grammarConfidenceVerified,
+    subtitle_verified: t.grammarConfidenceSubtitleVerified,
+    approximate: t.grammarConfidenceApproximate,
+    inspired_by: t.grammarConfidenceInspiredBy,
+  };
+
+  const sourceLabels: Record<MediaLineExample["sourceType"], string> = {
+    anime: t.grammarSourceAnime,
+    drama: t.grammarSourceDrama,
+    movie: t.grammarSourceMovie,
+    other: t.grammarSourceOther,
+  };
+
+  return (
+    <ul className="gp-media-list">
+      {mediaExamples.map((m, i) => (
+        <li key={i} className="gp-media-item">
+          <blockquote className="gp-media-line" lang="ja">
+            {m.lineJa}
+          </blockquote>
+          {m.lineZh ? <p className="gp-media-line-zh">{m.lineZh}</p> : null}
+          <div className="gp-media-meta">
+            <span className="gp-media-source">
+              [{sourceLabels[m.sourceType]}]
+              {m.titleJa}{m.titleZh ? `（${m.titleZh}）` : ""}
+              {m.episode ? ` ${m.episode}` : ""}
+              {m.character ? `・${m.character}` : ""}
+            </span>
+            <span className={`gp-media-confidence gp-confidence-${m.confidence}`}>
+              {confidenceLabels[m.confidence]}
+            </span>
+          </div>
+          {m.contextZh ? <p className="gp-media-context">{m.contextZh}</p> : null}
+        </li>
+      ))}
+    </ul>
   );
 }

@@ -4,6 +4,7 @@ import { buildExamQuestionPool } from "./examBlocks";
 import { buildSentencePatternPool } from "./sentencePatterns";
 import { jlptVocabulary } from "./vocabulary-jlpt";
 import { kanjiOnyomi } from "./kanjiOnyomi";
+import { grammarPatterns } from "./grammarDatabase";
 
 // Drift guard: CONTENT_STATS is hardcoded so the home view doesn't have
 // to import the heavy data modules (see contentStats.ts). This test is
@@ -37,5 +38,9 @@ describe("CONTENT_STATS", () => {
 
   it("matches the live kanji-reading entry count", () => {
     expect(CONTENT_STATS.kanjiReadings).toBe(kanjiOnyomi.length);
+  });
+
+  it("matches the live grammar-pattern count", () => {
+    expect(CONTENT_STATS.grammarPatterns).toBe(grammarPatterns.length);
   });
 });

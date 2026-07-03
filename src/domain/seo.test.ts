@@ -14,10 +14,11 @@ const VIEWS: Exclude<SeoView, "grammar">[] = [
 
 describe("seo", () => {
   it("has an entry for every view", () => {
-    for (const view of VIEWS) {
+    const allViews: SeoView[] = [...VIEWS, "grammar"];
+    for (const view of allViews) {
       expect(VIEW_SEO[view], view).toBeDefined();
     }
-    expect(Object.keys(VIEW_SEO).sort()).toEqual([...VIEWS].sort());
+    expect(Object.keys(VIEW_SEO).sort()).toEqual([...allViews].sort());
   });
 
   it("keeps the brand in the home title and a meaningful description", () => {
@@ -27,10 +28,11 @@ describe("seo", () => {
   });
 
   it("gives every view a distinct title and description (no shared SPA meta)", () => {
-    const titles = new Set(VIEWS.map((v) => seoForView(v).title));
-    const descriptions = new Set(VIEWS.map((v) => seoForView(v).description));
-    expect(titles.size).toBe(VIEWS.length);
-    expect(descriptions.size).toBe(VIEWS.length);
+    const allViews: SeoView[] = [...VIEWS, "grammar"];
+    const titles = new Set(allViews.map((v) => seoForView(v).title));
+    const descriptions = new Set(allViews.map((v) => seoForView(v).description));
+    expect(titles.size).toBe(allViews.length);
+    expect(descriptions.size).toBe(allViews.length);
   });
 
   it("builds an absolute canonical URL rooted at the production origin", () => {
@@ -41,7 +43,8 @@ describe("seo", () => {
   });
 
   it("keeps descriptions within a sane SEO length (<=160 chars)", () => {
-    for (const view of VIEWS) {
+    const allViews: SeoView[] = [...VIEWS, "grammar"];
+    for (const view of allViews) {
       expect(seoForView(view).description.length, view).toBeLessThanOrEqual(160);
     }
   });
@@ -56,7 +59,44 @@ describe("seo", () => {
     expect(resolved.canonical).toBe(`${SITE_ORIGIN}/grammar/${encodeURIComponent("ばかりに")}`);
   });
 
-  it("falls back to home metadata if a grammar view arrives with no surface", () => {
-    expect(seoForView("grammar").canonical).toBe(seoForView("home").canonical);
+  it("falls back to grammar-index metadata if a grammar view arrives with no surface", () => {
+    expect(seoForView("grammar").title).toContain("文型資料庫");
+    expect(seoForView("grammar").canonical).toBe(`${SITE_ORIGIN}/grammar`);
+  });
+
+  // /grammar/n5 – /grammar/n1 are level-index routes (#437), not grammar-point
+  // pages; they should show level-specific index metadata rather than point SEO.
+  describe("grammar level routes", () => {
+    const LEVELS = ["n5", "n4", "n3", "n2", "n1"];
+
+    it("builds level-index metadata for a level-slug surface", () => {
+      const resolved = seoForView("grammar", "n5");
+      expect(resolved.title).toContain("N5");
+      expect(resolved.title).toMatch(/文型/);
+      expect(resolved.description).toContain("N5");
+      expect(resolved.description).toMatch(/JLPT/);
+      expect(resolved.canonical).toBe(`${SITE_ORIGIN}/grammar/n5`);
+    });
+
+    it("gives every level a distinct title", () => {
+      const titles = new Set(LEVELS.map((l) => seoForView("grammar", l).title));
+      expect(titles.size).toBe(LEVELS.length);
+    });
+
+    it("builds an absolute canonical URL for each level", () => {
+      for (const level of LEVELS) {
+        const resolved = seoForView("grammar", level);
+        expect(resolved.canonical).toBe(`${SITE_ORIGIN}/grammar/${level}`);
+      }
+    });
+
+    it("prefers level-index SEO over grammar-point SEO for level-like surfaces", () => {
+      const resolved = seoForView("grammar", "n5");
+      expect(resolved.title).toContain("N5");
+      expect(resolved.title).toContain("文型");
+      expect(resolved.description).toContain("N5");
+      expect(resolved.description).toMatch(/JLPT/);
+      expect(resolved.title).not.toContain("的意思與用法");
+    });
   });
 });

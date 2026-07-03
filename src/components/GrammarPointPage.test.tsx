@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { cleanExplanation, GrammarPointPage } from "./GrammarPointPage";
 import { allGrammarSurfaces, buildGrammarPoint } from "../domain/grammarPoints";
 import { grammarNotes } from "../domain/grammarNotes";
+import { grammarPatterns } from "../domain/grammarDatabase";
 import { copy } from "../i18n";
 
 // A surface that exists in the exam bank AND has a curated note, so the page
@@ -43,8 +44,26 @@ describe("GrammarPointPage", () => {
     );
 
     expect(screen.getByRole("heading", { level: 1, name: "存在しない文法zzz" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: t.reviewDoneExit }));
+    await user.click(screen.getByRole("button", { name: t.grammarBackToIndex }));
     expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders a database-only pattern's Chinese content in zh-Hant but hides it in en (#438/#427)", () => {
+    // A pattern that lives ONLY in grammarDatabase (no exam-bank point), so it
+    // hits the database-only branch — the exact path whose zh-Hant gate must
+    // hold (its content has no i18n overlay yet, so en/ja must see none of it).
+    const dbOnly = grammarPatterns.find((p) => buildGrammarPoint(p.pattern.replace(/^[〜～]/, "")) === null);
+    expect(dbOnly, "expected at least one database-only pattern").toBeDefined();
+    const surface = dbOnly!.pattern.replace(/^[〜～]/, "");
+
+    const zh = render(
+      <GrammarPointPage surface={surface} language="zh-Hant" onPractice={vi.fn()} onBack={vi.fn()} />
+    );
+    expect(screen.getByText(dbOnly!.meaningZh)).toBeInTheDocument();
+    zh.unmount();
+
+    render(<GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />);
+    expect(screen.queryByText(dbOnly!.meaningZh)).not.toBeInTheDocument();
   });
 
   it("renders localized meaning and usage notes for an un-noted point in en (#427)", () => {
