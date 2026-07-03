@@ -85,6 +85,11 @@
   color: var(--matcha-dark);
 }
 
+.gp-card-title-icon {
+  vertical-align: middle;
+  margin-right: 0.3rem;
+}
+
 .gp-usage {
   margin: 0.4rem 0;
   line-height: 1.75;
@@ -261,6 +266,14 @@
 
 .gi-level-summary::-webkit-details-marker {
   display: none;
+}
+
+.gi-level-summary {
+  list-style: none;
+}
+
+.gi-level-summary::marker {
+  content: "";
 }
 
 .gi-level-badge {

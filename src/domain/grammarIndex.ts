@@ -37,6 +37,13 @@ export function getPatternById(id: string): GrammarPattern | undefined {
   return grammarPatterns.find((p) => p.id === id);
 }
 
+/** 依 surface 比對文型（自動處理 〜/～ 前綴） */
+export function findPatternBySurface(surface: string): GrammarPattern | undefined {
+  return grammarPatterns.find(
+    (p) => p.pattern === surface || p.pattern === `〜${surface.replace(/^[〜～]/, "")}`
+  );
+}
+
 /** 依關鍵字搜尋文型和中文解釋 */
 export function searchPatterns(query: string): GrammarPattern[] {
   const q = query.trim().toLowerCase();
