@@ -382,7 +382,7 @@ export default function App() {
           onClick={() => { setGrammarSurface(null); setAppView("grammar"); }}
         >
           <BookOpen aria-hidden="true" size={16} style={{ verticalAlign: "middle", marginRight: "0.2rem" }} />
-          文型
+          {t.grammar}
         </button>
         <button
           type="button"
@@ -464,6 +464,9 @@ export default function App() {
               setGrammarSurface(surface);
             }}
             onBack={() => setAppView("home")}
+            onBackToOverview={() => {
+              setGrammarSurface(null);
+            }}
           />
         </Suspense>
       ) : appView === "grammar" ? (

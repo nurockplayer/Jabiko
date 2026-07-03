@@ -6,8 +6,9 @@ import {
   getLevelSummary,
   getPatternsWithMediaExamples,
   getPatternsByImportance,
+  searchPatterns,
+  getRelatedPatterns,
 } from "../domain/grammarIndex";
-import { getRelatedPatterns } from "../domain/grammarIndex";
 import type { GrammarPattern } from "../domain/grammarDatabase";
 import type { JlptLevel } from "../domain/types";
 
@@ -16,11 +17,13 @@ export function GrammarIndexPage({
   level,
   onOpenPattern,
   onBack,
+  onBackToOverview,
 }: {
   language: Language;
   level: JlptLevel | null;
   onOpenPattern: (surface: string) => void;
   onBack: () => void;
+  onBackToOverview?: () => void;
 }) {
   const t = copy[language];
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,23 +43,25 @@ export function GrammarIndexPage({
   };
 
   const importanceLabels: Record<string, string> = {
-    must_know: "必考",
-    high_frequency: "高頻",
-    understand: "理解即可",
-    reference: "參考",
+    must_know: t.grammarImportanceMustKnow,
+    high_frequency: t.grammarImportanceHighFreq,
+    understand: t.grammarImportanceUnderstand,
+    reference: t.grammarImportanceReference,
+  };
+
+  const matchedFieldLabels: Record<string, string> = {
+    pattern: t.grammarMatchPattern,
+    meaningZh: t.grammarMatchZh,
+    meaningJa: t.grammarMatchJa,
+    tag: t.grammarMatchTag,
   };
 
   /** 篩選單一等級的列表 */
   const filterPatterns = (patterns: GrammarPattern[]): GrammarPattern[] => {
     let result = patterns;
     if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.pattern.includes(q) ||
-          p.meaningZh.includes(q) ||
-          p.tags.some((tag) => tag.includes(q)) ||
-          (p.meaningJa?.includes(q))
+      result = searchPatterns(searchQuery).filter((p) =>
+        patterns.some((sp) => sp.id === p.id)
       );
     }
     if (showMediaOnly) {
@@ -68,29 +73,23 @@ export function GrammarIndexPage({
     return result;
   };
 
-  /** 搜尋總結果（跨等級） */
+  /** 跨等級搜尋結果 */
   const globalSearchResults = useMemo(() => {
     if (!searchQuery.trim()) return null;
-    const q = searchQuery.trim().toLowerCase();
-    const allResults: { pattern: GrammarPattern; matchedField: string }[] = [];
-    for (const patterns of Object.values(grouped)) {
-      for (const p of patterns) {
-        if (p.pattern.includes(q)) {
-          allResults.push({ pattern: p, matchedField: "文型" });
-        } else if (p.meaningZh.includes(q)) {
-          allResults.push({ pattern: p, matchedField: "中文解釋" });
-        } else if (p.meaningJa?.includes(q)) {
-          allResults.push({ pattern: p, matchedField: "日文解釋" });
-        } else if (p.tags.some((tag) => tag.includes(q))) {
-          allResults.push({ pattern: p, matchedField: "標籤" });
-        }
-      }
-    }
-    return allResults;
+    const matches = searchPatterns(searchQuery);
+    return matches.map((p) => {
+      const q = searchQuery.trim().toLowerCase();
+      let field: keyof typeof matchedFieldLabels = "pattern";
+      if (p.pattern.includes(q)) field = "pattern";
+      else if (p.meaningZh.includes(q)) field = "meaningZh";
+      else if (p.meaningJa?.includes(q)) field = "meaningJa";
+      else if (p.tags.some((tag) => tag.includes(q))) field = "tag";
+      return { pattern: p, matchedField: matchedFieldLabels[field] };
+    });
   }, [searchQuery, grouped]);
 
-  // 如果正在搜尋，顯示跨等級結果
-  if (globalSearchResults) {
+  // 如果正在搜尋且沒有選定等級，顯示跨等級結果
+  if (!level && globalSearchResults) {
     return (
       <section className="grammar-index" aria-label={t.grammarIndexTitle}>
         <div className="gi-header">
@@ -105,6 +104,7 @@ export function GrammarIndexPage({
           <input
             type="search"
             className="gi-search-input"
+            aria-label={t.grammarSearchPlaceholder}
             placeholder={t.grammarSearchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -140,13 +140,13 @@ export function GrammarIndexPage({
   if (level) {
     const patterns = filterPatterns(grouped[level]);
     return (
-      <section className="grammar-index" aria-label={`JLPT ${level} 文型`}>
+      <section className="grammar-index" aria-label={`JLPT ${level} ${t.grammar}`}>
         <div className="gi-header">
           <button type="button" className="ghost-button" onClick={onBack}>
             <ArrowLeft aria-hidden="true" />
             {t.reviewDoneExit}
           </button>
-          <h1 className="gi-hero-title">JLPT {level} 文型</h1>
+          <h1 className="gi-hero-title">JLPT {level} {t.grammar}</h1>
         </div>
 
         <div className="gi-search-bar">
@@ -154,6 +154,7 @@ export function GrammarIndexPage({
           <input
             type="search"
             className="gi-search-input"
+            aria-label={t.grammarSearchPlaceholder}
             placeholder={t.grammarSearchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -201,7 +202,7 @@ export function GrammarIndexPage({
         )}
 
         <div className="gi-cta">
-          <button type="button" className="ghost-button" onClick={onBack}>
+          <button type="button" className="ghost-button" onClick={onBackToOverview ?? onBack}>
             <ArrowLeft aria-hidden="true" />
             {t.grammarBackToIndex}
           </button>
@@ -228,6 +229,7 @@ export function GrammarIndexPage({
         <input
           type="search"
           className="gi-search-input"
+          aria-label={t.grammarSearchPlaceholder}
           placeholder={t.grammarSearchPlaceholder}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -251,7 +253,7 @@ export function GrammarIndexPage({
               <span className="gi-level-badge">{levelLabels[lvl]}</span>
               <span className="gi-level-stats">
                 <BookOpen aria-hidden="true" size={14} />
-                {stats.total} 文型
+                {stats.total} {t.grammar}
                 {stats.withMediaExamples > 0 && (
                   <>
                     <Clapperboard aria-hidden="true" size={14} />

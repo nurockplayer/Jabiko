@@ -210,11 +210,19 @@ export function GrammarPointPage({
 
 /** 日劇／動漫台詞例句塊 */
 function MediaExamples({ mediaExamples, language }: { mediaExamples: MediaLineExample[]; language: Language }) {
-  const confidenceLabels: Record<string, string> = {
-    verified: "已確認",
-    subtitle_verified: "字幕確認",
-    approximate: "語境近似",
-    inspired_by: "參考改編",
+  const t = copy[language];
+  const confidenceLabels: Record<MediaLineExample["confidence"], string> = {
+    verified: t.grammarConfidenceVerified,
+    subtitle_verified: t.grammarConfidenceSubtitleVerified,
+    approximate: t.grammarConfidenceApproximate,
+    inspired_by: t.grammarConfidenceInspiredBy,
+  };
+
+  const sourceLabels: Record<MediaLineExample["sourceType"], string> = {
+    anime: t.grammarSourceAnime,
+    drama: t.grammarSourceDrama,
+    movie: t.grammarSourceMovie,
+    other: t.grammarSourceOther,
   };
 
   return (
@@ -227,13 +235,13 @@ function MediaExamples({ mediaExamples, language }: { mediaExamples: MediaLineEx
           {m.lineZh ? <p className="gp-media-line-zh">{m.lineZh}</p> : null}
           <div className="gp-media-meta">
             <span className="gp-media-source">
-              [{m.sourceType === "anime" ? "動漫" : m.sourceType === "drama" ? "日劇" : "電影"}]
+              [{sourceLabels[m.sourceType]}]
               {m.titleJa}{m.titleZh ? `（${m.titleZh}）` : ""}
               {m.episode ? ` ${m.episode}` : ""}
               {m.character ? `・${m.character}` : ""}
             </span>
             <span className={`gp-media-confidence gp-confidence-${m.confidence}`}>
-              {confidenceLabels[m.confidence] ?? m.confidence}
+              {confidenceLabels[m.confidence]}
             </span>
           </div>
           {m.contextZh ? <p className="gp-media-context">{m.contextZh}</p> : null}
