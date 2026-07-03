@@ -4,6 +4,7 @@ import { buildGrammarPoint } from "../domain/grammarPoints";
 import { pickLocalized } from "../domain/localizedContent";
 import { GrammarNoteCard } from "./GrammarNoteCard";
 import { grammarPatterns } from "../domain/grammarDatabase";
+import { findPatternBySurface } from "../domain/grammarIndex";
 import type { GrammarPattern, MediaLineExample } from "../domain/grammarDatabase";
 import type { JlptLevel } from "../domain/types";
 
@@ -43,11 +44,9 @@ export function GrammarPointPage({
   const t = copy[language];
   const point = buildGrammarPoint(surface);
 
-  // Database enrichment: match the surface (strip 〜/～ for lookup) to find
+  // Database enrichment: match the surface via domain helper to find
   // media examples, related patterns, and common mistakes.
-  const dbPattern = grammarPatterns.find(
-    (p) => p.pattern === surface || p.pattern === `〜${surface.replace(/^[〜～]/, "")}`
-  );
+  const dbPattern = findPatternBySurface(surface);
   const dbRelated = dbPattern
     ? grammarPatterns.filter((p) => dbPattern.relatedPatternIds.includes(p.id))
     : [];
@@ -135,9 +134,9 @@ export function GrammarPointPage({
         </section>
       ) : null}
 
-      {/* #437: Database examples — only when curated note is absent (it already
+      {/* `#437`: Database examples — only when curated note is absent (it already
           shows curated examples through GrammarNoteCard) */}
-      {point.note && dbPattern && dbPattern.examples.length > 0 ? (
+      {!point.note && dbPattern && dbPattern.examples.length > 0 ? (
         <section className="gp-card">
           <h2 className="gp-card-title">{t.grammarDatabaseExamples}</h2>
           <ul className="gp-examples">
@@ -159,7 +158,7 @@ export function GrammarPointPage({
       {dbPattern && dbPattern.mediaExamples.length > 0 ? (
         <section className="gp-card gp-media">
           <h2 className="gp-card-title">
-            <Clapperboard aria-hidden="true" style={{ verticalAlign: "middle", marginRight: "0.3rem" }} />
+            <Clapperboard aria-hidden="true" className="gp-card-title-icon" />
             {t.grammarMediaExamples}
           </h2>
           <MediaExamples mediaExamples={dbPattern.mediaExamples} language={language} />
@@ -170,7 +169,7 @@ export function GrammarPointPage({
       {dbRelated.length > 0 ? (
         <section className="gp-card">
           <h2 className="gp-card-title">
-            <BookOpen aria-hidden="true" style={{ verticalAlign: "middle", marginRight: "0.3rem" }} />
+            <BookOpen aria-hidden="true" className="gp-card-title-icon" />
             {t.grammarRelatedPatterns}
           </h2>
           <ul className="gp-related-list">
@@ -190,7 +189,7 @@ export function GrammarPointPage({
       {dbPattern && dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
         <section className="gp-card">
           <h2 className="gp-card-title">
-            <AlertTriangle aria-hidden="true" style={{ verticalAlign: "middle", marginRight: "0.3rem" }} />
+            <AlertTriangle aria-hidden="true" className="gp-card-title-icon" />
             {t.grammarCommonMistakes}
           </h2>
           <ul className="gp-mistakes-list">
