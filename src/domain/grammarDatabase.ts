@@ -1405,7 +1405,7 @@ const n1Patterns: GrammarPattern[] = [
     relatedPatternIds: ["te-wa-ikenai"],
   },
   {
-    id: "bekarazu-n1-grammar",
+    id: "bekushite",
     level: "N1",
     pattern: "〜べくして",
     meaningZh: "註定～（必然的結果）",
