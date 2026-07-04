@@ -104,3 +104,47 @@ export function shouldAttemptMigration(hostname: string, storage: Storage): bool
   const attempts = Number(storage.getItem(MIGRATION_ATTEMPTS_KEY) ?? "0");
   return attempts < MIGRATION_MAX_ATTEMPTS;
 }
+
+/**
+ * Client-side twin of the edge 301 (functions/_middleware.js): a visitor
+ * whose old service worker still controls jabiko.pages.dev never reaches the
+ * edge — the SW serves the cached shell — so the app itself must move them.
+ * Returns the jabiko.app URL to replace() to, or null to stay (canonical
+ * domain, previews, localhost, and the bridge iframe all stay).
+ */
+export function legacyRedirectTarget(href: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(href);
+  } catch {
+    return null;
+  }
+  if (url.hostname !== "jabiko.pages.dev") return null;
+  if (url.pathname.startsWith(BRIDGE_PATH)) return null;
+  return MIGRATION_TARGET_ORIGIN + url.pathname + url.search + url.hash;
+}
+
+/**
+ * In-app bridge responder: when the old origin's service worker intercepts
+ * the bridge iframe's navigation, it serves the APP SHELL instead of the
+ * static public/migration-bridge.html. main.tsx detects that case (framed +
+ * bridge path) and calls this instead of rendering the app — same protocol,
+ * same allowlist, so the migration works on the very first attempt even for
+ * SW-controlled visitors. Returns a stop function (symmetry/testability).
+ */
+export function runBridgeResponder(storage: Storage): () => void {
+  const onMessage = (event: MessageEvent) => {
+    if (event.origin !== MIGRATION_TARGET_ORIGIN) return;
+    const data: unknown = event.data;
+    if (typeof data !== "object" || data === null) return;
+    if ((data as { type?: unknown }).type !== MIGRATION_MESSAGE_REQUEST) return;
+    if (!event.source) return;
+    // String targetOrigin form, matching the static bridge and the hook.
+    (event.source as Window).postMessage(
+      { type: MIGRATION_MESSAGE_PAYLOAD, entries: collectMigrationEntries(storage) },
+      MIGRATION_TARGET_ORIGIN
+    );
+  };
+  window.addEventListener("message", onMessage);
+  return () => window.removeEventListener("message", onMessage);
+}
