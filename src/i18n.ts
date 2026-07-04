@@ -255,6 +255,7 @@ export type Copy = {
   answerKey: string;
   feedbackOtherOptions: string;
   feedbackNoWord: string;
+  vocabNotesLabel: string;
   showHint: string;
   hideHint: string;
   grammarNoteCta: string;

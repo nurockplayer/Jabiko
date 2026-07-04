@@ -274,6 +274,7 @@ export const en: Copy = {
   answerKey: "Answer",
   feedbackOtherOptions: "Other options",
   feedbackNoWord: "No matching word",
+  vocabNotesLabel: "Key vocabulary",
   showHint: "Hint",
   hideHint: "Hide hint",
   grammarNoteCta: "Show grammar note",

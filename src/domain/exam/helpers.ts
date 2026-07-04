@@ -39,6 +39,7 @@ export function examQuestion(input: ExamQuestionInput): PracticeQuestion {
     hintI18n: input.hintI18n,
     instructionZh: input.instructionZh,
     instructionI18n: input.instructionI18n,
-    options: input.options
+    options: input.options,
+    vocabNotes: input.vocabNotes
   };
 }

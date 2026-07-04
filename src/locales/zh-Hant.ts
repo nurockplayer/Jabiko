@@ -274,6 +274,7 @@ export const zhHant: Copy = {
   answerKey: "正解",
   feedbackOtherOptions: "其他選項",
   feedbackNoWord: "無對應詞",
+  vocabNotesLabel: "重點生字",
   showHint: "提示",
   hideHint: "隱藏提示",
   grammarNoteCta: "看文法說明",

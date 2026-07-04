@@ -74,6 +74,22 @@ export interface ExampleSentence {
   meaningI18n?: LocalizedText;
 }
 
+/**
+ * A "worth learning" word that appears in a question's sentence but isn't the
+ * item's target (e.g. 取引先 in a grammar item). Shown POST-answer in the
+ * feedback panel so a learner picks up N+1 vocabulary in context (#453).
+ * `meaningI18n` MUST cover every launched non-zh locale — a completeness guard
+ * (contentGuard.test.ts) enforces it so `pickLocalized` never falls back to the
+ * Chinese `meaningZh` for en/ja learners (language-isolation rule).
+ */
+export interface VocabNote {
+  surface: string;
+  reading: string;
+  meaningZh: string;
+  /** Per-locale translations of `meaningZh`; required for launched locales (#453). */
+  meaningI18n?: LocalizedText;
+}
+
 export interface VocabularyItem {
   id: string;
   surface: string;
@@ -129,6 +145,8 @@ export interface PracticeQuestion {
   /** Per-locale translations of `instructionZh`; falls back to the zh source (#400). */
   instructionI18n?: LocalizedText;
   options?: string[];
+  /** Optional "key vocabulary" from the sentence, shown post-answer (#453). */
+  vocabNotes?: VocabNote[];
 }
 
 export interface Attempt {

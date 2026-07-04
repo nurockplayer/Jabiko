@@ -1,4 +1,4 @@
-import type { JlptLevel, LocalizedText, TargetForm } from "../types";
+import type { JlptLevel, LocalizedText, TargetForm, VocabNote } from "../types";
 
 export type ExamQuestionInput = {
   id: string;
@@ -43,4 +43,10 @@ export type ExamQuestionInput = {
   exampleMeaningZh?: string;
   /** Per-locale `exampleMeaningZh` overlay (#400). */
   exampleMeaningI18n?: LocalizedText;
+  /**
+   * Optional "key vocabulary" worth learning from the sentence, shown
+   * post-answer (#453). Each note's `meaningI18n` must cover the launched
+   * non-zh locales (enforced by contentGuard.test.ts).
+   */
+  vocabNotes?: VocabNote[];
 };

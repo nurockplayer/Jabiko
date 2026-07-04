@@ -121,6 +121,24 @@ export function FeedbackPanel({
           </span>
         </p>
       ) : null}
+      {feedback.question.vocabNotes && feedback.question.vocabNotes.length > 0 ? (
+        <div className="vocab-notes">
+          <p className="vocab-notes-label">{t.vocabNotesLabel}：</p>
+          <ul className="vocab-notes-list">
+            {feedback.question.vocabNotes.map((note) => (
+              <li key={note.surface} className="vocab-note-item">
+                <span className="vocab-note-word" lang="ja">
+                  {note.surface}
+                </span>
+                <span className="vocab-note-reading">（{note.reading}）</span>
+                <span className="vocab-note-meaning">
+                  {pickLocalized(note.meaningZh, note.meaningI18n, language)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {grammarNote ? (
         <div className="grammar-note-block">
           <button

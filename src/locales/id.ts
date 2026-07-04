@@ -274,6 +274,7 @@ export const id: Copy = {
   answerKey: "Kunci jawaban",
   feedbackOtherOptions: "Pilihan lain",
   feedbackNoWord: "Tidak ada padanan kata",
+  vocabNotesLabel: "Kosakata penting",
   showHint: "Petunjuk",
   hideHint: "Sembunyikan petunjuk",
   grammarNoteCta: "Lihat penjelasan tata bahasa",

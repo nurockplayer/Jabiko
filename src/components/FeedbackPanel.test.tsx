@@ -534,3 +534,58 @@ describe("FeedbackPanel furigana (#134)", () => {
     expect(readings).toContain("がっこう");
   });
 });
+
+describe("FeedbackPanel vocab notes (#453)", () => {
+  const base = readingPool[0];
+  const withNotes = {
+    ...base,
+    vocabNotes: [
+      {
+        surface: "取引先",
+        reading: "とりひきさき",
+        meaningZh: "交易客戶、生意往來對象",
+        meaningI18n: { ja: "取引先（ビジネスの相手）", en: "business client / trading partner" }
+      }
+    ]
+  };
+
+  it("renders each note's surface, reading, and zh meaning for zh-Hant", () => {
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question: withNotes, submittedAnswer: null }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    const block = container.querySelector(".vocab-notes");
+    expect(block).not.toBeNull();
+    const text = block?.textContent ?? "";
+    expect(text).toContain("取引先");
+    expect(text).toContain("とりひきさき");
+    expect(text).toContain("交易客戶、生意往來對象");
+  });
+
+  it("shows the localized meaning (never the zh source) for a non-zh language", () => {
+    render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question: withNotes, submittedAnswer: null }}
+        language="en"
+        options={[]}
+      />
+    );
+    expect(screen.getByText(/business client \/ trading partner/)).toBeInTheDocument();
+    // Language isolation: the Chinese gloss must not leak to an en learner.
+    expect(screen.queryByText(/交易客戶/)).toBeNull();
+  });
+
+  it("renders nothing when the question has no vocab notes", () => {
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question: base, submittedAnswer: null }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    expect(container.querySelector(".vocab-notes")).toBeNull();
+  });
+});
