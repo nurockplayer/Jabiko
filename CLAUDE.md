@@ -66,7 +66,9 @@
 - 變更 `src/i18n.ts` 的 `LAUNCHED_LANGUAGES`（決定使用者看到哪些語系）。
 - 新增語系代碼到 `LocaleCode`（需要內容翻譯計畫）。
 - 變更 `pickLocalized()` 的行為或其 fallback chain。
-- 如果認為應該移除語言閘門：**停下來問使用者**。
+- 如果認為應該移除語言閘門：**停下來問使用者**。正確的做法是先在
+  data model 新增 i18n overlay 欄位（例如 `GrammarPattern` 上的 `meaningI18n`），
+  再透過 `pickLocalized()` 路由。這是產品決定，不是工程決定。
 
 ## 工作空間隔離
 
