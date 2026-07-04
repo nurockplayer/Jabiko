@@ -107,7 +107,7 @@ describe("originMigration (pages.dev -> jabiko.app, #jabiko-app-domain)", () => 
     // public/migration-bridge.html hand-copies these values (it cannot import
     // TS); this test is the drift guard for that copy.
     expect(MIGRATION_SOURCE_ORIGIN).toBe("https://jabiko.pages.dev");
-    expect(BRIDGE_PATH).toBe("/migration-bridge.html");
+    expect(BRIDGE_PATH).toBe("/migration-bridge");
     expect(MIGRATION_MESSAGE_REQUEST).toBe("jabiko:migration-request");
     expect(MIGRATION_MESSAGE_PAYLOAD).toBe("jabiko:migration-payload");
   });
