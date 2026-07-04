@@ -237,7 +237,9 @@ export function GrammarIndexPage({
                     className="gi-level-enter"
                     role="button"
                     tabIndex={0}
+                    aria-label={`${t.grammarBrowseLevel} ${levelLabels[lvl]}`}
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
                       onSelectLevel(lvl);
                     }}
