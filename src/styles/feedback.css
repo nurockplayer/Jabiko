@@ -427,6 +427,15 @@
   font-weight: 800;
 }
 
+/* The learner's own (wrong) pick, shown above the answer key so a mis-tap of a
+   look-alike option is obvious rather than reading as "the app marked me
+   wrong" (#456). */
+.your-answer {
+  color: var(--vermilion);
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
 .distractor-gloss {
   color: var(--muted);
   font-size: 0.9rem;

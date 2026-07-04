@@ -589,3 +589,43 @@ describe("FeedbackPanel vocab notes (#453)", () => {
     expect(container.querySelector(".vocab-notes")).toBeNull();
   });
 });
+
+describe("FeedbackPanel your-answer line (#456)", () => {
+  const q = readingPool[0];
+
+  it("shows the learner's own submitted answer when incorrect", () => {
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question: q, submittedAnswer: "ふうして" }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    const line = container.querySelector(".your-answer");
+    expect(line).not.toBeNull();
+    expect(line?.textContent).toContain("你選的");
+    expect(line?.textContent).toContain("ふうして");
+  });
+
+  it("hides the your-answer line when the pick was correct", () => {
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question: q, submittedAnswer: "ふうじて" }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    expect(container.querySelector(".your-answer")).toBeNull();
+  });
+
+  it("hides the your-answer line when revealed/skipped (no submitted answer)", () => {
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "revealed", question: q, submittedAnswer: null }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    expect(container.querySelector(".your-answer")).toBeNull();
+  });
+});

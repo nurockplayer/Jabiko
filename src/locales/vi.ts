@@ -59,6 +59,7 @@ export const vi: Copy = {
   feedbackClose: "Đóng",
   feedbackError: "Gửi thất bại. Vui lòng thử lại sau, hoặc",
   feedbackFallback: "báo qua GitHub thay thế",
+  feedbackYourAnswer: "Câu trả lời của bạn",
   reportQuestionCta: "Báo lỗi câu này",
   reportTitle: "Báo lỗi về câu hỏi này",
   reportReasonLabel: "Vấn đề là gì?",

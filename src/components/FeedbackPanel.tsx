@@ -97,6 +97,11 @@ export function FeedbackPanel({
           </span>
         ) : null}
       </div>
+      {feedback.status === "incorrect" && feedback.submittedAnswer ? (
+        <p className="your-answer">
+          {t.feedbackYourAnswer}：<span lang="ja">{feedback.submittedAnswer}</span>
+        </p>
+      ) : null}
       <p className="answer-key">{t.answerKey}：{feedback.question.expectedAnswers.join(" / ")}</p>
       <p>{pickLocalized(feedback.question.explanation, feedback.question.explanationI18n, language)}</p>
       {distractorGlosses.length > 0 ? (

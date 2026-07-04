@@ -59,6 +59,7 @@ export const en: Copy = {
   feedbackClose: "Close",
   feedbackError: "Send failed. Please try again later, or",
   feedbackFallback: "report via GitHub instead",
+  feedbackYourAnswer: "Your answer",
   reportQuestionCta: "Report this question",
   reportTitle: "Report a problem with this question",
   reportReasonLabel: "What's wrong?",

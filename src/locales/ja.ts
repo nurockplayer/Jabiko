@@ -60,6 +60,7 @@ export const ja: Copy = {
   feedbackClose: "閉じる",
   feedbackError: "送信に失敗しました。しばらくしてからもう一度お試しいただくか、",
   feedbackFallback: "GitHub から報告する",
+  feedbackYourAnswer: "あなたの回答",
   reportQuestionCta: "この問題を報告",
   reportTitle: "問題の不具合を報告",
   reportReasonLabel: "問題の種類",
