@@ -300,6 +300,8 @@ export const vi: Copy = {
   grammarCommonMistakes: "Lỗi thường gặp",
   grammarBrowseLevel: "Xem",
   grammarBackToIndex: "Quay lại danh sách ngữ pháp",
+  grammarPrev: "Trước",
+  grammarNext: "Tiếp",
   grammar: "Ngữ pháp",
   grammarImportanceMustKnow: "Phải biết",
   grammarImportanceHighFreq: "Tần suất cao",

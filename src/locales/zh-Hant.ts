@@ -300,6 +300,8 @@ export const zhHant: Copy = {
   grammarCommonMistakes: "常見錯誤",
   grammarBrowseLevel: "瀏覽",
   grammarBackToIndex: "回到文型一覽",
+  grammarPrev: "上一個",
+  grammarNext: "下一個",
   grammar: "文型",
   grammarImportanceMustKnow: "必考",
   grammarImportanceHighFreq: "高頻",

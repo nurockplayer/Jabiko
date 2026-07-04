@@ -300,6 +300,8 @@ export const en: Copy = {
   grammarCommonMistakes: "Common mistakes",
   grammarBrowseLevel: "Browse",
   grammarBackToIndex: "Back to grammar index",
+  grammarPrev: "Previous",
+  grammarNext: "Next",
   grammar: "Grammar",
   grammarImportanceMustKnow: "Must know",
   grammarImportanceHighFreq: "High frequency",

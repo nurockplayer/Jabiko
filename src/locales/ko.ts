@@ -300,6 +300,8 @@ export const ko: Copy = {
   grammarCommonMistakes: "자주 하는 실수",
   grammarBrowseLevel: "보기",
   grammarBackToIndex: "문형 목록으로 돌아가기",
+  grammarPrev: "이전",
+  grammarNext: "다음",
   grammar: "문형",
   grammarImportanceMustKnow: "필수",
   grammarImportanceHighFreq: "고빈도",

@@ -300,6 +300,8 @@ export const id: Copy = {
   grammarCommonMistakes: "Kesalahan umum",
   grammarBrowseLevel: "Jelajahi",
   grammarBackToIndex: "Kembali ke indeks tata bahasa",
+  grammarPrev: "Sebelumnya",
+  grammarNext: "Berikutnya",
   grammar: "Tata Bahasa",
   grammarImportanceMustKnow: "Harus tahu",
   grammarImportanceHighFreq: "Frekuensi tinggi",

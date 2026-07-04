@@ -308,6 +308,8 @@ export const ja: Copy = {
   grammarCommonMistakes: "よくある間違い",
   grammarBrowseLevel: "閲覧",
   grammarBackToIndex: "文型一覧に戻る",
+  grammarPrev: "前の文型",
+  grammarNext: "次の文型",
   grammar: "文型",
   grammarImportanceMustKnow: "必須",
   grammarImportanceHighFreq: "高頻度",

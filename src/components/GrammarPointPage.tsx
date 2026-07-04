@@ -1,10 +1,10 @@
-import { ArrowLeft, GraduationCap, Clapperboard, BookOpen, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ArrowRight, GraduationCap, Clapperboard, BookOpen, AlertTriangle } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { buildGrammarPoint } from "../domain/grammarPoints";
 import { pickLocalized } from "../domain/localizedContent";
 import { GrammarNoteCard } from "./GrammarNoteCard";
 import { grammarPatterns } from "../domain/grammarDatabase";
-import { findPatternBySurface } from "../domain/grammarIndex";
+import { findPatternBySurface, getAdjacentPatterns, patternSurface } from "../domain/grammarIndex";
 import type { GrammarPattern, MediaLineExample } from "../domain/grammarDatabase";
 import type { JlptLevel } from "../domain/types";
 
@@ -34,12 +34,15 @@ export function GrammarPointPage({
   surface,
   language,
   onPractice,
-  onBack
+  onBack,
+  onNavigate
 }: {
   surface: string;
   language: Language;
   onPractice: () => void;
   onBack: () => void;
+  /** Jump to an adjacent grammar point in index order (#457). Omitted = no pager. */
+  onNavigate?: (surface: string) => void;
 }) {
   const t = copy[language];
   const point = buildGrammarPoint(surface);
@@ -60,6 +63,42 @@ export function GrammarPointPage({
       {t.grammarBackToIndex}
     </button>
   );
+
+  // Prev/next pager (#457): page through 文型 in index order without going back
+  // to the index. Only for the zh-Hant browse flow (the index is zh-only) and
+  // only when the surface is a database pattern with a neighbour.
+  const adjacent = getAdjacentPatterns(surface);
+  const pager =
+    onNavigate && isZhHant && (adjacent.prev || adjacent.next) ? (
+      <nav className="gp-pager" aria-label={t.grammarBackToIndex}>
+        {adjacent.prev ? (
+          <button
+            type="button"
+            className="ghost-button gp-pager-btn gp-pager-prev"
+            onClick={() => onNavigate(patternSurface(adjacent.prev!))}
+          >
+            <ArrowLeft aria-hidden="true" />
+            <span className="gp-pager-label">{t.grammarPrev}</span>
+            <span className="gp-pager-surface" lang="ja">{adjacent.prev.pattern}</span>
+          </button>
+        ) : (
+          <span className="gp-pager-spacer" />
+        )}
+        {adjacent.next ? (
+          <button
+            type="button"
+            className="ghost-button gp-pager-btn gp-pager-next"
+            onClick={() => onNavigate(patternSurface(adjacent.next!))}
+          >
+            <span className="gp-pager-label">{t.grammarNext}</span>
+            <span className="gp-pager-surface" lang="ja">{adjacent.next.pattern}</span>
+            <ArrowRight aria-hidden="true" />
+          </button>
+        ) : (
+          <span className="gp-pager-spacer" />
+        )}
+      </nav>
+    ) : null;
 
   // Unknown surface (stale/typo link): neither exam data nor database entry exists.
   if (!point) {
@@ -168,6 +207,7 @@ export function GrammarPointPage({
             </ul>
           </section>
         ) : null}
+        {pager}
       </section>
     );
   }
@@ -304,6 +344,8 @@ export function GrammarPointPage({
         <GraduationCap aria-hidden="true" />
         {t.startChallenge}
       </button>
+
+      {pager}
     </section>
   );
 }

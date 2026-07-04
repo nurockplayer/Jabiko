@@ -283,6 +283,8 @@ export type Copy = {
   grammarCommonMistakes: string;
   grammarBrowseLevel: string;
   grammarBackToIndex: string;
+  grammarPrev: string;
+  grammarNext: string;
   grammarImportanceMustKnow: string;
   grammarImportanceHighFreq: string;
   grammarImportanceUnderstand: string;

@@ -300,6 +300,8 @@ export const my: Copy = {
   grammarCommonMistakes: "အဖြစ်များသော အမှားများ",
   grammarBrowseLevel: "ကြည့်ရှုရန်",
   grammarBackToIndex: "သဒ္ဒါညွှန်းသို့ ပြန်သွားရန်",
+  grammarPrev: "အရင်",
+  grammarNext: "နောက်တစ်ခု",
   grammar: "သဒ္ဒါ",
   grammarImportanceMustKnow: "သိထားရန်",
   grammarImportanceHighFreq: "မကြာခဏတွေ့",

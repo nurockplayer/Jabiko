@@ -44,6 +44,35 @@ export function findPatternBySurface(surface: string): GrammarPattern | undefine
   );
 }
 
+/** 文型的可導覽 surface（去掉開頭的 〜/～，與索引點擊 onOpenPattern 一致）。 */
+export function patternSurface(pattern: GrammarPattern): string {
+  return pattern.pattern.replace(/^[〜～]/, "");
+}
+
+const ADJACENCY_LEVEL_ORDER: JlptLevel[] = ["N5", "N4", "N3", "N2", "N1"];
+
+/**
+ * 依索引的自然閱讀順序（等級 N5→N1、等級內 id 排序，與
+ * getPatternsGroupedByLevel 一致）取得某文型的前／後相鄰文型，
+ * 讓學習頁能「下一個 / 上一個」直接翻頁、不必退回索引重選（#457）。
+ * 非資料庫文型（surface 找不到）回傳兩者皆 null。
+ */
+export function getAdjacentPatterns(surface: string): {
+  prev: GrammarPattern | null;
+  next: GrammarPattern | null;
+} {
+  const current = findPatternBySurface(surface);
+  if (!current) return { prev: null, next: null };
+  const grouped = getPatternsGroupedByLevel();
+  const flat = ADJACENCY_LEVEL_ORDER.flatMap((level) => grouped[level]);
+  const i = flat.findIndex((p) => p.id === current.id);
+  if (i === -1) return { prev: null, next: null };
+  return {
+    prev: i > 0 ? flat[i - 1] : null,
+    next: i < flat.length - 1 ? flat[i + 1] : null,
+  };
+}
+
 /** 依關鍵字搜尋文型和中文解釋 */
 export function searchPatterns(query: string): GrammarPattern[] {
   const q = query.trim().toLowerCase();

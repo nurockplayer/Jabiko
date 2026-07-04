@@ -301,6 +301,8 @@ export const th: Copy = {
   grammarCommonMistakes: "ข้อผิดพลาดที่พบบ่อย",
   grammarBrowseLevel: "เรียกดู",
   grammarBackToIndex: "กลับไปยังรายการรูปไวยากรณ์",
+  grammarPrev: "ก่อนหน้า",
+  grammarNext: "ถัดไป",
   grammar: "ไวยากรณ์",
   grammarImportanceMustKnow: "ต้องรู้",
   grammarImportanceHighFreq: "พบบ่อย",
