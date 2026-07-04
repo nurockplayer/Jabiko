@@ -1,19 +1,10 @@
-# Domain move (#jabiko-app-domain): jabiko.app is the canonical origin.
-# Rules are evaluated top-down, first match wins.
+# Cloudflare Pages SPA fallback: client-side routes (/about, /mock, /learn …)
+# have no built file, so serve the app shell and let the in-app router resolve
+# the view. Real static assets (/assets/*, /icon.svg, …) are matched first and
+# served directly, so this only catches unknown paths.
 #
-# 1. The origin-migration bridge must stay reachable on the OLD origin —
-#    jabiko.app iframes it to pull a visitor's localStorage across. A 200
-#    rewrite-to-itself exempts it from the host-wide 301 below.
-https://jabiko.pages.dev/migration-bridge.html /migration-bridge.html 200
-
-# 2. Permanent-redirect the shared pages.dev host to the custom domain
-#    (old links / bookmarks keep working; SEO signals consolidate). Preview
-#    deployments (<hash>.jabiko.pages.dev) don't match this host and are
-#    unaffected. Query strings are carried over automatically.
-https://jabiko.pages.dev/* https://jabiko.app/:splat 301
-
-# 3. Cloudflare Pages SPA fallback: client-side routes (/about, /mock, /learn …)
-#    have no built file, so serve the app shell and let the in-app router
-#    resolve the view. Real static assets (/assets/*, /icon.svg, …) are matched
-#    first and served directly, so this only catches unknown paths.
+# NOTE (#jabiko-app-domain): the pages.dev -> jabiko.app 301 does NOT live
+# here — Pages' _redirects ignores host/absolute-URL sources (Netlify-only
+# syntax; verified in prod). It lives in functions/_middleware.js instead,
+# scoped by public/_routes.json.
 /*  /index.html  200

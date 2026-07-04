@@ -48,7 +48,7 @@ export default defineConfig({
         // The origin-migration bridge (#jabiko-app-domain) must be served as
         // its real static file, not the app shell — jabiko.app iframes it on
         // the OLD origin to pull the visitor's localStorage across the move.
-        navigateFallbackDenylist: [/^\/migration-bridge\.html/],
+        navigateFallbackDenylist: [/^\/migration-bridge/],
         // Code/markup only here; static images (icons / hero / og) are
         // precached via includeAssets above. Keeping them out of
         // globPatterns avoids duplicate precache entries for the same URL.

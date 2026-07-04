@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "description": "Run the redirect middleware (functions/_middleware.js) only for navigations: static assets are excluded so they serve directly from the CDN (old links' images/scripts keep resolving on pages.dev, and Functions invocations are spent only on page loads).",
+  "include": ["/*"],
+  "exclude": [
+    "/assets/*",
+    "/*.png",
+    "/*.svg",
+    "/*.webp",
+    "/*.ico",
+    "/*.js",
+    "/*.css",
+    "/*.woff2",
+    "/manifest.webmanifest"
+  ]
+}

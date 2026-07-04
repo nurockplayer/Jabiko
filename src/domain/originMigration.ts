@@ -22,7 +22,10 @@
 
 export const MIGRATION_SOURCE_ORIGIN = "https://jabiko.pages.dev";
 export const MIGRATION_TARGET_ORIGIN = "https://jabiko.app";
-export const BRIDGE_PATH = "/migration-bridge.html";
+// Extensionless on purpose: Pages' pretty-URL normalization 308s
+// /migration-bridge.html -> /migration-bridge; loading the canonical form
+// skips that hop (functions/_middleware.js exempts both spellings).
+export const BRIDGE_PATH = "/migration-bridge";
 export const MIGRATION_MESSAGE_REQUEST = "jabiko:migration-request";
 export const MIGRATION_MESSAGE_PAYLOAD = "jabiko:migration-payload";
 
