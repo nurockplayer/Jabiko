@@ -1,12 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   applyMigrationPayload,
   BRIDGE_PATH,
   collectMigrationEntries,
   isMigratableKey,
+  legacyRedirectTarget,
   MIGRATION_MESSAGE_PAYLOAD,
   MIGRATION_MESSAGE_REQUEST,
   MIGRATION_SOURCE_ORIGIN,
+  MIGRATION_TARGET_ORIGIN,
+  runBridgeResponder,
   shouldAttemptMigration
 } from "./originMigration";
 
@@ -110,5 +113,60 @@ describe("originMigration (pages.dev -> jabiko.app, #jabiko-app-domain)", () => 
     expect(BRIDGE_PATH).toBe("/migration-bridge");
     expect(MIGRATION_MESSAGE_REQUEST).toBe("jabiko:migration-request");
     expect(MIGRATION_MESSAGE_PAYLOAD).toBe("jabiko:migration-payload");
+  });
+
+  it("legacyRedirectTarget moves top-level old-origin URLs to jabiko.app, keeping path/query/hash", () => {
+    // A service-worker-controlled visitor never reaches the edge 301 — the SW
+    // serves the cached shell — so the APP must also self-redirect (#449).
+    expect(legacyRedirectTarget("https://jabiko.pages.dev/")).toBe("https://jabiko.app/");
+    expect(legacyRedirectTarget("https://jabiko.pages.dev/mock?lang=ja#top")).toBe(
+      "https://jabiko.app/mock?lang=ja#top"
+    );
+
+    // The bridge iframe and every non-old-origin host must stay put.
+    expect(legacyRedirectTarget("https://jabiko.pages.dev/migration-bridge")).toBeNull();
+    expect(legacyRedirectTarget("https://jabiko.app/mock")).toBeNull();
+    expect(legacyRedirectTarget("https://abc123.jabiko.pages.dev/")).toBeNull();
+    expect(legacyRedirectTarget("http://localhost:5173/")).toBeNull();
+  });
+});
+
+describe("runBridgeResponder (in-app fallback when the SW serves the shell instead of the static bridge)", () => {
+  it("answers a migration request from jabiko.app with the allowlisted entries", () => {
+    const storage = fakeStorage({ "jabiko:attempts": "[9]", junk: "no" });
+    const stop = runBridgeResponder(storage);
+    const postMessage = vi.fn();
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        origin: MIGRATION_TARGET_ORIGIN,
+        data: { type: MIGRATION_MESSAGE_REQUEST },
+        source: { postMessage } as unknown as Window
+      })
+    );
+
+    expect(postMessage).toHaveBeenCalledTimes(1);
+    const [payload, targetOrigin] = postMessage.mock.calls[0];
+    expect(targetOrigin).toBe(MIGRATION_TARGET_ORIGIN);
+    expect(payload.type).toBe(MIGRATION_MESSAGE_PAYLOAD);
+    expect(payload.entries).toEqual([{ key: "jabiko:attempts", value: "[9]" }]);
+    stop();
+  });
+
+  it("ignores requests from any other origin", () => {
+    const storage = fakeStorage({ "jabiko:attempts": "[9]" });
+    const stop = runBridgeResponder(storage);
+    const postMessage = vi.fn();
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        origin: "https://evil.example",
+        data: { type: MIGRATION_MESSAGE_REQUEST },
+        source: { postMessage } as unknown as Window
+      })
+    );
+
+    expect(postMessage).not.toHaveBeenCalled();
+    stop();
   });
 });
