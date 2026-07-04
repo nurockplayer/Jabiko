@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jabiko.pages.dev/sitemap.xml
+Sitemap: https://jabiko.app/sitemap.xml

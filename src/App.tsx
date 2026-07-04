@@ -15,6 +15,7 @@ import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
 import { useFurigana } from "./hooks/useFurigana";
 import { useLanguage } from "./hooks/useLanguage";
+import { useOriginMigration } from "./hooks/useOriginMigration";
 import { useSeoMeta } from "./hooks/useSeoMeta";
 import { isSupabaseConfigured } from "./lib/supabase";
 import { useAuth } from "./hooks/useAuth";
@@ -163,6 +164,10 @@ export default function App() {
   // Per-view <title>/description/canonical/og so each route surfaces its own
   // metadata to crawlers (SPA otherwise shares one static shell). See seo.ts.
   useSeoMeta(appView, grammarSurface);
+
+  // One-time localStorage pull from jabiko.pages.dev after the domain move
+  // (#jabiko-app-domain); no-op everywhere except a fresh jabiko.app visit.
+  useOriginMigration();
 
   // UI language: stored preference > ja default. The hook owns the <html lang>
   // side-effect and persistence; copy[language] re-renders the whole tree on

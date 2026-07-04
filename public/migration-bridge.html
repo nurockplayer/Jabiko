@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <title>Jabiko migration bridge</title>
+  </head>
+  <body>
+    <!--
+      Origin-migration bridge (see src/domain/originMigration.ts for the full
+      design). Served ONLY on jabiko.pages.dev — public/_redirects exempts
+      this one path from the 301 to jabiko.app so the new origin can iframe
+      it and pull the visitor's old localStorage across.
+
+      Plain JS mirror of the allowlist/protocol constants in
+      originMigration.ts (a static page cannot import TS); the constants test
+      there is the drift guard for this copy.
+    -->
+    <script>
+      (function () {
+        var TARGET_ORIGIN = "https://jabiko.app";
+        var REQUEST = "jabiko:migration-request";
+        var PAYLOAD = "jabiko:migration-payload";
+        var EXACT_KEYS = [
+          "jabiko:attempts",
+          "jabiko:targetLevel",
+          "jabiko:howItWorksDismissed",
+          "jabiko.lang",
+          "jabiko.theme",
+          "jabiko.furigana",
+          "jabiko.sessionLength"
+        ];
+
+        function isMigratable(key) {
+          return EXACT_KEYS.indexOf(key) !== -1 || key.indexOf("sb-") === 0;
+        }
+
+        function collect() {
+          var entries = [];
+          try {
+            for (var i = 0; i < localStorage.length; i++) {
+              var key = localStorage.key(i);
+              if (key === null || !isMigratable(key)) continue;
+              var value = localStorage.getItem(key);
+              if (value === null) continue;
+              entries.push({ key: key, value: value });
+            }
+          } catch (e) {
+            /* storage blocked (private mode etc.) -> answer with nothing */
+          }
+          return entries;
+        }
+
+        window.addEventListener("message", function (event) {
+          // Answer only the real new-origin app; ignore everything else.
+          if (event.origin !== TARGET_ORIGIN) return;
+          if (!event.data || event.data.type !== REQUEST) return;
+          if (!event.source) return;
+          event.source.postMessage({ type: PAYLOAD, entries: collect() }, TARGET_ORIGIN);
+        });
+      })();
+    </script>
+  </body>
+</html>
