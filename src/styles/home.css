@@ -203,31 +203,34 @@
   margin-top: 0.4rem;
 }
 
+/* Prominent (not a muted text link) so a learner who thinks a question is
+   wrong can actually find it -- Duolingo-style report affordance (#456). */
 .report-question-cta {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.2rem 0.3rem;
-  border: 0;
-  background: none;
-  color: var(--muted);
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--teal-dark);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  border-radius: var(--radius-sm);
   flex-wrap: wrap;
   max-width: 100%;
   white-space: normal;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
 .report-question-cta:hover {
-  color: var(--ink);
-  text-decoration: underline;
+  border-color: var(--teal-dark);
+  box-shadow: var(--button-hover-shadow);
 }
 
 .report-question-cta svg {
-  width: 0.9rem;
-  height: 0.9rem;
+  width: 0.95rem;
+  height: 0.95rem;
 }
 
 /* "深入學習這個文法 →" deep link to the grammar study page (#282). A clear,

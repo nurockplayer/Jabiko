@@ -57,6 +57,7 @@ export type Copy = {
   feedbackError: string;
   feedbackFallback: string;
   // ---- Per-question "report this question" (#299) --------------------------
+  feedbackYourAnswer: string;
   reportQuestionCta: string;
   reportTitle: string;
   reportReasonLabel: string;

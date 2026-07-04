@@ -59,6 +59,7 @@ export const my: Copy = {
   feedbackClose: "ပိတ်ရန်",
   feedbackError: "ပို့ခြင်း မအောင်မြင်ပါ။ နောက်မှ ထပ်ကြိုးစားပါ၊ သို့မဟုတ်",
   feedbackFallback: "GitHub မှတစ်ဆင့် တိုင်ကြားပါ",
+  feedbackYourAnswer: "သင့်အဖြေ",
   reportQuestionCta: "ဤမေးခွန်းကို တိုင်ကြားရန်",
   reportTitle: "ဤမေးခွန်း၏ ပြဿနာကို တိုင်ကြားရန်",
   reportReasonLabel: "ဘာ မှားနေသလဲ?",

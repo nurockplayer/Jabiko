@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { BookOpen, ChevronDown, Globe, Languages, Moon, Sun } from "lucide-react";
+import { BookOpen, ChevronDown, Globe, Languages, MessageCircle, Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import type { JlptLevel } from "./domain/types";
@@ -8,6 +8,8 @@ import { copy, LAUNCHED_LANGUAGES, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
 import { LanguagePicker } from "./components/LanguagePicker";
 import { LanguageFlag } from "./components/LanguageFlag";
+import { FeedbackForm } from "./components/FeedbackForm";
+import type { FeedbackCategory } from "./domain/feedbackRemote";
 import { UpdateToast } from "./components/UpdateToast";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { JabikoMark } from "./components/JabikoMark";
@@ -200,6 +202,9 @@ export default function App() {
   }, [appView, grammarIndexAvailable, grammarSurface, isGrammarLevelRoute]);
   // Language picker, opened from the header Globe button (#326).
   const [langPickerOpen, setLangPickerOpen] = useState(false);
+  // Persistent feedback entry (#456): the suggestion box was only reachable from
+  // the homepage footer; this opens the same form from the always-visible header.
+  const [feedbackKind, setFeedbackKind] = useState<FeedbackCategory | null>(null);
   // Service-worker update prompt (#327): toast when a new build is ready.
   const { needRefresh, updateApp } = usePwaUpdate();
 
@@ -287,6 +292,13 @@ export default function App() {
           closeLabel={t.feedbackClose}
         />
       )}
+      {feedbackKind ? (
+        <FeedbackForm
+          language={language}
+          category={feedbackKind}
+          onClose={() => setFeedbackKind(null)}
+        />
+      ) : null}
       <div className="app-heading" aria-label={t.appIntroLabel}>
         <div className="app-brand">
           <JabikoMark className="app-brand-mark" />
@@ -365,6 +377,16 @@ export default function App() {
             <button className="theme-toggle" type="button" aria-label={themeToggleLabel} onClick={toggleTheme}>
               <ThemeIcon aria-hidden="true" />
               <span className="toggle-text">{themeToggleLabel}</span>
+            </button>
+            <button
+              className="theme-toggle feedback-nav-button"
+              type="button"
+              aria-label={t.feedbackTitle}
+              aria-haspopup="dialog"
+              onClick={() => setFeedbackKind("wish")}
+            >
+              <MessageCircle aria-hidden="true" />
+              <span className="toggle-text">{t.feedbackTitle}</span>
             </button>
           </div>
         </div>

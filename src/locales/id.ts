@@ -59,6 +59,7 @@ export const id: Copy = {
   feedbackClose: "Tutup",
   feedbackError: "Gagal mengirim, coba lagi nanti, atau",
   feedbackFallback: "Laporkan lewat GitHub",
+  feedbackYourAnswer: "Jawaban kamu",
   reportQuestionCta: "Laporkan soal ini",
   reportTitle: "Laporkan masalah pada soal ini",
   reportReasonLabel: "Apa yang salah?",

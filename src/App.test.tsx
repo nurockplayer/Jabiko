@@ -1028,4 +1028,13 @@ describe("App", () => {
     window.history.replaceState({}, "", "/");
   });
 
+  it("opens the feedback form from a persistent header button (any view, #456)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    // The feedback entry lives in the always-visible header, not just the
+    // homepage footer, so it's reachable from anywhere.
+    await user.click(screen.getByRole("button", { name: "意見回饋" }));
+    expect(await screen.findByRole("dialog", { name: "意見回饋" })).toBeInTheDocument();
+  });
+
 });

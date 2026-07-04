@@ -59,6 +59,7 @@ export const zhHant: Copy = {
   feedbackClose: "關閉",
   feedbackError: "送出失敗，請稍後再試，或",
   feedbackFallback: "改用 GitHub 回報",
+  feedbackYourAnswer: "你選的",
   reportQuestionCta: "回報此題",
   reportTitle: "回報題目問題",
   reportReasonLabel: "問題類型",

@@ -59,6 +59,7 @@ export const ko: Copy = {
   feedbackClose: "닫기",
   feedbackError: "전송에 실패했어요. 잠시 후 다시 시도하거나,",
   feedbackFallback: "대신 GitHub으로 신고하기",
+  feedbackYourAnswer: "내 답",
   reportQuestionCta: "이 문제 신고하기",
   reportTitle: "이 문제의 오류 신고",
   reportReasonLabel: "무엇이 잘못됐나요?",

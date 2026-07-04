@@ -60,6 +60,7 @@ export const th: Copy = {
   feedbackClose: "ปิด",
   feedbackError: "ส่งไม่สำเร็จ โปรดลองใหม่ภายหลัง หรือ",
   feedbackFallback: "แจ้งผ่าน GitHub แทน",
+  feedbackYourAnswer: "คำตอบของคุณ",
   reportQuestionCta: "รายงานข้อนี้",
   reportTitle: "รายงานปัญหาของข้อสอบ",
   reportReasonLabel: "ปัญหาคืออะไร?",
