@@ -35,9 +35,10 @@ export const id: Copy = {
   aboutAuthorBody:
     "Berlatar belakang kompetisi pemrograman, sempat tiga tahun jadi insinyur di Google, dan setelah keluar pada 2025 kini menjadi Tech Lead di sebuah startup AI. Bahasa Jepang adalah modal lama yang ditinggalkan setelah lulus N2 sepuluh tahun lalu, sampai mulai mengejar idol Jepang lagi pada 2024 dan kembali menekuninya. Setelah itu ada sedikit waktu luang, lalu mulai serius melatihnya — dan dari sinilah Jabiko lahir: awalnya untuk dipakai sendiri, sekarang juga dibuka untuk orang lain yang sedang belajar, dan akan terus dikembangkan perlahan kalau ada kesempatan.",
   aboutAuthorLink: "Selengkapnya tentang penulis →",
-  aboutAuthor2Title: "Penulis Pendamping",
-  aboutAuthor2Name: "塔奇巧克力",
-  aboutAuthor2Body: "Sedang menempuh studi di sekolah bahasa Jepang.",
+  aboutAuthor2Title: "Penulis",
+  aboutAuthor2Name: "塔奇巧克力（TachikoChoko）",
+  aboutAuthor2Body:
+    "Pernah bekerja sebagai backend engineer di platform live-streaming「初樂 (TrueLoveLive)」, kemudian menjadi backend lead di 冰角工作室 (Ice Corner Studio), terutama bertanggung jawab atas pengembangan sistem backend. Selalu menyukai pendalaman detail engineering yang tersembunyi di bawah permukaan — optimisasi performa database, kecepatan query, dan arsitektur sistem. Nama「塔奇 (Tachi)」berasal dari Tachikoma dalam Ghost in the Shell. Menyukai kekayaan pengetahuan dan kemampuan praktis Tachikoma, serta cara mereka tetap bersemangat, penasaran, dan sepenuhnya terlibat bahkan dalam situasi tegang — seolah-olah sedang pergi bertamasya. Selain Ghost in the Shell, juga sangat menyukai drama taiga Ryōmaden, film Hayabusa: The Long Voyage Home, dan drama The Summer of the Bureaucrats. Saat ini sedang belajar bahasa Jepang di sekolah bahasa di Tokyo. Semuanya bermula hanya karena kesulitan pribadi dengan konjugasi kata kerja bahasa Jepang — idenya adalah membuat alat kecil untuk latihan yang nyaman, pengecekan berulang, dan akumulasi bertahap. Jabiko tumbuh dari kebutuhan itu: pertama, untuk merapikan konjugasi yang berantakan bagi dirinya sendiri, lalu membukanya untuk digunakan bersama oleh semua orang yang juga belajar bahasa Jepang.",
   homeHeroTitle: "Mau latihan apa hari ini?",
   homeHeroIntro: "Dari konjugasi dasar sampai feeling soal N1. Tata bahasa, kanji, kosakata, dan latihan per jenis soal — semua di satu tempat.",
   homeGuideLink: "Panduan pemakaian",
