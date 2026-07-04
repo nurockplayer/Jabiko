@@ -10,7 +10,7 @@
 //   - Threads: the intent endpoint DOES prefill text.
 //   - LINE: the msg/text deep link prefills a message (text incl. the URL).
 
-export const SHARE_URL = "https://jabiko.pages.dev/";
+export const SHARE_URL = "https://jabiko.app/";
 
 /** Result message + the site URL on its own line (used for clipboard / text intents). */
 export function composeMessage(text: string, url: string = SHARE_URL): string {

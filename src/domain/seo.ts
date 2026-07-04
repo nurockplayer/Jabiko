@@ -12,7 +12,7 @@
 export type SeoView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about" | "grammar";
 
 /** Production origin; canonical URLs are absolute so crawlers dedupe cleanly. */
-export const SITE_ORIGIN = "https://jabiko.pages.dev";
+export const SITE_ORIGIN = "https://jabiko.app";
 
 interface PageSeo {
   title: string;

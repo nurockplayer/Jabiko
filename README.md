@@ -7,7 +7,7 @@ points. Open it and practise; nothing to install, no account needed.
 
 > 免費、免註冊、開源的 **JLPT 日檢自習室**：N5〜N1 文法、漢字讀音、單字與依官方題型的練習，答錯自動排進間隔重複複習，跨裝置同步，打開就能練。
 
-**▶ Live: [jabiko.pages.dev](https://jabiko.pages.dev/)**
+**▶ Live: [jabiko.app](https://jabiko.app/)**
 
 ![Jabiko](public/og-image.png)
 

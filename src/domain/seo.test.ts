@@ -36,10 +36,10 @@ describe("seo", () => {
   });
 
   it("builds an absolute canonical URL rooted at the production origin", () => {
-    expect(SITE_ORIGIN).toBe("https://jabiko.pages.dev");
-    expect(seoForView("home").canonical).toBe("https://jabiko.pages.dev/");
-    expect(seoForView("mock").canonical).toBe("https://jabiko.pages.dev/mock");
-    expect(seoForView("kanji").canonical).toBe("https://jabiko.pages.dev/kanji");
+    expect(SITE_ORIGIN).toBe("https://jabiko.app");
+    expect(seoForView("home").canonical).toBe("https://jabiko.app/");
+    expect(seoForView("mock").canonical).toBe("https://jabiko.app/mock");
+    expect(seoForView("kanji").canonical).toBe("https://jabiko.app/kanji");
   });
 
   it("keeps descriptions within a sane SEO length (<=160 chars)", () => {
