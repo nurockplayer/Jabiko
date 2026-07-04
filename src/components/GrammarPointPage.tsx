@@ -61,12 +61,9 @@ export function GrammarPointPage({
     </button>
   );
 
-  // Unknown surface (stale/typo link): neither exam data nor database entry
-  // exists — OR a database-only pattern viewed in a non-zh-Hant locale, whose
-  // content is Chinese-only for now (#438: no residual Chinese in en/ja, the
-  // #427 invariant). Both render the minimal, content-free shell.
+  // Unknown surface (stale/typo link): neither exam data nor database entry exists.
   if (!point) {
-    if (!dbPattern || !isZhHant) {
+    if (!dbPattern) {
       return (
         <section className="grammar-point grammar-point-missing">
           {backButton}
@@ -80,8 +77,27 @@ export function GrammarPointPage({
     }
 
     // Database-only surface: exists in grammarDatabase but has no exam-bank point.
-    // Show the database content (formation, examples, media, related patterns)
-    // without exam-sourced usage notes or practice exercises.
+    // For non-zh-Hant users: show the pattern/level heading but nothing else —
+    // the database content (meaning, formation, examples, media, related, mistakes)
+    // is zh-only prose and must not leak to en/ja users (#427, #437).
+    if (!isZhHant) {
+      return (
+        <section className="grammar-point" aria-label={surface}>
+          {backButton}
+          <header className="gp-hero">
+            <div className="gp-hero-row">
+              <h1 className="gp-surface" lang="ja">
+                {surface}
+              </h1>
+              <span className="gp-level" aria-label={`JLPT ${dbPattern.level}`}>
+                {dbPattern.level}
+              </span>
+            </div>
+          </header>
+        </section>
+      );
+    }
+
     return (
       <section className="grammar-point" aria-label={surface}>
         {backButton}
