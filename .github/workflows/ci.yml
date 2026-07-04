@@ -35,5 +35,8 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: Check content language gates
+        run: node scripts/check-content-gates.mjs
+
       - name: Build
         run: pnpm run build
