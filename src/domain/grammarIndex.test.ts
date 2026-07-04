@@ -38,13 +38,14 @@ describe("getPatternsByLevel", () => {
     }
   });
 
-  it("returns 5 patterns for N3 sorted by id", () => {
+  it("returns 27 patterns for N3 sorted by id", () => {
     const patterns = getPatternsByLevel("N3");
-    expect(patterns).toHaveLength(5);
+    expect(patterns).toHaveLength(27);
   });
 
-  it("returns an empty array for N1 (no data yet)", () => {
-    expect(getPatternsByLevel("N1")).toHaveLength(0);
+  it("returns 21 patterns for N1 sorted by id", () => {
+    const patterns = getPatternsByLevel("N1");
+    expect(patterns).toHaveLength(21);
   });
 });
 
@@ -54,13 +55,13 @@ describe("getPatternsGroupedByLevel", () => {
     expect(grouped.N5).toHaveLength(16);
     expect(grouped.N4).toHaveLength(14);
     expect(grouped.N2).toHaveLength(14);
-    expect(grouped.N3).toHaveLength(5);
-    expect(grouped.N1).toHaveLength(0);
+    expect(grouped.N3).toHaveLength(27);
+    expect(grouped.N1).toHaveLength(21);
   });
 
   it("sorts patterns within each group by id", () => {
     const grouped = getPatternsGroupedByLevel();
-    for (const level of ["N5", "N4", "N3", "N2"] as const) {
+    for (const level of ["N5", "N4", "N3", "N2", "N1"] as const) {
       const ids = grouped[level].map((p) => p.id);
       for (let i = 1; i < ids.length; i++) {
         expect(ids[i - 1].localeCompare(ids[i])).toBeLessThanOrEqual(0);
@@ -279,8 +280,8 @@ describe("getLevelSummary", () => {
     expect(summary.N5.total).toBe(16);
     expect(summary.N4.total).toBe(14);
     expect(summary.N2.total).toBe(14);
-    expect(summary.N3.total).toBe(5);
-    expect(summary.N1.total).toBe(0);
+    expect(summary.N3.total).toBe(27);
+    expect(summary.N1.total).toBe(21);
   });
 
   it("returns correct mustKnow counts", () => {
