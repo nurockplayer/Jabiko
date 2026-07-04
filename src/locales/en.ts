@@ -299,6 +299,8 @@ export const en: Copy = {
   grammarRelatedPatterns: "Related patterns",
   grammarCommonMistakes: "Common mistakes",
   grammarBackToIndex: "Back to grammar index",
+  grammarPrev: "Previous",
+  grammarNext: "Next",
   grammar: "Grammar",
   grammarImportanceMustKnow: "Must know",
   grammarImportanceHighFreq: "High frequency",

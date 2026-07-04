@@ -9,6 +9,8 @@ import {
   getPatternsWithMediaExamples,
   getPatternsByImportance,
   getLevelSummary,
+  getAdjacentPatterns,
+  patternSurface,
 } from "./grammarIndex";
 import { grammarPatterns } from "./grammarDatabase";
 
@@ -333,5 +335,48 @@ describe("getLevelSummary", () => {
         live.filter((p) => p.mediaExamples.length > 0).length
       );
     }
+  });
+});
+
+describe("getAdjacentPatterns / patternSurface (#457)", () => {
+  const LEVEL_ORDER = ["N5", "N4", "N3", "N2", "N1"] as const;
+  const flat = LEVEL_ORDER.flatMap((lvl) => getPatternsByLevel(lvl));
+
+  it("returns the prev/next patterns in index order for a middle pattern", () => {
+    const mid = Math.floor(flat.length / 2);
+    const { prev, next } = getAdjacentPatterns(patternSurface(flat[mid]));
+    expect(prev?.id).toBe(flat[mid - 1].id);
+    expect(next?.id).toBe(flat[mid + 1].id);
+  });
+
+  it("has no prev for the first pattern and links forward to the second", () => {
+    // flat[0] is the first N5 pattern (unique surface), so it resolves to
+    // itself: no previous, and next is flat[1]. (The flat-LAST is the N1 copy
+    // of the only duplicated surface 〜ざるを得ない, which findPatternBySurface
+    // resolves to its N2 twin, so we assert the forward boundary here instead.)
+    const { prev, next } = getAdjacentPatterns(patternSurface(flat[0]));
+    expect(prev).toBeNull();
+    expect(next?.id).toBe(flat[1].id);
+  });
+
+  it("returns a null next once index order is exhausted", () => {
+    // The genuinely-last reachable pattern (whose surface round-trips to itself)
+    // has no normal successor — only the unreachable duplicate can follow it.
+    const lastReachable = [...flat]
+      .reverse()
+      .find((p) => findPatternBySurface(patternSurface(p))?.id === p.id)!;
+    const { next } = getAdjacentPatterns(patternSurface(lastReachable));
+    expect(next === null || next.id === flat[flat.length - 1].id).toBe(true);
+  });
+
+  it("returns both null for a surface that is not a database pattern", () => {
+    expect(getAdjacentPatterns("そんな文型はないzzz")).toEqual({ prev: null, next: null });
+  });
+
+  it("patternSurface strips a leading 〜/～ and round-trips via findPatternBySurface", () => {
+    const withTilde = grammarPatterns.find((p) => /^[〜～]/.test(p.pattern));
+    expect(withTilde).toBeDefined();
+    expect(patternSurface(withTilde!)).toBe(withTilde!.pattern.replace(/^[〜～]/, ""));
+    expect(findPatternBySurface(patternSurface(withTilde!))?.id).toBe(withTilde!.id);
   });
 });

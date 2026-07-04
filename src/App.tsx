@@ -532,6 +532,7 @@ export default function App() {
               setGrammarSurface(null);
               setAppView("grammar");
             }}
+            onNavigate={(surface) => setGrammarSurface(surface)}
           />
         </Suspense>
       ) : (

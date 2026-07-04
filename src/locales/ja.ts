@@ -307,6 +307,8 @@ export const ja: Copy = {
   grammarRelatedPatterns: "似ている文型との比較",
   grammarCommonMistakes: "よくある間違い",
   grammarBackToIndex: "文型一覧に戻る",
+  grammarPrev: "前の文型",
+  grammarNext: "次の文型",
   grammar: "文型",
   grammarImportanceMustKnow: "必須",
   grammarImportanceHighFreq: "高頻度",

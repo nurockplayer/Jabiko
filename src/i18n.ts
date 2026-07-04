@@ -282,6 +282,8 @@ export type Copy = {
   grammarRelatedPatterns: string;
   grammarCommonMistakes: string;
   grammarBackToIndex: string;
+  grammarPrev: string;
+  grammarNext: string;
   grammarImportanceMustKnow: string;
   grammarImportanceHighFreq: string;
   grammarImportanceUnderstand: string;

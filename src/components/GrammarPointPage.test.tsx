@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { cleanExplanation, GrammarPointPage } from "./GrammarPointPage";
 import { allGrammarSurfaces, buildGrammarPoint } from "../domain/grammarPoints";
-import { findPatternBySurface } from "../domain/grammarIndex";
+import { findPatternBySurface, getPatternsByLevel, patternSurface } from "../domain/grammarIndex";
 import { grammarNotes } from "../domain/grammarNotes";
 import { grammarPatterns } from "../domain/grammarDatabase";
 import { copy } from "../i18n";
@@ -182,5 +182,53 @@ describe("content language gates", () => {
     render(<GrammarPointPage surface={surface} language="ja" onPractice={vi.fn()} onBack={vi.fn()} />);
     expect(screen.queryByText(dbOnly.meaningZh)).not.toBeInTheDocument();
     expect(screen.queryByText(dbOnly.formation)).not.toBeInTheDocument();
+  });
+});
+
+describe("GrammarPointPage next/prev pager (#457)", () => {
+  const LEVEL_ORDER = ["N5", "N4", "N3", "N2", "N1"] as const;
+  const flat = LEVEL_ORDER.flatMap((lvl) => getPatternsByLevel(lvl));
+  const mid = Math.floor(flat.length / 2);
+  const surface = patternSurface(flat[mid]);
+  const nextSurface = patternSurface(flat[mid + 1]);
+  const prevSurface = patternSurface(flat[mid - 1]);
+
+  it("advances to the next grammar point without returning to the index (zh-Hant)", async () => {
+    const onNavigate = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <GrammarPointPage
+        surface={surface}
+        language="zh-Hant"
+        onPractice={vi.fn()}
+        onBack={vi.fn()}
+        onNavigate={onNavigate}
+      />
+    );
+    await user.click(screen.getByRole("button", { name: new RegExp(t.grammarNext) }));
+    expect(onNavigate).toHaveBeenCalledWith(nextSurface);
+  });
+
+  it("goes back to the previous grammar point", async () => {
+    const onNavigate = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <GrammarPointPage
+        surface={surface}
+        language="zh-Hant"
+        onPractice={vi.fn()}
+        onBack={vi.fn()}
+        onNavigate={onNavigate}
+      />
+    );
+    await user.click(screen.getByRole("button", { name: new RegExp(t.grammarPrev) }));
+    expect(onNavigate).toHaveBeenCalledWith(prevSurface);
+  });
+
+  it("renders no pager when onNavigate is not wired in", () => {
+    const { container } = render(
+      <GrammarPointPage surface={surface} language="zh-Hant" onPractice={vi.fn()} onBack={vi.fn()} />
+    );
+    expect(container.querySelector(".gp-pager")).toBeNull();
   });
 });

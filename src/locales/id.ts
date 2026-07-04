@@ -299,6 +299,8 @@ export const id: Copy = {
   grammarRelatedPatterns: "Pola yang terkait",
   grammarCommonMistakes: "Kesalahan umum",
   grammarBackToIndex: "Kembali ke indeks tata bahasa",
+  grammarPrev: "Sebelumnya",
+  grammarNext: "Berikutnya",
   grammar: "Tata Bahasa",
   grammarImportanceMustKnow: "Harus tahu",
   grammarImportanceHighFreq: "Frekuensi tinggi",

@@ -300,6 +300,8 @@ export const th: Copy = {
   grammarRelatedPatterns: "รูปไวยากรณ์ที่ใกล้เคียง",
   grammarCommonMistakes: "ข้อผิดพลาดที่พบบ่อย",
   grammarBackToIndex: "กลับไปยังรายการรูปไวยากรณ์",
+  grammarPrev: "ก่อนหน้า",
+  grammarNext: "ถัดไป",
   grammar: "ไวยากรณ์",
   grammarImportanceMustKnow: "ต้องรู้",
   grammarImportanceHighFreq: "พบบ่อย",

@@ -299,6 +299,8 @@ export const my: Copy = {
   grammarRelatedPatterns: "ဆက်စပ်သော ပုံစံများ",
   grammarCommonMistakes: "အဖြစ်များသော အမှားများ",
   grammarBackToIndex: "သဒ္ဒါညွှန်းသို့ ပြန်သွားရန်",
+  grammarPrev: "အရင်",
+  grammarNext: "နောက်တစ်ခု",
   grammar: "သဒ္ဒါ",
   grammarImportanceMustKnow: "သိထားရန်",
   grammarImportanceHighFreq: "မကြာခဏတွေ့",

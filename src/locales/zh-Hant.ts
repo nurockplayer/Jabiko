@@ -299,6 +299,8 @@ export const zhHant: Copy = {
   grammarRelatedPatterns: "相近文型比較",
   grammarCommonMistakes: "常見錯誤",
   grammarBackToIndex: "回到文型一覽",
+  grammarPrev: "上一個",
+  grammarNext: "下一個",
   grammar: "文型",
   grammarImportanceMustKnow: "必考",
   grammarImportanceHighFreq: "高頻",

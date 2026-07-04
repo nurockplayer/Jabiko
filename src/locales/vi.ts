@@ -299,6 +299,8 @@ export const vi: Copy = {
   grammarRelatedPatterns: "Mẫu ngữ pháp liên quan",
   grammarCommonMistakes: "Lỗi thường gặp",
   grammarBackToIndex: "Quay lại danh sách ngữ pháp",
+  grammarPrev: "Trước",
+  grammarNext: "Tiếp",
   grammar: "Ngữ pháp",
   grammarImportanceMustKnow: "Phải biết",
   grammarImportanceHighFreq: "Tần suất cao",

@@ -148,6 +148,44 @@
   margin-top: 0.2rem;
 }
 
+/* Prev/next pager (#457): page through 文型 without returning to the index. */
+.gp-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--panel-border);
+}
+
+.gp-pager-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 48%;
+  flex-wrap: wrap;
+}
+
+.gp-pager-next {
+  margin-left: auto;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.gp-pager-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.gp-pager-surface {
+  font-weight: 700;
+}
+
+.gp-pager-spacer {
+  flex: 1;
+}
+
 /* ---- GrammaIndex (issue #437) ---- */
 .grammar-index {
   display: flex;
