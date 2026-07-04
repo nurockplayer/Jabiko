@@ -45,6 +45,34 @@
 - 所有領域邏輯必須在 `src/domain/`，不要在 `src/components/` 放商業邏輯
 - pnpm 為唯一套件管理工具，不產生 npm/yarn/bun lockfile
 
+## 內容可見性規則（Content visibility — product ownership boundary）
+
+這些是產品決定，不是工程決定。AI **禁止**在沒有人工明確批准的情況下變更。
+
+### 語言隔離規則
+
+- `*Zh` 結尾的欄位（`meaningZh`、`hintZh`、`instructionZh`、`lineZh`、`contextZh`、
+  `promptContextZh`、`explanation`、`commonMistakes`）是未翻譯的中文內容，**不得**對
+  `zh-Hant` 以外的語言渲染，除非透過 `pickLocalized()` 或 `pickLocalizedOptional()`
+  並有有效的 i18n overlay。
+- `formation` 是單向中文接續規則，等同 `meaningZh` 處理。
+- `lineZh` 和 `contextZh` 即使在子元件內部也必須受 `isZhHant` 保護。
+- `isZhHant`（`language === "zh-Hant"`）是唯一的閘門變數。**禁止**引入其他閘門慣例。
+
+### 禁止事項（AI 必須先問）
+
+- 移除保護 `*Zh` 欄位的 `isZhHant`。
+- 新增渲染 `*Zh` 欄位但沒有語言閘門的元件。
+- 變更 `src/i18n.ts` 的 `LAUNCHED_LANGUAGES`（決定使用者看到哪些語系）。
+- 新增語系代碼到 `LocaleCode`（需要內容翻譯計畫）。
+- 變更 `pickLocalized()` 的行為或其 fallback chain。
+- 如果認為應該移除語言閘門：**停下來問使用者**。
+
+## 工作空間隔離
+
+- 所有會修改檔案的實作任務**必須**在 git worktree 中進行（`EnterWorktree`），不得直接在工作目錄上修改
+- 純查詢、讀取、搜尋不需 worktree
+
 ## 程式碼慣例
 
 - TypeScript strict mode 全開，禁止 `any`，除非有明確註解說明

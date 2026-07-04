@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { cleanExplanation, GrammarPointPage } from "./GrammarPointPage";
 import { allGrammarSurfaces, buildGrammarPoint } from "../domain/grammarPoints";
+import { findPatternBySurface } from "../domain/grammarIndex";
 import { grammarNotes } from "../domain/grammarNotes";
 import { grammarPatterns } from "../domain/grammarDatabase";
 import { copy } from "../i18n";
@@ -49,9 +50,6 @@ describe("GrammarPointPage", () => {
   });
 
   it("renders a database-only pattern's Chinese content in zh-Hant but hides it in en (#438/#427)", () => {
-    // A pattern that lives ONLY in grammarDatabase (no exam-bank point), so it
-    // hits the database-only branch — the exact path whose zh-Hant gate must
-    // hold (its content has no i18n overlay yet, so en/ja must see none of it).
     const dbOnly = grammarPatterns.find((p) => buildGrammarPoint(p.pattern.replace(/^[〜～]/, "")) === null);
     expect(dbOnly, "expected at least one database-only pattern").toBeDefined();
     const surface = dbOnly!.pattern.replace(/^[〜～]/, "");
@@ -89,5 +87,100 @@ describe("GrammarPointPage", () => {
       "it pairs with a hypothetical."
     );
     expect(cleanExplanation("沒有前綴的內容原樣通過。")).toBe("沒有前綴的內容原樣通過。");
+  });
+});
+// Content language gates — product contract (#437 / #427)
+describe("content language gates", () => {
+  it("renders database-enriched sections for zh-Hant on an un-noted exam-data surface", () => {
+    const surface = allGrammarSurfaces().find((s) => {
+      const p = buildGrammarPoint(s);
+      const db = findPatternBySurface(s);
+      return p !== null && !p.note && db !== undefined && db.examples.length > 0;
+    })!;
+    expect(surface).toBeTruthy();
+    render(<GrammarPointPage surface={surface} language="zh-Hant" onPractice={vi.fn()} onBack={vi.fn()} />);
+    expect(screen.getByText(copy["zh-Hant"].grammarDatabaseExamples)).toBeInTheDocument();
+  });
+
+  it("renders all Chinese content for zh-Hant on a database-only surface", () => {
+    const dbOnly = grammarPatterns.find((p) => { const s = p.pattern.replace(/^[〜～]/, ""); return buildGrammarPoint(s) === null; })!;
+    expect(dbOnly).toBeTruthy();
+    const surface = dbOnly.pattern.replace(/^[〜～]/, "");
+    render(<GrammarPointPage surface={surface} language="zh-Hant" onPractice={vi.fn()} onBack={vi.fn()} />);
+    expect(screen.getByRole("heading", { level: 1, name: surface })).toBeInTheDocument();
+    expect(screen.getByText(dbOnly.meaningZh)).toBeInTheDocument();
+    expect(screen.getByText(dbOnly.formation)).toBeInTheDocument();
+  });
+
+  it("hides database-enriched sections from en users on a noted exam-data surface", () => {
+    render(<GrammarPointPage surface={notedSurface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />);
+    expect(screen.getByRole("heading", { level: 1, name: notedSurface })).toBeInTheDocument();
+    expect(screen.queryByText(copy.en.grammarDatabaseExamples)).not.toBeInTheDocument();
+    expect(screen.queryByText(copy.en.grammarMediaExamples)).not.toBeInTheDocument();
+    expect(screen.queryByText(copy.en.grammarRelatedPatterns)).not.toBeInTheDocument();
+    expect(screen.queryByText(copy.en.grammarCommonMistakes)).not.toBeInTheDocument();
+  });
+
+  it("hides database-enriched sections from en users on an un-noted exam-data surface", () => {
+    const surface = allGrammarSurfaces().find((s) => {
+      const p = buildGrammarPoint(s);
+      const db = findPatternBySurface(s);
+      return p !== null && !p.note && db !== undefined && db.examples.length > 0;
+    })!;
+    expect(surface).toBeTruthy();
+    render(<GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />);
+    expect(screen.queryByText(copy.en.grammarDatabaseExamples)).not.toBeInTheDocument();
+  });
+
+  it("hides database-enriched sections from ja users", () => {
+    render(<GrammarPointPage surface={notedSurface} language="ja" onPractice={vi.fn()} onBack={vi.fn()} />);
+    expect(screen.queryByText(copy.ja.grammarMediaExamples)).not.toBeInTheDocument();
+    expect(screen.queryByText(copy.ja.grammarRelatedPatterns)).not.toBeInTheDocument();
+    expect(screen.queryByText(copy.ja.grammarCommonMistakes)).not.toBeInTheDocument();
+  });
+
+  it("does not render meaningZh or formation for en users on a database-only surface", () => {
+    const dbOnly = grammarPatterns.find((p) => { const s = p.pattern.replace(/^[〜～]/, ""); return buildGrammarPoint(s) === null; })!;
+    expect(dbOnly).toBeTruthy();
+    const surface = dbOnly.pattern.replace(/^[〜～]/, "");
+    render(<GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />);
+    expect(screen.getByRole("heading", { level: 1, name: surface })).toBeInTheDocument();
+    expect(screen.queryByText(dbOnly.meaningZh)).not.toBeInTheDocument();
+    expect(screen.queryByText(dbOnly.formation)).not.toBeInTheDocument();
+  });
+
+  it("does not render example Chinese translations for en users on a database-only surface", () => {
+    const dbOnly = grammarPatterns.find((p) => { const s = p.pattern.replace(/^[〜～]/, ""); return buildGrammarPoint(s) === null && p.examples.some((ex) => ex.meaningZh); })!;
+    expect(dbOnly).toBeTruthy();
+    const surface = dbOnly.pattern.replace(/^[〜～]/, "");
+    render(<GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />);
+    for (const ex of dbOnly.examples) { if (ex.meaningZh) { expect(screen.queryByText(ex.meaningZh)).not.toBeInTheDocument(); } }
+  });
+
+  it("does not render related-pattern Chinese meanings for en users on a database-only surface", () => {
+    const dbOnly = grammarPatterns.find((p) => { const s = p.pattern.replace(/^[〜～]/, ""); return buildGrammarPoint(s) === null && p.relatedPatternIds.length > 0; })!;
+    expect(dbOnly).toBeTruthy();
+    const surface = dbOnly.pattern.replace(/^[〜～]/, "");
+    render(<GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />);
+    const related = grammarPatterns.filter((p) => dbOnly.relatedPatternIds.includes(p.id));
+    expect(related.length).toBeGreaterThan(0);
+    for (const rp of related) { expect(screen.queryByText(rp.meaningZh)).not.toBeInTheDocument(); }
+  });
+
+  it("does not render commonMistakes for en users on a database-only surface", () => {
+    const dbOnly = grammarPatterns.find((p) => { const s = p.pattern.replace(/^[〜～]/, ""); return buildGrammarPoint(s) === null && p.commonMistakes && p.commonMistakes.length > 0; })!;
+    expect(dbOnly).toBeTruthy();
+    const surface = dbOnly.pattern.replace(/^[〜～]/, "");
+    render(<GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />);
+    for (const mistake of dbOnly.commonMistakes!) { expect(screen.queryByText(mistake)).not.toBeInTheDocument(); }
+  });
+
+  it("does not render meaningZh or formation for ja users on a database-only surface", () => {
+    const dbOnly = grammarPatterns.find((p) => { const s = p.pattern.replace(/^[〜～]/, ""); return buildGrammarPoint(s) === null; })!;
+    expect(dbOnly).toBeTruthy();
+    const surface = dbOnly.pattern.replace(/^[〜～]/, "");
+    render(<GrammarPointPage surface={surface} language="ja" onPractice={vi.fn()} onBack={vi.fn()} />);
+    expect(screen.queryByText(dbOnly.meaningZh)).not.toBeInTheDocument();
+    expect(screen.queryByText(dbOnly.formation)).not.toBeInTheDocument();
   });
 });
