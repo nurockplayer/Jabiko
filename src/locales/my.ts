@@ -274,6 +274,7 @@ export const my: Copy = {
   answerKey: "အဖြေ",
   feedbackOtherOptions: "အခြား ရွေးချယ်စရာများ",
   feedbackNoWord: "ကိုက်ညီသော စကားလုံး မရှိပါ",
+  vocabNotesLabel: "အဓိက ဝေါဟာရများ",
   showHint: "သဲလွန်စ",
   hideHint: "သဲလွန်စ ဖျောက်ရန်",
   grammarNoteCta: "သဒ္ဒါမှတ်စု ပြရန်",

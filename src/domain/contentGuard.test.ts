@@ -113,6 +113,29 @@ describe("exam content guard", () => {
     expect(offenders, `items with empty explanation: ${offenders.join(", ")}`).toEqual([]);
   });
 
+  it("gives every vocabNote a full shape + launched-locale i18n (no zh leak, #453)", () => {
+    // vocabNotes render post-answer via pickLocalized, which falls back to the
+    // Chinese meaningZh when a locale overlay is missing. To honour the
+    // language-isolation rule, every note must carry a non-empty translation
+    // for each LAUNCHED non-zh locale (ja, en) so the fallback never fires.
+    const launchedNonZh = ["ja", "en"] as const;
+    const offenders: string[] = [];
+    for (const question of examStyleQuestions) {
+      if (!question.vocabNotes) continue;
+      question.vocabNotes.forEach((note, i) => {
+        const where = `${question.id}#vocabNotes[${i}]`;
+        if (!note.surface?.trim() || !note.reading?.trim() || !note.meaningZh?.trim()) {
+          offenders.push(`${where}: missing surface/reading/meaningZh`);
+        }
+        for (const loc of launchedNonZh) {
+          const t = note.meaningI18n?.[loc];
+          if (typeof t !== "string" || t.trim() === "") offenders.push(`${where}: missing ${loc} overlay`);
+        }
+      });
+    }
+    expect(offenders, `malformed vocabNotes: ${offenders.join("; ")}`).toEqual([]);
+  });
+
   it("keeps 語順組合 prompts shuffleable (a ［...］ list of >=2 fragments)", () => {
     // 語順組合 prompts list their fragments in ANSWER order inside ［ ］, and
     // ExamPrompt render-shuffles them (#120) so the prompt doesn't spell out

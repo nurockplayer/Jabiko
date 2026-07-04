@@ -274,6 +274,7 @@ export const ko: Copy = {
   answerKey: "정답",
   feedbackOtherOptions: "다른 선택지",
   feedbackNoWord: "해당 단어 없음",
+  vocabNotesLabel: "핵심 어휘",
   showHint: "힌트",
   hideHint: "힌트 숨김",
   grammarNoteCta: "문법 노트 보기",

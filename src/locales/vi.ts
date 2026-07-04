@@ -274,6 +274,7 @@ export const vi: Copy = {
   answerKey: "Đáp án",
   feedbackOtherOptions: "Các phương án khác",
   feedbackNoWord: "Không có từ tương ứng",
+  vocabNotesLabel: "Từ vựng trọng tâm",
   showHint: "Gợi ý",
   hideHint: "Ẩn gợi ý",
   grammarNoteCta: "Xem ghi chú ngữ pháp",

@@ -463,6 +463,45 @@
   margin-top: 0.25rem;
 }
 
+/* "Key vocabulary" from the sentence (#453): N+1 words worth learning,
+   shown post-answer. Same muted, one-per-line treatment as the distractor
+   gloss so it reads as a study aid, not a second answer. */
+.vocab-notes {
+  border-top: 1px solid var(--example-rule);
+  padding-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.vocab-notes-label {
+  color: var(--muted);
+  margin: 0 0 0.25rem;
+}
+
+.vocab-notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.vocab-note-item {
+  line-height: 1.4;
+}
+
+.vocab-note-word {
+  font-weight: 600;
+}
+
+.vocab-note-reading {
+  color: var(--muted);
+}
+
+.vocab-note-meaning {
+  color: var(--muted);
+}
+
 .review-heading {
   align-items: center;
   display: flex;

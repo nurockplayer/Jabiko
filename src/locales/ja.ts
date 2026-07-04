@@ -282,6 +282,7 @@ export const ja: Copy = {
   answerKey: "正解",
   feedbackOtherOptions: "ほかの選択肢",
   feedbackNoWord: "対応する語なし",
+  vocabNotesLabel: "重要語彙",
   showHint: "ヒント",
   hideHint: "ヒントを隠す",
   grammarNoteCta: "文法の解説を見る",

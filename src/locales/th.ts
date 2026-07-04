@@ -275,6 +275,7 @@ export const th: Copy = {
   answerKey: "เฉลย",
   feedbackOtherOptions: "ตัวเลือกอื่น",
   feedbackNoWord: "ไม่มีคำที่ตรงกัน",
+  vocabNotesLabel: "คำศัพท์สำคัญ",
   showHint: "คำใบ้",
   hideHint: "ซ่อนคำใบ้",
   grammarNoteCta: "ดูคำอธิบายไวยากรณ์",
