@@ -18,12 +18,14 @@ export function GrammarIndexPage({
   onOpenPattern,
   onBack,
   onBackToOverview,
+  onSelectLevel,
 }: {
   language: Language;
   level: JlptLevel | null;
   onOpenPattern: (surface: string) => void;
   onBack: () => void;
   onBackToOverview?: () => void;
+  onSelectLevel?: (level: JlptLevel) => void;
 }) {
   const t = copy[language];
   const [searchQuery, setSearchQuery] = useState("");
@@ -230,6 +232,26 @@ export function GrammarIndexPage({
                     </>
                   )}
                 </span>
+                {onSelectLevel && (
+                  <span
+                    className="gi-level-enter"
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectLevel(lvl);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onSelectLevel(lvl);
+                      }
+                    }}
+                  >
+                    {t.grammarBrowseLevel ?? "瀏覽"}
+                  </span>
+                )}
               </summary>
               {overviewPatterns.length === 0 ? (
                 <p className="gi-empty">{t.grammarNoPatterns}</p>

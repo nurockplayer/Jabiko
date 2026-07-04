@@ -297,6 +297,7 @@ export const th: Copy = {
   grammarDatabaseExamples: "ประโยคตัวอย่าง",
   grammarRelatedPatterns: "รูปไวยากรณ์ที่ใกล้เคียง",
   grammarCommonMistakes: "ข้อผิดพลาดที่พบบ่อย",
+  grammarBrowseLevel: "เรียกดู",
   grammarBackToIndex: "กลับไปยังรายการรูปไวยากรณ์",
   grammar: "ไวยากรณ์",
   grammarImportanceMustKnow: "ต้องรู้",

@@ -279,6 +279,7 @@ export type Copy = {
   grammarDatabaseExamples: string;
   grammarRelatedPatterns: string;
   grammarCommonMistakes: string;
+  grammarBrowseLevel: string;
   grammarBackToIndex: string;
   grammarImportanceMustKnow: string;
   grammarImportanceHighFreq: string;

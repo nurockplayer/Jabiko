@@ -296,6 +296,7 @@ export const id: Copy = {
   grammarDatabaseExamples: "Contoh kalimat",
   grammarRelatedPatterns: "Pola yang terkait",
   grammarCommonMistakes: "Kesalahan umum",
+  grammarBrowseLevel: "Jelajahi",
   grammarBackToIndex: "Kembali ke indeks tata bahasa",
   grammar: "Tata Bahasa",
   grammarImportanceMustKnow: "Harus tahu",

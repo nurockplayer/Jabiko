@@ -497,6 +497,9 @@ export default function App() {
             onBackToOverview={() => {
               setGrammarSurface(null);
             }}
+            onSelectLevel={(lvl) => {
+              setGrammarSurface(lvl);
+            }}
           />
         </Suspense>
       ) : appView === "grammar" ? (
