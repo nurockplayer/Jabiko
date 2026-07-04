@@ -35,9 +35,10 @@ export const en: Copy = {
   aboutAuthorBody:
     "A competitive-programming background and three years as an engineer at Google; after leaving in 2025, now a Tech Lead at an AI startup. Japanese was an old asset — N2 passed ten years ago and then shelved — until getting back into Japanese idols in 2024 brought it back. With a bit more time after that, the serious practice began — and that's when Jabiko was built: first for personal use, now open to other learners too, with more to come whenever there's a chance.",
   aboutAuthorLink: "More about the author →",
-  aboutAuthor2Title: "Co-author",
-  aboutAuthor2Name: "塔奇巧克力",
-  aboutAuthor2Body: "Currently studying at a Japanese language school.",
+  aboutAuthor2Title: "Author",
+  aboutAuthor2Name: "塔奇巧克力 (TachikoChoko)",
+  aboutAuthor2Body:
+    "Started as a backend engineer at the live-streaming platform \"初樂 (TrueLoveLive)\", then became a backend lead at 冰角工作室 (Ice Corner Studio), primarily responsible for backend system development. Has always enjoyed diving into the engineering details that lie beneath the surface — database performance optimization, query speed, and system architecture. The \"塔奇 (Tachi)\" in the name comes from the Tachikoma in Ghost in the Shell. Drawn to the Tachikoma's rich knowledge and practical capability, and the way they stay excited, curious, and fully engaged even in tense situations — as if heading out on a field trip. Besides Ghost in the Shell, also a big fan of the taiga drama Ryōmaden, the film Hayabusa: The Long Voyage Home, and the drama The Summer of the Bureaucrats. Currently studying Japanese at a language school in Tokyo. The whole thing started simply because Japanese verb conjugation was a struggle — the idea was to build a small tool for convenient practice, repeated checking, and gradual accumulation. Jabiko grew out of that need: first, to sort out the messy conjugations for himself, and then to open it up for everyone else learning Japanese to use together.",
   homeHeroTitle: "What do you want to practice today?",
   homeHeroIntro: "From basic conjugation to N1 instinct. Grammar, kanji, vocabulary, question-type practice — all in one place.",
   homeGuideLink: "User guide",

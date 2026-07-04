@@ -35,9 +35,10 @@ export const vi: Copy = {
   aboutAuthorBody:
     "Xuất thân từ lập trình thi đấu và ba năm làm kỹ sư tại Google; sau khi rời đi năm 2025, hiện là Tech Lead tại một startup AI. Tiếng Nhật là một vốn liếng cũ — đậu N2 mười năm trước rồi gác lại — cho đến khi quay lại với idol Nhật năm 2024 đã làm nó sống dậy. Sau đó có thêm chút thời gian, việc luyện tập nghiêm túc mới bắt đầu — và đó cũng là lúc Jabiko ra đời: đầu tiên để dùng cho bản thân, giờ mở ra cho cả những người học khác, và sẽ còn làm tiếp mỗi khi có dịp.",
   aboutAuthorLink: "Tìm hiểu thêm về tác giả →",
-  aboutAuthor2Title: "Đồng tác giả",
-  aboutAuthor2Name: "塔奇巧克力",
-  aboutAuthor2Body: "Đang theo học tại trường Nhật ngữ.",
+  aboutAuthor2Title: "Tác giả",
+  aboutAuthor2Name: "塔奇巧克力（TachikoChoko）",
+  aboutAuthor2Body:
+    "Từng là kỹ sư backend tại nền tảng live-streaming「初樂 (TrueLoveLive)」, sau đó trở thành backend lead tại 冰角工作室 (Ice Corner Studio), chủ yếu phụ trách phát triển hệ thống backend. Luôn yêu thích việc đào sâu vào những chi tiết kỹ thuật ẩn dưới bề mặt — tối ưu hiệu năng cơ sở dữ liệu, tốc độ truy vấn, và kiến trúc hệ thống. Cái tên「塔奇 (Tachi)」đến từ Tachikoma trong Ghost in the Shell. Yêu thích sự phong phú về tri thức và năng lực thực chiến của Tachikoma, cũng như cách chúng luôn hào hứng, tò mò và toàn tâm toàn ý ngay cả trong những tình huống căng thẳng — như thể đang đi dã ngoại. Ngoài Ghost in the Shell, còn rất yêu thích phim taiga Ryōmaden, phim điện ảnh Hayabusa: Hành Trình Trở Về Xa Xăm, và phim truyền hình Mùa Hè Của Những Viên Chức. Hiện đang học tiếng Nhật tại một trường Nhật ngữ ở Tokyo. Mọi chuyện bắt đầu chỉ vì bản thân gặp khó khăn với cách chia động từ tiếng Nhật — ý tưởng là xây dựng một công cụ nhỏ để tiện luyện tập, kiểm tra lặp lại, và tích lũy dần dần. Jabiko lớn lên từ nhu cầu đó: trước hết là để sắp xếp lại đống chia động từ lộn xộn cho chính mình, rồi sau đó mở ra cho tất cả những ai cũng đang học tiếng Nhật cùng sử dụng.",
   homeHeroTitle: "Hôm nay bạn muốn luyện gì?",
   homeHeroIntro: "Từ chia động từ cơ bản đến phản xạ N1. Ngữ pháp, kanji, từ vựng, luyện theo dạng đề — tất cả ở một nơi.",
   homeGuideLink: "Hướng dẫn sử dụng",
