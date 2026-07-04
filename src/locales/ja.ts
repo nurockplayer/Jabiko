@@ -306,6 +306,7 @@ export const ja: Copy = {
   grammarDatabaseExamples: "例文",
   grammarRelatedPatterns: "似ている文型との比較",
   grammarCommonMistakes: "よくある間違い",
+  grammarBrowseLevel: "閲覧",
   grammarBackToIndex: "文型一覧に戻る",
   grammar: "文型",
   grammarImportanceMustKnow: "必須",

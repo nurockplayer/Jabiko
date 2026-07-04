@@ -298,6 +298,7 @@ export const my: Copy = {
   grammarDatabaseExamples: "နမူနာဝါကျများ",
   grammarRelatedPatterns: "ဆက်စပ်သော ပုံစံများ",
   grammarCommonMistakes: "အဖြစ်များသော အမှားများ",
+  grammarBrowseLevel: "ကြည့်ရှုရန်",
   grammarBackToIndex: "သဒ္ဒါညွှန်းသို့ ပြန်သွားရန်",
   grammar: "သဒ္ဒါ",
   grammarImportanceMustKnow: "သိထားရန်",

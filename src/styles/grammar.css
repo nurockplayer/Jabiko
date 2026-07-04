@@ -298,7 +298,21 @@
   gap: 0.4rem;
   font-size: 0.82rem;
   color: var(--muted);
+}
+
+.gi-level-enter {
+  font-size: 0.78rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-pill);
+  background: var(--matcha);
+  color: var(--selected-text, #fff);
+  cursor: pointer;
+  white-space: nowrap;
   margin-left: auto;
+}
+
+.gi-level-enter:hover {
+  opacity: 0.85;
 }
 
 .gi-pattern-list {

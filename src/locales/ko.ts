@@ -298,6 +298,7 @@ export const ko: Copy = {
   grammarDatabaseExamples: "예문",
   grammarRelatedPatterns: "유사 문형 비교",
   grammarCommonMistakes: "자주 하는 실수",
+  grammarBrowseLevel: "보기",
   grammarBackToIndex: "문형 목록으로 돌아가기",
   grammar: "문형",
   grammarImportanceMustKnow: "필수",

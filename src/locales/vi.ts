@@ -298,6 +298,7 @@ export const vi: Copy = {
   grammarDatabaseExamples: "Câu ví dụ",
   grammarRelatedPatterns: "Mẫu ngữ pháp liên quan",
   grammarCommonMistakes: "Lỗi thường gặp",
+  grammarBrowseLevel: "Xem",
   grammarBackToIndex: "Quay lại danh sách ngữ pháp",
   grammar: "Ngữ pháp",
   grammarImportanceMustKnow: "Phải biết",
