@@ -34,7 +34,7 @@ export const articleMetas: ReadonlyArray<ArticleMeta> = [
   },
   {
     slug: "cho-saikyo-tokimeki",
-    title: "從「超最強」學日文：超ときめき♡宣伝部的推し活生字",
+    title: "從「超最強」學日文：偶像把「推し活」唱成一首歌",
     description:
       "超ときめき♡宣伝部〈超最強〉根本是推し活生字大補帖——沼、布教、トレカ、ズッキュン⋯⋯挑 20+ 個歌裡的日文點，讀音意思語感一次學，例句全原創，附官方 MV 連結。",
     tag: "偶像",
