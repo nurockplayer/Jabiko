@@ -71,12 +71,12 @@ describe("seo", () => {
   // canonical from the (lightweight) article metadata.
   describe("blog article routes", () => {
     it("builds per-article metadata for a /blog/<slug> route", () => {
-      const resolved = seoForView("blog", null, "oshikatsu-slang-nyumon");
-      expect(resolved.title).toContain("推し活");
+      const resolved = seoForView("blog", null, "cho-saikyo-tokimeki");
+      expect(resolved.title).toContain("超最強");
       expect(resolved.title).toMatch(/Jabiko/);
       expect(resolved.description.length).toBeGreaterThan(20);
       expect(resolved.description.length).toBeLessThanOrEqual(160);
-      expect(resolved.canonical).toBe(`${SITE_ORIGIN}/blog/oshikatsu-slang-nyumon`);
+      expect(resolved.canonical).toBe(`${SITE_ORIGIN}/blog/cho-saikyo-tokimeki`);
     });
 
     it("falls back to the blog index SEO for an unknown slug", () => {

@@ -25,30 +25,20 @@ export interface ArticleMeta {
 
 export const articleMetas: ReadonlyArray<ArticleMeta> = [
   {
+    slug: "sweet-step-steady",
+    title: "從「SWEET STEP」學日文：ありのままの自我摸索曲",
+    description:
+      "SWEET STEADY〈SWEET STEP〉唱的是「其實我也不知道真正的自己」——ありのまま、妄想、取り繕う、キュン⋯⋯挑 20 幾個歌裡的日文點來學，例句全原創，完整歌詞看外連。",
+    tag: "偶像",
+    publishedAt: "2026-07-06"
+  },
+  {
     slug: "cho-saikyo-tokimeki",
     title: "從「超最強」學日文：超ときめき♡宣伝部的推し活生字",
     description:
       "超ときめき♡宣伝部〈超最強〉根本是推し活生字大補帖——沼、布教、トレカ、ズッキュン⋯⋯挑 20+ 個歌裡的日文點，讀音意思語感一次學，例句全原創，完整歌詞看外連。",
     tag: "偶像",
-    publishedAt: "2026-07-06",
-    draft: true
-  },
-  {
-    slug: "oshikatsu-slang-nyumon",
-    title: "推し活日文入門：10 個偶像圈一定會遇到的流行語",
-    description:
-      "推し、尊い、沼、レベチ、神対応⋯⋯追星、看演唱會、逛 SNS 一定會撞到的日文流行語，一次整理讀音、意思與用法，附原創例句。",
-    tag: "流行語",
     publishedAt: "2026-07-06"
-  },
-  {
-    slug: "idol-song-nihongo-template",
-    title: "從一首偶像曲學日文（範本）",
-    description:
-      "用一首喜歡的偶像曲，挑幾句歌詞學日文——文法、生字、語感一次帶。這是持續更新的範本，之後會補上實際歌曲。",
-    tag: "偶像",
-    publishedAt: "2026-07-06",
-    draft: true
   }
 ];
 
