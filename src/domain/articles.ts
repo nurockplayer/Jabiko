@@ -29,10 +29,15 @@ export type ArticleBlock =
   // A vocab table: word + reading + gloss + a usage note (may embed an
   // original example sentence).
   | { kind: "vocab"; items: ReadonlyArray<{ word: string; reading: string; meaning: string; note?: string }> }
+  // External resource links (opened in a new tab): the official YouTube MV,
+  // a legal full-lyrics site (歌ネット / Uta-Net …), etc. We link OUT to full
+  // lyrics rather than reproduce them.
+  | { kind: "links"; label?: string; items: ReadonlyArray<{ label: string; url: string }> }
   // A lyric-commentary block. `lyric` is a placeholder the author replaces
   // with a short fragment by hand (we never generate lyric text); `points`
-  // are the original Japanese-learning notes drawn from it.
-  | { kind: "lyricPoint"; lyric: string; points: ReadonlyArray<string> }
+  // are the original Japanese-learning notes drawn from it. `timestamp` is an
+  // optional "where it appears in the MV" tag, e.g. "01:23".
+  | { kind: "lyricPoint"; lyric: string; timestamp?: string; points: ReadonlyArray<string> }
   | { kind: "cta"; cta: ArticleCta };
 
 export interface BlogArticle extends ArticleMeta {
@@ -140,17 +145,30 @@ const BODIES: Record<string, ReadonlyArray<ArticleBlock>> = {
   "idol-song-nihongo-template": [
     {
       kind: "callout",
-      text: "這是一篇「範本」文章：架構與可留用的原創例句都寫好了，歌詞片段的位置用 [歌詞片段] 標著。挑一首歌、把要解說的短短幾句貼進對應位置，就能發佈成一篇「從這首歌學日文」。"
+      text: "這是一篇「範本」文章：架構與可留用的原創例句都寫好了。做法是——完整歌詞用外部連結帶出去（不轉載），只把要解說的短短幾句貼進 [歌詞片段] 的位置，其餘都是自己的日文解說。這樣既合法（引用／教學用途），內容也是你的原創資產。"
     },
     { kind: "heading", text: "歌曲介紹" },
     {
       kind: "paragraph",
       text: "（在這裡寫：歌名、團體／歌手、發行時間，還有這首歌在唱什麼、氛圍如何、為什麼想用它來教日文。兩三句就好，帶讀者入戲。）"
     },
+    {
+      kind: "links",
+      label: "先聽 & 看完整歌詞",
+      items: [
+        { label: "官方 MV（YouTube）", url: "https://www.youtube.com/" },
+        { label: "完整歌詞（歌ネット等合法歌詞網）", url: "https://www.uta-net.com/" }
+      ]
+    },
+    {
+      kind: "callout",
+      text: "把上面兩個連結換成這首歌的官方 MV 與合法歌詞頁（如 歌ネット／Uta-Net）。讀者點過去就能邊聽邊看完整歌詞，你只留片段來解說即可。"
+    },
     { kind: "heading", text: "挑幾句歌詞來學" },
     {
       kind: "lyricPoint",
       lyric: "[歌詞片段 1]",
+      timestamp: "MV 00:00",
       points: [
         "文法：（這句用到的句型，例如「〜たい／〜てしまう／〜ずっと」，用一句話解釋。）",
         "生字：（挑 1～2 個字，標讀音與意思。）",
@@ -160,6 +178,7 @@ const BODIES: Record<string, ReadonlyArray<ArticleBlock>> = {
     {
       kind: "lyricPoint",
       lyric: "[歌詞片段 2]",
+      timestamp: "MV 00:00",
       points: [
         "文法：（同上，換一個點。）",
         "生字：（1～2 個。）",
@@ -169,6 +188,7 @@ const BODIES: Record<string, ReadonlyArray<ArticleBlock>> = {
     {
       kind: "lyricPoint",
       lyric: "[歌詞片段 3]",
+      timestamp: "MV 00:00",
       points: ["文法：（副歌常出現的關鍵句。）", "生字：（1～2 個。）", "語感：（一句收尾。）"]
     },
     { kind: "heading", text: "偶像曲很常出現的日文（原創例句，可直接留用）" },

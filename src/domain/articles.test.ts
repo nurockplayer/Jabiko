@@ -45,6 +45,12 @@ describe("blog articles data guard", () => {
             expect(item.reading.trim().length).toBeGreaterThan(0);
             expect(item.meaning.trim().length).toBeGreaterThan(0);
           }
+        } else if (block.kind === "links") {
+          expect(block.items.length).toBeGreaterThan(0);
+          for (const item of block.items) {
+            expect(item.label.trim().length).toBeGreaterThan(0);
+            expect(item.url).toMatch(/^https?:\/\//);
+          }
         } else if (block.kind === "lyricPoint") {
           expect(block.lyric.trim().length).toBeGreaterThan(0);
           expect(block.points.length).toBeGreaterThan(0);

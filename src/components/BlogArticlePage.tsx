@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { articleBySlug, type ArticleBlock, type ArticleCta } from "../domain/articles";
 
@@ -104,12 +104,36 @@ function ArticleBlockView({
           </dl>
         </div>
       );
+    case "links":
+      return (
+        <div className="blog-links">
+          {block.label ? <p className="blog-links-label">{block.label}</p> : null}
+          <ul className="blog-links-list">
+            {block.items.map((item) => (
+              <li key={item.url}>
+                <a
+                  className="blog-link"
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink aria-hidden="true" size={15} />
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
     case "lyricPoint":
       return (
         <div className="blog-lyric">
-          <blockquote className="blog-lyric-frag" lang="ja">
-            {block.lyric}
-          </blockquote>
+          <div className="blog-lyric-head">
+            <blockquote className="blog-lyric-frag" lang="ja">
+              {block.lyric}
+            </blockquote>
+            {block.timestamp ? <span className="blog-lyric-ts">{block.timestamp}</span> : null}
+          </div>
           <ul className="blog-lyric-points">
             {block.points.map((point, i) => (
               <li key={i}>{point}</li>

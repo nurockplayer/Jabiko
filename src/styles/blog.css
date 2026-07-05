@@ -308,6 +308,68 @@
   color: var(--ink);
 }
 
+/* Resource links (official MV, legal lyrics site) */
+.blog-links {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  padding: 0.9rem 1.1rem;
+}
+
+.blog-links-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.blog-links-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.blog-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--teal);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+
+.blog-link:hover {
+  text-decoration: underline;
+}
+
+/* Lyric fragment + optional MV timestamp */
+.blog-lyric-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.blog-lyric-head .blog-lyric-frag {
+  flex: 1;
+}
+
+.blog-lyric-ts {
+  flex-shrink: 0;
+  align-self: center;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-pill);
+  padding: 0.15rem 0.6rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 /* Closing CTA */
 .blog-cta-block {
   display: flex;
