@@ -595,7 +595,7 @@ export default function App() {
             onNavigate={(surface) => setGrammarSurface(surface)}
           />
         </Suspense>
-      ) : appView === "blog" && blogSlug === null ? (
+      ) : appView === "blog" && blogAvailable && blogSlug === null ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
           <BlogIndexPage
             language={language}
@@ -603,7 +603,7 @@ export default function App() {
             onBack={() => setAppView("home")}
           />
         </Suspense>
-      ) : appView === "blog" ? (
+      ) : appView === "blog" && blogAvailable ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
           <BlogArticlePage
             slug={blogSlug ?? ""}
