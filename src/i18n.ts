@@ -49,6 +49,8 @@ export type Copy = {
   feedbackKind: { wish: string; bug: string; other: string };
   feedbackPlaceholder: string;
   feedbackContact: string;
+  feedbackWantsReply: string;
+  feedbackWantsReplyHint: string;
   feedbackAnon: string;
   feedbackSend: string;
   feedbackSending: string;

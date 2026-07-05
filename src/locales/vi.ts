@@ -52,6 +52,8 @@ export const vi: Copy = {
   feedbackKind: { wish: "Đề xuất tính năng", bug: "Báo lỗi", other: "Khác" },
   feedbackPlaceholder: "Bạn muốn thấy điều gì, hay gặp vấn đề nào — cứ nói cho chúng tôi biết (ẩn danh)…",
   feedbackContact: "Liên hệ (tùy chọn — để lại nếu bạn muốn nhận hồi đáp)",
+  feedbackWantsReply: "Muốn nhận phản hồi",
+  feedbackWantsReplyHint: "Nếu bạn đã đăng nhập, chúng tôi sẽ trả lời qua tài khoản; nếu không, hãy để lại liên hệ bên dưới.",
   feedbackAnon: "Gửi ẩn danh, không cần đăng nhập.",
   feedbackSend: "Gửi",
   feedbackSending: "Đang gửi…",

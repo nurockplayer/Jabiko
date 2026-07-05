@@ -52,6 +52,8 @@ export const zhHant: Copy = {
   feedbackKind: { wish: "許願功能", bug: "回報問題", other: "其他" },
   feedbackPlaceholder: "想許什麼願、遇到什麼問題，都可以直接說（匿名）…",
   feedbackContact: "聯絡方式（選填，想收到回覆再留）",
+  feedbackWantsReply: "希望收到回信",
+  feedbackWantsReplyHint: "已登入會用你的帳號回覆；未登入請在下方留聯絡方式。",
   feedbackAnon: "匿名送出，不需登入。",
   feedbackSend: "送出",
   feedbackSending: "送出中…",

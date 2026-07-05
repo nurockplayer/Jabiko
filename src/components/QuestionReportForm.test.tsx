@@ -63,6 +63,15 @@ describe("QuestionReportForm", () => {
     expect(arg.message).toContain("題目回報");
   });
 
+  it("sends wantsReply=true when the reply checkbox is ticked (#468)", async () => {
+    const submit = vi.fn().mockResolvedValue(undefined);
+    renderForm({ submit });
+    fireEvent.click(screen.getByRole("checkbox", { name: "希望收到回信" }));
+    fireEvent.click(screen.getByRole("button", { name: "送出回報" }));
+    await waitFor(() => expect(submit).toHaveBeenCalled());
+    expect(submit.mock.calls[0][0].wantsReply).toBe(true);
+  });
+
   it("packs the selected reason and free-text detail into the message", async () => {
     const submit = vi.fn().mockResolvedValue(undefined);
     renderForm({ submit });
