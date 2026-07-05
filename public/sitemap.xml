@@ -601,7 +601,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://jabiko.app/blog/oshikatsu-slang-nyumon</loc>
+    <loc>https://jabiko.app/blog/sweet-step-steady</loc>
+    <lastmod>2026-07-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://jabiko.app/blog/cho-saikyo-tokimeki</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

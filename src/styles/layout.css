@@ -225,17 +225,21 @@
 /* Top nav is a horizontal, wrapping bar -- the compound selector beats the
    shared `.segmented` 2-col grid (challenge.css) without touching the
    in-panel pickers that still use that grid. Buttons hug their labels and
-   wrap to a second row on narrow screens instead of stacking 4 rows tall. */
+   wrap to a second row on narrow screens instead of stacking 4 rows tall.
+   The cap gives the zh-Hant nav (9 items: adds 文型 + 文章, both with icons)
+   room to sit on one row on desktop; below it, flex-wrap + centre keep a
+   wrapped row tidy instead of leaving one button stranded. */
 .view-switch.segmented {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  max-width: 760px;
+  gap: 0.5rem;
+  max-width: 960px;
 }
 
 .view-switch.segmented button {
   flex: 0 1 auto;
-  padding-inline: 1.1rem;
+  padding-inline: 0.9rem;
 }
 
 .view-switch button {
