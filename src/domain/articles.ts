@@ -93,22 +93,10 @@ const BODIES: Record<string, ReadonlyArray<ArticleBlock>> = {
         }
       ]
     },
-    { kind: "heading", text: "SNS 上天天刷到的說法" },
+    { kind: "heading", text: "去「現場」會用到的" },
     {
       kind: "vocab",
       items: [
-        {
-          word: "レベチ",
-          reading: "レベチ",
-          meaning: "「レベルが違う」的縮寫——等級不同、遙遙領先。",
-          note: "誇實力或顏值。例：あの子、可愛さがレベチ（那孩子的可愛程度不是同一個檔次）。"
-        },
-        {
-          word: "エモい",
-          reading: "エモい",
-          meaning: "來自英文 emotional，形容又美又感傷、觸動情緒。",
-          note: "常用在畫面、瞬間、歌。例：この曲、めっちゃエモい（這首歌超有感）。"
-        },
         {
           word: "現場",
           reading: "げんば",
@@ -126,6 +114,28 @@ const BODIES: Record<string, ReadonlyArray<ArticleBlock>> = {
           reading: "きょうきゅう",
           meaning: "官方／偶像釋出的內容（照片、影片、活動）。",
           note: "「供給が多い」＝官方很寵粉；「供給が足りない」＝內容不夠看。"
+        }
+      ]
+    },
+    { kind: "heading", text: "順便補：這些不只偶像圈，是當代通用流行語" },
+    {
+      kind: "paragraph",
+      text: "下面兩個嚴格說不是偶像圈專用，而是這幾年年輕人到處在用的日文——但你追星、逛 SNS 一定也會一直撞到，順手記起來。"
+    },
+    {
+      kind: "vocab",
+      items: [
+        {
+          word: "レベチ",
+          reading: "レベチ",
+          meaning: "「レベルが違う」的縮寫——等級不同、遙遙領先。",
+          note: "誇實力或顏值。例：あの子、可愛さがレベチ（那孩子的可愛程度不是同一個檔次）。"
+        },
+        {
+          word: "エモい",
+          reading: "エモい",
+          meaning: "來自英文 emotional，形容又美又感傷、觸動情緒。",
+          note: "常用在畫面、瞬間、歌。例：この曲、めっちゃエモい（這首歌超有感）。"
         }
       ]
     },
