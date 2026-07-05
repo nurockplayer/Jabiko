@@ -26,7 +26,7 @@ export interface ArticleMeta {
 export const articleMetas: ReadonlyArray<ArticleMeta> = [
   {
     slug: "sweet-step-steady",
-    title: "從「SWEET STEP」學日文：ありのままの自我摸索曲",
+    title: "從「SWEET STEP」學日文：在 ありのまま 裡找真正的自己",
     description:
       "SWEET STEADY〈SWEET STEP〉唱的是「其實我也不知道真正的自己」——ありのまま、妄想、取り繕う、キュン⋯⋯挑 20 幾個歌裡的日文點來學，例句全原創，附官方 MV 連結。",
     tag: "偶像",
