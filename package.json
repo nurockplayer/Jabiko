@@ -16,7 +16,8 @@
     "check:i18n": "node scripts/check-i18n-coverage.mjs",
     "build:furigana": "node scripts/build-furigana.mjs",
     "optimize-hero": "node scripts/optimize-hero.mjs",
-    "pre": "pnpm build"
+    "pre": "pnpm build",
+    "build:sitemap": "node scripts/build-sitemap.mjs"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm build"
