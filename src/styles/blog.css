@@ -1,0 +1,337 @@
+/* 文章 / blog (#483). A reading layout that mirrors the 關於 page: a prominent
+   "what this section is" hero, article cards, and a paper-card article body.
+   Tokenised so dark mode comes free. */
+.blog-index,
+.blog-article {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.blog-back {
+  align-self: flex-start;
+}
+
+/* The "標示這區" hero: positioning + what to expect + still-growing note. */
+.blog-hero {
+  background: var(--paper-deep);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--teal);
+  border-radius: var(--radius-lg);
+  padding: 1.3rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.blog-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  color: var(--teal);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.blog-hero h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--ink);
+}
+
+.blog-hero-intro {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.85;
+  font-size: 0.98rem;
+}
+
+.blog-hero-topics {
+  list-style: none;
+  padding: 0;
+  margin: 0.2rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.blog-hero-topics li {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-pill);
+  padding: 0.22rem 0.7rem;
+  font-size: 0.82rem;
+  color: var(--matcha-dark);
+  font-weight: 600;
+}
+
+.blog-hero-note {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+/* Article cards */
+.blog-card-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.blog-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  text-align: left;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  padding: 1.05rem 1.2rem;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+.blog-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+  border-color: var(--panel-border);
+}
+
+.blog-card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.blog-card-tag {
+  background: rgba(15, 118, 110, 0.1);
+  color: var(--teal-dark);
+  border-radius: var(--radius-pill);
+  padding: 0.15rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.blog-card-draft {
+  background: rgba(183, 121, 31, 0.14);
+  color: var(--gold);
+  border-radius: var(--radius-pill);
+  padding: 0.15rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.blog-card-date {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.blog-card-title {
+  margin: 0;
+  font-size: 1.12rem;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.blog-card-desc {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+.blog-card-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--teal);
+  font-size: 0.86rem;
+  font-weight: 600;
+  margin-top: 0.15rem;
+}
+
+/* Article body */
+.blog-article-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.blog-article-title {
+  margin: 0;
+  font-size: 1.7rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.blog-article-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.blog-lead {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.blog-heading {
+  margin: 0.6rem 0 0;
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+
+.blog-paragraph {
+  margin: 0;
+  font-size: 0.96rem;
+  line-height: 1.9;
+  color: var(--ink);
+}
+
+.blog-callout {
+  background: var(--paper-deep);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--gold);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1.1rem;
+  font-size: 0.92rem;
+  line-height: 1.85;
+  color: var(--ink);
+}
+
+/* Vocab table */
+.blog-vocab {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  padding: 0.4rem 1.1rem;
+}
+
+.blog-vocab-list {
+  margin: 0;
+}
+
+.blog-vocab-item {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.blog-vocab-item:last-child {
+  border-bottom: none;
+}
+
+.blog-vocab-term {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+
+.blog-vocab-word {
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--ink);
+  font-family: var(--font-japanese-ui);
+}
+
+.blog-vocab-reading {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-family: var(--font-japanese-ui);
+}
+
+.blog-vocab-gloss {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.blog-vocab-meaning {
+  color: var(--ink);
+  font-size: 0.93rem;
+  line-height: 1.7;
+}
+
+.blog-vocab-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.75;
+}
+
+/* Lyric commentary */
+.blog-lyric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.blog-lyric-frag {
+  margin: 0;
+  background: var(--paper-deep);
+  border-left: 3px solid var(--matcha);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1rem;
+  font-family: var(--font-japanese-display);
+  font-size: 1.02rem;
+  color: var(--ink);
+}
+
+.blog-lyric-points {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.blog-lyric-points li {
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: var(--ink);
+}
+
+/* Closing CTA */
+.blog-cta-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.6rem;
+  padding: 1.1rem;
+  background: var(--paper-deep);
+  border-radius: var(--radius-lg);
+}
+
+.blog-cta {
+  max-width: 100%;
+}
+
+.blog-cta-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.blog-not-found {
+  color: var(--muted);
+  text-align: center;
+  padding: 2rem 0;
+}

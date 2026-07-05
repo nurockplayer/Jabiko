@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { BookOpen, ChevronDown, Globe, Languages, MessageCircle, Moon, Sun } from "lucide-react";
+import { BookOpen, ChevronDown, Globe, Languages, MessageCircle, Moon, Newspaper, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import type { JlptLevel } from "./domain/types";
@@ -58,8 +58,17 @@ const GrammarPointPage = lazy(() =>
 const GrammarIndexPage = lazy(() =>
   import("./components/GrammarIndexPage").then((module) => ({ default: module.GrammarIndexPage }))
 );
+// 文章 / blog (#483). Its article data (domain/articles) is zh-Hant content;
+// lazy + imported straight from the module keeps that prose off the initial
+// bundle, and the whole view is gated to zh-Hant below.
+const BlogIndexPage = lazy(() =>
+  import("./components/BlogIndexPage").then((module) => ({ default: module.BlogIndexPage }))
+);
+const BlogArticlePage = lazy(() =>
+  import("./components/BlogArticlePage").then((module) => ({ default: module.BlogArticlePage }))
+);
 
-type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about" | "grammar";
+type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about" | "grammar" | "blog";
 type DrillPreset = LearningBlockDrillPreset;
 
 // The LAUNCHED locales, in menu order, for the header language picker. Each
@@ -83,7 +92,9 @@ const VIEW_PATHS: Record<AppView, string> = {
   about: "/about",
   // Base path; the live grammar route carries a surface segment (see parseRoute
   // / pathForView). Bare /grammar with no surface falls back to home.
-  grammar: "/grammar"
+  grammar: "/grammar",
+  // Blog index; individual articles carry a slug segment (/blog/<slug>).
+  blog: "/blog"
 };
 
 function viewFromPath(pathname: string): AppView {
@@ -96,7 +107,11 @@ function viewFromPath(pathname: string): AppView {
 // Per-grammar-point study pages (#281) live at /grammar/<encoded-surface>, the
 // one dynamic route. parseRoute pulls both the view and (for grammar) the
 // decoded surface off the path; pathForView is its inverse for URL sync.
-function parseRoute(pathname: string): { view: AppView; grammarSurface: string | null } {
+function parseRoute(pathname: string): {
+  view: AppView;
+  grammarSurface: string | null;
+  blogSlug: string | null;
+} {
   const grammar = pathname.match(/^\/grammar\/(.+)$/);
   if (grammar) {
     let surface = grammar[1];
@@ -105,14 +120,28 @@ function parseRoute(pathname: string): { view: AppView; grammarSurface: string |
     } catch {
       // Malformed escape -- keep the raw segment rather than throwing.
     }
-    return { view: "grammar", grammarSurface: surface };
+    return { view: "grammar", grammarSurface: surface, blogSlug: null };
   }
-  return { view: viewFromPath(pathname), grammarSurface: null };
+  // Individual article route /blog/<slug> (#483); bare /blog is the index.
+  const blog = pathname.match(/^\/blog\/(.+)$/);
+  if (blog) {
+    let slug = blog[1];
+    try {
+      slug = decodeURIComponent(slug);
+    } catch {
+      // Malformed escape -- keep the raw segment.
+    }
+    return { view: "blog", grammarSurface: null, blogSlug: slug };
+  }
+  return { view: viewFromPath(pathname), grammarSurface: null, blogSlug: null };
 }
 
-function pathForView(view: AppView, grammarSurface: string | null): string {
+function pathForView(view: AppView, grammarSurface: string | null, blogSlug: string | null): string {
   if (view === "grammar" && grammarSurface) {
     return `/grammar/${encodeURIComponent(grammarSurface)}`;
+  }
+  if (view === "blog" && blogSlug) {
+    return `/blog/${encodeURIComponent(blogSlug)}`;
   }
   return VIEW_PATHS[view];
 }
@@ -122,6 +151,10 @@ export default function App() {
   // The grammar-point surface for the active /grammar/<surface> route (#281).
   const [grammarSurface, setGrammarSurface] = useState<string | null>(
     () => parseRoute(window.location.pathname).grammarSurface
+  );
+  // The article slug for the active /blog/<slug> route (#483); null = index.
+  const [blogSlug, setBlogSlug] = useState<string | null>(
+    () => parseRoute(window.location.pathname).blogSlug
   );
 
   // Open a grammar point's study page (#282): from the post-answer feedback's
@@ -142,11 +175,11 @@ export default function App() {
   // Keep the URL in sync when the view changes (push a history entry only
   // when the path actually differs, so popstate-driven changes don't loop).
   useEffect(() => {
-    const target = pathForView(appView, grammarSurface);
+    const target = pathForView(appView, grammarSurface, blogSlug);
     if (window.location.pathname !== target) {
       window.history.pushState({ view: appView }, "", target);
     }
-  }, [appView, grammarSurface]);
+  }, [appView, grammarSurface, blogSlug]);
 
   // Back/forward: read the view (and grammar surface) back off the URL.
   useEffect(() => {
@@ -154,6 +187,7 @@ export default function App() {
       const route = parseRoute(window.location.pathname);
       setAppView(route.view);
       setGrammarSurface(route.grammarSurface);
+      setBlogSlug(route.blogSlug);
       // Restore the drill from a /challenge?mode=&level= deep link on back/forward.
       if (route.view === "challenge") {
         setLaunch(challengeInitFromQuery(window.location.search));
@@ -165,7 +199,7 @@ export default function App() {
 
   // Per-view <title>/description/canonical/og so each route surfaces its own
   // metadata to crawlers (SPA otherwise shares one static shell). See seo.ts.
-  useSeoMeta(appView, grammarSurface);
+  useSeoMeta(appView, grammarSurface, blogSlug);
 
   // One-time localStorage pull from jabiko.pages.dev after the domain move
   // (#jabiko-app-domain); no-op everywhere except a fresh jabiko.app visit.
@@ -200,6 +234,18 @@ export default function App() {
       setAppView("home");
     }
   }, [appView, grammarIndexAvailable, grammarSurface, isGrammarLevelRoute]);
+
+  // #483: the 文章 blog is zh-Hant-only original content (流行語 / 推し活 /
+  // 歌詞解說…), so both the nav entry and the view are gated to zh-Hant like
+  // the grammar index. A non-zh visitor who deep-links /blog or /blog/<slug>
+  // gets sent home rather than an empty shell.
+  const blogAvailable = language === "zh-Hant";
+  useEffect(() => {
+    if (appView === "blog" && !blogAvailable) {
+      setBlogSlug(null);
+      setAppView("home");
+    }
+  }, [appView, blogAvailable]);
   // Language picker, opened from the header Globe button (#326).
   const [langPickerOpen, setLangPickerOpen] = useState(false);
   // Persistent feedback entry (#456): the suggestion box was only reachable from
@@ -436,6 +482,17 @@ export default function App() {
             {t.grammar}
           </button>
         ) : null}
+        {blogAvailable ? (
+          <button
+            type="button"
+            className={appView === "blog" ? "selected" : ""}
+            aria-current={appView === "blog" ? "page" : undefined}
+            onClick={() => { setBlogSlug(null); setAppView("blog"); }}
+          >
+            <Newspaper aria-hidden="true" size={16} style={{ verticalAlign: "middle", marginRight: "0.2rem" }} />
+            {t.blog}
+          </button>
+        ) : null}
         <button
           type="button"
           className={appView === "challenge" ? "selected" : ""}
@@ -536,6 +593,27 @@ export default function App() {
               setAppView("grammar");
             }}
             onNavigate={(surface) => setGrammarSurface(surface)}
+          />
+        </Suspense>
+      ) : appView === "blog" && blogSlug === null ? (
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <BlogIndexPage
+            language={language}
+            onOpenArticle={(slug) => setBlogSlug(slug)}
+            onBack={() => setAppView("home")}
+          />
+        </Suspense>
+      ) : appView === "blog" ? (
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <BlogArticlePage
+            slug={blogSlug ?? ""}
+            language={language}
+            onBack={() => setBlogSlug(null)}
+            onCta={(cta) =>
+              cta.kind === "challenge"
+                ? openChallenge({ mode: cta.mode })
+                : openGrammar(cta.surface)
+            }
           />
         </Suspense>
       ) : (

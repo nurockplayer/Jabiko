@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { SITE_ORIGIN, VIEW_SEO, seoForView, type SeoView } from "./seo";
 
 // The static-route views (every SeoView except the dynamic "grammar" route).
+// "blog" has a static index entry (VIEW_SEO.blog) plus a dynamic /blog/<slug>
+// variant, tested separately below like grammar.
 const VIEWS: Exclude<SeoView, "grammar">[] = [
   "home",
   "learn",
@@ -9,7 +11,8 @@ const VIEWS: Exclude<SeoView, "grammar">[] = [
   "kanji",
   "challenge",
   "mock",
-  "about"
+  "about",
+  "blog"
 ];
 
 describe("seo", () => {
@@ -62,6 +65,30 @@ describe("seo", () => {
   it("falls back to grammar-index metadata if a grammar view arrives with no surface", () => {
     expect(seoForView("grammar").title).toContain("文型資料庫");
     expect(seoForView("grammar").canonical).toBe(`${SITE_ORIGIN}/grammar`);
+  });
+
+  // The /blog/<slug> route is dynamic (#483): per-article title/description/
+  // canonical from the (lightweight) article metadata.
+  describe("blog article routes", () => {
+    it("builds per-article metadata for a /blog/<slug> route", () => {
+      const resolved = seoForView("blog", null, "oshikatsu-slang-nyumon");
+      expect(resolved.title).toContain("推し活");
+      expect(resolved.title).toMatch(/Jabiko/);
+      expect(resolved.description.length).toBeGreaterThan(20);
+      expect(resolved.description.length).toBeLessThanOrEqual(160);
+      expect(resolved.canonical).toBe(`${SITE_ORIGIN}/blog/oshikatsu-slang-nyumon`);
+    });
+
+    it("falls back to the blog index SEO for an unknown slug", () => {
+      const resolved = seoForView("blog", null, "does-not-exist");
+      expect(resolved.canonical).toBe(`${SITE_ORIGIN}/blog`);
+      expect(resolved.title).toContain("文章");
+    });
+
+    it("uses the blog index SEO for the bare /blog route", () => {
+      expect(seoForView("blog").canonical).toBe(`${SITE_ORIGIN}/blog`);
+      expect(seoForView("blog").title).toContain("文章");
+    });
   });
 
   // /grammar/n5 – /grammar/n1 are level-index routes (#437), not grammar-point
