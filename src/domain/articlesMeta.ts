@@ -25,6 +25,15 @@ export interface ArticleMeta {
 
 export const articleMetas: ReadonlyArray<ArticleMeta> = [
   {
+    slug: "cho-saikyo-tokimeki",
+    title: "從「超最強」學日文：超ときめき♡宣伝部的推し活生字",
+    description:
+      "超ときめき♡宣伝部〈超最強〉根本是推し活生字大補帖——沼、布教、トレカ、ズッキュン⋯⋯挑 20+ 個歌裡的日文點，讀音意思語感一次學，例句全原創，完整歌詞看外連。",
+    tag: "偶像",
+    publishedAt: "2026-07-06",
+    draft: true
+  },
+  {
     slug: "oshikatsu-slang-nyumon",
     title: "推し活日文入門：10 個偶像圈一定會遇到的流行語",
     description:
