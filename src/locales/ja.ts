@@ -359,7 +359,8 @@ export const ja: Copy = {
     examN3: { title: "N3 対策", subtitle: "N3＋N4 総合問題 · 文法 / 短文 / 語彙 / 漢字読み" },
     examN4: { title: "N4 対策", subtitle: "N4＋N5 総合問題 · 助詞 / 基礎文法 / 語彙 / 漢字読み" },
     vocab: { title: "単語の読み", subtitle: "N1/N2 の漢字語 · 正しいよみを選ぶ" },
-    review: { title: "弱点復習", subtitle: "前回間違えた問題を、正解できるまで練習" }
+    review: { title: "弱点復習", subtitle: "前回間違えた問題を、正解できるまで練習" },
+    bookmarks: { title: "お気に入り", subtitle: "ブックマークした問題をもう一度練習" }
   },
   modeQuestionCount: (count) => `問題集 ${count} 問`,
   homeCardVocabTitle: "単語の読み",
@@ -374,6 +375,9 @@ export const ja: Copy = {
   dashboardStatsAccuracy: (percent) => `総正答率 ${percent}%`,
   reviewEmptyState: "今のところ期限の来た間違いはありません。総合問題集で何問か解いて、少し溜めてから復習に戻りましょう。",
   reviewEmptyCta: "総合問題集へ",
+  bookmarkAdd: "お気に入り",
+  bookmarkRemove: "お気に入り済み",
+  bookmarksEmptyState: "まだお気に入りの問題がありません。解答後に星マークを押すと、ここに保存していつでも復習できます。",
   reviewDoneTitle: "復習完了！",
   reviewDoneBody: (cleared, remaining) =>
     `この一巡で ${cleared + remaining} 問を復習し、正解 ${cleared} 問、あと ${remaining} 問の練習が必要です。正解した問題は後ろに回り、間違えた問題は次の復習でまた出てきます。`,

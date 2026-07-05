@@ -351,7 +351,8 @@ export const en: Copy = {
     examN3: { title: "N3 prep", subtitle: "N3＋N4 mixed · grammar / passages / vocabulary / kanji readings" },
     examN4: { title: "N4 prep", subtitle: "N4＋N5 mixed · particles / basic grammar / vocabulary / kanji readings" },
     vocab: { title: "Vocabulary readings", subtitle: "N1/N2 kanji words · pick the correct reading (よみ)" },
-    review: { title: "Weakness review", subtitle: "Re-drill the questions you missed until you get them right" }
+    review: { title: "Weakness review", subtitle: "Re-drill the questions you missed until you get them right" },
+    bookmarks: { title: "Bookmarks", subtitle: "Re-drill the questions you've starred" }
   },
   modeQuestionCount: (count) => `${count} questions in pool`,
   homeCardVocabTitle: "Vocabulary readings",
@@ -366,6 +367,9 @@ export const en: Copy = {
   dashboardStatsAccuracy: (percent) => `${percent}% overall accuracy`,
   reviewEmptyState: "Nothing due for review right now. Drill a few in the full question bank, build some up, and come back to review.",
   reviewEmptyCta: "Go to the question bank",
+  bookmarkAdd: "Bookmark",
+  bookmarkRemove: "Bookmarked",
+  bookmarksEmptyState: "No bookmarks yet. After answering, tap the star to save a question here and re-drill it anytime.",
   reviewDoneTitle: "Review complete!",
   reviewDoneBody: (cleared, remaining) =>
     `You reviewed ${cleared + remaining} questions this round — ${cleared} correct, ${remaining} still to practice. Correct ones roll forward; missed ones come back next review.`,

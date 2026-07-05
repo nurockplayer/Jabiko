@@ -98,8 +98,8 @@ export function getMistakeQuestions(attempts: Attempt[], questions: PracticeQues
  *
  * Behaviour delta vs the previous binary version:
  *   - Old: wrong -> in queue, right -> out forever.
- *   - New: wrong -> box 0 (due now); right -> promote one box and
- *     re-schedule (1/3/7/14 days, capped at box 4). Items are
+ *   - New: wrong -> box 0 (rests, then due); right -> promote one box
+ *     and re-schedule (2/4/7/14/30 days, capped at box 4). Items are
  *     surfaced ONLY when dueAt <= now; resting items stay out of
  *     today's queue.
  *

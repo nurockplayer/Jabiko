@@ -351,7 +351,8 @@ export const id: Copy = {
     examN3: { title: "Persiapan N3", subtitle: "Soal komprehensif N3＋N4 · tata bahasa / teks pendek / kosakata / bacaan kanji" },
     examN4: { title: "Persiapan N4", subtitle: "Soal komprehensif N4＋N5 · partikel / tata bahasa dasar / kosakata / bacaan kanji" },
     vocab: { title: "Bacaan kosakata", subtitle: "Kata berkanji N1/N2 · pilih bacaan yang benar (よみ)" },
-    review: { title: "Ulang kelemahan", subtitle: "Latih ulang soal yang sebelumnya salah sampai benar" }
+    review: { title: "Ulang kelemahan", subtitle: "Latih ulang soal yang sebelumnya salah sampai benar" },
+    bookmarks: { title: "Markah", subtitle: "Latih ulang soal yang kamu bintangi" }
   },
   modeQuestionCount: (count) => `Bank soal ${count} soal`,
   homeCardVocabTitle: "Bacaan kosakata",
@@ -366,6 +367,9 @@ export const id: Copy = {
   dashboardStatsAccuracy: (percent) => `Akurasi total ${percent}%`,
   reviewEmptyState: "Saat ini tidak ada soal salah yang jatuh tempo. Latih beberapa soal di bank soal komprehensif, kumpulkan dulu, lalu kembali untuk mengulang.",
   reviewEmptyCta: "Ke bank soal komprehensif",
+  bookmarkAdd: "Simpan",
+  bookmarkRemove: "Tersimpan",
+  bookmarksEmptyState: "Belum ada markah. Setelah menjawab, ketuk bintang untuk menyimpan soal di sini dan latih ulang kapan saja.",
   reviewDoneTitle: "Ulangan selesai!",
   reviewDoneBody: (cleared, remaining) =>
     `Putaran ini mengulang ${cleared + remaining} soal, ${cleared} benar dan ${remaining} masih perlu dilatih lagi. Yang benar akan dijadwalkan ke nanti, yang salah akan muncul lagi pada ulangan berikutnya.`,

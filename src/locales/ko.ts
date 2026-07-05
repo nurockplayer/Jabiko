@@ -351,7 +351,8 @@ export const ko: Copy = {
     examN3: { title: "N3 대비", subtitle: "N3＋N4 혼합 · 문법 / 지문 / 어휘 / 한자 읽기" },
     examN4: { title: "N4 대비", subtitle: "N4＋N5 혼합 · 조사 / 기초 문법 / 어휘 / 한자 읽기" },
     vocab: { title: "어휘 읽기", subtitle: "N1/N2 한자어 · 올바른 읽기(よみ) 고르기" },
-    review: { title: "약점 복습", subtitle: "틀린 문제를 맞힐 때까지 다시 연습" }
+    review: { title: "약점 복습", subtitle: "틀린 문제를 맞힐 때까지 다시 연습" },
+    bookmarks: { title: "즐겨찾기", subtitle: "별표 표시한 문제를 다시 연습" }
   },
   modeQuestionCount: (count) => `풀에 ${count}문제`,
   homeCardVocabTitle: "어휘 읽기",
@@ -366,6 +367,9 @@ export const ko: Copy = {
   dashboardStatsAccuracy: (percent) => `전체 정답률 ${percent}%`,
   reviewEmptyState: "지금 복습 기한이 된 문제가 없어요. 전체 문제 은행에서 몇 문제 풀어 조금 쌓은 뒤 복습하러 돌아오세요.",
   reviewEmptyCta: "문제 은행으로 가기",
+  bookmarkAdd: "즐겨찾기",
+  bookmarkRemove: "저장됨",
+  bookmarksEmptyState: "아직 저장한 문제가 없어요. 문제를 푼 뒤 별표를 누르면 여기에 저장되어 언제든 다시 연습할 수 있어요.",
   reviewDoneTitle: "복습 완료!",
   reviewDoneBody: (cleared, remaining) =>
     `이번 회차에 ${cleared + remaining}문제를 복습했어요 — ${cleared}개 정답, ${remaining}개는 더 연습이 필요해요. 맞힌 것은 다음으로 넘어가고, 틀린 것은 다음 복습 때 다시 나와요.`,

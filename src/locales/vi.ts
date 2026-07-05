@@ -351,7 +351,8 @@ export const vi: Copy = {
     examN3: { title: "Ôn N3", subtitle: "Hỗn hợp N3＋N4 · ngữ pháp / đoạn văn / từ vựng / cách đọc kanji" },
     examN4: { title: "Ôn N4", subtitle: "Hỗn hợp N4＋N5 · trợ từ / ngữ pháp cơ bản / từ vựng / cách đọc kanji" },
     vocab: { title: "Cách đọc từ vựng", subtitle: "Từ kanji N1/N2 · chọn cách đọc đúng (よみ)" },
-    review: { title: "Ôn điểm yếu", subtitle: "Luyện lại những câu bạn làm sai cho đến khi đúng" }
+    review: { title: "Ôn điểm yếu", subtitle: "Luyện lại những câu bạn làm sai cho đến khi đúng" },
+    bookmarks: { title: "Mục đã lưu", subtitle: "Luyện lại những câu bạn đã đánh dấu" }
   },
   modeQuestionCount: (count) => `${count} câu trong kho`,
   homeCardVocabTitle: "Cách đọc từ vựng",
@@ -366,6 +367,9 @@ export const vi: Copy = {
   dashboardStatsAccuracy: (percent) => `Độ chính xác tổng ${percent}%`,
   reviewEmptyState: "Hiện không có câu nào đến hạn ôn. Hãy luyện vài câu trong ngân hàng đề đầy đủ, tích lũy thêm một ít, rồi quay lại ôn.",
   reviewEmptyCta: "Tới ngân hàng đề",
+  bookmarkAdd: "Lưu câu này",
+  bookmarkRemove: "Đã lưu",
+  bookmarksEmptyState: "Chưa có mục nào được lưu. Sau khi trả lời, hãy nhấn ngôi sao để lưu câu vào đây và luyện lại bất cứ lúc nào.",
   reviewDoneTitle: "Ôn tập hoàn tất!",
   reviewDoneBody: (cleared, remaining) =>
     `Vòng này bạn đã ôn ${cleared + remaining} câu — ${cleared} đúng, ${remaining} vẫn cần luyện thêm. Câu đúng được dời tới sau; câu sai sẽ quay lại ở lần ôn kế tiếp.`,
