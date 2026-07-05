@@ -1,7 +1,9 @@
+import { useEffect, useRef } from "react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
 import type { LevelRange } from "../domain/levelRange";
 import { usePracticeSession, type SessionInit } from "../hooks/usePracticeSession";
+import { trackEvent } from "../lib/analytics";
 import { ModePicker } from "./challenge/ModePicker";
 import { DrillPanel } from "./challenge/DrillPanel";
 import { ScoreReport } from "./challenge/ScoreReport";
@@ -42,6 +44,34 @@ export function ChallengePanel({
 }) {
   const t = copy[language];
   const session = usePracticeSession({ language, init, progressAttempts, recordAttempt, targetLevel });
+
+  // Phase 1 analytics (#404): fire practice_completed once when a finite
+  // session is exhausted (rising edge of sessionExhausted). resetSession
+  // brings sessionExhausted back to false, so the next completion re-fires.
+  // level uses "all" here (the per-session band is practiceMode-scoped, and
+  // the fixed mock-section level is already captured per-answer via
+  // answer_submitted).
+  const prevExhaustedRef = useRef(false);
+  useEffect(() => {
+    const exhausted = session.sessionExhausted;
+    if (!prevExhaustedRef.current && exhausted) {
+      trackEvent("practice_completed", {
+        source: session.practiceMode,
+        level: "all",
+        totalQuestions: session.sessionTotal ?? session.attempts.length,
+        correctCount: session.correctCount,
+        locale: language
+      });
+    }
+    prevExhaustedRef.current = exhausted;
+  }, [
+    session.sessionExhausted,
+    session.practiceMode,
+    session.sessionTotal,
+    session.attempts.length,
+    session.correctCount,
+    language
+  ]);
 
   return (
     <section className="practice-layout" aria-label="Jabiko practice">

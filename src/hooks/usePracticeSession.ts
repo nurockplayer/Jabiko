@@ -21,6 +21,7 @@ import { collectAttemptedIds } from "../domain/unattempted";
 import type { Attempt, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
 import { readStored, writeStored } from "../domain/safeStorage";
 import { copy, type Language } from "../i18n";
+import { trackEvent } from "../lib/analytics";
 import type { Feedback } from "../components/types";
 
 // Configurable practice-session length (#154). The endless drill modes
@@ -354,6 +355,7 @@ export function usePracticeSession({
   const handleLevelRangeChange = (nextRange: LevelRange) => {
     if (nextRange === levelRange) return;
     setLevelRange(nextRange);
+    trackEvent("level_changed", { scope: "session", levelRange: nextRange, locale: language });
     resetSession();
   };
 
@@ -378,6 +380,17 @@ export function usePracticeSession({
       status: attempt.isCorrect ? "correct" : "incorrect",
       question: currentQuestion,
       submittedAnswer: choice
+    });
+    // Phase 1 analytics (#404): metadata only — no question text, no user
+    // answer. questionType reuses practiceMode (a coarse, content-free label)
+    // to avoid leaking the question surface; level is the fixed mock-section
+    // level when present, else "all" (levelRange is a band, not a level).
+    trackEvent("answer_submitted", {
+      source: practiceMode,
+      level: practiceFilter.examSection?.level ?? "all",
+      questionType: practiceMode,
+      isCorrect: attempt.isCorrect,
+      locale: language
     });
   };
 

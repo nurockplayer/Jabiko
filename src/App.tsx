@@ -26,6 +26,7 @@ import type { SessionInit } from "./hooks/usePracticeSession";
 import { challengeInitFromQuery } from "./domain/challengeDeepLink";
 import { readLevelPreference, writeLevelPreference } from "./domain/levelPreference";
 import type { LevelRange } from "./domain/levelRange";
+import { trackEvent } from "./lib/analytics";
 import "./styles.css";
 
 // Lazy routes. The challenge view owns the practice engine, which
@@ -129,6 +130,7 @@ export default function App() {
   const openGrammar = (surface: string) => {
     setGrammarSurface(surface);
     setAppView("grammar");
+    trackEvent("study_page_viewed", { surface, locale: language });
   };
 
   // #437: determine whether the current grammar path points to a JLPT level
@@ -166,6 +168,14 @@ export default function App() {
   // Per-view <title>/description/canonical/og so each route surfaces its own
   // metadata to crawlers (SPA otherwise shares one static shell). See seo.ts.
   useSeoMeta(appView, grammarSurface);
+
+  // Phase 1 analytics (#404): one page_view per top-level view change.
+  // Keyed on appView only — grammar-surface drilldowns are covered by
+  // study_page_viewed (openGrammar), and locale changes by locale_changed,
+  // so neither re-fires page_view.
+  useEffect(() => {
+    trackEvent("page_view", { view: appView, locale: language });
+  }, [appView]); // language intentionally omitted: locale change fires locale_changed, not page_view
 
   // One-time localStorage pull from jabiko.pages.dev after the domain move
   // (#jabiko-app-domain); no-op everywhere except a fresh jabiko.app visit.
@@ -241,6 +251,7 @@ export default function App() {
   const handleChooseLevel = (range: LevelRange) => {
     writeLevelPreference(range);
     setTargetLevel(range);
+    trackEvent("level_changed", { scope: "global", levelRange: range, locale: language });
   };
 
   const themeToggleLabel = theme === "dark" ? t.themeLight : t.themeDark;
@@ -261,6 +272,18 @@ export default function App() {
     // no-op since the mounted panel ignores re-seeds.)
     setLaunch(request);
     setAppView("challenge");
+    // Phase 1 analytics (#404): every practice entry funnels through here.
+    // Weak-point review gets its own event so we can tell "open review" apart
+    // from "start a fresh drill"; payloads are metadata only (no question text).
+    if (request?.mode === "review") {
+      trackEvent("weak_review_started", { dueCount: reviewCount, locale: language });
+    } else {
+      trackEvent("practice_started", {
+        source: request?.mode ?? "daily",
+        levelRange: request?.levelRange,
+        locale: language
+      });
+    }
   };
 
   const startDrill = (preset: DrillPreset) => {
@@ -285,6 +308,7 @@ export default function App() {
           current={language}
           options={LANGUAGE_OPTIONS}
           onChoose={(code) => {
+            trackEvent("locale_changed", { from: language, to: code });
             setLanguage(code);
             setLangPickerOpen(false);
           }}
