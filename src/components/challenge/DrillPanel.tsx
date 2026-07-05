@@ -50,6 +50,7 @@ export function DrillPanel({
   practiceMode,
   currentQuestion,
   reviewEmpty,
+  bookmarksEmpty,
   sessionExhausted,
   choiceOptions,
   correctCount,
@@ -61,6 +62,8 @@ export function DrillPanel({
   resetSession,
   revealAnswer,
   handleDrillKeyDown,
+  isQuestionBookmarked,
+  onToggleBookmark,
   onExit,
   onOpenGrammar
 }: Pick<
@@ -73,6 +76,7 @@ export function DrillPanel({
   | "practiceMode"
   | "currentQuestion"
   | "reviewEmpty"
+  | "bookmarksEmpty"
   | "sessionExhausted"
   | "choiceOptions"
   | "correctCount"
@@ -84,6 +88,8 @@ export function DrillPanel({
   | "resetSession"
   | "revealAnswer"
   | "handleDrillKeyDown"
+  | "isQuestionBookmarked"
+  | "onToggleBookmark"
 > & { language: Language; onExit: () => void; onOpenGrammar?: (surface: string) => void }) {
   const t = copy[language];
 
@@ -226,6 +232,8 @@ export function DrillPanel({
               language={language}
               options={choiceOptions}
               onOpenGrammar={onOpenGrammar}
+              bookmarked={isQuestionBookmarked(feedback.question.id)}
+              onToggleBookmark={() => onToggleBookmark(feedback.question.id)}
             />
           ) : null}
         </>
@@ -248,6 +256,28 @@ export function DrillPanel({
         <div className="empty-state review-done">
           <TeaCupSpot />
           <p>{t.reviewEmptyState}</p>
+          <div className="review-done-actions">
+            <button
+              className="next-button"
+              type="button"
+              onClick={() => {
+                setPracticeMode("exam");
+                setPracticeFilter({});
+                resetSession();
+              }}
+            >
+              <ArrowRight aria-hidden="true" />
+              {t.reviewEmptyCta}
+            </button>
+            <button className="ghost-button" type="button" onClick={onExit}>
+              {t.reviewDoneExit}
+            </button>
+          </div>
+        </div>
+      ) : bookmarksEmpty ? (
+        <div className="empty-state review-done">
+          <TeaCupSpot />
+          <p>{t.bookmarksEmptyState}</p>
           <div className="review-done-actions">
             <button
               className="next-button"

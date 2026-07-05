@@ -323,6 +323,10 @@ export type Copy = {
   dashboardStatsAccuracy: (percent: number) => string;
   reviewEmptyState: string;
   reviewEmptyCta: string;
+  // ---- Bookmarks (#470) -----------------------------------------------------
+  bookmarkAdd: string;
+  bookmarkRemove: string;
+  bookmarksEmptyState: string;
   reviewDoneTitle: string;
   reviewDoneBody: (cleared: number, remaining: number) => string;
   reviewDoneAgain: string;

@@ -152,6 +152,7 @@ export type PracticePoolParams = {
   isReviewFocus: boolean;
   isVocabFocus: boolean;
   isDailyFocus: boolean;
+  isBookmarksFocus: boolean;
   examSection?: { level: MockExamLevel; promptLabel: string };
   patternIds?: SentencePatternId[];
   partOfSpeech: PartOfSpeech | "mixed";
@@ -162,6 +163,10 @@ export type PracticePoolParams = {
   // review and 今日練習 branches. The hook passes the value captured when
   // its `questions` memo last ran (mode change / explicit reset).
   reviewQueue: PracticeQuestion[];
+  // Snapshot of the learner's bookmarked questions (#470), taken at session
+  // start like reviewQueue. Materialised in the hook (allKnownQuestions
+  // filtered by the stored bookmark ids) so this stays a pure function.
+  bookmarkedQuestions: PracticeQuestion[];
   // Cap for the endless drill modes (exam / cloze / pattern / vocab /
   // basic): the learner picks a session length (#154) and we slice the
   // shuffled pool down to it so the session is finite. null / undefined /
@@ -187,6 +192,7 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     isReviewFocus,
     isVocabFocus,
     isDailyFocus,
+    isBookmarksFocus,
     examSection,
     patternIds,
     partOfSpeech,
@@ -194,6 +200,7 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     targetForms,
     levelRange,
     reviewQueue,
+    bookmarkedQuestions,
     sessionLength,
     attemptedIds
   } = params;
@@ -288,6 +295,13 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     // mode); the live reviewQueue stays excluded from the deps below. The
     // fresh portion is narrowed to the learner's target band (#199).
     return composeDailySet(reviewQueue, levelRange);
+  }
+
+  if (isBookmarksFocus) {
+    // 收藏 mode (#470): a finite pass over the learner's starred questions,
+    // in add-order (getBookmarkedIds order). Snapshot at session start like
+    // review -- toggling a star mid-session doesn't reshuffle the live pass.
+    return bookmarkedQuestions;
   }
 
   return cap(

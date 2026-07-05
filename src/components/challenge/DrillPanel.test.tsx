@@ -35,6 +35,7 @@ function renderPanel(language: Language) {
       practiceMode="basic"
       currentQuestion={question}
       reviewEmpty={false}
+      bookmarksEmpty={false}
       sessionExhausted={false}
       choiceOptions={["書いて", "書いた", "書かない", "書きます"]}
       correctCount={0}
@@ -46,6 +47,8 @@ function renderPanel(language: Language) {
       resetSession={vi.fn()}
       revealAnswer={vi.fn()}
       handleDrillKeyDown={vi.fn()}
+      isQuestionBookmarked={() => false}
+      onToggleBookmark={vi.fn()}
       onExit={vi.fn()}
     />
   );

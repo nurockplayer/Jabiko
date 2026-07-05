@@ -18,6 +18,7 @@ import {
   uniqueForms
 } from "../domain/sessionPools";
 import { collectAttemptedIds } from "../domain/unattempted";
+import { getBookmarkedIds, toggleBookmark } from "../domain/bookmarks";
 import type { Attempt, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
 import { readStored, writeStored } from "../domain/safeStorage";
 import { copy, type Language } from "../i18n";
@@ -171,12 +172,20 @@ export function usePracticeSession({
   const isReviewFocus = practiceMode === "review";
   const isVocabFocus = practiceMode === "vocab";
   const isDailyFocus = practiceMode === "daily";
+  const isBookmarksFocus = practiceMode === "bookmarks";
   const isCuratedFocus =
-    isExamFocus || isClozeFocus || isPatternFocus || isReviewFocus || isVocabFocus || isDailyFocus;
+    isExamFocus ||
+    isClozeFocus ||
+    isPatternFocus ||
+    isReviewFocus ||
+    isVocabFocus ||
+    isDailyFocus ||
+    isBookmarksFocus;
   // The session-length picker applies to the endless drill modes (exam /
-  // cloze / pattern / vocab / basic). review clears the whole due queue
-  // and 今日練習 is already a fixed ~20 set, so neither is capped.
-  const showSessionLength = !isReviewFocus && !isDailyFocus;
+  // cloze / pattern / vocab / basic). review clears the whole due queue,
+  // 今日練習 is already a fixed ~20 set, and 收藏 is a finite pass over the
+  // saved set (#470), so none of them is capped.
+  const showSessionLength = !isReviewFocus && !isDailyFocus && !isBookmarksFocus;
   const isCapped = showSessionLength && sessionLength != null;
   // The level-range picker applies to the 綜合考題庫 (exam with no fixed
   // section) and 単字 pools -- the two banks with JLPT-tagged items. A
@@ -197,6 +206,22 @@ export function usePracticeSession({
     () => getReviewQueue(progressAttempts, allKnownQuestions),
     [progressAttempts, allKnownQuestions]
   );
+
+  // Bookmarks (#470). localStorage has no change events we subscribe to, so
+  // a version counter (bumped by onToggleBookmark) is what re-reads the
+  // stored ids -- keeping the mode-card count and the 收藏 pool reactive to
+  // the learner's own stars without a live storage listener.
+  const [bookmarkVersion, setBookmarkVersion] = useState(0);
+  const bookmarkedIds = useMemo(() => new Set(getBookmarkedIds()), [bookmarkVersion]);
+  const bookmarkedQuestions = useMemo(
+    () => allKnownQuestions.filter((question) => bookmarkedIds.has(question.id)),
+    [allKnownQuestions, bookmarkedIds]
+  );
+  const isQuestionBookmarked = (questionId: string) => bookmarkedIds.has(questionId);
+  const onToggleBookmark = (questionId: string) => {
+    toggleBookmark(questionId);
+    setBookmarkVersion((version) => version + 1);
+  };
 
   // Snapshot of every question the learner has attempted, so the exam pool
   // surfaces 新題 (unattempted) first (#385). Like reviewQueue it's fed into
@@ -248,6 +273,7 @@ export function usePracticeSession({
         isReviewFocus,
         isVocabFocus,
         isDailyFocus,
+        isBookmarksFocus,
         examSection: practiceFilter.examSection,
         patternIds: practiceFilter.patternIds,
         partOfSpeech,
@@ -255,6 +281,7 @@ export function usePracticeSession({
         targetForms,
         levelRange,
         reviewQueue,
+        bookmarkedQuestions,
         sessionLength,
         attemptedIds
       });
@@ -279,6 +306,7 @@ export function usePracticeSession({
       isReviewFocus,
       isVocabFocus,
       isDailyFocus,
+      isBookmarksFocus,
       practiceFilter.patternIds,
       practiceFilter.examSection,
       partOfSpeech,
@@ -298,11 +326,12 @@ export function usePracticeSession({
   // A capped endless mode (#154) also becomes a finite pass: walk the
   // sliced pool once, then show the completion screen ("再來一組" reshuffles
   // a fresh capped set via resetSession).
-  const isFinitePass = isReviewFocus || isDailyFocus || isCapped;
+  const isFinitePass = isReviewFocus || isDailyFocus || isBookmarksFocus || isCapped;
   const currentQuestion = isFinitePass
     ? questions[questionIndex] ?? null
     : selectQuestion(questions, questionIndex);
   const reviewEmpty = isReviewFocus && questions.length === 0;
+  const bookmarksEmpty = isBookmarksFocus && questions.length === 0;
   const sessionExhausted =
     isFinitePass && questions.length > 0 && questionIndex >= questions.length;
   // Total for the "N / total" progress readout: known for finite passes
@@ -480,9 +509,13 @@ export function usePracticeSession({
     focusSummary,
     activeModeCopyKey,
     reviewQueue,
+    bookmarkedQuestions,
+    isQuestionBookmarked,
+    onToggleBookmark,
     modeCounts,
     currentQuestion,
     reviewEmpty,
+    bookmarksEmpty,
     sessionExhausted,
     choiceOptions,
     mistakeQuestions,

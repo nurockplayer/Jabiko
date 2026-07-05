@@ -337,7 +337,8 @@ export const zhHant: Copy = {
     examN3: { title: "N3 備考", subtitle: "N3＋N4 綜合題 · 文法 / 短文 / 詞彙 / 漢字読み" },
     examN4: { title: "N4 備考", subtitle: "N4＋N5 綜合題 · 助詞 / 基礎文法 / 詞彙 / 漢字読み" },
     vocab: { title: "単字讀音", subtitle: "N1/N2 漢字詞 · 選正確讀音（よみ）" },
-    review: { title: "弱點複習", subtitle: "把上次答錯的題目重練到對為止" }
+    review: { title: "弱點複習", subtitle: "把上次答錯的題目重練到對為止" },
+    bookmarks: { title: "我的收藏", subtitle: "重練你星標收藏的題目" }
   },
   modeQuestionCount: (count) => `題庫 ${count} 題`,
   homeCardVocabTitle: "単字讀音",
@@ -352,6 +353,9 @@ export const zhHant: Copy = {
   dashboardStatsAccuracy: (percent) => `總正答率 ${percent}%`,
   reviewEmptyState: "目前沒有到期的錯題。去綜合題庫練幾題、累積一些再回來複習吧。",
   reviewEmptyCta: "去綜合題庫",
+  bookmarkAdd: "收藏此題",
+  bookmarkRemove: "已收藏",
+  bookmarksEmptyState: "還沒有收藏任何題目。答題後點下方的星號，就能把題目收進這裡，隨時回來重練。",
   reviewDoneTitle: "複習完成！",
   reviewDoneBody: (cleared, remaining) =>
     `這一輪複習了 ${cleared + remaining} 題，答對 ${cleared}、還要再練 ${remaining}。答對的會排到之後，答錯的下次複習會再出現。`,

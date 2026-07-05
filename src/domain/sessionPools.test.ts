@@ -28,11 +28,13 @@ function poolParams(overrides: Partial<PracticePoolParams> = {}): PracticePoolPa
     isReviewFocus: false,
     isVocabFocus: false,
     isDailyFocus: false,
+    isBookmarksFocus: false,
     partOfSpeech: "verb",
     verbGroup: "godan",
     targetForms: ["te"],
     levelRange: "all",
     reviewQueue: [],
+    bookmarkedQuestions: [],
     ...overrides
   };
 }
@@ -181,6 +183,22 @@ describe("buildPracticeQuestions", () => {
     );
 
     expect(questions).toBe(snapshot);
+  });
+
+  it("bookmarks mode: returns the bookmarked snapshot verbatim (add-order, no shuffle)", () => {
+    const snapshot = buildExamQuestionPool("N1").slice(0, 3);
+    const questions = buildPracticeQuestions(
+      poolParams({ isBookmarksFocus: true, bookmarkedQuestions: snapshot })
+    );
+
+    expect(questions).toBe(snapshot);
+  });
+
+  it("bookmarks mode: empty when nothing is starred", () => {
+    const questions = buildPracticeQuestions(
+      poolParams({ isBookmarksFocus: true, bookmarkedQuestions: [] })
+    );
+    expect(questions).toEqual([]);
   });
 
   it("vocab mode: reading-only drill, narrowed by level range", () => {
