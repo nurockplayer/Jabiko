@@ -52,6 +52,8 @@ export const id: Copy = {
   feedbackKind: { wish: "Usulkan fitur", bug: "Laporkan masalah", other: "Lainnya" },
   feedbackPlaceholder: "Fitur apa yang kamu inginkan, atau masalah apa yang kamu temui — tulis saja langsung (anonim)…",
   feedbackContact: "Kontak (opsional, isi kalau ingin dapat balasan)",
+  feedbackWantsReply: "Ingin dibalas",
+  feedbackWantsReplyHint: "Jika kamu masuk, kami balas ke akunmu; jika tidak, isi kontak di bawah.",
   feedbackAnon: "Dikirim anonim, tanpa perlu login.",
   feedbackSend: "Kirim",
   feedbackSending: "Mengirim…",

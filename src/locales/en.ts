@@ -52,6 +52,8 @@ export const en: Copy = {
   feedbackKind: { wish: "Request a feature", bug: "Report a problem", other: "Other" },
   feedbackPlaceholder: "Whatever you'd like to see, or any problem you ran into — just tell us (anonymous)…",
   feedbackContact: "Contact (optional — leave it if you'd like a reply)",
+  feedbackWantsReply: "I'd like a reply",
+  feedbackWantsReplyHint: "If you're signed in we'll reply to your account; otherwise leave a contact below.",
   feedbackAnon: "Sent anonymously, no sign-in needed.",
   feedbackSend: "Send",
   feedbackSending: "Sending…",

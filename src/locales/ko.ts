@@ -52,6 +52,8 @@ export const ko: Copy = {
   feedbackKind: { wish: "기능 요청", bug: "문제 신고", other: "기타" },
   feedbackPlaceholder: "보고 싶은 기능이든, 마주친 문제든 — 무엇이든 편하게 알려 주세요 (익명)…",
   feedbackContact: "연락처 (선택 — 답변을 받고 싶다면 남겨 주세요)",
+  feedbackWantsReply: "답장을 받고 싶어요",
+  feedbackWantsReplyHint: "로그인 상태면 계정으로 답장드립니다. 아니면 아래에 연락처를 남겨 주세요.",
   feedbackAnon: "익명으로 전송되며 로그인이 필요 없습니다.",
   feedbackSend: "보내기",
   feedbackSending: "전송 중…",

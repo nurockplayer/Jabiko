@@ -53,6 +53,8 @@ export const ja: Copy = {
   feedbackKind: { wish: "機能リクエスト", bug: "不具合の報告", other: "その他" },
   feedbackPlaceholder: "ほしい機能や気づいた問題を、そのまま書いてください（匿名）…",
   feedbackContact: "連絡先（任意・返信を受け取りたい方のみ）",
+  feedbackWantsReply: "返信を希望する",
+  feedbackWantsReplyHint: "ログイン時はアカウント宛に返信します。未ログインの場合は下に連絡先をご記入ください。",
   feedbackAnon: "匿名で送信、ログイン不要です。",
   feedbackSend: "送信",
   feedbackSending: "送信中…",

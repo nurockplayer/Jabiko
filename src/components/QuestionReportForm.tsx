@@ -49,6 +49,7 @@ export function QuestionReportForm({
   const t = copy[language];
   const [reason, setReason] = useState<ReportReason>("wrongAnswer");
   const [detail, setDetail] = useState("");
+  const [wantsReply, setWantsReply] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
 
   // buildQuestionReportMessage prepends the structured question block (plus a
@@ -98,7 +99,7 @@ export function QuestionReportForm({
         language,
         selectedAnswer
       });
-      await submit({ category: "bug", message });
+      await submit({ category: "bug", message, wantsReply });
       setStatus("done");
     } catch {
       setStatus("error");
@@ -173,6 +174,15 @@ export function QuestionReportForm({
         <p className="feedback-char-remaining" aria-live="polite">
           {Math.max(0, detailBudget - detail.length)}
         </p>
+        <label className="feedback-reply">
+          <input
+            type="checkbox"
+            checked={wantsReply}
+            onChange={(event) => setWantsReply(event.target.checked)}
+          />
+          {t.feedbackWantsReply}
+        </label>
+        {wantsReply ? <p className="feedback-reply-hint">{t.feedbackWantsReplyHint}</p> : null}
         <p className="feedback-anon">{t.feedbackAnon}</p>
 
         {status === "error" ? (

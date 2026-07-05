@@ -53,6 +53,8 @@ export const th: Copy = {
   feedbackKind: { wish: "ขอฟีเจอร์", bug: "แจ้งปัญหา", other: "อื่น ๆ" },
   feedbackPlaceholder: "อยากขอฟีเจอร์อะไร เจอปัญหาอะไร พิมพ์บอกได้เลย (ไม่ระบุตัวตน)…",
   feedbackContact: "ช่องทางติดต่อ (ไม่บังคับ กรอกถ้าอยากให้ตอบกลับ)",
+  feedbackWantsReply: "ต้องการรับการตอบกลับ",
+  feedbackWantsReplyHint: "หากเข้าสู่ระบบ เราจะตอบกลับไปที่บัญชีของคุณ ถ้าไม่ โปรดทิ้งช่องทางติดต่อด้านล่าง",
   feedbackAnon: "ส่งแบบไม่ระบุตัวตน ไม่ต้องเข้าสู่ระบบ",
   feedbackSend: "ส่ง",
   feedbackSending: "กำลังส่ง…",

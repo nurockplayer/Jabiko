@@ -22,7 +22,21 @@ describe("FeedbackForm", () => {
     fireEvent.change(screen.getByPlaceholderText(/想許什麼願/), { target: { value: "  想要夜間模式  " } });
     fireEvent.click(screen.getByRole("button", { name: /送出/ }));
     await waitFor(() => expect(screen.getByText(/謝謝你的回饋/)).toBeInTheDocument());
-    expect(submit).toHaveBeenCalledWith({ category: "wish", message: "想要夜間模式", contact: undefined });
+    expect(submit).toHaveBeenCalledWith({
+      category: "wish",
+      message: "想要夜間模式",
+      contact: undefined,
+      wantsReply: false
+    });
+  });
+
+  it("sends wantsReply=true when the reply checkbox is ticked (#468)", async () => {
+    const submit = vi.fn().mockResolvedValue(undefined);
+    render(<FeedbackForm language="zh-Hant" category="wish" onClose={() => {}} submit={submit} />);
+    fireEvent.change(screen.getByPlaceholderText(/想許什麼願/), { target: { value: "回我一下" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "希望收到回信" }));
+    fireEvent.click(screen.getByRole("button", { name: /送出/ }));
+    await waitFor(() => expect(submit).toHaveBeenCalledWith(expect.objectContaining({ wantsReply: true })));
   });
 
   it("closes when the backdrop is clicked", () => {
