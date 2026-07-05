@@ -15,6 +15,7 @@ import {
   buildAllKnownQuestions,
   buildModeCounts,
   buildPracticeQuestions,
+  resolveBookmarkedQuestions,
   uniqueForms
 } from "../domain/sessionPools";
 import { collectAttemptedIds } from "../domain/unattempted";
@@ -213,9 +214,11 @@ export function usePracticeSession({
   // the learner's own stars without a live storage listener.
   const [bookmarkVersion, setBookmarkVersion] = useState(0);
   const bookmarkedIds = useMemo(() => new Set(getBookmarkedIds()), [bookmarkVersion]);
+  // Preserve bookmark add-order (getBookmarkedIds order), not allKnownQuestions
+  // order -- a plain filter would replay the pass in bank order (#470 review).
   const bookmarkedQuestions = useMemo(
-    () => allKnownQuestions.filter((question) => bookmarkedIds.has(question.id)),
-    [allKnownQuestions, bookmarkedIds]
+    () => resolveBookmarkedQuestions(getBookmarkedIds(), allKnownQuestions),
+    [allKnownQuestions, bookmarkVersion]
   );
   const isQuestionBookmarked = (questionId: string) => bookmarkedIds.has(questionId);
   const onToggleBookmark = (questionId: string) => {
