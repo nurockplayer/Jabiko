@@ -1,6 +1,6 @@
-import type { JlptLevel } from "../domain/types";
+import type { JlptLevel, LocaleCode } from "../domain/types";
 import type { LevelRange } from "../domain/levelRange";
-import type { LocaleCode } from "../domain/types";
+import type { PracticeMode } from "../domain/practiceMode";
 
 export type AnalyticsEventName =
   | "page_view"
@@ -17,19 +17,22 @@ export interface PageViewPayload {
   locale: LocaleCode;
 }
 export interface PracticeStartedPayload {
-  source: string;
+  source: PracticeMode;
   levelRange?: LevelRange;
   locale: LocaleCode;
 }
 export interface AnswerSubmittedPayload {
-  source: string;
+  source: PracticeMode;
   level: JlptLevel | "all";
-  questionType: string;
+  // questionType reuses PracticeMode (a coarse, content-free label) — never
+  // the question's surface or text. Typed narrowly so the value cannot be a
+  // free-form string that smuggles question content.
+  questionType: PracticeMode;
   isCorrect: boolean;
   locale: LocaleCode;
 }
 export interface PracticeCompletedPayload {
-  source: string;
+  source: PracticeMode;
   level: JlptLevel | "all";
   totalQuestions: number;
   correctCount: number;

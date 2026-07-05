@@ -47,9 +47,10 @@ Vite production build sees `VITE_ZARAZ_ENABLED` set to the literal string
 The comparison is `=== "true"` (string), not truthy — so `VITE_ZARAZ_ENABLED=false`
 is correctly treated as disabled.
 
-> Setup note: the `.env.example` file should document
-> `VITE_ZARAZ_ENABLED=true` as the production gate. (Claude could not write
-> to `.env.example` due to environment permissions — see PR notes.)
+> Setup note: `.env.example` documents `VITE_ZARAZ_ENABLED=true` as the
+> production gate. Tracking stays OFF until that flag is `"true"` in the
+> production build AND the Zaraz snippet is installed in the Cloudflare
+> dashboard / `index.html`.
 
 ## Phase 1 events
 

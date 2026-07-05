@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { BookOpen, ChevronDown, Globe, Languages, MessageCircle, Moon, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
@@ -125,12 +125,16 @@ export default function App() {
     () => parseRoute(window.location.pathname).grammarSurface
   );
 
+  // UI language is pulled up here so the analytics effects (page_view /
+  // study_page_viewed) below can read `language` without a TDZ violation.
+  const { language, setLanguage } = useLanguage();
+  const t = copy[language];
+
   // Open a grammar point's study page (#282): from the post-answer feedback's
   // "深入學習這個文法 →" link, and deep-linkable directly via the URL.
   const openGrammar = (surface: string) => {
     setGrammarSurface(surface);
     setAppView("grammar");
-    trackEvent("study_page_viewed", { surface, locale: language });
   };
 
   // #437: determine whether the current grammar path points to a JLPT level
@@ -171,21 +175,43 @@ export default function App() {
 
   // Phase 1 analytics (#404): one page_view per top-level view change.
   // Keyed on appView only — grammar-surface drilldowns are covered by
-  // study_page_viewed (openGrammar), and locale changes by locale_changed,
+  // study_page_viewed (below), and locale changes by locale_changed,
   // so neither re-fires page_view.
   useEffect(() => {
     trackEvent("page_view", { view: appView, locale: language });
   }, [appView]); // language intentionally omitted: locale change fires locale_changed, not page_view
 
+  // Phase 1 analytics (#404): fire study_page_viewed when a concrete grammar
+  // point's study page opens — covers in-app openGrammar AND direct
+  // /grammar/<surface> deep links / browser back-forward. Level-only routes
+  // (e.g. /grammar/n5 — the index) are NOT study pages and are excluded.
+  // lastSurface ref dedupes so re-renders with the same surface don't refire.
+  const lastStudySurfaceRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (
+      appView === "grammar" &&
+      grammarSurface !== null &&
+      !isGrammarLevelRoute &&
+      lastStudySurfaceRef.current !== grammarSurface
+    ) {
+      lastStudySurfaceRef.current = grammarSurface;
+      trackEvent("study_page_viewed", { surface: grammarSurface, locale: language });
+    }
+    // Reset the dedupe ref when leaving the grammar view so a return to the
+    // same surface (via back/forward) fires again.
+    if (appView !== "grammar") {
+      lastStudySurfaceRef.current = null;
+    }
+  }, [appView, grammarSurface, isGrammarLevelRoute, language]);
+
   // One-time localStorage pull from jabiko.pages.dev after the domain move
   // (#jabiko-app-domain); no-op everywhere except a fresh jabiko.app visit.
   useOriginMigration();
 
-  // UI language: stored preference > ja default. The hook owns the <html lang>
+  // UI language: pulled up above the analytics effects so they can read
+  // `language` without a TDZ violation. The hook owns the <html lang>
   // side-effect and persistence; copy[language] re-renders the whole tree on
   // change, so the prop-drilled `language` stays a seam.
-  const { language, setLanguage } = useLanguage();
-  const t = copy[language];
 
   // #438: the grammar-pattern DATABASE (index + cards) is Chinese-only content
   // for now, so its browse UI is gated to zh-Hant until the i18n overlay lands
