@@ -93,6 +93,17 @@ describe("exam content guard", () => {
     expect(offenders, `漢字読み non-kana options: ${offenders.join("; ")}`).toEqual([]);
   });
 
+  it("marks the target word (not the whole sentence) in 漢字読み prompts", () => {
+    // The 「」 quote marks the underlined word to read, e.g. 信頼を「損なう」….
+    // Wrapping the ENTIRE sentence in 「」 (「…お金…」) leaves the learner unable
+    // to tell which word is being tested. (User feedback: 題目無底線／框住整句.)
+    const offenders = examStyleQuestions
+      .filter((question) => question.promptLabel === "漢字読み")
+      .filter((question) => /^[「『][^「」『』]*[」』]$/.test(question.promptText ?? ""))
+      .map((question) => `${question.id}: ${question.promptText}`);
+    expect(offenders, `漢字読み prompts quoting the whole sentence: ${offenders.join(" | ")}`).toEqual([]);
+  });
+
   it("has no duplicate options within any item", () => {
     // A repeated option silently turns a 1-of-4 into a 1-of-3 (or worse).
     const offenders = examStyleQuestions
