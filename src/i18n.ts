@@ -306,6 +306,20 @@ export type Copy = {
   grammarSourceDrama: string;
   grammarSourceMovie: string;
   grammarSourceOther: string;
+  // ---- Blog / 文章 (#483) ---------------------------------------------------
+  blog: string;
+  blogBackToHome: string;
+  blogBackToList: string;
+  blogHeroEyebrow: string;
+  blogIndexTitle: string;
+  blogIndexIntro: string;
+  blogHeroTopicsLabel: string;
+  blogHeroTopics: readonly string[];
+  blogHeroNote: string;
+  blogDraftBadge: string;
+  blogReadMore: string;
+  blogNotFound: string;
+  blogCtaHint: string;
   keyboardHint: string;
   focusSummaryEmpty: string;
   modeOptions: Record<ModeCopyKey, { title: string; subtitle: string }>;
