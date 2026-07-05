@@ -822,18 +822,18 @@ describe("getReviewQueue", () => {
     const wrong = scoreAttempt(pool[0], "wrong", 1000, 1500);
     // Not due in the same session (would just train answer-memorisation) ...
     expect(getReviewQueue([wrong], pool, 1500)).toEqual([]);
-    // ... due once the ~1-hour box-0 cooldown elapses.
+    // ... due once the box-0 rest (2 days, #472) elapses.
     expect(getReviewQueue([wrong], pool, 1500 + BOX0_MS)).toEqual([pool[0]]);
   });
 
-  it("defers a correctly-answered question past its 1-day interval", () => {
-    // wrong at 1500, right at 2300 -> box 1 -> due 1 day later.
+  it("defers a correctly-answered question past its box-1 interval", () => {
+    // wrong at 1500, right at 2300 -> box 1 -> due one box-1 interval later.
     const wrong = scoreAttempt(pool[0], "wrong", 1000, 1500);
     const right = scoreAttempt(pool[0], pool[0].expectedAnswers[0], 2000, 2300);
     const oneMs = 1;
-    const oneDayMs = 24 * 60 * 60 * 1000;
+    const box1Ms = SRS_INTERVAL_DAYS[1] * 24 * 60 * 60 * 1000;
     expect(getReviewQueue([wrong, right], pool, 2300 + oneMs)).toEqual([]);
-    expect(getReviewQueue([wrong, right], pool, 2300 + oneDayMs)).toEqual([pool[0]]);
+    expect(getReviewQueue([wrong, right], pool, 2300 + box1Ms)).toEqual([pool[0]]);
   });
 
   it("re-adds a question that was answered correctly then missed again", () => {

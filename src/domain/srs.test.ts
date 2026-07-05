@@ -71,10 +71,26 @@ describe("computeReviewStates", () => {
     expect(state).toBeDefined();
     expect(state!.box).toBe(0);
     expect(state!.lastAttemptAt).toBe(5000);
-    // Box 0 rests SRS_INTERVAL_DAYS[0] days (~1 hour) instead of resurfacing
-    // immediately -- otherwise the learner just memorises the answer in the
-    // same session rather than recalling it.
+    // Box 0 rests SRS_INTERVAL_DAYS[0] days (2 days) instead of resurfacing
+    // same-day -- otherwise the learner just memorises the answer position
+    // rather than recalling it (#472).
     expect(state!.dueAt).toBe(5000 + SRS_INTERVAL_DAYS[0] * MS_PER_DAY);
+  });
+
+  it("rests a just-missed item at least a full day (#472: no same-day resurfacing)", () => {
+    // Product decision #472 (supersedes #244's ~1h cooldown): a missed item
+    // must not reappear the same day, or the learner memorises answer
+    // POSITION rather than recalling. Box-0 rest is now >= 1 full day.
+    const states = computeReviewStates([makeAttempt("q1", false, 5000)]);
+    const restMs = states.get("q1")!.dueAt - 5000;
+    expect(restMs).toBeGreaterThanOrEqual(MS_PER_DAY);
+  });
+
+  it("keeps intervals strictly increasing per box (each promotion spaces further)", () => {
+    // Getting an item right must always LENGTHEN the wait, never shorten it.
+    for (let i = 1; i < SRS_INTERVAL_DAYS.length; i++) {
+      expect(SRS_INTERVAL_DAYS[i]).toBeGreaterThan(SRS_INTERVAL_DAYS[i - 1]);
+    }
   });
 
   it("promotes one box per correct attempt up to the cap", () => {
