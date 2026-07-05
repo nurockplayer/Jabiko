@@ -10,6 +10,7 @@ import {
   buildModeCounts,
   buildPracticeQuestions,
   composeDailySet,
+  resolveBookmarkedQuestions,
   uniqueForms,
   type PracticePoolParams
 } from "./sessionPools";
@@ -28,11 +29,13 @@ function poolParams(overrides: Partial<PracticePoolParams> = {}): PracticePoolPa
     isReviewFocus: false,
     isVocabFocus: false,
     isDailyFocus: false,
+    isBookmarksFocus: false,
     partOfSpeech: "verb",
     verbGroup: "godan",
     targetForms: ["te"],
     levelRange: "all",
     reviewQueue: [],
+    bookmarkedQuestions: [],
     ...overrides
   };
 }
@@ -181,6 +184,22 @@ describe("buildPracticeQuestions", () => {
     );
 
     expect(questions).toBe(snapshot);
+  });
+
+  it("bookmarks mode: returns the bookmarked snapshot verbatim (add-order, no shuffle)", () => {
+    const snapshot = buildExamQuestionPool("N1").slice(0, 3);
+    const questions = buildPracticeQuestions(
+      poolParams({ isBookmarksFocus: true, bookmarkedQuestions: snapshot })
+    );
+
+    expect(questions).toBe(snapshot);
+  });
+
+  it("bookmarks mode: empty when nothing is starred", () => {
+    const questions = buildPracticeQuestions(
+      poolParams({ isBookmarksFocus: true, bookmarkedQuestions: [] })
+    );
+    expect(questions).toEqual([]);
   });
 
   it("vocab mode: reading-only drill, narrowed by level range", () => {
@@ -406,5 +425,58 @@ describe("buildPracticeQuestions session-length cap (#154)", () => {
       poolParams({ isDailyFocus: true, reviewQueue: [], sessionLength: 5 })
     );
     expect(daily.length).toBeGreaterThan(5);
+  });
+});
+
+describe("buildAllKnownQuestions exam coverage (#470 review)", () => {
+  it("includes N4 and N5 exam items so bookmarked/reviewed low-level items resolve", () => {
+    // The union pool feeds both the SRS review queue AND the 收藏 pool. If it
+    // were built from the default 'all' exam pool (N1/N2 + 6 N3 warm-ups), any
+    // bookmarked N4/N5 exam question -- reachable via the N3/N4 備考 presets --
+    // would be silently absent from the pool and the mode count.
+    const pool = buildAllKnownQuestions();
+    const levels = new Set(pool.map((q) => q.vocabulary.level));
+    expect(levels.has("N4")).toBe(true);
+    expect(levels.has("N5")).toBe(true);
+    // And the full N3 set, not just the 6-item warm-up slice.
+    const n3Count = pool.filter((q) => q.vocabulary.level === "N3").length;
+    expect(n3Count).toBeGreaterThan(6);
+  });
+});
+
+describe("resolveBookmarkedQuestions (#470 review)", () => {
+  const q = (id: string): PracticeQuestion => ({
+    id,
+    vocabulary: {
+      id,
+      surface: id,
+      reading: id,
+      meaningZh: "x",
+      partOfSpeech: "verb",
+      group: "godan",
+      lesson: null,
+      tags: [],
+      examples: []
+    },
+    targetForm: "te",
+    expectedAnswers: ["ok"],
+    explanation: ""
+  });
+
+  it("returns questions in bookmark add-order, not pool order", () => {
+    const pool = [q("A"), q("B"), q("C")]; // pool/bank order A,B,C
+    const ids = ["C", "A", "B"]; // starred in this order
+    const resolved = resolveBookmarkedQuestions(ids, pool);
+    expect(resolved.map((r) => r.id)).toEqual(["C", "A", "B"]);
+  });
+
+  it("drops ids with no matching question in the pool (stale/removed)", () => {
+    const pool = [q("A"), q("B")];
+    const resolved = resolveBookmarkedQuestions(["A", "gone", "B"], pool);
+    expect(resolved.map((r) => r.id)).toEqual(["A", "B"]);
+  });
+
+  it("returns an empty list when nothing is bookmarked", () => {
+    expect(resolveBookmarkedQuestions([], [q("A")])).toEqual([]);
   });
 });

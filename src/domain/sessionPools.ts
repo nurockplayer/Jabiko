@@ -118,14 +118,17 @@ export function buildModeCounts() {
   };
 }
 
-// Union pool used to materialise the review queue: any question the
-// learner has ever encountered (across exam / cloze / pattern / basic)
-// could be in their attempt history, so the queue lookup needs to see
-// them all. Built once and reused -- this is the same set of question
-// factories the four mode-specific branches below call, just unioned.
+// Union pool used to materialise the review queue AND the 收藏 pool: any
+// question the learner has ever attempted OR bookmarked (across exam / cloze
+// / pattern / basic) must be resolvable here by id. The exam portion uses the
+// EXPLICIT full level set, NOT the default buildExamQuestionPool() -- the
+// default "all" trims to N1/N2 + a 6-item N3 warm-up and drops N4/N5 entirely,
+// which would make a bookmarked/attempted N4/N5 exam item (reachable via the
+// N3/N4 備考 presets) silently unresolvable in both the review queue and the
+// 收藏 count/pool (#470 review). Built once and reused.
 export function buildAllKnownQuestions(): PracticeQuestion[] {
   return [
-    ...buildExamQuestionPool(),
+    ...buildExamQuestionPool(["N1", "N2", "N3", "N4", "N5"]),
     ...buildClozeQuestionPool(clozeSentences, vocabulary),
     ...buildSentencePatternPool(),
     ...buildQuestionPool(vocabulary, {
@@ -141,6 +144,21 @@ export function buildAllKnownQuestions(): PracticeQuestion[] {
   ];
 }
 
+// Resolve a list of bookmarked ids to their questions, preserving the id
+// list's order (bookmark add-order) and dropping ids with no match in the
+// pool (a question since removed from the bank). Filtering the pool instead
+// would return bank-order, losing the most-recently-starred-last ordering
+// bookmarks.ts carefully preserves (#470 review).
+export function resolveBookmarkedQuestions(
+  ids: string[],
+  pool: PracticeQuestion[]
+): PracticeQuestion[] {
+  const byId = new Map(pool.map((question) => [question.id, question]));
+  return ids
+    .map((id) => byId.get(id))
+    .filter((question): question is PracticeQuestion => question !== undefined);
+}
+
 // All the inputs the active-pool builder needs from the React layer. The
 // hook derives these from its state (mode flags), props (reviewQueue
 // snapshot), and config (filter / partOfSpeech / verbGroup / targetForms
@@ -152,6 +170,7 @@ export type PracticePoolParams = {
   isReviewFocus: boolean;
   isVocabFocus: boolean;
   isDailyFocus: boolean;
+  isBookmarksFocus: boolean;
   examSection?: { level: MockExamLevel; promptLabel: string };
   patternIds?: SentencePatternId[];
   partOfSpeech: PartOfSpeech | "mixed";
@@ -162,6 +181,10 @@ export type PracticePoolParams = {
   // review and 今日練習 branches. The hook passes the value captured when
   // its `questions` memo last ran (mode change / explicit reset).
   reviewQueue: PracticeQuestion[];
+  // Snapshot of the learner's bookmarked questions (#470), taken at session
+  // start like reviewQueue. Materialised in the hook (allKnownQuestions
+  // filtered by the stored bookmark ids) so this stays a pure function.
+  bookmarkedQuestions: PracticeQuestion[];
   // Cap for the endless drill modes (exam / cloze / pattern / vocab /
   // basic): the learner picks a session length (#154) and we slice the
   // shuffled pool down to it so the session is finite. null / undefined /
@@ -187,6 +210,7 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     isReviewFocus,
     isVocabFocus,
     isDailyFocus,
+    isBookmarksFocus,
     examSection,
     patternIds,
     partOfSpeech,
@@ -194,6 +218,7 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     targetForms,
     levelRange,
     reviewQueue,
+    bookmarkedQuestions,
     sessionLength,
     attemptedIds
   } = params;
@@ -288,6 +313,13 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     // mode); the live reviewQueue stays excluded from the deps below. The
     // fresh portion is narrowed to the learner's target band (#199).
     return composeDailySet(reviewQueue, levelRange);
+  }
+
+  if (isBookmarksFocus) {
+    // 收藏 mode (#470): a finite pass over the learner's starred questions,
+    // in add-order (getBookmarkedIds order). Snapshot at session start like
+    // review -- toggling a star mid-session doesn't reshuffle the live pass.
+    return bookmarkedQuestions;
   }
 
   return cap(

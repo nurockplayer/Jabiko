@@ -338,7 +338,8 @@ export const th: Copy = {
     examN3: { title: "เตรียมสอบ N3", subtitle: "โจทย์รวม N3＋N4 · ไวยากรณ์ / บทความสั้น / คำศัพท์ / คำอ่านคันจิ" },
     examN4: { title: "เตรียมสอบ N4", subtitle: "โจทย์รวม N4＋N5 · คำช่วย / ไวยากรณ์พื้นฐาน / คำศัพท์ / คำอ่านคันจิ" },
     vocab: { title: "คำอ่านคำศัพท์", subtitle: "คำคันจิ N1/N2 · เลือกคำอ่านที่ถูก (よみ)" },
-    review: { title: "ทบทวนจุดอ่อน", subtitle: "ฝึกข้อที่ครั้งก่อนตอบผิดซ้ำจนกว่าจะถูก" }
+    review: { title: "ทบทวนจุดอ่อน", subtitle: "ฝึกข้อที่ครั้งก่อนตอบผิดซ้ำจนกว่าจะถูก" },
+    bookmarks: { title: "รายการโปรด", subtitle: "ฝึกซ้ำข้อที่คุณติดดาวไว้" }
   },
   modeQuestionCount: (count) => `คลังข้อสอบ ${count} ข้อ`,
   homeCardVocabTitle: "คำอ่านคำศัพท์",
@@ -353,6 +354,9 @@ export const th: Copy = {
   dashboardStatsAccuracy: (percent) => `อัตราตอบถูกรวม ${percent}%`,
   reviewEmptyState: "ตอนนี้ไม่มีข้อที่ผิดถึงกำหนดทบทวน ไปฝึกในคลังข้อสอบรวมสักสองสามข้อ สะสมไว้แล้วค่อยกลับมาทบทวนนะ",
   reviewEmptyCta: "ไปคลังข้อสอบรวม",
+  bookmarkAdd: "บันทึกข้อนี้",
+  bookmarkRemove: "บันทึกแล้ว",
+  bookmarksEmptyState: "ยังไม่มีข้อที่บันทึกไว้ หลังตอบแล้วแตะรูปดาวเพื่อบันทึกข้อไว้ที่นี่ แล้วกลับมาฝึกซ้ำเมื่อไรก็ได้",
   reviewDoneTitle: "ทบทวนเสร็จแล้ว!",
   reviewDoneBody: (cleared, remaining) =>
     `รอบนี้ทบทวนไป ${cleared + remaining} ข้อ ตอบถูก ${cleared} ต้องฝึกอีก ${remaining} ข้อที่ตอบถูกจะถูกเลื่อนไปทีหลัง ส่วนที่ตอบผิดจะกลับมาในการทบทวนครั้งหน้า`,
