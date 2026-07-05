@@ -28,7 +28,7 @@ export const articleMetas: ReadonlyArray<ArticleMeta> = [
     slug: "sweet-step-steady",
     title: "從「SWEET STEP」學日文：ありのままの自我摸索曲",
     description:
-      "SWEET STEADY〈SWEET STEP〉唱的是「其實我也不知道真正的自己」——ありのまま、妄想、取り繕う、キュン⋯⋯挑 20 幾個歌裡的日文點來學，例句全原創，完整歌詞看外連。",
+      "SWEET STEADY〈SWEET STEP〉唱的是「其實我也不知道真正的自己」——ありのまま、妄想、取り繕う、キュン⋯⋯挑 20 幾個歌裡的日文點來學，例句全原創，附官方 MV 連結。",
     tag: "偶像",
     publishedAt: "2026-07-06"
   },
@@ -36,7 +36,7 @@ export const articleMetas: ReadonlyArray<ArticleMeta> = [
     slug: "cho-saikyo-tokimeki",
     title: "從「超最強」學日文：超ときめき♡宣伝部的推し活生字",
     description:
-      "超ときめき♡宣伝部〈超最強〉根本是推し活生字大補帖——沼、布教、トレカ、ズッキュン⋯⋯挑 20+ 個歌裡的日文點，讀音意思語感一次學，例句全原創，完整歌詞看外連。",
+      "超ときめき♡宣伝部〈超最強〉根本是推し活生字大補帖——沼、布教、トレカ、ズッキュン⋯⋯挑 20+ 個歌裡的日文點，讀音意思語感一次學，例句全原創，附官方 MV 連結。",
     tag: "偶像",
     publishedAt: "2026-07-06"
   }

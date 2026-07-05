@@ -51,7 +51,7 @@ const BODIES: Record<string, ReadonlyArray<ArticleBlock>> = {
   "sweet-step-steady": [
     {
       kind: "lead",
-      text: "〈SWEET STEP〉是 SWEET STEADY 的一首歌，主題比一般甜歌更有層次——不是無腦的甜，而是一邊承認「其實我也不知道真正的自己是什麼」（會妄想、會逞強、會不坦率、會哭、會累），一邊決定「那就先跳、先喜歡下去，把真正的自己裝飾好、包成禮物送你」。細膩又可愛，歌詞裡的日文點也很有味道。"
+      text: "〈SWEET STEP〉是 KAWAII LAB.（FRUITS ZIPPER 等團所屬的偶像企劃）旗下團體 SWEET STEADY 的一首歌。主題比一般甜歌更有層次——不是無腦的甜，而是一邊承認「其實我也不知道真正的自己是什麼」（會妄想、會逞強、會不坦率、會哭、會累），一邊決定「那就先跳、先喜歡下去，把真正的自己裝飾好、包成禮物送你」。細膩又可愛，歌詞裡的日文點也很有味道。"
     },
     { kind: "heading", text: "這首歌在唱什麼" },
     {
