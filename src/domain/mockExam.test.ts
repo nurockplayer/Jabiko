@@ -46,14 +46,16 @@ describe("getMockExamBlueprint", () => {
     }
   });
 
-  it("returns the English subtitle for each section", () => {
+  it("returns the English subtitle for en locale and zh subtitle for zh-Hant", () => {
     for (const bp of [N1_BLUEPRINT, N2_BLUEPRINT, N3_BLUEPRINT]) {
       for (const section of bp.sections) {
         // The English subtitle should be truthy and Han-free (as per original intent)
         expect(section.labelEn).toBeTruthy();
         expect(/[㐀-鿿]/.test(section.labelEn)).toBe(false);
-        // The function sectionSubtitle should return the English subtitle
-        expect(sectionSubtitle(section)).toBe(section.labelEn);
+        // en locale returns English subtitle
+        expect(sectionSubtitle(section, "en")).toBe(section.labelEn);
+        // zh-Hant returns the Chinese subtitle
+        expect(sectionSubtitle(section, "zh-Hant")).toBe(section.labelZh);
       }
     }
   });

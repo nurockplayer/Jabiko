@@ -49,7 +49,7 @@ import { fileURLToPath } from "node:url";
 
 // Inlined locale constants (formerly from ./_locales.mjs)
 const SOURCE_LOCALE = "zh-Hant";
-const LOCALE_CODES = ["zh-Hant", "ja", "en", "th", "id", "ko", "vi", "my"] as const;
+const LOCALE_CODES = ["zh-Hant", "ja", "en", "th", "id", "ko", "vi", "my"];
 const HAN_LOCALES = new Set([SOURCE_LOCALE, "ja"]);
 const NON_HAN_LOCALES = new Set(LOCALE_CODES.filter((code) => !HAN_LOCALES.has(code)));
 

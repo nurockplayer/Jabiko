@@ -43,15 +43,16 @@ export interface MockExamBlueprint {
 
 /**
  * The subtitle under a section's Japanese name, per UI locale (#427/#434):
- * ja gets none (labelJa already IS the Japanese name); every other locale
- * reads its labelEn and falls back to the zh hint when absent --
+ * ja gets none (labelJa already IS the Japanese name); zh-Hant reads labelZh;
+ * every other locale reads its labelEn and falls back to the zh hint when absent --
  * matching the app-wide zh-fallback rule for content locales.
  * Note: This function is only called for non-ja locales; for ja, the caller
  * returns null directly.
  */
-export function sectionSubtitle(section: MockExamSection): string {
-  // For non-ja locales, we return the English subtitle.
-  // The caller (in MockExamPanel.tsx) handles the ja case by returning null.
+export function sectionSubtitle(section: MockExamSection, language: "zh-Hant" | "en" | string): string {
+  if (language === "zh-Hant") {
+    return section.labelZh;
+  }
   return section.labelEn;
 }
 
