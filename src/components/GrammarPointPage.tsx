@@ -50,9 +50,6 @@ export function GrammarPointPage({
   const dbRelated = dbPattern
     ? grammarPatterns.filter((p) => dbPattern.relatedPatternIds.includes(p.id))
     : [];
-  // Database content is zh-only (#437 regression of #427); show for all languages
-  // as fallback until i18n overlay fields are added to GrammarPattern.
-  const isZhHant = language === "zh-Hant";
 
   const backButton = (
     <button type="button" className="ghost-button gp-back" onClick={onBack}>
@@ -245,7 +242,7 @@ export function GrammarPointPage({
       ) : null}
 
       {/* #437: 相近文型比較 */}
-      {isZhHant && dbRelated.length > 0 ? (
+      {dbRelated.length > 0 ? (
         <section className="gp-card">
           <h2 className="gp-card-title">
             <BookOpen aria-hidden="true" className="gp-card-title-icon" />
@@ -265,7 +262,7 @@ export function GrammarPointPage({
       ) : null}
 
       {/* #437: 常見錯誤 */}
-      {isZhHant && dbPattern && dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
+      {dbPattern && dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
         <section className="gp-card">
           <h2 className="gp-card-title">
             <AlertTriangle aria-hidden="true" className="gp-card-title-icon" />

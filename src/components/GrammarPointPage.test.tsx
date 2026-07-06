@@ -49,7 +49,7 @@ describe("GrammarPointPage", () => {
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 
-  it("renders a database-only pattern's Chinese content in all languages (#438/#427)", () => {
+  it("renders a database-only pattern's Chinese content in any language (#438/#427)", () => {
     const dbOnly = grammarPatterns.find((p) => buildGrammarPoint(p.pattern.replace(/^[〜～]/, "")) === null);
     expect(dbOnly, "expected at least one database-only pattern").toBeDefined();
     const surface = dbOnly!.pattern.replace(/^[〜～]/, "");
@@ -60,7 +60,13 @@ describe("GrammarPointPage", () => {
     expect(screen.getByText(dbOnly!.meaningZh)).toBeInTheDocument();
     zh.unmount();
 
-    render(<GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />);
+    const en = render(
+      <GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />
+    );
+    expect(screen.getByText(dbOnly!.meaningZh)).toBeInTheDocument();
+    en.unmount();
+
+    render(<GrammarPointPage surface={surface} language="ja" onPractice={vi.fn()} onBack={vi.fn()} />);
     expect(screen.getByText(dbOnly!.meaningZh)).toBeInTheDocument();
   });
 

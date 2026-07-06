@@ -1013,14 +1013,15 @@ describe("App", () => {
 
   it("shows the grammar-pattern database browse UI for all locales (#438/#427)", async () => {
     // The database cards render meaningZh/formation as raw Chinese, so the
-    // browse UI is now visible in all locales since we removed the language gate.
+    // browse UI is hidden for non-zh locales until its i18n overlay lands.
+    // However, the grammar index is now available in all locales.
     localStorage.setItem("jabiko.lang", "en"); // must be set before App mounts
     render(<App />);
 
     // The 文型 (Grammar) index nav entry is now offered in English.
     expect(screen.getByRole("button", { name: "Grammar" })).toBeInTheDocument();
 
-    // A direct /grammar URL now shows the grammar index (in English).
+    // A direct /grammar URL now shows the grammar index (in English) instead of redirecting home.
     window.history.replaceState({}, "", "/grammar");
     window.dispatchEvent(new PopStateEvent("popstate"));
     // Wait for the grammar index heading (which is now in English: "JLPT Grammar Pattern Database")
