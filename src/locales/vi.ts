@@ -252,6 +252,7 @@ export const vi: Copy = {
   correctShort: "Đúng",
   reviewShort: "Ôn",
   accuracyLabel: "Độ chính xác hiện tại",
+  accuracyShort: "Độ chính xác",
   scoreReportLabel: "Báo cáo hôm nay",
   shareTitle: "Chia sẻ kết quả của bạn",
   shareText: (attempts, accuracy) =>
@@ -388,6 +389,7 @@ export const vi: Copy = {
     `Bộ này bạn đã làm ${cleared + remaining} câu — ${cleared} đúng, ${remaining} sai. Những câu sai đi vào phần ôn điểm yếu và sẽ quay lại lần sau.`,
   sessionDoneAgain: "Thêm một bộ",
   sessionDoneExit: "Về trang chủ",
+  donePerfectBadge: "Đúng tất cả",
   speakAriaLabel: "Đọc to tiếng Nhật",
   authSignIn: "Đăng nhập bằng Google",
   authSignOut: "Đăng xuất",

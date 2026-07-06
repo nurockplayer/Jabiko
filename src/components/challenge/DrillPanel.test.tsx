@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DrillPanel } from "./DrillPanel";
-import type { PracticeQuestion } from "../../domain/types";
+import type { Attempt, PracticeQuestion } from "../../domain/types";
 import type { Language } from "../../i18n";
 
 const question: PracticeQuestion = {
@@ -23,33 +23,69 @@ const question: PracticeQuestion = {
   explanation: "一類動詞的て形會產生音便。"
 };
 
+const baseProps = {
+  questionIndex: 0,
+  sessionTotal: null,
+  selectedChoice: null,
+  feedback: null,
+  attempts: [] as Attempt[],
+  practiceMode: "basic" as const,
+  currentQuestion: question as PracticeQuestion | null,
+  reviewEmpty: false,
+  bookmarksEmpty: false,
+  sessionExhausted: false,
+  choiceOptions: ["書いて", "書いた", "書かない", "書きます"],
+  correctCount: 0,
+  accuracy: 0,
+  sessionSeed: 0,
+  nextButtonRef: { current: null },
+  setPracticeMode: vi.fn(),
+  setPracticeFilter: vi.fn(),
+  handleChoiceSubmit: vi.fn(),
+  nextQuestion: vi.fn(),
+  resetSession: vi.fn(),
+  revealAnswer: vi.fn(),
+  handleDrillKeyDown: vi.fn(),
+  isQuestionBookmarked: () => false,
+  onToggleBookmark: vi.fn(),
+  onExit: vi.fn()
+};
+
 function renderPanel(language: Language) {
+  return render(<DrillPanel {...baseProps} language={language} />);
+}
+
+function makeAttempts(total: number, correct: number): Attempt[] {
+  return Array.from({ length: total }, (_, i) => ({
+    vocabularyId: "kaku",
+    targetForm: "te",
+    prompt: "書く",
+    expectedAnswers: ["書いて"],
+    submittedAnswer: "書いて",
+    isCorrect: i < correct,
+    timestamp: 0,
+    responseTimeMs: 0
+  }));
+}
+
+function renderDone(opts: {
+  language?: Language;
+  total: number;
+  correct: number;
+  accuracy: number;
+  sessionSeed?: number;
+}) {
+  const { language = "zh-Hant", total, correct, accuracy, sessionSeed = 0 } = opts;
   return render(
     <DrillPanel
+      {...baseProps}
       language={language}
-      questionIndex={0}
-      sessionTotal={null}
-      selectedChoice={null}
-      feedback={null}
-      attempts={[]}
-      practiceMode="basic"
-      currentQuestion={question}
-      reviewEmpty={false}
-      bookmarksEmpty={false}
-      sessionExhausted={false}
-      choiceOptions={["書いて", "書いた", "書かない", "書きます"]}
-      correctCount={0}
-      nextButtonRef={{ current: null }}
-      setPracticeMode={vi.fn()}
-      setPracticeFilter={vi.fn()}
-      handleChoiceSubmit={vi.fn()}
-      nextQuestion={vi.fn()}
-      resetSession={vi.fn()}
-      revealAnswer={vi.fn()}
-      handleDrillKeyDown={vi.fn()}
-      isQuestionBookmarked={() => false}
-      onToggleBookmark={vi.fn()}
-      onExit={vi.fn()}
+      currentQuestion={null}
+      sessionExhausted
+      attempts={makeAttempts(total, correct)}
+      correctCount={correct}
+      accuracy={accuracy}
+      sessionSeed={sessionSeed}
     />
   );
 }
@@ -64,5 +100,30 @@ describe("DrillPanel", () => {
   it("keeps the zh gloss for zh-Hant", () => {
     renderPanel("zh-Hant");
     expect(screen.getByText("寫")).toBeInTheDocument();
+  });
+
+  describe("session-complete card", () => {
+    it("shows glanceable stat tiles for the finished session", () => {
+      renderDone({ total: 5, correct: 4, accuracy: 80 });
+      expect(screen.getByText("已答")).toBeInTheDocument();
+      expect(screen.getByText("正解率")).toBeInTheDocument();
+      expect(screen.getByText("80%")).toBeInTheDocument();
+    });
+
+    it("moves the share panel onto the completion card", () => {
+      renderDone({ total: 5, correct: 4, accuracy: 80 });
+      expect(screen.getByRole("button", { name: "Facebook" })).toBeInTheDocument();
+    });
+
+    it("celebrates a flawless run with the perfect badge", () => {
+      renderDone({ total: 5, correct: 5, accuracy: 100 });
+      expect(screen.getByText("全部答對")).toBeInTheDocument();
+      expect(screen.getByText("100%")).toBeInTheDocument();
+    });
+
+    it("hides the perfect badge when at least one answer was wrong", () => {
+      renderDone({ total: 5, correct: 4, accuracy: 80 });
+      expect(screen.queryByText("全部答對")).not.toBeInTheDocument();
+    });
   });
 });

@@ -252,6 +252,7 @@ export const en: Copy = {
   correctShort: "Correct",
   reviewShort: "Review",
   accuracyLabel: "Current accuracy",
+  accuracyShort: "Accuracy",
   scoreReportLabel: "Today's report",
   shareTitle: "Share your results",
   shareText: (attempts, accuracy) =>
@@ -388,6 +389,7 @@ export const en: Copy = {
     `You did ${cleared + remaining} questions this set — ${cleared} correct, ${remaining} wrong. The misses go into weakness review and come back next time.`,
   sessionDoneAgain: "Another set",
   sessionDoneExit: "Back to home",
+  donePerfectBadge: "Perfect score",
   speakAriaLabel: "Read Japanese aloud",
   authSignIn: "Sign in with Google",
   authSignOut: "Sign out",

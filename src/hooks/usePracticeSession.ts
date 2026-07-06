@@ -497,6 +497,7 @@ export function usePracticeSession({
     sessionTotal,
     selectedForm,
     questionIndex,
+    sessionSeed,
     selectedChoice,
     feedback,
     attempts,

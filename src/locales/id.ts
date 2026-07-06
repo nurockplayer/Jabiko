@@ -252,6 +252,7 @@ export const id: Copy = {
   correctShort: "Benar",
   reviewShort: "Ulang",
   accuracyLabel: "Akurasi saat ini",
+  accuracyShort: "Akurasi",
   scoreReportLabel: "Skor hari ini",
   shareTitle: "Bagikan hasil",
   shareText: (attempts, accuracy) =>
@@ -388,6 +389,7 @@ export const id: Copy = {
     `Set ini melatih ${cleared + remaining} soal, ${cleared} benar dan ${remaining} salah. Yang salah akan masuk ke ulangan kelemahan dan muncul lagi saat ulangan berikutnya.`,
   sessionDoneAgain: "Satu set lagi",
   sessionDoneExit: "Kembali ke beranda",
+  donePerfectBadge: "Skor sempurna",
   speakAriaLabel: "Bacakan bahasa Jepang",
   authSignIn: "Masuk dengan Google",
   authSignOut: "Keluar",
