@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { DrillPanel } from "./DrillPanel";
 import type { Attempt, PracticeQuestion } from "../../domain/types";
@@ -74,8 +75,9 @@ function renderDone(opts: {
   correct: number;
   accuracy: number;
   sessionSeed?: number;
+  onOpenFeedback?: () => void;
 }) {
-  const { language = "zh-Hant", total, correct, accuracy, sessionSeed = 0 } = opts;
+  const { language = "zh-Hant", total, correct, accuracy, sessionSeed = 0, onOpenFeedback } = opts;
   return render(
     <DrillPanel
       {...baseProps}
@@ -86,6 +88,7 @@ function renderDone(opts: {
       correctCount={correct}
       accuracy={accuracy}
       sessionSeed={sessionSeed}
+      onOpenFeedback={onOpenFeedback}
     />
   );
 }
@@ -124,6 +127,20 @@ describe("DrillPanel", () => {
     it("hides the perfect badge when at least one answer was wrong", () => {
       renderDone({ total: 5, correct: 4, accuracy: 80 });
       expect(screen.queryByText("全部答對")).not.toBeInTheDocument();
+    });
+
+    it("surfaces a feedback entry that fires the handler when provided", async () => {
+      const onOpenFeedback = vi.fn();
+      renderDone({ total: 5, correct: 4, accuracy: 80, onOpenFeedback });
+      const button = screen.getByRole("button", { name: "意見回饋" });
+      const user = userEvent.setup();
+      await user.click(button);
+      expect(onOpenFeedback).toHaveBeenCalledTimes(1);
+    });
+
+    it("omits the feedback entry when no handler is wired", () => {
+      renderDone({ total: 5, correct: 4, accuracy: 80 });
+      expect(screen.queryByRole("button", { name: "意見回饋" })).not.toBeInTheDocument();
     });
   });
 });

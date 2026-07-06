@@ -637,6 +637,7 @@ export default function App() {
             targetLevel={targetLevel}
             onExit={() => setAppView("home")}
             onOpenGrammar={openGrammar}
+            onOpenFeedback={() => setFeedbackKind("wish")}
           />
         </Suspense>
       )}

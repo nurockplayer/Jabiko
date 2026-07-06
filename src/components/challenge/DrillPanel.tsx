@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import { ArrowRight, Eye, GraduationCap, RotateCcw } from "lucide-react";
+import { ArrowRight, Eye, GraduationCap, MessageSquare, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
 import {
@@ -92,7 +92,8 @@ export function DrillPanel({
   isQuestionBookmarked,
   onToggleBookmark,
   onExit,
-  onOpenGrammar
+  onOpenGrammar,
+  onOpenFeedback
 }: Pick<
   PracticeSession,
   | "questionIndex"
@@ -119,7 +120,14 @@ export function DrillPanel({
   | "handleDrillKeyDown"
   | "isQuestionBookmarked"
   | "onToggleBookmark"
-> & { language: Language; onExit: () => void; onOpenGrammar?: (surface: string) => void }) {
+> & {
+  language: Language;
+  onExit: () => void;
+  onOpenGrammar?: (surface: string) => void;
+  // Opens the in-app feedback form (#456) from the completion card, so a
+  // learner who just spotted a bad question can report it in context.
+  onOpenFeedback?: () => void;
+}) {
   const t = copy[language];
 
   // Completion-screen copy: daily / review have their own wording; every
@@ -304,6 +312,12 @@ export function DrillPanel({
             </button>
           </div>
           <ShareButtons language={language} text={t.shareText(attempts.length, accuracy)} />
+          {onOpenFeedback ? (
+            <button type="button" className="done-feedback" onClick={onOpenFeedback}>
+              <MessageSquare aria-hidden="true" />
+              {t.feedbackTitle}
+            </button>
+          ) : null}
           <p className="done-watermark">jabiko.app</p>
         </div>
       ) : reviewEmpty ? (
