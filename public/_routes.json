@@ -1,9 +1,8 @@
 {
   "version": 1,
-  "description": "Run the redirect middleware (functions/_middleware.js) only for navigations: static assets are excluded so they serve directly from the CDN (old links' images/scripts keep resolving on pages.dev, and Functions invocations are spent only on page loads).",
+  "description": "Run the middleware (functions/_middleware.js) for navigations AND for /assets/*. Navigations get the pages.dev -> jabiko.app 301; /assets/* gets the poisoned-fallback guard (#507: an asset miss must 404, never be cached as index.html). Other static files stay excluded so they serve straight from the CDN and Functions quota stays small; root *.js/*.css (sw.js etc.) are must-revalidate, so they cannot be pinned by a poisoned cache the way immutable /assets/* files were.",
   "include": ["/*"],
   "exclude": [
-    "/assets/*",
     "/*.png",
     "/*.svg",
     "/*.webp",
