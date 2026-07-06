@@ -93,7 +93,7 @@ function sanitizePayload<K extends AnalyticsEventName>(
   const allowed = ALLOWED_PAYLOAD_KEYS[name];
   const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(payload as unknown as Record<string, unknown>)) {
-    if (allowed.includes(key)) {
+    if (allowed.includes(key) && (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || value === null)) {
       out[key] = value;
     }
   }

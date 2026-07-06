@@ -361,7 +361,7 @@ export function usePracticeSession({
     if (!prevExhaustedRef.current && sessionExhausted) {
       trackEvent("practice_completed", {
         source: practiceMode,
-        level: "all",
+        level: practiceFilter.examSection?.level ?? "all",
         totalQuestions: sessionTotal ?? attempts.length,
         correctCount,
         locale: language
