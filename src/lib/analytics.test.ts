@@ -142,4 +142,34 @@ describe("analytics.trackEvent", () => {
       trackEvent("page_view", { view: "home", locale: "zh-Hant" })
     ).not.toThrow();
   });
+
+  it("strips non-allowlisted payload keys before forwarding to Zaraz", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+    // A caller that builds the payload as a variable defeats TS excess-property
+    // checking (see review #3524583187). trackEvent must only forward allowlist
+    // keys so user content / PII never leaks even when the caller smuggles extra
+    // fields past the type system.
+    const smuggled = {
+      source: "daily" as const,
+      level: "N4" as const,
+      questionType: "daily" as const,
+      isCorrect: true as const,
+      locale: "zh-Hant" as const,
+      userAnswer: "秘密の答え",
+      email: "a@b.com"
+    };
+    trackEvent("answer_submitted", smuggled);
+    expect(track).toHaveBeenCalledTimes(1);
+    const forwarded = track.mock.calls[0][1] as Record<string, unknown>;
+    expect(forwarded).not.toHaveProperty("userAnswer");
+    expect(forwarded).not.toHaveProperty("email");
+    expect(forwarded).toEqual({
+      source: "daily",
+      level: "N4",
+      questionType: "daily",
+      isCorrect: true,
+      locale: "zh-Hant"
+    });
+  });
 });

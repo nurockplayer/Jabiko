@@ -70,6 +70,36 @@ export interface AnalyticsPayloadMap {
 const ZARAZ_ENABLED_FLAG = import.meta.env.VITE_ZARAZ_ENABLED;
 const IS_PROD = import.meta.env.PROD;
 
+// Per-event allowlist of payload keys. trackEvent only forwards keys that
+// appear here, so a caller that defeats TS excess-property checking (by
+// building the payload as a variable with extra smuggled fields like
+// `userAnswer` / `email`) cannot leak those fields to Zaraz — the helper is
+// the privacy boundary, not the type system alone.
+const ALLOWED_PAYLOAD_KEYS: Record<AnalyticsEventName, readonly string[]> = {
+  page_view: ["view", "locale"],
+  practice_started: ["source", "levelRange", "locale"],
+  answer_submitted: ["source", "level", "questionType", "isCorrect", "locale"],
+  practice_completed: ["source", "level", "totalQuestions", "correctCount", "locale"],
+  study_page_viewed: ["surface", "locale"],
+  level_changed: ["scope", "levelRange", "locale"],
+  locale_changed: ["from", "to"],
+  weak_review_started: ["dueCount", "locale"]
+};
+
+function sanitizePayload<K extends AnalyticsEventName>(
+  name: K,
+  payload: AnalyticsPayloadMap[K]
+): Record<string, unknown> {
+  const allowed = ALLOWED_PAYLOAD_KEYS[name];
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(payload as unknown as Record<string, unknown>)) {
+    if (allowed.includes(key)) {
+      out[key] = value;
+    }
+  }
+  return out;
+}
+
 let testOverride: boolean | undefined = undefined;
 
 export type AnalyticsEnabledState = "on" | "off" | "test";
@@ -92,7 +122,7 @@ export function trackEvent<K extends AnalyticsEventName>(
   const zaraz = window.zaraz;
   if (!zaraz || typeof zaraz.track !== "function") return;
   try {
-    zaraz.track(name, payload as unknown as Record<string, unknown>);
+    zaraz.track(name, sanitizePayload(name, payload));
   } catch {
     // Zaraz failures must never break learning flows.
   }

@@ -317,6 +317,27 @@ export function usePracticeSession({
   const correctCount = attempts.filter((attempt) => attempt.isCorrect).length;
   const accuracy = attempts.length > 0 ? Math.round((correctCount / attempts.length) * 100) : 0;
 
+  // Phase 1 analytics (#404): fire practice_completed on the rising edge of
+  // sessionExhausted. resetSession brings it back to false so the next
+  // completion re-fires. Keeping the edge-detection here (not in
+  // ChallengePanel) consolidates all practice-session analytics in the hook,
+  // since it already owns answer_submitted and session-level_changed.
+  // Must appear after correctCount / sessionTotal / practiceMode are
+  // declared to avoid TDZ violations.
+  const prevExhaustedRef = useRef(false);
+  useEffect(() => {
+    if (!prevExhaustedRef.current && sessionExhausted) {
+      trackEvent("practice_completed", {
+        source: practiceMode,
+        level: "all",
+        totalQuestions: sessionTotal ?? attempts.length,
+        correctCount,
+        locale: language
+      });
+    }
+    prevExhaustedRef.current = sessionExhausted;
+  }, [sessionExhausted, practiceMode, sessionTotal, attempts.length, correctCount, language]);
+
   useEffect(() => {
     if (feedback) {
       nextButtonRef.current?.focus({ preventScroll: true });

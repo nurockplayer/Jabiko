@@ -197,9 +197,10 @@ export default function App() {
       lastStudySurfaceRef.current = grammarSurface;
       trackEvent("study_page_viewed", { surface: grammarSurface, locale: language });
     }
-    // Reset the dedupe ref when leaving the grammar view so a return to the
-    // same surface (via back/forward) fires again.
-    if (appView !== "grammar") {
+    // Reset the dedupe ref when leaving the grammar view, going back to
+    // the index (grammarSurface becomes null), or entering a level-route
+    // index page — so returning to the same surface later still fires.
+    if (appView !== "grammar" || grammarSurface === null || isGrammarLevelRoute) {
       lastStudySurfaceRef.current = null;
     }
   }, [appView, grammarSurface, isGrammarLevelRoute, language]);
@@ -301,14 +302,20 @@ export default function App() {
     // Phase 1 analytics (#404): every practice entry funnels through here.
     // Weak-point review gets its own event so we can tell "open review" apart
     // from "start a fresh drill"; payloads are metadata only (no question text).
-    if (request?.mode === "review") {
-      trackEvent("weak_review_started", { dueCount: reviewCount, locale: language });
-    } else {
-      trackEvent("practice_started", {
-        source: request?.mode ?? "daily",
-        levelRange: request?.levelRange,
-        locale: language
-      });
+    // Skip tracking when already on the challenge view (re-clicking the nav
+    // 挑戰 button while mounted) — the panel ignores re-seeds, so tracking
+    // here would inflate practice-start metrics with no-op clicks.
+    const isAlreadyInChallenge = appView === "challenge";
+    if (!isAlreadyInChallenge) {
+      if (request?.mode === "review") {
+        trackEvent("weak_review_started", { dueCount: reviewCount, locale: language });
+      } else {
+        trackEvent("practice_started", {
+          source: request?.mode ?? "daily",
+          levelRange: request?.levelRange,
+          locale: language
+        });
+      }
     }
   };
 
