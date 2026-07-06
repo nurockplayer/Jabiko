@@ -53,6 +53,28 @@ describe("BlogArticlePage", () => {
     expect(screen.getAllByText(/推し活/).length).toBeGreaterThan(0);
   });
 
+  it("renders the 日文教學 divider that opens the teaching half", () => {
+    render(
+      <BlogArticlePage
+        slug="cho-saikyo-tokimeki"
+        language="zh-Hant"
+        onBack={vi.fn()}
+        onCta={vi.fn()}
+      />
+    );
+
+    const divider = screen.getByRole("separator", { name: "日文教學" });
+    expect(divider).toBeInTheDocument();
+    // The divider sits BEFORE every vocab table in document order (essay top,
+    // teaching bottom).
+    const body = divider.closest(".blog-article-body")!;
+    const firstVocab = body.querySelector(".blog-vocab");
+    expect(firstVocab).not.toBeNull();
+    expect(
+      divider.compareDocumentPosition(firstVocab!) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
   it("passes the article CTA payload to the app-level handler", async () => {
     const user = userEvent.setup();
     const onCta = vi.fn();
