@@ -8919,7 +8919,7 @@ export const n1Items: PracticeQuestion[] = [
     promptContextI18n: { "ja": "甘さの中に毒をひそませたダークな雰囲気——夜ごと、危険な誘惑に手を伸ばしたくなる思いを繰り返し抑え込んでいる。", "en": "A sweet-yet-poisonous dark atmosphere: night after night suppressing the urge to reach out and touch a dangerous temptation." },
     expectedAnswer: "しょうどう",
     options: ["しょうどう", "しょどう", "しょうとう", "じょうどう"],
-    explanation: "「衝動」讀作「しょうどう」。「衝」音讀為しょう(含長音)、「動」音讀為どう。干擾項「しょどう」脫落了長音う;「しょうとう」把濁音どう誤清化為とう;「じょうどう」把しょう誤濁化為じょう,皆不成立。",
+    explanation: "「衝動」讀作「しょうどう」。「衝」音讀為「しょう」(含長音)、「動」音讀為「どう」。干擾項「しょどう」脫落了長音「う」;「しょうとう」把濁音「どう」誤清化為「とう」;「じょうどう」把「しょう」誤濁化為「じょう」,皆不成立。",
     explanationI18n: { "ja": "「衝動」は「しょうどう」と読む。「衝」は音読みで「しょう」（長音を含む）、「動」は音読みで「どう」。誤答「しょどう」は長音の「う」が脱落している、「しょうとう」は濁音の「どう」を誤って清音の「とう」にしている、「じょうどう」は「しょう」を誤って濁音の「じょう」にしており、いずれも成立しない。", "en": "「衝動」 is read 「しょうどう」. 「衝」 has the on-reading しょう (with a long vowel), and 「動」 has the on-reading どう. The distractor 「しょどう」 drops the long vowel う; 「しょうとう」 wrongly unvoices どう to とう; 「じょうどう」 wrongly voices しょう to じょう—none works." },
     exampleJapanese: "甘い言葉の奥に潜む毒へ手を伸ばしたくなる衝動を、夜ごと懸命に抑え込んでいる。",
     exampleMeaningZh: "對藏在甜言蜜語深處的毒,那股想伸手的衝動,我每晚都拚命壓抑著。",
@@ -9631,7 +9631,7 @@ export const n1Items: PracticeQuestion[] = [
     hintI18n: { "ja": "すべてが移ろい生滅していく中で、私の心にある願いだけは初めから変わらず、揺らいだことがない。", "en": "All things flow and pass away, yet the one hope in my heart has stayed constant, never once wavering." },
     expectedAnswer: "旅路",
     options: ["旅路", "末路", "退路", "岐路"],
-    explanation: "正解は「旅路（たびじ）」＝旅の道のり。終わりの見えない長い旅という文脈に合う。「末路」は落ちぶれた最後・結末で、果てを探し続ける前向きな祈りの語感に合わない。「退路」は逃げ道で、果てへ向かう旅とは矛盾。「岐路」は分かれ道・選択の場面を指し、「果て」とは結びつかない。よって唯一成立するのは「旅路」。",
+    explanation: "正解是「旅路（たびじ）」,意為旅途、旅程,契合「終わりの見えない長い旅」(看不見盡頭的漫長旅程)這一語境。「末路」指沒落的下場、結局,與一路追尋盡頭的前行祈願語感不合;「退路」是撤退用的後路,與朝著盡頭前進的旅程相矛盾;「岐路」指岔路、面臨抉擇的場面,與「果て」(盡頭)搭不起來。因此唯一成立的是「旅路」。",
     explanationI18n: { "ja": "正解は「旅路（たびじ）」＝旅の道のりです。終わりの見えない長い旅という文脈に合います。「末路」は落ちぶれた最後・結末で、果てを探し続ける前向きな祈りの語感に合いません。「退路」は逃げ道で、果てへ向かう旅とは矛盾します。「岐路」は分かれ道・選択の場面を指し、「果て」とは結びつきません。よって唯一成立するのは「旅路」です。", "en": "The correct answer is 「旅路（たびじ）」, meaning the course of a journey, which fits the context of a long journey with no visible end. 「末路」means a downfallen end or final fate, which doesn't match the forward-looking, prayerful tone of continuing to search for a far horizon. 「退路」means an escape route, contradicting a journey heading toward the distant end. 「岐路」refers to a fork in the road or a moment of choice, which doesn't connect with 「果て」. Therefore the only word that works is 「旅路」." },
   }),
   examQuestion({
@@ -9693,7 +9693,7 @@ export const n1Items: PracticeQuestion[] = [
     hintI18n: { "ja": "彼は壊すことと築くことの狭間で揺れ動き、自分がどこへ向かいたいのかさえ見えなくなっている。", "en": "He wavers in the crack between destruction and construction, no longer able to see even where he wants to go." },
     expectedAnswer: "混沌",
     options: ["混沌", "整然", "雑然", "判然"],
-    explanation: "正解は「混沌」。秩序が崩れて何もかも入り混じり判別がつかない状態を表し、「壊すことと築くことが同時に押し寄せ」「見分けがつかなくなっていた」という文脈に合う。「整然」は整い秩序立った様子で、『見分けがつかない』状況と正反対。「雑然」は物が乱雑に散らかった様子を指し、物理的な散らかりの語感で、思考が判別不能になる心理状態には合わない。「判然」は『判然としない』のように主に否定形で『はっきりしない』を表す語で、ここは肯定で「___ として…見分けがつかなくなっていた」と続くため、肯定の『はっきりしている』意になり文意と矛盾する。いずれも『〜として』には接続できるが、混乱して判別不能という文脈で成立するのは「混沌」のみ。",
+    explanation: "正解是「混沌」,表示秩序崩解、一切混雜而難以辨別的狀態,契合「壊すことと築くことが同時に押し寄せ」(破壞與建立同時湧來)、「見分けがつかなくなっていた」(再也分不清)的語境。「整然」是整齊而井然有序的樣子,與『分不清』的處境正好相反;「雑然」指東西凌亂散置的樣子,語感偏向實體的雜亂,不合思緒無法辨別的心理狀態;「判然」主要以否定形『判然としない』表示『不清楚』,此處是接在肯定的「___ として…見分けがつかなくなっていた」之中,會變成肯定的『清楚分明』之意,與文意矛盾。四者雖然都能接『〜として』,但在混亂難辨的語境中成立的只有「混沌」。",
     explanationI18n: { "ja": "正解は「混沌」。秩序が崩れて何もかも入り混じり判別がつかない状態を表し、「壊すことと築くことが同時に押し寄せ」「見分けがつかなくなっていた」という文脈に合う。「整然」は整い秩序立った様子で、『見分けがつかない』状況と正反対。「雑然」は物が乱雑に散らかった様子を指し、物理的な散らかりの語感で、思考が判別不能になる心理状態には合わない。「判然」は『判然としない』のように主に否定形で『はっきりしない』を表す語で、ここは肯定で「___ として…見分けがつかなくなっていた」と続くため、肯定の『はっきりしている』意になり文意と矛盾する。いずれも『〜として』には接続できるが、混乱して判別不能という文脈で成立するのは「混沌」のみ。", "en": "The answer is 混沌. It describes a state where order has collapsed and everything is jumbled together beyond distinction, matching the context of 「壊すことと築くことが同時に押し寄せ」 and 「見分けがつかなくなっていた」. 整然 means neat and orderly, the exact opposite of a situation where things can't be told apart. 雑然 refers to physical clutter — objects scattered in disarray — and doesn't fit the mental state of thoughts becoming impossible to sort out. 判然 is used mainly in the negative, as in 「判然としない」 ('unclear'); here it appears affirmatively (「___ として…見分けがつかなくなっていた」), which would give the sense of 'being clear,' contradicting the intended meaning. All four can attach to 「〜として」, but only 混沌 works in a context of confusion beyond distinction." },
   }),
   examQuestion({
@@ -9713,7 +9713,7 @@ export const n1Items: PracticeQuestion[] = [
     hintI18n: { "ja": "彼女は半ば強いられるように一つ一つ物を元へ戻し、乱れていた部屋がしだいに何かしらの解放への入り口のように見えてくる。", "en": "Half-forced to put things back one by one, the messy room gradually came to feel like an entrance to some kind of liberation." },
     expectedAnswer: "秩序",
     options: ["秩序", "混乱", "矛盾", "錯覚"],
-    explanation: "正解は「秩序」。「一つ一つ並べ直していく」「荒れ果てた部屋にようやく___が戻り」という文脈は、乱れていた状態が整い、規律ある状態に回復することを示すため「秩序」が自然。「混乱」は乱れた状態そのもので、『戻る』対象が整いではなくなり矛盾する。「矛盾」「錯覚」は並べ直した結果として部屋に生じるものではなく、文意が通らない。三つの選択肢はこの語境で明確に成立しないので、答えは一つに絞られる。",
+    explanation: "正解是「秩序」。「一つ一つ並べ直していく」(一件件重新排好)、「荒れ果てた部屋にようやく___が戻り」(荒亂的房間終於恢復了___)的語境,描述凌亂的狀態被整頓、回復到有規律的樣子,填「秩序」最自然。「混乱」本身就是混亂的狀態,讓它『回來』與整頓復原的方向相矛盾;「矛盾」「錯覚」都不是重新排列後會在房間裡產生的東西,文意不通。三個干擾項在此語境都明顯不成立,答案唯有「秩序」。",
     explanationI18n: { "ja": "正解は「秩序」。「一つ一つ並べ直していく」「荒れ果てた部屋にようやく___が戻り」という文脈は、乱れていた状態が整い、規律ある状態に回復することを示すため「秩序」が自然。「混乱」は乱れた状態そのもので、『戻る』対象が整いではなくなり矛盾する。「矛盾」「錯覚」は並べ直した結果として部屋に生じるものではなく、文意が通らない。三つの選択肢はこの語境で明確に成立しないので、答えは一つに絞られる。", "en": "The answer is 秩序. The context 「一つ一つ並べ直していく」 and 「荒れ果てた部屋にようやく___が戻り」 describes a disordered state being set right and restored to a regulated condition, so 秩序 ('order') is natural. 混乱 is the disordered state itself, so having it 'return' would contradict the sense of things being put in order. 矛盾 and 錯覚 are not things that would arise in a room as a result of rearranging it, so the sentence wouldn't make sense. Since the three distractors clearly fail in this context, the answer narrows to one." },
   }),
   examQuestion({
@@ -10103,7 +10103,7 @@ export const n1Items: PracticeQuestion[] = [
     hintI18n: { "ja": "彼は思いきって想い人に気持ちを打ち明けたのに、肝心なところで相手の名前を間違え、あとから思い出しては首を振っている。", "en": "He mustered the courage to confess his feelings to the one he loved, only to get her name wrong at the most crucial moment — and afterward, thinking back, he could only shake his head." },
     expectedAnswer: "間抜け",
     options: ["間抜け", "几帳面", "大げさ", "強引"],
-    explanation: "正解は「間抜け」。重要な告白の場面で相手の名前を呼び間違えるという失敗を「我ながら～な話だ」と自嘲しており、愚かで滑稽な様子を表す「間抜け」が文脈に合う。「几帳面（きちょうめん）」は几帳面で物事をきちんとする様子で、名前を間違える失敗とは正反対。「大げさ」は物事を誇張する様子で、ここでの単純なうっかりミスには合わない。「強引（ごういん）」は無理やり押し通す様子で、呼び間違えという失敗を形容できない。",
+    explanation: "正解是「間抜け」。在關鍵的告白場面把對方名字叫錯,還以「我ながら～な話だ」(連自己都覺得…)自嘲,表示愚蠢又滑稽的「間抜け」正合語境。「几帳面（きちょうめん）」指一絲不苟、做事嚴謹的樣子,與叫錯名字的失誤正好相反;「大げさ」指誇大、小題大作的樣子,不合這種單純的粗心失誤;「強引（ごういん）」指強行硬來的樣子,無法形容叫錯名字這種失敗。",
     explanationI18n: { "ja": "正解は「間抜け」。大切な告白の場面で相手の名前を呼び間違えるという失敗を「我ながら～な話だ」と自嘲しており、愚かで滑稽な様子を表す「間抜け」が文脈に合う。「几帳面（きちょうめん）」は几帳面で物事をきちんとする様子で、名前を間違える失敗とは正反対。「大げさ」は物事を誇張する様子で、ここでの単純なうっかりミスには合わない。「強引（ごういん）」は無理やり押し通す様子で、呼び間違えという失敗を形容できない。", "en": "The answer is 間抜け. Getting the other person's name wrong at a crucial confession is a blunder he mocks himself for with 「我ながら～な話だ」, and 間抜け, describing something foolish and comical, fits the context. 几帳面 (きちょうめん) means meticulous and precise about things — the exact opposite of botching a name. 大げさ means exaggerating things, which doesn't fit a simple careless slip. 強引 (ごういん) means forcing something through by sheer will, which can't describe the blunder of getting a name wrong." },
   }),
   examQuestion({
@@ -10143,7 +10143,7 @@ export const n1Items: PracticeQuestion[] = [
     hintI18n: { "ja": "あのときは授業中のほんの小さな仕草だったが、何年もたって思い返しても、あの初々しいときめきは今なお鮮やかだ。", "en": "Back then it was just a small gesture in class, but years later, recalling it, that green, budding flutter is still vivid and clear." },
     expectedAnswer: "正真正銘",
     options: ["正真正銘", "一朝一夕", "半信半疑", "単刀直入"],
-    explanation: "正解は「正真正銘」。「掩飾不了、確確實實是戀愛」與後句「今ならわかる(如今才懂)」呼應,強調那份心動千真萬確。「一朝一夕(一朝一夕、短時間)」修飾的是時間之短,與「恋」搭配不通;「半信半疑」是半信半疑的態度,與『斷定那是戀愛』矛盾;「単刀直入(開門見山)」形容說話直接,無法修飾名詞「恋」。代回後僅「正真正銘」成立。",
+    explanation: "正解是「正真正銘」。「掩飾不了、確確實實是戀愛」與後句「今ならわかる(如今才懂)」呼應,強調那份心動千真萬確。「一朝一夕(一朝一夕、短時間)」修飾的是時間之短,與「恋」搭配不通;「半信半疑」是半信半疑的態度,與『斷定那是戀愛』矛盾;「単刀直入(開門見山)」形容說話直接,無法修飾名詞「恋」。代回後僅「正真正銘」成立。",
     explanationI18n: { "ja": "正解は「正真正銘」。「ごまかしようもなく、確かに恋だった」という意味で、後の「今ならわかる（今なら分かる）」と呼応し、そのときめきがまぎれもなく本物であったことを強調する。「一朝一夕（短い時間）」が修飾するのは時間の短さで、「恋」との組み合わせは意味が通らない。「半信半疑」は半信半疑の態度で、『それが恋だと断定する』ことと矛盾する。「単刀直入（単刀直入）」は話し方が直接的なことを形容し、名詞「恋」を修飾できない。当てはめて成立するのは「正真正銘」のみ。", "en": "The answer is 正真正銘. 'It was undeniably, genuinely love' echoes the following 「今ならわかる」 ('only now do I understand'), emphasizing that the flutter was the real thing. 一朝一夕 ('overnight, a short span of time') modifies brevity of time and doesn't pair with 「恋」; 半信半疑 is an attitude of doubt, which contradicts 'concluding it was love'; 単刀直入 ('getting straight to the point') describes speaking directly and can't modify the noun 「恋」. Inserting each back, only 正真正銘 works." },
   }),
   examQuestion({
@@ -10163,7 +10163,7 @@ export const n1Items: PracticeQuestion[] = [
     hintI18n: { "ja": "彼女はくじ筒に手を伸ばす前に深く息を吸い、期待のすべてをこの一引きに賭けている。", "en": "Before reaching her hand into the lot box she took a deep breath, all her hopes riding on this single draw." },
     expectedAnswer: "決戦",
     options: ["決戦", "休戦", "対戦", "観戦"],
-    explanation: "正解は「決戦」。把抽座位籤比作『決定一切的最後一戰』,與「決まる(就此決定)」「私だけの(只屬於我的)」氛圍相合,凸顯成敗在此一舉。「休戦(休戰)」指暫停交戰,與『此刻定勝負』相反;「対戦(對戰)」需有對手較量,這裡是抽籤憑運氣、無交手對象;「観戦(觀戰)」是旁觀比賽,但她是當事人而非旁觀者。代回後僅「決戦」成立。",
+    explanation: "正解是「決戦」。把抽座位籤比作『決定一切的最後一戰』,與「決まる(就此決定)」「私だけの(只屬於我的)」氛圍相合,凸顯成敗在此一舉。「休戦(休戰)」指暫停交戰,與『此刻定勝負』相反;「対戦(對戰)」需有對手較量,這裡是抽籤憑運氣、無交手對象;「観戦(觀戰)」是旁觀比賽,但她是當事人而非旁觀者。代回後僅「決戦」成立。",
     explanationI18n: { "ja": "正解は「決戦」。席替えのくじ引きを『すべてを決する最後の一戦』にたとえており、「決まる（それで決まる）」「私だけの（私だけの）」という雰囲気と合い、成否がこの一瞬にかかっていることを際立たせる。「休戦（休戦）」は戦いを一時やめることで、『今この瞬間に勝負が決まる』ことと反対。「対戦（対戦）」は相手との勝負が必要だが、ここはくじを運任せに引くだけで、対戦相手はいない。「観戦（観戦）」は試合を傍から見ることだが、彼女は当事者であって傍観者ではない。当てはめて成立するのは「決戦」のみ。", "en": "The answer is 決戦. Likening the seat-change draw to 'the final battle that decides everything' fits the mood of 「決まる」 (settled right then) and 「私だけの」 (mine alone), highlighting that it all comes down to this one moment. 休戦 ('truce') means suspending combat, the opposite of 'the decisive moment now'; 対戦 ('a match') requires an opponent to contend with, but here it's a random draw with no adversary; 観戦 ('spectating') is watching a contest, but she's the one involved, not a bystander. Inserting each back, only 決戦 works." },
   }),
   examQuestion({
@@ -10183,7 +10183,7 @@ export const n1Items: PracticeQuestion[] = [
     hintI18n: { "ja": "彼女は咲いてすぐ散る花を見つめ、しばらく静かに立ち尽くし、胸に感慨がこみ上げてくる。", "en": "She gazed at the flowers that fall as soon as they bloom, stood there quietly for a while, and a wave of feeling welled up in her heart." },
     expectedAnswer: "無常",
     options: ["無常", "無理", "無効", "無口"],
-    explanation: "正解は「無常」。咲いてすぐ散る花から「世のすべては移ろい、変わらぬものはない」という感慨を述べる文。「無理」は道理に合わない・困難、「無効」は効力がないこと、「無口」は口数が少ない性格で、いずれも「世の___を感じる」という移ろいの文脈に合わず成立しない。",
+    explanation: "正解是「無常」。整句藉著一開即謝的花,抒發『世間一切都在流轉、沒有恆常不變之物』的感慨。「無理」指不合道理、勉強困難;「無効」指不具效力;「無口」指寡言的性格,三者都不合「世の___を感じる」這種詠嘆變遷的語境,無法成立。",
     explanationI18n: { "ja": "正解は「無常」。咲いてすぐ散る花から「世のすべては移ろい、変わらぬものはない」という感慨を述べる文。「無理」は道理に合わない・困難、「無効」は効力がないこと、「無口」は口数が少ない性格で、いずれも「世の___を感じる」という移ろいの文脈に合わず成立しない。", "en": "The answer is 無常. From flowers that scatter as soon as they bloom, the sentence expresses the reflection that 'all things in the world change and nothing stays the same.' 無理 means unreasonable or difficult, 無効 means without effect, and 無口 means a quiet, reticent nature — none fits the context of transience in 「世の___を感じる」, so they don't hold up." },
   }),
   examQuestion({
