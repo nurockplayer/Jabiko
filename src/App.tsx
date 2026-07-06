@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { BookOpen, ChevronDown, Globe, Languages, MessageCircle, Moon, Newspaper, Sun } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
@@ -27,6 +27,7 @@ import type { SessionInit } from "./hooks/usePracticeSession";
 import { challengeInitFromQuery } from "./domain/challengeDeepLink";
 import { readLevelPreference, writeLevelPreference } from "./domain/levelPreference";
 import type { LevelRange } from "./domain/levelRange";
+import { trackEvent } from "./lib/analytics";
 import { canonicalArticleSlug } from "./domain/articlesMeta";
 import "./styles.css";
 
@@ -160,6 +161,11 @@ export default function App() {
     () => parseRoute(window.location.pathname).blogSlug
   );
 
+  // UI language is pulled up here so the analytics effects (page_view /
+  // study_page_viewed) below can read `language` without a TDZ violation.
+  const { language, setLanguage } = useLanguage();
+  const t = copy[language];
+
   // Open a grammar point's study page (#282): from the post-answer feedback's
   // "深入學習這個文法 →" link, and deep-linkable directly via the URL.
   const openGrammar = (surface: string) => {
@@ -204,15 +210,46 @@ export default function App() {
   // metadata to crawlers (SPA otherwise shares one static shell). See seo.ts.
   useSeoMeta(appView, grammarSurface, blogSlug);
 
+  // Phase 1 analytics (#404): one page_view per top-level view change.
+  // Keyed on appView only — grammar-surface drilldowns are covered by
+  // study_page_viewed (below), and locale changes by locale_changed,
+  // so neither re-fires page_view.
+  useEffect(() => {
+    trackEvent("page_view", { view: appView, locale: language });
+  }, [appView]); // language intentionally omitted: locale change fires locale_changed, not page_view
+
+  // Phase 1 analytics (#404): fire study_page_viewed when a concrete grammar
+  // point's study page opens — covers in-app openGrammar AND direct
+  // /grammar/<surface> deep links / browser back-forward. Level-only routes
+  // (e.g. /grammar/n5 — the index) are NOT study pages and are excluded.
+  // lastSurface ref dedupes so re-renders with the same surface don't refire.
+  const lastStudySurfaceRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (
+      appView === "grammar" &&
+      grammarSurface !== null &&
+      !isGrammarLevelRoute &&
+      lastStudySurfaceRef.current !== grammarSurface
+    ) {
+      lastStudySurfaceRef.current = grammarSurface;
+      trackEvent("study_page_viewed", { surface: grammarSurface, locale: language });
+    }
+    // Reset the dedupe ref when leaving the grammar view, going back to
+    // the index (grammarSurface becomes null), or entering a level-route
+    // index page — so returning to the same surface later still fires.
+    if (appView !== "grammar" || grammarSurface === null || isGrammarLevelRoute) {
+      lastStudySurfaceRef.current = null;
+    }
+  }, [appView, grammarSurface, isGrammarLevelRoute, language]);
+
   // One-time localStorage pull from jabiko.pages.dev after the domain move
   // (#jabiko-app-domain); no-op everywhere except a fresh jabiko.app visit.
   useOriginMigration();
 
-  // UI language: stored preference > ja default. The hook owns the <html lang>
+  // UI language: pulled up above the analytics effects so they can read
+  // `language` without a TDZ violation. The hook owns the <html lang>
   // side-effect and persistence; copy[language] re-renders the whole tree on
   // change, so the prop-drilled `language` stays a seam.
-  const { language, setLanguage } = useLanguage();
-  const t = copy[language];
 
   // #438: the grammar-pattern DATABASE (index + cards) is Chinese-only content
   // for now, so its browse UI is gated to zh-Hant until the i18n overlay lands
@@ -290,6 +327,7 @@ export default function App() {
   const handleChooseLevel = (range: LevelRange) => {
     writeLevelPreference(range);
     setTargetLevel(range);
+    trackEvent("level_changed", { scope: "global", levelRange: range, locale: language });
   };
 
   const themeToggleLabel = theme === "dark" ? t.themeLight : t.themeDark;
@@ -310,6 +348,24 @@ export default function App() {
     // no-op since the mounted panel ignores re-seeds.)
     setLaunch(request);
     setAppView("challenge");
+    // Phase 1 analytics (#404): every practice entry funnels through here.
+    // Weak-point review gets its own event so we can tell "open review" apart
+    // from "start a fresh drill"; payloads are metadata only (no question text).
+    // Skip tracking when already on the challenge view (re-clicking the nav
+    // 挑戰 button while mounted) — the panel ignores re-seeds, so tracking
+    // here would inflate practice-start metrics with no-op clicks.
+    const isAlreadyInChallenge = appView === "challenge";
+    if (!isAlreadyInChallenge) {
+      if (request?.mode === "review") {
+        trackEvent("weak_review_started", { dueCount: reviewCount, locale: language });
+      } else {
+        trackEvent("practice_started", {
+          source: request?.mode ?? "daily",
+          levelRange: request?.levelRange,
+          locale: language
+        });
+      }
+    }
   };
 
   const startDrill = (preset: DrillPreset) => {
@@ -336,6 +392,7 @@ export default function App() {
           current={language}
           options={LANGUAGE_OPTIONS}
           onChoose={(code) => {
+            trackEvent("locale_changed", { from: language, to: code });
             setLanguage(code);
             setLangPickerOpen(false);
           }}

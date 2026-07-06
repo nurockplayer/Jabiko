@@ -23,6 +23,7 @@ import { getBookmarkedIds, toggleBookmark } from "../domain/bookmarks";
 import type { Attempt, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
 import { readStored, writeStored } from "../domain/safeStorage";
 import { copy, type Language } from "../i18n";
+import { trackEvent } from "../lib/analytics";
 import type { Feedback } from "../components/types";
 
 // Configurable practice-session length (#154). The endless drill modes
@@ -348,6 +349,27 @@ export function usePracticeSession({
   const correctCount = attempts.filter((attempt) => attempt.isCorrect).length;
   const accuracy = attempts.length > 0 ? Math.round((correctCount / attempts.length) * 100) : 0;
 
+  // Phase 1 analytics (#404): fire practice_completed on the rising edge of
+  // sessionExhausted. resetSession brings it back to false so the next
+  // completion re-fires. Keeping the edge-detection here (not in
+  // ChallengePanel) consolidates all practice-session analytics in the hook,
+  // since it already owns answer_submitted and session-level_changed.
+  // Must appear after correctCount / sessionTotal / practiceMode are
+  // declared to avoid TDZ violations.
+  const prevExhaustedRef = useRef(false);
+  useEffect(() => {
+    if (!prevExhaustedRef.current && sessionExhausted) {
+      trackEvent("practice_completed", {
+        source: practiceMode,
+        level: practiceFilter.examSection?.level ?? "all",
+        totalQuestions: sessionTotal ?? attempts.length,
+        correctCount,
+        locale: language
+      });
+    }
+    prevExhaustedRef.current = sessionExhausted;
+  }, [sessionExhausted, practiceMode, sessionTotal, attempts.length, correctCount, language]);
+
   useEffect(() => {
     if (feedback) {
       nextButtonRef.current?.focus({ preventScroll: true });
@@ -386,6 +408,7 @@ export function usePracticeSession({
   const handleLevelRangeChange = (nextRange: LevelRange) => {
     if (nextRange === levelRange) return;
     setLevelRange(nextRange);
+    trackEvent("level_changed", { scope: "session", levelRange: nextRange, locale: language });
     resetSession();
   };
 
@@ -410,6 +433,17 @@ export function usePracticeSession({
       status: attempt.isCorrect ? "correct" : "incorrect",
       question: currentQuestion,
       submittedAnswer: choice
+    });
+    // Phase 1 analytics (#404): metadata only — no question text, no user
+    // answer. questionType reuses practiceMode (a coarse, content-free label)
+    // to avoid leaking the question surface; level is the fixed mock-section
+    // level when present, else "all" (levelRange is a band, not a level).
+    trackEvent("answer_submitted", {
+      source: practiceMode,
+      level: practiceFilter.examSection?.level ?? "all",
+      questionType: practiceMode,
+      isCorrect: attempt.isCorrect,
+      locale: language
     });
   };
 
