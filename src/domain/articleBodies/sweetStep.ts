@@ -4,7 +4,12 @@ export const sweetStepBody: ReadonlyArray<ArticleBlock> = [
   {
     kind: "lead",
     text:
-      "SWEET STEADY 的〈SWEET STEP〉乍聽是可愛、洗腦、很適合短影音的偶像歌。甜點、咒語、跳舞和重複 hook 都很鮮明，聽幾次就會留在腦中。不過拿來學日文時，這首歌最有意思的地方不是「可愛」，而是它怎麼處理 ありのまま 這個詞。"
+      "先說為什麼挑這首：SWEET STEADY 的〈SWEET STEP〉不是只在演算法裡刷過一下的可愛歌。它是 2026 年在 SNS 上很難忽略的一首偶像歌，作為 3rd single 的表題曲被官方形容為「SNS 席捲中」；登上 THE FIRST TAKE 第 678 回時，介紹也提到配信約 4 個月後，TikTok 總播放已突破 5 億次（ASOBIMUSIC 調查）。"
+  },
+  {
+    kind: "paragraph",
+    text:
+      "這種歌最適合拿來學日文：旋律和舞步讓字先黏在腦中，之後再回頭拆詞，就會發現它不只是可愛、洗腦、適合短影音。甜點、咒語、跳舞和重複 hook 都很鮮明，但真正耐看的地方，是它怎麼處理 ありのまま 這個詞。"
   },
   {
     kind: "paragraph",
@@ -18,11 +23,23 @@ export const sweetStepBody: ReadonlyArray<ArticleBlock> = [
   },
   {
     kind: "links",
-    label: "延伸觀看",
+    label: "延伸觀看與資料",
     items: [
       {
         label: "SWEET STEADY《SWEET STEP》Official Music Video（YouTube）",
         url: "https://www.youtube.com/watch?v=1546cwoU6Wg"
+      },
+      {
+        label: "SWEET STEADY《SWEET STEP》/ THE FIRST TAKE",
+        url: "https://www.youtube.com/watch?v=SzLi_CS4hkA"
+      },
+      {
+        label: "USEN encore：THE FIRST TAKE 出演與 TikTok 5 億次報導",
+        url: "https://e.usen.com/news/news-event/kawaii-lab7sweet-steady-the-first-take-snssweet-step.html"
+      },
+      {
+        label: "PR TIMES：3rd single《SWEET STEP》發售資訊",
+        url: "https://prtimes.jp/main/html/rd/p/000000722.000017258.html"
       }
     ]
   },

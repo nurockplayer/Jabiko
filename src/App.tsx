@@ -11,6 +11,7 @@ import { LanguageFlag } from "./components/LanguageFlag";
 import { FeedbackForm } from "./components/FeedbackForm";
 import type { FeedbackCategory } from "./domain/feedbackRemote";
 import { UpdateToast } from "./components/UpdateToast";
+import { RouteErrorBoundary } from "./components/RouteErrorBoundary";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { JabikoMark } from "./components/JabikoMark";
 import { FuriganaContext } from "./components/furiganaContext";
@@ -325,6 +326,8 @@ export default function App() {
     openChallenge({ mode: "pattern", filter: { patternIds } });
   };
 
+  const routeResetKey = `${appView}:${grammarSurface ?? ""}:${blogSlug ?? ""}`;
+
   return (
     <main className="app-shell">
       {needRefresh && <UpdateToast label={t.updateAvailable} onUpdate={updateApp} />}
@@ -522,6 +525,12 @@ export default function App() {
       </nav>
 
       <FuriganaContext.Provider value={{ enabled: furiganaEnabled }}>
+      <RouteErrorBoundary
+        resetKey={routeResetKey}
+        title={t.routeErrorTitle}
+        body={t.routeErrorBody}
+        reloadLabel={t.routeErrorReload}
+      >
       {appView === "home" ? (
         <HomePanel
           language={language}
@@ -631,6 +640,7 @@ export default function App() {
           />
         </Suspense>
       )}
+      </RouteErrorBoundary>
       </FuriganaContext.Provider>
     </main>
   );

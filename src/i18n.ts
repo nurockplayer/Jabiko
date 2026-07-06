@@ -29,6 +29,9 @@ export type Copy = {
   flowLabel: string;
   loading: string;
   updateAvailable: string;
+  routeErrorTitle: string;
+  routeErrorBody: string;
+  routeErrorReload: string;
   home: string;
   learn: string;
   rules: string;
