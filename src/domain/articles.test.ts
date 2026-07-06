@@ -80,6 +80,8 @@ describe("blog articles data guard", () => {
         } else if (block.kind === "lyricPoint") {
           expect(block.lyric.trim().length).toBeGreaterThan(0);
           expect(block.points.length).toBeGreaterThan(0);
+        } else if (block.kind === "divider") {
+          expect(block.label.trim().length).toBeGreaterThan(0);
         } else if (block.kind === "cta") {
           expect(block.cta.label.trim().length).toBeGreaterThan(0);
           if (block.cta.kind === "grammar") {
@@ -87,6 +89,27 @@ describe("blog articles data guard", () => {
           }
         }
       }
+    }
+  });
+
+  it("keeps the essay on top and all teaching below a single 日文教學 divider", () => {
+    for (const a of publishedArticles) {
+      const dividerIndexes = a.body
+        .map((block, index) => (block.kind === "divider" ? index : -1))
+        .filter((index) => index >= 0);
+      // Exactly one divider splits 文章 (essay, top) from 日文教學 (teaching, bottom).
+      expect(dividerIndexes, a.slug).toHaveLength(1);
+      const divider = dividerIndexes[0];
+      a.body.forEach((block, index) => {
+        // Every vocab table lives BELOW the divider (no teaching in the essay)…
+        if (block.kind === "vocab") {
+          expect(index, `${a.slug}: vocab block above the divider`).toBeGreaterThan(divider);
+        }
+        // …and no essay-conclusion heading trails at the end (e.g. 「最後：…」).
+        if (block.kind === "heading") {
+          expect(block.text, a.slug).not.toMatch(/^最後/);
+        }
+      });
     }
   });
 

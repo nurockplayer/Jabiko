@@ -216,6 +216,31 @@
   color: var(--ink);
 }
 
+/* Essay / teaching section break: a labelled rule so the 日文教學 half reads
+   as its own zone below the essay. */
+.blog-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 1.8rem 0 0.4rem;
+}
+
+.blog-divider::before,
+.blog-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--rule);
+}
+
+.blog-divider-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  padding-left: 0.35em; /* optically recentre: balances the trailing letter-space */
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 /* Vocab table */
 .blog-vocab {
   background: var(--paper);

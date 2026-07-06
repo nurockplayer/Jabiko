@@ -138,6 +138,12 @@ function ArticleBlockView({
           </ul>
         </div>
       );
+    case "divider":
+      return (
+        <div className="blog-divider" role="separator" aria-label={block.label}>
+          <span className="blog-divider-label">{block.label}</span>
+        </div>
+      );
     case "cta":
       return (
         <div className="blog-cta-block">

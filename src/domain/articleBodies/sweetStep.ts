@@ -21,6 +21,17 @@ export const sweetStepBody: ReadonlyArray<ArticleBlock> = [
     text:
       "這也是這首歌很適合學日文的地方。歌裡一邊承認妄想、逞強、不坦率、反省、疲累，一邊又用可愛、甜點、咒語和舞步，把還不完整的自己包成禮物送出去。它唱的不是「我已經找到完美的自己」，比較像是「我還在摸索，但我還是想繼續跳、繼續喜歡、繼續往前」。"
   },
+  { kind: "heading", text: "還在摸索，也可以被肯定" },
+  {
+    kind: "paragraph",
+    text:
+      "〈SWEET STEP〉可愛的地方，不只是旋律甜、舞步好記，而是它把「還不完整」唱得很輕。真正的自己不一定一開始就看得清楚。可能一邊逞強，一邊反省；一邊覺得累，一邊還是想被喜歡。"
+  },
+  {
+    kind: "paragraph",
+    text:
+      "所以這裡的 ありのまま 不是一句空泛的鼓勵。它更像是：就算我還沒完全懂自己，也可以先帶著現在的我，繼續踏出下一步。"
+  },
   {
     kind: "links",
     label: "延伸觀看與資料",
@@ -43,6 +54,7 @@ export const sweetStepBody: ReadonlyArray<ArticleBlock> = [
       }
     ]
   },
+  { kind: "divider", label: "日文教學" },
   {
     kind: "callout",
     text:
@@ -210,17 +222,6 @@ export const sweetStepBody: ReadonlyArray<ArticleBlock> = [
           "來自英文 buzz，常見於社群和短影音語境。例：この曲のサビがSNSでバズっている。／這首歌的副歌在社群上爆紅。"
       }
     ]
-  },
-  { kind: "heading", text: "還在摸索，也可以被肯定" },
-  {
-    kind: "paragraph",
-    text:
-      "〈SWEET STEP〉可愛的地方，不只是旋律甜、舞步好記，而是它把「還不完整」唱得很輕。真正的自己不一定一開始就看得清楚。可能一邊逞強，一邊反省；一邊覺得累，一邊還是想被喜歡。"
-  },
-  {
-    kind: "paragraph",
-    text:
-      "所以這裡的 ありのまま 不是一句空泛的鼓勵。它更像是：就算我還沒完全懂自己，也可以先帶著現在的我，繼續踏出下一步。"
   },
   {
     kind: "cta",
