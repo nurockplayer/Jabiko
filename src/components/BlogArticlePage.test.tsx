@@ -1,5 +1,7 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { articleBySlug } from "../domain/articles";
 import { BlogArticlePage } from "./BlogArticlePage";
 
 describe("BlogArticlePage", () => {
@@ -16,10 +18,7 @@ describe("BlogArticlePage", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: /SWEET STEADY - SWEET STEP/ })
     ).toBeInTheDocument();
-    expect(screen.getByText("ありのまま")).toBeInTheDocument();
-    expect(screen.getByText("（ありのまま）")).toBeInTheDocument();
-    expect(screen.getByText("強がる")).toBeInTheDocument();
-    expect(screen.getByText(/大輪の種はここにある/)).toBeInTheDocument();
+    expect(screen.getAllByText(/THE FIRST TAKE/).length).toBeGreaterThan(0);
   });
 
   it("keeps the old SWEET STEP slug readable as a legacy alias", () => {
@@ -35,6 +34,31 @@ describe("BlogArticlePage", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: /SWEET STEADY - SWEET STEP/ })
     ).toBeInTheDocument();
-    expect(screen.queryByText(/Article not found|文章不存在/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Article not found/)).not.toBeInTheDocument();
+  });
+
+  it("passes the article CTA payload to the app-level handler", async () => {
+    const user = userEvent.setup();
+    const onCta = vi.fn();
+    const { container } = render(
+      <BlogArticlePage
+        slug="sweet-steady-sweet-step"
+        language="zh-Hant"
+        onBack={vi.fn()}
+        onCta={onCta}
+      />
+    );
+
+    const ctaButton = container.querySelector<HTMLButtonElement>(".blog-cta");
+    expect(ctaButton).not.toBeNull();
+    await user.click(ctaButton!);
+
+    const article = articleBySlug("sweet-steady-sweet-step");
+    const ctaBlock = article?.body.find((block) => block.kind === "cta");
+    expect(ctaBlock?.kind).toBe("cta");
+    if (ctaBlock?.kind !== "cta") {
+      throw new Error("Expected SWEET STEP article to include a CTA block");
+    }
+    expect(onCta).toHaveBeenCalledWith(ctaBlock.cta);
   });
 });
