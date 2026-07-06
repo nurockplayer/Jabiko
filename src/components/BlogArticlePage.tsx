@@ -2,11 +2,8 @@ import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { articleBySlug, type ArticleBlock, type ArticleCta } from "../domain/articles";
 
-// A single 文章 page (#483). Renders the article's structured block body
-// (headings / paragraphs / vocab tables / lyric-commentary / a closing
-// practice CTA). zh-Hant-only content, lazy-loaded. `onCta` routes the
-// end-of-article call-to-action back into real practice (App maps it to
-// openChallenge / openGrammar) -- the reader-to-drill-user moat (#483).
+// Single blog article page. The article body is zh-Hant original content and
+// is lazy-loaded from the blog route, so prose stays out of the initial bundle.
 export function BlogArticlePage({
   slug,
   language,
@@ -152,7 +149,6 @@ function ArticleBlockView({
         </div>
       );
     default: {
-      // Exhaustiveness guard: a new block kind must add a case above.
       const _never: never = block;
       return _never;
     }

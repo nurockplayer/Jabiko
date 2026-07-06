@@ -26,6 +26,7 @@ import type { SessionInit } from "./hooks/usePracticeSession";
 import { challengeInitFromQuery } from "./domain/challengeDeepLink";
 import { readLevelPreference, writeLevelPreference } from "./domain/levelPreference";
 import type { LevelRange } from "./domain/levelRange";
+import { canonicalArticleSlug } from "./domain/articlesMeta";
 import "./styles.css";
 
 // Lazy routes. The challenge view owns the practice engine, which
@@ -131,6 +132,7 @@ function parseRoute(pathname: string): {
     } catch {
       // Malformed escape -- keep the raw segment.
     }
+    slug = canonicalArticleSlug(slug);
     return { view: "blog", grammarSurface: null, blogSlug: slug };
   }
   return { view: viewFromPath(pathname), grammarSurface: null, blogSlug: null };

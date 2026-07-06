@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { articleBySlug, articles, publishedArticles, type ArticleBlock } from "./articles";
+import { canonicalArticleSlug } from "./articlesMeta";
 
 describe("blog articles data guard", () => {
   it("has at least one published article", () => {
@@ -11,6 +12,31 @@ describe("blog articles data guard", () => {
     expect(new Set(slugs).size).toBe(slugs.length);
     for (const slug of slugs) {
       expect(slug).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+    }
+  });
+
+  it("uses the canonical SWEET STEADY slug while keeping the old slug as an alias", () => {
+    expect(canonicalArticleSlug("sweet-step-steady")).toBe("sweet-steady-sweet-step");
+    expect(articleBySlug("sweet-steady-sweet-step")?.slug).toBe("sweet-steady-sweet-step");
+    expect(articleBySlug("sweet-step-steady")?.slug).toBe("sweet-steady-sweet-step");
+    expect(articles.map((a) => a.slug)).toContain("sweet-steady-sweet-step");
+    expect(articles.map((a) => a.slug)).not.toContain("sweet-step-steady");
+  });
+
+  it("serves the rewritten SWEET STEP body on both the canonical slug and the alias", () => {
+    for (const slug of ["sweet-steady-sweet-step", "sweet-step-steady"]) {
+      const article = articleBySlug(slug);
+      expect(article?.title).toContain("SWEET STEADY - SWEET STEP");
+      const bodyText = article?.body
+        .flatMap((block) => {
+          if ("text" in block) return [block.text];
+          if (block.kind === "vocab") return block.items.flatMap((item) => [item.word, item.reading, item.meaning]);
+          return [];
+        })
+        .join("\n");
+      expect(bodyText).toContain("ありのまま");
+      expect(bodyText).toContain("強がる");
+      expect(bodyText).toContain("大輪の種はここにある");
     }
   });
 

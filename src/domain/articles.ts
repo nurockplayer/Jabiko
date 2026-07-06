@@ -566,7 +566,7 @@ const BODIES: Record<string, ReadonlyArray<ArticleBlock>> = {
 };
 
 const BODY_OVERRIDES: Partial<Record<string, ReadonlyArray<ArticleBlock>>> = {
-  "sweet-step-steady": sweetStepBody
+  "sweet-steady-sweet-step": sweetStepBody
 };
 
 function withBody(meta: ArticleMeta): BlogArticle {
