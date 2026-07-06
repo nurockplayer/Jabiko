@@ -1824,7 +1824,7 @@ export const n5Items: PracticeQuestion[] = [
     hintI18n: { "ja": "スーパーで買い物をして、かごににんじんやトマトのような物を入れました。", "en": "Shopping at the supermarket, the basket holds things like carrots and tomatoes." },
     expectedAnswer: "やさい",
     options: ["やさい", "にく", "さかな", "くだもの"],
-    explanation: "正解 やさい(蔬菜)：にんじん(胡蘿蔔)和トマト(番茄)都是代表性蔬菜，「などの＋類名」要求上位類，唯一吻合。にく(肉)錯，胡蘿蔔番茄不是肉。さかな(魚)錯，二者都不是魚。くだもの(水果)看似接近但トマト和にんじん在日語慣常歸為蔬菜、母語者不會用くだもの概括，語意不成立。",
+    explanation: "正解「やさい」(蔬菜)：「にんじん」(胡蘿蔔)和「トマト」(番茄)都是代表性蔬菜，「などの＋類名」要求上位類，唯一吻合。「にく」(肉)錯，胡蘿蔔番茄不是肉。「さかな」(魚)錯，二者都不是魚。「くだもの」(水果)看似接近但「トマト」和「にんじん」在日語慣常歸為蔬菜、母語者不會用「くだもの」概括，語意不成立。",
     explanationI18n: { "ja": "正解は「やさい」（野菜）です。にんじん（人参）もトマトも代表的な野菜で、「などの＋類の名前」は上位のカテゴリーを求めるので、唯一これが当てはまります。「にく」（肉）は誤りで、人参やトマトは肉ではありません。「さかな」（魚）も誤りで、どちらも魚ではありません。「くだもの」（果物）は近く見えますが、トマトも人参も日本語では通常、野菜に分類され、母語話者は「くだもの」でまとめないので、意味が成り立ちません。", "en": "The answer is やさい (vegetables): にんじん (carrot) and トマト (tomato) are both representative vegetables, and「などの＋category noun」calls for a superordinate category, which this alone satisfies. にく (meat) is wrong — carrots and tomatoes aren't meat. さかな (fish) is wrong — neither is a fish. くだもの (fruit) looks close, but トマト and にんじん are conventionally classed as vegetables in Japanese, and a native speaker wouldn't group them under くだもの, so it doesn't work semantically." },
   }),
   examQuestion({
@@ -3654,7 +3654,7 @@ export const n5Items: PracticeQuestion[] = [
     promptText: "三月になって、「だんだん」あたたかくなりました。",
     promptContextZh: "進入三月後，漸漸變暖了。",
     promptContextI18n: { "ja": "三月になって、だんだん暖かくなりました。", "en": "After March arrived, it gradually got warmer." },
-    hintZh: "三月になったころの、毎日のようすを思い出して。",
+    hintZh: "回想剛進入三月的那段日子,每天天氣給人的感覺。",
     hintI18n: { "ja": "三月になったころの、毎日のようすを思い出して。", "en": "Recall how each day felt around the time March began." },
     expectedAnswer: "少しずつ",
     options: ["少しずつ", "急に", "もうすぐ", "ときどき"],
