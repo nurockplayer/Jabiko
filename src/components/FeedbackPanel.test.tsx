@@ -376,6 +376,56 @@ describe("FeedbackPanel report-this-question entry (#299)", () => {
   });
 });
 
+describe("FeedbackPanel bookmark toggle (#470)", () => {
+  const zh = copy["zh-Hant"];
+
+  it("hides the star when no toggle handler is wired", () => {
+    const question = readingPool[0];
+    render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question, submittedAnswer: question.expectedAnswers[0] }}
+        language="zh-Hant"
+        options={question.expectedAnswers}
+      />
+    );
+    expect(screen.queryByRole("button", { name: zh.bookmarkAdd })).toBeNull();
+    expect(screen.queryByRole("button", { name: zh.bookmarkRemove })).toBeNull();
+  });
+
+  it("shows the add label + calls the handler when not yet bookmarked", () => {
+    const question = readingPool[0];
+    const onToggleBookmark = vi.fn();
+    render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question, submittedAnswer: question.expectedAnswers[0] }}
+        language="zh-Hant"
+        options={question.expectedAnswers}
+        bookmarked={false}
+        onToggleBookmark={onToggleBookmark}
+      />
+    );
+    const star = screen.getByRole("button", { name: zh.bookmarkAdd });
+    expect(star).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(star);
+    expect(onToggleBookmark).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the bookmarked (pressed) state when already starred", () => {
+    const question = readingPool[0];
+    render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question, submittedAnswer: question.expectedAnswers[0] }}
+        language="zh-Hant"
+        options={question.expectedAnswers}
+        bookmarked
+        onToggleBookmark={() => {}}
+      />
+    );
+    const star = screen.getByRole("button", { name: zh.bookmarkRemove });
+    expect(star).toHaveAttribute("aria-pressed", "true");
+  });
+});
+
 describe("FeedbackPanel localized explanation (#378)", () => {
   const base = {
     ...readingPool[0],

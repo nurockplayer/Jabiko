@@ -16,6 +16,39 @@ import { sentencePatternItems } from "./sentencePatterns";
 // Each check collects ALL offenders and asserts on the full list, so a
 // failure names every bad entry at once rather than just the first.
 
+// ---- zh-field language lint (#499) -----------------------------------------
+// Base zh-facing fields (explanation / hintZh / instructionZh /
+// promptContextZh / meaningZh / example meaningZh) must be written in
+// Traditional Chinese. Chinese prose legitimately QUOTES Japanese inside
+// 「」『』（）() — so strip bracketed spans first; what remains must not be
+// Japanese prose. Calibrated against the 2026-07 audit: flags whole-field
+// Japanese (the n3-vocab-sukkari class) while allowing zh prose that embeds
+// unbracketed Japanese words (style-level, tracked separately in #499).
+const KANA_PATTERN = /[ぁ-ゖァ-ヺー]/g;
+const JA_PROSE_OPENERS = /^(正解は|正解の|この文|ここでは)/;
+
+function stripQuotedSpans(text: string): string {
+  let previous;
+  let current = text;
+  do {
+    previous = current;
+    current = current
+      .replace(/「[^「」]*」/g, "")
+      .replace(/『[^『』]*』/g, "")
+      .replace(/（[^（）]*）/g, "")
+      .replace(/\([^()]*\)/g, "");
+  } while (current !== previous);
+  return current;
+}
+
+function isJapaneseProse(text: string): boolean {
+  if (JA_PROSE_OPENERS.test(text)) return true;
+  const stripped = stripQuotedSpans(text);
+  const kanaOutsideQuotes = (stripped.match(KANA_PATTERN) ?? []).length;
+  if (kanaOutsideQuotes >= 25) return true;
+  return kanaOutsideQuotes >= 12 && kanaOutsideQuotes / Math.max(stripped.length, 1) > 0.25;
+}
+
 describe("exam content guard", () => {
   it("ships a populated bank with options on every item", () => {
     // Guards the guard: if a refactor empties the import or drops options,
@@ -58,6 +91,33 @@ describe("exam content guard", () => {
     expect(offenders, `level leak in promptLabel: ${offenders.join("; ")}`).toEqual([]);
   });
 
+  it("writes every base zh-facing field in Chinese, not Japanese prose (#499)", () => {
+    // zh-Hant users must never see a Japanese explanation/hint: the base
+    // field IS the zh-Hant rendering (i18n overlays only cover ja/en).
+    const offenders: string[] = [];
+    for (const question of examStyleQuestions) {
+      const fields: Array<[string, string | undefined]> = [
+        ["explanation", question.explanation],
+        ["hintZh", question.hintZh],
+        ["instructionZh", question.instructionZh],
+        ["promptContextZh", question.promptContextZh],
+        ["meaningZh", question.vocabulary.meaningZh],
+        ...question.vocabulary.examples.map(
+          (example, index): [string, string | undefined] => [
+            `examples[${index}].meaningZh`,
+            example.meaningZh
+          ]
+        )
+      ];
+      for (const [field, value] of fields) {
+        if (value && isJapaneseProse(value)) {
+          offenders.push(`${question.id}.${field}`);
+        }
+      }
+    }
+    expect(offenders, `zh field written as Japanese prose: ${offenders.join(", ")}`).toEqual([]);
+  });
+
   it("does not leak the answer gloss (meaningZh) in the pre-answer hintZh", () => {
     // hintZh is shown BEFORE answering, so it must not contain the
     // Chinese gloss of the answer. Tokenise meaningZh on CJK/ASCII
@@ -91,6 +151,17 @@ describe("exam content guard", () => {
       }
     }
     expect(offenders, `漢字読み non-kana options: ${offenders.join("; ")}`).toEqual([]);
+  });
+
+  it("marks the target word (not the whole sentence) in 漢字読み prompts", () => {
+    // The 「」 quote marks the underlined word to read, e.g. 信頼を「損なう」….
+    // Wrapping the ENTIRE sentence in 「」 (「…お金…」) leaves the learner unable
+    // to tell which word is being tested. (User feedback: 題目無底線／框住整句.)
+    const offenders = examStyleQuestions
+      .filter((question) => question.promptLabel === "漢字読み")
+      .filter((question) => /^[「『][^「」『』]*[」』]$/.test(question.promptText ?? ""))
+      .map((question) => `${question.id}: ${question.promptText}`);
+    expect(offenders, `漢字読み prompts quoting the whole sentence: ${offenders.join(" | ")}`).toEqual([]);
   });
 
   it("has no duplicate options within any item", () => {

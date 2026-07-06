@@ -39,3 +39,64 @@ describe("pages.dev -> jabiko.app middleware", () => {
     expect(await passed.text()).toBe("shell");
   });
 });
+
+// 2026-07-06 outage guard: a missing /assets/* file used to fall through to
+// the _redirects SPA rule and come back as index.html with 200 — which the
+// edge/browser then cached as the asset itself (immutable), breaking the app
+// for everyone who fetched during a deploy transition. The middleware must
+// turn that fallback into an uncacheable 404 so poison can never be cached.
+describe("/assets/* poisoned-fallback guard", () => {
+  const htmlFallback = () =>
+    Promise.resolve(
+      new Response("<!doctype html><title>shell</title>", {
+        status: 200,
+        headers: { "content-type": "text/html; charset=utf-8" }
+      })
+    );
+
+  it("turns an HTML fallback on an /assets/ path into an uncacheable 404", async () => {
+    const res = await onRequest({
+      request: new Request("https://jabiko.app/assets/ChallengePanel-XYZ.js"),
+      next: htmlFallback
+    });
+    expect(res.status).toBe(404);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(res.headers.get("content-type")).not.toContain("text/html");
+  });
+
+  it("passes real assets through untouched", async () => {
+    const res = await onRequest({
+      request: new Request("https://jabiko.app/assets/index-ABC.js"),
+      next: () =>
+        Promise.resolve(
+          new Response("console.log(1)", {
+            status: 200,
+            headers: { "content-type": "application/javascript" }
+          })
+        )
+    });
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe("console.log(1)");
+  });
+
+  it("leaves the SPA HTML fallback alone for non-asset routes", async () => {
+    const res = await onRequest({
+      request: new Request("https://jabiko.app/challenge"),
+      next: htmlFallback
+    });
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/html");
+  });
+
+  it("does not 301 old-origin asset requests (OG images on pages.dev keep resolving)", async () => {
+    const res = await onRequest({
+      request: new Request("https://jabiko.pages.dev/assets/og-XYZ.png"),
+      next: () =>
+        Promise.resolve(
+          new Response("png-bytes", { status: 200, headers: { "content-type": "image/png" } })
+        )
+    });
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe("png-bytes");
+  });
+});

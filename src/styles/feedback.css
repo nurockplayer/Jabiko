@@ -559,3 +559,27 @@
   min-height: 18rem;
   color: var(--muted);
 }
+
+.route-error {
+  max-width: 42rem;
+  margin: 2rem auto;
+  padding: 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+}
+
+.route-error h2 {
+  margin: 0 0 0.55rem;
+  font-size: 1.25rem;
+}
+
+.route-error p {
+  margin: 0 auto 1rem;
+  max-width: 34rem;
+  color: var(--muted);
+  line-height: 1.7;
+}

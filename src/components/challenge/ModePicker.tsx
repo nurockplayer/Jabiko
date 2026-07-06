@@ -53,7 +53,8 @@ const modePresetOrder: ModePreset[] = [
   { id: "exam", mode: "exam", levelRange: "all" },
   ...examPresetRows,
   { id: "vocab", mode: "vocab" },
-  { id: "review", mode: "review" }
+  { id: "review", mode: "review" },
+  { id: "bookmarks", mode: "bookmarks" }
 ];
 
 // The left-hand controls column of the challenge workspace: the mode /
@@ -78,6 +79,7 @@ export function ModePicker({
   availableFocusOptions,
   focusSummary,
   reviewQueue,
+  bookmarkedQuestions,
   modeCounts,
   handlePartOfSpeechChange,
   handlePracticeFocusChange,
@@ -100,6 +102,7 @@ export function ModePicker({
   | "availableFocusOptions"
   | "focusSummary"
   | "reviewQueue"
+  | "bookmarkedQuestions"
   | "modeCounts"
   | "handlePartOfSpeechChange"
   | "handlePracticeFocusChange"
@@ -126,6 +129,8 @@ export function ModePicker({
             const count =
               preset.mode === "review"
                 ? reviewQueue.length
+                : preset.mode === "bookmarks"
+                ? bookmarkedQuestions.length
                 : preset.mode === "basic" || preset.mode === "daily"
                 ? null
                 : modeCounts[preset.id as keyof typeof modeCounts];

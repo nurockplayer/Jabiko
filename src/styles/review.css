@@ -53,3 +53,105 @@
   justify-content: center;
   margin-top: 0.4rem;
 }
+
+/* --- Session-complete card (the 這組練完了 "戰報" card) --- */
+
+/* A flawless-run pill: 全部答對 in the brand gold. */
+.done-perfect-badge {
+  display: inline-flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--gold) 16%, transparent);
+  color: var(--gold);
+  border-radius: var(--radius-pill);
+  padding: 0.18rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Three glanceable stat tiles: 已答 / 正解 / 正解率. */
+.done-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(4rem, 1fr));
+  gap: 0.55rem;
+  width: 100%;
+  max-width: 22rem;
+  margin: 0.2rem 0;
+  padding: 0;
+}
+
+.done-stat {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.55rem 0.4rem;
+  background: var(--paper-deep);
+  border-radius: var(--radius-md);
+}
+
+.done-stat dt {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.done-stat dd {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.done-stat-correct dd {
+  color: var(--teal-dark);
+}
+
+/* Share panel on the card: a hairline divider sets it off from the actions. */
+.session-done .share-panel {
+  width: 100%;
+  max-width: 22rem;
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--panel-border);
+}
+
+/* Low-key feedback entry: report a bad question / drop a wish right after a
+   session, not just from the home footer. Quiet so it never competes with the
+   primary actions. */
+.done-feedback {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.done-feedback:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.done-feedback svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* Quiet brand watermark so a screenshot of the card carries the source. */
+.done-watermark {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}

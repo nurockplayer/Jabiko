@@ -1,15 +1,40 @@
-import { ArrowRight, Eye, GraduationCap, RotateCcw } from "lucide-react";
+import type { ComponentType } from "react";
+import { ArrowRight, Eye, GraduationCap, MessageSquare, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
-import { DarumaSpot, PaperNoteSpot, TeaCupSpot } from "../../illustrations";
+import {
+  DarumaDoneSpot,
+  LanternSpot,
+  OmamoriSpot,
+  PaperNoteSpot,
+  SproutSpot,
+  TargetSpot,
+  TeaCupSpot,
+  ToriiSpot
+} from "../../illustrations";
 import { isReadingPrompt } from "../../domain/furigana";
+import { pickDoneSpot, type DoneSpotKey } from "../../domain/doneSpot";
 import { pickLocalized } from "../../domain/localizedContent";
 import { ExamPrompt } from "../ExamPrompt";
 import { FeedbackPanel } from "../FeedbackPanel";
 import { Ruby } from "../Ruby";
+import { ShareButtons } from "./ShareButtons";
 import { SpeakButton } from "../SpeakButton";
 import type { Feedback } from "../types";
 import type { PracticeSession } from "../../hooks/usePracticeSession";
+
+// The completion card's illustration key -> component. Lives here (not in the
+// domain) so doneSpot.ts stays JSX-free. "daruma" is the open-eye perfect-run
+// spot; the rest rotate for ordinary finishes.
+const DONE_SPOTS: Record<DoneSpotKey, ComponentType<{ size?: number; className?: string }>> = {
+  daruma: DarumaDoneSpot,
+  sprout: SproutSpot,
+  omamori: OmamoriSpot,
+  lantern: LanternSpot,
+  torii: ToriiSpot,
+  teacup: TeaCupSpot,
+  target: TargetSpot
+};
 
 function choiceOptionClass(choice: string, selectedChoice: string | null, feedback: Feedback): string {
   const classes = ["choice-option"];
@@ -50,9 +75,12 @@ export function DrillPanel({
   practiceMode,
   currentQuestion,
   reviewEmpty,
+  bookmarksEmpty,
   sessionExhausted,
   choiceOptions,
   correctCount,
+  accuracy,
+  sessionSeed,
   nextButtonRef,
   setPracticeMode,
   setPracticeFilter,
@@ -61,8 +89,11 @@ export function DrillPanel({
   resetSession,
   revealAnswer,
   handleDrillKeyDown,
+  isQuestionBookmarked,
+  onToggleBookmark,
   onExit,
-  onOpenGrammar
+  onOpenGrammar,
+  onOpenFeedback
 }: Pick<
   PracticeSession,
   | "questionIndex"
@@ -73,9 +104,12 @@ export function DrillPanel({
   | "practiceMode"
   | "currentQuestion"
   | "reviewEmpty"
+  | "bookmarksEmpty"
   | "sessionExhausted"
   | "choiceOptions"
   | "correctCount"
+  | "accuracy"
+  | "sessionSeed"
   | "nextButtonRef"
   | "setPracticeMode"
   | "setPracticeFilter"
@@ -84,7 +118,16 @@ export function DrillPanel({
   | "resetSession"
   | "revealAnswer"
   | "handleDrillKeyDown"
-> & { language: Language; onExit: () => void; onOpenGrammar?: (surface: string) => void }) {
+  | "isQuestionBookmarked"
+  | "onToggleBookmark"
+> & {
+  language: Language;
+  onExit: () => void;
+  onOpenGrammar?: (surface: string) => void;
+  // Opens the in-app feedback form (#456) from the completion card, so a
+  // learner who just spotted a bad question can report it in context.
+  onOpenFeedback?: () => void;
+}) {
   const t = copy[language];
 
   // Completion-screen copy: daily / review have their own wording; every
@@ -102,6 +145,12 @@ export function DrillPanel({
   const doneBody = doneCopy.body(correctCount, wrongCount);
   const doneAgain = doneCopy.again;
   const doneExit = doneCopy.exit;
+
+  // A flawless run earns the open-eye daruma + a badge; every other finish
+  // rotates a celebratory spot keyed off the session counter, so the picture
+  // is stable while the card shows but varies session to session.
+  const isPerfectSession = attempts.length > 0 && wrongCount === 0;
+  const DoneSpot = DONE_SPOTS[pickDoneSpot(sessionSeed, isPerfectSession)];
 
   // Container-level answer state for embedded AI / browser automation:
   // collapse feedback into one result string so .drill-panel exposes the
@@ -226,14 +275,33 @@ export function DrillPanel({
               language={language}
               options={choiceOptions}
               onOpenGrammar={onOpenGrammar}
+              bookmarked={isQuestionBookmarked(feedback.question.id)}
+              onToggleBookmark={() => onToggleBookmark(feedback.question.id)}
             />
           ) : null}
         </>
       ) : sessionExhausted ? (
-        <div className="empty-state review-done">
-          <DarumaSpot />
+        <div className="empty-state review-done session-done">
+          <DoneSpot />
+          {isPerfectSession ? (
+            <span className="done-perfect-badge">{t.donePerfectBadge}</span>
+          ) : null}
           <h2>{doneTitle}</h2>
-          <p>{doneBody}</p>
+          <dl className="done-stats" aria-label={t.scoreReportLabel}>
+            <div className="done-stat">
+              <dt>{t.answered}</dt>
+              <dd>{attempts.length}</dd>
+            </div>
+            <div className="done-stat done-stat-correct">
+              <dt>{t.correctShort}</dt>
+              <dd>{correctCount}</dd>
+            </div>
+            <div className="done-stat">
+              <dt>{t.accuracyShort}</dt>
+              <dd>{accuracy}%</dd>
+            </div>
+          </dl>
+          {isPerfectSession ? null : <p>{doneBody}</p>}
           <div className="review-done-actions">
             <button className="next-button" type="button" onClick={resetSession}>
               <RotateCcw aria-hidden="true" />
@@ -243,11 +311,41 @@ export function DrillPanel({
               {doneExit}
             </button>
           </div>
+          <ShareButtons language={language} text={t.shareText(attempts.length, accuracy)} />
+          {onOpenFeedback ? (
+            <button type="button" className="done-feedback" onClick={onOpenFeedback}>
+              <MessageSquare aria-hidden="true" />
+              {t.feedbackTitle}
+            </button>
+          ) : null}
+          <p className="done-watermark">jabiko.app</p>
         </div>
       ) : reviewEmpty ? (
         <div className="empty-state review-done">
           <TeaCupSpot />
           <p>{t.reviewEmptyState}</p>
+          <div className="review-done-actions">
+            <button
+              className="next-button"
+              type="button"
+              onClick={() => {
+                setPracticeMode("exam");
+                setPracticeFilter({});
+                resetSession();
+              }}
+            >
+              <ArrowRight aria-hidden="true" />
+              {t.reviewEmptyCta}
+            </button>
+            <button className="ghost-button" type="button" onClick={onExit}>
+              {t.reviewDoneExit}
+            </button>
+          </div>
+        </div>
+      ) : bookmarksEmpty ? (
+        <div className="empty-state review-done">
+          <TeaCupSpot />
+          <p>{t.bookmarksEmptyState}</p>
           <div className="review-done-actions">
             <button
               className="next-button"
