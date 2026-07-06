@@ -260,6 +260,7 @@ export const ja: Copy = {
   correctShort: "正解",
   reviewShort: "復習",
   accuracyLabel: "現在の正答率",
+  accuracyShort: "正答率",
   scoreReportLabel: "今日の成績",
   shareTitle: "成績をシェア",
   shareText: (attempts, accuracy) =>
@@ -396,6 +397,7 @@ export const ja: Copy = {
     `このセットでは ${cleared + remaining} 問を練習し、正解 ${cleared} 問、不正解 ${remaining} 問。間違えた問題は弱点復習に入り、次の復習でまた出てきます。`,
   sessionDoneAgain: "もう1セット",
   sessionDoneExit: "ホームに戻る",
+  donePerfectBadge: "全問正解",
   speakAriaLabel: "日本語を読み上げる",
   authSignIn: "Google でログイン",
   authSignOut: "ログアウト",

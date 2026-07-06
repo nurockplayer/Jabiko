@@ -252,6 +252,7 @@ export const my: Copy = {
   correctShort: "မှန်",
   reviewShort: "ပြန်လေ့",
   accuracyLabel: "လက်ရှိ မှန်ကန်မှု",
+  accuracyShort: "မှန်ကန်မှု",
   scoreReportLabel: "ဒီနေ့ အစီရင်ခံစာ",
   shareTitle: "သင့်ရလဒ်များကို မျှဝေရန်",
   shareText: (attempts, accuracy) =>
@@ -388,6 +389,7 @@ export const my: Copy = {
     `ဤစုတွင် မေးခွန်း ${cleared + remaining} ခု လုပ်ခဲ့သည် — ${cleared} ခု မှန်၊ ${remaining} ခု မှား။ မှားသည်များ အားနည်းချက် ပြန်လေ့ကျင့်ရန်သို့ ဝင်ပြီး နောက်တစ်ကြိမ် ပြန်လာသည်။`,
   sessionDoneAgain: "နောက်တစ်စု",
   sessionDoneExit: "ပင်မသို့ ပြန်ရန်",
+  donePerfectBadge: "အမှတ်ပြည့်",
   speakAriaLabel: "ဂျပန်စာ အသံထွက်ဖတ်ရန်",
   authSignIn: "Google ဖြင့် ဝင်ရောက်ရန်",
   authSignOut: "ထွက်ရန်",

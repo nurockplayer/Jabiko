@@ -252,6 +252,7 @@ export const ko: Copy = {
   correctShort: "정답",
   reviewShort: "복습",
   accuracyLabel: "현재 정답률",
+  accuracyShort: "정답률",
   scoreReportLabel: "오늘의 리포트",
   shareTitle: "결과 공유하기",
   shareText: (attempts, accuracy) =>
@@ -388,6 +389,7 @@ export const ko: Copy = {
     `이번 세트에서 ${cleared + remaining}문제를 풀었어요 — ${cleared}개 정답, ${remaining}개 오답. 틀린 것은 약점 복습으로 들어가 다음에 다시 나와요.`,
   sessionDoneAgain: "한 세트 더",
   sessionDoneExit: "홈으로 돌아가기",
+  donePerfectBadge: "만점",
   speakAriaLabel: "일본어 소리 내어 읽기",
   authSignIn: "Google로 로그인",
   authSignOut: "로그아웃",

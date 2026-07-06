@@ -252,6 +252,7 @@ export const zhHant: Copy = {
   correctShort: "正解",
   reviewShort: "複習",
   accuracyLabel: "目前正解率",
+  accuracyShort: "正解率",
   scoreReportLabel: "今日戰報",
   shareTitle: "分享成績",
   shareText: (attempts, accuracy) =>
@@ -388,6 +389,7 @@ export const zhHant: Copy = {
     `這一組練了 ${cleared + remaining} 題，答對 ${cleared}、答錯 ${remaining}。答錯的會進入弱點複習，下次複習時會再出現。`,
   sessionDoneAgain: "再來一組",
   sessionDoneExit: "回首頁",
+  donePerfectBadge: "全部答對",
   speakAriaLabel: "朗讀日文",
   authSignIn: "Google 登入",
   authSignOut: "登出",

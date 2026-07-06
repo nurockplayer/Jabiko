@@ -235,6 +235,7 @@ export type Copy = {
   correctShort: string;
   reviewShort: string;
   accuracyLabel: string;
+  accuracyShort: string;
   scoreReportLabel: string;
   shareTitle: string;
   shareText: (attempts: number, accuracy: number) => string;
@@ -356,6 +357,7 @@ export type Copy = {
   sessionDoneBody: (cleared: number, remaining: number) => string;
   sessionDoneAgain: string;
   sessionDoneExit: string;
+  donePerfectBadge: string;
   speakAriaLabel: string;
   authSignIn: string;
   authSignOut: string;

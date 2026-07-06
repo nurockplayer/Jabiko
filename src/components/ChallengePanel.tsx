@@ -27,7 +27,8 @@ export function ChallengePanel({
   language,
   targetLevel = null,
   onExit,
-  onOpenGrammar
+  onOpenGrammar,
+  onOpenFeedback
 }: {
   init?: SessionInit;
   progressAttempts: Attempt[];
@@ -39,6 +40,8 @@ export function ChallengePanel({
   onExit: () => void;
   // Navigate to a grammar point's study page from the post-answer feedback (#282).
   onOpenGrammar?: (surface: string) => void;
+  // Open the in-app feedback form from the completion card (#456).
+  onOpenFeedback?: () => void;
 }) {
   const t = copy[language];
   const session = usePracticeSession({ language, init, progressAttempts, recordAttempt, targetLevel });
@@ -47,7 +50,13 @@ export function ChallengePanel({
     <section className="practice-layout" aria-label="Jabiko practice">
       <ModePicker language={language} {...session} />
 
-      <DrillPanel language={language} onExit={onExit} onOpenGrammar={onOpenGrammar} {...session} />
+      <DrillPanel
+        language={language}
+        onExit={onExit}
+        onOpenGrammar={onOpenGrammar}
+        onOpenFeedback={onOpenFeedback}
+        {...session}
+      />
 
       <aside className="review-panel" aria-label={t.mistakesLabel}>
         {session.showSessionLength ? (

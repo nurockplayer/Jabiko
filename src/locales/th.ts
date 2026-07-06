@@ -253,6 +253,7 @@ export const th: Copy = {
   correctShort: "ถูก",
   reviewShort: "ทบทวน",
   accuracyLabel: "อัตราตอบถูกปัจจุบัน",
+  accuracyShort: "ความแม่นยำ",
   scoreReportLabel: "รายงานวันนี้",
   shareTitle: "แชร์ผลคะแนน",
   shareText: (attempts, accuracy) =>
@@ -389,6 +390,7 @@ export const th: Copy = {
     `ชุดนี้ฝึกไป ${cleared + remaining} ข้อ ตอบถูก ${cleared} ตอบผิด ${remaining} ข้อที่ตอบผิดจะเข้าทบทวนจุดอ่อน และกลับมาในการทบทวนครั้งหน้า`,
   sessionDoneAgain: "ฝึกอีกชุด",
   sessionDoneExit: "กลับหน้าแรก",
+  donePerfectBadge: "ตอบถูกทั้งหมด",
   speakAriaLabel: "อ่านออกเสียงภาษาญี่ปุ่น",
   authSignIn: "เข้าสู่ระบบด้วย Google",
   authSignOut: "ออกจากระบบ",
