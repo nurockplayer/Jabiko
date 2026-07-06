@@ -12,6 +12,7 @@
 // carries a `[歌詞片段]` placeholder the author fills in by hand; the
 // surrounding commentary + example sentences are original.
 import { articleMetas, articleMetaBySlug, type ArticleMeta } from "./articlesMeta";
+import { sweetStepBody } from "./articleBodies/sweetStep";
 
 export type { ArticleMeta } from "./articlesMeta";
 
@@ -564,8 +565,12 @@ const BODIES: Record<string, ReadonlyArray<ArticleBlock>> = {
   ],
 };
 
+const BODY_OVERRIDES: Partial<Record<string, ReadonlyArray<ArticleBlock>>> = {
+  "sweet-step-steady": sweetStepBody
+};
+
 function withBody(meta: ArticleMeta): BlogArticle {
-  return { ...meta, body: BODIES[meta.slug] ?? [] };
+  return { ...meta, body: BODY_OVERRIDES[meta.slug] ?? BODIES[meta.slug] ?? [] };
 }
 
 // Full articles (metadata + body), newest first. Draft articles stay in the

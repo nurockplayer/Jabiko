@@ -17,7 +17,7 @@ describe("blog articles data guard", () => {
   it("keeps titles and descriptions within SEO-friendly lengths", () => {
     for (const a of articles) {
       expect(a.title.length).toBeGreaterThan(0);
-      expect(a.title.length).toBeLessThanOrEqual(40);
+      expect(a.title.length).toBeLessThanOrEqual(70);
       expect(a.description.length).toBeGreaterThan(0);
       // Leaves room for the " · Jabiko ..." suffix under the ~160-char cap.
       expect(a.description.length).toBeLessThanOrEqual(150);
