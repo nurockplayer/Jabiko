@@ -1011,20 +1011,27 @@ describe("App", () => {
     window.history.replaceState({}, "", "/");
   });
 
-  it("gates the grammar-pattern database browse UI to zh-Hant (#438/#427)", async () => {
+  it("shows the grammar-pattern database browse UI for all locales (#438/#427)", async () => {
     // The database cards render meaningZh/formation as raw Chinese, so the
-    // browse UI is hidden for non-zh locales until its i18n overlay lands.
+    // browse UI is now visible in all locales since we removed the language gate.
     localStorage.setItem("jabiko.lang", "en"); // must be set before App mounts
     render(<App />);
 
-    // The 文型 (Grammar) index nav entry is not offered in English.
-    expect(screen.queryByRole("button", { name: "Grammar" })).not.toBeInTheDocument();
+    // The 文型 (Grammar) index nav entry is now offered in English.
+    expect(screen.getByRole("button", { name: "Grammar" })).toBeInTheDocument();
 
-    // A direct /grammar URL redirects home instead of rendering Chinese cards.
+    // A direct /grammar URL now shows the grammar index (in English).
     window.history.replaceState({}, "", "/grammar");
     window.dispatchEvent(new PopStateEvent("popstate"));
-    await waitFor(() => expect(window.location.pathname).toBe("/"));
+    // Wait for the grammar index heading (which is now in English: "JLPT Grammar Pattern Database")
+    expect(
+      await screen.findByRole("heading", { name: "JLPT Grammar Pattern Database" }, { timeout: 10000 })
+    ).toBeInTheDocument();
 
+    // We can also check that we are still on /grammar
+    expect(window.location.pathname).toBe("/grammar");
+
+    // Reset
     window.history.replaceState({}, "", "/");
   });
 
