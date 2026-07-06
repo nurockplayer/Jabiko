@@ -245,3 +245,14 @@ rt {
   line-height: 1.1;
   user-select: none;
 }
+
+/* Asset-cache bust (2026-07-06 incident): during the #505/#504 back-to-back
+   deploys, some Cloudflare edge nodes cached the SPA fallback (index.html,
+   served 200 by public/_redirects for a not-yet-propagated asset URL) AS the
+   stylesheet, stamped immutable by the /assets/* rule in public/_headers.
+   Changing this value changes the built CSS hash, moving everyone to a clean,
+   never-poisoned URL (and refreshing the PWA precache manifest). Bump it if
+   an asset URL ever gets edge-poisoned again. */
+:root {
+  --jabiko-css-rev: 20260706;
+}
