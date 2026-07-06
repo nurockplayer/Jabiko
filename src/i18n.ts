@@ -29,6 +29,9 @@ export type Copy = {
   flowLabel: string;
   loading: string;
   updateAvailable: string;
+  routeErrorTitle: string;
+  routeErrorBody: string;
+  routeErrorReload: string;
   home: string;
   learn: string;
   rules: string;
@@ -49,6 +52,8 @@ export type Copy = {
   feedbackKind: { wish: string; bug: string; other: string };
   feedbackPlaceholder: string;
   feedbackContact: string;
+  feedbackWantsReply: string;
+  feedbackWantsReplyHint: string;
   feedbackAnon: string;
   feedbackSend: string;
   feedbackSending: string;
@@ -230,6 +235,7 @@ export type Copy = {
   correctShort: string;
   reviewShort: string;
   accuracyLabel: string;
+  accuracyShort: string;
   scoreReportLabel: string;
   shareTitle: string;
   shareText: (attempts: number, accuracy: number) => string;
@@ -283,6 +289,8 @@ export type Copy = {
   grammarCommonMistakes: string;
   grammarBrowseLevel: string;
   grammarBackToIndex: string;
+  grammarPrev: string;
+  grammarNext: string;
   grammarImportanceMustKnow: string;
   grammarImportanceHighFreq: string;
   grammarImportanceUnderstand: string;
@@ -302,6 +310,20 @@ export type Copy = {
   grammarSourceDrama: string;
   grammarSourceMovie: string;
   grammarSourceOther: string;
+  // ---- Blog / 文章 (#483) ---------------------------------------------------
+  blog: string;
+  blogBackToHome: string;
+  blogBackToList: string;
+  blogHeroEyebrow: string;
+  blogIndexTitle: string;
+  blogIndexIntro: string;
+  blogHeroTopicsLabel: string;
+  blogHeroTopics: readonly string[];
+  blogHeroNote: string;
+  blogDraftBadge: string;
+  blogReadMore: string;
+  blogNotFound: string;
+  blogCtaHint: string;
   keyboardHint: string;
   focusSummaryEmpty: string;
   modeOptions: Record<ModeCopyKey, { title: string; subtitle: string }>;
@@ -319,6 +341,10 @@ export type Copy = {
   dashboardStatsAccuracy: (percent: number) => string;
   reviewEmptyState: string;
   reviewEmptyCta: string;
+  // ---- Bookmarks (#470) -----------------------------------------------------
+  bookmarkAdd: string;
+  bookmarkRemove: string;
+  bookmarksEmptyState: string;
   reviewDoneTitle: string;
   reviewDoneBody: (cleared: number, remaining: number) => string;
   reviewDoneAgain: string;
@@ -331,6 +357,7 @@ export type Copy = {
   sessionDoneBody: (cleared: number, remaining: number) => string;
   sessionDoneAgain: string;
   sessionDoneExit: string;
+  donePerfectBadge: string;
   speakAriaLabel: string;
   authSignIn: string;
   authSignOut: string;

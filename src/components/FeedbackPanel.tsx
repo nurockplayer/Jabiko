@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, BookOpen, CheckCircle2, Flag, XCircle } from "lucide-react";
+import { ArrowRight, BookOpen, Bookmark, BookmarkCheck, CheckCircle2, Flag, XCircle } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { lookupWordsByReading } from "../domain/readingLookup";
 import { lookupPatternMeaning } from "../domain/patternMeaning";
@@ -19,13 +19,18 @@ export function FeedbackPanel({
   feedback,
   language,
   options,
-  onOpenGrammar
+  onOpenGrammar,
+  bookmarked,
+  onToggleBookmark
 }: {
   feedback: NonNullable<Feedback>;
   language: Language;
   options: string[];
   /** Navigate to this grammar point's study page (#282). Omitted = no link. */
   onOpenGrammar?: (surface: string) => void;
+  /** Whether the current question is bookmarked (#470). Omit both to hide the star. */
+  bookmarked?: boolean;
+  onToggleBookmark?: () => void;
 }) {
   const t = copy[language];
   const [showGrammarNote, setShowGrammarNote] = useState(false);
@@ -169,6 +174,17 @@ export function FeedbackPanel({
         </button>
       ) : null}
       <div className="report-question-block">
+        {onToggleBookmark ? (
+          <button
+            type="button"
+            className={`bookmark-cta${bookmarked ? " bookmarked" : ""}`}
+            aria-pressed={bookmarked}
+            onClick={onToggleBookmark}
+          >
+            {bookmarked ? <BookmarkCheck aria-hidden="true" /> : <Bookmark aria-hidden="true" />}
+            {bookmarked ? t.bookmarkRemove : t.bookmarkAdd}
+          </button>
+        ) : null}
         <button
           type="button"
           className="report-question-cta"

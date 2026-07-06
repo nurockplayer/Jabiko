@@ -1,7 +1,25 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import App from "./App";
+
+// #483: render counters for the lazy blog pages. Stubbed to null (we only care
+// whether they were COMMITTED, not their output) so a language-gate regression
+// that renders zh-Hant article prose for even a single frame is caught at
+// render time -- a final-state DOM assertion would miss a one-frame leak.
+const blogRenders = vi.hoisted(() => ({ index: 0, article: 0 }));
+vi.mock("./components/BlogIndexPage", () => ({
+  BlogIndexPage: () => {
+    blogRenders.index++;
+    return null;
+  }
+}));
+vi.mock("./components/BlogArticlePage", () => ({
+  BlogArticlePage: () => {
+    blogRenders.article++;
+    return null;
+  }
+}));
 
 function seedProgress(targetForms: string[]) {
   localStorage.setItem(
@@ -1024,6 +1042,39 @@ describe("App", () => {
     window.history.replaceState({}, "", "/grammar");
     window.dispatchEvent(new PopStateEvent("popstate"));
     await waitFor(() => expect(window.location.pathname).toBe("/"));
+
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("gates the 文章 blog to zh-Hant — never commits article prose for en (#483)", async () => {
+    // Warm the (mocked) blog lazy chunks with a zh-Hant render so a later en
+    // render is synchronous and the counters reliably reflect whether the blog
+    // pages were committed (a structural gate must NOT commit them for even a
+    // frame -- CLAUDE.md 語言隔離規則).
+    localStorage.setItem("jabiko.lang", "zh-Hant");
+    window.history.replaceState({}, "", "/blog");
+    const zh = render(<App />);
+    await waitFor(() => expect(blogRenders.index).toBeGreaterThan(0));
+    zh.unmount();
+
+    // English: the blog nav is absent and a /blog or /blog/<slug> route must
+    // fall through structurally (never commit BlogIndexPage/BlogArticlePage),
+    // not merely redirect one frame late.
+    localStorage.setItem("jabiko.lang", "en");
+    blogRenders.index = 0;
+    blogRenders.article = 0;
+
+    window.history.replaceState({}, "", "/blog");
+    const en = render(<App />);
+    await waitFor(() => expect(window.location.pathname).toBe("/"));
+    expect(blogRenders.index).toBe(0);
+    expect(screen.queryByRole("button", { name: "文章" })).not.toBeInTheDocument();
+    en.unmount();
+
+    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
+    render(<App />);
+    await waitFor(() => expect(window.location.pathname).toBe("/"));
+    expect(blogRenders.article).toBe(0);
 
     window.history.replaceState({}, "", "/");
   });

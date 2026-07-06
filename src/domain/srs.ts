@@ -7,17 +7,20 @@
 // weeks. JLPT prep runs 3-6 months, so we need item resurfacing.
 //
 // SRS rules implemented here:
-//   - First incorrect attempt seeds the item in box 0. Box 0 is a short
-//     ~1-hour relearn cooldown (NOT 0) -- just long enough that a missed
-//     item won't resurface in the SAME study session (which only trains
-//     answer-memorisation, not recall -- learner feedback), while still
-//     coming back soon rather than days later.
+//   - First incorrect attempt seeds the item in box 0. Box 0 rests 2 days
+//     before the item is due again. #244 originally set this to ~1 hour
+//     (clear the session, resurface same-day), but learner feedback (#472)
+//     was that a same-day repeat trains answer POSITION, not recall -- the
+//     card comes back before you've actually forgotten it. So box 0 now
+//     waits a couple of days, matching the "2-3 days, not immediately"
+//     request. (A per-user "exam sprint" mode that restores the short
+//     cooldown is deferred -- see #472; it needs a settings surface.)
 //   - Each subsequent CORRECT attempt promotes one box, growing the
-//     interval (1h -> 1 -> 3 -> 7 -> 14 days).
-//   - Any INCORRECT attempt resets to box 0 (back to the ~1-hour cooldown).
-//   - Items capped at MAX_BOX (14-day interval). Going further (30 / 60
-//     days) is a one-line constant change; capping at 14 matches a typical
-//     JLPT-prep cadence where exam day is the goal, not lifelong retention.
+//     interval (2 -> 4 -> 7 -> 14 -> 30 days).
+//   - Any INCORRECT attempt resets to box 0 (back to the 2-day rest).
+//   - Items capped at MAX_BOX (30-day interval). Capping there matches a
+//     typical JLPT-prep cadence where exam day is the goal, not lifelong
+//     retention; going further is a one-line constant change.
 //   - dueAt = lastAttemptAt + boxInterval. "Due" means dueAt <= now.
 //
 // State is DERIVED from the existing Attempt[] each call. No schema
@@ -32,9 +35,10 @@ import type { Attempt, PracticeQuestion } from "./types";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-// Box 0 = 1/24 day (~1 hour): a relearn cooldown that just clears the
-// current session, not a multi-day wait. Boxes 1+ are the real spacing.
-export const SRS_INTERVAL_DAYS = [1 / 24, 1, 3, 7, 14] as const;
+// Box 0 = 2 days: a missed item rests a couple of days before returning,
+// so review is genuine recall rather than same-day position-memorising
+// (#472). Boxes 1+ widen the spacing toward exam-prep horizons.
+export const SRS_INTERVAL_DAYS = [2, 4, 7, 14, 30] as const;
 export const SRS_MAX_BOX = SRS_INTERVAL_DAYS.length - 1;
 
 export interface ReviewItemState {

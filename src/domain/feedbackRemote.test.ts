@@ -18,7 +18,38 @@ describe("submitFeedback", () => {
       return { error: null };
     });
     await submitFeedback(client, { category: "wish", message: "  想要夜間模式  ", contact: " a@b.c " });
-    expect(captured).toEqual({ category: "wish", message: "想要夜間模式", contact: "a@b.c" });
+    expect(captured).toEqual({
+      category: "wish",
+      message: "想要夜間模式",
+      contact: "a@b.c",
+      wants_reply: false
+    });
+  });
+
+  it("sends wants_reply=true when the user opts in (#468)", async () => {
+    let captured: any;
+    const client = fakeClient((row) => {
+      captured = row;
+      return { error: null };
+    });
+    await submitFeedback(client, { category: "wish", message: "回我一下", wantsReply: true });
+    expect(captured.wants_reply).toBe(true);
+  });
+
+  it("never sends client-controlled account columns — the DB fills them from the JWT (#468)", async () => {
+    // The signed-in account (auth_user_id / account_email / provider) is captured
+    // server-side via column DEFAULTs so a client can't spoof it, and the optional
+    // `contact` is never auto-filled with the account email.
+    let captured: any;
+    const client = fakeClient((row) => {
+      captured = row;
+      return { error: null };
+    });
+    await submitFeedback(client, { category: "bug", message: "壞了", wantsReply: true });
+    expect(captured).not.toHaveProperty("auth_user_id");
+    expect(captured).not.toHaveProperty("account_email");
+    expect(captured).not.toHaveProperty("account_provider");
+    expect(captured.contact).toBeNull();
   });
 
   it("stores null contact when blank", async () => {

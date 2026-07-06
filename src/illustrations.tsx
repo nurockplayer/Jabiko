@@ -63,6 +63,26 @@ export function DarumaSpot({ size = 76, className }: SpotProps) {
   );
 }
 
+/** Daruma with BOTH eyes painted in (両目 = 開眼) plus a spark -- the
+ *  "wish fulfilled" payoff. Reserved for a flawless (100%) session so the
+ *  second eye stays meaningful. Mirrors DarumaSpot's outline exactly. */
+export function DarumaDoneSpot({ size = 76, className }: SpotProps) {
+  return (
+    <svg {...svgProps(size, className)}>
+      <path
+        {...stroke}
+        d="M50 14 C30 14 23 40 25 56 C27 78 42 90 50 90 C58 90 73 78 75 56 C77 40 70 14 50 14 Z"
+        fill="var(--vermilion)"
+      />
+      <ellipse {...stroke} cx="50" cy="48" rx="20" ry="23" fill="var(--paper)" />
+      <circle cx="42" cy="46" r="4" fill="currentColor" />
+      <circle cx="58" cy="46" r="4" fill="currentColor" />
+      <path {...stroke} d="M43 62 Q50 67 57 62" fill="none" />
+      <path d="M82 22 L84 30 L92 32 L84 34 L82 42 L80 34 L72 32 L80 30 Z" fill="var(--gold)" />
+    </svg>
+  );
+}
+
 /** Cup of tea with rising steam -- "rest / nothing due" motif. */
 export function TeaCupSpot({ size = 64, className }: SpotProps) {
   return (

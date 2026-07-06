@@ -166,6 +166,28 @@
   font-size: 0.8rem;
 }
 
+/* "I'd like a reply" opt-in (#468). */
+.feedback-reply {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.feedback-reply input {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.feedback-reply-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
 .feedback-char-remaining {
   margin: 0;
   color: var(--muted);

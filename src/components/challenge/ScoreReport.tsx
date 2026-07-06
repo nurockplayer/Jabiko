@@ -1,11 +1,13 @@
 import { copy, type Language } from "../../i18n";
 import type { PracticeSession } from "../../hooks/usePracticeSession";
-import { ShareButtons } from "./ShareButtons";
 
 // The 今日戰報 stats block: answered / correct / review counts, the
 // accuracy value, and the accuracy progress bar. Sits atop the right-hand
 // 錯題複習 column (since #81). Pure presentation over the session's score
 // figures; extracted from ChallengePanel with no behavioural change.
+//
+// Sharing lives on the session-complete card (the finish-line moment), not
+// here in the always-on side panel — see DrillPanel's sessionExhausted branch.
 //
 // `mistakeCount` is the length of the mistake-review list (shown as the
 // 待複習 figure); the list itself is rendered by ReviewList alongside this.
@@ -51,9 +53,6 @@ export function ScoreReport({
       >
         <span className="score-bar-fill" style={{ width: `${accuracy}%` }} />
       </div>
-      {attempts.length > 0 ? (
-        <ShareButtons language={language} text={t.shareText(attempts.length, accuracy)} />
-      ) : null}
     </div>
   );
 }

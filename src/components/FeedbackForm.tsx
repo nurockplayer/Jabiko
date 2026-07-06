@@ -47,6 +47,7 @@ export function FeedbackForm({
   const [kind, setKind] = useState<FeedbackCategory>(category);
   const [message, setMessage] = useState("");
   const [contact, setContact] = useState("");
+  const [wantsReply, setWantsReply] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
 
   const trimmed = message.trim();
@@ -74,7 +75,7 @@ export function FeedbackForm({
     if (!trimmed || status === "sending") return;
     setStatus("sending");
     try {
-      await submit({ category: kind, message: trimmed, contact: contact.trim() || undefined });
+      await submit({ category: kind, message: trimmed, contact: contact.trim() || undefined, wantsReply });
       setStatus("done");
     } catch {
       setStatus("error");
@@ -140,6 +141,15 @@ export function FeedbackForm({
         maxLength={FEEDBACK_MAX}
         aria-label={t.feedbackTitle}
       />
+      <label className="feedback-reply">
+        <input
+          type="checkbox"
+          checked={wantsReply}
+          onChange={(event) => setWantsReply(event.target.checked)}
+        />
+        {t.feedbackWantsReply}
+      </label>
+      {wantsReply ? <p className="feedback-reply-hint">{t.feedbackWantsReplyHint}</p> : null}
       <input
         className="feedback-contact"
         type="text"

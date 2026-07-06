@@ -3,7 +3,15 @@ import type { LevelRange } from "./levelRange";
 // The practice modes (challenge entry points). Lives in the domain layer so
 // the hook, the picker, and i18n can all share one definition without a
 // cross-layer cycle (usePracticeSession re-exports it for back-compat).
-export type PracticeMode = "basic" | "cloze" | "daily" | "pattern" | "exam" | "review" | "vocab";
+export type PracticeMode =
+  | "basic"
+  | "cloze"
+  | "daily"
+  | "pattern"
+  | "exam"
+  | "review"
+  | "vocab"
+  | "bookmarks";
 
 // The 備考 exam presets: exam mode pinned to a specific level band, surfaced
 // as first-class picker rows. They are i18n / mode-count keys, not modes.
