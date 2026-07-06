@@ -37,6 +37,22 @@ describe("BlogArticlePage", () => {
     expect(screen.queryByText(/Article not found/)).not.toBeInTheDocument();
   });
 
+  it("renders the CHO SAIKYO article with its awards hook", () => {
+    render(
+      <BlogArticlePage
+        slug="cho-saikyo-tokimeki"
+        language="zh-Hant"
+        onBack={vi.fn()}
+        onCta={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole("heading", { level: 1, name: /超最強/ })).toBeInTheDocument();
+    expect(screen.getAllByText(/TikTokトレンド大賞2025/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/インパクト・ソング部門賞/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/推し活/).length).toBeGreaterThan(0);
+  });
+
   it("passes the article CTA payload to the app-level handler", async () => {
     const user = userEvent.setup();
     const onCta = vi.fn();
