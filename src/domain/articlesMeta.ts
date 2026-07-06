@@ -23,9 +23,13 @@ export interface ArticleMeta {
   draft?: boolean;
 }
 
+const BLOG_SLUG_ALIASES: Record<string, string> = {
+  "sweet-step-steady": "sweet-steady-sweet-step"
+};
+
 const rawArticleMetas: ReadonlyArray<ArticleMeta> = [
   {
-    slug: "sweet-step-steady",
+    slug: "sweet-steady-sweet-step",
     title: "從「SWEET STEP」學日文：在 ありのまま 裡找真正的自己",
     description:
       "SWEET STEADY〈SWEET STEP〉唱的是「其實我也不知道真正的自己」——ありのまま、妄想、取り繕う、キュン⋯⋯挑 20 幾個歌裡的日文點來學，例句全原創，附官方 MV 連結。",
@@ -43,7 +47,7 @@ const rawArticleMetas: ReadonlyArray<ArticleMeta> = [
 ];
 
 export const articleMetas: ReadonlyArray<ArticleMeta> = rawArticleMetas.map((article) =>
-  article.slug === "sweet-step-steady"
+  article.slug === "sweet-steady-sweet-step"
     ? {
         ...article,
         title: "從歌詞學日文系列 SWEET STEADY - SWEET STEP：在 ありのまま 裡找真正的自己",
@@ -56,6 +60,11 @@ export const articleMetas: ReadonlyArray<ArticleMeta> = rawArticleMetas.map((art
 
 export const publishedArticleMetas: ReadonlyArray<ArticleMeta> = articleMetas.filter((a) => !a.draft);
 
+export function canonicalArticleSlug(slug: string): string {
+  return BLOG_SLUG_ALIASES[slug] ?? slug;
+}
+
 export function articleMetaBySlug(slug: string): ArticleMeta | undefined {
-  return articleMetas.find((a) => a.slug === slug);
+  const canonicalSlug = canonicalArticleSlug(slug);
+  return articleMetas.find((a) => a.slug === canonicalSlug);
 }

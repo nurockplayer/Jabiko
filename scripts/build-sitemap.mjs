@@ -50,7 +50,7 @@ function grammarSurfaces() {
 // parse miss here can't silently ship.
 function blogArticleSlugs() {
   const src = readFileSync(path.join(ROOT, "src/domain/articlesMeta.ts"), "utf8");
-  const arr = src.match(/articleMetas[^=]*=\s*\[([\s\S]*?)\];/);
+  const arr = src.match(/(?:rawArticleMetas|articleMetas)[^=]*=\s*\[([\s\S]*?)\];/);
   if (!arr) return [];
   const slugs = [];
   for (const chunk of arr[1].split(/\},/)) {
