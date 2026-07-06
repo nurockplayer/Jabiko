@@ -23,7 +23,7 @@ export interface ArticleMeta {
   draft?: boolean;
 }
 
-export const articleMetas: ReadonlyArray<ArticleMeta> = [
+const rawArticleMetas: ReadonlyArray<ArticleMeta> = [
   {
     slug: "sweet-step-steady",
     title: "從「SWEET STEP」學日文：在 ありのまま 裡找真正的自己",
@@ -41,6 +41,18 @@ export const articleMetas: ReadonlyArray<ArticleMeta> = [
     publishedAt: "2026-07-06"
   }
 ];
+
+export const articleMetas: ReadonlyArray<ArticleMeta> = rawArticleMetas.map((article) =>
+  article.slug === "sweet-step-steady"
+    ? {
+        ...article,
+        title: "從歌詞學日文系列 SWEET STEADY - SWEET STEP：在 ありのまま 裡找真正的自己",
+        description:
+          "從 SWEET STEADY〈SWEET STEP〉學 ありのまま、強がる、素直、口上常見詞與偶像歌裡的細膩語感。",
+        tag: "歌詞學日文"
+      }
+    : article
+);
 
 export const publishedArticleMetas: ReadonlyArray<ArticleMeta> = articleMetas.filter((a) => !a.draft);
 
