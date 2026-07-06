@@ -1,15 +1,18 @@
 {
   "version": 1,
-  "description": "Run the middleware (functions/_middleware.js) for navigations AND for /assets/*. Navigations get the pages.dev -> jabiko.app 301; /assets/* gets the poisoned-fallback guard (#507: an asset miss must 404, never be cached as index.html). Other static files stay excluded so they serve straight from the CDN and Functions quota stays small; root *.js/*.css (sw.js etc.) are must-revalidate, so they cannot be pinned by a poisoned cache the way immutable /assets/* files were.",
+  "description": "Run the middleware (functions/_middleware.js) for navigations AND for /assets/*: navigations get the pages.dev -> jabiko.app 301, /assets/* gets the poisoned-fallback guard (#507: an asset miss must 404, never be cached as index.html). GOTCHA (2026-07-06): Pages route wildcards span path segments, so a broad exclude like /*.js also swallowed /assets/index-*.js and silently disabled the guard — excludes must therefore name the root-level files explicitly and never use cross-segment extension globs.",
   "include": ["/*"],
   "exclude": [
-    "/*.png",
-    "/*.svg",
-    "/*.webp",
-    "/*.ico",
-    "/*.js",
-    "/*.css",
-    "/*.woff2",
+    "/apple-touch-icon.png",
+    "/hero.webp",
+    "/icon.svg",
+    "/og-image.png",
+    "/pwa-192x192.png",
+    "/pwa-512x512.png",
+    "/pwa-maskable-512x512.png",
+    "/sw.js",
+    "/registerSW.js",
+    "/workbox-*.js",
     "/manifest.webmanifest"
   ]
 }

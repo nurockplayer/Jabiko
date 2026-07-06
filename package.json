@@ -17,7 +17,8 @@
     "build:furigana": "node scripts/build-furigana.mjs",
     "optimize-hero": "node scripts/optimize-hero.mjs",
     "pre": "pnpm build",
-    "build:sitemap": "node scripts/build-sitemap.mjs"
+    "build:sitemap": "node scripts/build-sitemap.mjs",
+    "verify:deploy": "node scripts/verify-deploy.mjs"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm build"
