@@ -224,6 +224,8 @@ export const zhHant: Copy = {
   drillPatternN5Joshi3: "練助詞III の・も・か・から",
   drillPatternN5Hikaku: "練比較句型",
   drillPatternN5SukiDekiru: "練好惡與能力",
+  drillPatternN5Sasoi: "練邀約與提議",
+  drillPatternN5Onegai: "練請求與建議",
   drillPatternTeKudasai: "練句型：請求 / 許可 / 禁止",
   drillPatternNakuteMoII: "練句型：不必 vs 必須",
   drillPatternTeMorau: "練句型：授受視角",

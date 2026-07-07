@@ -262,7 +262,9 @@ const PATTERN_HINT_BANLIST: Record<string, string[]> = {
   "n5-joshi2": ["方向", "舉例", "工具", "手段", "合計", "總共"],
   "n5-joshi3": ["也", "只有", "只", "或", "從", "代替"],
   "n5-hikaku": ["比", "哪個", "哪一個"],
-  "n5-suki-dekiru": ["擅長", "也", "喜歡", "討厭"]
+  "n5-suki-dekiru": ["擅長", "也", "喜歡", "討厭"],
+  "n5-sasoi": ["邀請", "邀約", "要不要", "我來"],
+  "n5-onegai": ["最好", "不必", "請勿", "別"]
 };
 
 describe("sentence-pattern content guard", () => {

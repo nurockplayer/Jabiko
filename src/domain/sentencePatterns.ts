@@ -10,6 +10,8 @@ export type SentencePatternId =
   | "n5-joshi3"
   | "n5-hikaku"
   | "n5-suki-dekiru"
+  | "n5-sasoi"
+  | "n5-onegai"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -45,6 +47,8 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "n5-joshi3": "助詞III の・も・か・から",
   "n5-hikaku": "比較 より・ほうが・いちばん",
   "n5-suki-dekiru": "好惡與能力",
+  "n5-sasoi": "邀約與提議 ませんか・ましょう",
+  "n5-onegai": "請求與建議 ください・ほうがいい",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -636,6 +640,203 @@ const N5_SUKI_DEKIRU_ITEMS: SentencePatternItem[] = [
     options: ["も", "と", "に", "へ"],
     explanation:
       "前一句已說喜歡狗，貓「也」喜歡 → 「も」直接取代「が」的位置：ねこも すきです。這是助詞III學過的も，配上好惡句複習。"
+  }
+];
+
+// ===========================================================================
+// N5 pattern: n5-sasoi -- invitations and proposals (#546).
+//   ませんか/ましょう are pragmatically adjacent: every item locks the role
+//   with a dialogue anchor (the reply reveals which side speaks) plus a
+//   question-vs-statement hint. たいです and plain ます never appear as
+//   foils in offer items (both have real volunteering readings); ました is
+//   excluded wherever a past-report reading would survive the context.
+// ===========================================================================
+const N5_SASOI_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-sasoi-001",
+    patternId: "n5-sasoi",
+    promptText: "「いっしょに ひるごはんを たべ___。」「いいですね。たべましょう。」",
+    hintZh: "開口約對方一起吃午餐。",
+    promptContextZh: "「要不要一起吃午餐？」「好啊，一起吃吧。」",
+    expectedAnswer: "ませんか",
+    options: ["ませんか", "ました", "ません", "ませんでした"],
+    explanation:
+      "邀人用問句「ませんか」＝要不要〜？——把決定權交給對方，對方接受時用「ましょう」回答（後句的「いいですね。たべましょう」就是）。「ました」「ません」「ませんでした」是過去/否定的直述，都接不上邀約的對話。※いっしょに＝一起、ひるごはん＝午餐。"
+  },
+  {
+    id: "pattern-n5-sasoi-002",
+    patternId: "n5-sasoi",
+    promptText: "「あした えいがを みませんか。」「いいですね。み___。」",
+    hintZh: "對方開口約了，你這邊要答應。",
+    promptContextZh: "「明天要不要看電影？」「好啊，一起看吧。」",
+    expectedAnswer: "ましょう",
+    options: ["ましょう", "ませんか", "ません", "ました"],
+    explanation:
+      "接受邀約用「ましょう」＝（我們）〜吧：いいですね、みましょう。「ませんか」是發出邀約的問法，接受方不再回問；「みません」是拒絕，跟「いいですね」矛盾；「みました」是過去式。※えいが＝電影。",
+  },
+  {
+    id: "pattern-n5-sasoi-003",
+    patternId: "n5-sasoi",
+    promptText: "にもつが おもいですね。わたしが はんぶん もち___。",
+    hintZh: "看對方東西重，主動開口幫忙。",
+    promptContextZh: "「行李很重吧，我來幫你拿一半吧？」",
+    expectedAnswer: "ましょうか",
+    options: ["ましょうか", "ませんか", "ました", "ません"],
+    explanation:
+      "主動提出幫忙用「ましょうか」＝我來〜吧？：わたしが はんぶん もちましょうか。「ませんか」是約「對方」做，跟句中的わたしが（我來）衝突；「ました」「ません」是過去/否定，都不是開口幫忙的說法。※にもつ＝行李、おもい＝重、はんぶん＝一半、もちます＝拿。"
+  },
+  {
+    id: "pattern-n5-sasoi-004",
+    patternId: "n5-sasoi",
+    promptText: "デパートへ かばんを かい___ いきます。",
+    hintZh: "說要去百貨公司做什麼。",
+    promptContextZh: "「我要去百貨公司買包包。」",
+    expectedAnswer: "に",
+    options: ["に", "を", "で", "へ"],
+    explanation:
+      "ます形語幹＋「に いきます」＝去做某事：かいます→かい＋に いきます＝去買。「を」已經用在かばんを；「で」「へ」不能接在動詞語幹後面。※デパート＝百貨公司。"
+  },
+  {
+    id: "pattern-n5-sasoi-005",
+    patternId: "n5-sasoi",
+    promptText: "レストランへ ばんごはんを ___ いきます。",
+    hintZh: "說晚上要去餐廳做什麼。",
+    promptContextZh: "「我要去餐廳吃晚餐。」",
+    expectedAnswer: "たべに",
+    options: ["たべに", "たべてに", "たべるに", "たべたに"],
+    explanation:
+      "接「に いきます」的是ます形語幹：たべます→たべ＋に。「たべるに」「たべたに」「たべてに」都不是正確接法——辭書形、た形、て形都不能直接接目的的に。※レストラン＝餐廳、ばんごはん＝晚餐。"
+  },
+  {
+    id: "pattern-n5-sasoi-006",
+    patternId: "n5-sasoi",
+    promptText: "「あしたは ちょっと……。」「じゃあ、どようび___ どうですか。」",
+    hintZh: "對方明天不行，改提別的日子。",
+    promptContextZh: "「明天有點……。」「那，星期六怎麼樣？」",
+    expectedAnswer: "は",
+    options: ["は", "を", "へ", "の"],
+    explanation:
+      "提案、問對方意見用「〜は どうですか」＝〜怎麼樣？：じゃあ、どようびは どうですか。「を」「へ」「の」都接不上どうですか。※どようび＝星期六、「〜は ちょっと……」＝委婉拒絕的固定說法。"
+  },
+  {
+    id: "pattern-n5-sasoi-007",
+    patternId: "n5-sasoi",
+    promptText: "きのう、ともだちが うちへ あそび___ きました。",
+    hintZh: "說朋友昨天來家裡做什麼。",
+    promptContextZh: "「昨天朋友來家裡玩。」",
+    expectedAnswer: "に",
+    options: ["に", "を", "と", "へ"],
+    explanation:
+      "「Vに きます」＝來做某事：あそびに きました＝來玩。跟「かいに いきます」同一個句型——來/去都是ます形語幹＋に。「を」「と」「へ」都接不上語幹。※あそびます＝玩、うち＝家（口語說法）。"
+  },
+  {
+    id: "pattern-n5-sasoi-008",
+    patternId: "n5-sasoi",
+    promptText: "へやの くうきが わるいですね。まどを ___。",
+    hintZh: "房間空氣悶，主動說要讓空氣流通。",
+    promptContextZh: "「房間空氣好悶喔。我來開窗吧？」",
+    expectedAnswer: "あけましょうか",
+    options: ["あけましょうか", "しめましょうか", "あけません", "しめました"],
+    explanation:
+      "主動提議動手用「ましょうか」：空氣悶就要「開」窗通風→あけましょうか。「しめましょうか（我來關吧？）」只會更悶、方向相反；「あけません」是「不開」；「しめました」是過去式又方向相反。※へや＝房間、くうき＝空氣、まど＝窗戶、あけます＝打開、しめます＝關上。"
+  }
+];
+
+// ===========================================================================
+// N5 pattern: n5-onegai -- requests and advice (#546).
+//   を never competes where ほしい's が is the answer (colloquial をほしい,
+//   same family as をすき); topicalized は is kept out of shop-request
+//   particle blanks; advice items use full predicates so attachment alone
+//   can never kill a foil -- the context has to do it.
+// ===========================================================================
+const N5_ONEGAI_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-onegai-001",
+    patternId: "n5-onegai",
+    promptText: "すみません、この りんごを みっつ ___。",
+    hintZh: "在水果店開口買三顆蘋果。",
+    promptContextZh: "「不好意思，請給我三顆這種蘋果。」",
+    expectedAnswer: "ください",
+    options: ["ください", "あります", "います", "でした"],
+    explanation:
+      "購物點餐用「Nを（數量）ください」＝請給我〜：りんごを みっつ ください。數量詞（みっつ）直接放ください前面、不加助詞。「あります」「います」跟「を」不相容（要說 りんごが あります）；「でした」是過去的斷定，接不上開口買東西的場面。※みっつ＝三個。"
+  },
+  {
+    id: "pattern-n5-onegai-002",
+    patternId: "n5-onegai",
+    promptText: "あたらしい くつ___ ほしいです。",
+    hintZh: "說自己想要新鞋。",
+    promptContextZh: "「我想要新鞋子。」",
+    expectedAnswer: "が",
+    options: ["が", "の", "に", "へ"],
+    explanation:
+      "「〜が ほしい」＝想要〜：對象用「が」——くつが ほしいです。跟すき、じょうず、できる 同一個が家族。「の」「に」「へ」都接不上。※くつ＝鞋子。"
+  },
+  {
+    id: "pattern-n5-onegai-003",
+    patternId: "n5-onegai",
+    promptText: "ねつが ありますから、きょうは はやく ___。",
+    hintZh: "叮囑發燒的人早點休息。",
+    promptContextZh: "「你發燒了，今天最好早點睡。」",
+    expectedAnswer: "ねたほうがいいです",
+    options: ["ねたほうがいいです", "ねないほうがいいです", "ねてはいけません", "ねなくてもいいです"],
+    explanation:
+      "給建議用「た形＋ほうがいいです」＝最好〜：ねた ほうがいいです。「ないほうがいい」是勸別做、「てはいけません」是禁止——發燒了還不讓睡，方向全反；「なくてもいい」是不必，也跟勸人休息的情境矛盾。※ねつ＝發燒。"
+  },
+  {
+    id: "pattern-n5-onegai-004",
+    patternId: "n5-onegai",
+    promptText: "かぜですから、きょうは おふろに ___。",
+    hintZh: "感冒的人想去泡澡，被家人攔了下來。",
+    promptContextZh: "「你感冒了，今天最好別泡澡。」",
+    expectedAnswer: "はいらないほうがいいです",
+    options: ["はいらないほうがいいです", "はいったほうがいいです", "はいってもいいです", "はいりましょうか"],
+    explanation:
+      "勸別做某事用「ない形＋ほうがいいです」＝最好別〜：はいらない ほうがいいです。「はいったほうがいい」方向相反；「てもいい」是允許；「ましょうか」是提議一起/幫忙，跟叮囑的情境不合。※かぜ＝感冒、おふろに はいります＝泡澡。"
+  },
+  {
+    id: "pattern-n5-onegai-005",
+    patternId: "n5-onegai",
+    promptText: "としょかんですから、おおきい こえで ___。",
+    hintZh: "圖書館員要大家安靜。",
+    promptContextZh: "「這裡是圖書館，請不要大聲說話。」",
+    expectedAnswer: "はなさないでください",
+    options: ["はなさないでください", "はなしてください", "はなしてもいいです", "はなしましょう"],
+    explanation:
+      "「ない形＋でください」＝請別〜：はなさないで ください。圖書館要安靜，「はなしてください（請說）」方向相反；「てもいい」「ましょう」都跟安靜的要求矛盾。※こえ＝聲音、はなします＝說話。"
+  },
+  {
+    id: "pattern-n5-onegai-006",
+    patternId: "n5-onegai",
+    promptText: "すみません、この きって___ ごまい ください。",
+    hintZh: "買郵票時指定張數。",
+    promptContextZh: "「不好意思，這種郵票請給我五張。」",
+    expectedAnswer: "を",
+    options: ["を", "が", "へ", "の"],
+    explanation:
+      "「Nを（數量）ください」的對象用「を」：きってを ごまい ください。數量（ごまい）放を後面、ください前面。「が ください」不成句；「へ」「の」也接不上。※きって＝郵票、〜まい＝〜張（扁平物）。"
+  },
+  {
+    id: "pattern-n5-onegai-007",
+    patternId: "n5-onegai",
+    promptText: "たんじょうびに なに___ ほしいですか。",
+    hintZh: "問對方生日禮物的願望。",
+    promptContextZh: "「生日想要什麼？」",
+    expectedAnswer: "が",
+    options: ["が", "は", "も", "の"],
+    explanation:
+      "「ほしい」的對象用「が」，疑問詞當對象也一樣：なにが ほしいですか。「は」前面要放已知的話題，而「什麼」正是要問的未知，這種中立提問不用「は」；「も」變成「なにも」就要配否定；「の」接不上。※たんじょうび＝生日。"
+  },
+  {
+    id: "pattern-n5-onegai-008",
+    patternId: "n5-onegai",
+    promptText: "ここは あぶないですから、___。",
+    hintZh: "告示牌警告這片水域。",
+    promptContextZh: "「這裡很危險，請勿游泳。」",
+    expectedAnswer: "およがないでください",
+    options: ["およがないでください", "およいでください", "およぎましょう", "およぎませんか"],
+    explanation:
+      "危險警告用「ないでください」＝請勿〜：およがないで ください。主題已點明「這裡危險」，「およいでください」「ましょう」「ませんか」都是要人下水，全跟「あぶない」矛盾。※あぶない＝危險、およぎます＝游泳。"
   }
 ];
 
@@ -1490,6 +1691,8 @@ export const sentencePatternItems: SentencePatternItem[] = [
   ...N5_JOSHI3_ITEMS,
   ...N5_HIKAKU_ITEMS,
   ...N5_SUKI_DEKIRU_ITEMS,
+  ...N5_SASOI_ITEMS,
+  ...N5_ONEGAI_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,
