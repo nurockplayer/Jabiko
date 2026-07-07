@@ -23,6 +23,230 @@ export const patternInstructionI18n: LocalizedText = {
 };
 
 export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
+  "pattern-starter-desu-001": {
+    "hintI18n": {
+      "en": "Answering a question about what you are.",
+      "ja": "自分の身分についての質問に答える。"
+    },
+    "promptContextI18n": {
+      "en": "\"Are you a student?\" \"Yes, I am a student now.\"",
+      "ja": "「学生ですか。」「はい、わたしは今、学生です。」"
+    },
+    "explanationI18n": {
+      "en": "The question is affirmative (「がくせいですか」), and 「はい」 agrees with it — so present affirmative 「です」; 「じゃありません」 would contradict the 「はい」. 「いま」 (now) rules out the past 「でした」. ※がくせい = student.",
+      "ja": "相手は肯定形で「がくせいですか」と聞いている。「はい」はそれに同意する返事なので、現在肯定の「です」。「じゃありません」は「はい」と矛盾する。「いま」があるので過去の「でした」も合わない。"
+    }
+  },
+  "pattern-starter-desu-002": {
+    "hintI18n": {
+      "en": "Correcting someone's mistaken idea about what you are.",
+      "ja": "相手の勘違いを訂正する。"
+    },
+    "promptContextI18n": {
+      "en": "\"Are you a teacher?\" \"No, I am not a teacher.\"",
+      "ja": "「先生ですか。」「いいえ、わたしは先生じゃありません。」"
+    },
+    "explanationI18n": {
+      "en": "The question is affirmative (「せんせいですか」) and 「いいえ」 denies it → present negative 「じゃありません」. 「です」 contradicts the 「いいえ」; 「じゃありませんでした」 is PAST negative but the question asks about now; 「ですか」 asks a question.",
+      "ja": "相手は肯定形で「せんせいですか」と聞き、「いいえ」でそれを打ち消す → 現在否定の「じゃありません」。「です」は「いいえ」と矛盾。「じゃありませんでした」は過去否定で、現在を聞く質問と合わない。「ですか」は質問の文末。"
+    }
+  },
+  "pattern-starter-desu-003": {
+    "hintI18n": {
+      "en": "Talking about yesterday's weather.",
+      "ja": "きのうの天気について話す。"
+    },
+    "promptContextI18n": {
+      "en": "\"It rained yesterday (yesterday was rainy).\"",
+      "ja": "「きのうは雨でした。」"
+    },
+    "explanationI18n": {
+      "en": "「きのう」 (yesterday) is in the past; the past affirmative of a noun sentence is 「でした」. 「です」 is present, 「じゃありません」 is present negative, 「ですか」 is a question. ※あめ = rain.",
+      "ja": "「きのう」は過去のこと。名詞文の過去肯定は「でした」。「です」は現在、「じゃありません」は現在否定、「ですか」は疑問文。"
+    }
+  },
+  "pattern-starter-desu-004": {
+    "hintI18n": {
+      "en": "Correcting someone's impression of yesterday's weather.",
+      "ja": "きのうの天気についての印象を訂正する。"
+    },
+    "promptContextI18n": {
+      "en": "\"Did it rain yesterday?\" \"No, it didn't rain.\"",
+      "ja": "「きのうは雨でしたか。」「いいえ、雨じゃありませんでした。」"
+    },
+    "explanationI18n": {
+      "en": "The question is affirmative (「あめでしたか」) and 「いいえ」 denies it, AND 「きのう」 is past → past negative 「じゃありませんでした」. 「でした」 would contradict the 「いいえ」; 「じゃありません」 is present negative, clashing with the past-tense question.",
+      "ja": "相手は肯定形で「あめでしたか」と聞き、「いいえ」でそれを打ち消す＋「きのう」は過去 → 過去否定の「じゃありませんでした」。「でした」は「いいえ」と矛盾、「じゃありません」は現在否定で過去の質問と合わない。"
+    }
+  },
+  "pattern-starter-desu-005": {
+    "hintI18n": {
+      "en": "Pointing at an animal in the distance and checking with the listener.",
+      "ja": "遠くの動物を指して、相手に確かめる。"
+    },
+    "promptContextI18n": {
+      "en": "\"Um... is that a dog?\" \"Yes, it is.\"",
+      "ja": "「あのう、あれは犬ですか。」「はい、そうです。」"
+    },
+    "explanationI18n": {
+      "en": "The other person answers 「はい、そうです」 — only a QUESTION gets an answer, so the sentence must end in 「ですか」. With plain 「です」 you'd be telling them, and no 「はい」 would follow.",
+      "ja": "相手が「はい、そうです」と答えている——返事が返ってくるのは質問だから、文末は「ですか」。「です」なら断定になり、「はい」の返事は続かない。"
+    }
+  },
+  "pattern-starter-desu-006": {
+    "hintI18n": {
+      "en": "Talking about tomorrow's schedule.",
+      "ja": "あしたの予定について話す。"
+    },
+    "promptContextI18n": {
+      "en": "\"Tomorrow is a day off.\"",
+      "ja": "「あしたは休みです。」"
+    },
+    "explanationI18n": {
+      "en": "「あした」 (tomorrow) hasn't happened yet; Japanese noun sentences use the present form 「です」 for the future too. 「でした」/「じゃありませんでした」/「でしたか」 all carry past tense, contradicting 「あした」. ※やすみ = day off.",
+      "ja": "「あした」はまだ起きていないこと。日本語の名詞文は未来も現在形「です」で表す。「でした」「じゃありませんでした」「でしたか」はいずれも過去で「あした」と矛盾。"
+    }
+  },
+  "pattern-starter-desu-007": {
+    "hintI18n": {
+      "en": "The opening line when meeting someone for the first time.",
+      "ja": "初対面のあいさつの場面。"
+    },
+    "promptContextI18n": {
+      "en": "\"Nice to meet you. My name is Tanaka.\"",
+      "ja": "「はじめまして。わたしの名前は田中です。」"
+    },
+    "explanationI18n": {
+      "en": "「はじめまして」 is the first-meeting greeting, followed by introducing your own name = present affirmative 「です」. You wouldn't introduce yourself with a negative or a question.",
+      "ja": "「はじめまして」は初対面のあいさつ。続けて自分の名前を紹介する＝現在肯定の「です」。自己紹介で否定や疑問は使わない。"
+    }
+  },
+  "pattern-starter-desu-008": {
+    "hintI18n": {
+      "en": "Explaining which bag is actually yours.",
+      "ja": "どのかばんが自分のものかを説明する。"
+    },
+    "promptContextI18n": {
+      "en": "\"This is not my bag. Mine is that one over there.\"",
+      "ja": "「これはわたしのかばんじゃありません。わたしのはあれです。」"
+    },
+    "explanationI18n": {
+      "en": "The second sentence says \"mine is THAT one (あれ)\", so the first must DENY that this one is yours → 「じゃありません」. With 「です」 the two sentences would contradict each other.",
+      "ja": "二文目で「わたしのはあれです」と言っているので、一文目は「これがわたしのだ」を打ち消しているはず →「じゃありません」。「です」だと二つの文が矛盾する。"
+    }
+  },
+  "pattern-starter-particles-001": {
+    "hintI18n": {
+      "en": "Describing your own daily habit.",
+      "ja": "自分の毎日の習慣について話す。"
+    },
+    "promptContextI18n": {
+      "en": "\"I drink water every day.\"",
+      "ja": "「わたしは毎日水を飲みます。」"
+    },
+    "explanationI18n": {
+      "en": "「わたし」 is the TOPIC of the sentence (what it's about), marked with 「は」. 「を」 marks the object of an action (already there: みずを); 「に」 marks a time or destination; 「で」 marks where an action happens.",
+      "ja": "「わたし」はこの文の主題なので「は」。「を」は動作の対象（すでに「みずを」がある）、「に」は時点や行き先、「で」は動作の場所。"
+    }
+  },
+  "pattern-starter-particles-002": {
+    "hintI18n": {
+      "en": "Saying one thing you do in the morning.",
+      "ja": "朝にすることをひとつ言う。"
+    },
+    "promptContextI18n": {
+      "en": "\"In the morning, (I) drink water.\"",
+      "ja": "「朝、水を飲みます。」"
+    },
+    "explanationI18n": {
+      "en": "「みず」 is the object of 「のみます」 (drink); objects take 「を」. 「が」 marks the doer of the action, and the water isn't doing the drinking; 「に」 marks a time or direction, 「へ」 direction only — none can mark what you drink.",
+      "ja": "「みず」は「のみます」の対象なので「を」。「が」は動作をする側に付くが、水は飲む側ではない。「に」は時点や方向、「へ」は方向だけで、飲む対象には付かない。"
+    }
+  },
+  "pattern-starter-particles-003": {
+    "hintI18n": {
+      "en": "Saying where you'll go tomorrow.",
+      "ja": "あした行く場所を言う。"
+    },
+    "promptContextI18n": {
+      "en": "\"Tomorrow (I'm) going to school.\"",
+      "ja": "「あした、学校に行きます。」"
+    },
+    "explanationI18n": {
+      "en": "The destination of 「いきます」 (go) takes 「に」. 「を」 marks an object; 「で」 marks where an action takes place (doing something AT a place), not where you're heading; 「と」 means \"together with someone\". ※「へ」 also works for direction; this item's options use 「に」.",
+      "ja": "「いきます」の行き先は「に」。「を」は対象、「で」は動作の場所（〜で何かをする）で行き先ではない、「と」は「誰かと一緒に」。※方向は「へ」も使えるが、この問題の選択肢では「に」。"
+    }
+  },
+  "pattern-starter-particles-004": {
+    "hintI18n": {
+      "en": "Asking which person is coming.",
+      "ja": "来る予定の人をたずねる。"
+    },
+    "promptContextI18n": {
+      "en": "\"Who is coming?\"",
+      "ja": "「だれが来ますか。」"
+    },
+    "explanationI18n": {
+      "en": "A question-word subject (だれ, なに) takes 「が」 — and remember: 「は」 can't go here, because 「は」 must attach to something both speakers already know, while \"who\" is exactly the unknown being asked. 「を」 marks an object, 「に」 a time or direction, 「で」 the place of an action — none fits the subject slot.",
+      "ja": "疑問詞（だれ・なに）が主語のときは「が」。ついでに覚えておく：ここに「は」は使えない——「は」の前は双方すでに知っている話題でなければならず、「だれ」はまさに未知だから聞いている。「を」は対象、「に」は時点や方向、「で」は動作の場所で、主語の位置には入らない。"
+    }
+  },
+  "pattern-starter-particles-005": {
+    "hintI18n": {
+      "en": "Telling the listener what you've spotted.",
+      "ja": "見つけたものを相手に伝える。"
+    },
+    "promptContextI18n": {
+      "en": "\"There's a dog over there.\"",
+      "ja": "「そこに犬がいます。」"
+    },
+    "explanationI18n": {
+      "en": "When stating that something EXISTS with 「います／あります」, the newly-introduced thing takes 「が」. 「を」 marks the object of an action, but 「います」 isn't an action; 「へ」 marks direction; 「いぬで います」 isn't a sentence — 「〜でいます」 only works in state expressions like 「元気でいます」.",
+      "ja": "「います／あります」で「何かがある・いる」と初めて言うとき、その物には「が」。「を」は動作の対象だが「います」は動作ではない。「へ」は方向。「いぬで います」は文にならない——「〜でいます」は「元気でいます」のような状態の言い方だけ。"
+    }
+  },
+  "pattern-starter-particles-006": {
+    "hintI18n": {
+      "en": "Talking about an evening activity.",
+      "ja": "夜にすることについて話す。"
+    },
+    "promptContextI18n": {
+      "en": "\"At night, (I) read books.\"",
+      "ja": "「夜、本を読みます。」"
+    },
+    "explanationI18n": {
+      "en": "「ほん」 is the object of 「よみます」 (read) → 「を」. 「が」 marks the doer of the action, and the book isn't doing anything; 「に」/「へ」 mark direction or time.",
+      "ja": "「ほん」は「よみます」の対象なので「を」。「が」は動作をする側に付くが、本は動作しない。「に」「へ」は方向・時点。"
+    }
+  },
+  "pattern-starter-particles-007": {
+    "hintI18n": {
+      "en": "Saying your plan for tomorrow.",
+      "ja": "あした、おしゃべりする相手のことを言う。"
+    },
+    "promptContextI18n": {
+      "en": "\"Tomorrow I'll talk with a friend.\"",
+      "ja": "「あした、わたしは友だちと話します。」"
+    },
+    "explanationI18n": {
+      "en": "The person you talk WITH takes 「と」 — chatting is mutual. The subject slot is already taken by 「わたしは」, so 「が」 can't fit; 「を」 can't mark the person you talk with — it marks what is spoken (にほんごを はなします \"speak Japanese\"); 「へ」 marks direction. ※「ともだちに はなします」 is also possible but feels one-directional (talking TO); this item's options use 「と」.",
+      "ja": "「はなします」の相手は「と」——おしゃべりはお互いにするもの。主語はすでに「わたしは」なので「が」は入らない。「を」は話す相手には付かず、話す内容に付く（にほんごを はなします）。「へ」は方向。※「ともだちに はなします」も言えるが一方向に「話しかける」感じ。この問題の選択肢では「と」。"
+    }
+  },
+  "pattern-starter-particles-008": {
+    "hintI18n": {
+      "en": "Saying where you eat.",
+      "ja": "ごはんを食べる場所を言う。"
+    },
+    "promptContextI18n": {
+      "en": "\"(I) eat meals at home.\"",
+      "ja": "「家でごはんを食べます。」"
+    },
+    "explanationI18n": {
+      "en": "The place where an ACTION happens takes 「で」 — eating at home is an action. 「に」 marks where something exists or a destination (いえに います、いえに かえります); with action verbs the location takes 「で」. This is the key に/で split.",
+      "ja": "「動作をする場所」は「で」——家で「食べる」のは動作。「に」は存在の場所や行き先（いえに います、いえに かえります）。動作動詞の場所は「で」。に／で の一番大事な使い分け。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",

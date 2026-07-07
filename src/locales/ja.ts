@@ -224,6 +224,8 @@ export const ja: Copy = {
   drillPassive: "受身形を練習",
   drillCausative: "使役形を練習",
   drillDesiderative: "たい・たがるを練習",
+  drillPatternStarterDesu: "基本文 〜です を練習",
+  drillPatternStarterParticles: "助詞 は・を・に・が を練習",
   drillPatternTeKudasai: "文型を練習：依頼 / 許可 / 禁止",
   drillPatternNakuteMoII: "文型を練習：不要 vs 義務",
   drillPatternTeMorau: "文型を練習：授受の視点",

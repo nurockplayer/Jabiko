@@ -217,6 +217,8 @@ export const th: Copy = {
   drillPassive: "ฝึกรูปถูกกระทำ (受身形)",
   drillCausative: "ฝึกรูปใช้ให้ทำ (使役形)",
   drillDesiderative: "ฝึก たい・たがる",
+  drillPatternStarterDesu: "ฝึกประโยคพื้นฐาน 〜です",
+  drillPatternStarterParticles: "ฝึกคำช่วย は・を・に・が",
   drillPatternTeKudasai: "ฝึกรูปประโยค: ขอร้อง / อนุญาต / ห้าม",
   drillPatternNakuteMoII: "ฝึกรูปประโยค: ไม่จำเป็น vs จำเป็น",
   drillPatternTeMorau: "ฝึกรูปประโยค: มุมมองการให้-รับ",

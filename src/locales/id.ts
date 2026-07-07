@@ -216,6 +216,8 @@ export const id: Copy = {
   drillPassive: "Latih bentuk pasif",
   drillCausative: "Latih bentuk kausatif",
   drillDesiderative: "Latih たい・たがる",
+  drillPatternStarterDesu: "Latih kalimat dasar 〜です",
+  drillPatternStarterParticles: "Latih partikel は・を・に・が",
   drillPatternTeKudasai: "Latih pola: permintaan / izin / larangan",
   drillPatternNakuteMoII: "Latih pola: tidak perlu vs harus",
   drillPatternTeMorau: "Latih pola: sudut pandang memberi-menerima",

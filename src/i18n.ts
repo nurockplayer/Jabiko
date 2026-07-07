@@ -199,6 +199,8 @@ export type Copy = {
   drillPassive: string;
   drillCausative: string;
   drillDesiderative: string;
+  drillPatternStarterDesu: string;
+  drillPatternStarterParticles: string;
   drillPatternTeKudasai: string;
   drillPatternNakuteMoII: string;
   drillPatternTeMorau: string;

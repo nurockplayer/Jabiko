@@ -59,22 +59,23 @@ describe("isLearningBlockComplete", () => {
     const trackable = learningBlocks.filter(
       (b) => b.group === "basic" && b.completionMode !== "reference"
     );
-    // 2 kana + 1 starter-vocab (#533) + 11 conjugation + 7 sentence-pattern;
-    // only verb-types stays reference.
-    expect(trackable.length).toBe(21);
+    // 2 kana + 1 starter-vocab (#533) + 2 Lesson-0 grammar (#534) + 11
+    // conjugation + 7 sentence-pattern; only verb-types stays reference.
+    expect(trackable.length).toBe(23);
     expect(trackable.some((b) => b.id === "te-kudasai")).toBe(true);
     expect(byId("verb-types").completionMode).toBe("reference");
   });
 });
 
 describe("kana starter chapters (#533)", () => {
-  it("the three 入門 chapters lead the chapter list, ahead of every other category", () => {
+  it("the five 入門 chapters lead the chapter list, ahead of every other category", () => {
     expect(learningBlocks[0].id).toBe("kana-hiragana");
     expect(learningBlocks[1].id).toBe("kana-katakana");
     expect(learningBlocks[2].id).toBe("starter-vocab");
-    expect(learningBlocks[0].category).toBe("入門");
-    expect(learningBlocks[2].category).toBe("入門");
-    expect(learningBlocks[3].category).not.toBe("入門");
+    expect(learningBlocks[3].id).toBe("starter-desu");
+    expect(learningBlocks[4].id).toBe("starter-particles");
+    for (let i = 0; i < 5; i++) expect(learningBlocks[i].category).toBe("入門");
+    expect(learningBlocks[5].category).not.toBe("入門");
   });
 
   it("the starter-vocab chapter completes via a starter attempt or implicit history", () => {

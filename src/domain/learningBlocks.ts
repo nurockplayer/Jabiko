@@ -102,6 +102,14 @@ export type LearningBlock = {
    */
   drillNote?: string;
   /**
+   * 入門 chapters set this (#533/#534): the chapter ALSO counts as complete
+   * for a learner whose history shows real (non-入門) practice -- these
+   * chapters sit first in array order, and without this rule every existing
+   * learner's home 繼續 banner would be hijacked into Lesson-0 material
+   * they plainly don't need.
+   */
+  implicitCompleteWithHistory?: boolean;
+  /**
    * Block ids the learner is suggested to look at first. Informational
    * only -- access is never blocked. Used to render a soft
    * "建議先看：XX" hint in the chapter list when those prereqs are
@@ -151,7 +159,8 @@ export const learningBlocks: LearningBlock[] = [
       "じ 和 ぢ 都讀 ji、ず 和 づ 都讀 zu（一般用 じ/ず，ぢ/づ 只出現在少數詞）",
       "小さい ゃゅょ 和大的 やゆよ 意思不同：きや kiya ≠ きゃ kya"
     ],
-    kanaDrill: { labelKey: "drillKana", script: "hiragana" }
+    kanaDrill: { labelKey: "drillKana", script: "hiragana" },
+    implicitCompleteWithHistory: true
   },
   {
     id: "kana-katakana",
@@ -181,6 +190,7 @@ export const learningBlocks: LearningBlock[] = [
       "ク/ワ/フ、コ/ユ、チ/テ 也是常見形近組"
     ],
     kanaDrill: { labelKey: "drillKana", script: "katakana" },
+    implicitCompleteWithHistory: true,
     recommendedAfter: ["kana-hiragana"]
   },
   {
@@ -208,7 +218,62 @@ export const learningBlocks: LearningBlock[] = [
       "たかい 同時有「高」和「貴」兩個意思，看語境判斷"
     ],
     starterDrill: { labelKey: "drillStarterVocab" },
+    implicitCompleteWithHistory: true,
     recommendedAfter: ["kana-hiragana"]
+  },
+  {
+    id: "starter-desu",
+    group: "basic",
+    category: "入門",
+    kicker: "第 0 課",
+    title: "基本句 AはBです",
+    subtitle: "です・じゃありません・でした",
+    explanation:
+      "日文最基本的句子：「AはBです」＝「A 是 B」。は 標記你要談論的主題（讀作 wa），です 放在句尾。要說「不是」就把です換成じゃありません；說過去的事換成でした；問問題就在句尾加か變成ですか。這四個結尾練熟，就能開始說完整的句子。",
+    examples: [
+      { formula: "わたしは がくせいです", note: "A是B：我是學生" },
+      { formula: "せんせい じゃありません", note: "否定：不是老師" },
+      { formula: "きのうは あめでした", note: "過去：昨天下雨" },
+      { formula: "いいえ、あめ じゃありませんでした", note: "過去否定：昨天沒下雨" },
+      { formula: "あれは いぬですか", note: "疑問：那是狗嗎？" },
+      { formula: "はじめまして。なまえは たなかです", note: "自我介紹" }
+    ],
+    pitfalls: [
+      "主題的は讀作 wa、不讀 ha——寫は讀 wa 是固定規則",
+      "「明天」還沒發生也用です：あしたは やすみです（不用未來式）",
+      "口語常把じゃありません說成じゃないです，意思相同"
+    ],
+    patternDrills: [{ labelKey: "drillPatternStarterDesu", patternIds: ["starter-desu"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["kana-hiragana", "starter-vocab"]
+  },
+  {
+    id: "starter-particles",
+    group: "basic",
+    category: "入門",
+    kicker: "第 0 課",
+    title: "助詞入門 は・を・に・が",
+    subtitle: "わたしは みずを のみます",
+    explanation:
+      "助詞是黏在名詞後面的小字，負責說明「這個名詞在句子裡做什麼」。最先要認得的四個：は＝主題（這句在談誰）、を＝動作的對象（吃什麼、喝什麼）、に＝目的地或時間點（去哪裡）、が＝第一次登場的主語（有什麼、誰做）。再加上場所的で（在哪裡做）和一起的と（和誰），日常句子就都拼得起來了。",
+    examples: [
+      { formula: "わたしは みずを のみます", note: "は主題＋を對象：我喝水" },
+      { formula: "がっこうに いきます", note: "に目的地：去學校" },
+      { formula: "そこに いぬが います", note: "が登場：那裡有狗" },
+      { formula: "だれが きますか", note: "疑問詞主語只能用が" },
+      { formula: "いえで たべます", note: "で動作場所：在家吃" },
+      { formula: "ともだちと はなします", note: "と一起：和朋友聊" }
+    ],
+    pitfalls: [
+      "「在某處做動作」用で、「存在於某處／去某處」用に：いえで たべます vs いえに います",
+      "疑問詞（だれ・なに）當主語只能接が，不能接は",
+      "を 只用來標動作對象；現代日文裡讀音和 お 相同"
+    ],
+    patternDrills: [
+      { labelKey: "drillPatternStarterParticles", patternIds: ["starter-particles"] }
+    ],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["starter-desu"]
   },
   {
     id: "adverbial",
@@ -1220,11 +1285,25 @@ export const learningBlocks: LearningBlock[] = [
 
 type CompletionAttempt = { isCorrect: boolean; targetForm: string; questionId?: string };
 
-// Correct answers on regular (non-kana) content that count as proof the
-// learner already reads kana; above this the 入門 kana chapters self-complete.
-// Small enough that any real returning learner clears it, large enough that
-// one lucky MCQ guess doesn't.
-const KANA_IMPLICIT_LITERACY_THRESHOLD = 5;
+// Correct answers on regular (non-入門) content that count as proof the
+// learner is already past the Lesson-0 floor; above this any
+// implicitCompleteWithHistory chapter self-completes. Small enough that any
+// real returning learner clears it, large enough that one lucky MCQ guess
+// doesn't.
+const IMPLICIT_HISTORY_THRESHOLD = 5;
+
+// 入門 question-id prefixes: kana drills, the starter vocab deck, and the
+// Lesson-0 pattern drills. These never count as "real practice" evidence --
+// intro content can't prove the intro chapters redundant.
+const INTRO_ID_PREFIXES = ["kana-", "starter-", "pattern-starter-"];
+
+function realPracticeEvidence(attempts: CompletionAttempt[]): number {
+  return attempts.filter(
+    (attempt) =>
+      attempt.isCorrect &&
+      !INTRO_ID_PREFIXES.some((prefix) => attempt.questionId?.startsWith(prefix))
+  ).length;
+}
 
 export function isLearningBlockComplete(attempts: CompletionAttempt[], block: LearningBlock): boolean {
   // Reference chapters are reading material -- treat them as
@@ -1232,40 +1311,29 @@ export function isLearningBlockComplete(attempts: CompletionAttempt[], block: Le
   // park on them, and the UI shows "參考" rather than misleadingly
   // marking them perpetually incomplete.
   if (block.completionMode === "reference") return true;
+  // 入門 chapters (#533/#534) self-complete on real practice history (see
+  // implicitCompleteWithHistory) BEFORE their own drill rules run.
+  if (
+    block.implicitCompleteWithHistory &&
+    realPracticeEvidence(attempts) >= IMPLICIT_HISTORY_THRESHOLD
+  ) {
+    return true;
+  }
   // Kana chapters (#533) are completed via their recognition drill -- one
   // correct attempt on any question of the chapter's script (ids are
-  // "kana-<script>-…") -- mirroring the pattern-chapter rule below. They
-  // ALSO auto-complete on evident kana literacy: the chapters sit first in
-  // array order, so without this rule every existing learner's home 繼續
-  // banner (first incomplete chapter) would be hijacked into 五十音 they
-  // plainly don't need. Answering regular (kana-rendered) content correctly
-  // IS reading kana, so a small body of correct non-kana attempts counts.
+  // "kana-<script>-…") -- mirroring the pattern-chapter rule below.
   if (block.kanaDrill) {
     const prefix = `kana-${block.kanaDrill.script}-`;
-    const drilled = attempts.some(
+    return attempts.some(
       (attempt) => attempt.isCorrect && attempt.questionId?.startsWith(prefix)
     );
-    if (drilled) return true;
-    const literacyEvidence = attempts.filter(
-      (attempt) => attempt.isCorrect && !attempt.questionId?.startsWith("kana-")
-    ).length;
-    return literacyEvidence >= KANA_IMPLICIT_LITERACY_THRESHOLD;
   }
-  // The starter-vocab chapter (#533) mirrors the kana rule: complete via one
-  // correct starter-drill answer, or implicitly for learners whose history
-  // already shows real (non-入門) practice.
+  // The starter-vocab chapter (#533) mirrors the kana rule: one correct
+  // starter-drill answer completes it.
   if (block.starterDrill) {
-    const drilled = attempts.some(
+    return attempts.some(
       (attempt) => attempt.isCorrect && attempt.questionId?.startsWith("starter-")
     );
-    if (drilled) return true;
-    const evidence = attempts.filter(
-      (attempt) =>
-        attempt.isCorrect &&
-        !attempt.questionId?.startsWith("kana-") &&
-        !attempt.questionId?.startsWith("starter-")
-    ).length;
-    return evidence >= KANA_IMPLICIT_LITERACY_THRESHOLD;
   }
   // Sentence-pattern chapters are completed via their pattern drill -- a
   // correct attempt on any of the chapter's patterns (id "pattern-<id>-…") --
