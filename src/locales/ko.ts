@@ -239,7 +239,10 @@ export const ko: Copy = {
     intermediate: "중급",
     intermediateHint: "N2・N3",
     advanced: "고급",
-    advancedHint: "N1・N2"
+    advancedHint: "N1・N2",
+    manageTitle: "목표 레벨",
+    change: "변경",
+    notSet: "미설정"
   },
   sessionLength: "세트당 문제 수",
   sessionLengthAll: "전체",

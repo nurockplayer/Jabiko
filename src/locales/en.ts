@@ -239,7 +239,10 @@ export const en: Copy = {
     intermediate: "Intermediate",
     intermediateHint: "N2・N3",
     advanced: "Advanced",
-    advancedHint: "N1・N2"
+    advancedHint: "N1・N2",
+    manageTitle: "Target level",
+    change: "Change",
+    notSet: "Not set"
   },
   sessionLength: "Questions per set",
   sessionLengthAll: "All",

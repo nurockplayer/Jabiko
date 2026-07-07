@@ -69,6 +69,43 @@ describe("HomePanel level onboarding (#199)", () => {
   });
 });
 
+describe("HomePanel persistent level control (#526 change level anytime)", () => {
+  it("shows the current target level with a change affordance once a preference exists", () => {
+    renderHome({ targetLevel: "n2n3", progressAttempts: [sampleAttempt] });
+    expect(screen.getByText("目標級別")).toBeInTheDocument();
+    // reflects the chosen band (中級 = n2n3) and offers a change action
+    const chip = screen.getByRole("button", { name: /變更/ });
+    expect(chip).toHaveTextContent("中級");
+  });
+
+  it("is collapsed by default -- the band picker is not shown until 變更 is clicked", () => {
+    renderHome({ targetLevel: "n2n3", progressAttempts: [sampleAttempt] });
+    // 高級 belongs only to the (still-collapsed) picker, so it must be absent
+    expect(screen.queryByRole("button", { name: /高級/ })).not.toBeInTheDocument();
+  });
+
+  it("expands to the band picker and changes the level", () => {
+    const props = renderHome({ targetLevel: "n2n3", progressAttempts: [sampleAttempt] });
+    fireEvent.click(screen.getByRole("button", { name: /變更/ }));
+    fireEvent.click(screen.getByRole("button", { name: /高級/ }));
+    expect(props.onChooseLevel).toHaveBeenCalledWith("n1n2");
+  });
+
+  it("lets a returning learner with no saved preference set a target level", () => {
+    const props = renderHome({ targetLevel: null, progressAttempts: [sampleAttempt] });
+    expect(screen.getByText("尚未設定")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /變更/ }));
+    fireEvent.click(screen.getByRole("button", { name: /中級/ }));
+    expect(props.onChooseLevel).toHaveBeenCalledWith("n2n3");
+  });
+
+  it("does NOT show the persistent control for a brand-new learner (big onboarding card instead)", () => {
+    renderHome({ targetLevel: null, progressAttempts: [] });
+    expect(screen.queryByText("目標級別")).not.toBeInTheDocument();
+    expect(screen.getByText("選擇你的程度")).toBeInTheDocument();
+  });
+});
+
 describe("HomePanel guide link", () => {
   it("renders a 使用說明書 link to the blog that opens safely in a new tab", () => {
     renderHome();

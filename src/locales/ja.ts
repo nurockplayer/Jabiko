@@ -247,7 +247,10 @@ export const ja: Copy = {
     intermediate: "中級",
     intermediateHint: "N2・N3",
     advanced: "上級",
-    advancedHint: "N1・N2"
+    advancedHint: "N1・N2",
+    manageTitle: "目標レベル",
+    change: "変更",
+    notSet: "未設定"
   },
   sessionLength: "1セットの問題数",
   sessionLengthAll: "すべて",

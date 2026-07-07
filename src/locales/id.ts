@@ -239,7 +239,10 @@ export const id: Copy = {
     intermediate: "Menengah",
     intermediateHint: "N2・N3",
     advanced: "Mahir",
-    advancedHint: "N1・N2"
+    advancedHint: "N1・N2",
+    manageTitle: "Level target",
+    change: "Ubah",
+    notSet: "Belum diatur"
   },
   sessionLength: "Soal per set",
   sessionLengthAll: "Semua",

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, ArrowRight, BookOpen, Bug, CalendarCheck, Heart, Sparkles, X } from "lucide-react";
+import { AlertTriangle, ArrowRight, BookOpen, Bug, CalendarCheck, ChevronDown, Heart, Sparkles, Target, X } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
 import type { LevelRange } from "../domain/levelRange";
@@ -181,6 +181,18 @@ export function HomePanel({
   };
   const showHowItWorks = showLevelOnboarding && !howItWorksDismissed;
 
+  // Persistent "目標級別" control (#526): once the first-run card is gone, this
+  // compact chip is the only way to see and re-pick the target level. Shown to
+  // everyone who is NOT a brand-new visitor (i.e. whenever the big card isn't),
+  // so returning learners who set a level -- or older ones who never had the
+  // card -- can still change it. Collapsed by default; 變更 expands the picker.
+  const [levelEditing, setLevelEditing] = useState(false);
+  const currentLevelOption = onboardingOptions.find((option) => option.range === targetLevel);
+  const chooseLevel = (range: LevelRange) => {
+    onChooseLevel(range);
+    setLevelEditing(false);
+  };
+
   return (
     <section className="home-panel" aria-label={t.home}>
       {/* First-time orientation: a single "how it works" line shown only to
@@ -235,6 +247,52 @@ export function HomePanel({
         </span>
         <ArrowRight aria-hidden="true" />
       </button>
+
+      {/* Persistent target-level control (#526): reflects the current band and,
+          when expanded, re-uses the same three-band picker as the first-run
+          card so the level can be changed at any time. Not rendered for a
+          brand-new visitor -- they get the big onboarding card above instead. */}
+      {!showLevelOnboarding ? (
+        <div className="home-level-manage" role="group" aria-label={t.levelOnboarding.manageTitle}>
+          <button
+            type="button"
+            className="home-level-chip"
+            aria-expanded={levelEditing}
+            onClick={() => setLevelEditing((open) => !open)}
+          >
+            <Target aria-hidden="true" />
+            <span className="home-level-chip-label">{t.levelOnboarding.manageTitle}</span>
+            <span className="home-level-chip-value">
+              {currentLevelOption ? (
+                <>
+                  <strong>{currentLevelOption.label}</strong>
+                  <small>{currentLevelOption.hint}</small>
+                </>
+              ) : (
+                <em>{t.levelOnboarding.notSet}</em>
+              )}
+            </span>
+            <span className="home-level-chip-action">{t.levelOnboarding.change}</span>
+            <ChevronDown className="home-level-chip-caret" aria-hidden="true" />
+          </button>
+          {levelEditing ? (
+            <div className="home-level-card-options">
+              {onboardingOptions.map((option) => (
+                <button
+                  key={option.range}
+                  type="button"
+                  className="home-level-option"
+                  aria-pressed={option.range === targetLevel}
+                  onClick={() => chooseLevel(option.range)}
+                >
+                  <strong>{option.label}</strong>
+                  <small>{option.hint}</small>
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       <header className="home-hero">
         {/* Decorative hero -- the heading below carries the actual
