@@ -232,6 +232,7 @@ export const ja: Copy = {
   drillPatternNagaraTari: "文型を練習：並列・同時",
   drillPatternTeAux: "文型を練習：補助動詞",
   drillN3Grammar: "N3 文法の問題を練習する",
+  drillKana: "五十音の読みを練習",
   startChallenge: "チャレンジを始める",
   settingsLabel: "練習設定",
   todayPractice: "今日の練習",
@@ -364,6 +365,7 @@ export const ja: Copy = {
   focusSummaryEmpty: "現在の重点に使える形がありません",
   modeOptions: {
     daily: { title: "今日の練習", subtitle: "復習を優先 · 文法 / 語順 / 漢字読みを混ぜて一巡" },
+    kana: { title: "五十音", subtitle: "ひらがな／カタカナの読み当て" },
     basic: { title: "基礎活用", subtitle: "品詞の活用練習 · 教科書の語彙" },
     cloze: { title: "文中穴埋め", subtitle: "N5 文型 · 〜てください / 〜たいです" },
     pattern: { title: "文型練習", subtitle: "N5/N4 の文型判別 · 視点 / 許可 / 引用 / 不要" },

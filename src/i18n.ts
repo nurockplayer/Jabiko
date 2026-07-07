@@ -207,6 +207,7 @@ export type Copy = {
   drillPatternNagaraTari: string;
   drillPatternTeAux: string;
   drillN3Grammar: string;
+  drillKana: string;
   startChallenge: string;
   settingsLabel: string;
   todayPractice: string;

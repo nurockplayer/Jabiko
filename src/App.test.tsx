@@ -175,7 +175,13 @@ describe("App", () => {
     await gotoLearn(user);
 
     expect(screen.getByRole("heading", { name: "一章一章解鎖" })).toBeInTheDocument();
-    expect(screen.getAllByRole("heading", { name: "先分清楚く / に" }).length).toBeGreaterThan(0);
+    // A brand-new learner's default-active chapter is now the 入門 kana
+    // chapter (#533) -- the true chapter zero -- not the く/に modifier one.
+    expect(screen.getAllByRole("heading", { name: "五十音・平假名" }).length).toBeGreaterThan(0);
+    expect(screen.getByText("あ a・い i・う u・え e・お o")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "練五十音認讀" })).toBeInTheDocument();
+    // The former default chapter is still one click away with its content intact.
+    await user.click(screen.getByRole("button", { name: "查看：先分清楚く / に" }));
     expect(screen.getByText("高い -> 高く")).toBeInTheDocument();
     expect(screen.getByText("静か -> 静かに")).toBeInTheDocument();
     expect(screen.getByText("学生 -> 学生に")).toBeInTheDocument();
@@ -212,12 +218,13 @@ describe("App", () => {
     render(<App />);
 
     await gotoLearn(user);
-    // Default-active chapter is "先分清楚く / に"; its く/に drill button is
-    // the equivalent of the old "開始第 1 關" hero CTA.
-    await user.click(screen.getByRole("button", { name: "練く/に修飾" }));
+    // Default-active chapter for a brand-new learner is 五十音・平假名
+    // (#533); its kana drill button is the "開始第 1 關" equivalent now.
+    await user.click(screen.getByRole("button", { name: "練五十音認讀" }));
 
-    expect(screen.getByRole("button", { name: "く/に修飾" })).toHaveClass("selected");
-    expect(within(screen.getByRole("region", { name: "目前題目" })).getByText("修飾形・く/に")).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("region", { name: "目前題目" })).getByText("五十音・平假名")
+    ).toBeInTheDocument();
   });
 
   it("starts a focused negative drill from the learning guide", async () => {
@@ -239,6 +246,7 @@ describe("App", () => {
     render(<App />);
 
     await gotoLearn(user);
+    await user.click(screen.getByRole("button", { name: "查看：先分清楚く / に" }));
     await user.click(screen.getByRole("button", { name: "練な形容詞" }));
 
     expect(screen.getByRole("button", { name: "な形容詞" })).toHaveClass("selected");
@@ -251,6 +259,7 @@ describe("App", () => {
     render(<App />);
 
     await gotoLearn(user);
+    await user.click(screen.getByRole("button", { name: "查看：先分清楚く / に" }));
     await user.click(screen.getByRole("button", { name: "練く/に修飾" }));
 
     expect(screen.getByRole("button", { name: "く/に修飾" })).toHaveClass("selected");

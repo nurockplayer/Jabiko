@@ -592,6 +592,9 @@ export default function App() {
           onStartExamSection={(level, promptLabel) =>
             openChallenge({ mode: "exam", filter: { examSection: { level, promptLabel } } })
           }
+          onStartKanaDrill={(script) =>
+            openChallenge({ mode: "kana", filter: { kanaScript: script } })
+          }
         />
       ) : appView === "rules" ? (
         <RulesPanel language={language} />

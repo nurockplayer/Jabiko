@@ -224,6 +224,7 @@ export const ko: Copy = {
   drillPatternNagaraTari: "문형 연습: 병렬 · 동시 동작",
   drillPatternTeAux: "문형 연습: 보조동사",
   drillN3Grammar: "N3 문법 연습하러 가기",
+  drillKana: "오십음 읽기 연습",
   startChallenge: "연습 시작",
   settingsLabel: "연습 설정",
   todayPractice: "오늘의 연습",
@@ -356,6 +357,7 @@ export const ko: Copy = {
   focusSummaryEmpty: "이 초점에 사용할 수 있는 활용형이 없어요",
   modeOptions: {
     daily: { title: "오늘의 연습", subtitle: "복습 우선 · 문법 / 어순 / 한자 읽기 혼합 한 바퀴" },
+    kana: { title: "오십음", subtitle: "히라가나/가타카나 읽기 인식" },
     basic: { title: "기초 활용", subtitle: "품사별 활용 연습 · 교과서 어휘" },
     cloze: { title: "문장 빈칸", subtitle: "N5 문형 · 〜てください / 〜たいです" },
     pattern: { title: "문형 연습", subtitle: "N5/N4 문형 판별 · 관점 / 허가 / 인용 / ~하지 않아도 됨" },

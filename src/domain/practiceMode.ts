@@ -7,6 +7,7 @@ export type PracticeMode =
   | "basic"
   | "cloze"
   | "daily"
+  | "kana"
   | "pattern"
   | "exam"
   | "review"

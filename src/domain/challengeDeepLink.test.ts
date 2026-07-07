@@ -5,6 +5,8 @@ describe("challengeDeepLink", () => {
   it("parses a mode-only deep link", () => {
     expect(challengeInitFromQuery("?mode=daily")).toEqual({ mode: "daily" });
     expect(challengeInitFromQuery("?mode=review")).toEqual({ mode: "review" });
+    // kana mode (#533) is deep-linkable too -- the 入門 chapter drill.
+    expect(challengeInitFromQuery("?mode=kana")).toEqual({ mode: "kana" });
   });
 
   it("parses mode + level range", () => {
