@@ -214,6 +214,8 @@ export type Copy = {
   drillPatternN5Keiyoushi: string;
   drillPatternN5Josuushi: string;
   drillPatternN5Teido: string;
+  drillPatternN4Ndesu: string;
+  drillPatternN4Suiryou: string;
   drillPatternTeKudasai: string;
   drillPatternNakuteMoII: string;
   drillPatternTeMorau: string;

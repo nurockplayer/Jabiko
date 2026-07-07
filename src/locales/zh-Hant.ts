@@ -231,6 +231,8 @@ export const zhHant: Copy = {
   drillPatternN5Keiyoushi: "練形容詞連接與變化",
   drillPatternN5Josuushi: "練助数詞",
   drillPatternN5Teido: "練程度與頻度",
+  drillPatternN4Ndesu: "練說明語氣 〜んです",
+  drillPatternN4Suiryou: "練推量與原因",
   drillPatternTeKudasai: "練句型：請求 / 許可 / 禁止",
   drillPatternNakuteMoII: "練句型：不必 vs 必須",
   drillPatternTeMorau: "練句型：授受視角",

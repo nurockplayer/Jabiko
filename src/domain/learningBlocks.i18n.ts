@@ -780,6 +780,86 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "n4-ndesu": {
+    "en": {
+      "category": "N4 Grammar",
+      "kicker": "N4 Patterns",
+      "title": "The Explanatory 〜んです",
+      "explanation":
+        "N4's highest-frequency tone system. 「〜んです」 is not a plain です — it carries an explaining stance: pressing about something unusual you see (どうしたんですか), giving the background of your own actions (誕生日なんです), or cushioning a request (質問があるんですが…). Attachment: verbs and い-adjectives take the plain form directly (行くんです, 痛いんです); nouns and な-adjectives in the present take な (引っ越しなんです); past だった attaches bare (病気だったんです). Question and answer pair up: 〜んですか is answered with 〜んです.",
+      "notes": [
+        "Pressing for an explanation",
+        "Answering: giving the reason",
+        "Noun + な + んです; が = cushion",
+        "Past だった attaches bare",
+        "The request cushion んですが"
+      ],
+      "pitfalls": [
+        "Plain form + です/ます is no sentence: ×行くです — either 行きます or 行くんです",
+        "Nouns/な-adjectives take な: 学生なんです — but past だったんです drops it",
+        "んですか needs a visible trigger; without one it sounds like an interrogation — neutral questions use ますか"
+      ]
+    },
+    "ja": {
+      "category": "N4文法",
+      "kicker": "N4文型",
+      "title": "説明の「んです」",
+      "explanation":
+        "N4 で最も頻度が高いモダリティ。「〜んです」はただの です ではなく「説明」の態度を帯びる：目の前の様子への追及（どうしたんですか）、自分の行動の背景説明（誕生日なんです）、依頼の前置き（質問があるんですが…）。接続：動詞・い形容詞は普通形に直接（行くんです）；名詞・な形容詞の現在肯定は な を挟む（引っ越しなんです）；過去 だった には直接（病気だったんです）。問いと答えはセット：〜んですか には 〜んです で返す。",
+      "notes": [
+        "様子への追及",
+        "答え：理由の説明",
+        "名詞＋な＋んです。が は前置き",
+        "だった には直接",
+        "依頼の前置き んですが"
+      ],
+      "pitfalls": [
+        "普通形＋です/ます は文にならない：×行くです——行きます か 行くんです",
+        "名詞・な形容詞は な：学生なんです。ただし過去は だったんです",
+        "んですか はきっかけがあってこそ。なければ詰問に聞こえる——中立の質問は ますか"
+      ]
+    }
+  },
+  "n4-suiryou": {
+    "en": {
+      "category": "N4 Grammar",
+      "kicker": "N4 Patterns",
+      "title": "Conjecture & Causes: かもしれない・て",
+      "explanation":
+        "The certainty ladder: 〜かもしれない (might — 50% or less) < 〜だろう/でしょう (probably). だろう is the plain-form counterpart of でしょう. Shared attachment rule: nouns and な-adjectives attach BARE, dropping だ — 学生かもしれない, 休みだろう, 元気でしょう (contrast んです, which wants な). The other half is causal て: reasons for feelings and states use て/なくて — 知らせを聞いて安心した, 宿題が終わらなくて困っている. Negative formula: drop the い of ない, add くて.",
+      "notes": [
+        "Might: かもしれない",
+        "だろう = plain でしょう",
+        "Nouns attach bare, だ drops",
+        "て = cause of a feeling",
+        "Negative cause: なくて"
+      ],
+      "pitfalls": [
+        "Before かも/だろう/でしょう, だ always drops: ×学生だかもしれない",
+        "But んです wants な: 学生なんです — keep the two rule-sets apart",
+        "Negative causes take なくて (states/feelings); ないで is \"doing B without doing A\""
+      ]
+    },
+    "ja": {
+      "category": "N4文法",
+      "kicker": "N4文型",
+      "title": "推量と原因 かもしれない・て",
+      "explanation":
+        "確信度のはしご：〜かもしれない（五分以下）＜〜だろう/でしょう（たぶん）。だろう は でしょう の普通体。共通の接続ルール：名詞・な形容詞は裸で付き、だ は落とす——学生かもしれない、休みだろう、元気でしょう（んです は な が要るのと対照的）。もう一つの柱は「て形の原因用法」：感情・状態の理由は て/なくて——知らせを聞いて安心した、終わらなくて困っている。否定の公式：ない の い を取って くて。",
+      "notes": [
+        "かもしれない",
+        "だろう＝でしょう の普通体",
+        "名詞は裸接続、だ は落とす",
+        "て＝感情の原因",
+        "否定の原因：なくて"
+      ],
+      "pitfalls": [
+        "かも/だろう/でしょう の前で だ は必ず落ちる：×学生だかもしれない",
+        "んです は な が要る：学生なんです——二つのルールを混ぜない",
+        "原因の否定は なくて（状態・感情）。ないで は「Aしないで B する」の付帯状況"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",

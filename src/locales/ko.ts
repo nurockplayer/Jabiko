@@ -231,6 +231,8 @@ export const ko: Copy = {
   drillPatternN5Keiyoushi: "형용사 연결과 변화 연습",
   drillPatternN5Josuushi: "조수사 연습",
   drillPatternN5Teido: "정도와 빈도 연습",
+  drillPatternN4Ndesu: "설명의 んです 연습",
+  drillPatternN4Suiryou: "추량과 원인 연습",
   drillPatternTeKudasai: "문형 연습: 요청 / 허가 / 금지",
   drillPatternNakuteMoII: "문형 연습: ~하지 않아도 됨 vs ~해야 함",
   drillPatternTeMorau: "문형 연습: 주고받기 관점",

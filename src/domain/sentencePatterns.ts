@@ -17,6 +17,8 @@ export type SentencePatternId =
   | "n5-keiyoushi"
   | "n5-josuushi"
   | "n5-teido"
+  | "n4-ndesu"
+  | "n4-suiryou"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -59,6 +61,8 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "n5-keiyoushi": "形容詞的連接與變化",
   "n5-josuushi": "助数詞 數量的說法",
   "n5-teido": "程度與頻度 あまり・よく",
+  "n4-ndesu": "說明語氣 〜んです",
+  "n4-suiryou": "推量與原因 かもしれない・て",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -1349,6 +1353,206 @@ const N5_TEIDO_ITEMS: SentencePatternItem[] = [
 ];
 
 // ===========================================================================
+// N4 pattern: n4-ndesu -- the explanatory んです system (#549).
+//   んです vs です is interchangeable almost everywhere on the surface, so
+//   です NEVER competes semantically: every item is built so the blank
+//   follows a PLAIN form (した/行く/ある/だった/な), where です・ます・
+//   でした are attachment-dead and only んです(か/が) parses. The four
+//   attachment shapes (verb plain, noun+な, noun+だった, い-adj) each get
+//   dedicated items.
+// ===========================================================================
+const N4_NDESU_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n4-ndesu-001",
+    patternId: "n4-ndesu",
+    promptText: "顔色が悪いですね。どうした___。",
+    hintZh: "看對方臉色不對，開口關心。",
+    promptContextZh: "「你臉色不太好耶，怎麼了嗎？」",
+    expectedAnswer: "んですか",
+    options: ["んですか", "ですか", "ますか", "でしたか"],
+    explanation:
+      "看到不尋常的狀況、想「求說明」時用「〜んですか」：どうしたんですか＝怎麼了嗎？前面的「した」是普通形，後面直接接「ですか」「ますか」「でしたか」都不成句——這四個選項裡只有んですか接得上。※顔色＝臉色、氣色。"
+  },
+  {
+    id: "pattern-n4-ndesu-002",
+    patternId: "n4-ndesu",
+    promptText: "「どうして遅れたんですか。」「電車が止まった___。」",
+    hintZh: "說出遲到的緣由。",
+    promptContextZh: "「為什麼遲到了？」「因為電車停駛了。」",
+    expectedAnswer: "んです",
+    options: ["んです", "です", "ます", "ましょう"],
+    explanation:
+      "回答「どうして〜んですか」的追問，用「〜んです」說明緣由：電車が止まったんです。「止まった」是普通形，後面直接接「です」「ます」「ましょう」都不成句。問答一組：んですか⇄んです。※遅れる＝遲到。"
+  },
+  {
+    id: "pattern-n4-ndesu-003",
+    patternId: "n4-ndesu",
+    promptText: "明日引っ越し___、手伝ってくれませんか。",
+    hintZh: "開口請人幫忙搬家前先交代狀況。",
+    promptContextZh: "「明天我要搬家，能幫我個忙嗎？」",
+    expectedAnswer: "なんですが",
+    options: ["なんですが", "んですが", "だんですが", "のんですが"],
+    explanation:
+      "拜託人之前先鋪墊狀況用「〜んですが」；名詞接んです要加な：引っ越し＋な＋んですが。「引っ越しんですが」少了な；「だんですが」「のんですが」都不是存在的接法——跟「なので」同一個な。※引っ越し＝搬家、手伝う＝幫忙。"
+  },
+  {
+    id: "pattern-n4-ndesu-004",
+    patternId: "n4-ndesu",
+    promptText: "今日は誕生日な___。だからケーキを買いました。",
+    hintZh: "解釋自己為什麼買蛋糕。",
+    promptContextZh: "「今天是我生日，所以買了蛋糕。」",
+    expectedAnswer: "んです",
+    options: ["んです", "です", "でした", "だんです"],
+    explanation:
+      "說明自己行為的背景用「〜んです」：誕生日なんです＝（其實）今天是我生日。空格前已經有な，其餘三個選項接在な後面都不成句——這個な跟なので、なのに 是同一家。"
+  },
+  {
+    id: "pattern-n4-ndesu-005",
+    patternId: "n4-ndesu",
+    promptText: "（友だちが大きいかばんを持っている）どこへ行く___。",
+    hintZh: "看到朋友拿著大包包，好奇追問。",
+    promptContextZh: "「（看到朋友拿著大包包）你要去哪裡呀？」",
+    expectedAnswer: "んですか",
+    options: ["んですか", "ですか", "ましたか", "でしたか"],
+    explanation:
+      "看到眼前的情況、帶著關心追問用「〜んですか」：どこへ行くんですか。「行く」是辭書形，直接接「ですか」「ましたか」「でしたか」都不成句——要單純地問就得說「行きますか」。"
+  },
+  {
+    id: "pattern-n4-ndesu-006",
+    patternId: "n4-ndesu",
+    promptText: "「どうして休んだんですか。」「病気だった___。」",
+    hintZh: "說出請假的緣由。",
+    promptContextZh: "「為什麼請假了？」「因為（那時）生病了。」",
+    expectedAnswer: "んです",
+    options: ["んです", "なんです", "です", "でした"],
+    explanation:
+      "名詞的過去形接んです不再加な：病気だった＋んです。「病気だったなんです」多了な；「だったです」「だったでした」都不成句。整理：現在＝病気なんです、過去＝病気だったんです。"
+  },
+  {
+    id: "pattern-n4-ndesu-007",
+    patternId: "n4-ndesu",
+    promptText: "先生、質問がある___、今いいですか。",
+    hintZh: "找老師發問前先開個頭。",
+    promptContextZh: "「老師，我有個問題想請教，現在方便嗎？」",
+    expectedAnswer: "んですが",
+    options: ["んですが", "ですが", "なんですが", "ました"],
+    explanation:
+      "開口前的鋪墊：動詞普通形直接接「んですが」——質問があるんですが。「あるですが」不成句（要說ありますが）；「あるなんですが」多了な（な只給名詞和な形容詞用）；「あるました」不成句。"
+  },
+  {
+    id: "pattern-n4-ndesu-008",
+    patternId: "n4-ndesu",
+    promptText: "「日本へ留学するんですか。」「はい、来年行く___。」",
+    hintZh: "確認對方留學的計畫。",
+    promptContextZh: "「你要去日本留學嗎？」「對，明年要去。」",
+    expectedAnswer: "んです",
+    options: ["んです", "です", "ます", "でした"],
+    explanation:
+      "被「〜んですか」問到，回答也用「〜んです」呼應：来年行くんです。「行くです」「行くます」「行くでした」都不成句——辭書形後面這四個選項只有んです接得上。※留学＝留學。"
+  }
+];
+
+// ===========================================================================
+// N4 pattern: n4-suiryou -- conjecture + causal て (#549).
+//   かもしれない and でしょう/だろう are certainty-adjacent, so they never
+//   compete in one item. The chapter's spine is attachment: かも/だろう/
+//   でしょう all take nouns and な-adjectives BARE (だ drops) -- contrast
+//   with んです's な. て-cause items are pure form kills; ないで never
+//   appears as a foil where なくて is the answer (colloquial ないで+state
+//   readings survive).
+// ===========================================================================
+const N4_SUIRYOU_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n4-suiryou-001",
+    patternId: "n4-suiryou",
+    promptText: "空が暗いですね。雨が降る___。",
+    hintZh: "看天色說話。",
+    promptContextZh: "「天色好暗，說不定會下雨。」",
+    expectedAnswer: "かもしれません",
+    options: ["かもしれません", "かしれません", "かもしりません", "かもしれました"],
+    explanation:
+      "可能性用「〜かもしれません」＝說不定〜：雨が降るかもしれません。「かしれません」少了も；「かもしりません」把しれ誤作しり；「かもしれました」沒有這種過去形——整組當固定形背下來。※暗い＝暗。"
+  },
+  {
+    id: "pattern-n4-suiryou-002",
+    patternId: "n4-suiryou",
+    promptText: "明日はたぶん晴れる___。",
+    hintZh: "用普通體聊明天的天氣。",
+    promptContextZh: "「明天大概會放晴吧。」",
+    expectedAnswer: "だろう",
+    options: ["だろう", "だ", "だった", "ではない"],
+    explanation:
+      "「だろう」是「でしょう」的普通體＝大概〜吧：晴れるだろう。辭書形後面直接接「だ」「だった」「ではない」都不成句——動詞普通形之後だ系只有だろう接得上。※晴れる＝放晴。"
+  },
+  {
+    id: "pattern-n4-suiryou-003",
+    patternId: "n4-suiryou",
+    promptText: "宿題が___、困っています。",
+    hintZh: "說功課卡住的煩惱。",
+    promptContextZh: "「功課寫不完，正傷腦筋。」",
+    expectedAnswer: "終わらなくて",
+    options: ["終わらなくて", "終わるなくて", "終わらなくで", "終わないで"],
+    explanation:
+      "原因的否定用「〜なくて」：終わらない→終わらなくて＝因為寫不完（所以困擾）。「終わるなくて」把辭書形硬接ない系；「終わらなくで」拼錯；「終わないで」少了ら。後件是感情、狀態（困る）時，原因用なくて。※宿題＝功課。"
+  },
+  {
+    id: "pattern-n4-suiryou-004",
+    patternId: "n4-suiryou",
+    promptText: "合格の知らせを___、安心しました。",
+    hintZh: "說明安心的原因。",
+    promptContextZh: "「聽到合格的通知，放心了。」",
+    expectedAnswer: "聞いて",
+    options: ["聞いて", "聞くて", "聞きて", "聞いで"],
+    explanation:
+      "感情（安心、びっくり、うれしい…）的原因用て形：知らせを聞いて、安心しました＝聽到通知而放心。「聞くて」「聞きて」都是錯誤音便；「聞いで」的いで是ぐ結尾動詞用的（泳ぐ→泳いで）——く結尾是いて（聞く→聞いて）。※合格＝合格、知らせ＝通知、安心する＝放心。"
+  },
+  {
+    id: "pattern-n4-suiryou-005",
+    patternId: "n4-suiryou",
+    promptText: "あの人は学生___。",
+    hintZh: "猜測那個人的身分。",
+    promptContextZh: "「那個人說不定是學生。」",
+    expectedAnswer: "かもしれません",
+    options: ["かもしれません", "だかもしれません", "なかもしれません", "のかもしれません"],
+    explanation:
+      "名詞接「かもしれない」直接接、だ要去掉：学生かもしれません。「学生だかもしれません」留著だ是錯的；「なかもしれません」把んです的な錯搬過來；「のかもしれません」直接接名詞多了の（要說「学生なのかもしれません」另當別論）。對照：んです要な（学生なんです）、かも直接接。"
+  },
+  {
+    id: "pattern-n4-suiryou-006",
+    patternId: "n4-suiryou",
+    promptText: "たぶんあの店は休み___。",
+    hintZh: "用普通體猜店家今天的狀態。",
+    promptContextZh: "「那家店今天大概沒開吧。」",
+    expectedAnswer: "だろう",
+    options: ["だろう", "なだろう", "のだろう", "いだろう"],
+    explanation:
+      "名詞接「だろう」也是直接接：休みだろう。「なだろう」把んです的な錯搬；「休みのだろう」多了の（要說「休みなのだろう」另當別論）；「いだろう」不成形。かも、だろう、でしょう前面：現在形的だ全部去掉（過去的だった要保留：休みだっただろう）。"
+  },
+  {
+    id: "pattern-n4-suiryou-007",
+    patternId: "n4-suiryou",
+    promptText: "彼女はたぶん元気___。",
+    hintZh: "猜久沒聯絡的朋友的近況。",
+    promptContextZh: "「她大概過得很好吧。」",
+    expectedAnswer: "でしょう",
+    options: ["でしょう", "なでしょう", "だでしょう", "のでしょう"],
+    explanation:
+      "な形容詞接「でしょう」直接接、だ・な都不要：元気でしょう。「なでしょう」「だでしょう」都畫蛇添足；「元気のでしょう」多了の。整理這一家：〜かもしれない、〜だろう、〜でしょう——名詞/な形容詞的現在形一律裸接（過去的だった保留：元気だったでしょう）。"
+  },
+  {
+    id: "pattern-n4-suiryou-008",
+    patternId: "n4-suiryou",
+    promptText: "朝ごはんを___、おなかがすきました。",
+    hintZh: "說肚子餓的來由。",
+    promptContextZh: "「沒吃早餐，肚子餓了。」",
+    expectedAnswer: "食べなくて",
+    options: ["食べなくて", "食べなくで", "食べずて", "食べないくて"],
+    explanation:
+      "原因的否定再練一次：食べない→食べなくて＝因為沒吃（所以餓了）。「食べなくで」「食べずて」「食べないくて」都不是存在的形——公式：ない形去い＋くて。"
+  }
+];
+
+// ===========================================================================
 // Lesson-0 pattern A: starter-desu -- the AはBです sentence family (#534).
 //   Absolute-beginner floor: kana-only sentences built from the starter
 //   vocabulary deck. Unique solutions are locked by IN-SENTENCE anchors
@@ -2206,6 +2410,8 @@ export const sentencePatternItems: SentencePatternItem[] = [
   ...N5_KEIYOUSHI_ITEMS,
   ...N5_JOSUUSHI_ITEMS,
   ...N5_TEIDO_ITEMS,
+  ...N4_NDESU_ITEMS,
+  ...N4_SUIRYOU_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,
