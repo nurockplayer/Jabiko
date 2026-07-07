@@ -224,6 +224,8 @@ export const my: Copy = {
   drillPatternN5Joshi3: "ဝိဘတ် の・も・か・から လေ့ကျင့်ရန်",
   drillPatternN5Hikaku: "နှိုင်းယှဉ်ပုံစံ လေ့ကျင့်ရန်",
   drillPatternN5SukiDekiru: "ကြိုက်/မကြိုက်နှင့် စွမ်းရည် လေ့ကျင့်ရန်",
+  drillPatternN5Sasoi: "ဖိတ်ခေါ်မှုနှင့် အဆိုပြုမှု လေ့ကျင့်ရန်",
+  drillPatternN5Onegai: "တောင်းဆိုမှုနှင့် အကြံပြုမှု လေ့ကျင့်ရန်",
   drillPatternTeKudasai: "ပုံစံ လေ့ကျင့်: တောင်းဆို / ခွင့်ပြု / တားမြစ်",
   drillPatternNakuteMoII: "ပုံစံ လေ့ကျင့်: မလိုအပ် vs. မဖြစ်မနေ",
   drillPatternTeMorau: "ပုံစံ လေ့ကျင့်: ပေးခြင်းနှင့် လက်ခံခြင်း ရှုထောင့်",

@@ -500,6 +500,86 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "n5-sasoi": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Invitations & Offers: ませんか・ましょう",
+      "explanation":
+        "The trio for reaching out: 「ませんか」 = won't you ~? (a question — the decision stays with the listener); 「ましょう」 = let's ~ (a proposal, or the way to accept an invitation); 「ましょうか」 = shall I ~? (offering to help). Alongside them: ます-stem + 「に いきます/きます」 = go/come to do something (かいに いきます = go to buy), and the suggestion 「〜は どうですか」 = how about ~?",
+      "notes": [
+        "Invite: won't you ~?",
+        "Accept: let's ~",
+        "Offer to help: shall I ~?",
+        "Purpose of movement: stem + に",
+        "Suggest: how about ~?"
+      ],
+      "pitfalls": [
+        "ませんか asks the listener; ましょう is your side proposing/accepting — don't flip the direction",
+        "「に いきます」 attaches to the ます-stem (かい, たべ), not the dictionary or て form",
+        "Answering an invitation: yes → 「ましょう」; declining → 「ちょっと……」 (not a blunt いいえ)"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "誘い・申し出 ませんか・ましょう",
+      "explanation":
+        "誘いの三点セット：「ませんか」＝〜しない？（疑問文。決定権は相手に）；「ましょう」＝〜しよう（提案、または誘いを受けるときの返事）；「ましょうか」＝〜しようか？（手伝いの申し出）。あわせて：ます形の語幹＋「に いきます/きます」＝〜しに行く/来る（かいに いきます）、提案の「〜は どうですか」。",
+      "notes": [
+        "誘う：〜ませんか",
+        "受ける：〜ましょう",
+        "申し出：〜ましょうか",
+        "移動の目的：語幹＋に",
+        "提案：〜は どうですか"
+      ],
+      "pitfalls": [
+        "ませんか は相手に聞く形、ましょう は自分側の提案/受諾——方向を逆にしない",
+        "「に いきます」に付くのは ます形の語幹（かい、たべ）。辞書形・て形は不可",
+        "誘いへの返事：OK →「ましょう」、断る →「ちょっと……」（いいえ と直言しない）"
+      ]
+    }
+  },
+  "n5-onegai": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Requests & Advice: ください・ほうがいい",
+      "explanation":
+        "The set for asking and advising. Shopping/ordering: 「Nを (quantity) ください」 — the counter goes right before ください with no particle. Wanting things: 「〜が ほしいです」 (object takes が, same family as すき). Advice: た-form + 「ほうがいいです」 = you'd better ~, ない-form + 「ほうがいいです」 = you'd better not ~. Asking someone not to do: ない-form + 「でください」.",
+      "notes": [
+        "Please give me ~: no particle on the counter",
+        "Want: object takes が",
+        "Advice to do: た-form + ほうがいい",
+        "Advice not to: ない-form",
+        "Please don't ~"
+      ],
+      "pitfalls": [
+        "ほうがいい: the \"do it\" direction takes the た-form (ねた), the \"don't\" direction the ない-form (はいらない)",
+        "The object of ほしい takes が, not を — the same colloquial trap as をすき",
+        "ないでください (please don't) ≠ なくてもいいです (you don't have to)"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "依頼とアドバイス ください・ほうがいい",
+      "explanation":
+        "頼む・勧めるための文型セット。買い物・注文：「Nを（数量）ください」——数量詞は助詞なしで ください の直前。ほしい物：「〜が ほしいです」（対象は が。すき と同じ仲間）。アドバイス：た形＋「ほうがいいです」＝〜したほうがいい、ない形＋「ほうがいいです」＝〜しないほうがいい。してほしくないこと：ない形＋「でください」。",
+      "notes": [
+        "〜をください：数量に助詞なし",
+        "ほしい：対象は が",
+        "した方がいい：た形",
+        "しない方がいい：ない形",
+        "〜ないでください"
+      ],
+      "pitfalls": [
+        "ほうがいい：「する」方向は た形（ねた）、「しない」方向は ない形（はいらない）",
+        "ほしい の対象は が。を は をすき と同じ話し言葉の罠",
+        "ないでください（しないで）≠ なくてもいいです（しなくていい）"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",

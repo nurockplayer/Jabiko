@@ -431,6 +431,56 @@ export const learningBlocks: LearningBlock[] = [
     recommendedAfter: ["n5-hikaku"]
   },
   {
+    id: "n5-sasoi",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "邀約與提議 ませんか・ましょう",
+    subtitle: "いっしょに たべませんか／たべましょう",
+    explanation:
+      "開口約人的三件組：「ませんか」＝要不要〜？（問句，把決定權交給對方）；「ましょう」＝（我們）〜吧（提議，或接受邀約時回答）；「ましょうか」＝我來〜吧？（主動提出幫忙）。配套的還有：ます形語幹＋「に いきます/きます」＝去/來做某事（かいに いきます＝去買），以及提案的「〜は どうですか」＝〜怎麼樣？",
+    examples: [
+      { formula: "いっしょに たべませんか", note: "邀約：要不要～？" },
+      { formula: "いいですね。たべましょう", note: "接受：～吧" },
+      { formula: "にもつを もちましょうか", note: "主動幫忙：我來～吧？" },
+      { formula: "かばんを かいに いきます", note: "移動目的：語幹＋に" },
+      { formula: "どようびは どうですか", note: "提案：～怎麼樣？" }
+    ],
+    pitfalls: [
+      "ませんか 是問對方；ましょう 是自己這邊的提議/接受——別搞反方向",
+      "接「に いきます」的是ます形語幹（かい、たべ），不是辭書形或て形",
+      "回答邀約：好→「ましょう」；婉拒→「ちょっと……」（不直說いいえ）"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Sasoi", patternIds: ["n5-sasoi"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n5-suki-dekiru"]
+  },
+  {
+    id: "n5-onegai",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "請求與建議 ください・ほうがいい",
+    subtitle: "りんごを みっつ ください",
+    explanation:
+      "開口要東西、給建議的句型組。購物點餐：「Nを（數量）ください」——數量詞直接放ください前面、不加助詞；想要的東西：「〜が ほしいです」（對象用が，跟すき同家族）；建議：「た形＋ほうがいいです」＝最好〜、「ない形＋ほうがいいです」＝最好別〜；請人別做：「ない形＋でください」。",
+    examples: [
+      { formula: "りんごを みっつ ください", note: "請給我～：數量不加助詞" },
+      { formula: "くつが ほしいです", note: "想要：對象用が" },
+      { formula: "ねた ほうがいいです", note: "建議做：た形＋ほうがいい" },
+      { formula: "はいらない ほうがいいです", note: "建議別做：ない形" },
+      { formula: "はなさないで ください", note: "請勿～" }
+    ],
+    pitfalls: [
+      "ほうがいい 的「做」方向接た形（ねた），「別做」方向接ない形（はいらない）",
+      "ほしい 的對象用が不用を——跟をすき同一個口語陷阱",
+      "ないでください（請別做）≠ なくてもいいです（不必做）"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Onegai", patternIds: ["n5-onegai"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n5-sasoi"]
+  },
+  {
     id: "adverbial",
     group: "basic",
     category: "形容詞 / 名詞 修飾",

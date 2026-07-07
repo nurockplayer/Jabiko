@@ -225,6 +225,8 @@ export const th: Copy = {
   drillPatternN5Joshi3: "ฝึกคำช่วย の・も・か・から",
   drillPatternN5Hikaku: "ฝึกรูปประโยคเปรียบเทียบ",
   drillPatternN5SukiDekiru: "ฝึกชอบ/ไม่ชอบ + ความสามารถ",
+  drillPatternN5Sasoi: "ฝึกชักชวนและเสนอ",
+  drillPatternN5Onegai: "ฝึกขอร้องและให้คำแนะนำ",
   drillPatternTeKudasai: "ฝึกรูปประโยค: ขอร้อง / อนุญาต / ห้าม",
   drillPatternNakuteMoII: "ฝึกรูปประโยค: ไม่จำเป็น vs จำเป็น",
   drillPatternTeMorau: "ฝึกรูปประโยค: มุมมองการให้-รับ",

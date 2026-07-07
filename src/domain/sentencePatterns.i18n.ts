@@ -727,6 +727,134 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "前の文で犬が好きだと言い、猫「も」好き →「も」が が の位置をそのまま引き継ぐ：ねこも すきです。助詞IIIで学んだ も を、好きの文で復習。"
     }
   },
+  "pattern-n5-sasoi-001": {
+    "hintI18n": { "en": "Reaching out about lunch together.", "ja": "一緒に昼ご飯をと、相手に声をかける。" },
+    "promptContextI18n": { "en": "\"Won't you have lunch together?\" \"Sounds good — let's eat.\"", "ja": "「一緒に昼ご飯を食べませんか。」「いいですね。食べましょう。」" },
+    "explanationI18n": {
+      "en": "Inviting with a question uses 「ませんか」 = won't you ~? — it leaves the decision with the listener, who accepts with 「ましょう」 (that's exactly the reply 「いいですね。たべましょう」). 「ました」「ません」「ませんでした」 are plain past/negative statements — none fit an invitation dialogue. ※いっしょに = together, ひるごはん = lunch.",
+      "ja": "疑問で誘うのが「ませんか」——決定権を相手に渡し、相手は「ましょう」で受ける（返事の「いいですね。たべましょう」がまさにそれ）。「ました」「ません」「ませんでした」は過去/否定のただの叙述で、誘いの対話につながらない。"
+    }
+  },
+  "pattern-n5-sasoi-002": {
+    "hintI18n": { "en": "You've been invited — say yes.", "ja": "誘われた側。OKの返事をする。" },
+    "promptContextI18n": { "en": "\"Want to see a movie tomorrow?\" \"Sounds good — let's watch it.\"", "ja": "「明日映画を見ませんか。」「いいですね。見ましょう。」" },
+    "explanationI18n": {
+      "en": "Accepting an invitation uses 「ましょう」: いいですね、みましょう. 「ませんか」 is how the inviter asks — the accepter doesn't ask back; 「みません」 is a refusal, contradicting 「いいですね」; 「みました」 is past. ※えいが = movie.",
+      "ja": "誘いを受けるときは「ましょう」：いいですね、みましょう。「ませんか」は誘う側の聞き方で、受ける側は聞き返さない。「みません」は断りで「いいですね」と矛盾、「みました」は過去形。"
+    }
+  },
+  "pattern-n5-sasoi-003": {
+    "hintI18n": { "en": "Their bag looks heavy — offer to help.", "ja": "相手の荷物が重そう。こちらから手を貸すと言い出す。" },
+    "promptContextI18n": { "en": "\"That luggage looks heavy — shall I carry half?\"", "ja": "「荷物が重いですね。私が半分持ちましょうか。」" },
+    "explanationI18n": {
+      "en": "Offering to help uses 「ましょうか」 = shall I ~?: わたしが はんぶん もちましょうか. 「ませんか」 would invite the OTHER person to do it, clashing with わたしが (I'll do it) in the sentence; 「ました」「ません」 are past/negative — not offers. ※にもつ = luggage, おもい = heavy, はんぶん = half, もちます = to carry.",
+      "ja": "手伝いの申し出は「ましょうか」：わたしが はんぶん もちましょうか。「ませんか」は相手にやってもらう誘い方で、文中の わたしが と衝突する。「ました」「ません」は過去/否定で、申し出にならない。"
+    }
+  },
+  "pattern-n5-sasoi-004": {
+    "hintI18n": { "en": "Saying what you're going to the department store for.", "ja": "デパートへ行って何をするかを言う。" },
+    "promptContextI18n": { "en": "\"I'm going to the department store to buy a bag.\"", "ja": "「デパートへかばんを買いに行きます。」" },
+    "explanationI18n": {
+      "en": "ます-stem + 「に いきます」 = go to do something: かいます → かい + に いきます = go to buy. 「を」 is already used in かばんを; 「で」 and 「へ」 can't follow a verb stem. ※デパート = department store.",
+      "ja": "ます形の語幹＋「に いきます」＝〜しに行く：かいます→かい＋に いきます。「を」はすでに かばんを で使っている。「で」「へ」は動詞の語幹には付かない。"
+    }
+  },
+  "pattern-n5-sasoi-005": {
+    "hintI18n": { "en": "Saying what tonight's restaurant trip is for.", "ja": "レストランへ行って何をするかを言う。" },
+    "promptContextI18n": { "en": "\"I'm going to a restaurant to eat dinner.\"", "ja": "「レストランへ晩ご飯を食べに行きます。」" },
+    "explanationI18n": {
+      "en": "What attaches to 「に いきます」 is the ます-stem: たべます → たべ + に. 「たべるに」「たべたに」「たべてに」 are all wrong attachments — the dictionary, た, and て forms can't take the purpose に directly. ※レストラン = restaurant, ばんごはん = dinner.",
+      "ja": "「に いきます」に付くのは ます形の語幹：たべます→たべ＋に。「たべるに」「たべたに」「たべてに」はどれも誤り——辞書形・た形・て形は目的の に に直接つながらない。"
+    }
+  },
+  "pattern-n5-sasoi-006": {
+    "hintI18n": { "en": "Tomorrow doesn't work for them — float another day.", "ja": "明日はだめそうなので、別の日を出してみる。" },
+    "promptContextI18n": { "en": "\"Tomorrow's a bit...\" \"Then how about Saturday?\"", "ja": "「明日はちょっと……。」「じゃあ、土曜日はどうですか。」" },
+    "explanationI18n": {
+      "en": "Suggesting and asking an opinion uses 「〜は どうですか」 = how about ~?: じゃあ、どようびは どうですか. 「を」「へ」「の」 don't connect to どうですか. ※どようび = Saturday; 「〜は ちょっと……」 is the set phrase for a soft refusal.",
+      "ja": "提案して意見を聞くのは「〜は どうですか」：じゃあ、どようびは どうですか。「を」「へ」「の」は どうですか につながらない。「〜は ちょっと……」はやんわり断る定型表現。"
+    }
+  },
+  "pattern-n5-sasoi-007": {
+    "hintI18n": { "en": "Saying what your friend came over to do yesterday.", "ja": "昨日、友だちが家に来て何をしたかを言う。" },
+    "promptContextI18n": { "en": "\"Yesterday a friend came over to hang out.\"", "ja": "「昨日、友だちがうちへ遊びに来ました。」" },
+    "explanationI18n": {
+      "en": "「Vに きます」 = come to do something: あそびに きました = came over to hang out. Same pattern as 「かいに いきます」 — go and come both take ます-stem + に. 「を」「と」「へ」 can't follow the stem. ※あそびます = to play / hang out, うち = home (colloquial).",
+      "ja": "「Vに きます」＝〜しに来る：あそびに きました。「かいに いきます」と同じ文型で、行く/来る どちらも ます形の語幹＋に。「を」「と」「へ」は語幹につながらない。"
+    }
+  },
+  "pattern-n5-sasoi-008": {
+    "hintI18n": { "en": "The room is stuffy — offer to get some air moving.", "ja": "部屋の空気がこもっているので、風を通そうと言い出す。" },
+    "promptContextI18n": { "en": "\"The air in here is stale. Shall I open the window?\"", "ja": "「部屋の空気が悪いですね。窓を開けましょうか。」" },
+    "explanationI18n": {
+      "en": "Offering to act uses 「ましょうか」: stale air means you'd OPEN the window → あけましょうか. 「しめましょうか」 (shall I close it?) would only make it stuffier; 「あけません」 = won't open; 「しめました」 is past and the wrong direction too. ※へや = room, くうき = air, まど = window, あけます = to open, しめます = to close.",
+      "ja": "自分から動く申し出は「ましょうか」：空気がこもっているなら窓を「開ける」→あけましょうか。「しめましょうか」はもっとこもる逆方向、「あけません」は「開けない」、「しめました」は過去のうえ逆方向。"
+    }
+  },
+  "pattern-n5-onegai-001": {
+    "hintI18n": { "en": "At the fruit shop, asking for three apples.", "ja": "果物屋で、りんごを三つ買うと店の人に言う。" },
+    "promptContextI18n": { "en": "\"Excuse me, three of these apples, please.\"", "ja": "「すみません、このりんごを三つください。」" },
+    "explanationI18n": {
+      "en": "Shopping and ordering use 「Nを (quantity) ください」 = please give me ~: りんごを みっつ ください. The counter (みっつ) goes right before ください with no particle. 「あります」「います」 are incompatible with 「を」 (you'd say りんごが あります); 「でした」 is a past-tense statement — not how you ask for something. ※みっつ = three (things).",
+      "ja": "買い物・注文は「Nを（数量）ください」：りんごを みっつ ください。数量詞（みっつ）は助詞なしで ください の直前。「あります」「います」は「を」と両立しない（りんごが あります）。「でした」は過去の断定で、買い物の頼み方にならない。"
+    }
+  },
+  "pattern-n5-onegai-002": {
+    "hintI18n": { "en": "Saying you want new shoes.", "ja": "新しい靴を手に入れたい、という気持ちを言う。" },
+    "promptContextI18n": { "en": "\"I want new shoes.\"", "ja": "「新しい靴がほしいです。」" },
+    "explanationI18n": {
+      "en": "「〜が ほしい」 = to want ~: the object takes 「が」 — くつが ほしいです. Same が-family as すき, じょうず, and できる. 「の」「に」「へ」 don't attach. ※くつ = shoes.",
+      "ja": "「〜が ほしい」：対象は「が」——くつが ほしいです。すき、じょうず、できる と同じ が の仲間。「の」「に」「へ」はつながらない。"
+    }
+  },
+  "pattern-n5-onegai-003": {
+    "hintI18n": { "en": "Telling someone with a fever to get to bed early.", "ja": "熱がある人に、今日は早く休むよう言い聞かせる。" },
+    "promptContextI18n": { "en": "\"You have a fever — you'd better go to bed early today.\"", "ja": "「熱がありますから、今日は早く寝たほうがいいです。」" },
+    "explanationI18n": {
+      "en": "Advice uses た-form + 「ほうがいいです」 = you'd better ~: ねた ほうがいいです. 「ないほうがいい」 advises against and 「てはいけません」 forbids — banning sleep with a fever points entirely the wrong way; 「なくてもいい」 waives necessity, also clashing with urging someone to rest. ※ねつ = fever.",
+      "ja": "アドバイスは た形＋「ほうがいいです」：ねた ほうがいいです。「ないほうがいい」は「するな」方向、「てはいけません」は禁止——熱があるのに寝かせないのは真逆。「なくてもいい」は不要の意味で、休むよう勧める場面と矛盾する。"
+    }
+  },
+  "pattern-n5-onegai-004": {
+    "hintI18n": { "en": "Someone with a cold wants a bath — the family steps in.", "ja": "風邪の人がお風呂に入りたがり、家族が止めに入る。" },
+    "promptContextI18n": { "en": "\"You have a cold — better not take a bath today.\"", "ja": "「風邪ですから、今日はお風呂に入らないほうがいいです。」" },
+    "explanationI18n": {
+      "en": "Advising against uses ない-form + 「ほうがいいです」 = better not ~: はいらない ほうがいいです. 「はいったほうがいい」 goes the opposite way; 「てもいい」 is permission; 「ましょうか」 is an offer — none fit stopping someone. ※かぜ = a cold, おふろに はいります = to take a bath.",
+      "ja": "「しないほうがいい」は ない形＋「ほうがいいです」：はいらない ほうがいいです。「はいったほうがいい」は逆方向、「てもいい」は許可、「ましょうか」は申し出で、止める場面に合わない。"
+    }
+  },
+  "pattern-n5-onegai-005": {
+    "hintI18n": { "en": "The librarian wants everyone quiet.", "ja": "図書館員が静かにしてほしいと注意する。" },
+    "promptContextI18n": { "en": "\"This is a library — please don't talk loudly.\"", "ja": "「図書館ですから、大きい声で話さないでください。」" },
+    "explanationI18n": {
+      "en": "ない-form + 「でください」 = please don't ~: はなさないで ください. A library needs quiet — 「はなしてください」 (please talk) points the wrong way; 「てもいい」 and 「ましょう」 contradict the request for quiet. ※こえ = voice, はなします = to talk.",
+      "ja": "ない形＋「でください」：はなさないで ください。図書館は静かにする場所——「はなしてください」は逆方向、「てもいい」「ましょう」は静かにという要求と矛盾する。"
+    }
+  },
+  "pattern-n5-onegai-006": {
+    "hintI18n": { "en": "Buying stamps and specifying how many.", "ja": "切手を買うとき、枚数を伝える。" },
+    "promptContextI18n": { "en": "\"Excuse me, five of these stamps, please.\"", "ja": "「すみません、この切手を五枚ください。」" },
+    "explanationI18n": {
+      "en": "The object of 「Nを (quantity) ください」 takes 「を」: きってを ごまい ください. The quantity (ごまい) goes after を and before ください. 「が ください」 isn't a sentence; 「へ」「の」 don't attach either. ※きって = stamp, 〜まい = counter for flat things.",
+      "ja": "「Nを（数量）ください」の対象は「を」：きってを ごまい ください。数量（ごまい）は を の後、ください の前。「が ください」は文にならない。「へ」「の」もつながらない。"
+    }
+  },
+  "pattern-n5-onegai-007": {
+    "hintI18n": { "en": "Asking what they'd like for their birthday.", "ja": "誕生日プレゼントの希望を聞く。" },
+    "promptContextI18n": { "en": "\"What do you want for your birthday?\"", "ja": "「誕生日に何がほしいですか。」" },
+    "explanationI18n": {
+      "en": "The object of 「ほしい」 takes 「が」, question words included: なにが ほしいですか. 「は」 marks an already-known topic, and \"what\" is exactly the unknown being asked — this neutral question doesn't use 「は」; 「も」 would make なにも, which demands a negative; 「の」 doesn't attach. ※たんじょうび = birthday.",
+      "ja": "「ほしい」の対象は「が」。疑問詞でも同じ：なにが ほしいですか。「は」の前は既知の話題が来るもので、「なに」はまさに尋ねたい未知——この中立の質問に「は」は使わない。「も」だと「なにも」＝否定とセット。「の」はつながらない。"
+    }
+  },
+  "pattern-n5-onegai-008": {
+    "hintI18n": { "en": "A warning sign about this stretch of water.", "ja": "この水辺についての注意書き。" },
+    "promptContextI18n": { "en": "\"This spot is dangerous — no swimming, please.\"", "ja": "「ここは危ないですから、泳がないでください。」" },
+    "explanationI18n": {
+      "en": "A danger warning uses 「ないでください」 = please don't ~: およがないで ください. The topic already declares THIS spot dangerous, so 「およいでください」「ましょう」「ませんか」 — all urging people into the water — contradict 「あぶない」. ※あぶない = dangerous, およぎます = to swim.",
+      "ja": "危険の警告は「ないでください」：およがないで ください。主題が「ここは危ない」と明言しているので、「およいでください」「ましょう」「ませんか」はどれも泳がせる方向で「あぶない」と矛盾する。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",
