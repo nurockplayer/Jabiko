@@ -5,7 +5,6 @@ import {
   levelFromQuestionId,
   MASTERY_BOX
 } from "./stats";
-import { SRS_INTERVAL_DAYS } from "./srs";
 import type { Attempt } from "./types";
 
 const DAY = 86_400_000;
@@ -96,18 +95,21 @@ describe("computeProgressStats", () => {
     const stats = computeProgressStats(attempts, NOW);
     expect(MASTERY_BOX).toBe(3);
     expect(stats.masteredCount).toBe(1);
-    // Box 3 -> 7-day interval from the last (day 99) attempt -> not due yet at day 100.
+    // Box 3 (cleared: three correct reps after the miss) -> NOT in the pool.
     expect(stats.dueCount).toBe(0);
   });
 
-  it("rests a freshly-missed item, then counts it due after the box-0 interval", () => {
-    const attempts = [attempt({ questionId: "n1-grammar-z", isCorrect: false, timestamp: NOW })];
-    // Just missed -> resting, NOT due yet (no same-session answer-cramming).
-    expect(computeProgressStats(attempts, NOW).dueCount).toBe(0);
-    // Due once the box-0 rest (2 days, #472) elapses.
-    const stats = computeProgressStats(attempts, NOW + SRS_INTERVAL_DAYS[0] * DAY);
-    expect(stats.dueCount).toBe(1);
-    expect(stats.masteredCount).toBe(0);
+  it("counts a freshly-missed item in the pool immediately -- no cooldown (#525)", () => {
+    const id = "n1-grammar-z";
+    const missed = [attempt({ questionId: id, isCorrect: false, timestamp: NOW })];
+    // In the pool the instant it's missed -- this is exactly what #472's
+    // 2-day cooldown used to hide from freshly-drilling learners.
+    expect(computeProgressStats(missed, NOW).dueCount).toBe(1);
+    // One correct answer clears it back out.
+    const cleared = [...missed, attempt({ questionId: id, isCorrect: true, timestamp: NOW + 1000 })];
+    const stats = computeProgressStats(cleared, NOW + 1000);
+    expect(stats.dueCount).toBe(0);
+    expect(stats.masteredCount).toBe(0); // box 1, below MASTERY_BOX
   });
 
   it("is all-zero for an empty history", () => {

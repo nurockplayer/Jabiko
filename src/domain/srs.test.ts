@@ -1,20 +1,8 @@
 import { describe, expect, it } from "vitest";
-import {
-  computeReviewStates,
-  countUpcoming,
-  getDueQuestions,
-  SRS_INTERVAL_DAYS,
-  SRS_MAX_BOX
-} from "./srs";
+import { computeReviewStates, countMistakes, getMistakePool, SRS_MAX_BOX } from "./srs";
 import type { Attempt, PracticeQuestion, VocabularyItem } from "./types";
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
-function makeAttempt(
-  questionId: string,
-  isCorrect: boolean,
-  timestamp: number
-): Attempt {
+function makeAttempt(questionId: string, isCorrect: boolean, timestamp: number): Attempt {
   return {
     questionId,
     vocabularyId: questionId.split(":")[0] ?? questionId,
@@ -40,13 +28,7 @@ function makeQuestion(id: string): PracticeQuestion {
     tags: [],
     examples: []
   };
-  return {
-    id,
-    vocabulary: vocab,
-    targetForm: "te",
-    expectedAnswers: ["ok"],
-    explanation: ""
-  };
+  return { id, vocabulary: vocab, targetForm: "te", expectedAnswers: ["ok"], explanation: "" };
 }
 
 describe("computeReviewStates", () => {
@@ -55,9 +37,8 @@ describe("computeReviewStates", () => {
   });
 
   it("ignores items that have only correct attempts", () => {
-    // A question answered correctly first try never enters the review
-    // queue. SRS is for things you got WRONG; new-card seeding is the
-    // practice modes' job.
+    // Correct-first-try items never enter the tracker; the review queue is
+    // for things you got WRONG.
     const states = computeReviewStates([
       makeAttempt("q1", true, 1000),
       makeAttempt("q1", true, 2000)
@@ -65,36 +46,15 @@ describe("computeReviewStates", () => {
     expect(states.size).toBe(0);
   });
 
-  it("seeds a first-wrong item in box 0 with a relearn rest before it's due", () => {
+  it("seeds a first-wrong item in box 0 at the miss timestamp", () => {
     const states = computeReviewStates([makeAttempt("q1", false, 5000)]);
     const state = states.get("q1");
     expect(state).toBeDefined();
     expect(state!.box).toBe(0);
     expect(state!.lastAttemptAt).toBe(5000);
-    // Box 0 rests SRS_INTERVAL_DAYS[0] days (2 days) instead of resurfacing
-    // same-day -- otherwise the learner just memorises the answer position
-    // rather than recalling it (#472).
-    expect(state!.dueAt).toBe(5000 + SRS_INTERVAL_DAYS[0] * MS_PER_DAY);
-  });
-
-  it("rests a just-missed item at least a full day (#472: no same-day resurfacing)", () => {
-    // Product decision #472 (supersedes #244's ~1h cooldown): a missed item
-    // must not reappear the same day, or the learner memorises answer
-    // POSITION rather than recalling. Box-0 rest is now >= 1 full day.
-    const states = computeReviewStates([makeAttempt("q1", false, 5000)]);
-    const restMs = states.get("q1")!.dueAt - 5000;
-    expect(restMs).toBeGreaterThanOrEqual(MS_PER_DAY);
-  });
-
-  it("keeps intervals strictly increasing per box (each promotion spaces further)", () => {
-    // Getting an item right must always LENGTHEN the wait, never shorten it.
-    for (let i = 1; i < SRS_INTERVAL_DAYS.length; i++) {
-      expect(SRS_INTERVAL_DAYS[i]).toBeGreaterThan(SRS_INTERVAL_DAYS[i - 1]);
-    }
   });
 
   it("promotes one box per correct attempt up to the cap", () => {
-    // wrong -> right -> right -> right ... should hit box 3 then 4 then cap.
     const states = computeReviewStates([
       makeAttempt("q1", false, 1000),
       makeAttempt("q1", true, 2000),
@@ -107,7 +67,6 @@ describe("computeReviewStates", () => {
     const state = states.get("q1")!;
     expect(state.box).toBe(SRS_MAX_BOX);
     expect(state.lastAttemptAt).toBe(7000);
-    expect(state.dueAt).toBe(7000 + SRS_INTERVAL_DAYS[SRS_MAX_BOX] * MS_PER_DAY);
   });
 
   it("resets to box 0 on a wrong attempt regardless of prior box", () => {
@@ -116,25 +75,20 @@ describe("computeReviewStates", () => {
       makeAttempt("q1", true, 2000), // box 1
       makeAttempt("q1", true, 3000), // box 2
       makeAttempt("q1", true, 4000), // box 3
-      makeAttempt("q1", false, 5000) // RESET
+      makeAttempt("q1", false, 5000) // RESET -> box 0 (back in the pool)
     ]);
     const state = states.get("q1")!;
     expect(state.box).toBe(0);
     expect(state.lastAttemptAt).toBe(5000);
-    // Reset goes back to the box-0 relearn rest, not "due now".
-    expect(state.dueAt).toBe(5000 + SRS_INTERVAL_DAYS[0] * MS_PER_DAY);
   });
 
   it("sorts unordered input chronologically before replay", () => {
-    // Same outcome as the ordered case above, but feed attempts in
-    // reverse to verify the function doesn't trust input order.
     const states = computeReviewStates([
       makeAttempt("q1", true, 3000),
       makeAttempt("q1", false, 1000),
       makeAttempt("q1", true, 2000)
     ]);
-    const state = states.get("q1")!;
-    expect(state.box).toBe(2);
+    expect(states.get("q1")!.box).toBe(2);
   });
 
   it("tracks multiple items independently", () => {
@@ -148,68 +102,55 @@ describe("computeReviewStates", () => {
   });
 });
 
-describe("getDueQuestions", () => {
+describe("getMistakePool", () => {
   const pool = [makeQuestion("q1"), makeQuestion("q2"), makeQuestion("q3")];
 
-  it("returns an empty queue when no attempts have been made", () => {
-    expect(getDueQuestions([], pool, 10000)).toEqual([]);
+  it("returns an empty pool when no attempts have been made", () => {
+    expect(getMistakePool([], pool)).toEqual([]);
   });
 
-  it("rests a just-missed item until its box-0 interval, then makes it due", () => {
+  it("adds a missed question to the pool immediately -- no cooldown (#525)", () => {
     const attempts = [makeAttempt("q1", false, 5000)];
-    const due = 5000 + SRS_INTERVAL_DAYS[0] * MS_PER_DAY;
-    // NOT due right after the miss (no same-session answer-cramming) ...
-    expect(getDueQuestions(attempts, pool, 5000)).toEqual([]);
-    expect(getDueQuestions(attempts, pool, due - 1)).toEqual([]);
-    // ... due once the box-0 relearn rest elapses.
-    expect(getDueQuestions(attempts, pool, due)).toEqual([pool[0]]);
+    expect(getMistakePool(attempts, pool)).toEqual([pool[0]]);
   });
 
-  it("defers a correctly-answered question past its box-1 interval", () => {
-    // wrong at 1500, right at 2300 -> box 1, due at 2300 + box-1 interval.
+  it("removes a question from the pool after ONE correct answer", () => {
+    const attempts = [makeAttempt("q1", false, 1000), makeAttempt("q1", true, 2000)];
+    expect(getMistakePool(attempts, pool)).toEqual([]);
+  });
+
+  it("re-adds a question that is missed again after being cleared", () => {
     const attempts = [
-      makeAttempt("q1", false, 1500),
-      makeAttempt("q1", true, 2300)
+      makeAttempt("q1", false, 1000),
+      makeAttempt("q1", true, 2000), // cleared
+      makeAttempt("q1", false, 3000) // missed again -> back in
     ];
-    const due = 2300 + SRS_INTERVAL_DAYS[1] * MS_PER_DAY;
-    expect(getDueQuestions(attempts, pool, due - 1)).toEqual([]);
-    expect(getDueQuestions(attempts, pool, due)).toEqual([pool[0]]);
+    expect(getMistakePool(attempts, pool)).toEqual([pool[0]]);
   });
 
-  it("re-includes the question once the interval elapses (overdue)", () => {
-    // wrong at 1500, right at 2300 (box 1). Well past the interval -> overdue.
-    const attempts = [
-      makeAttempt("q1", false, 1500),
-      makeAttempt("q1", true, 2300)
-    ];
-    const now = 2300 + (SRS_INTERVAL_DAYS[1] + 2) * MS_PER_DAY;
-    expect(getDueQuestions(attempts, pool, now)).toEqual([pool[0]]);
-  });
-
-  it("re-adds a missed-after-promotion item to box 0 (rests, then due)", () => {
-    // Promote to box 2, then miss again -> back to box 0's relearn rest.
+  it("keeps a promoted-then-missed item in the pool", () => {
     const attempts = [
       makeAttempt("q1", false, 1000),
       makeAttempt("q1", true, 2000),
       makeAttempt("q1", true, 3000),
-      makeAttempt("q1", false, 4000)
+      makeAttempt("q1", false, 4000) // reset to box 0
     ];
-    expect(getDueQuestions(attempts, pool, 4000)).toEqual([]); // resting
-    expect(
-      getDueQuestions(attempts, pool, 4000 + SRS_INTERVAL_DAYS[0] * MS_PER_DAY)
-    ).toEqual([pool[0]]);
+    expect(getMistakePool(attempts, pool)).toEqual([pool[0]]);
   });
 
-  it("orders due items most-overdue first", () => {
-    // q1 missed older, q2 missed more recently. Both box 0; check once both
-    // have passed the box-0 rest. q1 is more overdue (smaller dueAt) -> first.
+  it("orders the pool oldest-unresolved-mistake first", () => {
+    const attempts = [makeAttempt("q1", false, 1000), makeAttempt("q2", false, 5000)];
+    expect(getMistakePool(attempts, pool).map((q) => q.id)).toEqual(["q1", "q2"]);
+  });
+
+  it("orders by the LATEST miss, not the first (a re-missed item goes to the back)", () => {
     const attempts = [
       makeAttempt("q1", false, 1000),
-      makeAttempt("q2", false, 5000)
+      makeAttempt("q1", true, 2000),
+      makeAttempt("q2", false, 3000), // q2 unresolved since 3000
+      makeAttempt("q1", false, 6000) // q1 re-missed at 6000 (newer)
     ];
-    const now = 5000 + SRS_INTERVAL_DAYS[0] * MS_PER_DAY + 1000;
-    const queue = getDueQuestions(attempts, pool, now);
-    expect(queue.map((q) => q.id)).toEqual(["q1", "q2"]);
+    expect(getMistakePool(attempts, pool).map((q) => q.id)).toEqual(["q2", "q1"]);
   });
 
   it("returns at most one entry per question id", () => {
@@ -218,40 +159,28 @@ describe("getDueQuestions", () => {
       makeAttempt("q1", false, 2000),
       makeAttempt("q1", false, 3000)
     ];
-    const now = 3000 + SRS_INTERVAL_DAYS[0] * MS_PER_DAY;
-    expect(getDueQuestions(attempts, pool, now)).toEqual([pool[0]]);
+    expect(getMistakePool(attempts, pool)).toEqual([pool[0]]);
   });
 
-  it("excludes items whose pool entry is missing", () => {
-    // An attempt for a question id not present in pool should NOT
-    // throw; it just doesn't appear in the result.
+  it("excludes items whose pool entry is missing (no throw)", () => {
     const attempts = [makeAttempt("unknown", false, 1000)];
-    expect(getDueQuestions(attempts, pool, 5000)).toEqual([]);
+    expect(getMistakePool(attempts, pool)).toEqual([]);
   });
 });
 
-describe("countUpcoming", () => {
-  it("counts items scheduled to become due within the window", () => {
-    // q1 -> box 1 (due ~SRS_INTERVAL_DAYS[1] days from 2300)
-    // q2 -> box 2 (due ~SRS_INTERVAL_DAYS[2] days from 4000)
+describe("countMistakes", () => {
+  it("counts questions currently in the mistake pool", () => {
     const attempts = [
-      makeAttempt("q1", false, 1500),
-      makeAttempt("q1", true, 2300),
-      makeAttempt("q2", false, 1000),
-      makeAttempt("q2", true, 2000),
-      makeAttempt("q2", true, 4000)
+      makeAttempt("q1", false, 1000), // in
+      makeAttempt("q2", false, 1500), // in ...
+      makeAttempt("q2", true, 2000), // ... then cleared
+      makeAttempt("q3", true, 3000) // never wrong -> not tracked
     ];
-    // From t=0, a window just past box-1's interval catches q1 but not q2.
-    expect(countUpcoming(attempts, SRS_INTERVAL_DAYS[1] + 1, 0)).toBe(1);
-    // A wide window catches both.
-    expect(countUpcoming(attempts, SRS_INTERVAL_DAYS[2] + 2, 0)).toBe(2);
+    expect(countMistakes(attempts)).toBe(1);
   });
 
-  it("excludes items already due (those go to getDueQuestions)", () => {
-    const attempts = [makeAttempt("q1", false, 1000)];
-    // Pick now AFTER q1's box-0 due time so it's already due -> NOT counted
-    // as "upcoming".
-    const now = 1000 + SRS_INTERVAL_DAYS[0] * MS_PER_DAY + 1;
-    expect(countUpcoming(attempts, 7, now)).toBe(0);
+  it("is zero when every missed item has been cleared", () => {
+    const attempts = [makeAttempt("q1", false, 1000), makeAttempt("q1", true, 2000)];
+    expect(countMistakes(attempts)).toBe(0);
   });
 });

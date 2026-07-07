@@ -3,7 +3,7 @@ import { BookOpen, ChevronDown, Globe, Languages, MessageCircle, Moon, Newspaper
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import type { JlptLevel } from "./domain/types";
-import { countDueReviews } from "./domain/srs";
+import { countMistakes } from "./domain/srs";
 import { copy, LAUNCHED_LANGUAGES, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
 import { LanguagePicker } from "./components/LanguagePicker";
@@ -305,9 +305,9 @@ export default function App() {
   // until a login merge has actually completed -- #151).
   const { progressAttempts, recordAttempt, syncStatus } = useProgressAttempts(user);
   // Lightweight, pool-free count for the home/learn review badge (see
-  // countDueReviews). The full review queue -- which needs the question
-  // pool to resolve due items -- is built inside the lazy challenge view.
-  const reviewCount = useMemo(() => countDueReviews(progressAttempts), [progressAttempts]);
+  // countMistakes). The full review queue -- which needs the question pool to
+  // resolve items -- is built inside the lazy challenge view.
+  const reviewCount = useMemo(() => countMistakes(progressAttempts), [progressAttempts]);
   // The drill the challenge view starts with on its next mount. Set by
   // the "start X" actions just before navigating; undefined = the default
   // basic drill. Read once when ChallengePanel mounts (it owns the
