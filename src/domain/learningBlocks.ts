@@ -481,6 +481,56 @@ export const learningBlocks: LearningBlock[] = [
     recommendedAfter: ["n5-sasoi"]
   },
   {
+    id: "n5-riyuu",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "理由與逆接 から・ので・が",
+    subtitle: "ねつが ありますから／むずかしいですが",
+    explanation:
+      "把兩句話連起來的基本盤。理由：「〜から」（どうして的回答固定用「〜からです」）；「〜ので」語氣較客觀委婉——名詞和な形容詞接ので要先加な（やすみなので）、接から則用だ（やすみだから）。轉折：句中的「〜が」＝雖然〜但是〜；它還有一個開場緩衝用法「すみませんが、〜」。句子開頭的接續詞一組四個：だから（所以）、でも（可是）、そして（而且）、それから（然後）。",
+    examples: [
+      { formula: "ねつが あったからです", note: "どうして的回答：〜からです" },
+      { formula: "やすみなので／やすみだから", note: "名詞接續：なので vs だから" },
+      { formula: "むずかしいですが、おもしろいです", note: "轉折：雖然〜但是〜" },
+      { formula: "すみませんが、えきは どこですか", note: "開場緩衝的が" },
+      { formula: "だから／でも／そして／それから", note: "句頭接續詞四件組" }
+    ],
+    pitfalls: [
+      "から和ので意思幾乎相同（ので較客觀委婉），但接名詞時形不同：だから／なので",
+      "「〜のでです」不成句——どうして的回答用「〜からです」",
+      "句中的が（轉折）和句頭的でも（可是）方向相同，但位置不能互換"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Riyuu", patternIds: ["n5-riyuu"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n5-onegai"]
+  },
+  {
+    id: "n5-toki",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "時間與經驗 とき・もう・でしょう",
+    subtitle: "たべる とき／のぼった ことが あります",
+    explanation:
+      "時間、狀態與經驗的句型組。「〜とき」＝〜的時候，前面的時態看動作完成了沒：ごはんを たべる とき（吃之前）vs たべた とき（吃完）。完成/未完成一對：「もう〜ました」＝已經〜了、「まだ〜ていません」＝還沒〜。推測：「〜でしょう」＝大概〜吧（天氣預報的標準結尾）。經驗：「た形＋ことが あります」＝〜過；否定回答配「いちども〜ません」＝一次也沒有。",
+    examples: [
+      { formula: "ひまな とき、おんがくを ききます", note: "〜的時候" },
+      { formula: "たべる とき／たべた とき", note: "とき前的時態＝動作完成與否" },
+      { formula: "もう たべました／まだ たべていません", note: "已經〜／還沒〜" },
+      { formula: "あしたは あめが ふるでしょう", note: "推測：大概〜吧" },
+      { formula: "のぼった ことが あります", note: "經驗：〜過" }
+    ],
+    pitfalls: [
+      "まだ的否定是「まだ〜ていません」，不是「まだ〜ませんでした」",
+      "でしょう接普通形（ふるでしょう）；「ふるですか」不成句",
+      "いちども、だれも、なにも——「も」系全家都要配否定"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Toki", patternIds: ["n5-toki"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n5-riyuu"]
+  },
+  {
     id: "adverbial",
     group: "basic",
     category: "形容詞 / 名詞 修飾",
