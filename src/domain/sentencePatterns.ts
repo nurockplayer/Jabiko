@@ -12,6 +12,8 @@ export type SentencePatternId =
   | "n5-suki-dekiru"
   | "n5-sasoi"
   | "n5-onegai"
+  | "n5-riyuu"
+  | "n5-toki"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -49,6 +51,8 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "n5-suki-dekiru": "好惡與能力",
   "n5-sasoi": "邀約與提議 ませんか・ましょう",
   "n5-onegai": "請求與建議 ください・ほうがいい",
+  "n5-riyuu": "理由與逆接 から・ので・が",
+  "n5-toki": "時間與經驗 とき・もう・でしょう",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -837,6 +841,205 @@ const N5_ONEGAI_ITEMS: SentencePatternItem[] = [
     options: ["およがないでください", "およいでください", "およぎましょう", "およぎませんか"],
     explanation:
       "危險警告用「ないでください」＝請勿〜：およがないで ください。主題已點明「這裡危險」，「およいでください」「ましょう」「ませんか」都是要人下水，全跟「あぶない」矛盾。※あぶない＝危險、およぎます＝游泳。"
+  }
+];
+
+// ===========================================================================
+// N5 pattern: n5-riyuu -- reasons and contrast: から・ので・が (#547).
+//   から and ので are near-interchangeable as reason markers, so they NEVER
+//   compete on meaning: the どうして item kills ので by form (〜のでです is
+//   not a sentence), the ので item tests noun attachment (なので vs だので
+//   vs なから -- pure form), and every other から/ので appearance is a dead
+//   foil by attachment or by contradiction, never a live semantic rival.
+// ===========================================================================
+const N5_RIYUU_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-riyuu-001",
+    patternId: "n5-riyuu",
+    promptText: "「どうして がっこうを やすみましたか。」「ねつが あった___です。」",
+    hintZh: "解釋沒去學校的原因。",
+    promptContextZh: "「為什麼沒來學校？」「因為發燒了。」",
+    expectedAnswer: "から",
+    options: ["から", "ので", "が", "まで"],
+    explanation:
+      "回答「どうして（為什麼）」用固定句式「〜からです」：ねつが あったからです。「ので」不能直接接です（×のでです）；「が」「まで」也接不上。※やすみます＝請假・休息。"
+  },
+  {
+    id: "pattern-n5-riyuu-002",
+    patternId: "n5-riyuu",
+    promptText: "あしたは やすみ___、どこかへ いきませんか。",
+    hintZh: "說明天放假，順便約出門。",
+    promptContextZh: "「明天放假，要不要去哪走走？」",
+    expectedAnswer: "なので",
+    options: ["なので", "だので", "ので", "なから"],
+    explanation:
+      "名詞接「ので」要先加な：やすみ＋な＋ので＝やすみなので。「だので」是錯接（だ和ので不能連用）；名詞直接接ので（×やすみので）也不行；「から」接名詞用だ（やすみだから），沒有「なから」這種形。※どこか＝某個地方。"
+  },
+  {
+    id: "pattern-n5-riyuu-003",
+    patternId: "n5-riyuu",
+    promptText: "にほんごは むずかしいです___、おもしろいです。",
+    hintZh: "說日語難歸難、學起來有樂趣。",
+    promptContextZh: "「日語雖然難，但是很有趣。」",
+    expectedAnswer: "が",
+    options: ["が", "を", "の", "に"],
+    explanation:
+      "句中的「が」表示轉折＝雖然〜但是〜：むずかしいですが、おもしろいです——前後兩件事方向相反時用它連接。「を」「の」「に」都不能接在です後面。※むずかしい＝難、おもしろい＝有趣。"
+  },
+  {
+    id: "pattern-n5-riyuu-004",
+    patternId: "n5-riyuu",
+    promptText: "すみません___、えきは どこですか。",
+    hintZh: "向路人開口問路。",
+    promptContextZh: "「不好意思，請問車站在哪裡？」",
+    expectedAnswer: "が",
+    options: ["が", "から", "ので", "でも"],
+    explanation:
+      "開口前的緩衝用「が」：すみませんが、〜＝不好意思，（請問）〜。這個が不是轉折，只是把話題輕輕帶入。「から」「ので」是理由——「すみません」不是理由；「でも」接在句頭當「可是」，不能接在ません後面。"
+  },
+  {
+    id: "pattern-n5-riyuu-005",
+    patternId: "n5-riyuu",
+    promptText: "あめが ふって います。___、でかけます。",
+    hintZh: "雨照下，人照出門。",
+    promptContextZh: "「正在下雨。可是，還是要出門。」",
+    expectedAnswer: "でも",
+    options: ["でも", "だから", "そして", "それから"],
+    explanation:
+      "前後方向相反（下雨→照樣出門）用「でも」＝可是。「だから（所以）」是順著因果，方向不對；「そして（而且）」「それから（然後）」是並列/接續，都表達不出「照樣」的轉折。※あめ＝雨、ふります＝（雨雪）下、でかけます＝出門。"
+  },
+  {
+    id: "pattern-n5-riyuu-006",
+    patternId: "n5-riyuu",
+    promptText: "あした テストが あります。___、こんばん べんきょうします。",
+    hintZh: "明天要考試，今晚不唸不行。",
+    promptContextZh: "「明天有考試。所以，今晚要唸書。」",
+    expectedAnswer: "だから",
+    options: ["だから", "でも", "しかし", "まだ"],
+    explanation:
+      "前句是原因、後句是順理成章的結果，用「だから」＝所以。「でも」「しかし」是轉折（有考試「可是」唸書？方向不對）；「まだ（還）」是副詞，不能放在句頭當連接詞。※テスト＝考試、こんばん＝今晚。"
+  },
+  {
+    id: "pattern-n5-riyuu-007",
+    patternId: "n5-riyuu",
+    promptText: "じかんが ありません___、タクシーで いきましょう。",
+    hintZh: "趕時間，決定搭車方式。",
+    promptContextZh: "「沒時間了，搭計程車去吧。」",
+    expectedAnswer: "から",
+    options: ["から", "まで", "を", "へ"],
+    explanation:
+      "句中的理由用「から」：じかんが ありませんから＝因為沒時間，（所以）搭計程車吧。「まで」「を」「へ」都接不到ません後面，句子直接斷掉。※タクシー＝計程車。"
+  },
+  {
+    id: "pattern-n5-riyuu-008",
+    patternId: "n5-riyuu",
+    promptText: "「___ にほんごを べんきょうして いますか。」「にほんへ いきたいですから。」",
+    hintZh: "想知道對方學日語的動機。",
+    promptContextZh: "「你為什麼在學日語？」「因為想去日本。」",
+    expectedAnswer: "どうして",
+    options: ["どうして", "なに", "どこ", "いつ"],
+    explanation:
+      "回答是「〜ですから（因為〜）」，所以問句一定是問理由的「どうして」＝為什麼。「いつ（什麼時候）」「どこ（哪裡）」問時間地點，跟「因為想去日本」的回答對不上；「なに」問東西——句子已經有受詞にほんごを了。※べんきょうします＝學習、〜たいです＝想〜。"
+  }
+];
+
+// ===========================================================================
+// N5 pattern: n5-toki -- time and experience: とき・もう/まだ・でしょう・
+//   たことがある (#547). でしょう vs ですか is the known double-solution
+//   trap: the forecast item kills ですか by form (dictionary form + ですか
+//   is ungrammatical), and the agreement item kills all question foils
+//   with a leading ええ. The とき tense item uses a culture-locked anchor
+//   (いただきます is said BEFORE eating). は stays out of the ことがある
+//   particle blank (topicalized 〜ことはあります is real).
+// ===========================================================================
+const N5_TOKI_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-toki-001",
+    patternId: "n5-toki",
+    promptText: "ひまな ___、おんがくを ききます。",
+    hintZh: "說自己閒下來會做的事。",
+    promptContextZh: "「有空的時候，我會聽音樂。」",
+    expectedAnswer: "とき",
+    options: ["とき", "ところ", "こと", "もの"],
+    explanation:
+      "「〜とき」＝〜的時候：ひまな とき＝有空的時候。「ところ」多指地方（「ひまなところ」在這裡不自然）；「こと」是事情、「もの」是東西——放進去孤懸在句首，跟後句「聽音樂」接不起來。※ひま（な）＝空閒、おんがく＝音樂。"
+  },
+  {
+    id: "pattern-n5-toki-002",
+    patternId: "n5-toki",
+    promptText: "ごはんを ___ とき、「いただきます」と いいます。",
+    hintZh: "說吃飯前的那句話。",
+    promptContextZh: "「吃飯（前）的時候，要說『いただきます（開動）』。」",
+    expectedAnswer: "たべる",
+    options: ["たべる", "たべた", "たべて", "たべます"],
+    explanation:
+      "とき前面的時態看動作完成了沒：說「いただきます」是在吃「之前」，動作還沒完成→辭書形たべる とき。「たべた とき」是吃完的時候——吃完說的是「ごちそうさま」；「て形」「ます形」不能直接接とき。"
+  },
+  {
+    id: "pattern-n5-toki-003",
+    patternId: "n5-toki",
+    promptText: "「ひるごはんを たべましたか。」「はい、___ たべました。」",
+    hintZh: "答說午餐解決了。",
+    promptContextZh: "「午餐吃了嗎？」「嗯，已經吃了。」",
+    expectedAnswer: "もう",
+    options: ["もう", "まだ", "いつ", "とても"],
+    explanation:
+      "完成用「もう〜ました」＝已經〜了：もう たべました。「まだ」配未完成（まだ たべていません），跟ました矛盾；「いつ（什麼時候）」是疑問詞；「とても（非常）」修飾程度，不搭完成。"
+  },
+  {
+    id: "pattern-n5-toki-004",
+    patternId: "n5-toki",
+    promptText: "「レポートは できましたか。」「いいえ、まだ ___。」",
+    hintZh: "報告進度的回答。",
+    promptContextZh: "「報告寫好了嗎？」「還沒，還沒寫好。」",
+    expectedAnswer: "できていません",
+    options: ["できていません", "できました", "できます", "できましたか"],
+    explanation:
+      "未完成用「まだ〜ていません」＝還沒〜：まだ できていません。「まだ できました」自相矛盾；「できます」是能力或未來；答句裡再放問句「できましたか」也不通。※レポート＝報告。"
+  },
+  {
+    id: "pattern-n5-toki-005",
+    patternId: "n5-toki",
+    promptText: "てんきよほうに よると、あしたは あめが ふる___。",
+    hintZh: "氣象預報說明天的天氣。",
+    promptContextZh: "「根據氣象預報，明天大概會下雨。」",
+    expectedAnswer: "でしょう",
+    options: ["でしょう", "ですか", "ましょう", "でした"],
+    explanation:
+      "推測用「でしょう」＝大概〜吧：あめが ふるでしょう。辭書形ふる後面不能直接接「ですか」（要說ふりますか）；「ましょう」是提議、「でした」是過去，都接不上。※てんきよほう＝氣象預報、〜によると＝根據〜、ふります＝（雨雪）下。"
+  },
+  {
+    id: "pattern-n5-toki-006",
+    patternId: "n5-toki",
+    promptText: "「あしたも さむいでしょうか。」「ええ、さむい___。」",
+    hintZh: "順著對方的話也覺得明天冷。",
+    promptContextZh: "「明天也會冷吧？」「嗯，大概會冷吧。」",
+    expectedAnswer: "でしょう",
+    options: ["でしょう", "ですか", "ましたか", "ませんか"],
+    explanation:
+      "回答別人的推測、自己也用推測：ええ、さむいでしょう＝嗯，大概會冷吧。「ですか」被開頭的「ええ（嗯）」駁倒——表態之後不會再反問；「ましたか」「ませんか」則連形都接不上——い形容詞的過去是「さむかったです」、否定問句是「さむくありませんか」。※さむい＝冷。"
+  },
+  {
+    id: "pattern-n5-toki-007",
+    patternId: "n5-toki",
+    promptText: "わたしは ふじさんに のぼった こと___ あります。",
+    hintZh: "說爬過富士山。",
+    promptContextZh: "「我爬過富士山。」",
+    expectedAnswer: "が",
+    options: ["が", "を", "に", "で"],
+    explanation:
+      "經驗用「た形＋ことが あります」＝〜過：のぼった ことが あります。這個句型用「が」——「を」「に」「で」放這裡都不成句。※ふじさん＝富士山、のぼります＝爬・登。"
+  },
+  {
+    id: "pattern-n5-toki-008",
+    patternId: "n5-toki",
+    promptText: "「すしを たべた ことが ありますか。」「いいえ、いちども ___。」",
+    hintZh: "被問吃壽司的經驗，搖搖頭。",
+    promptContextZh: "「你吃過壽司嗎？」「沒有，一次也沒有。」",
+    expectedAnswer: "ありません",
+    options: ["ありません", "あります", "ありました", "たべました"],
+    explanation:
+      "「いちども（一次也）」後面必須接否定：いちども ありません＝一次也沒有。「あります」「ありました」「たべました」都是肯定，跟いちども矛盾——這跟だれも/なにも＋否定是同一條規則。※すし＝壽司、いちども＝一次也（沒）。"
   }
 ];
 
@@ -1693,6 +1896,8 @@ export const sentencePatternItems: SentencePatternItem[] = [
   ...N5_SUKI_DEKIRU_ITEMS,
   ...N5_SASOI_ITEMS,
   ...N5_ONEGAI_ITEMS,
+  ...N5_RIYUU_ITEMS,
+  ...N5_TOKI_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,

@@ -234,6 +234,8 @@ export const ja: Copy = {
   drillPatternN5SukiDekiru: "好き・できる を練習",
   drillPatternN5Sasoi: "誘い・申し出を練習",
   drillPatternN5Onegai: "依頼とアドバイスを練習",
+  drillPatternN5Riyuu: "理由と逆接を練習",
+  drillPatternN5Toki: "時間と経験を練習",
   drillPatternTeKudasai: "文型を練習：依頼 / 許可 / 禁止",
   drillPatternNakuteMoII: "文型を練習：不要 vs 義務",
   drillPatternTeMorau: "文型を練習：授受の視点",

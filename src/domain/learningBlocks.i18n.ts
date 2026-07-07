@@ -580,6 +580,86 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "n5-riyuu": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Reasons & Contrast: から・ので・が",
+      "explanation":
+        "The basics of joining two clauses. Reasons: 「〜から」 (the answer to どうして is always 「〜からです」); 「〜ので」 sounds more objective and soft — nouns and な-adjectives take な before ので (やすみなので) but だ before から (やすみだから). Contrast: sentence-medial 「〜が」 = although ~, but ~; it also softens openers (すみませんが、〜). Sentence-initial connectors come as a set of four: だから (so), でも (but), そして (and), それから (and then).",
+      "notes": [
+        "Answering どうして: 〜からです",
+        "Noun attachment: なので vs だから",
+        "Contrast: although ~, but ~",
+        "Prefacing が",
+        "The four connectors"
+      ],
+      "pitfalls": [
+        "から and ので mean nearly the same (ので is more objective), but nouns attach differently: だから / なので",
+        "「〜のでです」 is not a sentence — answer どうして with 「〜からです」",
+        "Medial が and initial でも both mark contrast, but they can't swap positions"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "理由と逆接 から・ので・が",
+      "explanation":
+        "二つの文をつなぐ基本。理由：「〜から」（どうして への答えは「〜からです」で固定）；「〜ので」はより客観的で柔らかい——名詞・な形容詞は な＋ので（やすみなので）、から なら だ＋から（やすみだから）。逆接：文中の「〜が」＝〜だが。前置きの「すみませんが、〜」もこの が。文頭の接続詞は四点セット：だから、でも、そして、それから。",
+      "notes": [
+        "どうして の答え：〜からです",
+        "名詞の接続：なので vs だから",
+        "逆接：〜が",
+        "前置きの が",
+        "接続詞四点セット"
+      ],
+      "pitfalls": [
+        "から と ので はほぼ同義（ので はやや客観的）だが、名詞への付き方が違う：だから／なので",
+        "「〜のでです」は文にならない——どうして には「〜からです」",
+        "文中の が と文頭の でも は同じ逆接でも位置を交換できない"
+      ]
+    }
+  },
+  "n5-toki": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Time & Experience: とき・もう・でしょう",
+      "explanation":
+        "Patterns for time, state, and experience. 「〜とき」 = when ~: the tense before とき shows whether the action is complete — ごはんを たべる とき (before eating) vs たべた とき (after). The done/not-done pair: 「もう〜ました」 = already did, 「まだ〜ていません」 = not yet. Conjecture: 「〜でしょう」 = probably ~ (how every weather forecast ends). Experience: た-form + 「ことが あります」 = have done ~; the negative reply pairs with 「いちども〜ません」 = not even once.",
+      "notes": [
+        "When ~",
+        "Tense before とき = action complete or not",
+        "Already ~ / not yet ~",
+        "Conjecture: probably ~",
+        "Experience: have done ~"
+      ],
+      "pitfalls": [
+        "The negative of まだ is 「まだ〜ていません」, not 「まだ〜ませんでした」",
+        "でしょう follows the plain form (ふるでしょう); 「ふるですか」 is not a sentence",
+        "いちども, だれも, なにも — the whole も family demands a negative"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "時間と経験 とき・もう・でしょう",
+      "explanation":
+        "時間・状態・経験の文型セット。「〜とき」：とき の前の時制は動作が完了したかどうかで決まる——ごはんを たべる とき（食べる前）vs たべた とき（食べた後）。完了/未完了のペア：「もう〜ました」／「まだ〜ていません」。推量：「〜でしょう」（天気予報の定番の結び）。経験：た形＋「ことが あります」＝〜したことがある。否定の返事は「いちども〜ません」。",
+      "notes": [
+        "〜とき",
+        "とき の前の時制＝完了かどうか",
+        "もう〜ました／まだ〜ていません",
+        "推量：〜でしょう",
+        "経験：〜たことがある"
+      ],
+      "pitfalls": [
+        "まだ の否定は「まだ〜ていません」。「まだ〜ませんでした」ではない",
+        "でしょう は普通形に付く（ふるでしょう）。「ふるですか」は文にならない",
+        "いちども・だれも・なにも——「も」の仲間は否定とセット"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",

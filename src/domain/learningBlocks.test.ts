@@ -59,9 +59,9 @@ describe("isLearningBlockComplete", () => {
     const trackable = learningBlocks.filter(
       (b) => b.group === "basic" && b.completionMode !== "reference"
     );
-    // 2 kana + 1 starter-vocab (#533) + 2 Lesson-0 grammar (#534) + 8 N5 grammar (#543/#544/#545/#546) + 11
+    // 2 kana + 1 starter-vocab (#533) + 2 Lesson-0 grammar (#534) + 10 N5 grammar (#543-#547) + 11
     // conjugation + 7 sentence-pattern; only verb-types stays reference.
-    expect(trackable.length).toBe(31);
+    expect(trackable.length).toBe(33);
     expect(trackable.some((b) => b.id === "te-kudasai")).toBe(true);
     expect(byId("verb-types").completionMode).toBe("reference");
   });

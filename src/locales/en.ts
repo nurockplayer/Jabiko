@@ -226,6 +226,8 @@ export const en: Copy = {
   drillPatternN5SukiDekiru: "Drill likes + ability",
   drillPatternN5Sasoi: "Drill invitations + offers",
   drillPatternN5Onegai: "Drill requests + advice",
+  drillPatternN5Riyuu: "Drill reasons + contrast",
+  drillPatternN5Toki: "Drill time + experience",
   drillPatternTeKudasai: "Pattern drill: request / permission / prohibition",
   drillPatternNakuteMoII: "Pattern drill: don't have to vs. must",
   drillPatternTeMorau: "Pattern drill: giving & receiving perspective",

@@ -855,6 +855,134 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "危険の警告は「ないでください」：およがないで ください。主題が「ここは危ない」と明言しているので、「およいでください」「ましょう」「ませんか」はどれも泳がせる方向で「あぶない」と矛盾する。"
     }
   },
+  "pattern-n5-riyuu-001": {
+    "hintI18n": { "en": "Explaining why you missed school.", "ja": "学校を休んだわけを説明する。" },
+    "promptContextI18n": { "en": "\"Why did you miss school?\" \"Because I had a fever.\"", "ja": "「どうして学校を休みましたか。」「熱があったからです。」" },
+    "explanationI18n": {
+      "en": "Answering 「どうして」 (why) uses the fixed shape 「〜からです」: ねつが あったからです. 「ので」 can't attach directly to です (×のでです); 「が」 and 「まで」 don't connect either. ※やすみます = to take a day off.",
+      "ja": "「どうして」への答えは「〜からです」で固定：ねつが あったからです。「ので」は です に直接つながらない（×のでです）。「が」「まで」も接続できない。"
+    }
+  },
+  "pattern-n5-riyuu-002": {
+    "hintI18n": { "en": "Tomorrow's a day off — suggest going somewhere.", "ja": "明日は休み。それを踏まえてどこかへ誘う。" },
+    "promptContextI18n": { "en": "\"Tomorrow's a day off, so shall we go somewhere?\"", "ja": "「明日は休みなので、どこかへ行きませんか。」" },
+    "explanationI18n": {
+      "en": "A noun needs な before 「ので」: やすみ + な + ので = やすみなので. 「だので」 is a wrong attachment (だ and ので don't combine); a bare noun + ので (×やすみので) fails too; and から takes だ after a noun (やすみだから) — 「なから」 doesn't exist. ※どこか = somewhere.",
+      "ja": "名詞に「ので」を付けるときは な を挟む：やすみ＋な＋ので。「だので」は誤接続（だ と ので は連結できない）。名詞に直接 ので（×やすみので）も不可。から なら やすみだから——「なから」という形はない。"
+    }
+  },
+  "pattern-n5-riyuu-003": {
+    "hintI18n": { "en": "Japanese is hard — and fun all the same.", "ja": "日本語は難しい。それでも面白い、という話。" },
+    "promptContextI18n": { "en": "\"Japanese is difficult, but it's interesting.\"", "ja": "「日本語は難しいですが、面白いです。」" },
+    "explanationI18n": {
+      "en": "Sentence-medial 「が」 marks contrast = although ~, but ~: むずかしいですが、おもしろいです — used when the two halves point in opposite directions. 「を」「の」「に」 can't follow です. ※むずかしい = difficult, おもしろい = interesting.",
+      "ja": "文中の「が」は逆接＝〜だが：むずかしいですが、おもしろいです——前後が逆方向のときのつなぎ。「を」「の」「に」は です の後ろに付かない。"
+    }
+  },
+  "pattern-n5-riyuu-004": {
+    "hintI18n": { "en": "Stopping a passerby to ask the way.", "ja": "道で人に声をかけて場所を聞く。" },
+    "promptContextI18n": { "en": "\"Excuse me, where is the station?\"", "ja": "「すみませんが、駅はどこですか。」" },
+    "explanationI18n": {
+      "en": "The buffer before a request is 「が」: すみませんが、〜 = excuse me, (but) ~. This が isn't contrast — it just eases the topic in. 「から」「ので」 give reasons, and 「すみません」 isn't a reason; 「でも」 works at the head of a sentence, not after ません. ※えき = station.",
+      "ja": "切り出しのクッションは「が」：すみませんが、〜。この が は逆接ではなく、話をやわらかく持ち出すためのもの。「から」「ので」は理由——「すみません」は理由ではない。「でも」は文頭に置く語で、ません の後ろには付かない。"
+    }
+  },
+  "pattern-n5-riyuu-005": {
+    "hintI18n": { "en": "Rain or no rain, you're heading out.", "ja": "雨は降っている。それでも出かける。" },
+    "promptContextI18n": { "en": "\"It's raining. But I'm going out anyway.\"", "ja": "「雨が降っています。でも、出かけます。」" },
+    "explanationI18n": {
+      "en": "When the two sentences pull in opposite directions (raining → going out anyway), use 「でも」 = but. 「だから」 (so) follows the causal grain — wrong direction; 「そして」 (and) and 「それから」 (and then) just line events up and can't express \"anyway\". ※あめ = rain, ふります = to fall (rain/snow), でかけます = to go out.",
+      "ja": "前後が逆方向（雨→それでも出かける）なら「でも」。「だから」は因果に沿う語で方向が逆。「そして」「それから」は並列・順接で、「それでも」の逆接は表せない。"
+    }
+  },
+  "pattern-n5-riyuu-006": {
+    "hintI18n": { "en": "Test tomorrow — tonight is for studying, no way around it.", "ja": "明日は試験。今晩は勉強するしかない。" },
+    "promptContextI18n": { "en": "\"There's a test tomorrow. So I'll study tonight.\"", "ja": "「明日テストがあります。だから、今晩勉強します。」" },
+    "explanationI18n": {
+      "en": "Cause followed by its natural consequence takes 「だから」 = so. 「でも」「しかし」 mark contrast (a test, \"but\" studying? — wrong direction); 「まだ」 (still/yet) is an adverb and can't sit at the head of a sentence as a connector. ※テスト = test, こんばん = tonight.",
+      "ja": "前件が原因、後件が当然の結果なら「だから」。「でも」「しかし」は逆接（テストがあるのに「でも」勉強？方向が逆）。「まだ」は副詞で、文頭に置いて接続詞のようには使えない。"
+    }
+  },
+  "pattern-n5-riyuu-007": {
+    "hintI18n": { "en": "Short on time — settling how to get there.", "ja": "時間がない。移動手段を決める。" },
+    "promptContextI18n": { "en": "\"We have no time, so let's take a taxi.\"", "ja": "「時間がありませんから、タクシーで行きましょう。」" },
+    "explanationI18n": {
+      "en": "A mid-sentence reason takes 「から」: じかんが ありませんから = because there's no time, (so) let's taxi. 「まで」「を」「へ」 simply can't attach after ません — the sentence breaks. ※タクシー = taxi.",
+      "ja": "文中の理由は「から」：じかんが ありませんから、タクシーで行きましょう。「まで」「を」「へ」は ません の後ろに付けず、文がそこで壊れる。"
+    }
+  },
+  "pattern-n5-riyuu-008": {
+    "hintI18n": { "en": "Curious what drives their Japanese study.", "ja": "日本語を勉強している動機を知りたい。" },
+    "promptContextI18n": { "en": "\"Why are you studying Japanese?\" \"Because I want to go to Japan.\"", "ja": "「どうして日本語を勉強していますか。」「日本へ行きたいですから。」" },
+    "explanationI18n": {
+      "en": "The reply is 「〜ですから」 (because ~), so the question must ask for a reason: 「どうして」 = why. 「いつ」 (when) and 「どこ」 (where) don't match an answer about motivation; 「なに」 asks for a thing — the sentence already has the object にほんごを. ※べんきょうします = to study, 〜たいです = want to ~.",
+      "ja": "答えが「〜ですから」なので、質問は理由を聞く「どうして」しかない。「いつ」「どこ」は時間・場所で、「日本へ行きたいから」という答えと噛み合わない。「なに」は物を聞く語だが、文にはもう にほんごを がある。"
+    }
+  },
+  "pattern-n5-toki-001": {
+    "hintI18n": { "en": "What you do when you're free.", "ja": "手が空いたらすることの話。" },
+    "promptContextI18n": { "en": "\"When I'm free, I listen to music.\"", "ja": "「暇なとき、音楽を聞きます。」" },
+    "explanationI18n": {
+      "en": "「〜とき」 = when ~: ひまな とき = when I'm free. 「ところ」 mostly means a place (「ひまなところ」 is unnatural here); 「こと」 (a matter) and 「もの」 (a thing) leave the phrase stranded at the head of the sentence, unconnected to \"listen to music\". ※ひま（な） = free (time), おんがく = music.",
+      "ja": "「〜とき」：ひまな とき。「ところ」は主に場所（ここでの「ひまなところ」は不自然）。「こと」「もの」は入れると文頭に浮いてしまい、後ろの「音楽を聞きます」につながらない。"
+    }
+  },
+  "pattern-n5-toki-002": {
+    "hintI18n": { "en": "The set phrase said before a meal.", "ja": "食事の前に言うあの一言。" },
+    "promptContextI18n": { "en": "\"When (about) to eat, you say いただきます.\"", "ja": "「ご飯を食べるとき、『いただきます』と言います。」" },
+    "explanationI18n": {
+      "en": "The tense before とき shows whether the action is done: いただきます is said BEFORE eating — action not yet complete → dictionary form たべる とき. 「たべた とき」 is after finishing — that's when you say 「ごちそうさま」; て/ます forms can't attach to とき.",
+      "ja": "とき の前の時制は動作が完了したかどうか：「いただきます」は食べる「前」——未完了なので辞書形 たべる とき。「たべた とき」は食べ終わった後で、そのときの挨拶は「ごちそうさま」。て形・ます形は とき に付かない。"
+    }
+  },
+  "pattern-n5-toki-003": {
+    "hintI18n": { "en": "Lunch is taken care of, you reply.", "ja": "昼はもう済ませた、と返事する。" },
+    "promptContextI18n": { "en": "\"Did you eat lunch?\" \"Yes, I already ate.\"", "ja": "「昼ご飯を食べましたか。」「はい、もう食べました。」" },
+    "explanationI18n": {
+      "en": "Completion uses 「もう〜ました」 = already did: もう たべました. 「まだ」 pairs with the incomplete (まだ たべていません) and clashes with ました; 「いつ」 is a question word; 「とても」 (very) modifies degree, not completion.",
+      "ja": "完了は「もう〜ました」：もう たべました。「まだ」は未完了（まだ たべていません）とセットで、ました と矛盾。「いつ」は疑問詞、「とても」は程度の語で完了に合わない。"
+    }
+  },
+  "pattern-n5-toki-004": {
+    "hintI18n": { "en": "A progress report on that assignment.", "ja": "レポートの進み具合を答える。" },
+    "promptContextI18n": { "en": "\"Is the report done?\" \"No, not yet.\"", "ja": "「レポートはできましたか。」「いいえ、まだできていません。」" },
+    "explanationI18n": {
+      "en": "Not-yet uses 「まだ〜ていません」: まだ できていません. 「まだ できました」 contradicts itself; 「できます」 is ability or future; and dropping another question 「できましたか」 into an answer doesn't work. ※レポート = report.",
+      "ja": "未完了は「まだ〜ていません」：まだ できていません。「まだ できました」は自己矛盾。「できます」は能力か未来。答えの中に質問形「できましたか」を入れても文にならない。"
+    }
+  },
+  "pattern-n5-toki-005": {
+    "hintI18n": { "en": "The forecast's take on tomorrow.", "ja": "天気予報が伝える明日の天気。" },
+    "promptContextI18n": { "en": "\"According to the forecast, it will probably rain tomorrow.\"", "ja": "「天気予報によると、明日は雨が降るでしょう。」" },
+    "explanationI18n": {
+      "en": "Conjecture uses 「でしょう」 = probably ~: あめが ふるでしょう. The dictionary form ふる can't take 「ですか」 directly (you'd say ふりますか); 「ましょう」 proposes, 「でした」 is past — neither attaches. ※てんきよほう = weather forecast, 〜によると = according to ~, ふります = to fall (rain/snow).",
+      "ja": "推量は「でしょう」：あめが ふるでしょう。辞書形 ふる に「ですか」は直接付かない（ふりますか と言う）。「ましょう」は提案、「でした」は過去で、どちらも接続できない。"
+    }
+  },
+  "pattern-n5-toki-006": {
+    "hintI18n": { "en": "Going along with their guess about tomorrow's cold.", "ja": "明日も寒そうだね、という相手に同調する。" },
+    "promptContextI18n": { "en": "\"Will tomorrow be cold too?\" \"Yeah, probably.\"", "ja": "「明日も寒いでしょうか。」「ええ、寒いでしょう。」" },
+    "explanationI18n": {
+      "en": "Answering a guess with your own guess: ええ、さむいでしょう = yeah, probably cold. 「ですか」 dies on the leading 「ええ」 — you don't commit and then ask back; 「ましたか」「ませんか」 don't even attach — an い-adjective's past is 「さむかったです」 and its negative question 「さむくありませんか」. ※さむい = cold.",
+      "ja": "推量には推量で答える：ええ、さむいでしょう。「ですか」は頭の「ええ」と矛盾——同意してから聞き返さない。「ましたか」「ませんか」はそもそも接続不可——い形容詞の過去は「さむかったです」、否定疑問は「さむくありませんか」。"
+    }
+  },
+  "pattern-n5-toki-007": {
+    "hintI18n": { "en": "You've climbed Mt. Fuji before.", "ja": "富士山に登った経験がある、という話。" },
+    "promptContextI18n": { "en": "\"I have climbed Mt. Fuji.\"", "ja": "「私は富士山に登ったことがあります。」" },
+    "explanationI18n": {
+      "en": "Experience uses た-form + 「ことが あります」 = have done ~: のぼった ことが あります. This pattern takes 「が」 — 「を」「に」「で」 make no sentence here. ※ふじさん = Mt. Fuji, のぼります = to climb.",
+      "ja": "経験は た形＋「ことが あります」：のぼった ことが あります。この文型は「が」——「を」「に」「で」をここに置くと文にならない。"
+    }
+  },
+  "pattern-n5-toki-008": {
+    "hintI18n": { "en": "Asked about sushi experience, you shake your head.", "ja": "すしの経験を聞かれて、首を横に振る。" },
+    "promptContextI18n": { "en": "\"Have you ever eaten sushi?\" \"No, not even once.\"", "ja": "「すしを食べたことがありますか。」「いいえ、一度もありません。」" },
+    "explanationI18n": {
+      "en": "「いちども」 (not even once) demands a negative: いちども ありません. 「あります」「ありました」「たべました」 are all affirmative and clash with いちども — the same rule as だれも/なにも + negative. ※すし = sushi, いちども = (not) even once.",
+      "ja": "「いちども」は否定とセット：いちども ありません。「あります」「ありました」「たべました」は肯定で いちども と矛盾——だれも/なにも＋否定と同じルール。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",
