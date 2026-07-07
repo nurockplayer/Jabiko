@@ -241,6 +241,8 @@ export const ja: Copy = {
   drillPatternN5Teido: "程度と頻度を練習",
   drillPatternN4Ndesu: "説明の「んです」を練習",
   drillPatternN4Suiryou: "推量と理由の て を練習",
+  drillPatternN4Ishi: "意志と決定を練習",
+  drillPatternN4Meirei: "命令と禁止を練習",
   drillPatternTeKudasai: "文型を練習：依頼 / 許可 / 禁止",
   drillPatternNakuteMoII: "文型を練習：不要 vs 義務",
   drillPatternTeMorau: "文型を練習：授受の視点",

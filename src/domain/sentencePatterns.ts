@@ -19,6 +19,8 @@ export type SentencePatternId =
   | "n5-teido"
   | "n4-ndesu"
   | "n4-suiryou"
+  | "n4-ishi"
+  | "n4-meirei"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -63,6 +65,8 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "n5-teido": "程度與頻度 あまり・よく",
   "n4-ndesu": "說明語氣 〜んです",
   "n4-suiryou": "推量與原因 かもしれない・て",
+  "n4-ishi": "打算與決定 つもり・ことにする",
+  "n4-meirei": "命令與禁止 しろ・するな",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -1553,6 +1557,206 @@ const N4_SUIRYOU_ITEMS: SentencePatternItem[] = [
 ];
 
 // ===========================================================================
+// N4 pattern: n4-ishi -- intention and decision (#550).
+//   つもり / 予定 / （よ）うと思う are meaning-adjacent, so they never
+//   compete: the 予定 item uses an inanimate subject (planes have schedules,
+//   not intentions), the third-person item locks via らしい attachment
+//   (volitional+らしい is dead), and the volitional item uses junk
+//   conjugations only. ようにする/ようになる never appear as foils where
+//   ことにする/ことになる is the answer (both are real patterns); plain
+//   行く/たい never compete with 行こう before と思う (both parse).
+// ===========================================================================
+const N4_ISHI_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n4-ishi-001",
+    patternId: "n4-ishi",
+    promptText: "今年こそ、たばこを___と思っています。",
+    hintZh: "下定決心戒菸。",
+    promptContextZh: "「今年一定要戒菸（我是這麼打算的）。」",
+    expectedAnswer: "やめよう",
+    options: ["やめよう", "やめろう", "やめしょう", "やめるう"],
+    explanation:
+      "意志的表明用「意向形＋と思っています」：やめようと思っています＝打算戒。やめる是二類動詞，意向形＝語幹＋よう（やめよう）；「やめろう」是把一類る動詞的變法（帰る→帰ろう）錯搬到二類——一類的意向形是語尾變お段＋う；「やめしょう」「やめるう」都不存在。※たばこをやめる＝戒菸。"
+  },
+  {
+    id: "pattern-n4-ishi-002",
+    patternId: "n4-ishi",
+    promptText: "来年、日本で働く___です。",
+    hintZh: "說明年的工作打算。",
+    promptContextZh: "「我打算明年在日本工作。」",
+    expectedAnswer: "つもり",
+    options: ["つもり", "つもる", "つもれ", "つもら"],
+    explanation:
+      "打算用「辭書形＋つもりだ」：働くつもりです。つもり是名詞、不會活用——「つもる（積もる）」是另一個動詞（雪が積もる），「つもれ」「つもら」是把它當動詞硬變出來的形，放這裡都不成句。※働く＝工作。"
+  },
+  {
+    id: "pattern-n4-ishi-003",
+    patternId: "n4-ishi",
+    promptText: "今年は車を買わない___です。",
+    hintZh: "說自己今年不買車的打算。",
+    promptContextZh: "「今年我打算不買車。」",
+    expectedAnswer: "つもり",
+    options: ["つもり", "もり", "ため", "ほう"],
+    explanation:
+      "「不做〜的打算」＝ない形＋つもり：買わないつもりです——打算的否定放在前面的動詞上。「もり」不成詞；「ためです」是說目的、「ほうです」是說平常的傾向，都跟「陳述自己今年的打算」對不上——這裡只有つもり成立。"
+  },
+  {
+    id: "pattern-n4-ishi-004",
+    patternId: "n4-ishi",
+    promptText: "健康のために、毎朝走る___しました。",
+    hintZh: "自己拍板的新習慣。",
+    promptContextZh: "「為了健康，我決定每天早上跑步。」",
+    expectedAnswer: "ことに",
+    options: ["ことに", "ものに", "ところに", "ぶりに"],
+    explanation:
+      "自己決定用「〜ことにする」：走ることにしました＝我決定要跑。「ものに」「ところに」「ぶりに」都接不出決定的意思。順帶一提：「ようにする」是「努力做到」，是另一個句型。※健康＝健康。"
+  },
+  {
+    id: "pattern-n4-ishi-005",
+    patternId: "n4-ishi",
+    promptText: "来月から、大阪に転勤する___なりました。",
+    hintZh: "公司宣布的人事安排。",
+    promptContextZh: "「（公司決定）下個月起我調職到大阪。」",
+    expectedAnswer: "ことに",
+    options: ["ことに", "ものに", "ままに", "とおりに"],
+    explanation:
+      "外部決定（公司、規定、別人）用「〜ことになる」：転勤することになりました——不是我要調，是被安排調。跟004對照：自己拍板＝ことにする、別人拍板＝ことになる。「ものに」「ままに」「とおりに」都接不上。※転勤＝調職。"
+  },
+  {
+    id: "pattern-n4-ishi-006",
+    patternId: "n4-ishi",
+    promptText: "飛行機は午後3時に出発する___です。",
+    hintZh: "唸出航班資訊。",
+    promptContextZh: "「飛機預定下午三點起飛。」",
+    expectedAnswer: "予定",
+    options: ["予定", "つもり", "気持ち", "考え"],
+    explanation:
+      "排程用「〜予定だ」：出発する予定です。「つもり」需要有意志的主體——飛機自己不會「打算」起飛；「気持ち」「考え」同樣是人才有的，都跟航班播報的語境對不上。※飛行機＝飛機、予定＝預定、出発＝出發。"
+  },
+  {
+    id: "pattern-n4-ishi-007",
+    patternId: "n4-ishi",
+    promptText: "田中さんは会社をやめる___らしいです。",
+    hintZh: "轉述聽來的人事消息。",
+    promptContextZh: "「聽說田中打算辭職。」",
+    expectedAnswer: "つもり",
+    options: ["つもり", "よう", "ましょう", "なさい"],
+    explanation:
+      "轉述「別人的打算」用「つもりらしい」：やめるつもりらしいです。「よう」「ましょう」是意向形/敬體勸誘、「なさい」是命令——三者都不能直接接らしい；要轉述別人的打算，得先名詞化成つもり。※会社をやめる＝辭職。"
+  },
+  {
+    id: "pattern-n4-ishi-008",
+    patternId: "n4-ishi",
+    promptText: "甘いものは食べない___しています。",
+    hintZh: "說一條持續遵守的自我規定。",
+    promptContextZh: "「我（決定並持續）不吃甜食。」",
+    expectedAnswer: "ことに",
+    options: ["ことに", "ことへ", "ことか", "ことの"],
+    explanation:
+      "「〜ことにしている」＝決定之後一直維持著：食べないことにしています——自我規定的慣用說法。「ことへ」「ことか」「ことの」都接不上している。※甘いもの＝甜食。"
+  }
+];
+
+// ===========================================================================
+// N4 pattern: n4-meirei -- commands and prohibitions (#550).
+//   Command items never offer て-form or the な-contraction (帰りな) as
+//   foils -- both are real softened commands; ないと/なくちゃ never compete
+//   with なきゃ (all real). Foils are junk conjugations (走りろ, しれ) or
+//   direction-killed by an explicit scene (STOP sign, fire escape). せよ
+//   (literary する command) stays out of options; explanations mention it.
+// ===========================================================================
+const N4_MEIREI_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n4-meirei-001",
+    patternId: "n4-meirei",
+    promptText: "火事だ！早く___！",
+    hintZh: "火警現場的呼喊，要大家往外跑。",
+    promptContextZh: "「失火了！快逃！」",
+    expectedAnswer: "逃げろ",
+    options: ["逃げろ", "逃げるな", "逃げず", "逃げまい"],
+    explanation:
+      "緊急時的命令形：二類動詞＝語幹＋ろ——逃げろ！「逃げるな」是禁止（別逃），火場裡方向完全相反；「逃げず」是書面的「不逃（而）」、「逃げまい」是「不打算逃/大概不會逃」——都不是命令。※火事＝火災、逃げる＝逃跑。"
+  },
+  {
+    id: "pattern-n4-meirei-002",
+    patternId: "n4-meirei",
+    promptText: "コーチ：「もっと速く___！」",
+    hintZh: "教練對隊員吼的一聲。",
+    promptContextZh: "教練：「跑快一點！」",
+    expectedAnswer: "走れ",
+    options: ["走れ", "走りろ", "走るれ", "走りれ"],
+    explanation:
+      "一類（五段）動詞的命令形＝語尾變え段：走る→走れ。「走りろ」是把二類的ろ錯搬到一類；「走るれ」「走りれ」都不是存在的形。對照：二類才用ろ（逃げろ、食べろ）。※コーチ＝教練。"
+  },
+  {
+    id: "pattern-n4-meirei-003",
+    patternId: "n4-meirei",
+    promptText: "（公園の看板）ここにごみを___。",
+    hintZh: "公園告示牌上的規定。",
+    promptContextZh: "（公園告示）「請勿在此丟垃圾。」",
+    expectedAnswer: "捨てるな",
+    options: ["捨てるな", "捨てるれ", "捨てりれ", "捨てるなさい"],
+    explanation:
+      "禁止形＝辭書形＋な：捨てるな＝不准丟。「捨てるれ」「捨てりれ」都不是存在的形；「なさい」要接ます形語幹（捨てなさい），接辭書形的「捨てるなさい」不成句。※看板＝告示牌、捨てる＝丟棄。"
+  },
+  {
+    id: "pattern-n4-meirei-004",
+    patternId: "n4-meirei",
+    promptText: "お母さん：「早く宿題を___。」",
+    hintZh: "媽媽催小孩做功課。",
+    promptContextZh: "媽媽：「快去寫功課。」",
+    expectedAnswer: "しなさい",
+    options: ["しなさい", "するなさい", "しるなさい", "したなさい"],
+    explanation:
+      "溫和的命令用「ます形語幹＋なさい」：します→し＋なさい＝しなさい。「するなさい」「しるなさい」「したなさい」都接錯了——なさい前面只能放ます形語幹。家長對小孩、老師對學生的標準口吻。"
+  },
+  {
+    id: "pattern-n4-meirei-005",
+    patternId: "n4-meirei",
+    promptText: "もう遅い。早く帰ら___。",
+    hintZh: "深夜自言自語，該走了。",
+    promptContextZh: "「好晚了，（我）得快點回家。」",
+    expectedAnswer: "なきゃ",
+    options: ["なきゃ", "ないきゃ", "なちゃ", "なけば"],
+    explanation:
+      "口語的義務縮約「〜なきゃ」＝なければ（ならない）：帰らなきゃ＝不回不行。「ないきゃ」「なちゃ」「なけば」都是拼壞的形。同義的還有「なくちゃ」（＝なくては）——兩個都常用，成對記。"
+  },
+  {
+    id: "pattern-n4-meirei-006",
+    patternId: "n4-meirei",
+    promptText: "医者は父にお酒をやめる___言いました。",
+    hintZh: "醫生交代父親的事。",
+    promptContextZh: "「醫生要父親戒酒。」",
+    expectedAnswer: "ように",
+    options: ["ように", "ままに", "とおりに", "ばかりに"],
+    explanation:
+      "間接命令、轉述指示用「〜ように言う」：やめるように言いました＝（醫生）要（父親）戒。「ままに」「とおりに」「ばかりに」都接不出指示的意思。※医者＝醫生。"
+  },
+  {
+    id: "pattern-n4-meirei-007",
+    patternId: "n4-meirei",
+    promptText: "先輩に「もっと練習___」と言われました。",
+    hintZh: "被學長訓了一句。",
+    promptContextZh: "「被學長說『多練習！』。」",
+    expectedAnswer: "しろ",
+    options: ["しろ", "しりろ", "すろ", "さろ"],
+    explanation:
+      "する的命令形＝しろ：練習しろ！「しりろ」「すろ」「さろ」都不是存在的形——する是不規則動詞，命令形只能背（口語しろ；書面測驗指示會看到文語的せよ；部分方言另有せえ）。※先輩＝學長姐。"
+  },
+  {
+    id: "pattern-n4-meirei-008",
+    patternId: "n4-meirei",
+    promptText: "（道路標識）___。",
+    hintZh: "路口要求一時停止的紅色倒三角形標誌上寫的字。",
+    promptContextZh: "（道路標誌）「停。」",
+    expectedAnswer: "止まれ",
+    options: ["止まれ", "止まるな", "止まりろ", "止まるれ"],
+    explanation:
+      "道路標誌用命令形：止まれ＝停（一類動詞、語尾え段）。日本的一時停止標誌是紅色倒三角形、日文寫「止まれ」（新版會併記英文STOP）。「止まるな」是禁止——叫車不准停，路口標誌不會這樣寫；「止まりろ」「止まるれ」都不是存在的形。※道路標識＝道路標誌。"
+  }
+];
+
+// ===========================================================================
 // Lesson-0 pattern A: starter-desu -- the AはBです sentence family (#534).
 //   Absolute-beginner floor: kana-only sentences built from the starter
 //   vocabulary deck. Unique solutions are locked by IN-SENTENCE anchors
@@ -2412,6 +2616,8 @@ export const sentencePatternItems: SentencePatternItem[] = [
   ...N5_TEIDO_ITEMS,
   ...N4_NDESU_ITEMS,
   ...N4_SUIRYOU_ITEMS,
+  ...N4_ISHI_ITEMS,
+  ...N4_MEIREI_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,

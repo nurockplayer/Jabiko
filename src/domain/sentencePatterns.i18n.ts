@@ -1303,6 +1303,134 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "原因の否定をもう一度：食べない→食べなくて。「食べなくで」「食べずて」「食べないくて」はどれも存在しない形——公式は「ない の い を取って くて」。"
     }
   },
+  "pattern-n4-ishi-001": {
+    "hintI18n": { "en": "This is the year you quit smoking.", "ja": "今年こそ禁煙、という決意。" },
+    "promptContextI18n": { "en": "\"This year I'm going to quit smoking (that's my intention).\"", "ja": "「今年こそ、たばこをやめようと思っています。」" },
+    "explanationI18n": {
+      "en": "Declaring an intention uses the volitional + と思っています: やめようと思っています. やめる is group 2, so the volitional is stem + よう (やめよう); 「やめろう」 wrongly imports the group-1 る-verb pattern (帰る→帰ろう) — group 1 shifts the final vowel to the お row + う; 「やめしょう」「やめるう」 don't exist. ※たばこをやめる = to quit smoking.",
+      "ja": "意志の表明は意向形＋と思っています：やめようと思っています。やめる は二類なので意向形は語幹＋よう。「やめろう」は一類る動詞（帰る→帰ろう）のやり方の誤用——一類は語尾をお段＋う。「やめしょう」「やめるう」は存在しない。"
+    }
+  },
+  "pattern-n4-ishi-002": {
+    "hintI18n": { "en": "Next year's work plans.", "ja": "来年の仕事の予定を語る。" },
+    "promptContextI18n": { "en": "\"I plan to work in Japan next year.\"", "ja": "「来年、日本で働くつもりです。」" },
+    "explanationI18n": {
+      "en": "Plans use dictionary form + 「つもりだ」: 働くつもりです. つもり is a noun and never conjugates — 「つもる (積もる)」 is a different verb (snow piles up), and 「つもれ」「つもら」 treat it as a verb; none makes a sentence here. ※働く = to work.",
+      "ja": "つもりは「辞書形＋つもりだ」：働くつもりです。つもり は名詞で活用しない——「つもる（積もる）」は別の動詞、「つもれ」「つもら」は動詞扱いした崩れ形で、どれも文にならない。"
+    }
+  },
+  "pattern-n4-ishi-003": {
+    "hintI18n": { "en": "No car purchase this year — that's the plan.", "ja": "今年は車を買わない、という自分の予定。" },
+    "promptContextI18n": { "en": "\"I don't plan to buy a car this year.\"", "ja": "「今年は車を買わないつもりです。」" },
+    "explanationI18n": {
+      "en": "\"Plan NOT to\" = ない form + つもり: 買わないつもりです — the negation rides on the verb. 「もり」 is no word; 「ためです」 states a purpose and 「ほうです」 a general tendency — neither matches stating this year's plan. Only つもり fits.",
+      "ja": "「しないつもり」＝ない形＋つもり：買わないつもりです——否定は前の動詞に付ける。「もり」は語にならない。「ためです」は目的、「ほうです」は普段の傾向で、「今年の自分の予定を述べる」場面に合わない——ここは つもり だけ。"
+    }
+  },
+  "pattern-n4-ishi-004": {
+    "hintI18n": { "en": "A new habit you committed to.", "ja": "自分で決めた新しい習慣。" },
+    "promptContextI18n": { "en": "\"For my health, I decided to run every morning.\"", "ja": "「健康のために、毎朝走ることにしました。」" },
+    "explanationI18n": {
+      "en": "A decision you make yourself uses 「〜ことにする」: 走ることにしました. 「ものに」「ところに」「ぶりに」 can't express a decision. Note: 「ようにする」 (make an effort to) is a different pattern. ※健康 = health.",
+      "ja": "自分の決定は「〜ことにする」：走ることにしました。「ものに」「ところに」「ぶりに」では決定の意味が出ない。なお「ようにする」（努力する）は別の文型。"
+    }
+  },
+  "pattern-n4-ishi-005": {
+    "hintI18n": { "en": "The company's staffing announcement.", "ja": "会社が発表した人事。" },
+    "promptContextI18n": { "en": "\"(The company decided) I'm transferring to Osaka next month.\"", "ja": "「来月から、大阪に転勤することになりました。」" },
+    "explanationI18n": {
+      "en": "Decisions made by the outside (company, rules, others) use 「〜ことになる」: 転勤することになりました — I'm not choosing to transfer; it was arranged. Contrast with 004: you decide = ことにする, they decide = ことになる. 「ものに」「ままに」「とおりに」 don't attach. ※転勤 = job transfer.",
+      "ja": "外部（会社・規則・他人）の決定は「〜ことになる」：転勤することになりました——自分の意志ではなく決められた。004 と対照：自分＝ことにする、外部＝ことになる。「ものに」「ままに」「とおりに」はつながらない。"
+    }
+  },
+  "pattern-n4-ishi-006": {
+    "hintI18n": { "en": "Reading out the flight information.", "ja": "フライト情報を読み上げる。" },
+    "promptContextI18n": { "en": "\"The plane is scheduled to depart at 3 p.m.\"", "ja": "「飛行機は午後3時に出発する予定です。」" },
+    "explanationI18n": {
+      "en": "Schedules use 「〜予定だ」: 出発する予定です. 「つもり」 needs a willful agent — a plane doesn't \"intend\" to depart; 「気持ち」「考え」 are likewise human notions and don't fit a flight announcement. ※飛行機 = airplane, 予定 = schedule, 出発 = departure.",
+      "ja": "スケジュールは「〜予定だ」：出発する予定です。「つもり」は意志の主体が要る——飛行機は自分で「つもり」を持たない。「気持ち」「考え」も人間のもので、フライト案内の場面に合わない。"
+    }
+  },
+  "pattern-n4-ishi-007": {
+    "hintI18n": { "en": "Passing along office gossip.", "ja": "聞いた人事のうわさを伝える。" },
+    "promptContextI18n": { "en": "\"I hear Tanaka intends to quit the company.\"", "ja": "「田中さんは会社をやめるつもりらしいです。」" },
+    "explanationI18n": {
+      "en": "Reporting someone ELSE's intention uses 「つもりらしい」: やめるつもりらしいです. 「よう」「ましょう」 are volitional/polite-hortative and 「なさい」 is a command — none can precede らしい; to relay another person's plan you nominalize it as つもり. ※会社をやめる = to quit one's job.",
+      "ja": "他人の意志の伝聞は「つもりらしい」：やめるつもりらしいです。「よう」「ましょう」は意向形/勧誘、「なさい」は命令で、どれも らしい には接続できない——他人の予定は つもり に名詞化してから伝える。"
+    }
+  },
+  "pattern-n4-ishi-008": {
+    "hintI18n": { "en": "A standing rule you keep for yourself.", "ja": "守り続けている自分ルール。" },
+    "promptContextI18n": { "en": "\"I've made it a rule not to eat sweets.\"", "ja": "「甘いものは食べないことにしています。」" },
+    "explanationI18n": {
+      "en": "「〜ことにしている」 = a decision you keep observing: 食べないことにしています — the idiom for personal rules. 「ことへ」「ことか」「ことの」 can't attach to している. ※甘いもの = sweets.",
+      "ja": "「〜ことにしている」＝決めてからずっと続けている：食べないことにしています——自分ルールの定番表現。「ことへ」「ことか」「ことの」は している につながらない。"
+    }
+  },
+  "pattern-n4-meirei-001": {
+    "hintI18n": { "en": "A fire — shout at everyone to get out.", "ja": "火事の現場、外へ走れと叫ぶ。" },
+    "promptContextI18n": { "en": "\"Fire! Run!\"", "ja": "「火事だ！早く逃げろ！」" },
+    "explanationI18n": {
+      "en": "The emergency imperative: group-2 verbs = stem + ろ — 逃げろ! 「逃げるな」 is a prohibition (don't run) — exactly backwards in a fire; 「逃げず」 is written \"without fleeing\" and 「逃げまい」 means \"won't / probably won't flee\" — neither is a command. ※火事 = fire, 逃げる = to flee.",
+      "ja": "緊急時の命令形：二類＝語幹＋ろ——逃げろ！「逃げるな」は禁止で火事の場面では正反対。「逃げず」は書き言葉の「逃げないで」、「逃げまい」は「逃げないつもり/逃げないだろう」——どちらも命令ではない。"
+    }
+  },
+  "pattern-n4-meirei-002": {
+    "hintI18n": { "en": "The coach barking at the team.", "ja": "コーチが選手に飛ばす一声。" },
+    "promptContextI18n": { "en": "Coach: \"Run faster!\"", "ja": "コーチ：「もっと速く走れ！」" },
+    "explanationI18n": {
+      "en": "Group-1 (godan) imperative = final vowel to the え row: 走る → 走れ. 「走りろ」 wrongly imports the group-2 ろ; 「走るれ」「走りれ」 don't exist. Contrast: only group 2 takes ろ (逃げろ, 食べろ). ※コーチ = coach.",
+      "ja": "一類（五段）の命令形＝語尾をえ段に：走る→走れ。「走りろ」は二類の ろ の誤用。「走るれ」「走りれ」は存在しない。対照：ろ を使うのは二類だけ（逃げろ、食べろ）。"
+    }
+  },
+  "pattern-n4-meirei-003": {
+    "hintI18n": { "en": "The rule on the park signboard.", "ja": "公園の看板の決まり文句。" },
+    "promptContextI18n": { "en": "(Park sign) \"No dumping.\"", "ja": "（公園の看板）「ここにごみを捨てるな。」" },
+    "explanationI18n": {
+      "en": "Prohibition = dictionary form + な: 捨てるな = don't dump. 「捨てるれ」「捨てりれ」 don't exist; 「なさい」 takes the ます-stem (捨てなさい) — dictionary form + なさい (捨てるなさい) is no sentence. ※看板 = signboard, 捨てる = to throw away.",
+      "ja": "禁止形＝辞書形＋な：捨てるな。「捨てるれ」「捨てりれ」は存在しない。「なさい」は ます形の語幹に付く（捨てなさい）——辞書形＋なさい（捨てるなさい）は文にならない。"
+    }
+  },
+  "pattern-n4-meirei-004": {
+    "hintI18n": { "en": "Mom hurrying the kid along.", "ja": "母親が子どもをせかす。" },
+    "promptContextI18n": { "en": "Mom: \"Go do your homework.\"", "ja": "お母さん：「早く宿題をしなさい。」" },
+    "explanationI18n": {
+      "en": "The gentle command is ます-stem + なさい: します → し + なさい = しなさい. 「するなさい」「しるなさい」「したなさい」 all attach wrongly — only the ます-stem goes before なさい. The standard parent-to-child / teacher-to-student register.",
+      "ja": "柔らかい命令は「ます形の語幹＋なさい」：します→し＋なさい。「するなさい」「しるなさい」「したなさい」はどれも接続が誤り——なさい の前は ます形の語幹だけ。親→子、先生→生徒の定番の口調。"
+    }
+  },
+  "pattern-n4-meirei-005": {
+    "hintI18n": { "en": "Late-night self-talk: time to go.", "ja": "夜遅く、そろそろ帰らないと、という独り言。" },
+    "promptContextI18n": { "en": "\"It's late — I've got to get home.\"", "ja": "「もう遅い。早く帰らなきゃ。」" },
+    "explanationI18n": {
+      "en": "The colloquial obligation contraction 「〜なきゃ」 = なければ(ならない): 帰らなきゃ = gotta go home. 「ないきゃ」「なちゃ」「なけば」 are all broken forms. Its sibling is 「なくちゃ」 (= なくては) — both are common; learn them as a pair.",
+      "ja": "口語の義務の縮約「〜なきゃ」＝なければ（ならない）：帰らなきゃ。「ないきゃ」「なちゃ」「なけば」は崩れた偽形。相方は「なくちゃ」（＝なくては）——どちらもよく使うのでペアで覚える。"
+    }
+  },
+  "pattern-n4-meirei-006": {
+    "hintI18n": { "en": "The doctor's instruction to your father.", "ja": "医者が父に出した指示。" },
+    "promptContextI18n": { "en": "\"The doctor told my father to quit drinking.\"", "ja": "「医者は父にお酒をやめるように言いました。」" },
+    "explanationI18n": {
+      "en": "Relaying an order or instruction uses 「〜ように言う」: やめるように言いました = (the doctor) told (him) to quit. 「ままに」「とおりに」「ばかりに」 can't express an instruction. ※医者 = doctor.",
+      "ja": "指示の伝達は「〜ように言う」：やめるように言いました。「ままに」「とおりに」「ばかりに」では指示の意味が出ない。"
+    }
+  },
+  "pattern-n4-meirei-007": {
+    "hintI18n": { "en": "What your senpai snapped at you.", "ja": "先輩に言われた一言。" },
+    "promptContextI18n": { "en": "\"My senpai told me: 'Practice more!'\"", "ja": "「先輩に『もっと練習しろ』と言われました。」" },
+    "explanationI18n": {
+      "en": "する's imperative is しろ: 練習しろ! 「しりろ」「すろ」「さろ」 don't exist — する is irregular, so its imperative is memorized (spoken しろ; written test instructions use the literary せよ; some dialects have せえ). ※先輩 = senior.",
+      "ja": "する の命令形は しろ：練習しろ！「しりろ」「すろ」「さろ」は存在しない——する は不規則動詞で、命令形は暗記（口語 しろ、書面の指示は文語 せよ、方言には せえ も）。"
+    }
+  },
+  "pattern-n4-meirei-008": {
+    "hintI18n": { "en": "The red inverted-triangle sign at the intersection.", "ja": "交差点の赤い逆三角形の標識の文字。" },
+    "promptContextI18n": { "en": "(Road sign) \"Stop.\"", "ja": "（道路標識）「止まれ。」" },
+    "explanationI18n": {
+      "en": "Road signs use the imperative: 止まれ = stop (group 1, final vowel to え). Japan's stop sign is a red inverted triangle whose Japanese text reads 止まれ (newer signs add STOP in English). 「止まるな」 prohibits stopping — no intersection sign says that; 「止まりろ」「止まるれ」 don't exist. ※道路標識 = road sign.",
+      "ja": "道路標識は命令形：止まれ（一類・語尾え段）。日本の一時停止標識は赤い逆三角形で、日本語表記は「止まれ」（新しい標識には STOP が併記される）。「止まるな」は停止の禁止で、交差点の標識にはあり得ない。「止まりろ」「止まるれ」は存在しない。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",

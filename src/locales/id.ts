@@ -233,6 +233,8 @@ export const id: Copy = {
   drillPatternN5Teido: "Latih derajat + frekuensi",
   drillPatternN4Ndesu: "Latih nada penjelasan んです",
   drillPatternN4Suiryou: "Latih dugaan + sebab",
+  drillPatternN4Ishi: "Latih niat + keputusan",
+  drillPatternN4Meirei: "Latih perintah + larangan",
   drillPatternTeKudasai: "Latih pola: permintaan / izin / larangan",
   drillPatternNakuteMoII: "Latih pola: tidak perlu vs harus",
   drillPatternTeMorau: "Latih pola: sudut pandang memberi-menerima",
