@@ -983,6 +983,198 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "「いちども」は否定とセット：いちども ありません。「あります」「ありました」「たべました」は肯定で いちども と矛盾——だれも/なにも＋否定と同じルール。"
     }
   },
+  "pattern-n5-keiyoushi-001": {
+    "hintI18n": { "en": "Complimenting how big this bag is.", "ja": "このかばんの大きさをほめる。" },
+    "promptContextI18n": { "en": "\"This is a very big bag.\"", "ja": "「これはとても大きいかばんです。」" },
+    "explanationI18n": {
+      "en": "An い-adjective modifies a noun directly: おおきい かばん. 「おおきいな」 wrongly imports the な-adjective rule; 「おおきく」 is the adverbial form used before verbs; the の in 「おおきいの」 is superfluous.",
+      "ja": "い形容詞は名詞に直接付く：おおきい かばん。「おおきいな」は な形容詞の規則の誤用。「おおきく」は動詞に続く連用形。「おおきいの」の の は余計。"
+    }
+  },
+  "pattern-n5-keiyoushi-002": {
+    "hintI18n": { "en": "Introducing your quiet hometown.", "ja": "住んでいる静かな町を紹介する。" },
+    "promptContextI18n": { "en": "\"This is a quiet town.\"", "ja": "「ここは静かな町です。」" },
+    "explanationI18n": {
+      "en": "A な-adjective takes な before a noun: しずかな まち. 「しずかい」 mistakes it for an い-adjective; bare 「しずか」 is missing the な; 「しずかの」 is the NOUN linker — it only works if しずか is a noun (say, the name Shizuka), never for the adjective. ※まち = town.",
+      "ja": "な形容詞は名詞の前に な：しずかな まち。「しずかい」は い形容詞との混同。「しずか」だけでは な が足りない。「しずかの」は名詞用のつなぎ——しずか を名詞（人名など）として使うときだけ成立し、形容詞にはこの接続はない。"
+    }
+  },
+  "pattern-n5-keiyoushi-003": {
+    "hintI18n": { "en": "Recommending this place: cheap and tasty.", "ja": "この店を勧める：安くてうまい。" },
+    "promptContextI18n": { "en": "\"This place's food is cheap and tasty.\"", "ja": "「この店の料理は安くて、おいしいです。」" },
+    "explanationI18n": {
+      "en": "Chaining い-adjectives: drop い, add くて — やすい → やすくて. 「やすいに」 is a form that doesn't exist; 「やすいくて」 forgot to drop the い; 「やすくで」 garbles くて. ※みせ = shop.",
+      "ja": "い形容詞の並列は い を取って くて：やすい→やすくて。「やすいに」は存在しない形。「やすいくて」は い を取り忘れ。「やすくで」は くて の崩れ形。"
+    }
+  },
+  "pattern-n5-keiyoushi-004": {
+    "hintI18n": { "en": "Tanaka: energetic and kind.", "ja": "田中さんは元気で親切、という紹介。" },
+    "promptContextI18n": { "en": "\"Tanaka is energetic and kind.\"", "ja": "「田中さんは元気で、親切です。」" },
+    "explanationI18n": {
+      "en": "な-adjectives chain with で: げんきで、しんせつです. 「げんきくて」 borrows the い-adjective くて; 「げんきいで」 and 「げんきなで」 are forms that don't exist — な is for linking to a NOUN; chaining takes plain で. ※げんき（な） = energetic, しんせつ（な） = kind.",
+      "ja": "な形容詞の並列は で：げんきで、しんせつです。「げんきくて」は い形容詞の くて の誤用。「げんきいで」「げんきなで」は存在しない形——な は名詞につなぐときのもので、並列はそのまま で。"
+    }
+  },
+  "pattern-n5-keiyoushi-005": {
+    "hintI18n": { "en": "The payoff of practicing handwriting daily.", "ja": "毎日の練習の成果の話。" },
+    "promptContextI18n": { "en": "\"Practicing every day made my handwriting beautiful.\"", "ja": "「毎日練習したので、字がきれいになりました。」" },
+    "explanationI18n": {
+      "en": "\"Become ~\" with a な-adjective: + に なります — きれいに なりました. きれい ends in い but is a な-adjective; 「きれいく」 is exactly the classic mistake (mixing in the い-adjective's くなります). 「で」「の」 don't attach to なります. ※じ = handwriting, れんしゅうします = to practice.",
+      "ja": "な形容詞の「〜になる」：きれいに なりました。きれい は い で終わるが な形容詞で、「きれいく」はまさに定番の間違い（い形容詞の くなります との混同）。「で」「の」は なります につながらない。"
+    }
+  },
+  "pattern-n5-keiyoushi-006": {
+    "hintI18n": { "en": "How it feels outside after dark.", "ja": "夜になってからの外の気温の話。" },
+    "promptContextI18n": { "en": "\"After night fell, it got cold outside.\"", "ja": "「夜になって、外が寒くなりました。」" },
+    "explanationI18n": {
+      "en": "\"Become ~\" with an い-adjective: drop い + く なります — さむい → さむく なりました. 「に」 belongs to な-adjectives (しずかに なります); 「で」「い」 don't attach to なります. ※そと = outside.",
+      "ja": "い形容詞の「〜になる」は い を取って く：さむい→さむく なりました。「に」は な形容詞用（しずかに なります）。「で」「い」は なります につながらない。"
+    }
+  },
+  "pattern-n5-keiyoushi-007": {
+    "hintI18n": { "en": "This room: spacious and bright.", "ja": "この部屋は広くて明るい、という話。" },
+    "promptContextI18n": { "en": "\"This room is spacious and bright.\"", "ja": "「この部屋は広くて、明るいです。」" },
+    "explanationI18n": {
+      "en": "い-adjective chaining once more: ひろい → ひろくて、あかるいです. 「いて」「くで」「いくて」 are all nonexistent attachments — remember the formula: drop い + くて. ※ひろい = spacious, あかるい = bright.",
+      "ja": "い形容詞の並列をもう一度：ひろい→ひろくて、あかるいです。「いて」「くで」「いくて」はどれも存在しない接続——公式は「い を取って くて」。"
+    }
+  },
+  "pattern-n5-keiyoushi-008": {
+    "hintI18n": { "en": "The weather took a turn for the better.", "ja": "天気が回復した、という話。" },
+    "promptContextI18n": { "en": "\"The weather got better yesterday.\"", "ja": "「昨日は天気がよくなりました。」" },
+    "explanationI18n": {
+      "en": "「いい」 (good) uses the よ stem for its negative, past, and change forms: よく なります, よくない, よかった (the base form stays いい/よい). 「いく」「いいく」 inflect いい directly — neither exists; 「よい なりました」 is missing the く. ※てんき = weather.",
+      "ja": "「いい」の否定・過去・変化は よ 系：よく なります、よくない、よかった（基本形は いい／よい のまま）。「いく」「いいく」は いい を直接活用させた存在しない形。「よい なりました」は く が抜けてつながらない。"
+    }
+  },
+  "pattern-n5-josuushi-001": {
+    "hintI18n": { "en": "Two students in the classroom.", "ja": "教室にいる学生の人数。" },
+    "promptContextI18n": { "en": "\"There are two students in the classroom.\"", "ja": "「教室に学生が二人います。」" },
+    "explanationI18n": {
+      "en": "People take 「〜人（にん）」, but one and two are irregular: ひとり, ふたり. 「ににん」 force-applies the rule and is wrong; 「ふたつ」 counts things, not people; 「にまい」 counts thin flat objects.",
+      "ja": "人は「〜人（にん）」で数えるが、一人・二人は特殊読み：ひとり、ふたり。「ににん」は規則の押し付けで誤り。「ふたつ」は物、「にまい」は薄い平たい物を数える語。"
+    }
+  },
+  "pattern-n5-josuushi-002": {
+    "hintI18n": { "en": "Buying three pencils.", "ja": "鉛筆を三本買った話。" },
+    "promptContextI18n": { "en": "\"I bought three pencils.\"", "ja": "「鉛筆を三本買いました。」" },
+    "explanationI18n": {
+      "en": "Long thin things take 「〜本」, and 三本 voices: さんぼん. 「さんほん」 skips the sound change; 「さんぽん」 uses the p-sound (that's for いっぽん, ろっぽん); 「みっぽん」 doesn't exist. ※えんぴつ = pencil.",
+      "ja": "細長い物は「〜本」。三本は濁音化して さんぼん。「さんほん」は音変化なしの誤り。「さんぽん」は半濁音（いっぽん・ろっぽん用）。「みっぽん」は存在しない。"
+    }
+  },
+  "pattern-n5-josuushi-003": {
+    "hintI18n": { "en": "Buying two shirts.", "ja": "シャツを二枚買った話。" },
+    "promptContextI18n": { "en": "\"I bought two shirts.\"", "ja": "「シャツを二枚買いました。」" },
+    "explanationI18n": {
+      "en": "Thin flat things (shirts, paper, plates) take 「〜枚（まい）」: にまい. 「〜本」 counts long thin things, 「〜台」 machines and vehicles, 「〜匹」 small animals — all the wrong category. ※シャツ = shirt.",
+      "ja": "薄くて平たい物（シャツ・紙・皿）は「〜枚」：にまい。「〜本」は細長い物、「〜台」は機械・車、「〜匹」は小動物で、どれも類別違い。"
+    }
+  },
+  "pattern-n5-josuushi-004": {
+    "hintI18n": { "en": "One cat at home.", "ja": "家で飼っている猫は一匹。" },
+    "promptContextI18n": { "en": "\"We have one cat at home.\"", "ja": "「うちに猫が一匹います。」" },
+    "explanationI18n": {
+      "en": "Small animals take 「〜匹（ひき）」, and 一匹 geminates with a p-sound: いっぴき. 「いちひき」 skips the sound change; 「いっぽん」 counts long thin things; 「ひとまい」 is the wrong category AND the wrong reading (it's いちまい).",
+      "ja": "小動物は「〜匹」。一匹は促音＋半濁音で いっぴき。「いちひき」は音変化なしの誤り。「いっぽん」は細長い物用。「ひとまい」は類別も読みも誤り（正しくは いちまい）。"
+    }
+  },
+  "pattern-n5-josuushi-005": {
+    "hintI18n": { "en": "Your weekly Japanese-study routine.", "ja": "週に何回勉強するかの話。" },
+    "promptContextI18n": { "en": "\"I study Japanese twice a week.\"", "ja": "「1週間に2回、日本語を勉強します。」" },
+    "explanationI18n": {
+      "en": "Counting occurrences uses 「〜回（かい）」: １しゅうかんに にかい = twice a week. 「〜枚」「〜台」「〜冊」 count objects — studying Japanese isn't something you hold in your hand. ※〜かい = ~ times.",
+      "ja": "動作の回数は「〜回」：１しゅうかんに にかい。「〜枚」「〜台」「〜冊」は物を数える語——勉強は手に持てる物ではない。"
+    }
+  },
+  "pattern-n5-josuushi-006": {
+    "hintI18n": { "en": "Your little brother's age.", "ja": "弟の年齢の話。" },
+    "promptContextI18n": { "en": "\"My little brother is eight.\"", "ja": "「弟は八歳です。」" },
+    "explanationI18n": {
+      "en": "Age takes 「〜歳（さい）」, and 八歳 geminates: はっさい. 「はちさい」 skips the sound change; 「〜冊」 counts books and 「〜枚」 flat things — nothing to do with age. Also remember: 一歳 いっさい and 十歳 じゅっさい geminate too.",
+      "ja": "年齢は「〜歳」。八歳は促音化して はっさい。「はちさい」は音変化なしの誤り。「〜冊」は本、「〜枚」は薄い物で年齢に無関係。ついでに：一歳 いっさい、十歳 じゅっさい も促音化。"
+    }
+  },
+  "pattern-n5-josuushi-007": {
+    "hintI18n": { "en": "Picking out five mandarins at the stand.", "ja": "みかんを五つ買う場面。" },
+    "promptContextI18n": { "en": "\"Five mandarins, please.\"", "ja": "「みかんを五つください。」" },
+    "explanationI18n": {
+      "en": "The quantity goes straight before the verb: みかんを いつつ ください — the を already sits after みかん. 「いつつを」「いつつの」「いつつに」 all overdo it: in the 「noun を + quantity + verb」 order, no を・の・に follows the quantity word.",
+      "ja": "数量詞は動詞の直前にそのまま：みかんを いつつ ください——を はもう みかん の後ろにある。「いつつを」「いつつの」「いつつに」は蛇足で、「名詞を＋数量詞＋動詞」の語順では数量詞の後ろに を・の・に を付けない。"
+    }
+  },
+  "pattern-n5-josuushi-008": {
+    "hintI18n": { "en": "How many books you hauled home from the library.", "ja": "図書館で借りた本の数。" },
+    "promptContextI18n": { "en": "\"I borrowed two books at the library.\"", "ja": "「図書館で本を二冊借りました。」" },
+    "explanationI18n": {
+      "en": "Books take 「〜冊（さつ）」: にさつ. 「〜本」 — despite the kanji — counts long thin things (umbrellas, bottles, pencils); 「〜枚」 counts flat things; 「ふたさつ」 is a nonexistent reading — 二冊 is only にさつ; the ふた- series belongs to 〜つ and ふたり. ※かります = to borrow.",
+      "ja": "本は「〜冊」：にさつ。「〜本」は漢字は同じでも細長い物用（傘・瓶・鉛筆）。「〜枚」は薄い物。「ふたさつ」という読みは存在しない——二冊は にさつ だけで、ふた系は 〜つ と ふたり のもの。"
+    }
+  },
+  "pattern-n5-teido-001": {
+    "hintI18n": { "en": "Your verdict on this movie.", "ja": "この映画の感想を言う。" },
+    "promptContextI18n": { "en": "\"This movie isn't very interesting.\"", "ja": "「この映画はあまり面白くないです。」" },
+    "explanationI18n": {
+      "en": "In a plain statement like this, 「あまり」 pairs with a negative = not very ~: あまり おもしろくないです. The other three are affirmative and can't ride with あまり — see あまり, hunt for ない.",
+      "ja": "この手の叙述文では「あまり」は否定と呼応する＝あまり〜ない：あまり おもしろくないです。ほかの三つは肯定で あまり と組めない——あまり を見たら ない を探す。"
+    }
+  },
+  "pattern-n5-teido-002": {
+    "hintI18n": { "en": "Answering whether you drink.", "ja": "お酒を飲むかどうかの質問に答える。" },
+    "promptContextI18n": { "en": "\"Do you drink?\" \"No — not at all.\"", "ja": "「お酒を飲みますか。」「いいえ、ぜんぜん飲みません。」" },
+    "explanationI18n": {
+      "en": "「ぜんぜん」 pairs with a negative = not at all ~: ぜんぜん のみません. The leading 「いいえ」 has already said no — 「のみます」「のみました」「のみたいです」 are all affirmative and contradict it outright. Degree scale: あまり = not much, ぜんぜん = not at all. ※おさけ = alcohol.",
+      "ja": "「ぜんぜん」は否定とセット：ぜんぜん のみません。頭の「いいえ」がもう否定している——「のみます」「のみました」「のみたいです」は肯定で真っ向から矛盾。程度の比較：あまり＝あまり〜ない、ぜんぜん＝まったく〜ない。"
+    }
+  },
+  "pattern-n5-teido-003": {
+    "hintI18n": { "en": "When you get up each morning.", "ja": "毎朝何時に起きるかの話。" },
+    "promptContextI18n": { "en": "\"I get up around seven every morning.\"", "ja": "「毎朝7時ごろ起きます。」" },
+    "explanationI18n": {
+      "en": "Approximate clock time takes 「ごろ」 = around ~: ７じごろ おきます. 「が」「を」「へ」 can't attach to a clock time. Also remember: approximate AMOUNTS take 「ぐらい」 (じゅっぷんぐらい). ※まいあさ = every morning, おきます = to get up.",
+      "ja": "時刻のおよそは「ごろ」：７じごろ おきます。「が」「を」「へ」は時刻に付かない。あわせて：数量のおよそは「ぐらい」（じゅっぷんぐらい）。"
+    }
+  },
+  "pattern-n5-teido-004": {
+    "hintI18n": { "en": "How long the walk to the station takes.", "ja": "駅まで歩いてかかる時間の話。" },
+    "promptContextI18n": { "en": "\"It takes about ten minutes to walk to the station.\"", "ja": "「駅まで歩いて10分ぐらいかかります。」" },
+    "explanationI18n": {
+      "en": "Approximate amounts and durations take 「ぐらい」 = about ~: じゅっぷんぐらい かかります. 「ごろ」 only attaches to points of time (７じごろ), never to a duration like \"ten minutes\"; 「まで」「から」 mark endpoints. ※かかります = to take (time).",
+      "ja": "数量・時間の長さのおよそは「ぐらい」：じゅっぷんぐらい かかります。「ごろ」は時刻の一点にだけ付き（７じごろ）、「十分間」のような長さには付かない。「まで」「から」は起点・終点。"
+    }
+  },
+  "pattern-n5-teido-005": {
+    "hintI18n": { "en": "How often Tanaka hits the library.", "ja": "田中さんが図書館へ行く頻度の話。" },
+    "promptContextI18n": { "en": "\"Tanaka often goes to the library — as many as three times a week.\"", "ja": "「田中さんはよく図書館へ行きます。毎週3回も行きます。」" },
+    "explanationI18n": {
+      "en": "Three times a week (with an emphatic も = as many as) is high frequency → 「よく」 = often. 「まいにち」 (every day) directly contradicts \"three times a week\"; 「ときどき」 (sometimes) doesn't match the rate either; in a plain frequency statement like this, 「あまり」 demands a negative, but いきます is affirmative.",
+      "ja": "週3回（しかも「も」付き＝そんなに）は高頻度→「よく」。「まいにち」は「毎週3回」と真っ向から矛盾。「ときどき」もこの頻度に合わない。この手の頻度の叙述文では「あまり」は否定とセットだが、後ろは肯定の いきます。"
+    }
+  },
+  "pattern-n5-teido-006": {
+    "hintI18n": { "en": "How often you watch movies.", "ja": "映画を見る頻度の話。" },
+    "promptContextI18n": { "en": "\"I watch movies occasionally — about three times a year.\"", "ja": "「私はときどき映画を見ます。1年に3回ぐらいです。」" },
+    "explanationI18n": {
+      "en": "Only three times a YEAR is low frequency → 「ときどき」 = sometimes. 「いつも」 (always), 「まいにち」 (every day), and 「よく」 (often) all contradict that rate — frequency adverbs must match the actual count.",
+      "ja": "年にたった3回は低頻度→「ときどき」。「いつも」「まいにち」「よく」はどれもその回数と矛盾する——頻度の副詞は実際の回数に合わせる。"
+    }
+  },
+  "pattern-n5-teido-007": {
+    "hintI18n": { "en": "Your big brother's cooking habits.", "ja": "兄の料理の習慣の話。" },
+    "promptContextI18n": { "en": "\"My big brother doesn't cook much.\"", "ja": "「兄はあまり料理をしません。」" },
+    "explanationI18n": {
+      "en": "In plain statements, 「あまり」 pairs with a negative in verb sentences too: あまり しません = doesn't do much. 「します」「しました」「したいです」 are affirmative and can't ride with あまり — the same rule as あまり おもしろくない.",
+      "ja": "叙述文では動詞文でも「あまり」は否定と呼応：あまり しません。「します」「しました」「したいです」は肯定で あまり と組めない——あまり おもしろくない と同じルール。"
+    }
+  },
+  "pattern-n5-teido-008": {
+    "hintI18n": { "en": "Your regular swimming schedule.", "ja": "プールに通うペースの話。" },
+    "promptContextI18n": { "en": "\"I swim at the pool twice a week.\"", "ja": "「1週間に2回、プールで泳ぎます。」" },
+    "explanationI18n": {
+      "en": "Rates are said as period + 「に」 + count: １しゅうかんに ２かい = twice a week. This に distributes the count over the period. 「を」「へ」「と」 don't attach to a period word. ※プール = swimming pool.",
+      "ja": "頻度は「期間＋に＋回数」：１しゅうかんに ２かい。この に は期間への割り当てを表す。「を」「へ」「と」は期間の語に付かない。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",

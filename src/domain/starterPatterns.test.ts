@@ -66,6 +66,9 @@ describe("N5 grammar patterns (#543: sonzai + ichi / #544: joshi2 + joshi3)", ()
   const onegai = buildSentencePatternPool({ patternIds: ["n5-onegai"] });
   const riyuu = buildSentencePatternPool({ patternIds: ["n5-riyuu"] });
   const toki = buildSentencePatternPool({ patternIds: ["n5-toki"] });
+  const keiyoushi = buildSentencePatternPool({ patternIds: ["n5-keiyoushi"] });
+  const josuushi = buildSentencePatternPool({ patternIds: ["n5-josuushi"] });
+  const teido = buildSentencePatternPool({ patternIds: ["n5-teido"] });
 
   it("each drill carries 8 kana-only items with unique solutions and full overlays", () => {
     expect(sonzai).toHaveLength(8);
@@ -78,7 +81,10 @@ describe("N5 grammar patterns (#543: sonzai + ichi / #544: joshi2 + joshi3)", ()
     expect(onegai).toHaveLength(8);
     expect(riyuu).toHaveLength(8);
     expect(toki).toHaveLength(8);
-    for (const q of [...sonzai, ...ichi, ...joshi2, ...joshi3, ...hikaku, ...sukiDekiru, ...sasoi, ...onegai, ...riyuu, ...toki]) {
+    expect(keiyoushi).toHaveLength(8);
+    expect(josuushi).toHaveLength(8);
+    expect(teido).toHaveLength(8);
+    for (const q of [...sonzai, ...ichi, ...joshi2, ...joshi3, ...hikaku, ...sukiDekiru, ...sasoi, ...onegai, ...riyuu, ...toki, ...keiyoushi, ...josuushi, ...teido]) {
       expect(q.options, q.id).toHaveLength(4);
       expect(new Set(q.options).size, q.id).toBe(4);
       expect(q.options!.filter((o) => q.expectedAnswers.includes(o)), q.id).toHaveLength(1);
