@@ -7603,6 +7603,30 @@ export const n2Items: PracticeQuestion[] = [
     exampleMeaningI18n: { "ja": "あの坂道を上らなくなってから長い年月が過ぎ、気づけば景色のほうが先に変わっていた。", "en": "Long years have passed since I stopped climbing that hill road, and before I knew it, the scenery had changed before I did." },
   }),
   examQuestion({
+    // #501: demoted N1 -> N2 (author call). The id keeps its n1- prefix on
+    // purpose: questionId is the stable key for attempt history / SRS, and
+    // renaming it would orphan every learner's review-queue entry.
+    id: "n1-kanji-kogasu",
+    level: "N2",
+    surface: "焦がす",
+    reading: "こがす",
+    meaningZh: "燒焦;烤焦",
+    meaningI18n: { "ja": "焦がす。焼き焦がす。", "en": "to scorch; to burn (something)" },
+    promptLabel: "漢字読み",
+    instructionZh: "選出底線詞語的正確讀音。",
+    instructionI18n: { "ja": "下線部の語の正しい読み方を選びましょう。", "en": "Choose the correct reading of the underlined word." },
+    promptText: "真上から照りつける正午の日差しが、僕の素肌をじりじりと「焦がす」ほど、夏の鼓動が熱く高鳴っていた。",
+    promptContextZh: "正午的陽光從正上方直射而下，幾乎要把我的肌膚滋滋地「灼燒」，夏天的鼓動也熾熱地高鳴著。",
+    promptContextI18n: { "ja": "真上から照りつける正午の日差しが、僕の素肌をじりじりと「焦がす」ほど、夏の鼓動が熱く高鳴っていた。", "en": "The midday sun beating straight down all but scorched my bare skin with a sizzle, while summer's pulse throbbed hot and loud." },
+    expectedAnswer: "こがす",
+    options: ["こがす", "しょうがす", "こげす", "あせがす"],
+    explanation: "「焦がす」讀作「こがす」,意為燒焦、烤焦。此處描寫正午烈日把肌膚曬得發燙的夏日意象。「しょうがす」是把音讀「しょう」(如「焦点」)誤套進訓讀動詞;「こげす」是與自動詞「焦げる(こげる)」混淆、把語幹「こげ」誤接上「す」;「あせがす」是把同字另一訓讀「焦る(あせる)」的語幹誤搬過來。三者皆非此字的正確讀法,故唯一正解為「こがす」。",
+    explanationI18n: { "ja": "「焦がす」は「こがす」と読み、焼き焦がすという意味。ここでは真昼の強い日差しが肌を焼くように熱くする夏のイメージを描いている。「しょうがす」は音読みの「しょう」（例：焦点）を訓読みの動詞に当てはめた誤り。「こげす」は自動詞「焦げる（こげる）」と混同し、語幹「こげ」に「す」を付けたもの。「あせがす」は同じ字の別の訓読み「焦る（あせる）」の語幹を誤って流用したもの。いずれもこの字の正しい読みではなく、唯一の正解は「こがす」。", "en": "焦がす is read こがす, meaning 'to scorch, to burn.' Here it paints a summer image of the noon sun searing the skin hot. しょうがす wrongly applies the on'yomi しょう (as in 焦点) to this kun-read verb; こげす confuses the intransitive 焦げる (こげる) and attaches す to the stem こげ; あせがす wrongly borrows the stem of the same character's other kun reading 焦る (あせる). None of these is the correct reading, so the only correct answer is こがす." },
+    exampleJapanese: "真上から照りつける正午の日差しが、僕の素肌をじりじりと焦がすほど、夏の鼓動が熱く高鳴っていた。",
+    exampleMeaningZh: "從正上方直射而下的正午陽光,熱得幾乎要把我的肌膚烤焦,夏天的心跳也滾燙地高鳴著。",
+    exampleMeaningI18n: { "ja": "真上から照りつける正午の日差しは、僕の素肌をじりじりと焼くほど強く、夏の鼓動も熱く高鳴っていた。", "en": "The midday sun beating straight down was hot enough to all but scorch my bare skin, and the heartbeat of summer pounded just as fiercely." },
+  }),
+  examQuestion({
     id: "n2-kanji-aseri",
     level: "N2",
     surface: "焦り",
