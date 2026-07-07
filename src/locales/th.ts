@@ -226,6 +226,7 @@ export const th: Copy = {
   drillPatternTeAux: "ฝึกรูปประโยค: คำกริยาเสริม",
   drillN3Grammar: "ไปฝึกโจทย์ไวยากรณ์ N3",
   drillKana: "ฝึกจดจำคานะ",
+  drillStarterVocab: "ฝึกคำศัพท์พื้นฐาน",
   startChallenge: "เริ่มฝึกทำโจทย์",
   settingsLabel: "ตั้งค่าการฝึก",
   todayPractice: "ฝึกประจำวัน",
@@ -359,6 +360,7 @@ export const th: Copy = {
   modeOptions: {
     daily: { title: "ฝึกประจำวัน", subtitle: "ทบทวนก่อน · ผสมไวยากรณ์ / เรียงประโยค / คำอ่านคันจิหนึ่งรอบ" },
     kana: { title: "คานะ", subtitle: "จดจำฮิรางานะ/คาตากานะ" },
+    starter: { title: "คำศัพท์พื้นฐาน", subtitle: "95 คำเริ่มต้น · เลือกความหมาย" },
     basic: { title: "การผันพื้นฐาน", subtitle: "ฝึกผันชนิดคำ · คำศัพท์ในตำรา" },
     cloze: { title: "เติมคำในประโยค", subtitle: "รูปประโยค N5 · 〜てください / 〜たいです" },
     pattern: { title: "ฝึกรูปประโยค", subtitle: "ตัดสินรูปประโยค N5/N4 · มุมมอง / อนุญาต / อ้างอิง / ไม่จำเป็น" },
@@ -422,6 +424,7 @@ export const th: Copy = {
     na_adjective: "คำคุณศัพท์ な",
     noun: "คำนาม",
     adverb: "คำวิเศษณ์",
+    expression: "สำนวนทักทาย",
     mixed: "ผสม"
   },
   verbGroups: {

@@ -59,20 +59,48 @@ describe("isLearningBlockComplete", () => {
     const trackable = learningBlocks.filter(
       (b) => b.group === "basic" && b.completionMode !== "reference"
     );
-    // 2 kana (#533) + 11 conjugation + 7 sentence-pattern; only verb-types
-    // stays reference.
-    expect(trackable.length).toBe(20);
+    // 2 kana + 1 starter-vocab (#533) + 11 conjugation + 7 sentence-pattern;
+    // only verb-types stays reference.
+    expect(trackable.length).toBe(21);
     expect(trackable.some((b) => b.id === "te-kudasai")).toBe(true);
     expect(byId("verb-types").completionMode).toBe("reference");
   });
 });
 
 describe("kana starter chapters (#533)", () => {
-  it("the two 入門 chapters lead the chapter list, ahead of every other category", () => {
+  it("the three 入門 chapters lead the chapter list, ahead of every other category", () => {
     expect(learningBlocks[0].id).toBe("kana-hiragana");
     expect(learningBlocks[1].id).toBe("kana-katakana");
+    expect(learningBlocks[2].id).toBe("starter-vocab");
     expect(learningBlocks[0].category).toBe("入門");
-    expect(learningBlocks[2].category).not.toBe("入門");
+    expect(learningBlocks[2].category).toBe("入門");
+    expect(learningBlocks[3].category).not.toBe("入門");
+  });
+
+  it("the starter-vocab chapter completes via a starter attempt or implicit history", () => {
+    const starter = byId("starter-vocab");
+    expect(isLearningBlockComplete([], starter)).toBe(false);
+    // One correct starter-drill answer (buildQuestionPool ids are "<vocabId>:<form>").
+    expect(
+      isLearningBlockComplete(
+        [{ isCorrect: true, targetForm: "meaning", questionId: "starter-mizu:meaning" }],
+        starter
+      )
+    ).toBe(true);
+    // Kana drills alone prove kana literacy, not vocab knowledge.
+    const kanaOnly = Array.from({ length: 10 }, (_, index) => ({
+      isCorrect: true,
+      targetForm: "reading",
+      questionId: `kana-hiragana-read-${index}`
+    }));
+    expect(isLearningBlockComplete(kanaOnly, starter)).toBe(false);
+    // A real (non-入門) practice history implies this floor is behind them.
+    const regular = Array.from({ length: 5 }, (_, index) => ({
+      isCorrect: true,
+      targetForm: "te",
+      questionId: `n3-grammar-item-${index}`
+    }));
+    expect(isLearningBlockComplete(regular, starter)).toBe(true);
   });
 
   it("a kana chapter completes via one correct kana-drill attempt of its script", () => {

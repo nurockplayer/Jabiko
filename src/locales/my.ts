@@ -225,6 +225,7 @@ export const my: Copy = {
   drillPatternTeAux: "ပုံစံ လေ့ကျင့်: အကူကြိယာများ",
   drillN3Grammar: "N3 သဒ္ဒါ လေ့ကျင့်ရန် သွားရန်",
   drillKana: "ကနာ မှတ်သားမှု လေ့ကျင့်ရန်",
+  drillStarterVocab: "အခြေခံ ဝေါဟာရ လေ့ကျင့်ရန်",
   startChallenge: "လေ့ကျင့်ခန်း စတင်ရန်",
   settingsLabel: "လေ့ကျင့်မှု ဆက်တင်များ",
   todayPractice: "ဒီနေ့ လေ့ကျင့်ခန်း",
@@ -358,6 +359,7 @@ export const my: Copy = {
   modeOptions: {
     daily: { title: "ဒီနေ့ လေ့ကျင့်ခန်း", subtitle: "ပြန်လေ့ကျင့်ခြင်း ဦးစား · သဒ္ဒါ / စကားလုံးအစီအစဉ် / ခန်းဂျိအဖတ် ရောစပ်အကြိမ်" },
     kana: { title: "ကနာ", subtitle: "ဟီရာဂနာ/ခတခနာ မှတ်သားခြင်း" },
+    starter: { title: "အခြေခံ ဝေါဟာရ", subtitle: "အစပြု စကားလုံး ၉၅ · အဓိပ္ပာယ် ရွေးပါ" },
     basic: { title: "အခြေခံ ပုံစံပြောင်းခြင်း", subtitle: "ဝေါဟာရအမျိုးအစား ပုံစံပြောင်းခြင်း လေ့ကျင့်ခန်း · ကျောင်းသုံးစာအုပ် ဝေါဟာရ" },
     cloze: { title: "ဝါကျဖြည့်", subtitle: "N5 ပုံစံများ · 〜てください / 〜たいです" },
     pattern: { title: "ပုံစံ လေ့ကျင့်ခြင်း", subtitle: "N5/N4 ပုံစံခွဲခြားခြင်း · ရှုထောင့် / ခွင့်ပြုချက် / ကိုးကား / မလိုအပ်" },
@@ -421,6 +423,7 @@ export const my: Copy = {
     na_adjective: "な-နာမဝိသေသန",
     noun: "နာမ်",
     adverb: "ကြိယာဝိသေသန",
+    expression: "နှုတ်ဆက်စကား",
     mixed: "ရောစပ်"
   },
   verbGroups: {

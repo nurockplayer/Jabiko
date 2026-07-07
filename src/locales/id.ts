@@ -225,6 +225,7 @@ export const id: Copy = {
   drillPatternTeAux: "Latih pola: kata kerja bantu",
   drillN3Grammar: "Latih soal tata bahasa N3",
   drillKana: "Latihan pengenalan kana",
+  drillStarterVocab: "Latihan kosakata dasar",
   startChallenge: "Mulai tantangan",
   settingsLabel: "Pengaturan latihan",
   todayPractice: "Latihan hari ini",
@@ -358,6 +359,7 @@ export const id: Copy = {
   modeOptions: {
     daily: { title: "Latihan hari ini", subtitle: "Ulangan diprioritaskan · satu putaran campuran tata bahasa / urutan kata / bacaan kanji" },
     kana: { title: "Kana", subtitle: "Pengenalan hiragana/katakana" },
+    starter: { title: "Kosakata dasar", subtitle: "95 kata pemula · pilih artinya" },
     basic: { title: "Konjugasi dasar", subtitle: "Latihan konjugasi jenis kata · kosakata buku pelajaran" },
     cloze: { title: "Isian dalam kalimat", subtitle: "Pola kalimat N5 · 〜てください / 〜たいです" },
     pattern: { title: "Latihan pola kalimat", subtitle: "Penilaian pola N5/N4 · sudut pandang / izin / kutipan / tidak perlu" },
@@ -421,6 +423,7 @@ export const id: Copy = {
     na_adjective: "Kata sifat-な",
     noun: "Kata benda",
     adverb: "Kata keterangan",
+    expression: "Ungkapan",
     mixed: "Campuran"
   },
   verbGroups: {

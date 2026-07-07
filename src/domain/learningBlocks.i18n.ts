@@ -122,6 +122,52 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "starter-vocab": {
+    "en": {
+      "category": "Starter",
+      "kicker": "Lesson 0",
+      "title": "Starter Vocabulary",
+      "explanation":
+        "Once you can read kana, stock up on a first batch of immediately useful words: greetings, numbers, time words, the people and things around you, and the most common verbs and adjectives. Every word here is written in kana only -- no kanji needed. The example sentences in the grammar chapters ahead are built almost entirely from these words.",
+      "notes": [
+        "Greetings: your first spoken steps",
+        "Numbers: shopping and telling time both rely on them",
+        "Time words",
+        "People and forms of address",
+        "Everyday nouns",
+        "The most common verbs",
+        "Common adjectives",
+        "Ko-so-a-do: pointing at things, asking where"
+      ],
+      "pitfalls": [
+        "すみません (getting attention / a light apology) and ごめんなさい (owning up and apologizing) are used in different situations",
+        "これ／それ／あれ split by distance: near me → これ, near you → それ, far from both → あれ",
+        "たかい means both \"tall/high\" and \"expensive\" -- judge from context"
+      ]
+    },
+    "ja": {
+      "category": "入門",
+      "kicker": "第0課",
+      "title": "基礎単語",
+      "explanation":
+        "仮名が読めるようになったら、まず「すぐ使える」単語をひとまとめに覚える：あいさつ、数字、時間のことば、身の回りの人と物、いちばんよく使う動詞と形容詞。ここの単語はすべて仮名書きなので、漢字を知らなくても練習できる。この先の文法章の例文は、ほぼこれらの単語でできている。",
+      "notes": [
+        "あいさつ：口に出す第一歩",
+        "数字：買い物にも時間にも必要",
+        "時間のことば",
+        "人と呼び方",
+        "身の回りの名詞",
+        "最頻出の動詞",
+        "よく使う形容詞",
+        "こそあど：物を指す・場所をたずねる"
+      ],
+      "pitfalls": [
+        "すみません（呼びかけ・軽い謝罪）と ごめんなさい（非を認めて謝る）は場面が違う",
+        "これ／それ／あれ は「どちらに近いか」で使い分け：自分の近く→これ、相手の近く→それ、どちらからも遠い→あれ",
+        "たかい には「高い」と「（値段が）高い」の両方の意味がある。文脈で判断"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",

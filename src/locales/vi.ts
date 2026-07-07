@@ -225,6 +225,7 @@ export const vi: Copy = {
   drillPatternTeAux: "Luyện mẫu câu: động từ bổ trợ",
   drillN3Grammar: "Đi luyện ngữ pháp N3",
   drillKana: "Luyện nhận biết kana",
+  drillStarterVocab: "Luyện từ vựng cơ bản",
   startChallenge: "Bắt đầu luyện tập",
   settingsLabel: "Thiết lập luyện tập",
   todayPractice: "Luyện tập hôm nay",
@@ -358,6 +359,7 @@ export const vi: Copy = {
   modeOptions: {
     daily: { title: "Luyện tập hôm nay", subtitle: "Ôn trước · một vòng hỗn hợp ngữ pháp / trật tự từ / cách đọc kanji" },
     kana: { title: "Kana", subtitle: "Nhận biết hiragana/katakana" },
+    starter: { title: "Từ vựng cơ bản", subtitle: "95 từ nhập môn · chọn nghĩa" },
     basic: { title: "Chia động từ cơ bản", subtitle: "Luyện chia theo loại từ · từ vựng trong giáo trình" },
     cloze: { title: "Điền khuyết trong câu", subtitle: "Mẫu câu N5 · 〜てください / 〜たいです" },
     pattern: { title: "Luyện mẫu câu", subtitle: "Nhận diện mẫu câu N5/N4 · góc nhìn / cho phép / trích dẫn / không cần phải" },
@@ -421,6 +423,7 @@ export const vi: Copy = {
     na_adjective: "Tính từ な",
     noun: "Danh từ",
     adverb: "Phó từ",
+    expression: "Cụm chào hỏi",
     mixed: "Hỗn hợp"
   },
   verbGroups: {

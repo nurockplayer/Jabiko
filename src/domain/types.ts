@@ -1,4 +1,8 @@
-export type PartOfSpeech = "verb" | "i_adjective" | "na_adjective" | "noun" | "adverb";
+// "expression" = greetings / set phrases (あいさつ表現, #533 starter deck):
+// they conjugate like nothing else, and labelling them 名詞 would teach a
+// beginner the wrong word class on their very first drill. Additive union
+// member -- every existing consumer stays valid.
+export type PartOfSpeech = "verb" | "i_adjective" | "na_adjective" | "noun" | "adverb" | "expression";
 
 export type VerbGroup = "godan" | "ichidan" | "irregular";
 

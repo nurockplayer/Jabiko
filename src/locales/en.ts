@@ -225,6 +225,7 @@ export const en: Copy = {
   drillPatternTeAux: "Pattern drill: auxiliary verbs",
   drillN3Grammar: "Go drill N3 grammar",
   drillKana: "Drill kana recognition",
+  drillStarterVocab: "Drill starter vocabulary",
   startChallenge: "Start practice",
   settingsLabel: "Practice settings",
   todayPractice: "Today's practice",
@@ -358,6 +359,7 @@ export const en: Copy = {
   modeOptions: {
     daily: { title: "Today's practice", subtitle: "Review first · mixed round of grammar / word order / kanji readings" },
     kana: { title: "Kana", subtitle: "Hiragana/katakana recognition" },
+    starter: { title: "Starter vocabulary", subtitle: "95 starter words · pick the meaning" },
     basic: { title: "Basic conjugation", subtitle: "Part-of-speech conjugation drills · textbook vocabulary" },
     cloze: { title: "Sentence cloze", subtitle: "N5 patterns · 〜てください / 〜たいです" },
     pattern: { title: "Pattern practice", subtitle: "N5/N4 pattern recognition · perspective / permission / quoting / don't-have-to" },
@@ -421,6 +423,7 @@ export const en: Copy = {
     na_adjective: "な-adjective",
     noun: "Noun",
     adverb: "Adverb",
+    expression: "Expression",
     mixed: "Mixed"
   },
   verbGroups: {

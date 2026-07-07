@@ -8,6 +8,7 @@ export type PracticeMode =
   | "cloze"
   | "daily"
   | "kana"
+  | "starter"
   | "pattern"
   | "exam"
   | "review"
