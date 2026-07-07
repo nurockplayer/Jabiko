@@ -266,7 +266,8 @@ const PATTERN_HINT_BANLIST: Record<string, string[]> = {
   "n5-sasoi": ["邀請", "邀約", "要不要", "我來"],
   "n5-onegai": ["最好", "不必", "請勿", "別"],
   "n5-riyuu": ["因為", "所以", "但是", "可是", "理由", "為什麼"],
-  "n5-toki": ["時候", "已經", "還沒", "大概", "可能"]
+  "n5-toki": ["時候", "已經", "還沒", "大概", "可能"],
+  "n5-teido": ["不太", "完全", "常常", "有時", "偶爾", "大概", "左右"]
 };
 
 describe("sentence-pattern content guard", () => {

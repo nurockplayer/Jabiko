@@ -14,6 +14,9 @@ export type SentencePatternId =
   | "n5-onegai"
   | "n5-riyuu"
   | "n5-toki"
+  | "n5-keiyoushi"
+  | "n5-josuushi"
+  | "n5-teido"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -53,6 +56,9 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "n5-onegai": "請求與建議 ください・ほうがいい",
   "n5-riyuu": "理由與逆接 から・ので・が",
   "n5-toki": "時間與經驗 とき・もう・でしょう",
+  "n5-keiyoushi": "形容詞的連接與變化",
+  "n5-josuushi": "助数詞 數量的說法",
+  "n5-teido": "程度與頻度 あまり・よく",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -1044,6 +1050,305 @@ const N5_TOKI_ITEMS: SentencePatternItem[] = [
 ];
 
 // ===========================================================================
+// N5 pattern: n5-keiyoushi -- adjective linking and change (#548).
+//   Pure-form decks: every distractor is a wrong inflection of the SAME
+//   adjective (おおきいな, しずかい, きれいく...), so the classic い/な
+//   confusions ARE the foils and no semantic double reading can exist.
+//   きれい and いい get dedicated items (the two most-fumbled adjectives).
+// ===========================================================================
+const N5_KEIYOUSHI_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-keiyoushi-001",
+    patternId: "n5-keiyoushi",
+    promptText: "これは とても ___ かばんです。",
+    hintZh: "稱讚這個包包很大。",
+    promptContextZh: "「這是一個很大的包包。」",
+    expectedAnswer: "おおきい",
+    options: ["おおきい", "おおきいな", "おおきく", "おおきいの"],
+    explanation:
+      "い形容詞修飾名詞直接接：おおきい かばん。「おおきいな」是把な形的規則錯搬過來（い形不加な）；「おおきく」是接動詞用的連用形；「おおきいの」的の多餘。"
+  },
+  {
+    id: "pattern-n5-keiyoushi-002",
+    patternId: "n5-keiyoushi",
+    promptText: "ここは ___ まちです。",
+    hintZh: "介紹自己住的城市很安靜。",
+    promptContextZh: "「這裡是個安靜的城市。」",
+    expectedAnswer: "しずかな",
+    options: ["しずかな", "しずかい", "しずか", "しずかの"],
+    explanation:
+      "な形容詞修飾名詞要加な：しずかな まち。「しずかい」是把它誤當成い形容詞；「しずか」直接接名詞少了な；「しずかの」的の是名詞用的接法——只有把しずか當名詞（例如人名「靜香」）時才成立，形容詞沒有這種接法。※まち＝城市・城鎮。"
+  },
+  {
+    id: "pattern-n5-keiyoushi-003",
+    patternId: "n5-keiyoushi",
+    promptText: "この みせの りょうりは ___、おいしいです。",
+    hintZh: "推薦這家店，便宜又好吃。",
+    promptContextZh: "「這家店的菜便宜又好吃。」",
+    expectedAnswer: "やすくて",
+    options: ["やすくて", "やすいに", "やすいくて", "やすくで"],
+    explanation:
+      "い形容詞的並列：去い＋くて——やすい→やすくて。「やすいに」是不存在的形；「やすいくて」沒去い；「やすくで」把くて拼錯了。※みせ＝店。"
+  },
+  {
+    id: "pattern-n5-keiyoushi-004",
+    patternId: "n5-keiyoushi",
+    promptText: "たなかさんは ___、しんせつです。",
+    hintZh: "說田中有活力又親切。",
+    promptContextZh: "「田中有活力又親切。」",
+    expectedAnswer: "げんきで",
+    options: ["げんきで", "げんきくて", "げんきいで", "げんきなで"],
+    explanation:
+      "な形容詞的並列用で：げんきで、しんせつです。「げんきくて」是い形的くて錯搬；「げんきいで」「げんきなで」都不是存在的形——連接名詞才用な，並列直接＋で。※げんき（な）＝有精神、しんせつ（な）＝親切。"
+  },
+  {
+    id: "pattern-n5-keiyoushi-005",
+    patternId: "n5-keiyoushi",
+    promptText: "まいにち れんしゅうしたので、じが ___ なりました。",
+    hintZh: "說每天練字的成果。",
+    promptContextZh: "「因為每天練習，字變漂亮了。」",
+    expectedAnswer: "きれいに",
+    options: ["きれいに", "きれいく", "きれいで", "きれいの"],
+    explanation:
+      "「變得〜」：な形容詞＋に なります——きれいに なりました。きれい結尾是い但其實是な形容詞，「きれいく」正是最常見的錯（跟い形的くなります搞混）；「で」「の」接不上なります。※じ＝字、れんしゅうします＝練習。"
+  },
+  {
+    id: "pattern-n5-keiyoushi-006",
+    patternId: "n5-keiyoushi",
+    promptText: "よるに なって、そとが さむ___ なりました。",
+    hintZh: "說入夜後外面的溫度。",
+    promptContextZh: "「入夜之後，外面變冷了。」",
+    expectedAnswer: "く",
+    options: ["く", "に", "で", "い"],
+    explanation:
+      "い形容詞＋「變得〜」：去い＋く なります——さむい→さむく なりました。「に」是な形容詞用的（しずかに なります）；「で」「い」接不上なります。※そと＝外面。"
+  },
+  {
+    id: "pattern-n5-keiyoushi-007",
+    patternId: "n5-keiyoushi",
+    promptText: "この へやは ひろ___、あかるいです。",
+    hintZh: "說這個房間又寬敞又亮。",
+    promptContextZh: "「這個房間又寬敞又明亮。」",
+    expectedAnswer: "くて",
+    options: ["くて", "いて", "くで", "いくて"],
+    explanation:
+      "い形容詞並列再練一次：ひろい→ひろくて、あかるいです。「いて」「くで」「いくて」都不是存在的接法——記住公式：去い＋くて。※ひろい＝寬敞、あかるい＝明亮。"
+  },
+  {
+    id: "pattern-n5-keiyoushi-008",
+    patternId: "n5-keiyoushi",
+    promptText: "きのうは てんきが ___ なりました。",
+    hintZh: "說天氣轉好了。",
+    promptContextZh: "「昨天天氣變好了。」",
+    expectedAnswer: "よく",
+    options: ["よく", "いく", "いいく", "よい"],
+    explanation:
+      "「いい（好）」的否定、過去、變化都走「よ」系：よく なります、よくない、よかった（基本形仍是いい／よい）。「いく」「いいく」把いい直接變形，都是不存在的形；「よい なりました」少了く接不上。※てんき＝天氣。"
+  }
+];
+
+// ===========================================================================
+// N5 pattern: n5-josuushi -- counters and quantity word order (#548).
+//   Distractors are either wrong sound-change forms (さんほん, いちひき --
+//   the sound changes ARE the lesson) or category-mismatched counters the
+//   sentence's noun kills outright. にど never appears where にかい is the
+//   answer (both are real); やっつ never competes with はっさい for ages
+//   (colloquial age-いくつ answers are real).
+// ===========================================================================
+const N5_JOSUUSHI_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-josuushi-001",
+    patternId: "n5-josuushi",
+    promptText: "きょうしつに がくせいが ___ います。",
+    hintZh: "說教室裡有兩個學生。",
+    promptContextZh: "「教室裡有兩個學生。」",
+    expectedAnswer: "ふたり",
+    options: ["ふたり", "ににん", "ふたつ", "にまい"],
+    explanation:
+      "數人用「〜人（にん）」，但一人、二人是特殊讀法：ひとり、ふたり。「ににん」是把規則硬套的錯讀；「ふたつ」數東西不數人；「にまい」數薄平的東西。"
+  },
+  {
+    id: "pattern-n5-josuushi-002",
+    patternId: "n5-josuushi",
+    promptText: "えんぴつを ___ かいました。",
+    hintZh: "說買了三枝鉛筆。",
+    promptContextZh: "「買了三枝鉛筆。」",
+    expectedAnswer: "さんぼん",
+    options: ["さんぼん", "さんほん", "さんぽん", "みっぽん"],
+    explanation:
+      "細長的東西用「〜本」，三本要濁音化：さんぼん。「さんほん」沒變音；「さんぽん」是半濁音（那是一本いっぽん、六本ろっぽん用的）；「みっぽん」不存在。※えんぴつ＝鉛筆。"
+  },
+  {
+    id: "pattern-n5-josuushi-003",
+    patternId: "n5-josuushi",
+    promptText: "シャツを ___ かいました。",
+    hintZh: "說買了兩件襯衫。",
+    promptContextZh: "「買了兩件襯衫。」",
+    expectedAnswer: "にまい",
+    options: ["にまい", "にほん", "にだい", "にひき"],
+    explanation:
+      "薄的、平的東西（襯衫、紙、盤子）用「〜枚（まい）」：にまい。「〜本」數細長物、「〜台」數機器車輛、「〜匹」數小動物——類別全對不上。※シャツ＝襯衫。"
+  },
+  {
+    id: "pattern-n5-josuushi-004",
+    patternId: "n5-josuushi",
+    promptText: "うちに ねこが ___ います。",
+    hintZh: "說家裡養了一隻貓。",
+    promptContextZh: "「家裡有一隻貓。」",
+    expectedAnswer: "いっぴき",
+    options: ["いっぴき", "いちひき", "いっぽん", "ひとまい"],
+    explanation:
+      "小動物用「〜匹（ひき）」，一匹要促音＋半濁音：いっぴき。「いちひき」沒變音；「いっぽん」數細長物；「ひとまい」數薄平物、讀法也不對（正確是いちまい）。"
+  },
+  {
+    id: "pattern-n5-josuushi-005",
+    patternId: "n5-josuushi",
+    promptText: "１しゅうかんに ___ にほんごを べんきょうします。",
+    hintZh: "說自己每週學日語的規律。",
+    promptContextZh: "「一週學兩次日語。」",
+    expectedAnswer: "にかい",
+    options: ["にかい", "にまい", "にだい", "にさつ"],
+    explanation:
+      "數動作的次數用「〜回（かい）」：１しゅうかんに にかい＝一週兩次。「〜枚」「〜台」「〜冊」都是數東西的——學日語不是可以拿在手上的物品。※〜かい＝〜次。"
+  },
+  {
+    id: "pattern-n5-josuushi-006",
+    patternId: "n5-josuushi",
+    promptText: "おとうとは ___ です。",
+    hintZh: "說弟弟的年紀。",
+    promptContextZh: "「弟弟八歲。」",
+    expectedAnswer: "はっさい",
+    options: ["はっさい", "はちさい", "はっさつ", "はちまい"],
+    explanation:
+      "年齡用「〜歳（さい）」，八歳要促音化：はっさい。「はちさい」沒變音；「〜冊」數書、「〜枚」數薄平物，跟年齡無關。順帶記：一歳いっさい、十歳じゅっさい也都促音化。"
+  },
+  {
+    id: "pattern-n5-josuushi-007",
+    patternId: "n5-josuushi",
+    promptText: "みかんを ___ ください。",
+    hintZh: "在水果攤挑五顆橘子。",
+    promptContextZh: "「請給我五顆橘子。」",
+    expectedAnswer: "いつつ",
+    options: ["いつつ", "いつつを", "いつつの", "いつつに"],
+    explanation:
+      "數量詞直接放動詞前面：みかんを いつつ ください——「を」已經接在みかん後面了。「いつつを」「いつつの」「いつつに」都畫蛇添足——在「名詞を＋數量詞＋動詞」這個語順裡，數量詞後面不再加を・の・に。"
+  },
+  {
+    id: "pattern-n5-josuushi-008",
+    patternId: "n5-josuushi",
+    promptText: "としょかんで ほんを ___ かりました。",
+    hintZh: "說從圖書館抱回的書量。",
+    promptContextZh: "「在圖書館借了兩本書。」",
+    expectedAnswer: "にさつ",
+    options: ["にさつ", "にほん", "にまい", "ふたさつ"],
+    explanation:
+      "書用「〜冊（さつ）」：にさつ。「〜本」雖然中文寫「本」，在日語裡是數細長物的（傘、瓶子、鉛筆）；「〜枚」數薄平物；「ふたさつ」讀法不存在——二冊只讀にさつ，ふた系是〜つ／ふたり用的。※かります＝借（入）。"
+  }
+];
+
+// ===========================================================================
+// N5 pattern: n5-teido -- degree and frequency (#548).
+//   Adverb+negative is a swamp (いつも/もう/ときどき+ません all have real
+//   readings), so あまり/ぜんぜん items are INVERTED: the adverb sits in the
+//   prompt and the options are full predicates -- affirmative foils die on
+//   the NPI, deterministically. ぐらい never competes where ごろ is the
+//   answer (clock time + ぐらい is real colloquial usage); ごろ IS a dead
+//   foil for durations (じゅっぷんごろ has no reading). Frequency-adverb
+//   items carry an explicit in-prompt rate anchor (まいしゅう３かいも, １ねん
+//   に３かい) so the pick is arithmetic, not vibes.
+// ===========================================================================
+const N5_TEIDO_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-teido-001",
+    patternId: "n5-teido",
+    promptText: "この えいがは あまり ___。",
+    hintZh: "說出對這部電影的評價。",
+    promptContextZh: "「這部電影不太有趣。」",
+    expectedAnswer: "おもしろくないです",
+    options: ["おもしろくないです", "おもしろいです", "おもしろかったです", "とても おもしろいです"],
+    explanation:
+      "這種直述句裡的「あまり」要跟否定呼應＝不太〜：あまり おもしろくないです。另外三個都是肯定，跟あまり搭不起來——看到あまり就要找ない。"
+  },
+  {
+    id: "pattern-n5-teido-002",
+    patternId: "n5-teido",
+    promptText: "「おさけを のみますか。」「いいえ、ぜんぜん ___。」",
+    hintZh: "回答自己喝不喝酒的問題。",
+    promptContextZh: "「你喝酒嗎？」「不，完全不喝。」",
+    expectedAnswer: "のみません",
+    options: ["のみません", "のみます", "のみました", "のみたいです"],
+    explanation:
+      "「ぜんぜん」配否定＝完全不〜：ぜんぜん のみません。開頭的「いいえ」已經否定了，「のみます」「のみました」「のみたいです」都是肯定，直接矛盾。程度比較：あまり＝不太、ぜんぜん＝完全不。※おさけ＝酒。"
+  },
+  {
+    id: "pattern-n5-teido-003",
+    patternId: "n5-teido",
+    promptText: "まいあさ ７じ___ おきます。",
+    hintZh: "說自己每天早上幾點起床。",
+    promptContextZh: "「每天早上七點左右起床。」",
+    expectedAnswer: "ごろ",
+    options: ["ごろ", "が", "を", "へ"],
+    explanation:
+      "時刻的概數用「ごろ」＝〜點左右：７じごろ おきます。「が」「を」「へ」都接不上時刻詞。順帶記：數量的概數用「ぐらい」（じゅっぷんぐらい）。※まいあさ＝每天早上、おきます＝起床。"
+  },
+  {
+    id: "pattern-n5-teido-004",
+    patternId: "n5-teido",
+    promptText: "えきまで あるいて じゅっぷん___ かかります。",
+    hintZh: "說走到車站要花的時間。",
+    promptContextZh: "「走到車站大約要十分鐘。」",
+    expectedAnswer: "ぐらい",
+    options: ["ぐらい", "ごろ", "まで", "から"],
+    explanation:
+      "數量、時間長度的概數用「ぐらい」＝大約〜：じゅっぷんぐらい かかります。「ごろ」只接時刻點（７じごろ），不能接「十分鐘」這種長度；「まで」「から」是起訖點。※かかります＝花費（時間）。"
+  },
+  {
+    id: "pattern-n5-teido-005",
+    patternId: "n5-teido",
+    promptText: "たなかさんは ___ としょかんへ いきます。まいしゅう ３かいも いきます。",
+    hintZh: "說田中上圖書館的頻率。",
+    promptContextZh: "「田中常常去圖書館，每週去多達三次。」",
+    expectedAnswer: "よく",
+    options: ["よく", "ときどき", "あまり", "まいにち"],
+    explanation:
+      "每週三次（還帶個「も」＝多達）是高頻率→「よく」＝常常。「まいにち（每天）」跟「每週三次」直接矛盾；「ときどき（有時）」對這個頻率也對不上；「あまり」在這種直述頻度句要配否定，後句卻是肯定的いきます。"
+  },
+  {
+    id: "pattern-n5-teido-006",
+    patternId: "n5-teido",
+    promptText: "わたしは ___ えいがを みます。１ねんに ３かいぐらいです。",
+    hintZh: "說自己看電影的頻率。",
+    promptContextZh: "「我偶爾看電影，一年大概三次。」",
+    expectedAnswer: "ときどき",
+    options: ["ときどき", "いつも", "よく", "まいにち"],
+    explanation:
+      "一年只有三次是低頻率→「ときどき」＝有時、偶爾。「いつも（總是）」「まいにち（每天）」「よく（常常）」都跟一年三次的次數矛盾——頻度副詞要跟實際次數對得上。"
+  },
+  {
+    id: "pattern-n5-teido-007",
+    patternId: "n5-teido",
+    promptText: "あには りょうりを あまり ___。",
+    hintZh: "說哥哥做菜的習慣。",
+    promptContextZh: "「哥哥不太做菜。」",
+    expectedAnswer: "しません",
+    options: ["しません", "します", "しました", "したいです"],
+    explanation:
+      "直述句的「あまり」配否定，動詞句也一樣：あまり しません＝不太做。「します」「しました」「したいです」都是肯定，跟あまり搭不起來——跟形容詞句（あまり おもしろくない）同一條規則。"
+  },
+  {
+    id: "pattern-n5-teido-008",
+    patternId: "n5-teido",
+    promptText: "１しゅうかん___ ２かい、プールで およぎます。",
+    hintZh: "說固定去游泳的安排。",
+    promptContextZh: "「一週游兩次泳。」",
+    expectedAnswer: "に",
+    options: ["に", "を", "へ", "と"],
+    explanation:
+      "頻率的說法「期間＋に＋次數」：１しゅうかんに ２かい＝一週兩次。這個に表示「在這段期間內」的分配。「を」「へ」「と」都接不上期間詞。※プール＝游泳池。"
+  }
+];
+
+// ===========================================================================
 // Lesson-0 pattern A: starter-desu -- the AはBです sentence family (#534).
 //   Absolute-beginner floor: kana-only sentences built from the starter
 //   vocabulary deck. Unique solutions are locked by IN-SENTENCE anchors
@@ -1898,6 +2203,9 @@ export const sentencePatternItems: SentencePatternItem[] = [
   ...N5_ONEGAI_ITEMS,
   ...N5_RIYUU_ITEMS,
   ...N5_TOKI_ITEMS,
+  ...N5_KEIYOUSHI_ITEMS,
+  ...N5_JOSUUSHI_ITEMS,
+  ...N5_TEIDO_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,

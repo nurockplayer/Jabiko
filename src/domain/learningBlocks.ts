@@ -531,6 +531,81 @@ export const learningBlocks: LearningBlock[] = [
     recommendedAfter: ["n5-riyuu"]
   },
   {
+    id: "n5-keiyoushi",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "形容詞的連接與變化",
+    subtitle: "やすくて おいしい／きれいに なりました",
+    explanation:
+      "形容詞的三種「用法」。①修飾名詞：い形直接接（おおきい かばん）、な形加な（しずかな まち）。②並列（又〜又〜）：い形去い＋くて（やすくて おいしい）、な形＋で（げんきで しんせつ）。③變化（變得〜）：い形去い＋く なります（さむく なります）、な形＋に なります（きれいに なります）。兩個最容易栽的詞：きれい 結尾是い但其實是な形容詞；いい 的活用全部走よ系（よく、よくない、よかった）。",
+    examples: [
+      { formula: "おおきい かばん／しずかな まち", note: "修飾名詞：い直接接、な加な" },
+      { formula: "やすくて、おいしいです", note: "い形並列：去い＋くて" },
+      { formula: "げんきで、しんせつです", note: "な形並列：＋で" },
+      { formula: "さむく なります／きれいに なります", note: "變化：く／に＋なります" },
+      { formula: "いい → よく なりました", note: "いい 活用走よ系" }
+    ],
+    pitfalls: [
+      "い形不加な：×おおきいな かばん；な形不變い：×しずかい",
+      "きれい、ゆうめい、きらい——結尾是い的な形容詞，變化用に（×きれいく）",
+      "いい 只有辭書形是いい，其他全用よ：よくて、よくない、よかった、よく なります"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Keiyoushi", patternIds: ["n5-keiyoushi"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n5-toki"]
+  },
+  {
+    id: "n5-josuushi",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "助数詞 數量的說法",
+    subtitle: "りんごを みっつ／ねこが いっぴき",
+    explanation:
+      "日語數東西要配「助数詞」，依類別選：〜つ（通用小物）、〜人（人；一人ひとり、二人ふたり特殊）、〜枚（薄平物）、〜本（細長物——注意中文的「書本」在日語用〜冊）、〜冊（書）、〜台（機器車輛）、〜匹（小動物）、〜回（次數）、〜歳（年齡）。三個音變規則：1・6・8・10 常促音化（いっぴき、はっさい）、3 常濁音化（さんぼん）。語順鐵則：數量詞放動詞前、後面不再加助詞——りんごを みっつ ください。",
+    examples: [
+      { formula: "がくせいが ふたり います", note: "人：ひとり、ふたり 特殊讀法" },
+      { formula: "えんぴつを さんぼん", note: "細長物：三本濁音化" },
+      { formula: "ねこが いっぴき", note: "小動物：一匹促音化" },
+      { formula: "ほんを にさつ", note: "書用冊，不用本" },
+      { formula: "みかんを いつつ ください", note: "數量詞後不加助詞" }
+    ],
+    pitfalls: [
+      "音變是考點：いっぽん/さんぼん/ろっぽん、いっぴき/さんびき、はっさい/じゅっさい",
+      "中文「一本書」≠ ほんを いっぽん——書用〜冊（さつ）",
+      "數量詞直接放動詞前：×みっつを ください"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Josuushi", patternIds: ["n5-josuushi"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n5-keiyoushi"]
+  },
+  {
+    id: "n5-teido",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "程度與頻度 あまり・よく",
+    subtitle: "あまり たかくないです／よく いきます",
+    explanation:
+      "程度與頻率的副詞系統。呼應否定的一對：「あまり〜ない」＝不太〜、「ぜんぜん〜ない」＝完全不〜——看到這兩個詞，句尾一定要找ない。概數一對：「ごろ」接時刻點（７じごろ）、「ぐらい」接數量長度（じゅっぷんぐらい）。頻度副詞從高到低：いつも＞よく＞ときどき＞たまに＞あまり（＋否定）＞ぜんぜん（＋否定）。具體頻率的說法：期間＋に＋次數——１しゅうかんに ２かい＝一週兩次。",
+    examples: [
+      { formula: "あまり おもしろくないです", note: "不太〜：配否定" },
+      { formula: "ぜんぜん のみません", note: "完全不〜：配否定" },
+      { formula: "７じごろ／じゅっぷんぐらい", note: "ごろ＝時刻點、ぐらい＝數量" },
+      { formula: "いつも＞よく＞ときどき＞たまに", note: "頻度副詞的階梯" },
+      { formula: "１しゅうかんに ２かい", note: "期間＋に＋次數" }
+    ],
+    pitfalls: [
+      "あまり、ぜんぜん 後面必須是否定——×あまり おもしろいです",
+      "ごろ 只接時刻點：×じゅっぷんごろ（長度要用ぐらい）",
+      "頻度副詞要跟實際次數對得上：一年三次不能說よく"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Teido", patternIds: ["n5-teido"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n5-josuushi"]
+  },
+  {
     id: "adverbial",
     group: "basic",
     category: "形容詞 / 名詞 修飾",

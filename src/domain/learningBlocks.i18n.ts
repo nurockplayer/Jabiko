@@ -660,6 +660,126 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "n5-keiyoushi": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Adjectives: Linking & Change",
+      "explanation":
+        "Three ways to USE an adjective. (1) Modifying a noun: い-adjectives attach directly (おおきい かばん), な-adjectives take な (しずかな まち). (2) Chaining (both ~ and ~): い-adjectives drop い and take くて (やすくて おいしい), な-adjectives take で (げんきで しんせつ). (3) Change (become ~): い-adjectives drop い + く なります, な-adjectives + に なります. The two adjectives everyone fumbles: きれい ends in い but is a な-adjective; いい inflects entirely on the よ stem (よく, よくない, よかった).",
+      "notes": [
+        "Modify a noun: い direct, な + な",
+        "Chain い-adj: drop い + くて",
+        "Chain な-adj: + で",
+        "Become ~: く / に + なります",
+        "いい → よく なりました"
+      ],
+      "pitfalls": [
+        "い-adjectives never take な (×おおきいな); な-adjectives never become -い (×しずかい)",
+        "きれい, ゆうめい, きらい end in い but are な-adjectives — change uses に (×きれいく)",
+        "いい keeps only its dictionary form; everything else uses よ: よくて, よくない, よかった, よく なります"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "形容詞の接続と変化",
+      "explanation":
+        "形容詞の三つの使い方。①名詞修飾：い形容詞は直接（おおきい かばん）、な形容詞は な を挟む（しずかな まち）。②並列：い形容詞は い を取って くて（やすくて おいしい）、な形容詞は で（げんきで しんせつ）。③変化：い形容詞は く なります、な形容詞は に なります。要注意の二語：きれい は い で終わるが な形容詞；いい の活用はすべて よ 系（よく、よくない、よかった）。",
+      "notes": [
+        "名詞修飾：い形は直接、な形は＋な",
+        "い形の並列：〜くて",
+        "な形の並列：〜で",
+        "変化：く／に＋なります",
+        "いい → よく なりました"
+      ],
+      "pitfalls": [
+        "い形に な は付かない（×おおきいな）。な形は い にならない（×しずかい）",
+        "きれい・ゆうめい・きらい は い で終わる な形容詞——変化は に（×きれいく）",
+        "いい は辞書形だけ。あとは よ 系：よくて、よくない、よかった、よく なります"
+      ]
+    }
+  },
+  "n5-josuushi": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Counters & Quantity",
+      "explanation":
+        "Japanese counts with counter words matched to the category: 〜つ (generic small things), 〜人 (people — ひとり and ふたり are irregular), 〜枚 (thin flat things), 〜本 (long thin things — note that books use 〜冊, not 〜本), 〜台 (machines/vehicles), 〜匹 (small animals), 〜回 (times), 〜歳 (age). Three sound-change habits: 1, 6, 8, 10 often geminate (いっぴき, はっさい); 3 often voices (さんぼん). Word-order rule: the quantity goes right before the verb with NO particle — りんごを みっつ ください.",
+      "notes": [
+        "People: ひとり, ふたり irregular",
+        "Long thin things: 三本 = さんぼん",
+        "Small animals: 一匹 = いっぴき",
+        "Books: 〜冊, not 〜本",
+        "No particle after the quantity"
+      ],
+      "pitfalls": [
+        "Sound changes are the test point: いっぽん/さんぼん/ろっぽん, いっぴき/さんびき, はっさい/じゅっさい",
+        "A \"book\" is counted with 〜冊 — ほんを いっぽん is a different (and comic) claim",
+        "The quantity attaches straight to the verb: ×みっつを ください"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "助数詞と数量の言い方",
+      "explanation":
+        "ものを数えるときは類別に合った助数詞を選ぶ：〜つ（小物全般）、〜人（人。ひとり・ふたり は特殊読み）、〜枚（薄く平たい物）、〜本（細長い物——「本」を数えるのは〜冊）、〜冊（本）、〜台（機械・車）、〜匹（小動物）、〜回（回数）、〜歳（年齢）。音変化三つの癖：1・6・8・10 は促音化しやすい（いっぴき、はっさい）、3 は濁音化しやすい（さんぼん）。語順のルール：数量詞は動詞の直前、助詞は付けない——りんごを みっつ ください。",
+      "notes": [
+        "人：ひとり・ふたり は特殊",
+        "細長い物：三本＝さんぼん",
+        "小動物：一匹＝いっぴき",
+        "本は〜冊",
+        "数量詞に助詞は付けない"
+      ],
+      "pitfalls": [
+        "音変化が出題ポイント：いっぽん/さんぼん/ろっぽん、いっぴき/さんびき、はっさい/じゅっさい",
+        "書物の「本」は〜冊で数える——ほんを いっぽん は別の意味になる",
+        "数量詞は動詞の直前に：×みっつを ください"
+      ]
+    }
+  },
+  "n5-teido": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Degree & Frequency: あまり・よく",
+      "explanation":
+        "The adverb system for degree and frequency. The negative-pairing pair: 「あまり〜ない」 = not very ~ and 「ぜんぜん〜ない」 = not at all ~ — spot either word and the sentence must end in a negative. The approximation pair: 「ごろ」 attaches to clock times (７じごろ), 「ぐらい」 to amounts and durations (じゅっぷんぐらい). Frequency adverbs from high to low: いつも > よく > ときどき > たまに > あまり(+neg) > ぜんぜん(+neg). Concrete rates use period + に + count: １しゅうかんに ２かい = twice a week.",
+      "notes": [
+        "Not very ~: pairs with a negative",
+        "Not at all ~: pairs with a negative",
+        "ごろ = clock time, ぐらい = amount",
+        "The frequency ladder",
+        "Period + に + count"
+      ],
+      "pitfalls": [
+        "あまり and ぜんぜん demand a negative — ×あまり おもしろいです",
+        "ごろ only attaches to points of time: ×じゅっぷんごろ (durations take ぐらい)",
+        "Frequency adverbs must match the actual rate: three times a YEAR is not よく"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "程度と頻度 あまり・よく",
+      "explanation":
+        "程度と頻度の副詞システム。否定と呼応するペア：「あまり〜ない」＝あまり〜ない、「ぜんぜん〜ない」＝まったく〜ない——この二語を見たら文末は必ず否定。概数のペア：「ごろ」は時刻に（７じごろ）、「ぐらい」は数量・長さに（じゅっぷんぐらい）。頻度の副詞は高い順に：いつも＞よく＞ときどき＞たまに＞あまり（＋否定）＞ぜんぜん（＋否定）。具体的な頻度は「期間＋に＋回数」：１しゅうかんに ２かい。",
+      "notes": [
+        "あまり〜ない",
+        "ぜんぜん〜ない",
+        "ごろ＝時刻、ぐらい＝数量",
+        "頻度のはしご",
+        "期間＋に＋回数"
+      ],
+      "pitfalls": [
+        "あまり・ぜんぜん は否定とセット——×あまり おもしろいです",
+        "ごろ は時刻専用：×じゅっぷんごろ（長さは ぐらい）",
+        "頻度の副詞は実際の回数に合わせる：年3回は よく ではない"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",
