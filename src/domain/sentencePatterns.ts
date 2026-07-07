@@ -23,6 +23,8 @@ export type SentencePatternId =
   | "n4-meirei"
   | "n4-shushoku"
   | "n4-kansetsu"
+  | "n4-fukugou"
+  | "n4-henka"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -71,6 +73,8 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "n4-meirei": "命令與禁止 しろ・するな",
   "n4-shushoku": "名詞修飾節 〜した＋名詞",
   "n4-kansetsu": "間接疑問 かどうか・〜か",
+  "n4-fukugou": "複合動詞 〜はじめる・〜方",
+  "n4-henka": "變化 ようになる・くする・まま",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -1963,6 +1967,204 @@ const N4_KANSETSU_ITEMS: SentencePatternItem[] = [
 ];
 
 // ===========================================================================
+// N4 pattern: n4-fukugou -- compound verbs and stem-derivation (#552).
+//   ていく/てくる appear ONLY in physical-direction items (departing
+//   speaker → いく, returning speaker → くる, double-locked by scene +
+//   attachment); the temporal-drift use is taught in the chapter text but
+//   never tested -- future-tense drift readings make both live. だす never
+//   competes where はじめる is the answer (both inchoatives are real);
+//   transitivity mixups (はじまる/つづく) are the designed foils.
+// ===========================================================================
+const N4_FUKUGOU_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n4-fukugou-001",
+    patternId: "n4-fukugou",
+    promptText: "（出かける人に）寒いから、上着を持って___ほうがいいですよ。",
+    hintZh: "叮嚀要出門的人多帶一件。",
+    promptContextZh: "（對要出門的人）「很冷，帶件外套去比較好喔。」",
+    expectedAnswer: "いった",
+    options: ["いった", "きた", "いって", "きて"],
+    explanation:
+      "說話者在這裡、對方要離開→「持っていく」＝帶去：持っていったほうがいい。「持ってきた」方向相反（帶來這裡）；「いって」「きて」是て形，接不上ほうがいい（要用た形）。※上着＝外套。"
+  },
+  {
+    id: "pattern-n4-fukugou-002",
+    patternId: "n4-fukugou",
+    promptText: "ここで待っていてください。パンを買って___よ。すぐ戻ります。",
+    hintZh: "叫對方在原地等，自己去一下。",
+    promptContextZh: "「你在這裡等一下。我去買個麵包（回來），馬上回來。」",
+    expectedAnswer: "くる",
+    options: ["くる", "いく", "きた", "いった"],
+    explanation:
+      "去了會回到說話的地方→「買ってくる」＝去買（回來）：叫對方「在這裡等」＋「すぐ戻ります」都鎖定說話者會回來。「買っていく」是買了帶去別處，跟回到原地矛盾；「きた」「いった」是過去式，跟還沒出門矛盾。※戻る＝返回。"
+  },
+  {
+    id: "pattern-n4-fukugou-003",
+    patternId: "n4-fukugou",
+    promptText: "急に雨が降り___。",
+    hintZh: "天氣毫無預警變了臉。",
+    promptContextZh: "「突然下起雨來了。」",
+    expectedAnswer: "だしました",
+    options: ["だしました", "おわりました", "つづけました", "なおしました"],
+    explanation:
+      "突發、無預警的開始用「ます形語幹＋だす」：降りだしました＝下起來了——跟「急に」是黃金搭配。「おわりました」是結束、「つづけました」是繼續，都跟突然開始矛盾；「なおしました」是重做一次（書きなおす型），雨不會重下。"
+  },
+  {
+    id: "pattern-n4-fukugou-004",
+    patternId: "n4-fukugou",
+    promptText: "去年から日本語を習い___。",
+    hintZh: "說學日語的起點。",
+    promptContextZh: "「從去年開始學日語。」",
+    expectedAnswer: "はじめました",
+    options: ["はじめました", "はじまりました", "おわりました", "つづきました"],
+    explanation:
+      "開始做某事用「ます形語幹＋はじめる」：習いはじめました。「はじまりました」是自動詞（会議がはじまる）——自己學日語要用他動詞はじめる；「つづきました」同樣是自動詞（つづける才是他動）；「おわりました」跟「從去年開始」矛盾。※習う＝學習。"
+  },
+  {
+    id: "pattern-n4-fukugou-005",
+    patternId: "n4-fukugou",
+    promptText: "彼は3時間ずっと走り___います。",
+    hintZh: "馬拉松途中，描述選手的狀態。",
+    promptContextZh: "「他持續跑了三個小時。」",
+    expectedAnswer: "つづけて",
+    options: ["つづけて", "おわって", "はじめて", "だして"],
+    explanation:
+      "持續做用「ます形語幹＋つづける」：走りつづけています——「3時間ずっと」鎖定持續。「おわって」是跑完了、「はじめて」「だして」是才剛開始，都跟持續三小時矛盾。※走る＝跑。"
+  },
+  {
+    id: "pattern-n4-fukugou-006",
+    patternId: "n4-fukugou",
+    promptText: "もう晩ご飯を食べ___か。",
+    hintZh: "問對方吃飯的進度。",
+    promptContextZh: "「晚餐吃完了嗎？」",
+    expectedAnswer: "おわりました",
+    options: ["おわりました", "はじまりました", "つづきました", "だされました"],
+    explanation:
+      "做完用「ます形語幹＋おわる」：食べおわりましたか＝吃完了嗎（配もう）。「はじまりました」「つづきました」是自動詞、接不上他動的食べ；「だされました」是被動、不成話。※晩ご飯＝晚餐。"
+  },
+  {
+    id: "pattern-n4-fukugou-007",
+    patternId: "n4-fukugou",
+    promptText: "すみません、この漢字の読み___を教えてください。",
+    hintZh: "拿著生字請教別人。",
+    promptContextZh: "「不好意思，請教我這個漢字的唸法。」",
+    expectedAnswer: "方",
+    options: ["方", "側", "型", "者"],
+    explanation:
+      "「〜的方法」＝ます形語幹＋方（かた）：読み方＝唸法、使い方＝用法、作り方＝做法。「側（がわ）」是側邊、「型（かた）」是模型型號、「者（しゃ）」是人——同音異字全對不上。"
+  },
+  {
+    id: "pattern-n4-fukugou-008",
+    patternId: "n4-fukugou",
+    promptText: "この山の高___は3776メートルです。",
+    hintZh: "報出富士山的數據。",
+    promptContextZh: "「這座山的高度是3776公尺。」",
+    expectedAnswer: "さ",
+    options: ["さ", "こと", "の", "もの"],
+    explanation:
+      "い形容詞去い＋さ＝名詞化：高い→高さ（高度）、長い→長さ、重い→重さ。「高こと」「高の」「高もの」都接不上——こと、の要接完整的形（高いこと）。※山＝山、メートル＝公尺。"
+  }
+];
+
+// ===========================================================================
+// N4 pattern: n4-henka -- change and transformation (#552).
+//   ことにしている never appears where ようにしている is the answer (both
+//   are real habits) -- the ようにする item uses junk foils; ないようになる
+//   is real, so the negative-change item's foils are pure junk too; ままで
+//   is real and stays out of the まま items.
+// ===========================================================================
+const N4_HENKA_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n4-henka-001",
+    patternId: "n4-henka",
+    promptText: "毎日練習して、泳げる___なりました。",
+    hintZh: "苦練的成果。",
+    promptContextZh: "「每天練習，（終於）變得會游泳了。」",
+    expectedAnswer: "ように",
+    options: ["ように", "ことに", "ようを", "ままに"],
+    explanation:
+      "能力的變化用「可能動詞＋ようになる」：泳げるようになりました＝變得會游了。填「ことに」會變成「ことになる」＝被安排/被決定——苦練學會是自然的能力變化、不是被安排，語意不合；「ようを」「ままに」接不上「なる」——只有「ように」能構成能力的變化。"
+  },
+  {
+    id: "pattern-n4-henka-002",
+    patternId: "n4-henka",
+    promptText: "健康のために、毎日野菜を食べる___しています。",
+    hintZh: "為健康維持的努力。",
+    promptContextZh: "「為了健康，我盡量每天吃蔬菜。」",
+    expectedAnswer: "ように",
+    options: ["ように", "よう", "ようも", "ようが"],
+    explanation:
+      "「盡量做到〜」＝「〜ようにする」：食べるようにしています。「よう」「ようも」「ようが」都接不上している。順帶分工：ことにしている＝下定決心的自我規定、ようにしている＝朝目標努力（不保證每次做到）。※野菜＝蔬菜。"
+  },
+  {
+    id: "pattern-n4-henka-003",
+    patternId: "n4-henka",
+    promptText: "最近、朝早く起きる___なりました。",
+    hintZh: "生活節奏的轉變。",
+    promptContextZh: "「最近變得會早起了。」",
+    expectedAnswer: "ように",
+    options: ["ように", "ままに", "そうに", "ものに"],
+    explanation:
+      "習慣的變化也用「〜ようになる」：起きるようになりました＝（以前不會）現在會早起了。「そうに」的『差點〜』（そうになる）要接ます形語幹（起きそうになる），辭書形 起きる 接不出這個意思；「ままに」「ものに」接不出變化。"
+  },
+  {
+    id: "pattern-n4-henka-004",
+    patternId: "n4-henka",
+    promptText: "暗いですね。部屋を明る___しましょう。",
+    hintZh: "動手改變房間的亮度。",
+    promptContextZh: "「好暗喔，把房間弄亮一點吧。」",
+    expectedAnswer: "く",
+    options: ["く", "に", "いに", "さ"],
+    explanation:
+      "把東西「弄成〜」：い形容詞去い＋く＋する——明るくする。「に」是な形容詞用的（静かにする）；「いに」「さ」都接不上する。對照N5：自己變＝くなる、動手改＝くする。※部屋＝房間、明るい＝明亮。"
+  },
+  {
+    id: "pattern-n4-henka-005",
+    patternId: "n4-henka",
+    promptText: "赤ちゃんが寝ていますから、静か___してください。",
+    hintZh: "家有嬰兒的請求。",
+    promptContextZh: "「嬰兒在睡覺，請安靜一點。」",
+    expectedAnswer: "に",
+    options: ["に", "く", "で", "へ"],
+    explanation:
+      "な形容詞的「弄成〜」＝＋に＋する：静かにする。「く」是い形容詞用的（明るくする）；「で」「へ」接不上する。跟004成對：明るく／静かに，各自的變化標記。※赤ちゃん＝嬰兒。"
+  },
+  {
+    id: "pattern-n4-henka-006",
+    patternId: "n4-henka",
+    promptText: "エアコンをつけた___、寝てしまいました。",
+    hintZh: "說自己不小心就睡著了。",
+    promptContextZh: "「開著空調就睡著了。」",
+    expectedAnswer: "まま",
+    options: ["まま", "ふり", "つもり", "むき"],
+    explanation:
+      "「保持原樣〜」＝た形＋まま：つけたまま寝てしまった＝開著就睡了。「ふり」是假裝（つけたふりをして… 可以成句）、「つもり」是打算（〜つもりで…）——但都要再接をして/で，且語意不是「保持開著」，直接接逗號都不成句；「むき」是朝向，接不上。※エアコン＝空調。"
+  },
+  {
+    id: "pattern-n4-henka-007",
+    patternId: "n4-henka",
+    promptText: "電気を消さない___、出かけてしまいました。",
+    hintZh: "出門後才想起燈的事。",
+    promptContextZh: "「沒關燈就出門了。」",
+    expectedAnswer: "まま",
+    options: ["まま", "なり", "きり", "ほど"],
+    explanation:
+      "否定形也能接まま：消さないまま＝沒關的狀態下。「なり」「きり」是更高級的接續（行ったきり型），接ない形在這裡不成句；「ほど」是程度，語意接不上。※電気＝電燈、消す＝關（燈）。"
+  },
+  {
+    id: "pattern-n4-henka-008",
+    patternId: "n4-henka",
+    promptText: "最近、彼は学校に___なりました。",
+    hintZh: "說他最近都沒出現在學校。",
+    promptContextZh: "「最近他變得不來學校了。」",
+    expectedAnswer: "来なく",
+    options: ["来なく", "来ないく", "来なさく", "来ずく"],
+    explanation:
+      "否定的變化＝ない形去い＋く＋なる：来ない→来なくなりました＝變得不來了。「来ないく」沒去い；「来なさく」「来ずく」都不是存在的形——ない的變化跟い形容詞同一套（去い＋く）。"
+  }
+];
+
+// ===========================================================================
 // Lesson-0 pattern A: starter-desu -- the AはBです sentence family (#534).
 //   Absolute-beginner floor: kana-only sentences built from the starter
 //   vocabulary deck. Unique solutions are locked by IN-SENTENCE anchors
@@ -2826,6 +3028,8 @@ export const sentencePatternItems: SentencePatternItem[] = [
   ...N4_MEIREI_ITEMS,
   ...N4_SHUSHOKU_ITEMS,
   ...N4_KANSETSU_ITEMS,
+  ...N4_FUKUGOU_ITEMS,
+  ...N4_HENKA_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,

@@ -237,6 +237,8 @@ export const vi: Copy = {
   drillPatternN4Meirei: "Luyện mệnh lệnh và cấm chỉ",
   drillPatternN4Shushoku: "Luyện mệnh đề bổ nghĩa danh từ",
   drillPatternN4Kansetsu: "Luyện câu hỏi gián tiếp",
+  drillPatternN4Fukugou: "Luyện động từ ghép",
+  drillPatternN4Henka: "Luyện mẫu câu biến đổi",
   drillPatternTeKudasai: "Luyện mẫu câu: yêu cầu / cho phép / cấm đoán",
   drillPatternNakuteMoII: "Luyện mẫu câu: không cần phải vs. bắt buộc",
   drillPatternTeMorau: "Luyện mẫu câu: góc nhìn cho & nhận",

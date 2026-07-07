@@ -1559,6 +1559,134 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "「〜か〜ないか」は かどうか の展開形：行くか行かないか。二つ目の か は「を」「で」「まで」に変えられない——両側とも か でペアになる。"
     }
   },
+  "pattern-n4-fukugou-001": {
+    "hintI18n": { "en": "Advising someone on their way out to bundle up.", "ja": "出かける人に一枚多く持つよう勧める。" },
+    "promptContextI18n": { "en": "(To someone heading out) \"It's cold — you'd better take a jacket.\"", "ja": "（出かける人に）「寒いから、上着を持っていったほうがいいですよ。」" },
+    "explanationI18n": {
+      "en": "The speaker is here and the listener is leaving → 「持っていく」 = take (away): 持っていったほうがいい. 「持ってきた」 goes the opposite way (bring here); 「いって」「きて」 are て-forms and can't attach to ほうがいい (which needs the た-form). ※上着 = jacket.",
+      "ja": "話し手はここ、相手は離れる→「持っていく」：持っていったほうがいい。「持ってきた」は逆方向（ここへ持って来る）。「いって」「きて」は て形で、ほうがいい（た形が要る）につながらない。"
+    }
+  },
+  "pattern-n4-fukugou-002": {
+    "hintI18n": { "en": "Telling someone to wait here while you pop out.", "ja": "その場で待つよう頼み、自分は少し出る。" },
+    "promptContextI18n": { "en": "\"Wait here. I'll go buy some bread — be right back.\"", "ja": "「ここで待っていてください。パンを買ってくるよ。すぐ戻ります。」" },
+    "explanationI18n": {
+      "en": "Going and returning to where you're speaking → 「買ってくる」 = go buy (and come back): telling the listener to 「wait here」 plus 「すぐ戻ります」 both fix the speaker as returning. 「買っていく」 is buying and taking it elsewhere, clashing with coming back here; 「きた」「いった」 are past, clashing with not-yet-departed. ※戻る = to return.",
+      "ja": "行って、話している場所へ戻る→「買ってくる」：相手に「ここで待って」と言い、「すぐ戻ります」もあって、話し手は戻ると確定。「買っていく」は買って別の場所へ持って行くことで、ここへ戻ることと矛盾。「きた」「いった」は過去で、まだ出ていないことと矛盾。"
+    }
+  },
+  "pattern-n4-fukugou-003": {
+    "hintI18n": { "en": "The weather turned with no warning.", "ja": "前触れなく天気が急変。" },
+    "promptContextI18n": { "en": "\"It suddenly started to rain.\"", "ja": "「急に雨が降りだしました。」" },
+    "explanationI18n": {
+      "en": "A sudden, unheralded onset uses ます-stem + だす: 降りだしました = started raining — a golden match with 急に. 「おわりました」 (finish) and 「つづけました」 (continue) clash with a sudden start; 「なおしました」 is redoing (書きなおす type) — rain doesn't re-fall.",
+      "ja": "急な・前触れのない開始は「ます形＋だす」：降りだしました——「急に」と黄金の相性。「おわりました」（完了）「つづけました」（継続）は急な開始と矛盾。「なおしました」はやり直し（書きなおす型）で、雨は降り直さない。"
+    }
+  },
+  "pattern-n4-fukugou-004": {
+    "hintI18n": { "en": "When your Japanese studies began.", "ja": "日本語学習のスタート地点。" },
+    "promptContextI18n": { "en": "\"I started learning Japanese last year.\"", "ja": "「去年から日本語を習いはじめました。」" },
+    "explanationI18n": {
+      "en": "Starting to do something uses ます-stem + はじめる: 習いはじめました. 「はじまりました」 is intransitive (会議がはじまる) — learning Japanese yourself needs transitive はじめる; 「つづきました」 is likewise intransitive (つづける is the transitive one); 「おわりました」 clashes with \"starting last year.\" ※習う = to learn.",
+      "ja": "何かをし始めるのは「ます形＋はじめる」：習いはじめました。「はじまりました」は自動詞（会議がはじまる）——自分が日本語を習うのは他動詞 はじめる。「つづきました」も自動詞（他動は つづける）。「おわりました」は「去年から始める」と矛盾。"
+    }
+  },
+  "pattern-n4-fukugou-005": {
+    "hintI18n": { "en": "Mid-marathon: describe the runner's state.", "ja": "マラソン途中、選手の様子を描写。" },
+    "promptContextI18n": { "en": "\"He's been running for three hours straight.\"", "ja": "「彼は3時間ずっと走りつづけています。」" },
+    "explanationI18n": {
+      "en": "Continuing to do something uses ます-stem + つづける: 走りつづけています — 「3時間ずっと」 locks in continuation. 「おわって」 means finished running; 「はじめて」「だして」 are just-started, clashing with three hours straight. ※走る = to run.",
+      "ja": "続けてするのは「ます形＋つづける」：走りつづけています——「3時間ずっと」が継続を固定。「おわって」は走り終わった、「はじめて」「だして」は始まったばかりで、3時間ずっとと矛盾。"
+    }
+  },
+  "pattern-n4-fukugou-006": {
+    "hintI18n": { "en": "Checking on their dinner progress.", "ja": "食事が済んだか尋ねる。" },
+    "promptContextI18n": { "en": "\"Have you finished dinner?\"", "ja": "「もう晩ご飯を食べおわりましたか。」" },
+    "explanationI18n": {
+      "en": "Finishing uses ます-stem + おわる: 食べおわりましたか = have you finished eating? (pairs with もう). 「はじまりました」「つづきました」 are intransitive and can't attach to transitive 食べ; 「だされました」 is passive — no sentence. ※晩ご飯 = dinner.",
+      "ja": "し終えるのは「ます形＋おわる」：食べおわりましたか（もう とセット）。「はじまりました」「つづきました」は自動詞で、他動の 食べ につながらない。「だされました」は受身で文にならない。"
+    }
+  },
+  "pattern-n4-fukugou-007": {
+    "hintI18n": { "en": "Asking how to read a character.", "ja": "漢字の読み方を教わる。" },
+    "promptContextI18n": { "en": "\"Excuse me, please teach me how to read this kanji.\"", "ja": "「すみません、この漢字の読み方を教えてください。」" },
+    "explanationI18n": {
+      "en": "\"How to ~\" = ます-stem + 方 (かた): 読み方 = how to read, 使い方 = how to use, 作り方 = how to make. 「側 (がわ)」 is a side, 「型 (かた)」 a mold/model, 「者 (しゃ)」 a person — same sound, wrong kanji, none fits.",
+      "ja": "「〜のやり方」＝ます形＋方（かた）：読み方、使い方、作り方。「側（がわ）」は横、「型（かた）」は模型・型番、「者（しゃ）」は人——同音異字でどれも合わない。"
+    }
+  },
+  "pattern-n4-fukugou-008": {
+    "hintI18n": { "en": "Quoting a mountain's stats.", "ja": "山の数値を読み上げる。" },
+    "promptContextI18n": { "en": "\"This mountain's height is 3,776 meters.\"", "ja": "「この山の高さは3776メートルです。」" },
+    "explanationI18n": {
+      "en": "い-adjective minus い + さ turns it into a noun: 高い→高さ (height), 長い→長さ, 重い→重さ. 「高こと」「高の」「高もの」 don't attach — こと and の need the full form (高いこと). ※山 = mountain, メートル = meter.",
+      "ja": "い形容詞の い を取って さ＝名詞化：高い→高さ、長い→長さ、重い→重さ。「高こと」「高の」「高もの」はつながらない——こと・の は完全な形（高いこと）に付く。"
+    }
+  },
+  "pattern-n4-henka-001": {
+    "hintI18n": { "en": "The fruit of daily practice.", "ja": "毎日の練習の成果。" },
+    "promptContextI18n": { "en": "\"After practicing every day, I (finally) can swim.\"", "ja": "「毎日練習して、泳げるようになりました。」" },
+    "explanationI18n": {
+      "en": "An ability change uses potential verb + ようになる: 泳げるようになりました = came to be able to swim. Filling in 「ことに」 makes 「ことになる」 = to be arranged/decided — learning to swim through practice is a natural ability change, not an arrangement, so it doesn't fit; 「ようを」「ままに」 can't attach to なる — only 「ように」 forms an ability change.",
+      "ja": "能力の変化は可能動詞＋ようになる：泳げるようになりました。「ことに」を入れると「ことになる」＝決まる/取り決められる——練習で泳げるようになるのは自然な能力の変化で、取り決めではないので合わない。「ようを」「ままに」は なる につながらない——能力の変化を作れるのは「ように」だけ。"
+    }
+  },
+  "pattern-n4-henka-002": {
+    "hintI18n": { "en": "An effort you keep up for your health.", "ja": "健康のために続けている心がけ。" },
+    "promptContextI18n": { "en": "\"For my health, I try to eat vegetables every day.\"", "ja": "「健康のために、毎日野菜を食べるようにしています。」" },
+    "explanationI18n": {
+      "en": "\"Make an effort to ~\" = 「〜ようにする」: 食べるようにしています. 「よう」「ようも」「ようが」 can't attach to している. Division: ことにしている = a firm personal rule you've resolved on, ようにしている = striving toward a goal (without guaranteeing every time). ※野菜 = vegetables.",
+      "ja": "「〜するよう努める」＝「〜ようにする」：食べるようにしています。「よう」「ようも」「ようが」は している につながらない。分担：ことにしている＝決心した自分ルール、ようにしている＝目標に向けて努める（毎回できるとは限らない）。"
+    }
+  },
+  "pattern-n4-henka-003": {
+    "hintI18n": { "en": "A shift in your daily rhythm.", "ja": "生活リズムの変化。" },
+    "promptContextI18n": { "en": "\"Lately I've come to get up early.\"", "ja": "「最近、朝早く起きるようになりました。」" },
+    "explanationI18n": {
+      "en": "A habit change also uses 「〜ようになる」: 起きるようになりました = (I didn't before, but) now I get up early. 「そうに」's \"almost ~\" (そうになる) needs the ます-stem (起きそうになる); the dictionary form 起きる can't produce that meaning; 「ままに」「ものに」 can't express change.",
+      "ja": "習慣の変化も「〜ようになる」：起きるようになりました。「そうに」の「〜しそうになる（危うく）」は ます形が要る（起きそうになる）。辞書形 起きる ではこの意味にならない。「ままに」「ものに」は変化を表せない。"
+    }
+  },
+  "pattern-n4-henka-004": {
+    "hintI18n": { "en": "Changing how bright the room is.", "ja": "部屋の明るさを自分で変える。" },
+    "promptContextI18n": { "en": "\"It's dark — let's make the room brighter.\"", "ja": "「暗いですね。部屋を明るくしましょう。」" },
+    "explanationI18n": {
+      "en": "Making something ~: い-adjective minus い + く + する — 明るくする. 「に」 is for な-adjectives (静かにする); 「いに」「さ」 can't attach to する. Contrast N5: it changes by itself = くなる, you change it = くする. ※部屋 = room, 明るい = bright.",
+      "ja": "ものを「〜にする」：い形容詞の い を取って く＋する——明るくする。「に」は な形容詞用（静かにする）。「いに」「さ」は する につながらない。N5 と対照：自分で変わる＝くなる、自分で変える＝くする。"
+    }
+  },
+  "pattern-n4-henka-005": {
+    "hintI18n": { "en": "A request from a household with a baby.", "ja": "赤ちゃんのいる家からのお願い。" },
+    "promptContextI18n": { "en": "\"The baby is sleeping, so please be quiet.\"", "ja": "「赤ちゃんが寝ていますから、静かにしてください。」" },
+    "explanationI18n": {
+      "en": "The な-adjective \"make it ~\" = + に + する: 静かにする. 「く」 is for い-adjectives (明るくする); 「で」「へ」 can't attach to する. Pairs with 004: 明るく / 静かに, each its own change marker. ※赤ちゃん = baby.",
+      "ja": "な形容詞の「〜にする」＝＋に＋する：静かにする。「く」は い形容詞用（明るくする）。「で」「へ」は する につながらない。004 とペア：明るく／静かに、それぞれの変化マーカー。"
+    }
+  },
+  "pattern-n4-henka-006": {
+    "hintI18n": { "en": "You dozed off by accident.", "ja": "うっかり寝てしまった話。" },
+    "promptContextI18n": { "en": "\"I fell asleep with the AC left on.\"", "ja": "「エアコンをつけたまま、寝てしまいました。」" },
+    "explanationI18n": {
+      "en": "\"Leaving it as ~\" = た-form + まま: つけたまま寝てしまった = fell asleep with it on. 「ふり」 is pretending (つけたふりをして… does form a sentence) and 「つもり」 is intending (〜つもりで…) — but both still need をして/で, and neither means \"kept on\"; a bare comma won't connect. 「むき」 is a direction and can't attach. ※エアコン = air conditioner.",
+      "ja": "「そのままの状態で〜」＝た形＋まま：つけたまま寝てしまった。「ふり」は「つけたふりをして…」なら成句、「つもり」は「〜つもりで…」——だが どちらも をして/で が要り、意味も「つけたまま」ではない。いきなり読点にはつながらない。「むき」は向きで接続不可。"
+    }
+  },
+  "pattern-n4-henka-007": {
+    "hintI18n": { "en": "You remembered the lights only after leaving.", "ja": "出てから電気に気づく。" },
+    "promptContextI18n": { "en": "\"I went out without turning off the lights.\"", "ja": "「電気を消さないまま、出かけてしまいました。」" },
+    "explanationI18n": {
+      "en": "まま can also follow the negative form: 消さないまま = in the state of not having turned it off. 「なり」「きり」 are higher-level connectives (行ったきり type) and don't attach to a ない-form here; 「ほど」 is degree and doesn't fit the meaning. ※電気 = lights, 消す = to turn off.",
+      "ja": "まま は否定形にも付く：消さないまま。「なり」「きり」は上級の接続（行ったきり型）で、ここで ない形にはつながらない。「ほど」は程度で意味が合わない。"
+    }
+  },
+  "pattern-n4-henka-008": {
+    "hintI18n": { "en": "He's stopped showing up at school lately.", "ja": "最近、学校で彼を見かけない。" },
+    "promptContextI18n": { "en": "\"Lately he's stopped coming to school.\"", "ja": "「最近、彼は学校に来なくなりました。」" },
+    "explanationI18n": {
+      "en": "A negative change = ない minus い + く + なる: 来ない → 来なくなりました = came to stop coming. 「来ないく」 kept the い; 「来なさく」「来ずく」 aren't forms — ない's change follows the same rule as い-adjectives (drop い + く).",
+      "ja": "否定の変化＝ない の い を取って く＋なる：来ない→来なくなりました。「来ないく」は い が残り、「来なさく」「来ずく」は存在しない形——ない の変化は い形容詞と同じ（い を取って く）。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",

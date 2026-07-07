@@ -756,6 +756,56 @@ export const learningBlocks: LearningBlock[] = [
     recommendedAfter: ["n4-shushoku"]
   },
   {
+    id: "n4-fukugou",
+    group: "basic",
+    category: "N4 文法",
+    kicker: "N4 句型",
+    title: "複合動詞 〜はじめる・〜方",
+    subtitle: "雨が降りだした／漢字の読み方",
+    explanation:
+      "把兩個動詞黏成一個＝複合動詞，前半用ます形語幹。階段四件組：〜はじめる（開始）、〜だす（突然開始，配急に）、〜つづける（持續）、〜おわる（做完）——注意自他：はじめる/つづける是他動（自己做），はじまる/つづく是自動（事情自己發生），別黏錯。方向一對：〜ていく（帶去、離開說話者）/〜てくる（帶來、朝向說話者）——同一對也能表時間推移（変わってきた＝一路變到現在、変わっていく＝今後繼續變）。構詞兩件：ます形語幹＋方（かた）＝〜的方法（読み方）；い形容詞去い＋さ＝名詞化（高さ）。",
+    examples: [
+      { formula: "急に雨が降りだした", note: "突發開始：〜だす" },
+      { formula: "去年から習いはじめた／3時間走りつづけた", note: "開始與持續（他動）" },
+      { formula: "持っていく／買ってくる", note: "方向：離開いく、回來くる" },
+      { formula: "この漢字の読み方", note: "ます語幹＋方＝方法" },
+      { formula: "山の高さ", note: "い形去い＋さ＝名詞化" }
+    ],
+    pitfalls: [
+      "自他別黏錯：×習いはじまる→習いはじめる（はじまる是会議がはじまる的自動詞）",
+      "急に、突然 配〜だす；一般的開始用〜はじめる",
+      "ていく/てくる的時間用法方向要想：朝現在＝てきた、朝未來＝ていく"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN4Fukugou", patternIds: ["n4-fukugou"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n4-kansetsu"]
+  },
+  {
+    id: "n4-henka",
+    group: "basic",
+    category: "N4 文法",
+    kicker: "N4 句型",
+    title: "變化 ようになる・くする・まま",
+    subtitle: "泳げるようになった／つけたまま",
+    explanation:
+      "變化的完整系統。「〜ようになる」＝變得（會）〜：接可能動詞是能力變化（泳げるようになった）、接一般動詞是習慣變化（早く起きるようになった）；否定的變化＝ない去い＋くなる（来なくなった）。「〜ようにする」＝盡量做到（努力目標），跟「ことにする（下決心）」是鄰居。他動的變化：把東西弄成〜——い形容詞＋くする（明るくする）、な形容詞/名詞＋にする（静かにする）；對照N5的自變（くなる/になる）。「〜まま」＝保持原樣：た形＋まま（つけたまま寝た）、ない形＋まま（消さないまま出かけた）。",
+    examples: [
+      { formula: "泳げるようになりました", note: "能力變化：可能動詞＋ようになる" },
+      { formula: "野菜を食べるようにしています", note: "努力目標：ようにする" },
+      { formula: "明るくする／静かにする", note: "他動變化：く／に＋する" },
+      { formula: "来なくなりました", note: "否定的變化：なく＋なる" },
+      { formula: "つけたまま寝てしまった", note: "保持原樣：た形＋まま" }
+    ],
+    pitfalls: [
+      "ようにする＝盡量努力、ことにする＝下定決心——語感不同但常可互換，看語境",
+      "變化標記對號入座：い形→く、な形/名詞→に（做｜変：する｜なる 都適用）",
+      "まま前面：完成的狀態用た形（つけたまま）、沒做的狀態用ない形（消さないまま）"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN4Henka", patternIds: ["n4-henka"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n4-fukugou"]
+  },
+  {
     id: "adverbial",
     group: "basic",
     category: "形容詞 / 名詞 修飾",

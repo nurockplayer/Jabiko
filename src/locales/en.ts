@@ -237,6 +237,8 @@ export const en: Copy = {
   drillPatternN4Meirei: "Drill commands + prohibition",
   drillPatternN4Shushoku: "Drill noun-modifying clauses",
   drillPatternN4Kansetsu: "Drill indirect questions",
+  drillPatternN4Fukugou: "Drill compound verbs",
+  drillPatternN4Henka: "Drill change patterns",
   drillPatternTeKudasai: "Pattern drill: request / permission / prohibition",
   drillPatternNakuteMoII: "Pattern drill: don't have to vs. must",
   drillPatternTeMorau: "Pattern drill: giving & receiving perspective",
