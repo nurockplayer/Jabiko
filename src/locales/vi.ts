@@ -216,6 +216,8 @@ export const vi: Copy = {
   drillPassive: "Luyện thể bị động",
   drillCausative: "Luyện thể sai khiến",
   drillDesiderative: "Luyện たい・たがる",
+  drillPatternStarterDesu: "Luyện câu cơ bản 〜です",
+  drillPatternStarterParticles: "Luyện trợ từ は・を・に・が",
   drillPatternTeKudasai: "Luyện mẫu câu: yêu cầu / cho phép / cấm đoán",
   drillPatternNakuteMoII: "Luyện mẫu câu: không cần phải vs. bắt buộc",
   drillPatternTeMorau: "Luyện mẫu câu: góc nhìn cho & nhận",

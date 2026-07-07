@@ -168,6 +168,90 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "starter-desu": {
+    "en": {
+      "category": "Starter",
+      "kicker": "Lesson 0",
+      "title": "The Basic Sentence AはBです",
+      "explanation":
+        "Japanese's most basic sentence: 「AはBです」 = \"A is B\". は marks the topic you're talking about (read wa), and です sits at the end. To say \"is not\", swap です for じゃありません; for the past, でした; to ask a question, add か for ですか. Master these four endings and you can start speaking in full sentences.",
+      "notes": [
+        "A is B: I am a student",
+        "Negative: (I'm) not a teacher",
+        "Past: it rained yesterday",
+        "Past negative: it didn't rain yesterday",
+        "Question: is that a dog?",
+        "Introducing yourself"
+      ],
+      "pitfalls": [
+        "The topic は is read wa, not ha — writing は but saying wa is a fixed rule",
+        "\"Tomorrow\" hasn't happened yet but still takes です: あしたは やすみです (no future tense)",
+        "In speech じゃありません often becomes じゃないです — same meaning"
+      ]
+    },
+    "ja": {
+      "category": "入門",
+      "kicker": "第0課",
+      "title": "基本文 AはBです",
+      "explanation":
+        "日本語のいちばん基本の文：「AはBです」。は は話題を示し（wa と読む）、です は文末に置く。「〜ではない」は じゃありません、過去は でした、質問は か を付けて ですか。この四つの文末を身につければ、文で話し始められる。",
+      "notes": [
+        "AはB：わたしは学生です",
+        "否定：先生ではありません",
+        "過去：きのうは雨でした",
+        "過去否定：きのうは雨ではありませんでした",
+        "疑問：あれは犬ですか",
+        "自己紹介"
+      ],
+      "pitfalls": [
+        "主題の は は ha ではなく wa と読む——書くのは は、読むのは wa という決まり",
+        "「あした」のことも です を使う：あしたは休みです（未来形はない）",
+        "話し言葉では じゃありません を じゃないです とも言う。意味は同じ"
+      ]
+    }
+  },
+  "starter-particles": {
+    "en": {
+      "category": "Starter",
+      "kicker": "Lesson 0",
+      "title": "Particle Basics は・を・に・が",
+      "explanation":
+        "Particles are little words glued after nouns that tell you what the noun is doing in the sentence. The first four to know: は = topic (who the sentence is about), を = the object of an action (what you eat or drink), に = destination or point in time (where you're going), が = a newly-introduced subject (there IS something / WHO does it). Add で for where an action happens and と for \"together with\", and everyday sentences all snap together.",
+      "notes": [
+        "は topic + を object: I drink water",
+        "に destination: go to school",
+        "が introduces: there's a dog over there",
+        "A question-word subject can only take が",
+        "で place of action: eat at home",
+        "と together: chat with a friend"
+      ],
+      "pitfalls": [
+        "\"Doing an action somewhere\" takes で; \"existing somewhere / going somewhere\" takes に: いえで たべます vs いえに います",
+        "A question word (だれ・なに) as subject only takes が, never は",
+        "を only marks the object of an action; in modern Japanese it sounds the same as お"
+      ]
+    },
+    "ja": {
+      "category": "入門",
+      "kicker": "第0課",
+      "title": "助詞の基本 は・を・に・が",
+      "explanation":
+        "助詞は名詞の後ろに付く小さな語で、「その名詞が文の中で何をしているか」を示す。まず覚える四つ：は＝主題（この文は誰の話か）、を＝動作の対象（何を食べる・飲む）、に＝行き先や時点（どこへ行く）、が＝初めて登場する主語（何がある・誰がする）。さらに場所の で（どこでする）と一緒の と（誰と）を足せば、日常の文はほぼ組み立てられる。",
+      "notes": [
+        "は主題＋を対象：わたしは水を飲みます",
+        "に行き先：学校に行きます",
+        "が登場：そこに犬がいます",
+        "疑問詞の主語は が だけ",
+        "で動作の場所：家で食べます",
+        "と一緒：友だちと話します"
+      ],
+      "pitfalls": [
+        "「ある場所で動作する」は で、「ある場所に存在する／行く」は に：いえで たべます vs いえに います",
+        "疑問詞（だれ・なに）が主語のときは が だけ。は は使えない",
+        "を は動作の対象だけに付く。現代語では お と同じ発音"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",

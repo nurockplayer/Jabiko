@@ -2,6 +2,8 @@ import type { PracticeQuestion, VocabularyItem } from "./types";
 import { patternInstructionI18n, sentencePatternI18n } from "./sentencePatterns.i18n";
 
 export type SentencePatternId =
+  | "starter-desu"
+  | "starter-particles"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -29,6 +31,8 @@ export type SentencePatternItem = {
 };
 
 const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
+  "starter-desu": "基本句 〜です",
+  "starter-particles": "助詞入門",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -37,6 +41,203 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "nagara-tari": "並列・同時",
   "te-aux": "補助動詞"
 };
+
+// ===========================================================================
+// Lesson-0 pattern A: starter-desu -- the AはBです sentence family (#534).
+//   Absolute-beginner floor: kana-only sentences built from the starter
+//   vocabulary deck. Unique solutions are locked by IN-SENTENCE anchors
+//   (はい/いいえ for polarity, きのう/あした/いま for tense, はじめまして
+//   for self-introduction) plus option control -- only ONE option ever
+//   satisfies the anchors.
+// ===========================================================================
+const STARTER_DESU_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-starter-desu-001",
+    patternId: "starter-desu",
+    promptText: "「がくせいですか。」「はい、わたしは いま がくせい___。」",
+    hintZh: "回答關於自己身分的問題。",
+    promptContextZh: "「你是學生嗎？」「是的，我現在是學生。」",
+    expectedAnswer: "です",
+    options: ["です", "でした", "じゃありません", "ですか"],
+    explanation:
+      "對方用肯定形問「がくせいですか」，回答「はい」＝同意「是學生」，所以接現在肯定的「です」；「じゃありません」和「はい」矛盾。「いま」表示現在，排除過去的「でした」（像昨天那樣已經過去的事）。※がくせい＝學生。"
+  },
+  {
+    id: "pattern-starter-desu-002",
+    patternId: "starter-desu",
+    promptText: "「せんせいですか。」「いいえ、わたしは せんせい___。」",
+    hintZh: "更正對方對自己身分的誤會。",
+    promptContextZh: "「你是老師嗎？」「不，我不是老師。」",
+    expectedAnswer: "じゃありません",
+    options: ["じゃありません", "です", "じゃありませんでした", "ですか"],
+    explanation:
+      "對方用肯定形問「せんせいですか」，回答「いいえ」＝否定「是老師」→ 現在否定「じゃありません」。「です」和「いいえ」矛盾；「じゃありませんでした」是過去否定，但問句問的是現在；「ですか」用來發問。"
+  },
+  {
+    id: "pattern-starter-desu-003",
+    patternId: "starter-desu",
+    promptText: "きのうは あめ___。",
+    hintZh: "說昨天的天氣。",
+    promptContextZh: "「昨天下雨（昨天是雨天）。」",
+    expectedAnswer: "でした",
+    options: ["でした", "です", "ですか", "じゃありません"],
+    explanation:
+      "「きのう（昨天）」是過去的事，名詞句的過去肯定用「でした」。「です」是現在；「じゃありません」是現在否定；「ですか」是問句。※あめ＝雨。"
+  },
+  {
+    id: "pattern-starter-desu-004",
+    patternId: "starter-desu",
+    promptText: "「きのうは あめでしたか。」「いいえ、あめ___。」",
+    hintZh: "更正對方對昨天天氣的印象。",
+    promptContextZh: "「昨天下雨了嗎？」「不，昨天沒有下雨。」",
+    expectedAnswer: "じゃありませんでした",
+    options: ["じゃありませんでした", "でした", "です", "じゃありません"],
+    explanation:
+      "對方用肯定形問「あめでしたか」，回答「いいえ」＝否定它＋「きのう」是過去 → 過去否定「じゃありませんでした」。「でした」跟「いいえ」矛盾；「じゃありません」是現在否定，跟過去的問句對不上。"
+  },
+  {
+    id: "pattern-starter-desu-005",
+    patternId: "starter-desu",
+    promptText: "「あのう、あれは いぬ___。」「はい、そうです。」",
+    hintZh: "指著遠處的動物，向對方確認。",
+    promptContextZh: "「請問……那是狗嗎？」「對，是的。」",
+    expectedAnswer: "ですか",
+    options: ["ですか", "です", "でした", "じゃありません"],
+    explanation:
+      "對方回答了「はい、そうです」——會得到回答的，一定是問句，所以句尾用「ですか」。若用「です」就是告訴對方，後面不會接「はい」的回答。"
+  },
+  {
+    id: "pattern-starter-desu-006",
+    patternId: "starter-desu",
+    promptText: "あしたは やすみ___。",
+    hintZh: "說明天的安排。",
+    promptContextZh: "「明天放假（明天是休息日）。」",
+    expectedAnswer: "です",
+    options: ["です", "でした", "じゃありませんでした", "でしたか"],
+    explanation:
+      "「あした（明天）」還沒發生，日文的名詞句用現在形「です」就能表達未來。「でした」「じゃありませんでした」「でしたか」都帶過去，跟「あした」矛盾。※やすみ＝休假。"
+  },
+  {
+    id: "pattern-starter-desu-007",
+    patternId: "starter-desu",
+    promptText: "はじめまして。わたしの なまえは たなか___。",
+    hintZh: "第一次見面的開場白。",
+    promptContextZh: "「初次見面，我的名字是田中。」",
+    expectedAnswer: "です",
+    options: ["です", "ですか", "じゃありません", "じゃありませんでした"],
+    explanation:
+      "「はじめまして」是初次見面的招呼，接著介紹自己的名字＝現在肯定「です」。介紹自己不會用否定或問句結尾。"
+  },
+  {
+    id: "pattern-starter-desu-008",
+    patternId: "starter-desu",
+    promptText: "これは わたしの かばん___。わたしのは あれです。",
+    hintZh: "說明哪一個包包才是自己的。",
+    promptContextZh: "「這不是我的包包，我的是那個。」",
+    expectedAnswer: "じゃありません",
+    options: ["じゃありません", "です", "でした", "ですか"],
+    explanation:
+      "第二句說「我的是那個（あれ）」，所以第一句一定在否定「這個是我的」→「じゃありません」。若第一句用「です」，兩句就互相矛盾了。"
+  }
+];
+
+// ===========================================================================
+// Lesson-0 pattern B: starter-particles -- は・を・に・が (+で/と) (#534).
+//   Same floor as starter-desu. The double-solution traps here are the
+//   particle system itself: へ/に for direction and は/が for subjects are
+//   NEVER offered head-to-head unless the sentence makes one impossible
+//   (e.g. an interrogative subject だれ can't take は).
+// ===========================================================================
+const STARTER_PARTICLES_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-starter-particles-001",
+    patternId: "starter-particles",
+    promptText: "わたし___ まいにち みずを のみます。",
+    hintZh: "描述自己每天的習慣。",
+    promptContextZh: "「我每天喝水。」",
+    expectedAnswer: "は",
+    options: ["は", "を", "に", "で"],
+    explanation:
+      "「わたし」是這句話的主題（談論的對象），用「は」標記。「を」接動作的對象（這句已經有みずを）；「に」表時間點或目的地；「で」表動作發生的場所。"
+  },
+  {
+    id: "pattern-starter-particles-002",
+    patternId: "starter-particles",
+    promptText: "あさ、みず___ のみます。",
+    hintZh: "說早上做的一件事。",
+    promptContextZh: "「早上喝水。」",
+    expectedAnswer: "を",
+    options: ["を", "に", "へ", "が"],
+    explanation:
+      "「みず」是「のみます（喝）」的對象，動作的對象用「を」。「が」標記做動作的主語，水不是喝東西的一方；「に」表時間點或方向、「へ」只表方向——都接不上「喝」的對象。"
+  },
+  {
+    id: "pattern-starter-particles-003",
+    patternId: "starter-particles",
+    promptText: "あした、がっこう___ いきます。",
+    hintZh: "說明天要去的地方。",
+    promptContextZh: "「明天去學校。」",
+    expectedAnswer: "に",
+    options: ["に", "を", "で", "と"],
+    explanation:
+      "「いきます（去）」的目的地用「に」。「を」是動作對象；「で」是動作發生的場所（在～做某事），不是要去的方向；「と」是「和某人一起」。※方向也可以用「へ」，這題選項中用「に」。"
+  },
+  {
+    id: "pattern-starter-particles-004",
+    patternId: "starter-particles",
+    promptText: "だれ___ きますか。",
+    hintZh: "問會來的人是哪一位。",
+    promptContextZh: "「誰要來？」",
+    expectedAnswer: "が",
+    options: ["が", "を", "に", "で"],
+    explanation:
+      "疑問詞（だれ、なに）當主語時用「が」——順帶記住：這裡不能用「は」，因為「は」前面必須是雙方已知的話題，而「誰」正是未知才要問的。「を」接動作對象、「に」表時間或方向、「で」表動作場所，都放不進主語的位置。"
+  },
+  {
+    id: "pattern-starter-particles-005",
+    patternId: "starter-particles",
+    promptText: "そこに いぬ___ います。",
+    hintZh: "告訴對方你發現了什麼。",
+    promptContextZh: "「那裡有一隻狗。」",
+    expectedAnswer: "が",
+    options: ["が", "を", "へ", "で"],
+    explanation:
+      "用「います／あります」說「有什麼東西存在」時，第一次提到的東西用「が」。「を」接動作對象，但「います」不是動作；「へ」表方向；「いぬで います」則不成句——「〜でいます」只接「元気でいます」這種狀態說法。"
+  },
+  {
+    id: "pattern-starter-particles-006",
+    patternId: "starter-particles",
+    promptText: "よる、ほん___ よみます。",
+    hintZh: "說晚上的活動。",
+    promptContextZh: "「晚上讀書（看書）。」",
+    expectedAnswer: "を",
+    options: ["を", "が", "に", "へ"],
+    explanation:
+      "「ほん」是「よみます（閱讀）」的對象 →「を」。「が」標記主語（做動作的人），書不是做動作的一方；「に」表時間點或方向、「へ」只表方向，接不上「讀」的對象。"
+  },
+  {
+    id: "pattern-starter-particles-007",
+    patternId: "starter-particles",
+    promptText: "あした、わたしは ともだち___ はなします。",
+    hintZh: "說自己明天的計畫。",
+    promptContextZh: "「明天我和朋友說話（聊天）。」",
+    expectedAnswer: "と",
+    options: ["と", "を", "が", "へ"],
+    explanation:
+      "「はなします」的交談對象用「と」——聊天是互相進行的。主語已經是「わたしは」，所以「が」放不進去；「を」不能標交談的對象，它標「說出的內容」（如：にほんごを はなします）；「へ」表方向。※「ともだちに はなします」也說得通，但語感是單方向「對朋友說」，這題選項中用「と」。"
+  },
+  {
+    id: "pattern-starter-particles-008",
+    patternId: "starter-particles",
+    promptText: "いえ___ ごはんを たべます。",
+    hintZh: "說吃飯的地點。",
+    promptContextZh: "「在家吃飯。」",
+    expectedAnswer: "で",
+    options: ["で", "に", "を", "へ"],
+    explanation:
+      "「做動作的場所」用「で」——在家「吃」是一個動作。「に」表存在的場所或目的地（いえに います、いえに かえります），配動作動詞的場所要用「で」。這是に／で最重要的分工。"
+  }
+];
 
 // ===========================================================================
 // Pattern 1: te-kudasai -- request / permission / prohibition family
@@ -684,6 +885,8 @@ const TE_AUX_ITEMS: SentencePatternItem[] = [
 ];
 
 export const sentencePatternItems: SentencePatternItem[] = [
+  ...STARTER_DESU_ITEMS,
+  ...STARTER_PARTICLES_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,
