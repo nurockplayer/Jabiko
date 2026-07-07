@@ -239,7 +239,10 @@ export const my: Copy = {
     intermediate: "အလယ်အလတ်",
     intermediateHint: "N2・N3",
     advanced: "အဆင့်မြင့်",
-    advancedHint: "N1・N2"
+    advancedHint: "N1・N2",
+    manageTitle: "ပန်းတိုင်အဆင့်",
+    change: "ပြောင်းရန်",
+    notSet: "မသတ်မှတ်ရသေးပါ"
   },
   sessionLength: "တစ်စုလျှင် မေးခွန်းအရေအတွက်",
   sessionLengthAll: "အားလုံး",

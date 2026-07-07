@@ -240,7 +240,10 @@ export const th: Copy = {
     intermediate: "ระดับกลาง",
     intermediateHint: "N2・N3",
     advanced: "ระดับสูง",
-    advancedHint: "N1・N2"
+    advancedHint: "N1・N2",
+    manageTitle: "ระดับเป้าหมาย",
+    change: "เปลี่ยน",
+    notSet: "ยังไม่ได้ตั้ง"
   },
   sessionLength: "จำนวนข้อต่อชุด",
   sessionLengthAll: "ทั้งหมด",

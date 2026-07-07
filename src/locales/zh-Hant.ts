@@ -239,7 +239,10 @@ export const zhHant: Copy = {
     intermediate: "中級",
     intermediateHint: "N2・N3",
     advanced: "高級",
-    advancedHint: "N1・N2"
+    advancedHint: "N1・N2",
+    manageTitle: "目標級別",
+    change: "變更",
+    notSet: "尚未設定"
   },
   sessionLength: "每組題數",
   sessionLengthAll: "全部",

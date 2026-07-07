@@ -1054,3 +1054,70 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Persistent target-level control (#526): a compact chip that shows the current
+   band and expands to the same three-band picker used at onboarding. */
+.home-level-manage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.home-level-chip {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--paper);
+  text-align: left;
+  flex-wrap: wrap;
+}
+
+.home-level-chip > svg:first-child {
+  color: var(--teal);
+}
+
+.home-level-chip-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.home-level-chip-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.home-level-chip-value strong {
+  color: var(--ink);
+}
+
+.home-level-chip-value small {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.home-level-chip-value em {
+  color: var(--muted);
+  font-style: normal;
+}
+
+.home-level-chip-action {
+  margin-left: auto;
+  color: var(--teal);
+  font-size: 0.85rem;
+}
+
+.home-level-chip-caret {
+  color: var(--muted);
+  transition: transform 0.16s ease;
+}
+
+.home-level-chip[aria-expanded="true"] .home-level-chip-caret {
+  transform: rotate(180deg);
+}
+
+.home-level-option[aria-pressed="true"] {
+  border-color: var(--teal);
+  box-shadow: inset 0 0 0 1px var(--teal);
+}

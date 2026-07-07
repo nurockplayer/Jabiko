@@ -223,6 +223,9 @@ export type Copy = {
     intermediateHint: string;
     advanced: string;
     advancedHint: string;
+    manageTitle: string;
+    change: string;
+    notSet: string;
   };
   sessionLength: string;
   sessionLengthAll: string;

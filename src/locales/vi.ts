@@ -239,7 +239,10 @@ export const vi: Copy = {
     intermediate: "Trung cấp",
     intermediateHint: "N2・N3",
     advanced: "Cao cấp",
-    advancedHint: "N1・N2"
+    advancedHint: "N1・N2",
+    manageTitle: "Cấp độ mục tiêu",
+    change: "Thay đổi",
+    notSet: "Chưa đặt"
   },
   sessionLength: "Số câu mỗi bộ",
   sessionLengthAll: "Tất cả",
