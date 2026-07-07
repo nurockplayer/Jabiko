@@ -220,6 +220,8 @@ export type Copy = {
   drillPatternN4Meirei: string;
   drillPatternN4Shushoku: string;
   drillPatternN4Kansetsu: string;
+  drillPatternN4Fukugou: string;
+  drillPatternN4Henka: string;
   drillPatternTeKudasai: string;
   drillPatternNakuteMoII: string;
   drillPatternTeMorau: string;

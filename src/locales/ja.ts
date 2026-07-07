@@ -245,6 +245,8 @@ export const ja: Copy = {
   drillPatternN4Meirei: "命令と禁止を練習",
   drillPatternN4Shushoku: "名詞修飾節を練習",
   drillPatternN4Kansetsu: "間接疑問を練習",
+  drillPatternN4Fukugou: "複合動詞を練習",
+  drillPatternN4Henka: "変化の文型を練習",
   drillPatternTeKudasai: "文型を練習：依頼 / 許可 / 禁止",
   drillPatternNakuteMoII: "文型を練習：不要 vs 義務",
   drillPatternTeMorau: "文型を練習：授受の視点",

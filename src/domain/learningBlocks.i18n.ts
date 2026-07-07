@@ -1020,6 +1020,86 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "n4-fukugou": {
+    "en": {
+      "category": "N4 Grammar",
+      "kicker": "N4 Patterns",
+      "title": "Compound Verbs: 〜はじめる・〜方",
+      "explanation":
+        "Gluing two verbs into one = a compound verb, with the ます-stem up front. The four stages: 〜はじめる (start), 〜だす (sudden start, pairs with 急に), 〜つづける (keep doing), 〜おわる (finish) — watch transitivity: はじめる/つづける are transitive (you do it), はじまる/つづく are intransitive (it happens) — don't glue the wrong one. The direction pair: 〜ていく (away from the speaker) / 〜てくる (toward the speaker) — the same pair also marks time drift (変わってきた = has been changing up to now, 変わっていく = will keep changing). Two derivations: ます-stem + 方 (かた) = how to ~ (読み方); い-adjective minus い + さ = a noun (高さ).",
+      "notes": [
+        "Sudden start: 〜だす",
+        "Start / keep doing (transitive)",
+        "Direction: いく away, くる toward",
+        "ます-stem + 方 = method",
+        "Drop い + さ = noun"
+      ],
+      "pitfalls": [
+        "Don't glue the intransitive: ×習いはじまる → 習いはじめる (はじまる is for 会議がはじまる)",
+        "急に / 突然 pair with 〜だす; a plain start uses 〜はじめる",
+        "For the temporal ていく/てくる, think direction: toward now = てきた, toward the future = ていく"
+      ]
+    },
+    "ja": {
+      "category": "N4文法",
+      "kicker": "N4文型",
+      "title": "複合動詞 〜はじめる・〜方",
+      "explanation":
+        "動詞二つを一語に貼り合わせる＝複合動詞。前半は ます形の語幹。段階の四点セット：〜はじめる（開始）、〜だす（急な開始。急に とセット）、〜つづける（継続）、〜おわる（完了）——自他に注意：はじめる/つづける は他動（自分がする）、はじまる/つづく は自動（事が起こる）。方向のペア：〜ていく（話し手から離れる）/〜てくる（話し手へ向かう）——時間の推移にも使う（変わってきた＝今まで、変わっていく＝これから）。語形成二つ：ます語幹＋方（読み方）；い形容詞の い を取って さ（高さ）。",
+      "notes": [
+        "急な開始：〜だす",
+        "開始・継続（他動）",
+        "方向：いく／くる",
+        "ます語幹＋方＝やり方",
+        "い を取って さ＝名詞化"
+      ],
+      "pitfalls": [
+        "自他を貼り間違えない：×習いはじまる→習いはじめる",
+        "急に・突然 は 〜だす と、ふつうの開始は 〜はじめる",
+        "時間の ていく/てくる は方向で考える：今へ＝てきた、これから＝ていく"
+      ]
+    }
+  },
+  "n4-henka": {
+    "en": {
+      "category": "N4 Grammar",
+      "kicker": "N4 Patterns",
+      "title": "Change: ようになる・くする・まま",
+      "explanation":
+        "The full change system. 「〜ようになる」 = come to (be able to) ~: with a potential verb it's an ability change (泳げるようになった), with a plain verb a habit change (早く起きるようになった); negative change = drop the い of ない + くなる (来なくなった). 「〜ようにする」 = make an effort to ~, neighbor to ことにする (resolve to). Transitive change — making something ~: い-adjective + くする (明るくする), な-adjective/noun + にする (静かにする); contrast N5's self-change くなる/になる. 「〜まま」 = leaving things as they are: た-form + まま (つけたまま寝た), ない-form + まま (消さないまま出かけた).",
+      "notes": [
+        "Ability change: potential + ようになる",
+        "Effort: ようにする",
+        "Making it ~: く / に + する",
+        "Negative change: なく + なる",
+        "As-is: た/ない form + まま"
+      ],
+      "pitfalls": [
+        "ようにする = keep trying, ことにする = made up your mind — often interchangeable; read the context",
+        "Change markers pair up: い-adj → く, な-adj/noun → に (for both する and なる)",
+        "Before まま: a done state takes た (つけたまま), an undone one ない (消さないまま)"
+      ]
+    },
+    "ja": {
+      "category": "N4文法",
+      "kicker": "N4文型",
+      "title": "変化 ようになる・くする・まま",
+      "explanation":
+        "変化のフルセット。「〜ようになる」＝〜（できる）ようになる：可能動詞なら能力の変化（泳げるようになった）、一般動詞なら習慣の変化（早く起きるようになった）；否定の変化は ない の い を取って くなる（来なくなった）。「〜ようにする」＝〜するよう努める。ことにする（決心）とはお隣さん。他動の変化：い形容詞＋くする（明るくする）、な形容詞・名詞＋にする（静かにする）；N5 の くなる/になる（自変）と対。「〜まま」＝そのままの状態で：た形＋まま（つけたまま寝た）、ない形＋まま（消さないまま出かけた）。",
+      "notes": [
+        "能力の変化：可能動詞＋ようになる",
+        "努力：ようにする",
+        "〜にする・〜くする",
+        "否定の変化：なく＋なる",
+        "そのまま：た/ない形＋まま"
+      ],
+      "pitfalls": [
+        "ようにする＝努力、ことにする＝決心——交換できる場面も多い。文脈で読む",
+        "変化のマーカー：い形→く、な形・名詞→に（する にも なる にも）",
+        "まま の前：した状態は た形、していない状態は ない形"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",

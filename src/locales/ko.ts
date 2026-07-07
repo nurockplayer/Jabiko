@@ -237,6 +237,8 @@ export const ko: Copy = {
   drillPatternN4Meirei: "명령과 금지 연습",
   drillPatternN4Shushoku: "명사 수식절 연습",
   drillPatternN4Kansetsu: "간접 의문 연습",
+  drillPatternN4Fukugou: "복합동사 연습",
+  drillPatternN4Henka: "변화 문형 연습",
   drillPatternTeKudasai: "문형 연습: 요청 / 허가 / 금지",
   drillPatternNakuteMoII: "문형 연습: ~하지 않아도 됨 vs ~해야 함",
   drillPatternTeMorau: "문형 연습: 주고받기 관점",
