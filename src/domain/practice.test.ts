@@ -13,12 +13,7 @@ import {
   scoreAttempt,
   shuffleQuestions
 } from "./practice";
-import { SRS_INTERVAL_DAYS } from "./srs";
 import type { VocabularyItem } from "./types";
-
-// Box-0 relearn cooldown in ms -- a just-missed item is due only after this
-// elapses (see srs.ts). Tests add it to the miss timestamp to reach "due".
-const BOX0_MS = SRS_INTERVAL_DAYS[0] * 24 * 60 * 60 * 1000;
 
 describe("buildClozeQuestionPool", () => {
   it("turns seed sentences into PracticeQuestion objects with curated options", () => {
@@ -801,13 +796,10 @@ describe("getMistakeQuestions", () => {
 });
 
 describe("getReviewQueue", () => {
-  // The wrapper around the SRS engine. These tests verify the
-  // caller-visible contract: an attempt history + a pool + an
-  // injected `now` -> the questions currently due. Full SRS state
-  // machine (box promotions, interval table, reset rules) is tested
-  // in srs.test.ts; here we just make sure the wrapper delegates
-  // correctly and the wider practice module still exports the
-  // expected shape.
+  // The wrapper around the mistake pool (see srs.ts). Verifies the
+  // caller-visible contract: an attempt history + a pool -> the questions
+  // whose most recent attempt was wrong. The box reset/promote state machine
+  // is covered in srs.test.ts; here we just check the wrapper delegates.
   const pool = buildQuestionPool(vocabulary, {
     partOfSpeech: "verb",
     verbGroup: "godan",
@@ -815,49 +807,36 @@ describe("getReviewQueue", () => {
   }).slice(0, 3);
 
   it("returns an empty queue when no attempts have been made", () => {
-    expect(getReviewQueue([], pool, 10000)).toEqual([]);
+    expect(getReviewQueue([], pool)).toEqual([]);
   });
 
-  it("rests a just-missed item, then surfaces it after the box-0 cooldown", () => {
+  it("adds a just-missed question immediately -- no cooldown (#525)", () => {
     const wrong = scoreAttempt(pool[0], "wrong", 1000, 1500);
-    // Not due in the same session (would just train answer-memorisation) ...
-    expect(getReviewQueue([wrong], pool, 1500)).toEqual([]);
-    // ... due once the box-0 rest (2 days, #472) elapses.
-    expect(getReviewQueue([wrong], pool, 1500 + BOX0_MS)).toEqual([pool[0]]);
+    expect(getReviewQueue([wrong], pool)).toEqual([pool[0]]);
   });
 
-  it("defers a correctly-answered question past its box-1 interval", () => {
-    // wrong at 1500, right at 2300 -> box 1 -> due one box-1 interval later.
+  it("removes a question after one correct answer", () => {
     const wrong = scoreAttempt(pool[0], "wrong", 1000, 1500);
     const right = scoreAttempt(pool[0], pool[0].expectedAnswers[0], 2000, 2300);
-    const oneMs = 1;
-    const box1Ms = SRS_INTERVAL_DAYS[1] * 24 * 60 * 60 * 1000;
-    expect(getReviewQueue([wrong, right], pool, 2300 + oneMs)).toEqual([]);
-    expect(getReviewQueue([wrong, right], pool, 2300 + box1Ms)).toEqual([pool[0]]);
+    expect(getReviewQueue([wrong, right], pool)).toEqual([]);
   });
 
   it("re-adds a question that was answered correctly then missed again", () => {
     const right = scoreAttempt(pool[0], pool[0].expectedAnswers[0], 1000, 1300);
     const wrong = scoreAttempt(pool[0], "wrong", 2000, 2500);
-    // Back in box 0 -> due after the cooldown, not immediately.
-    expect(getReviewQueue([right, wrong], pool, 2500 + BOX0_MS)).toEqual([pool[0]]);
+    expect(getReviewQueue([right, wrong], pool)).toEqual([pool[0]]);
   });
 
-  it("orders the queue with the most overdue item first", () => {
-    // Both items in box 0 (missed and never re-answered). The OLDER
-    // miss has the smaller dueAt and is therefore more overdue, so it
-    // surfaces first. (Reversed from the pre-SRS "freshest miss first"
-    // ordering -- SRS prioritises items most at risk of being forgotten.)
+  it("orders the queue with the oldest unresolved miss first", () => {
     const olderMiss = scoreAttempt(pool[0], "wrong", 1000, 1500);
     const newerMiss = scoreAttempt(pool[1], "wrong", 3000, 3500);
-    // Past both box-0 cooldowns so both are due; older miss = smaller dueAt = first.
-    const queue = getReviewQueue([olderMiss, newerMiss], pool, 3500 + BOX0_MS);
+    const queue = getReviewQueue([olderMiss, newerMiss], pool);
     expect(queue.map((q) => q.id)).toEqual([pool[0].id, pool[1].id]);
   });
 
   it("deduplicates a question that has been missed multiple times", () => {
     const miss1 = scoreAttempt(pool[0], "wrong", 1000, 1500);
     const miss2 = scoreAttempt(pool[0], "wrong-again", 2000, 2500);
-    expect(getReviewQueue([miss1, miss2], pool, 2500 + BOX0_MS)).toEqual([pool[0]]);
+    expect(getReviewQueue([miss1, miss2], pool)).toEqual([pool[0]]);
   });
 });

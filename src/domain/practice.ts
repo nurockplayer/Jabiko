@@ -6,7 +6,7 @@ import {
   validateAnswer,
   VERB_FORMS
 } from "./conjugation";
-import { getDueQuestions } from "./srs";
+import { getMistakePool } from "./srs";
 import { generateReadingConfusers } from "./readingConfusers";
 import type {
   Attempt,
@@ -94,25 +94,17 @@ export function getMistakeQuestions(attempts: Attempt[], questions: PracticeQues
 }
 
 /**
- * Cross-session review queue, backed by Leitner SRS (see ./srs.ts).
- *
- * Behaviour delta vs the previous binary version:
- *   - Old: wrong -> in queue, right -> out forever.
- *   - New: wrong -> box 0 (rests, then due); right -> promote one box
- *     and re-schedule (2/4/7/14/30 days, capped at box 4). Items are
- *     surfaced ONLY when dueAt <= now; resting items stay out of
- *     today's queue.
- *
- * Same name + same caller-visible shape so App.tsx (home banner,
- * review-mode pool) doesn't need to change. The optional `now`
- * parameter is for tests; production callers can omit it.
+ * Cross-session weak-point review queue: the questions whose most recent
+ * attempt was wrong (the mistake pool -- see ./srs.ts). Wrong -> in the queue
+ * immediately; one correct answer -> out; missed again -> back. Oldest
+ * unresolved miss first. (#525 replaced the earlier SRS cooldown schedule,
+ * whose 2-day rest made a just-missed item look "not recorded".)
  */
 export function getReviewQueue(
   attempts: Attempt[],
-  pool: PracticeQuestion[],
-  now: number = Date.now()
+  pool: PracticeQuestion[]
 ): PracticeQuestion[] {
-  return getDueQuestions(attempts, pool, now);
+  return getMistakePool(attempts, pool);
 }
 
 export function selectQuestion(questions: PracticeQuestion[], index: number): PracticeQuestion | null {

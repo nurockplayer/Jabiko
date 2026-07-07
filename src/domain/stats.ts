@@ -12,11 +12,10 @@ import type { Attempt, JlptLevel } from "./types";
 
 const MS_PER_DAY = 86_400_000;
 
-// "Mastered" = a previously-missed item drilled up to a high SRS box.
-// (Items answered correctly on the first try never enter the SRS queue, so
-// this measures recovered weak points rather than total knowledge.) Box 3
-// is the 7-day interval -- three correct reps after a miss, solidly
-// remembered but not yet fully graduated.
+// "Mastered" = a previously-missed item drilled back up to a high box.
+// (Items answered correctly on the first try never enter the tracker, so this
+// measures recovered weak points rather than total knowledge.) Box 3 = three
+// correct reps after a miss: solidly recovered but not yet fully graduated.
 export const MASTERY_BOX = 3;
 
 const LEVELS: JlptLevel[] = ["N1", "N2", "N3", "N4", "N5"];
@@ -85,15 +84,15 @@ export function computeProgressStats(attempts: Attempt[], now: number = Date.now
     };
   }).filter((stat) => stat.answered > 0);
 
-  // One SRS replay covers both mastered (box ≥ threshold) and due
-  // (dueAt ≤ now) -- same definition countDueReviews uses, without a
-  // second pass over the attempts.
+  // One replay covers both mastered (box ≥ threshold) and the mistake-pool
+  // count (box === 0, i.e. last attempt wrong -- same definition countMistakes
+  // uses), without a second pass over the attempts.
   const states = computeReviewStates(attempts);
   let masteredCount = 0;
   let dueCount = 0;
   for (const state of states.values()) {
     if (state.box >= MASTERY_BOX) masteredCount++;
-    if (state.dueAt <= now) dueCount++;
+    if (state.box === 0) dueCount++;
   }
 
   return {
