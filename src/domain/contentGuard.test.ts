@@ -260,7 +260,9 @@ const PATTERN_HINT_BANLIST: Record<string, string[]> = {
   "nagara-tari": ["一邊", "同時", "一面", "列舉", "並列"],
   "te-aux": ["試試", "看看", "事先", "預先", "不小心", "已經", "正在", "結果", "補助"],
   "n5-joshi2": ["方向", "舉例", "工具", "手段", "合計", "總共"],
-  "n5-joshi3": ["也", "只有", "只", "或", "從", "代替"]
+  "n5-joshi3": ["也", "只有", "只", "或", "從", "代替"],
+  "n5-hikaku": ["比", "哪個", "哪一個"],
+  "n5-suki-dekiru": ["擅長", "也", "喜歡", "討厭"]
 };
 
 describe("sentence-pattern content guard", () => {

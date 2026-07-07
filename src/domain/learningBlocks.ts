@@ -381,6 +381,56 @@ export const learningBlocks: LearningBlock[] = [
     recommendedAfter: ["n5-joshi2"]
   },
   {
+    id: "n5-hikaku",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "比較 より・ほうが・いちばん",
+    subtitle: "バスは でんしゃより やすいです",
+    explanation:
+      "比較的三件組。①「AはBより〜」＝A比B更〜（より 接在比較基準後面）；②「〜のほうが〜」＝〜比較〜，問「AとBと、どちらが〜」時就用它回答；③最高級「（範圍）で 〜が いちばん〜」＝在～之中最～。記住兩個鐵則：二選一的疑問詞是どちら（不是なに）、疑問詞當主語只能接が。",
+    examples: [
+      { formula: "バスは でんしゃより やすいです", note: "A比B～" },
+      { formula: "AとBと、どちらが すきですか", note: "二選一疑問" },
+      { formula: "おちゃの ほうが すきです", note: "回答：～比較～" },
+      { formula: "スポーツの なかで サッカーが いちばん すきです", note: "最高級：範圍＋で" },
+      { formula: "きのうほど さむくないです", note: "ほど＋否定：沒～那麼～" }
+    ],
+    pitfalls: [
+      "ほど 也接比較基準，但後面必須是否定（〜ほど〜ない）",
+      "「哪個（二選一）」用どちら；三個以上才用どれ/なに",
+      "最高級的範圍用で：クラスで、日本で、スポーツのなかで"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Hikaku", patternIds: ["n5-hikaku"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["starter-particles"]
+  },
+  {
+    id: "n5-suki-dekiru",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "好惡與能力 〜が すき・できる",
+    subtitle: "ねこが すきです／およぐことが できます",
+    explanation:
+      "說「喜歡什麼、會什麼」的句型家族，共同點是對象全用「が」：すき/きらい（喜歡/討厭）、じょうず/へた（擅長/不擅長）、わかる（懂）、できる（會）。中文語感容易想用を（喜歡「貓」、懂「日語」），但這一家族固定用が——N5 最重要的轉換之一。動詞要說「會做～」時，先用「こと」把動詞變名詞：およぐ ことが できます。",
+    examples: [
+      { formula: "ねこが すきです", note: "喜歡：對象用が" },
+      { formula: "サッカーが じょうずです", note: "擅長" },
+      { formula: "にほんごが わかります", note: "懂" },
+      { formula: "りょうりが できます", note: "會（名詞）" },
+      { formula: "およぐ ことが できます", note: "會做～：動詞＋ことが できる" }
+    ],
+    pitfalls: [
+      "這家族的對象用が不用を：×にほんごを わかります",
+      "口語裡聽得到「〜をすき」，但考試和書面以が為準",
+      "きらい 長得像い形容詞，其實是な形容詞（きらいな 人）"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5SukiDekiru", patternIds: ["n5-suki-dekiru"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n5-hikaku"]
+  },
+  {
     id: "adverbial",
     group: "basic",
     category: "形容詞 / 名詞 修飾",

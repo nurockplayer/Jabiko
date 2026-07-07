@@ -599,6 +599,134 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "「〜だけ」：ひとりだけ。「ひとりも」は否定とセット（ひとりも いません）なので、肯定の「います」と矛盾する。"
     }
   },
+  "pattern-n5-hikaku-001": {
+    "hintI18n": { "en": "Talking about the price difference between the bus and the train.", "ja": "バスと電車の値段の違いの話。" },
+    "promptContextI18n": { "en": "\"The bus is cheaper than the train.\"", "ja": "「バスは電車より安いです。」" },
+    "explanationI18n": {
+      "en": "「AはBより〜」 = A is more ~ than B: the standard of comparison (the train) takes 「より」. 「が」 and 「を」 mark subjects/objects and 「の」 is possessive — none of them build a comparison. ※バス = bus.",
+      "ja": "「AはBより〜」：比較の基準（電車）の後ろに「より」。「が」「を」は主語・対象のマーカー、「の」は所有で、どれも比較の文は作れない。"
+    }
+  },
+  "pattern-n5-hikaku-002": {
+    "hintI18n": { "en": "Saying the train is the faster of the two.", "ja": "二つの乗り物のうち、速いのは電車だと言う。" },
+    "promptContextI18n": { "en": "\"The train is faster.\"", "ja": "「電車のほうが速いです。」" },
+    "explanationI18n": {
+      "en": "「〜のほうが〜」 = ~ is more ~: 「ほう」 (that side / one of two) is always followed by 「が」. 「を」「に」「で」 can't attach to this pattern. ※はやい = fast.",
+      "ja": "「〜のほうが〜」：「ほう（一方）」の後ろは「が」で固定。「を」「に」「で」はこの文型につながらない。"
+    }
+  },
+  "pattern-n5-hikaku-003": {
+    "hintI18n": { "en": "Asking about the listener's drink preference.", "ja": "相手に飲み物の好みを尋ねる。" },
+    "promptContextI18n": { "en": "\"Coffee or tea — which do you like better?\"", "ja": "「コーヒーとお茶と、どちらが好きですか。」" },
+    "explanationI18n": {
+      "en": "A question word (どちら, だれ, なに) as subject takes 「が」 — 「は」 marks an already-known topic, and \"which one\" is exactly the unknown being asked, so this neutral question doesn't use 「は」. The object of すき is also fixed as が. 「で」 and 「の」 make no sentence here.",
+      "ja": "疑問詞（どちら、だれ、なに）が主語のときは「が」。「は」の前は既知の話題が来るもので、「どちら」はまさに尋ねたい未知——だからこの中立の質問に「は」は使わない。すき の対象も が で固定。「で」「の」はここでは文にならない。"
+    }
+  },
+  "pattern-n5-hikaku-004": {
+    "hintI18n": { "en": "Answering which of the two you prefer.", "ja": "二つから自分の好みを答える。" },
+    "promptContextI18n": { "en": "\"Which do you like better?\" \"I prefer tea.\"", "ja": "「どちらが好きですか。」「お茶のほうが好きです。」" },
+    "explanationI18n": {
+      "en": "Answering with 「〜のほうが」: the noun links to 「ほう」 with 「の」 — おちゃの ほうが. 「が」 only appears after ほう; putting 「を」 or 「と」 here breaks the sentence.",
+      "ja": "「〜のほうが」で答える：名詞と「ほう」は「の」でつなぐ——おちゃの ほうが。「が」は ほう の後ろに来るもので、「を」「と」をここに置くと文が壊れる。"
+    }
+  },
+  "pattern-n5-hikaku-005": {
+    "hintI18n": { "en": "Naming your favorite among all sports.", "ja": "いちばん好きなスポーツを言う。" },
+    "promptContextI18n": { "en": "\"Among sports, I like soccer the best.\"", "ja": "「スポーツの中でサッカーがいちばん好きです。」" },
+    "explanationI18n": {
+      "en": "The superlative's range takes 「で」: 「〜のなかで 〜が いちばん〜」 = the most ~ within ~. 「に」 marks time/place and 「を」 marks objects; 「が」 already sits after サッカー. ※スポーツ = sports, サッカー = soccer.",
+      "ja": "最上級の範囲は「で」：「〜のなかで 〜が いちばん〜」。「に」は時間・場所、「を」は対象。「が」はもう サッカー の後ろにある。"
+    }
+  },
+  "pattern-n5-hikaku-006": {
+    "hintI18n": { "en": "Saying who is the tallest in the class.", "ja": "いちばん背が高い人はだれかを言う。" },
+    "promptContextI18n": { "en": "\"Tanaka is the tallest in the class.\"", "ja": "「クラスで田中さんがいちばん背が高いです。」" },
+    "explanationI18n": {
+      "en": "「(range)で いちばん〜」: クラスで = within the class. 「に」 and 「へ」 mark location/direction, 「を」 marks objects — none of them mean \"comparing within a range\". ※クラス = class, せ = height.",
+      "ja": "「（範囲）で いちばん〜」：クラスで＝クラスという範囲の中で。「に」「へ」は場所・方向、「を」は対象で、「範囲の中での比較」の意味にならない。"
+    }
+  },
+  "pattern-n5-hikaku-007": {
+    "hintI18n": { "en": "Talking about the temperature difference between today and yesterday.", "ja": "今日と昨日の気温の違いの話。" },
+    "promptContextI18n": { "en": "\"Today is colder than yesterday.\"", "ja": "「今日は昨日より寒いです。」" },
+    "explanationI18n": {
+      "en": "The standard of comparison takes 「より」: きのうより = than yesterday. 「ほど」 also follows a standard but demands a negative (きのうほど さむくない = not as cold as yesterday), contradicting the affirmative さむいです.",
+      "ja": "比較の基準には「より」：きのうより。「ほど」も基準に付くが必ず否定とセット（きのうほど さむくない）なので、文末の肯定「さむいです」と矛盾する。"
+    }
+  },
+  "pattern-n5-hikaku-008": {
+    "hintI18n": { "en": "Offering two fruits and asking the listener to pick one.", "ja": "二つの果物から一つ選んでもらう。" },
+    "promptContextI18n": { "en": "\"An apple or a mandarin — which do you like?\"", "ja": "「りんごとみかんと、どちらが好きですか。」" },
+    "explanationI18n": {
+      "en": "「AとBと」 lays out exactly two options, so the pick-one-of-two question word is 「どちら」. 「なに」 (what) is open-ended, contradicting the two listed choices; だれ asks about people, どこ about places. ※みかん = mandarin orange.",
+      "ja": "「AとBと」は選択肢が二つだと明示しているので、二択の疑問詞は「どちら」。「なに」はオープンな聞き方で、挙げた二つと矛盾。だれ は人、どこ は場所。"
+    }
+  },
+  "pattern-n5-suki-dekiru-001": {
+    "hintI18n": { "en": "Saying how you feel about cats.", "ja": "猫への気持ちを言う。" },
+    "promptContextI18n": { "en": "\"I like cats.\"", "ja": "「私は猫が好きです。」" },
+    "explanationI18n": {
+      "en": "The object of 「すき／きらい」 takes 「が」: ねこが すきです. Instinct from English or Chinese reaches for a direct object (を), but Japanese marks what you like with が — one of N5's most important switches. 「に」「へ」「と」 don't attach here.",
+      "ja": "「すき／きらい」の対象は「が」：ねこが すきです。中国語や英語の感覚では を を使いたくなるが、日本語では好きな対象を が で標示する——N5 でいちばん大事な切り替えのひとつ。「に」「へ」「と」はつながらない。"
+    }
+  },
+  "pattern-n5-suki-dekiru-002": {
+    "hintI18n": { "en": "Saying your little brother plays soccer very well.", "ja": "弟はサッカーがうまいと言う。" },
+    "promptContextI18n": { "en": "\"My little brother is good at soccer.\"", "ja": "「弟はサッカーが上手です。」" },
+    "explanationI18n": {
+      "en": "\"Good at\" is 「じょうず」: サッカーが じょうずです. 「へた」 = bad at and 「きらい」 = dislike — the hint says he plays well, so both point the wrong way; 「たかい」 (tall/expensive) doesn't fit. ※じょうず = good at, へた = bad at.",
+      "ja": "「上手」は じょうず：サッカーが じょうずです。「へた」は不得意、「きらい」は嫌い——ヒントは「うまい」と言っているので方向が逆。「たかい」は高いでつながらない。"
+    }
+  },
+  "pattern-n5-suki-dekiru-003": {
+    "hintI18n": { "en": "Asking whether the listener understands Japanese.", "ja": "相手の日本語の理解を尋ねる。" },
+    "promptContextI18n": { "en": "\"Do you understand Japanese?\"", "ja": "「日本語がわかりますか。」" },
+    "explanationI18n": {
+      "en": "The object of 「わかる」 (understand) takes 「が」: にほんごが わかります. \"Understand Japanese\" tempts you toward 「を」, but わかる is fixed with 「が」 — same family as すき and できる. ※にほんご = Japanese (the language).",
+      "ja": "「わかる」の対象は「が」：にほんごが わかります。「日本語を」と言いたくなるが、わかる は が で固定——すき、できる と同じ仲間。"
+    }
+  },
+  "pattern-n5-suki-dekiru-004": {
+    "hintI18n": { "en": "Saying Tanaka can cook.", "ja": "田中さんの料理の腕の話。" },
+    "promptContextI18n": { "en": "\"Tanaka can cook.\"", "ja": "「田中さんは料理ができます。」" },
+    "explanationI18n": {
+      "en": "The object of 「できる」 (can) also takes 「が」: りょうりが できます. 「を」 marks the object of an action verb, but できる states an ability — the family rule is が. ※りょうり = cooking.",
+      "ja": "「できる」の対象も「が」：りょうりが できます。「を」は動作動詞の対象マーカーだが、できる は能力の叙述なので、この仲間のルールどおり が。"
+    }
+  },
+  "pattern-n5-suki-dekiru-005": {
+    "hintI18n": { "en": "Saying you can swim.", "ja": "泳げると言う。" },
+    "promptContextI18n": { "en": "\"I can swim.\"", "ja": "「私は泳ぐことができます。」" },
+    "explanationI18n": {
+      "en": "\"Can do ~\" = dictionary form + 「ことが できる」: およぐ ことが できます. The verb is first turned into a noun with 「こと」, then takes 「が できる」. ※およぐ = to swim.",
+      "ja": "「辞書形＋ことが できる」＝〜できる：およぐ ことが できます。動詞をまず「こと」で名詞化してから「が できる」につなぐ。"
+    }
+  },
+  "pattern-n5-suki-dekiru-006": {
+    "hintI18n": { "en": "Saying your big brother isn't much of a singer.", "ja": "兄の歌はうまくないと言う。" },
+    "promptContextI18n": { "en": "\"My big brother is bad at singing.\"", "ja": "「兄は歌が下手です。」" },
+    "explanationI18n": {
+      "en": "「へた」 (bad at), like じょうず, takes 「が」 for its object: うたが へたです. 「の」 is possessive; 「へ」 and 「と」 mark direction/accompaniment — none attach here. ※あに = (my) older brother, うた = song.",
+      "ja": "「へた」も じょうず と同じく対象は「が」：うたが へたです。「の」は所有、「へ」「と」は方向・同伴で、どれもつながらない。"
+    }
+  },
+  "pattern-n5-suki-dekiru-007": {
+    "hintI18n": { "en": "Asking whether Kenji can read kanji.", "ja": "健二さんの漢字力を尋ねる。" },
+    "promptContextI18n": { "en": "\"Can Kenji read kanji?\"", "ja": "「健二さんは漢字を読むことができますか。」" },
+    "explanationI18n": {
+      "en": "The whole action 「かんじを よむ こと」 (the act of reading kanji) is the object of できる → takes 「が」. The 「かんじを」 inside belongs to よむ — a different slot; each does its own job. ※かんじ = kanji.",
+      "ja": "「かんじを よむ こと（漢字を読むという行為）」全体が できる の対象 →「が」。文中の「かんじを」は よむ の対象で、置き場所が違う——それぞれ別の仕事。"
+    }
+  },
+  "pattern-n5-suki-dekiru-008": {
+    "hintI18n": { "en": "Adding that you feel the same about cats as about dogs.", "ja": "犬と同じ気持ちを、続けて猫について言う。" },
+    "promptContextI18n": { "en": "\"I like dogs. I like cats too.\"", "ja": "「私は犬が好きです。猫も好きです。」" },
+    "explanationI18n": {
+      "en": "The previous sentence says you like dogs, and you \"also\" like cats → 「も」 takes over the が slot: ねこも すきです. This is the も from Particles III, revisited in a likes sentence.",
+      "ja": "前の文で犬が好きだと言い、猫「も」好き →「も」が が の位置をそのまま引き継ぐ：ねこも すきです。助詞IIIで学んだ も を、好きの文で復習。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",

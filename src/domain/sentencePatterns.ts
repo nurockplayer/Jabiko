@@ -8,6 +8,8 @@ export type SentencePatternId =
   | "n5-ichi"
   | "n5-joshi2"
   | "n5-joshi3"
+  | "n5-hikaku"
+  | "n5-suki-dekiru"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -41,6 +43,8 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "n5-ichi": "位置與指示",
   "n5-joshi2": "助詞II へ・で・と・や",
   "n5-joshi3": "助詞III の・も・か・から",
+  "n5-hikaku": "比較 より・ほうが・いちばん",
+  "n5-suki-dekiru": "好惡與能力",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -437,6 +441,201 @@ const N5_JOSHI3_ITEMS: SentencePatternItem[] = [
     options: ["だけ", "も", "を", "へ"],
     explanation:
       "「只、只有」用「だけ」：ひとりだけ＝只有一個人。「ひとりも」要接否定（ひとりも いません＝一個人都沒有），跟句尾肯定的「います」矛盾。※ひとり＝一個人。"
+  }
+];
+
+// ===========================================================================
+// N5 pattern: n5-hikaku -- comparison より/ほうが/いちばん (#545).
+//   Topicalized は readings are grammatical almost everywhere, so は never
+//   competes with が/で answers (except the interrogative-subject item where
+//   は is a DEAD foil by rule); ほど appears only as a dead foil with an
+//   affirmative predicate (ほど demands a negative -- itself a lesson).
+// ===========================================================================
+const N5_HIKAKU_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-hikaku-001",
+    patternId: "n5-hikaku",
+    promptText: "バスは でんしゃ___ やすいです。",
+    hintZh: "聊公車跟電車的票價差別。",
+    promptContextZh: "「公車比電車便宜。」",
+    expectedAnswer: "より",
+    options: ["より", "が", "を", "の"],
+    explanation:
+      "「AはBより〜」＝A比B更〜：比較的基準（電車）後面接「より」。「が」「を」是主語/對象標記；「の」是「的」，都搭不出比較句。※バス＝公車。"
+  },
+  {
+    id: "pattern-n5-hikaku-002",
+    patternId: "n5-hikaku",
+    promptText: "でんしゃの ほう___ はやいです。",
+    hintZh: "說兩個交通工具裡電車快。",
+    promptContextZh: "「電車（那邊）比較快。」",
+    expectedAnswer: "が",
+    options: ["が", "を", "に", "で"],
+    explanation:
+      "「〜のほうが〜」＝〜比較〜：「ほう（一方）」後面固定接「が」。「を」「に」「で」都接不上這個句型。※はやい＝快。"
+  },
+  {
+    id: "pattern-n5-hikaku-003",
+    patternId: "n5-hikaku",
+    promptText: "コーヒーと おちゃと、どちら___ すきですか。",
+    hintZh: "問對方兩種飲料的偏好。",
+    promptContextZh: "「咖啡和茶，你比較喜歡哪個？」",
+    expectedAnswer: "が",
+    options: ["が", "は", "で", "の"],
+    explanation:
+      "疑問詞（どちら、だれ、なに）當主語時用「が」——「は」前面要放已知的話題，而「哪個」正是要問的未知，所以這種中立的提問不用「は」。すき 的對象也固定用が；「で」「の」放這裡都不成句。"
+  },
+  {
+    id: "pattern-n5-hikaku-004",
+    patternId: "n5-hikaku",
+    promptText: "「どちらが すきですか。」「おちゃ___ ほうが すきです。」",
+    hintZh: "從兩個選項裡回答自己的偏好。",
+    promptContextZh: "「你比較喜歡哪個？」「我比較喜歡茶。」",
+    expectedAnswer: "の",
+    options: ["の", "が", "を", "と"],
+    explanation:
+      "回答「〜のほうが」：名詞和「ほう」之間用「の」連接——おちゃの ほうが。「が」在ほう後面才出現；「を」「と」放這裡句子就斷了。"
+  },
+  {
+    id: "pattern-n5-hikaku-005",
+    patternId: "n5-hikaku",
+    promptText: "スポーツの なか___ サッカーが いちばん すきです。",
+    hintZh: "說所有運動裡最喜歡的一種。",
+    promptContextZh: "「運動之中我最喜歡足球。」",
+    expectedAnswer: "で",
+    options: ["で", "に", "を", "が"],
+    explanation:
+      "最高級的範圍用「で」：「〜のなかで 〜が いちばん〜」＝在～之中最～。「に」表時間或地點、「を」接對象；「が」已經在サッカー後面了。※スポーツ＝運動、サッカー＝足球。"
+  },
+  {
+    id: "pattern-n5-hikaku-006",
+    patternId: "n5-hikaku",
+    promptText: "クラス___ たなかさんが いちばん せが たかいです。",
+    hintZh: "說班上個子最高的人。",
+    promptContextZh: "「班上田中個子最高。」",
+    expectedAnswer: "で",
+    options: ["で", "に", "を", "へ"],
+    explanation:
+      "「（範圍）で いちばん〜」：クラスで＝在班上（這個範圍裡）。「に」「へ」表地點方向、「を」接對象，都不是「範圍內比較」的用法。※クラス＝班級、せ＝身高。"
+  },
+  {
+    id: "pattern-n5-hikaku-007",
+    patternId: "n5-hikaku",
+    promptText: "きょうは きのう___ さむいです。",
+    hintZh: "聊今天跟昨天的氣溫差別。",
+    promptContextZh: "「今天比昨天冷。」",
+    expectedAnswer: "より",
+    options: ["より", "ほど", "から", "まで"],
+    explanation:
+      "比較的基準用「より」：きのうより＝比昨天。「ほど」也接比較基準，但後面必須是否定（きのうほど さむくない＝沒昨天那麼冷），跟句尾肯定的「さむいです」矛盾。"
+  },
+  {
+    id: "pattern-n5-hikaku-008",
+    patternId: "n5-hikaku",
+    promptText: "りんごと みかんと、___が すきですか。",
+    hintZh: "兩種水果請對方挑一種。",
+    promptContextZh: "「蘋果和橘子，你喜歡哪個？」",
+    expectedAnswer: "どちら",
+    options: ["どちら", "なに", "だれ", "どこ"],
+    explanation:
+      "「AとBと」擺明只有兩個選項，二選一的疑問詞用「どちら」。「なに（什麼）」是開放式問法，跟已列出的兩選項矛盾；だれ 問人、どこ 問地方。※みかん＝橘子。"
+  }
+];
+
+// ===========================================================================
+// N5 pattern: n5-suki-dekiru -- likes/dislikes + ability, all with が (#545).
+//   Colloquial を-marking of すき (ねこを すき) is real modern usage, so
+//   を never competes where すき's が is the answer; topicalized は/も
+//   readings keep は out of subject-slot items.
+// ===========================================================================
+const N5_SUKI_DEKIRU_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-suki-dekiru-001",
+    patternId: "n5-suki-dekiru",
+    promptText: "わたしは ねこ___ すきです。",
+    hintZh: "說自己對貓的感覺。",
+    promptContextZh: "「我喜歡貓。」",
+    expectedAnswer: "が",
+    options: ["が", "に", "へ", "と"],
+    explanation:
+      "「すき／きらい」的對象用「が」：ねこが すきです。中文語感會想用「を」（喜歡『貓』），但日文把喜歡的對象當「が」標記——這是 N5 最重要的轉換之一。「に」「へ」「と」都接不上。"
+  },
+  {
+    id: "pattern-n5-suki-dekiru-002",
+    patternId: "n5-suki-dekiru",
+    promptText: "おとうとは サッカーが ___です。",
+    hintZh: "說弟弟足球踢得很好。",
+    promptContextZh: "「弟弟足球踢得很好（擅長足球）。」",
+    expectedAnswer: "じょうず",
+    options: ["じょうず", "へた", "きらい", "たかい"],
+    explanation:
+      "「擅長」用「じょうず」：サッカーが じょうずです。「へた」是不擅長、「きらい」是討厭——提示說踢得好，方向相反；「たかい」是高/貴，接不上。※じょうず＝擅長、へた＝不擅長。"
+  },
+  {
+    id: "pattern-n5-suki-dekiru-003",
+    patternId: "n5-suki-dekiru",
+    promptText: "にほんご___ わかりますか。",
+    hintZh: "問對方懂不懂日語。",
+    promptContextZh: "「你懂日語嗎？」",
+    expectedAnswer: "が",
+    options: ["が", "を", "に", "へ"],
+    explanation:
+      "「わかる（懂）」的對象用「が」：にほんごが わかります。中文的「懂『日語』」讓人想選「を」，但わかる 固定搭配「が」——跟すき、できる 同一家族。※にほんご＝日語。"
+  },
+  {
+    id: "pattern-n5-suki-dekiru-004",
+    patternId: "n5-suki-dekiru",
+    promptText: "たなかさんは りょうり___ できます。",
+    hintZh: "說田中會做菜。",
+    promptContextZh: "「田中會做菜。」",
+    expectedAnswer: "が",
+    options: ["が", "を", "に", "で"],
+    explanation:
+      "「できる（會、能）」的對象也用「が」：りょうりが できます。「を」是動作動詞的對象標記，但できる 是能力敘述，家族規則＝用が。※りょうり＝料理、做菜。"
+  },
+  {
+    id: "pattern-n5-suki-dekiru-005",
+    patternId: "n5-suki-dekiru",
+    promptText: "わたしは およぐ こと___ できます。",
+    hintZh: "說自己會游泳。",
+    promptContextZh: "「我會游泳。」",
+    expectedAnswer: "が",
+    options: ["が", "を", "に", "で"],
+    explanation:
+      "「動詞辞書形＋ことが できる」＝會做～：およぐ ことが できます。動詞先用「こと」變成名詞，再接「が できる」。※およぐ＝游泳。"
+  },
+  {
+    id: "pattern-n5-suki-dekiru-006",
+    patternId: "n5-suki-dekiru",
+    promptText: "あには うた___ へたです。",
+    hintZh: "說哥哥唱歌不太行。",
+    promptContextZh: "「哥哥不擅長唱歌。」",
+    expectedAnswer: "が",
+    options: ["が", "の", "へ", "と"],
+    explanation:
+      "「へた（不擅長）」跟じょうず 一樣，對象用「が」：うたが へたです。「の」是「的」；「へ」「と」表方向、一起，都接不上。※あに＝哥哥、うた＝歌。"
+  },
+  {
+    id: "pattern-n5-suki-dekiru-007",
+    patternId: "n5-suki-dekiru",
+    promptText: "けんじさんは かんじを よむ こと___ できますか。",
+    hintZh: "問健二會不會唸漢字。",
+    promptContextZh: "「健二會唸漢字嗎？」",
+    expectedAnswer: "が",
+    options: ["が", "を", "に", "で"],
+    explanation:
+      "整個動作「かんじを よむ こと（唸漢字這件事）」是できる 的對象 → 接「が」。句子裡的「かんじを」是よむ 的對象，位置不同、各管各的。※かんじ＝漢字。"
+  },
+  {
+    id: "pattern-n5-suki-dekiru-008",
+    patternId: "n5-suki-dekiru",
+    promptText: "わたしは いぬが すきです。ねこ___ すきです。",
+    hintZh: "接著說對貓的感覺跟狗一樣。",
+    promptContextZh: "「我喜歡狗。也喜歡貓。」",
+    expectedAnswer: "も",
+    options: ["も", "と", "に", "へ"],
+    explanation:
+      "前一句已說喜歡狗，貓「也」喜歡 → 「も」直接取代「が」的位置：ねこも すきです。這是助詞III學過的も，配上好惡句複習。"
   }
 ];
 
@@ -1289,6 +1488,8 @@ export const sentencePatternItems: SentencePatternItem[] = [
   ...N5_ICHI_ITEMS,
   ...N5_JOSHI2_ITEMS,
   ...N5_JOSHI3_ITEMS,
+  ...N5_HIKAKU_ITEMS,
+  ...N5_SUKI_DEKIRU_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,
