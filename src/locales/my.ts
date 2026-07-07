@@ -218,6 +218,8 @@ export const my: Copy = {
   drillDesiderative: "たい・たがる လေ့ကျင့်",
   drillPatternStarterDesu: "အခြေခံဝါကျ 〜です လေ့ကျင့်ရန်",
   drillPatternStarterParticles: "ဝိဘတ် は・を・に・が လေ့ကျင့်ရန်",
+  drillPatternN5Sonzai: "あります・います လေ့ကျင့်ရန်",
+  drillPatternN5Ichi: "တည်နေရာစကားလုံး + この・その လေ့ကျင့်ရန်",
   drillPatternTeKudasai: "ပုံစံ လေ့ကျင့်: တောင်းဆို / ခွင့်ပြု / တားမြစ်",
   drillPatternNakuteMoII: "ပုံစံ လေ့ကျင့်: မလိုအပ် vs. မဖြစ်မနေ",
   drillPatternTeMorau: "ပုံစံ လေ့ကျင့်: ပေးခြင်းနှင့် လက်ခံခြင်း ရှုထောင့်",
