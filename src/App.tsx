@@ -18,8 +18,8 @@ import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
 import { useFurigana } from "./hooks/useFurigana";
 import { useLanguage } from "./hooks/useLanguage";
-import { useOriginMigration } from "./hooks/useOriginMigration";
 import { useSeoMeta } from "./hooks/useSeoMeta";
+import { useOriginMigration } from "./hooks/useOriginMigration";
 import { isSupabaseConfigured } from "./lib/supabase";
 import { useAuth } from "./hooks/useAuth";
 import { useProgressAttempts } from "./hooks/useProgressAttempts";
@@ -251,29 +251,8 @@ export default function App() {
   // side-effect and persistence; copy[language] re-renders the whole tree on
   // change, so the prop-drilled `language` stays a seam.
 
-  // #438: the grammar-pattern DATABASE (index + cards) is Chinese-only content
-  // for now, so its browse UI is gated to zh-Hant until the i18n overlay lands
-  // (#427 invariant: no residual Chinese in en/ja). Per-point study pages
-  // (GrammarPointPage) stay available in every language — their exam-bank
-  // content is already localized and the DB-only extras are gated inside.
-  const grammarIndexAvailable = language === "zh-Hant";
-  const showGrammarIndex =
-    grammarIndexAvailable && appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute);
-
-  // A non-zh visitor who reaches a grammar-INDEX state (direct /grammar or
-  // /grammar/n5 URL, or "back" out of a per-point study page) has no localized
-  // browse UI yet, so send them home rather than render an empty shell. Real
-  // per-point study pages (a concrete surface) stay reachable in every language.
-  useEffect(() => {
-    if (
-      appView === "grammar" &&
-      !grammarIndexAvailable &&
-      (grammarSurface === null || isGrammarLevelRoute)
-    ) {
-      setGrammarSurface(null);
-      setAppView("home");
-    }
-  }, [appView, grammarIndexAvailable, grammarSurface, isGrammarLevelRoute]);
+  // Show grammar index for all languages when at the grammar root or a level route.
+  const showGrammarIndex = appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute);
 
   // #483: the 文章 blog is zh-Hant-only original content (流行語 / 推し活 /
   // 歌詞解說…), so both the nav entry and the view are gated to zh-Hant like
@@ -286,6 +265,7 @@ export default function App() {
       setAppView("home");
     }
   }, [appView, blogAvailable]);
+
   // Language picker, opened from the header Globe button (#326).
   const [langPickerOpen, setLangPickerOpen] = useState(false);
   // Persistent feedback entry (#456): the suggestion box was only reachable from
@@ -533,17 +513,15 @@ export default function App() {
         >
           {t.kanji}
         </button>
-        {grammarIndexAvailable ? (
-          <button
-            type="button"
-            className={appView === "grammar" && grammarSurface === null ? "selected" : ""}
-            aria-current={appView === "grammar" && grammarSurface === null ? "page" : undefined}
-            onClick={() => { setGrammarSurface(null); setAppView("grammar"); }}
-          >
-            <BookOpen aria-hidden="true" size={16} style={{ verticalAlign: "middle", marginRight: "0.2rem" }} />
-            {t.grammar}
-          </button>
-        ) : null}
+        <button
+          type="button"
+          className={appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute) ? "selected" : ""}
+          aria-current={appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute) ? "page" : undefined}
+          onClick={() => { setGrammarSurface(null); setAppView("grammar"); }}
+        >
+          <BookOpen aria-hidden="true" size={16} style={{ verticalAlign: "middle", marginRight: "0.2rem" }} />
+          {t.grammar}
+        </button>
         {blogAvailable ? (
           <button
             type="button"

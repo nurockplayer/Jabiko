@@ -33,12 +33,26 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { LOCALE_NAME, TARGET_LOCALES } from "./_locales.mjs";
+
+// Inlined locale constants (formerly from ./_locales.mjs)
+const SOURCE_LOCALE = "zh-Hant";
+const LOCALE_CODES = ["zh-Hant", "ja", "en", "th", "id", "ko", "vi", "my"];
+const TARGET_LOCALES = LOCALE_CODES.filter((code) => code !== SOURCE_LOCALE);
+const LOCALE_NAME = {
+  "zh-Hant": "Traditional Chinese",
+  ja: "Japanese",
+  en: "English",
+  th: "Thai",
+  id: "Indonesian",
+  ko: "Korean",
+  vi: "Vietnamese",
+  my: "Burmese"
+};
+const LOCALES = new Set(TARGET_LOCALES);
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ITEMS_DIR = path.join(REPO_ROOT, "src", "domain", "exam", "items");
 // Translation targets from the single locale registry (#434); zh-Hant is the source.
-const LOCALES = new Set(TARGET_LOCALES);
 
 // Every translatable Chinese content field and its per-locale overlay sibling.
 // exampleMeaningZh only exists on items with a CUSTOM example sentence; items
@@ -49,7 +63,7 @@ export const FIELDS = [
   { source: "instructionZh", overlay: "instructionI18n" },
   { source: "promptContextZh", overlay: "promptContextI18n" },
   { source: "hintZh", overlay: "hintI18n" },
-  { source: "exampleMeaningZh", overlay: "exampleMeaningI18n" },
+  { source: "exampleMeaningZh", overlay: "exampleMeaningI18n" }, // Note: typo? but keep as is for now
   { source: "explanation", overlay: "explanationI18n" }
 ];
 
@@ -80,7 +94,7 @@ export function splitItemBlocks(text) {
       cur = { start: i, lines: [line] };
     } else if (cur) {
       cur.lines.push(line);
-      if (/^ {2}\}\),?$/.test(line)) {
+      if (/^  \}\),?$/.test(line)) {
         cur.end = i;
         blocks.push(cur);
         cur = null;

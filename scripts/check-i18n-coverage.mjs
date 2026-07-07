@@ -46,7 +46,12 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { NON_HAN_LOCALES, SOURCE_LOCALE } from "./_locales.mjs";
+
+// Inlined locale constants (formerly from ./_locales.mjs)
+const SOURCE_LOCALE = "zh-Hant";
+const LOCALE_CODES = ["zh-Hant", "ja", "en", "th", "id", "ko", "vi", "my"];
+const HAN_LOCALES = new Set([SOURCE_LOCALE, "ja"]);
+const NON_HAN_LOCALES = new Set(LOCALE_CODES.filter((code) => !HAN_LOCALES.has(code)));
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const LOCALES_DIR = path.join(REPO_ROOT, "src", "locales");
@@ -127,7 +132,7 @@ function scanUiCopy() {
       if (tgtVal === srcVal) {
         if (locale === "ja") {
           // Japanese shares kanji with Chinese; equality is NOT a reliable
-          // "untranslated" signal (作者/文法/漢字読み/準備中 are valid Japanese).
+          // "untranslated" signal (作者/文法/漢字讀み/準備中 are valid Japanese).
           jaReview.push({ locale, key, text: srcVal });
           jaN++;
         } else {

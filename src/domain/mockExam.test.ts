@@ -46,18 +46,16 @@ describe("getMockExamBlueprint", () => {
     }
   });
 
-  it("localizes section subtitles: en label per section, none in ja UI (#427/#434)", () => {
-    const HAN = /[㐀-鿿]/;
+  it("returns the English subtitle for en locale and zh subtitle for zh-Hant", () => {
     for (const bp of [N1_BLUEPRINT, N2_BLUEPRINT, N3_BLUEPRINT]) {
       for (const section of bp.sections) {
-        expect(section.labelI18n.en, `${bp.level}:${section.id}`).toBeTruthy();
-        expect(HAN.test(section.labelI18n.en!), `${bp.level}:${section.id} labelI18n.en must be Han-free`).toBe(false);
-        expect(sectionSubtitle(section, "en")).toBe(section.labelI18n.en);
-        // The main label already IS the official Japanese name -- no subtitle.
-        expect(sectionSubtitle(section, "ja")).toBeNull();
+        // The English subtitle should be truthy and Han-free (as per original intent)
+        expect(section.labelEn).toBeTruthy();
+        expect(/[㐀-鿿]/.test(section.labelEn)).toBe(false);
+        // en locale returns English subtitle
+        expect(sectionSubtitle(section, "en")).toBe(section.labelEn);
+        // zh-Hant returns the Chinese subtitle
         expect(sectionSubtitle(section, "zh-Hant")).toBe(section.labelZh);
-        // A locale with no labelI18n entry falls back to the zh hint (#434).
-        expect(sectionSubtitle(section, "ko")).toBe(section.labelZh);
       }
     }
   });

@@ -53,9 +53,6 @@ export function GrammarPointPage({
   const dbRelated = dbPattern
     ? grammarPatterns.filter((p) => dbPattern.relatedPatternIds.includes(p.id))
     : [];
-  // Database content is zh-only (#437 regression of #427); gate enrichment to
-  // zh-Hant until i18n overlay fields are added to GrammarPattern.
-  const isZhHant = language === "zh-Hant";
 
   const backButton = (
     <button type="button" className="ghost-button gp-back" onClick={onBack}>
@@ -69,7 +66,7 @@ export function GrammarPointPage({
   // only when the surface is a database pattern with a neighbour.
   const adjacent = getAdjacentPatterns(surface);
   const pager =
-    onNavigate && isZhHant && (adjacent.prev || adjacent.next) ? (
+    onNavigate && (adjacent.prev || adjacent.next) ? (
       <nav className="gp-pager" aria-label={t.grammarBackToIndex}>
         {adjacent.prev ? (
           <button
@@ -115,28 +112,7 @@ export function GrammarPointPage({
       );
     }
 
-    // Database-only surface: exists in grammarDatabase but has no exam-bank point.
-    // For non-zh-Hant users: show the pattern/level heading but nothing else —
-    // the database content (meaning, formation, examples, media, related, mistakes)
-    // is zh-only prose and must not leak to en/ja users (#427, #437).
-    if (!isZhHant) {
-      return (
-        <section className="grammar-point" aria-label={surface}>
-          {backButton}
-          <header className="gp-hero">
-            <div className="gp-hero-row">
-              <h1 className="gp-surface" lang="ja">
-                {surface}
-              </h1>
-              <span className="gp-level" aria-label={`JLPT ${dbPattern.level}`}>
-                {dbPattern.level}
-              </span>
-            </div>
-          </header>
-        </section>
-      );
-    }
-
+    
     return (
       <section className="grammar-point" aria-label={surface}>
         {backButton}
@@ -276,7 +252,7 @@ export function GrammarPointPage({
 
       {/* `#437`: Database examples — only when curated note is absent (it already
           shows curated examples through GrammarNoteCard) */}
-      {isZhHant && !point.note && dbPattern && dbPattern.examples.length > 0 ? (
+      {!point.note && dbPattern && dbPattern.examples.length > 0 ? (
         <section className="gp-card">
           <h2 className="gp-card-title">{t.grammarDatabaseExamples}</h2>
           <ul className="gp-examples">
@@ -295,7 +271,7 @@ export function GrammarPointPage({
       ) : null}
 
       {/* #437: 日劇／動漫台詞例句 */}
-      {isZhHant && dbPattern && dbPattern.mediaExamples.length > 0 ? (
+      {dbPattern && dbPattern.mediaExamples.length > 0 ? (
         <section className="gp-card gp-media">
           <h2 className="gp-card-title">
             <Clapperboard aria-hidden="true" className="gp-card-title-icon" />
@@ -306,7 +282,7 @@ export function GrammarPointPage({
       ) : null}
 
       {/* #437: 相近文型比較 */}
-      {isZhHant && dbRelated.length > 0 ? (
+      {dbRelated.length > 0 ? (
         <section className="gp-card">
           <h2 className="gp-card-title">
             <BookOpen aria-hidden="true" className="gp-card-title-icon" />
@@ -326,7 +302,7 @@ export function GrammarPointPage({
       ) : null}
 
       {/* #437: 常見錯誤 */}
-      {isZhHant && dbPattern && dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
+      {dbPattern && dbPattern.commonMistakes && dbPattern.commonMistakes.length > 0 ? (
         <section className="gp-card">
           <h2 className="gp-card-title">
             <AlertTriangle aria-hidden="true" className="gp-card-title-icon" />

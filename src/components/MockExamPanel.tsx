@@ -63,7 +63,7 @@ export function MockExamPanel({
           // info row ("準備中"), NOT a disabled button -- you can't drill
           // an empty pool, so it shouldn't look like a dead action.
           // Sections with questions are clickable cards.
-          const subtitle = sectionSubtitle(section, language);
+          const subtitle = language === "ja" ? null : sectionSubtitle(section, language);
           if (count === 0) {
             return (
               <li key={section.id}>
