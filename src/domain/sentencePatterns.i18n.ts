@@ -1431,6 +1431,134 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "道路標識は命令形：止まれ（一類・語尾え段）。日本の一時停止標識は赤い逆三角形で、日本語表記は「止まれ」（新しい標識には STOP が併記される）。「止まるな」は停止の禁止で、交差点の標識にはあり得ない。「止まりろ」「止まるれ」は存在しない。"
     }
   },
+  "pattern-n4-shushoku-001": {
+    "hintI18n": { "en": "This book joined your shelf yesterday.", "ja": "この本を手に入れたのは昨日。" },
+    "promptContextI18n": { "en": "\"This is the book I bought yesterday.\"", "ja": "「これはきのう買った本です。」" },
+    "explanationI18n": {
+      "en": "Parking a sentence before a noun = a noun-modifying clause, and its verb is plain: きのう買った本 = the book I bought yesterday. 「買う本」 is a book you WILL buy — clashing with きのう; 「買います」 is polite, and polite forms generally can't enter a modifier clause (always wrong on tests); 「買って本」 is no sentence.",
+      "ja": "名詞の前に文をまるごと置く＝名詞修飾節。動詞は普通形：きのう買った本。「買う本」は「これから買う本」で きのう と矛盾。「買います」は敬体で、修飾節には原則入らない（試験では常に誤り）。「買って本」は文にならない。"
+    }
+  },
+  "pattern-n4-shushoku-002": {
+    "hintI18n": { "en": "Pointing out who's singing over there.", "ja": "あそこで歌っているのが誰かを言う。" },
+    "promptContextI18n": { "en": "\"The person singing over there is Tanaka.\"", "ja": "「あそこで歌っている人は田中さんです。」" },
+    "explanationI18n": {
+      "en": "Inside the clause, plain forms only: 歌っている人 = the person singing. 「歌っています人」 shoves a polite form into the clause — generally no sentence, always wrong on tests (ultra-formal letters are another world); 「歌いますの」「歌ってる人の」 are scrambles. ※歌う = to sing.",
+      "ja": "節の中は普通形：歌っている人。「歌っています人」は敬体を修飾節に入れた形——原則文にならず、試験では常に誤り（超改まった書簡は別世界）。「歌いますの」「歌ってる人の」は崩れ形。"
+    }
+  },
+  "pattern-n4-shushoku-003": {
+    "hintI18n": { "en": "Whose cooking is on the table.", "ja": "この料理を作ったのは誰かを言う。" },
+    "promptContextI18n": { "en": "\"This is a dish my mother made.\"", "ja": "「これは母が作った料理です。」" },
+    "explanationI18n": {
+      "en": "The clause's subject takes 「が」: 母が作った料理. 「から」 would mean \"a dish made FROM mother\" and 「で」 \"a dish made USING mother\" — both nonsense; 「を」's slot is already taken by 料理. Two bonus notes: the topic marker は can't enter a modifier clause (use が), and the clause's が can swap with の (母の作った料理), an elegant equivalent.",
+      "ja": "節内の主語は「が」：母が作った料理。「から」だと「母から作った料理」、「で」だと「母で作った料理」で意味が壊れる。「を」の席は 料理 が使用中。おまけ二つ：主題の は は修飾節に入れない（が を使う）。節内の が は の と交替できる（母の作った料理）。"
+    }
+  },
+  "pattern-n4-shushoku-004": {
+    "hintI18n": { "en": "A new shop opened by the station — name included.", "ja": "駅前の新しい店を、名前つきで紹介。" },
+    "promptContextI18n": { "en": "\"A shop called Sakura opened in front of the station.\"", "ja": "「駅前に『さくら』という店ができました。」" },
+    "explanationI18n": {
+      "en": "Introducing something by name uses 「〜という＋noun」: 「さくら」という店 = a shop called Sakura. 「にいう」「でいう」「がいう」 aren't this pattern — the chunk is fixed as と + いう. ※駅前 = in front of the station.",
+      "ja": "名前を添えて紹介するのは「〜という＋名詞」：「さくら」という店。「にいう」「でいう」「がいう」はこの文型ではない——と＋いう で固定。"
+    }
+  },
+  "pattern-n4-shushoku-005": {
+    "hintI18n": { "en": "Next week's hotel is already booked.", "ja": "来週のホテルはもう手配済み。" },
+    "promptContextI18n": { "en": "\"The hotel we're staying at next week is already booked.\"", "ja": "「来週泊まるホテルは、もう予約しました。」" },
+    "explanationI18n": {
+      "en": "The clause's tense tracks its OWN event, not the main clause: the stay is next week, not yet happened → dictionary form 泊まるホテル (only the booking is done). 「泊まった」 clashes with 来週; 「泊まりますの」 is a polite-form scramble; 「泊まって」 is no sentence. ※泊まる = to stay (overnight), 予約 = reservation.",
+      "ja": "節の時制は「その出来事」基準で、主文に引きずられない：宿泊は来週でまだ先→辞書形 泊まるホテル（済んだのは予約だけ）。「泊まった」は来週と矛盾。「泊まりますの」は敬体の崩れ形。「泊まって」は文にならない。"
+    }
+  },
+  "pattern-n4-shushoku-006": {
+    "hintI18n": { "en": "Off to see a friend.", "ja": "友だちに会いに行く話。" },
+    "promptContextI18n": { "en": "\"I'm going to see a friend who still lives in Osaka.\"", "ja": "「大阪に今も住んでいる友だちに会いに行きます。」" },
+    "explanationI18n": {
+      "en": "\"A friend living in Osaka\" = a stative modifier clause: 住んでいる友だち. 「住んでいます」 is polite and generally can't modify (always wrong on tests); 「住んでいるの友だち」 has a stray の; 「住んでいた」 is \"used to live\" — flatly contradicting the clause's 今も (still now).",
+      "ja": "「大阪に住んでいる友だち」＝状態の修飾節。「住んでいます」は敬体で修飾節には原則入らない（試験では誤り）。「住んでいるの友だち」は の が余計。「住んでいた」は「昔住んでいた」で、節内の「今も」と真っ向から矛盾する。"
+    }
+  },
+  "pattern-n4-shushoku-007": {
+    "hintI18n": { "en": "Passing along Tanaka's message.", "ja": "田中さんの伝言を伝える。" },
+    "promptContextI18n": { "en": "\"Tanaka was saying he'll take next week off.\"", "ja": "「田中さんは来週休むと言っていました。」" },
+    "explanationI18n": {
+      "en": "Reporting what someone said uses 「〜と言っていました」 — the standard quote marker is と (colloquial speech also has って): 休むと言っていました. 「を」「に」「が」 can't mark quoted content. と言っていた carries more of a \"relaying this to you\" tone than と言った.",
+      "ja": "人の発言の伝達は「〜と言っていました」——標準の引用マーカーは と（話し言葉には って もある）：休むと言っていました。「を」「に」「が」は引用内容に付けられない。と言っていた は と言った より「あなたに伝えている」響きが出る。"
+    }
+  },
+  "pattern-n4-shushoku-008": {
+    "hintI18n": { "en": "Explaining a Japanese word.", "ja": "日本語の単語をひとつ解説。" },
+    "promptContextI18n": { "en": "\"『さくら』 is the name of this flower.\"", "ja": "「『さくら』というのは、この花の名前です。」" },
+    "explanationI18n": {
+      "en": "Definitions use 「〜というのは」 = \"so-called ~ / what ~ means\": 「さくら」というのは. The same という as in 004, plus のは to open a definition. 「はいう」「でいう」「をいう」 don't work in this pattern — the chunk is fixed with と.",
+      "ja": "定義は「〜というのは」：「さくら」というのは。004 と同じ という に のは を付けると定義文の頭になる。「はいう」「でいう」「をいう」はこの文型では成立しない——と で固定。"
+    }
+  },
+  "pattern-n4-kansetsu-001": {
+    "hintI18n": { "en": "Asked about the party, you're still on the fence.", "ja": "パーティーの話を振られたが、まだ迷っている。" },
+    "promptContextI18n": { "en": "\"I haven't decided whether to go to the party.\"", "ja": "「パーティーに行くかどうか、まだ決めていません。」" },
+    "explanationI18n": {
+      "en": "\"Whether ~\" = 「〜かどうか」: 行くかどうか = whether to go. The chunk is fixed as か + どうか; 「を」「に」「で」 all break it. ※パーティー = party, 決める = to decide.",
+      "ja": "「〜かどうか」＝〜するかしないか：行くかどうか。か＋どうか で固定のかたまり。「を」「に」「で」を入れると壊れる。"
+    }
+  },
+  "pattern-n4-kansetsu-002": {
+    "hintI18n": { "en": "Fishing for the meeting's start time.", "ja": "会議の開始時刻を尋ねる。" },
+    "promptContextI18n": { "en": "\"Do you know when the meeting starts?\"", "ja": "「会議がいつ始まるか、知っていますか。」" },
+    "explanationI18n": {
+      "en": "The clause already has a question word (いつ), so the indirect question takes plain 「〜か」: いつ始まるか. 「かどうか」 is only for yes/no clauses WITHOUT a question word — 「いつ始まるかどうか」 is wrong; 「ので」「まで」 can't build an indirect question. ※会議 = meeting.",
+      "ja": "節内にもう疑問詞（いつ）があるので、間接疑問は「〜か」：いつ始まるか。「かどうか」は疑問詞の「ない」Yes/No 型専用——「いつ始まるかどうか」は誤り。「ので」「まで」では間接疑問にならない。"
+    }
+  },
+  "pattern-n4-kansetsu-003": {
+    "hintI18n": { "en": "The keys are... somewhere.", "ja": "かぎの置き場所が思い出せない。" },
+    "promptContextI18n": { "en": "\"I forgot where I put the keys.\"", "ja": "「かぎをどこに置いたか、忘れてしまいました。」" },
+    "explanationI18n": {
+      "en": "Question word (どこ) + 「〜か」 = the indirect question: どこに置いたか忘れました. 「かどうか」 can't co-occur with a question word; 「まで」「より」 don't attach. ※かぎ = key, 置く = to put.",
+      "ja": "疑問詞（どこ）＋「〜か」＝間接疑問：どこに置いたか忘れました。「かどうか」は疑問詞と併用できない。「まで」「より」はつながらない。"
+    }
+  },
+  "pattern-n4-kansetsu-004": {
+    "hintI18n": { "en": "Checking the forecast for tomorrow.", "ja": "明日の天気を予報で確かめる。" },
+    "promptContextI18n": { "en": "\"I'll check the forecast to see whether it'll be sunny tomorrow.\"", "ja": "「明日晴れるかどうか、天気予報を見て確認します。」" },
+    "explanationI18n": {
+      "en": "A yes/no clause with no question word takes 「〜かどうか」: 晴れるかどうか = whether it'll clear up. 「かどうして」「がどうか」「をどうか」 are all non-sentences — the only fixed pairing is か + どうか. ※晴れる = to clear up, 天気予報 = weather forecast, 確認 = to check.",
+      "ja": "疑問詞のない Yes/No 型は「〜かどうか」：晴れるかどうか。「かどうして」「がどうか」「をどうか」はどれも文にならない——固定の組み合わせは か＋どうか だけ。"
+    }
+  },
+  "pattern-n4-kansetsu-005": {
+    "hintI18n": { "en": "Why is Tanaka fuming? Anyone know?", "ja": "田中さんの怒りの理由を探る。" },
+    "promptContextI18n": { "en": "\"Does anyone know why Tanaka is angry?\"", "ja": "「田中さんがどうして怒っているか、だれか知りませんか。」" },
+    "explanationI18n": {
+      "en": "Question word (どうして) + 「〜か」: どうして怒っているか. The rule once more: question word → か, none → かどうか — 「どうして〜かどうか」 is wrong. 「ので」「のに」 mark reason/contrast, not indirect questions. ※怒る = to get angry.",
+      "ja": "疑問詞（どうして）＋「〜か」：どうして怒っているか。ルール再確認：疑問詞あり→か、なし→かどうか——「どうして〜かどうか」は誤り。「ので」「のに」は理由/逆接で間接疑問にならない。"
+    }
+  },
+  "pattern-n4-kansetsu-006": {
+    "hintI18n": { "en": "Is that story even true?", "ja": "その話、信じていいのか。" },
+    "promptContextI18n": { "en": "\"I don't know whether that story is true.\"", "ja": "「その話が本当かどうか、分かりません。」" },
+    "explanationI18n": {
+      "en": "Nouns and な-adjectives attach to 「かどうか」 bare — だ drops: 本当かどうか. Filling in 「な」「だ」「の」 gives 本当などうか / 本当だどうか / 本当のどうか — all missing the か, none a sentence. Standard form = noun directly + かどうか (colloquial Japanese has a separate 「〜だか」, but at N4 learn the bare attachment). ※本当 = true.",
+      "ja": "名詞・な形容詞は「かどうか」に裸で付く——だ は落とす：本当かどうか。「な」「だ」「の」を入れると 本当などうか／本当だどうか／本当のどうか——どれも か が欠けて文にならない。標準形＝名詞＋かどうか（話し言葉には「〜だか」もあるが、N4 は裸接続で覚える）。"
+    }
+  },
+  "pattern-n4-kansetsu-007": {
+    "hintI18n": { "en": "Asking for their arrival time.", "ja": "到着時刻を教えてもらう。" },
+    "promptContextI18n": { "en": "\"Please tell me what time you're coming.\"", "ja": "「何時に来るか、教えてください。」" },
+    "explanationI18n": {
+      "en": "The inside of an indirect question stays plain + か: 何時に来るか教えてください. 「来るますか」 is broken attachment — polite forms generally stay out of indirect questions; the politeness lives in the final 教えてください. 「より」「なか」 can't build an indirect question. ※何時 = what time.",
+      "ja": "間接疑問の中身は普通形＋か：何時に来るか教えてください。「来るますか」は接続の破綻——敬体は原則、間接疑問の中に入れない。丁寧さは文末の 教えてください で足りる。「より」「なか」では間接疑問にならない。"
+    }
+  },
+  "pattern-n4-kansetsu-008": {
+    "hintI18n": { "en": "Pushing someone to make up their mind.", "ja": "早く決めてと迫る。" },
+    "promptContextI18n": { "en": "\"Going or not — decide already.\"", "ja": "「行くか行かないか、早く決めてください。」" },
+    "explanationI18n": {
+      "en": "「〜か〜ないか」 is かどうか spelled out: 行くか行かないか = go or not go. The second か can't become 「を」「で」「まで」 — both halves need か to pair up.",
+      "ja": "「〜か〜ないか」は かどうか の展開形：行くか行かないか。二つ目の か は「を」「で」「まで」に変えられない——両側とも か でペアになる。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",

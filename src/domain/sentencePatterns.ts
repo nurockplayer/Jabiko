@@ -21,6 +21,8 @@ export type SentencePatternId =
   | "n4-suiryou"
   | "n4-ishi"
   | "n4-meirei"
+  | "n4-shushoku"
+  | "n4-kansetsu"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -67,6 +69,8 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "n4-suiryou": "推量與原因 かもしれない・て",
   "n4-ishi": "打算與決定 つもり・ことにする",
   "n4-meirei": "命令與禁止 しろ・するな",
+  "n4-shushoku": "名詞修飾節 〜した＋名詞",
+  "n4-kansetsu": "間接疑問 かどうか・〜か",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -1757,6 +1761,208 @@ const N4_MEIREI_ITEMS: SentencePatternItem[] = [
 ];
 
 // ===========================================================================
+// N4 pattern: n4-shushoku -- noun-modifying clauses + という (#551).
+//   The tense inside a modifier clause is anchored by an explicit time
+//   adverb (きのう / 来週) so plain-vs-past never double-reads; の never
+//   appears where が is the answer (the が/の alternation is real);
+//   habitual 住む never competes with 住んでいる (both modify) -- the
+//   foil set there is polite/て/た forms killed by attachment or the
+//   meet-the-friend-in-Osaka anchor. と言った never competes with
+//   と言っていた (both report).
+// ===========================================================================
+const N4_SHUSHOKU_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n4-shushoku-001",
+    patternId: "n4-shushoku",
+    promptText: "これはきのう___本です。",
+    hintZh: "說這本書昨天入手。",
+    promptContextZh: "「這是我昨天買的書。」",
+    expectedAnswer: "買った",
+    options: ["買った", "買う", "買います", "買って"],
+    explanation:
+      "把句子塞進名詞前面＝名詞修飾節，動詞用普通形：きのう買った本＝昨天買的書。「買う本」是「要買的書」，跟きのう矛盾；「買います」是敬體——敬體一般不進修飾節（考試一律當錯）；「買って本」不成句。"
+  },
+  {
+    id: "pattern-n4-shushoku-002",
+    patternId: "n4-shushoku",
+    promptText: "あそこで___人は田中さんです。",
+    hintZh: "指出在那邊唱歌的人是誰。",
+    promptContextZh: "「在那邊唱歌的人是田中。」",
+    expectedAnswer: "歌っている",
+    options: ["歌っている", "歌っています", "歌いますの", "歌ってる人の"],
+    explanation:
+      "修飾節裡用普通形：歌っている人＝正在唱歌的人。「歌っています人」把敬體塞進修飾節——一般不成句、考試一律當錯（超正式書信另當別論）；「歌いますの」「歌ってる人の」都是亂接。※歌う＝唱歌。"
+  },
+  {
+    id: "pattern-n4-shushoku-003",
+    patternId: "n4-shushoku",
+    promptText: "これは母___作った料理です。",
+    hintZh: "介紹桌上這道菜出自誰手。",
+    promptContextZh: "「這是媽媽做的菜。」",
+    expectedAnswer: "が",
+    options: ["が", "から", "を", "で"],
+    explanation:
+      "修飾節裡的主語用「が」：母が作った料理。「から」變成「從媽媽做出的菜」、「で」變成「用媽媽做出的菜」，都不成話；「を」的位置已被料理佔了。順帶記兩件事：主題的は進不了修飾節（要用が）；而節裡的が可以換成の（母の作った料理），是同義的漂亮寫法。"
+  },
+  {
+    id: "pattern-n4-shushoku-004",
+    patternId: "n4-shushoku",
+    promptText: "駅前に「さくら」___店ができました。",
+    hintZh: "說站前新開了一家店，順帶報店名。",
+    promptContextZh: "「站前開了一家叫『さくら』的店。」",
+    expectedAnswer: "という",
+    options: ["という", "にいう", "でいう", "がいう"],
+    explanation:
+      "報出名字、介紹新事物用「〜という＋名詞」：「さくら」という店＝叫さくら的店。「にいう」「でいう」「がいう」都不是這個句型——固定就是と＋いう。※駅前＝車站前。"
+  },
+  {
+    id: "pattern-n4-shushoku-005",
+    patternId: "n4-shushoku",
+    promptText: "来週___ホテルは、もう予約しました。",
+    hintZh: "說下週住宿的旅館已訂好。",
+    promptContextZh: "「下週要住的旅館已經訂好了。」",
+    expectedAnswer: "泊まる",
+    options: ["泊まる", "泊まった", "泊まりますの", "泊まって"],
+    explanation:
+      "修飾節的時態看「事件本身」發生了沒，不看主句：住宿在下週、還沒發生→辭書形泊まるホテル（訂房這個動作才是完成的）。「泊まった」跟来週矛盾；「泊まりますの」是敬體＋の的亂接；「泊まって」不成句。※泊まる＝住宿、予約＝預約。"
+  },
+  {
+    id: "pattern-n4-shushoku-006",
+    patternId: "n4-shushoku",
+    promptText: "大阪に今も___友だちに会いに行きます。",
+    hintZh: "說要去見朋友。",
+    promptContextZh: "「我要去見至今仍住在大阪的朋友。」",
+    expectedAnswer: "住んでいる",
+    options: ["住んでいる", "住んでいます", "住んでいるの", "住んでいた"],
+    explanation:
+      "「住在大阪的朋友」＝狀態的修飾節：住んでいる友だち。「住んでいます」是敬體，一般進不了修飾節（考試一律當錯）；「住んでいるの友だち」多了の、不成句；「住んでいた」是以前住，跟節內的「今も（至今仍）」直接矛盾。"
+  },
+  {
+    id: "pattern-n4-shushoku-007",
+    patternId: "n4-shushoku",
+    promptText: "田中さんは来週休む___。",
+    hintZh: "轉達田中請假的消息。",
+    promptContextZh: "「田中（先前）說他下週要請假。」",
+    expectedAnswer: "と言っていました",
+    options: ["と言っていました", "を言っていました", "に言っていました", "が言っていました"],
+    explanation:
+      "轉述別人說過的話用「〜と言っていました」——標準的引用助詞是と（口語另有って）：休むと言っていました。「を」「に」「が」都不能標引用內容。「と言っていた」比「と言った」更有「傳話給你」的口吻。"
+  },
+  {
+    id: "pattern-n4-shushoku-008",
+    patternId: "n4-shushoku",
+    promptText: "「さくら」___のは、この花の名前です。",
+    hintZh: "解釋一個日文詞。",
+    promptContextZh: "「所謂『さくら』，是這種花的名字。」",
+    expectedAnswer: "という",
+    options: ["という", "はいう", "でいう", "をいう"],
+    explanation:
+      "下定義用「〜というのは」＝所謂〜：「さくら」というのは＝所謂さくら。跟004是同一個という，後面接のは就變成定義句的開頭。「はいう」「でいう」「をいう」放進這個句型都不成立——固定就是と。"
+  }
+];
+
+// ===========================================================================
+// N4 pattern: n4-kansetsu -- indirect questions (#551).
+//   The か vs かどうか division IS the lesson, and it's anchored in the
+//   prompt: every 疑問詞 item carries its question word (いつ/どこ/どうして)
+//   so かどうか dies by rule, and every かどうか item has none. か+case
+//   particles (かは/かを/かが) are all REAL, so no option ever pairs か
+//   with a particle; plain か never competes where かどうか is the answer
+//   (行くか、決めていない is real) -- those items blank only part of the
+//   fixed chunk or use junk distractors.
+// ===========================================================================
+const N4_KANSETSU_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n4-kansetsu-001",
+    patternId: "n4-kansetsu",
+    promptText: "パーティーに行く___どうか、まだ決めていません。",
+    hintZh: "被問到派對的事，表示還沒拿定主意。",
+    promptContextZh: "「還沒決定要不要去派對。」",
+    expectedAnswer: "か",
+    options: ["か", "を", "に", "で"],
+    explanation:
+      "「是否〜」＝「〜かどうか」：行くかどうか＝去或不去。整組固定是か＋どうか，「を」「に」「で」放進去都不成句。※パーティー＝派對、決める＝決定。"
+  },
+  {
+    id: "pattern-n4-kansetsu-002",
+    patternId: "n4-kansetsu",
+    promptText: "会議がいつ始まる___、知っていますか。",
+    hintZh: "打聽會議的開始時間。",
+    promptContextZh: "「你知道會議幾點開始嗎？」",
+    expectedAnswer: "か",
+    options: ["か", "かどうか", "ので", "まで"],
+    explanation:
+      "句子裡已經有疑問詞（いつ），間接疑問就用「〜か」：いつ始まるか。「かどうか」只用在沒有疑問詞的「是否」句——「いつ始まるかどうか」是錯的；「ので」「まで」接不出間接疑問。※会議＝會議。"
+  },
+  {
+    id: "pattern-n4-kansetsu-003",
+    patternId: "n4-kansetsu",
+    promptText: "かぎをどこに置いた___、忘れてしまいました。",
+    hintZh: "想不起鑰匙放哪了。",
+    promptContextZh: "「忘記鑰匙放在哪裡了。」",
+    expectedAnswer: "か",
+    options: ["か", "かどうか", "まで", "より"],
+    explanation:
+      "疑問詞（どこ）＋「〜か」＝間接疑問：どこに置いたか忘れました。「かどうか」跟疑問詞不能同用；「まで」「より」接不上。※かぎ＝鑰匙、置く＝放置。"
+  },
+  {
+    id: "pattern-n4-kansetsu-004",
+    patternId: "n4-kansetsu",
+    promptText: "明日晴れる___、天気予報を見て確認します。",
+    hintZh: "看預報確認明天的天氣。",
+    promptContextZh: "「明天會不會放晴，看天氣預報確認。」",
+    expectedAnswer: "かどうか",
+    options: ["かどうか", "かどうして", "がどうか", "をどうか"],
+    explanation:
+      "沒有疑問詞的「是否」句用「〜かどうか」：晴れるかどうか＝會不會放晴。「かどうして」「がどうか」「をどうか」都不成句——固定的組合只有か＋どうか。※晴れる＝放晴、天気予報＝天氣預報、確認＝確認。"
+  },
+  {
+    id: "pattern-n4-kansetsu-005",
+    patternId: "n4-kansetsu",
+    promptText: "田中さんがどうして怒っている___、だれか知りませんか。",
+    hintZh: "想知道田中生氣的原因。",
+    promptContextZh: "「有人知道田中為什麼在生氣嗎？」",
+    expectedAnswer: "か",
+    options: ["か", "かどうか", "ので", "のに"],
+    explanation:
+      "疑問詞（どうして）＋「〜か」：どうして怒っているか。再確認一次規則：有疑問詞→か、沒有→かどうか——「どうして〜かどうか」是錯的。「ので」「のに」是理由/逆接，接不出間接疑問。※怒る＝生氣。"
+  },
+  {
+    id: "pattern-n4-kansetsu-006",
+    patternId: "n4-kansetsu",
+    promptText: "その話が本当___どうか、分かりません。",
+    hintZh: "懷疑那個消息的真假。",
+    promptContextZh: "「不知道那件事是真是假。」",
+    expectedAnswer: "か",
+    options: ["か", "な", "だ", "の"],
+    explanation:
+      "名詞、な形容詞接「かどうか」直接裸接、だ要去掉：本当かどうか。「な」「だ」「の」填進去是「本当などうか」「本当だどうか」「本当のどうか」——全都缺了か、不成句。標準形＝名詞直接＋かどうか（口語另有「〜だか」的說法，N4 先記裸接）。※本当＝真的。"
+  },
+  {
+    id: "pattern-n4-kansetsu-007",
+    patternId: "n4-kansetsu",
+    promptText: "何時に来る___、教えてください。",
+    hintZh: "請對方留下到達時間。",
+    promptContextZh: "「請告訴我你幾點到。」",
+    expectedAnswer: "か",
+    options: ["か", "ますか", "より", "なか"],
+    explanation:
+      "間接疑問的內部用普通形＋か：何時に来るか教えてください。「来るますか」接續不成句——敬體一般不進間接疑問，禮貌放在句尾的教えてください就夠了；「より」「なか」都接不出間接疑問。※何時＝幾點。"
+  },
+  {
+    id: "pattern-n4-kansetsu-008",
+    patternId: "n4-kansetsu",
+    promptText: "行くか行かない___、早く決めてください。",
+    hintZh: "催人下決心。",
+    promptContextZh: "「要去不去，快點決定。」",
+    expectedAnswer: "か",
+    options: ["か", "を", "で", "まで"],
+    explanation:
+      "「〜か〜ないか」是かどうか的展開形：行くか行かないか＝去或不去。第二個か一樣不能換成「を」「で」「まで」——兩邊都要か才成對。"
+  }
+];
+
+// ===========================================================================
 // Lesson-0 pattern A: starter-desu -- the AはBです sentence family (#534).
 //   Absolute-beginner floor: kana-only sentences built from the starter
 //   vocabulary deck. Unique solutions are locked by IN-SENTENCE anchors
@@ -2618,6 +2824,8 @@ export const sentencePatternItems: SentencePatternItem[] = [
   ...N4_SUIRYOU_ITEMS,
   ...N4_ISHI_ITEMS,
   ...N4_MEIREI_ITEMS,
+  ...N4_SHUSHOKU_ITEMS,
+  ...N4_KANSETSU_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,
