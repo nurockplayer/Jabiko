@@ -248,6 +248,13 @@ export const ko: Copy = {
   sessionLengthAll: "전체",
   sessionLengthCustom: "직접 설정",
   sessionLengthCustomPlaceholder: "문제 수",
+  ttsRate: "읽기 속도",
+  ttsRatePresets: {
+    normal: "표준",
+    slow: "느리게",
+    slower: "더 느리게"
+  },
+  ttsRateCustom: "사용자 지정",
   practiceFocus: "연습 초점",
   verbGroup: "동사 그룹",
   targetForm: "목표 활용형",

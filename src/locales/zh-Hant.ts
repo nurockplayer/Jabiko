@@ -248,6 +248,13 @@ export const zhHant: Copy = {
   sessionLengthAll: "全部",
   sessionLengthCustom: "自訂",
   sessionLengthCustomPlaceholder: "題數",
+  ttsRate: "語速",
+  ttsRatePresets: {
+    normal: "標準",
+    slow: "慢",
+    slower: "更慢"
+  },
+  ttsRateCustom: "自訂",
   practiceFocus: "練習重點",
   verbGroup: "動詞類別",
   targetForm: "目標形",

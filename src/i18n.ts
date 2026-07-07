@@ -231,6 +231,13 @@ export type Copy = {
   sessionLengthAll: string;
   sessionLengthCustom: string;
   sessionLengthCustomPlaceholder: string;
+  ttsRate: string;
+  ttsRatePresets: {
+    normal: string;
+    slow: string;
+    slower: string;
+  };
+  ttsRateCustom: string;
   practiceFocus: string;
   verbGroup: string;
   targetForm: string;

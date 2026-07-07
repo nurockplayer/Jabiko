@@ -256,6 +256,13 @@ export const ja: Copy = {
   sessionLengthAll: "すべて",
   sessionLengthCustom: "カスタム",
   sessionLengthCustomPlaceholder: "問題数",
+  ttsRate: "読み上げ速度",
+  ttsRatePresets: {
+    normal: "標準",
+    slow: "ゆっくり",
+    slower: "もっとゆっくり"
+  },
+  ttsRateCustom: "カスタム",
   practiceFocus: "練習の重点",
   verbGroup: "動詞の種類",
   targetForm: "目標形",

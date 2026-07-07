@@ -248,6 +248,13 @@ export const en: Copy = {
   sessionLengthAll: "All",
   sessionLengthCustom: "Custom",
   sessionLengthCustomPlaceholder: "Count",
+  ttsRate: "Speech rate",
+  ttsRatePresets: {
+    normal: "Normal",
+    slow: "Slow",
+    slower: "Slower"
+  },
+  ttsRateCustom: "Custom",
   practiceFocus: "Practice focus",
   verbGroup: "Verb group",
   targetForm: "Target form",

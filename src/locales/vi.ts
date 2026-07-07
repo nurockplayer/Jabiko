@@ -248,6 +248,13 @@ export const vi: Copy = {
   sessionLengthAll: "Tất cả",
   sessionLengthCustom: "Tùy chỉnh",
   sessionLengthCustomPlaceholder: "Số lượng",
+  ttsRate: "Tốc độ đọc",
+  ttsRatePresets: {
+    normal: "Bình thường",
+    slow: "Chậm",
+    slower: "Chậm hơn"
+  },
+  ttsRateCustom: "Tùy chỉnh",
   practiceFocus: "Trọng tâm luyện tập",
   verbGroup: "Nhóm động từ",
   targetForm: "Thể mục tiêu",

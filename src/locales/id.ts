@@ -248,6 +248,13 @@ export const id: Copy = {
   sessionLengthAll: "Semua",
   sessionLengthCustom: "Atur sendiri",
   sessionLengthCustomPlaceholder: "Jumlah soal",
+  ttsRate: "Kecepatan suara",
+  ttsRatePresets: {
+    normal: "Normal",
+    slow: "Lambat",
+    slower: "Lebih lambat"
+  },
+  ttsRateCustom: "Kustom",
   practiceFocus: "Fokus latihan",
   verbGroup: "Jenis kata kerja",
   targetForm: "Bentuk target",
