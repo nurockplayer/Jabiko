@@ -225,6 +225,7 @@ export const ko: Copy = {
   drillPatternTeAux: "문형 연습: 보조동사",
   drillN3Grammar: "N3 문법 연습하러 가기",
   drillKana: "오십음 읽기 연습",
+  drillStarterVocab: "기초 단어 연습",
   startChallenge: "연습 시작",
   settingsLabel: "연습 설정",
   todayPractice: "오늘의 연습",
@@ -358,6 +359,7 @@ export const ko: Copy = {
   modeOptions: {
     daily: { title: "오늘의 연습", subtitle: "복습 우선 · 문법 / 어순 / 한자 읽기 혼합 한 바퀴" },
     kana: { title: "오십음", subtitle: "히라가나/가타카나 읽기 인식" },
+    starter: { title: "기초 단어", subtitle: "입문 95단어 · 뜻 고르기" },
     basic: { title: "기초 활용", subtitle: "품사별 활용 연습 · 교과서 어휘" },
     cloze: { title: "문장 빈칸", subtitle: "N5 문형 · 〜てください / 〜たいです" },
     pattern: { title: "문형 연습", subtitle: "N5/N4 문형 판별 · 관점 / 허가 / 인용 / ~하지 않아도 됨" },
@@ -421,6 +423,7 @@ export const ko: Copy = {
     na_adjective: "な형용사",
     noun: "명사",
     adverb: "부사",
+    expression: "인사 표현",
     mixed: "혼합"
   },
   verbGroups: {

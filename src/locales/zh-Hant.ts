@@ -225,6 +225,7 @@ export const zhHant: Copy = {
   drillPatternTeAux: "練句型：補助動詞",
   drillN3Grammar: "去練 N3 文法題",
   drillKana: "練五十音認讀",
+  drillStarterVocab: "練基礎詞彙",
   startChallenge: "開始挑戰",
   settingsLabel: "練習設定",
   todayPractice: "今日練習",
@@ -358,6 +359,7 @@ export const zhHant: Copy = {
   modeOptions: {
     daily: { title: "今日練習", subtitle: "複習優先 · 文法 / 語順 / 漢字読み混合一輪" },
     kana: { title: "五十音認讀", subtitle: "平／片假名 · 認讀與對應" },
+    starter: { title: "基礎詞彙", subtitle: "入門 95 詞 · 看詞選意思" },
     basic: { title: "基礎變化", subtitle: "詞類變化練習 · 課本詞彙" },
     cloze: { title: "句中填空", subtitle: "N5 文型 · 〜てください / 〜たいです" },
     pattern: { title: "句型練習", subtitle: "N5/N4 句型判斷 · 視角 / 許可 / 引用 / 不必" },
@@ -421,6 +423,7 @@ export const zhHant: Copy = {
     na_adjective: "な形容詞",
     noun: "名詞",
     adverb: "副詞",
+    expression: "寒暄語",
     mixed: "混合"
   },
   verbGroups: {

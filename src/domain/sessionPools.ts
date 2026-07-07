@@ -27,6 +27,7 @@ import {
 } from "./practice";
 import type { PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./types";
 import { prioritizeUnattempted } from "./unattempted";
+import { starterVocabulary } from "./starterVocabulary";
 import { vocabulary } from "./vocabulary";
 import { jlptVocabulary } from "./vocabulary-jlpt";
 
@@ -133,11 +134,16 @@ export function buildAllKnownQuestions(): PracticeQuestion[] {
     ...buildExamQuestionPool(["N1", "N2", "N3", "N4", "N5"]),
     ...buildClozeQuestionPool(clozeSentences, vocabulary),
     ...buildSentencePatternPool(),
-    // Both kana scripts (#533): a missed kana question must resolve here or
-    // it silently vanishes from the weak-point queue / 收藏 (same trap as
-    // the N4/N5 exam items above).
+    // Both kana scripts + the starter deck (#533): a missed 入門 question
+    // must resolve here or it silently vanishes from the weak-point queue /
+    // 收藏 (same trap as the N4/N5 exam items above).
     ...buildKanaQuestionPool({ script: "hiragana" }),
     ...buildKanaQuestionPool({ script: "katakana" }),
+    ...buildQuestionPool(starterVocabulary, {
+      partOfSpeech: "mixed",
+      verbGroup: "all",
+      targetForms: ["meaning"]
+    }),
     ...buildQuestionPool(vocabulary, {
       partOfSpeech: "mixed",
       verbGroup: "all",
@@ -178,6 +184,7 @@ export type PracticePoolParams = {
   isVocabFocus: boolean;
   isDailyFocus: boolean;
   isKanaFocus: boolean;
+  isStarterFocus: boolean;
   isBookmarksFocus: boolean;
   examSection?: { level: MockExamLevel; promptLabel: string };
   patternIds?: SentencePatternId[];
@@ -221,6 +228,7 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     isVocabFocus,
     isDailyFocus,
     isKanaFocus,
+    isStarterFocus,
     isBookmarksFocus,
     examSection,
     patternIds,
@@ -276,6 +284,21 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
   if (isKanaFocus) {
     // Kana recognition drill (#533): the 入門 chapter CTAs pick the script.
     return cap(shuffleQuestions(buildKanaQuestionPool({ script: kanaScript ?? "hiragana" })));
+  }
+
+  if (isStarterFocus) {
+    // Starter-vocab meaning drill (#533): see the kana word, pick its
+    // meaning. Distractors come from the same deck (pool-based), whose
+    // pairwise-distinct meanings are locked by starterVocabulary.test.ts.
+    return cap(
+      shuffleQuestions(
+        buildQuestionPool(starterVocabulary, {
+          partOfSpeech: "mixed",
+          verbGroup: "all",
+          targetForms: ["meaning"]
+        })
+      )
+    );
   }
 
   if (isReviewFocus) {

@@ -179,6 +179,7 @@ export function usePracticeSession({
   const isVocabFocus = practiceMode === "vocab";
   const isDailyFocus = practiceMode === "daily";
   const isKanaFocus = practiceMode === "kana";
+  const isStarterFocus = practiceMode === "starter";
   const isBookmarksFocus = practiceMode === "bookmarks";
   const isCuratedFocus =
     isExamFocus ||
@@ -188,6 +189,7 @@ export function usePracticeSession({
     isVocabFocus ||
     isDailyFocus ||
     isKanaFocus ||
+    isStarterFocus ||
     isBookmarksFocus;
   // The session-length picker applies to the endless drill modes (exam /
   // cloze / pattern / vocab / basic). review clears the whole due queue,
@@ -284,6 +286,7 @@ export function usePracticeSession({
         isVocabFocus,
         isDailyFocus,
         isKanaFocus,
+        isStarterFocus,
         isBookmarksFocus,
         examSection: practiceFilter.examSection,
         patternIds: practiceFilter.patternIds,
@@ -319,6 +322,7 @@ export function usePracticeSession({
       isVocabFocus,
       isDailyFocus,
       isKanaFocus,
+      isStarterFocus,
       isBookmarksFocus,
       practiceFilter.patternIds,
       practiceFilter.examSection,

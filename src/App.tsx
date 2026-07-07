@@ -595,6 +595,7 @@ export default function App() {
           onStartKanaDrill={(script) =>
             openChallenge({ mode: "kana", filter: { kanaScript: script } })
           }
+          onStartStarterDrill={() => openChallenge({ mode: "starter" })}
         />
       ) : appView === "rules" ? (
         <RulesPanel language={language} />

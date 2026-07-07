@@ -30,6 +30,7 @@ function poolParams(overrides: Partial<PracticePoolParams> = {}): PracticePoolPa
     isVocabFocus: false,
     isDailyFocus: false,
     isKanaFocus: false,
+    isStarterFocus: false,
     isBookmarksFocus: false,
     partOfSpeech: "verb",
     verbGroup: "godan",
@@ -71,6 +72,24 @@ describe("buildPracticeQuestions kana branch (#533)", () => {
     const known = buildAllKnownQuestions();
     expect(known.some((question) => question.id.startsWith("kana-hiragana-"))).toBe(true);
     expect(known.some((question) => question.id.startsWith("kana-katakana-match-"))).toBe(true);
+  });
+});
+
+describe("buildPracticeQuestions starter branch (#533)", () => {
+  it("starter focus builds one meaning question per deck word", () => {
+    const pool = buildPracticeQuestions(poolParams({ isStarterFocus: true, sessionLength: null }));
+    expect(pool.length).toBeGreaterThanOrEqual(90);
+    expect(pool.every((question) => question.targetForm === "meaning")).toBe(true);
+    expect(pool.every((question) => question.id.startsWith("starter-"))).toBe(true);
+  });
+
+  it("starter focus honours the session-length cap and resolves in buildAllKnownQuestions", () => {
+    const capped = buildPracticeQuestions(
+      poolParams({ isStarterFocus: true, sessionLength: 10 })
+    );
+    expect(capped).toHaveLength(10);
+    const known = buildAllKnownQuestions();
+    expect(known.some((question) => question.id.startsWith("starter-"))).toBe(true);
   });
 });
 

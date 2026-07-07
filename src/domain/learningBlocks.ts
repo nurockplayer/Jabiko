@@ -30,6 +30,10 @@ export type LearningBlockKanaDrill = {
   script: KanaScript;
 };
 
+export type LearningBlockStarterDrill = {
+  labelKey: string;
+};
+
 export type LearningBlockExamDrill = {
   labelKey: string;
   /** JLPT level whose exam pool to drill (matches the 模擬考 section launch). */
@@ -77,6 +81,11 @@ export type LearningBlock = {
    * ("kana-<script>-…"), not by a conjugation form.
    */
   kanaDrill?: LearningBlockKanaDrill;
+  /**
+   * Launches the starter-vocab meaning drill (#533). Completion is judged by
+   * starter question ids ("starter-…"), like the kana chapters.
+   */
+  starterDrill?: LearningBlockStarterDrill;
   /**
    * Launches exam practice filtered to a JLPT level + section (promptLabel),
    * e.g. N3 文法形式選擇. Used by N3+ grammar-lesson chapters whose practice is
@@ -172,6 +181,33 @@ export const learningBlocks: LearningBlock[] = [
       "ク/ワ/フ、コ/ユ、チ/テ 也是常見形近組"
     ],
     kanaDrill: { labelKey: "drillKana", script: "katakana" },
+    recommendedAfter: ["kana-hiragana"]
+  },
+  {
+    id: "starter-vocab",
+    group: "basic",
+    category: "入門",
+    kicker: "第 0 課",
+    title: "基礎詞彙",
+    subtitle: "みず・いぬ・ありがとう",
+    explanation:
+      "會唸假名之後，先背一批「馬上用得到」的詞：招呼語、數字、時間、身邊的人事物、最常用的動詞和形容詞。這批詞全部用假名書寫，不用會漢字也能練。之後每個文法章節的例句，幾乎都由這些詞組成。",
+    examples: [
+      { formula: "ありがとう・すみません・おはよう", note: "招呼語：開口的第一步" },
+      { formula: "いち・に・さん・じゅう・ひゃく", note: "數字：買東西、報時間都靠它" },
+      { formula: "きょう・あした・いま・まいにち", note: "時間詞" },
+      { formula: "わたし・せんせい・ともだち・かぞく", note: "人與稱謂" },
+      { formula: "みず・ごはん・いえ・がっこう", note: "身邊名詞" },
+      { formula: "たべる・のむ・いく・みる", note: "最常用動詞" },
+      { formula: "おおきい・ちいさい・おいしい", note: "常用形容詞" },
+      { formula: "これ・それ・あれ・ここ・どこ", note: "こそあど：指東西問地方" }
+    ],
+    pitfalls: [
+      "すみません（喚起注意／輕道歉）和 ごめんなさい（認錯道歉）場合不同",
+      "これ／それ／あれ 按「離誰近」區分：近自己→これ、近對方→それ、都遠→あれ",
+      "たかい 同時有「高」和「貴」兩個意思，看語境判斷"
+    ],
+    starterDrill: { labelKey: "drillStarterVocab" },
     recommendedAfter: ["kana-hiragana"]
   },
   {
@@ -1214,6 +1250,22 @@ export function isLearningBlockComplete(attempts: CompletionAttempt[], block: Le
       (attempt) => attempt.isCorrect && !attempt.questionId?.startsWith("kana-")
     ).length;
     return literacyEvidence >= KANA_IMPLICIT_LITERACY_THRESHOLD;
+  }
+  // The starter-vocab chapter (#533) mirrors the kana rule: complete via one
+  // correct starter-drill answer, or implicitly for learners whose history
+  // already shows real (non-入門) practice.
+  if (block.starterDrill) {
+    const drilled = attempts.some(
+      (attempt) => attempt.isCorrect && attempt.questionId?.startsWith("starter-")
+    );
+    if (drilled) return true;
+    const evidence = attempts.filter(
+      (attempt) =>
+        attempt.isCorrect &&
+        !attempt.questionId?.startsWith("kana-") &&
+        !attempt.questionId?.startsWith("starter-")
+    ).length;
+    return evidence >= KANA_IMPLICIT_LITERACY_THRESHOLD;
   }
   // Sentence-pattern chapters are completed via their pattern drill -- a
   // correct attempt on any of the chapter's patterns (id "pattern-<id>-…") --
