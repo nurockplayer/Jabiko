@@ -14,6 +14,114 @@ import type { LearningBlockOverlays } from "./learningBlockText";
  * logic fields are never touched.
  */
 export const learningBlockI18n: LearningBlockOverlays = {
+  "kana-hiragana": {
+    "en": {
+      "category": "Starter",
+      "kicker": "Lesson 0",
+      "title": "Gojuon · Hiragana",
+      "explanation":
+        "Hiragana is the phonetic alphabet every Japanese sentence is built on. Start by memorizing the 46 seion, one row at a time (あ row, か row, ...) -- each row has at most 5 sounds. Dakuon (が) are just a seion with two dots at the top right, handakuon (ぱ) take a small circle, and yōon (きゃ) glue a consonant to a small ゃゅょ. The readings are very regular; only a few need special care: し=shi, ち=chi, つ=tsu, ふ=fu.",
+      "notes": [
+        "あ row (the vowels)",
+        "か row",
+        "さ row: し is shi",
+        "た row: watch ち and つ",
+        "な row",
+        "は row: ふ is fu",
+        "ま row",
+        "や row (only three)",
+        "ら row",
+        "わ row + the moraic ん",
+        "Dakuon: two dots at the top right (first of each row)",
+        "Handakuon: only the ぱ row",
+        "Yōon: consonant + small ゃゅょ"
+      ],
+      "pitfalls": [
+        "Learn the look-alikes early: ぬ/め, ね/れ/わ, る/ろ, は/ほ, き/さ/ち",
+        "じ and ぢ are both ji, ず and づ are both zu (じ/ず are the usual spellings; ぢ/づ appear in only a few words)",
+        "Small ゃゅょ differ from full-size やゆよ: きや kiya ≠ きゃ kya"
+      ]
+    },
+    "ja": {
+      "category": "入門",
+      "kicker": "第0課",
+      "title": "五十音・ひらがな",
+      "explanation":
+        "ひらがなは日本語の文の土台になる表音文字。まず清音46字を一行ずつ（あ行、か行……）覚える。各行は最大5音。濁音（が）は右上に点々、半濁音（ぱ）は小さい丸を付けるだけ。拗音（きゃ）は子音＋小さいゃゅょの組み合わせ。読みはとても規則的だが、し=shi、ち=chi、つ=tsu、ふ=fu だけは特に注意。",
+      "notes": [
+        "あ行（母音）",
+        "か行",
+        "さ行：し は shi",
+        "た行：ち・つ に注意",
+        "な行",
+        "は行：ふ は fu",
+        "ま行",
+        "や行（三つだけ）",
+        "ら行",
+        "わ行＋撥音ん",
+        "濁音：右上に点々（各行の最初の字）",
+        "半濁音：ぱ行だけ",
+        "拗音：子音＋小さいゃゅょ"
+      ],
+      "pitfalls": [
+        "形の似た字を先に区別：ぬ/め、ね/れ/わ、る/ろ、は/ほ、き/さ/ち",
+        "じ と ぢ はどちらも ji、ず と づ はどちらも zu（ふつうは じ/ず を使い、ぢ/づ は一部の語だけ）",
+        "小さい ゃゅょ と大きい やゆよ は別物：きや kiya ≠ きゃ kya"
+      ]
+    }
+  },
+  "kana-katakana": {
+    "en": {
+      "category": "Starter",
+      "kicker": "Lesson 0",
+      "title": "Gojuon · Katakana",
+      "explanation":
+        "Katakana maps one-to-one onto hiragana with identical readings, and is used for loanwords (コーヒー coffee), foreign names and places, sound effects, and emphasis. Since the pairing is fixed (あ↔ア, き↔キ), the way to learn it is to match against the hiragana you already know. Katakana strokes are straighter and squarer; a few look-alike sets (シ/ツ, ソ/ン) trip up every beginner, so mind them while drilling.",
+      "notes": [
+        "ア row",
+        "カ row",
+        "サ row: mind シ's stroke direction",
+        "タ row: ツ looks like シ",
+        "ナ row",
+        "ハ row",
+        "マ row",
+        "ヤ row",
+        "ラ row",
+        "ワ row + ン: ン looks like ソ",
+        "Loanwords are written in katakana"
+      ],
+      "pitfalls": [
+        "シ (shi) / ツ (tsu): シ's dots lean horizontal, ツ's lean vertical",
+        "ソ (so) / ン (n): ソ's stroke sweeps top-down, ン's sweeps bottom-up",
+        "ク/ワ/フ, コ/ユ, チ/テ are also common look-alike sets"
+      ]
+    },
+    "ja": {
+      "category": "入門",
+      "kicker": "第0課",
+      "title": "五十音・カタカナ",
+      "explanation":
+        "カタカナはひらがなと一対一で対応し、読みも同じ。外来語（コーヒー）、外国の人名・地名、擬音語・擬態語、強調などに使う。対応関係は固定（あ↔ア、き↔キ）なので、覚えたひらがなと結び付けて学ぶのが近道。カタカナは画がまっすぐで角ばっており、シ/ツ、ソ/ン などの似た字は初学者全員が通る道。認識練習では特に注意。",
+      "notes": [
+        "ア行",
+        "カ行",
+        "サ行：シ の向きに注意",
+        "タ行：ツ は シ と似ている",
+        "ナ行",
+        "ハ行",
+        "マ行",
+        "ヤ行",
+        "ラ行",
+        "ワ行＋ン：ン は ソ と似ている",
+        "外来語はカタカナで書く"
+      ],
+      "pitfalls": [
+        "シ（shi）/ ツ（tsu）：シ の点は横向き、ツ の点は縦向き",
+        "ソ（so）/ ン（n）：ソ は上から下へ、ン は下から上へはらう",
+        "ク/ワ/フ、コ/ユ、チ/テ もよくある似た字の組"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",

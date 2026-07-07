@@ -15,6 +15,8 @@ import { ADJECTIVE_FORMS, VERB_FORMS } from "./conjugation";
 import { buildClozeQuestionPool } from "./cloze";
 import { clozeSentences } from "./cloze-data";
 import { buildExamQuestionPool } from "./examBlocks";
+import { buildKanaQuestionPool } from "./kanaDrill";
+import type { KanaScript } from "./kana";
 import { levelsForRange, type LevelRange } from "./levelRange";
 import type { MockExamLevel } from "./mockExam";
 import { buildSentencePatternPool, type SentencePatternId } from "./sentencePatterns";
@@ -131,6 +133,11 @@ export function buildAllKnownQuestions(): PracticeQuestion[] {
     ...buildExamQuestionPool(["N1", "N2", "N3", "N4", "N5"]),
     ...buildClozeQuestionPool(clozeSentences, vocabulary),
     ...buildSentencePatternPool(),
+    // Both kana scripts (#533): a missed kana question must resolve here or
+    // it silently vanishes from the weak-point queue / 收藏 (same trap as
+    // the N4/N5 exam items above).
+    ...buildKanaQuestionPool({ script: "hiragana" }),
+    ...buildKanaQuestionPool({ script: "katakana" }),
     ...buildQuestionPool(vocabulary, {
       partOfSpeech: "mixed",
       verbGroup: "all",
@@ -170,9 +177,12 @@ export type PracticePoolParams = {
   isReviewFocus: boolean;
   isVocabFocus: boolean;
   isDailyFocus: boolean;
+  isKanaFocus: boolean;
   isBookmarksFocus: boolean;
   examSection?: { level: MockExamLevel; promptLabel: string };
   patternIds?: SentencePatternId[];
+  // Gojuon script for kana mode (#533); undefined -> hiragana.
+  kanaScript?: KanaScript;
   partOfSpeech: PartOfSpeech | "mixed";
   verbGroup: VerbGroup | "all";
   targetForms: TargetForm[];
@@ -210,9 +220,11 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     isReviewFocus,
     isVocabFocus,
     isDailyFocus,
+    isKanaFocus,
     isBookmarksFocus,
     examSection,
     patternIds,
+    kanaScript,
     partOfSpeech,
     verbGroup,
     targetForms,
@@ -259,6 +271,11 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
 
   if (isPatternFocus) {
     return cap(shuffleQuestions(buildSentencePatternPool({ patternIds })));
+  }
+
+  if (isKanaFocus) {
+    // Kana recognition drill (#533): the 入門 chapter CTAs pick the script.
+    return cap(shuffleQuestions(buildKanaQuestionPool({ script: kanaScript ?? "hiragana" })));
   }
 
   if (isReviewFocus) {

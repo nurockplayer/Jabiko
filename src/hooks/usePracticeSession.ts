@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import { ADJECTIVE_FORMS, VERB_FORMS } from "../domain/conjugation";
 import { VOCAB_LEVEL_RANGE_OPTIONS, type LevelRange } from "../domain/levelRange";
 import { examPresetForRange, type ModeCopyKey, type PracticeMode } from "../domain/practiceMode";
+import type { KanaScript } from "../domain/kana";
 import type { MockExamLevel } from "../domain/mockExam";
 import { type SentencePatternId } from "../domain/sentencePatterns";
 import {
@@ -52,6 +53,9 @@ export type PracticeFilter = {
   // Narrows exam mode to one JLPT section (by level + promptLabel), set
   // when the learner taps a section card in the 模擬考 picker.
   examSection?: { level: MockExamLevel; promptLabel: string };
+  // Which gojuon script the kana recognition drill covers (#533); set by
+  // the 入門 chapter CTAs. Kana mode without it defaults to hiragana.
+  kanaScript?: KanaScript;
 };
 
 // Initial configuration the challenge view is launched with. App sets
@@ -174,6 +178,7 @@ export function usePracticeSession({
   const isReviewFocus = practiceMode === "review";
   const isVocabFocus = practiceMode === "vocab";
   const isDailyFocus = practiceMode === "daily";
+  const isKanaFocus = practiceMode === "kana";
   const isBookmarksFocus = practiceMode === "bookmarks";
   const isCuratedFocus =
     isExamFocus ||
@@ -182,6 +187,7 @@ export function usePracticeSession({
     isReviewFocus ||
     isVocabFocus ||
     isDailyFocus ||
+    isKanaFocus ||
     isBookmarksFocus;
   // The session-length picker applies to the endless drill modes (exam /
   // cloze / pattern / vocab / basic). review clears the whole due queue,
@@ -277,9 +283,11 @@ export function usePracticeSession({
         isReviewFocus,
         isVocabFocus,
         isDailyFocus,
+        isKanaFocus,
         isBookmarksFocus,
         examSection: practiceFilter.examSection,
         patternIds: practiceFilter.patternIds,
+        kanaScript: practiceFilter.kanaScript,
         partOfSpeech,
         verbGroup,
         targetForms,
@@ -310,9 +318,11 @@ export function usePracticeSession({
       isReviewFocus,
       isVocabFocus,
       isDailyFocus,
+      isKanaFocus,
       isBookmarksFocus,
       practiceFilter.patternIds,
       practiceFilter.examSection,
+      practiceFilter.kanaScript,
       partOfSpeech,
       targetForms,
       verbGroup,

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowRight } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
+import type { KanaScript } from "../domain/kana";
 import {
   getIncompletePrereqs,
   isLearningBlockComplete,
@@ -27,7 +28,8 @@ export function LearningPanel({
   onStartReview,
   onStartDrill,
   onStartPatternDrill,
-  onStartExamSection
+  onStartExamSection,
+  onStartKanaDrill
 }: {
   language: Language;
   progressAttempts: Attempt[];
@@ -37,6 +39,8 @@ export function LearningPanel({
   onStartDrill: (preset: LearningBlockDrillPreset) => void;
   onStartPatternDrill: (patternIds: SentencePatternId[]) => void;
   onStartExamSection: (level: "N1" | "N2" | "N3", promptLabel: string) => void;
+  // Launches the kana recognition drill for an 入門 chapter (#533).
+  onStartKanaDrill: (script: KanaScript) => void;
 }) {
   const t = copy[language];
   // Study-chapter translations are heavy and grow per language, so they're
@@ -231,6 +235,19 @@ export function LearningPanel({
                     <li key={pitfall}>{pitfall}</li>
                   ))}
                 </ul>
+              </div>
+            ) : null}
+
+            {active.kanaDrill ? (
+              <div className="inline-action-row">
+                <button
+                  className="inline-drill-button"
+                  type="button"
+                  onClick={() => onStartKanaDrill(active.kanaDrill!.script)}
+                >
+                  <ArrowRight aria-hidden="true" />
+                  {drillButtonLabel(active.kanaDrill)}
+                </button>
               </div>
             ) : null}
 

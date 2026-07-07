@@ -224,6 +224,7 @@ export const id: Copy = {
   drillPatternNagaraTari: "Latih pola: paralel・bersamaan",
   drillPatternTeAux: "Latih pola: kata kerja bantu",
   drillN3Grammar: "Latih soal tata bahasa N3",
+  drillKana: "Latihan pengenalan kana",
   startChallenge: "Mulai tantangan",
   settingsLabel: "Pengaturan latihan",
   todayPractice: "Latihan hari ini",
@@ -356,6 +357,7 @@ export const id: Copy = {
   focusSummaryEmpty: "Fokus saat ini tidak punya bentuk yang tersedia",
   modeOptions: {
     daily: { title: "Latihan hari ini", subtitle: "Ulangan diprioritaskan · satu putaran campuran tata bahasa / urutan kata / bacaan kanji" },
+    kana: { title: "Kana", subtitle: "Pengenalan hiragana/katakana" },
     basic: { title: "Konjugasi dasar", subtitle: "Latihan konjugasi jenis kata · kosakata buku pelajaran" },
     cloze: { title: "Isian dalam kalimat", subtitle: "Pola kalimat N5 · 〜てください / 〜たいです" },
     pattern: { title: "Latihan pola kalimat", subtitle: "Penilaian pola N5/N4 · sudut pandang / izin / kutipan / tidak perlu" },

@@ -224,6 +224,7 @@ export const en: Copy = {
   drillPatternNagaraTari: "Pattern drill: parallel & simultaneous actions",
   drillPatternTeAux: "Pattern drill: auxiliary verbs",
   drillN3Grammar: "Go drill N3 grammar",
+  drillKana: "Drill kana recognition",
   startChallenge: "Start practice",
   settingsLabel: "Practice settings",
   todayPractice: "Today's practice",
@@ -356,6 +357,7 @@ export const en: Copy = {
   focusSummaryEmpty: "No forms available for this focus",
   modeOptions: {
     daily: { title: "Today's practice", subtitle: "Review first · mixed round of grammar / word order / kanji readings" },
+    kana: { title: "Kana", subtitle: "Hiragana/katakana recognition" },
     basic: { title: "Basic conjugation", subtitle: "Part-of-speech conjugation drills · textbook vocabulary" },
     cloze: { title: "Sentence cloze", subtitle: "N5 patterns · 〜てください / 〜たいです" },
     pattern: { title: "Pattern practice", subtitle: "N5/N4 pattern recognition · perspective / permission / quoting / don't-have-to" },

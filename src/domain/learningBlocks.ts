@@ -1,3 +1,4 @@
+import type { KanaScript } from "./kana";
 import type { SentencePatternId } from "./sentencePatterns";
 import type { PartOfSpeech, TargetForm, VerbGroup } from "./types";
 
@@ -21,6 +22,12 @@ export type LearningBlockDrill = {
 export type LearningBlockPatternDrill = {
   labelKey: string;
   patternIds: SentencePatternId[];
+};
+
+export type LearningBlockKanaDrill = {
+  labelKey: string;
+  /** Which gojuon script the recognition drill covers (#533). */
+  script: KanaScript;
 };
 
 export type LearningBlockExamDrill = {
@@ -65,6 +72,12 @@ export type LearningBlock = {
    */
   patternDrills?: LearningBlockPatternDrill[];
   /**
+   * Launches the kana recognition drill (#533). Rendered as the chapter's
+   * PRIMARY drill row; completion is judged by kana question ids
+   * ("kana-<script>-…"), not by a conjugation form.
+   */
+  kanaDrill?: LearningBlockKanaDrill;
+  /**
    * Launches exam practice filtered to a JLPT level + section (promptLabel),
    * e.g. N3 文法形式選擇. Used by N3+ grammar-lesson chapters whose practice is
    * the level's general grammar pool, not one specific point. These chapters
@@ -95,6 +108,72 @@ export type LearningBlock = {
 };
 
 export const learningBlocks: LearningBlock[] = [
+  // ---- 入門（zero-base starter，#533）--------------------------------------
+  // The absolute-beginner floor: kana literacy. These two chapters sit ahead
+  // of everything else because every other view assumes the learner can
+  // already read kana. Completion = one correct answer in the chapter's
+  // kana drill (judged by question-id prefix, not a conjugation form).
+  {
+    id: "kana-hiragana",
+    group: "basic",
+    category: "入門",
+    kicker: "第 0 課",
+    title: "五十音・平假名",
+    subtitle: "あ・い・う・え・お",
+    explanation:
+      "平假名是日文的注音字母，所有句子的骨架都靠它。先把 46 個清音記熟：一行一行背（あ行、か行……），每行最多 5 個音。之後的濁音（が）只是在清音右上加兩點、半濁音（ぱ）加小圈，拗音（きゃ）則是「子音＋小さいゃゅょ」拼在一起。發音規則非常規律，唯獨幾個要特別記：し=shi、ち=chi、つ=tsu、ふ=fu。",
+    examples: [
+      { formula: "あ a・い i・う u・え e・お o", note: "あ行（母音）" },
+      { formula: "か ka・き ki・く ku・け ke・こ ko", note: "か行" },
+      { formula: "さ sa・し shi・す su・せ se・そ so", note: "さ行：し 是 shi" },
+      { formula: "た ta・ち chi・つ tsu・て te・と to", note: "た行：ち/つ 特別記" },
+      { formula: "な na・に ni・ぬ nu・ね ne・の no", note: "な行" },
+      { formula: "は ha・ひ hi・ふ fu・へ he・ほ ho", note: "は行：ふ 是 fu" },
+      { formula: "ま ma・み mi・む mu・め me・も mo", note: "ま行" },
+      { formula: "や ya・ゆ yu・よ yo", note: "や行（只有三個）" },
+      { formula: "ら ra・り ri・る ru・れ re・ろ ro", note: "ら行" },
+      { formula: "わ wa・を wo・ん n", note: "わ行＋撥音ん" },
+      { formula: "が ga・ざ za・だ da・ば ba", note: "濁音：右上加兩點（各行第一個）" },
+      { formula: "ぱ pa・ぴ pi・ぷ pu・ぺ pe・ぽ po", note: "半濁音：只有ぱ行" },
+      { formula: "きゃ kya・しゃ sha・ちゃ cha", note: "拗音：子音＋小さいゃゅょ" }
+    ],
+    pitfalls: [
+      "形近字先認清：ぬ/め、ね/れ/わ、る/ろ、は/ほ、き/さ/ち",
+      "じ 和 ぢ 都讀 ji、ず 和 づ 都讀 zu（一般用 じ/ず，ぢ/づ 只出現在少數詞）",
+      "小さい ゃゅょ 和大的 やゆよ 意思不同：きや kiya ≠ きゃ kya"
+    ],
+    kanaDrill: { labelKey: "drillKana", script: "hiragana" }
+  },
+  {
+    id: "kana-katakana",
+    group: "basic",
+    category: "入門",
+    kicker: "第 0 課",
+    title: "五十音・片假名",
+    subtitle: "ア・イ・ウ・エ・オ",
+    explanation:
+      "片假名跟平假名一一對應、讀音完全相同，用在外來語（コーヒー咖啡）、外國人名地名、擬聲擬態與強調。因為對應關係固定（あ↔ア、き↔キ），學法就是拿熟悉的平假名去配對。片假名筆畫更直更方，幾組形近字（シ/ツ、ソ/ン）是所有初學者的必經之路，練認讀時特別留意。",
+    examples: [
+      { formula: "ア a・イ i・ウ u・エ e・オ o", note: "ア行" },
+      { formula: "カ ka・キ ki・ク ku・ケ ke・コ ko", note: "カ行" },
+      { formula: "サ sa・シ shi・ス su・セ se・ソ so", note: "サ行：シ 注意方向" },
+      { formula: "タ ta・チ chi・ツ tsu・テ te・ト to", note: "タ行：ツ 和 シ 形近" },
+      { formula: "ナ na・ニ ni・ヌ nu・ネ ne・ノ no", note: "ナ行" },
+      { formula: "ハ ha・ヒ hi・フ fu・ヘ he・ホ ho", note: "ハ行" },
+      { formula: "マ ma・ミ mi・ム mu・メ me・モ mo", note: "マ行" },
+      { formula: "ヤ ya・ユ yu・ヨ yo", note: "ヤ行" },
+      { formula: "ラ ra・リ ri・ル ru・レ re・ロ ro", note: "ラ行" },
+      { formula: "ワ wa・ヲ wo・ン n", note: "ワ行＋ン：ン 和 ソ 形近" },
+      { formula: "コーヒー / テレビ / カラオケ", note: "外來語都寫片假名" }
+    ],
+    pitfalls: [
+      "シ（shi）/ ツ（tsu）：シ 的點偏橫、ツ 的點偏直",
+      "ソ（so）/ ン（n）：ソ 的撇由上往下、ン 由下往上",
+      "ク/ワ/フ、コ/ユ、チ/テ 也是常見形近組"
+    ],
+    kanaDrill: { labelKey: "drillKana", script: "katakana" },
+    recommendedAfter: ["kana-hiragana"]
+  },
   {
     id: "adverbial",
     group: "basic",
@@ -1105,12 +1184,37 @@ export const learningBlocks: LearningBlock[] = [
 
 type CompletionAttempt = { isCorrect: boolean; targetForm: string; questionId?: string };
 
+// Correct answers on regular (non-kana) content that count as proof the
+// learner already reads kana; above this the 入門 kana chapters self-complete.
+// Small enough that any real returning learner clears it, large enough that
+// one lucky MCQ guess doesn't.
+const KANA_IMPLICIT_LITERACY_THRESHOLD = 5;
+
 export function isLearningBlockComplete(attempts: CompletionAttempt[], block: LearningBlock): boolean {
   // Reference chapters are reading material -- treat them as
   // "no completion needed" so the recommendation algorithm doesn't
   // park on them, and the UI shows "參考" rather than misleadingly
   // marking them perpetually incomplete.
   if (block.completionMode === "reference") return true;
+  // Kana chapters (#533) are completed via their recognition drill -- one
+  // correct attempt on any question of the chapter's script (ids are
+  // "kana-<script>-…") -- mirroring the pattern-chapter rule below. They
+  // ALSO auto-complete on evident kana literacy: the chapters sit first in
+  // array order, so without this rule every existing learner's home 繼續
+  // banner (first incomplete chapter) would be hijacked into 五十音 they
+  // plainly don't need. Answering regular (kana-rendered) content correctly
+  // IS reading kana, so a small body of correct non-kana attempts counts.
+  if (block.kanaDrill) {
+    const prefix = `kana-${block.kanaDrill.script}-`;
+    const drilled = attempts.some(
+      (attempt) => attempt.isCorrect && attempt.questionId?.startsWith(prefix)
+    );
+    if (drilled) return true;
+    const literacyEvidence = attempts.filter(
+      (attempt) => attempt.isCorrect && !attempt.questionId?.startsWith("kana-")
+    ).length;
+    return literacyEvidence >= KANA_IMPLICIT_LITERACY_THRESHOLD;
+  }
   // Sentence-pattern chapters are completed via their pattern drill -- a
   // correct attempt on any of the chapter's patterns (id "pattern-<id>-…") --
   // not via a conjugation form, so they count toward progress like the rest.

@@ -29,6 +29,7 @@ function poolParams(overrides: Partial<PracticePoolParams> = {}): PracticePoolPa
     isReviewFocus: false,
     isVocabFocus: false,
     isDailyFocus: false,
+    isKanaFocus: false,
     isBookmarksFocus: false,
     partOfSpeech: "verb",
     verbGroup: "godan",
@@ -39,6 +40,39 @@ function poolParams(overrides: Partial<PracticePoolParams> = {}): PracticePoolPa
     ...overrides
   };
 }
+
+describe("buildPracticeQuestions kana branch (#533)", () => {
+  it("kana focus builds the requested script's pool, defaulting to hiragana", () => {
+    const hira = buildPracticeQuestions(
+      poolParams({ isKanaFocus: true, kanaScript: "hiragana", sessionLength: null })
+    );
+    expect(hira).toHaveLength(208);
+    expect(hira.every((question) => question.id.startsWith("kana-hiragana-"))).toBe(true);
+
+    const fallback = buildPracticeQuestions(
+      poolParams({ isKanaFocus: true, sessionLength: null })
+    );
+    expect(fallback.every((question) => question.id.startsWith("kana-hiragana-"))).toBe(true);
+
+    const kata = buildPracticeQuestions(
+      poolParams({ isKanaFocus: true, kanaScript: "katakana", sessionLength: null })
+    );
+    expect(kata).toHaveLength(312);
+  });
+
+  it("kana focus honours the session-length cap", () => {
+    const capped = buildPracticeQuestions(
+      poolParams({ isKanaFocus: true, kanaScript: "hiragana", sessionLength: 10 })
+    );
+    expect(capped).toHaveLength(10);
+  });
+
+  it("buildAllKnownQuestions resolves kana questions (weak-point queue / 收藏)", () => {
+    const known = buildAllKnownQuestions();
+    expect(known.some((question) => question.id.startsWith("kana-hiragana-"))).toBe(true);
+    expect(known.some((question) => question.id.startsWith("kana-katakana-match-"))).toBe(true);
+  });
+});
 
 describe("uniqueForms", () => {
   it("dedupes target forms while preserving first-seen order", () => {
