@@ -38,3 +38,43 @@ export const EXAM_PRESET_BY_RANGE: Partial<Record<LevelRange, ExamPresetId>> = {
 export function examPresetForRange(range: LevelRange): ModeCopyKey {
   return EXAM_PRESET_BY_RANGE[range] ?? "exam";
 }
+
+// One picker card: a copy/count key plus the mode (and pinned range) it
+// applies. Lives here (not in the picker component) so the grouping and
+// order are domain data the tests can pin.
+export type ModePreset = { id: ModeCopyKey; mode: PracticeMode; levelRange?: LevelRange };
+
+export type ModeGroupId = "dailyGroup" | "examGroup" | "focusedGroup";
+
+// The challenge picker's three sections (2026-07 IA pass): the daily loop
+// (practice + review + bookmarks) first, the exam bank band next, and the
+// focused single-skill drills last — 基礎變化 deliberately sits at the tail
+// instead of its old slot #2.
+export const MODE_GROUPS: Array<{ id: ModeGroupId; presets: ModePreset[] }> = [
+  {
+    id: "dailyGroup",
+    presets: [
+      { id: "daily", mode: "daily" },
+      { id: "review", mode: "review" },
+      { id: "bookmarks", mode: "bookmarks" }
+    ]
+  },
+  {
+    id: "examGroup",
+    presets: [
+      { id: "exam", mode: "exam", levelRange: "all" },
+      ...(Object.entries(EXAM_PRESET_BY_RANGE) as [LevelRange, ExamPresetId][]).map(
+        ([levelRange, id]): ModePreset => ({ id, mode: "exam", levelRange })
+      )
+    ]
+  },
+  {
+    id: "focusedGroup",
+    presets: [
+      { id: "pattern", mode: "pattern" },
+      { id: "cloze", mode: "cloze" },
+      { id: "vocab", mode: "vocab" },
+      { id: "basic", mode: "basic" }
+    ]
+  }
+];

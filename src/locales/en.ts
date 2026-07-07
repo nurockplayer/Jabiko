@@ -392,6 +392,7 @@ export const en: Copy = {
     review: { title: "Weakness review", subtitle: "Re-drill the questions you missed until you get them right" },
     bookmarks: { title: "Bookmarks", subtitle: "Re-drill the questions you've starred" }
   },
+  modeGroups: { dailyGroup: "Daily", examGroup: "Exam Prep", focusedGroup: "Focused Drills" },
   modeQuestionCount: (count) => `${count} questions in pool`,
   homeCardVocabTitle: "Vocabulary readings",
   homeCardVocabSub: "Quick reading checks on N1 / N2 kanji words. Meanings are tested in sentences in the full bank; here it's pure よみ.",

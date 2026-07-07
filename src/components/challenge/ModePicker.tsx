@@ -2,13 +2,8 @@ import { RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import { JabikoMark } from "../JabikoMark";
 import type { PartOfSpeech, TargetForm, VerbGroup } from "../../domain/types";
-import { VOCAB_LEVEL_RANGE_OPTIONS, type LevelRange } from "../../domain/levelRange";
-import {
-  EXAM_PRESET_BY_RANGE,
-  type ExamPresetId,
-  type ModeCopyKey,
-  type PracticeMode
-} from "../../domain/practiceMode";
+import { VOCAB_LEVEL_RANGE_OPTIONS } from "../../domain/levelRange";
+import { MODE_GROUPS } from "../../domain/practiceMode";
 import { type PracticeSession } from "../../hooks/usePracticeSession";
 
 const partOfSpeechOptions: Array<PartOfSpeech | "mixed"> = ["verb", "i_adjective", "na_adjective", "noun", "mixed"];
@@ -34,27 +29,6 @@ const formOptions: TargetForm[] = [
   "plainPresentNegative",
   "plainPastAffirmative",
   "plainPastNegative"
-];
-
-// Mode picker entries. The exam pool is surfaced as several side-by-side
-// presets -- 綜合考題庫 (all levels) plus the 備考 bands -- so the ranges are
-// first-class picks rather than a filter hidden inside the exam mode. `id`
-// doubles as the i18n / count key (ModeCopyKey). The 備考 rows are generated
-// from the single EXAM_PRESET_BY_RANGE table, so adding a band is one edit there.
-type ModePreset = { id: ModeCopyKey; mode: PracticeMode; levelRange?: LevelRange };
-const examPresetRows: ModePreset[] = (
-  Object.entries(EXAM_PRESET_BY_RANGE) as [LevelRange, ExamPresetId][]
-).map(([levelRange, id]) => ({ id, mode: "exam", levelRange }));
-const modePresetOrder: ModePreset[] = [
-  { id: "daily", mode: "daily" },
-  { id: "basic", mode: "basic" },
-  { id: "cloze", mode: "cloze" },
-  { id: "pattern", mode: "pattern" },
-  { id: "exam", mode: "exam", levelRange: "all" },
-  ...examPresetRows,
-  { id: "vocab", mode: "vocab" },
-  { id: "review", mode: "review" },
-  { id: "bookmarks", mode: "bookmarks" }
 ];
 
 // The left-hand controls column of the challenge workspace: the mode /
@@ -124,38 +98,43 @@ export function ModePicker({
 
       <fieldset>
         <legend>{t.practiceMode}</legend>
-        <div className="mode-toggle">
-          {modePresetOrder.map((preset) => {
-            const count =
-              preset.mode === "review"
-                ? reviewQueue.length
-                : preset.mode === "bookmarks"
-                ? bookmarkedQuestions.length
-                : preset.mode === "basic" || preset.mode === "daily"
-                ? null
-                : modeCounts[preset.id as keyof typeof modeCounts];
-            // The exam presets share one mode; the active one is whichever
-            // matches the current level range.
-            const selected =
-              practiceMode === preset.mode &&
-              (preset.mode !== "exam" || (preset.levelRange ?? "all") === levelRange);
-            return (
-              <button
-                key={preset.id}
-                type="button"
-                className={`mode-card${selected ? " selected" : ""}`}
-                aria-pressed={selected}
-                onClick={() => applyModePreset(preset.mode, preset.levelRange)}
-              >
-                <strong>{t.modeOptions[preset.id].title}</strong>
-                <small>{t.modeOptions[preset.id].subtitle}</small>
-                {count !== null ? (
-                  <span className="mode-card-count">{t.modeQuestionCount(count)}</span>
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
+        {MODE_GROUPS.map((group) => (
+          <div key={group.id} className="mode-group" role="group" aria-label={t.modeGroups[group.id]}>
+            <p className="mode-group-label">{t.modeGroups[group.id]}</p>
+            <div className="mode-toggle">
+              {group.presets.map((preset) => {
+                const count =
+                  preset.mode === "review"
+                    ? reviewQueue.length
+                    : preset.mode === "bookmarks"
+                    ? bookmarkedQuestions.length
+                    : preset.mode === "basic" || preset.mode === "daily"
+                    ? null
+                    : modeCounts[preset.id as keyof typeof modeCounts];
+                // The exam presets share one mode; the active one is whichever
+                // matches the current level range.
+                const selected =
+                  practiceMode === preset.mode &&
+                  (preset.mode !== "exam" || (preset.levelRange ?? "all") === levelRange);
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className={`mode-card${selected ? " selected" : ""}`}
+                    aria-pressed={selected}
+                    onClick={() => applyModePreset(preset.mode, preset.levelRange)}
+                  >
+                    <strong>{t.modeOptions[preset.id].title}</strong>
+                    <small>{t.modeOptions[preset.id].subtitle}</small>
+                    {count !== null ? (
+                      <span className="mode-card-count">{t.modeQuestionCount(count)}</span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </fieldset>
 
       {showLevelRange ? (

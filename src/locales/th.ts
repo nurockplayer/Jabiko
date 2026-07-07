@@ -393,6 +393,7 @@ export const th: Copy = {
     review: { title: "ทบทวนจุดอ่อน", subtitle: "ฝึกข้อที่ครั้งก่อนตอบผิดซ้ำจนกว่าจะถูก" },
     bookmarks: { title: "รายการโปรด", subtitle: "ฝึกซ้ำข้อที่คุณติดดาวไว้" }
   },
+  modeGroups: { dailyGroup: "ประจำวัน", examGroup: "คลังข้อสอบ", focusedGroup: "ฝึกเฉพาะด้าน" },
   modeQuestionCount: (count) => `คลังข้อสอบ ${count} ข้อ`,
   homeCardVocabTitle: "คำอ่านคำศัพท์",
   homeCardVocabSub: "ทดสอบด่วนคำอ่านคำคันจิ N1 / N2 ความหมายจะวัดด้วยประโยคในคลังข้อสอบรวม ที่นี่เน้นฝึก よみ โดยเฉพาะ",
