@@ -1,6 +1,7 @@
 import { Volume2 } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { getJapaneseVoice } from "../lib/speech";
+import { readTtsRate } from "../lib/ttsRate";
 
 // Small inline button that reads its `text` aloud via the browser's
 // built-in SpeechSynthesis API. No external TTS service or audio asset
@@ -29,7 +30,9 @@ export function SpeakButton({ text, language }: { text: string; language: Langua
       const jaVoice = getJapaneseVoice();
       if (jaVoice) utterance.voice = jaVoice;
       utterance.lang = "ja-JP";
-      utterance.rate = 0.95;
+      // Read the rate fresh each click so a change in the 語速 control (#527)
+      // applies immediately; defaults to the long-standing 0.95 when unset.
+      utterance.rate = readTtsRate();
       window.speechSynthesis.speak(utterance);
     } catch {
       // Voice synthesis can throw if the engine is in a bad state; the

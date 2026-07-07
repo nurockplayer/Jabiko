@@ -249,6 +249,13 @@ export const th: Copy = {
   sessionLengthAll: "ทั้งหมด",
   sessionLengthCustom: "กำหนดเอง",
   sessionLengthCustomPlaceholder: "จำนวนข้อ",
+  ttsRate: "ความเร็วเสียง",
+  ttsRatePresets: {
+    normal: "ปกติ",
+    slow: "ช้า",
+    slower: "ช้ามาก"
+  },
+  ttsRateCustom: "กำหนดเอง",
   practiceFocus: "จุดเน้นการฝึก",
   verbGroup: "ประเภทคำกริยา",
   targetForm: "รูปเป้าหมาย",

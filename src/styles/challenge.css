@@ -107,8 +107,15 @@ legend,
   grid-template-columns: repeat(auto-fit, minmax(2.8rem, 1fr));
 }
 
-/* 自訂題數: manual count entry below the session-length presets. */
-.session-length-custom {
+/* 語速 presets are a 3-across row (標準/慢/更慢) instead of the default 2-col
+   grid, which would orphan the third onto its own line (#527). */
+.tts-rate-segmented {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* 自訂: manual entry below the session-length / speech-rate presets. */
+.session-length-custom,
+.tts-rate-custom {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -117,7 +124,8 @@ legend,
   color: var(--muted);
 }
 
-.session-length-custom input {
+.session-length-custom input,
+.tts-rate-custom input {
   width: 5rem;
   padding: 0.32rem 0.5rem;
   border: 1px solid var(--field-border);
@@ -127,7 +135,8 @@ legend,
   font: inherit;
 }
 
-.session-length-custom.selected input {
+.session-length-custom.selected input,
+.tts-rate-custom.selected input {
   border-color: var(--matcha-dark);
   background: var(--matcha);
   color: var(--selected-text);

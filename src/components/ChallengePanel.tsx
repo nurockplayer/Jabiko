@@ -2,11 +2,13 @@ import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
 import type { LevelRange } from "../domain/levelRange";
 import { usePracticeSession, type SessionInit } from "../hooks/usePracticeSession";
+import { useTtsRate } from "../hooks/useTtsRate";
 import { ModePicker } from "./challenge/ModePicker";
 import { DrillPanel } from "./challenge/DrillPanel";
 import { ScoreReport } from "./challenge/ScoreReport";
 import { ReviewList } from "./challenge/ReviewList";
 import { SessionLengthPicker } from "./challenge/SessionLengthPicker";
+import { TtsRatePicker } from "./challenge/TtsRatePicker";
 
 // The challenge workspace: the three-column practice layout (mode/setup
 // controls, the active drill, and the running mistake list). This is the
@@ -45,6 +47,10 @@ export function ChallengePanel({
 }) {
   const t = copy[language];
   const session = usePracticeSession({ language, init, progressAttempts, recordAttempt, targetLevel });
+  // Global 語速 preference for the 讀出來 buttons (#527); shown in the settings
+  // sidebar. SpeakButton reads the stored value on click, so this applies to
+  // every audio button, not just the ones in this panel.
+  const { rate: ttsRate, setRate: setTtsRate } = useTtsRate();
 
   return (
     <section className="practice-layout" aria-label="Jabiko practice">
@@ -66,6 +72,7 @@ export function ChallengePanel({
             onChange={session.handleSessionLengthChange}
           />
         ) : null}
+        <TtsRatePicker language={language} rate={ttsRate} onChange={setTtsRate} />
         <ScoreReport
           language={language}
           attempts={session.attempts}

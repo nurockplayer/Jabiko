@@ -248,6 +248,13 @@ export const my: Copy = {
   sessionLengthAll: "အားလုံး",
   sessionLengthCustom: "စိတ်ကြိုက်",
   sessionLengthCustomPlaceholder: "အရေအတွက်",
+  ttsRate: "အသံဖတ်နှုန်း",
+  ttsRatePresets: {
+    normal: "ပုံမှန်",
+    slow: "နှေး",
+    slower: "ပိုနှေး"
+  },
+  ttsRateCustom: "စိတ်ကြိုက်",
   practiceFocus: "လေ့ကျင့်မှု အာရုံစိုက်ရာ",
   verbGroup: "ကြိယာ အုပ်စု",
   targetForm: "ပစ်မှတ် ပုံစံ",
