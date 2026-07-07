@@ -232,7 +232,7 @@ export const zhHant: Copy = {
   practiceType: "練習類型",
   practiceMode: "練習模式",
   levelRange: "題庫範圍",
-  levelRangeOptions: { all: "全部", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5" },
+  levelRangeOptions: { all: "全部", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "完全新手" },
   levelOnboarding: {
     title: "選擇你的程度",
     subtitle: "設定今日練習與各題庫的預設難度，之後隨時可改。",
@@ -242,9 +242,12 @@ export const zhHant: Copy = {
     intermediateHint: "N2・N3",
     advanced: "高級",
     advancedHint: "N1・N2",
+    starter: "完全新手",
+    starterHint: "從零開始",
     manageTitle: "目標級別",
     change: "變更",
-    notSet: "尚未設定"
+    notSet: "尚未設定",
+    chooseFirst: "先選擇你的程度，馬上就開始今日練習。"
   },
   sessionLength: "每組題數",
   sessionLengthAll: "全部",

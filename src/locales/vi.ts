@@ -232,7 +232,7 @@ export const vi: Copy = {
   practiceType: "Loại luyện tập",
   practiceMode: "Chế độ luyện tập",
   levelRange: "Phạm vi đề",
-  levelRangeOptions: { all: "Tất cả", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5" },
+  levelRangeOptions: { all: "Tất cả", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "Người mới hoàn toàn" },
   levelOnboarding: {
     title: "Chọn cấp độ của bạn",
     subtitle: "Đặt độ khó mặc định cho luyện tập hôm nay và từng kho đề — có thể đổi bất cứ lúc nào.",
@@ -242,9 +242,12 @@ export const vi: Copy = {
     intermediateHint: "N2・N3",
     advanced: "Cao cấp",
     advancedHint: "N1・N2",
+    starter: "Người mới hoàn toàn",
+    starterHint: "Từ con số 0",
     manageTitle: "Cấp độ mục tiêu",
     change: "Thay đổi",
-    notSet: "Chưa đặt"
+    notSet: "Chưa đặt",
+    chooseFirst: "Chọn cấp độ trước — luyện tập hôm nay sẽ bắt đầu ngay."
   },
   sessionLength: "Số câu mỗi bộ",
   sessionLengthAll: "Tất cả",

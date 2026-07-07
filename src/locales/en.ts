@@ -232,7 +232,7 @@ export const en: Copy = {
   practiceType: "Practice type",
   practiceMode: "Practice mode",
   levelRange: "Question pool",
-  levelRangeOptions: { all: "All", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5" },
+  levelRangeOptions: { all: "All", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "Starter" },
   levelOnboarding: {
     title: "Choose your level",
     subtitle: "Sets the default difficulty for today's practice and each question pool — change it anytime.",
@@ -242,9 +242,12 @@ export const en: Copy = {
     intermediateHint: "N2・N3",
     advanced: "Advanced",
     advancedHint: "N1・N2",
+    starter: "Complete beginner",
+    starterHint: "From zero",
     manageTitle: "Target level",
     change: "Change",
-    notSet: "Not set"
+    notSet: "Not set",
+    chooseFirst: "Pick your level first — today's practice starts right after."
   },
   sessionLength: "Questions per set",
   sessionLengthAll: "All",

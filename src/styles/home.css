@@ -1032,8 +1032,22 @@
 
 .home-level-card-options {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* 4 bands since #532 (完全新手 leads) -- 2x2 reads better than a squeezed
+     single row. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.6rem;
+}
+
+/* Daily-CTA level gate (#532): one-line ask shown above the CTA when 今日練習
+   is tapped before a level exists. */
+.home-level-gate-hint {
+  margin: 0;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--teal) 45%, var(--panel-border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--teal) 8%, var(--paper));
+  color: var(--ink);
+  font-size: 0.92rem;
 }
 
 .home-level-option {

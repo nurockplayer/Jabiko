@@ -25,6 +25,20 @@ describe("useFurigana", () => {
     expect(result.current.enabled).toBe(false);
   });
 
+  it("enable() turns furigana ON and persists, and is idempotent (#532 starter onboarding)", () => {
+    const { result } = renderHook(() => useFurigana());
+    expect(result.current.enabled).toBe(false);
+
+    act(() => result.current.enable());
+    expect(result.current.enabled).toBe(true);
+    expect(localStorage.getItem(KEY)).toBe("on");
+
+    // Calling again keeps it on (no accidental toggle).
+    act(() => result.current.enable());
+    expect(result.current.enabled).toBe(true);
+    expect(localStorage.getItem(KEY)).toBe("on");
+  });
+
   it("toggles and persists the new value", () => {
     const { result } = renderHook(() => useFurigana());
 

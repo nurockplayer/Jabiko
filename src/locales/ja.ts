@@ -240,7 +240,7 @@ export const ja: Copy = {
   practiceType: "練習タイプ",
   practiceMode: "練習モード",
   levelRange: "出題範囲",
-  levelRangeOptions: { all: "すべて", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5" },
+  levelRangeOptions: { all: "すべて", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "完全な初心者" },
   levelOnboarding: {
     title: "あなたのレベルを選択",
     subtitle: "今日の練習と各問題集の初期難易度を設定します。あとからいつでも変更できます。",
@@ -250,9 +250,12 @@ export const ja: Copy = {
     intermediateHint: "N2・N3",
     advanced: "上級",
     advancedHint: "N1・N2",
+    starter: "完全な初心者",
+    starterHint: "ゼロから",
     manageTitle: "目標レベル",
     change: "変更",
-    notSet: "未設定"
+    notSet: "未設定",
+    chooseFirst: "まずレベルを選ぶと、すぐに今日の練習が始まります。"
   },
   sessionLength: "1セットの問題数",
   sessionLengthAll: "すべて",

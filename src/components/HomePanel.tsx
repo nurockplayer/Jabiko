@@ -134,6 +134,9 @@ export function HomePanel({
   // existing LevelRange bands (n4n5 / n2n3 / n1n2); easy → hard order.
   const showLevelOnboarding = targetLevel === null && progressAttempts.length === 0;
   const onboardingOptions: { range: LevelRange; label: string; hint: string }[] = [
+    // 完全新手 first (#532): easy -> hard reading order, and the zero-base
+    // learner is exactly who must not mis-classify themselves.
+    { range: "starter", label: t.levelOnboarding.starter, hint: t.levelOnboarding.starterHint },
     { range: "n4n5", label: t.levelOnboarding.beginner, hint: t.levelOnboarding.beginnerHint },
     { range: "n2n3", label: t.levelOnboarding.intermediate, hint: t.levelOnboarding.intermediateHint },
     { range: "n1n2", label: t.levelOnboarding.advanced, hint: t.levelOnboarding.advancedHint }
@@ -188,9 +191,31 @@ export function HomePanel({
   // card -- can still change it. Collapsed by default; 變更 expands the picker.
   const [levelEditing, setLevelEditing] = useState(false);
   const currentLevelOption = onboardingOptions.find((option) => option.range === targetLevel);
+
+  // Daily CTA level gate (#532): without a target level the daily session
+  // used to fall back to the "all" (N1/N2-heavy) pool -- a brand-new
+  // visitor's first tap served questions they couldn't read. Now the CTA
+  // asks for a level first, and the choice that answers the ask CONTINUES
+  // into the daily session (one flow, no second tap).
+  const [dailyPending, setDailyPending] = useState(false);
+  const handleStartDaily = () => {
+    if (targetLevel !== null) {
+      onStartDaily();
+      return;
+    }
+    setDailyPending(true);
+    // Returning learners without a preference have no onboarding card --
+    // open the #526 chip's band picker for them.
+    if (!showLevelOnboarding) setLevelEditing(true);
+  };
+
   const chooseLevel = (range: LevelRange) => {
     onChooseLevel(range);
     setLevelEditing(false);
+    if (dailyPending) {
+      setDailyPending(false);
+      onStartDaily();
+    }
   };
 
   return (
@@ -225,7 +250,7 @@ export function HomePanel({
                 key={option.range}
                 type="button"
                 className="home-level-option"
-                onClick={() => onChooseLevel(option.range)}
+                onClick={() => chooseLevel(option.range)}
               >
                 <strong>{option.label}</strong>
                 <small>{option.hint}</small>
@@ -239,7 +264,13 @@ export function HomePanel({
           due-reviews-first + mixed-section session. Hoisted above the hero
           art so the one honest primary action is the first thing a visitor
           reaches on the first screen (mobile onboarding). */}
-      <button type="button" className="home-banner home-banner-daily" onClick={onStartDaily}>
+      {dailyPending ? (
+        <p className="home-level-gate-hint" role="alert">
+          {t.levelOnboarding.chooseFirst}
+        </p>
+      ) : null}
+
+      <button type="button" className="home-banner home-banner-daily" onClick={handleStartDaily}>
         <CalendarCheck aria-hidden="true" />
         <span className="home-banner-text">
           <strong>{t.homeDailyMain}</strong>

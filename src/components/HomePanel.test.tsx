@@ -29,7 +29,7 @@ function renderHome(overrides: Partial<Parameters<typeof HomePanel>[0]> = {}) {
     onNavigate: noop,
     onStartReview: noop,
     onStartVocab: noop,
-    onStartDaily: noop,
+    onStartDaily: vi.fn(),
     targetLevel: null,
     onChooseLevel: vi.fn(),
     ...overrides
@@ -66,6 +66,62 @@ describe("HomePanel level onboarding (#199)", () => {
   it("hides the card for a returning learner with attempts (even without a preference)", () => {
     renderHome({ progressAttempts: [sampleAttempt] });
     expect(screen.queryByText("選擇你的程度")).not.toBeInTheDocument();
+  });
+});
+
+describe("HomePanel 完全新手 band (#532)", () => {
+  it("the onboarding card offers 完全新手 first, mapping to the starter range", () => {
+    const props = renderHome();
+    const options = screen.getAllByRole("button", { name: /完全新手|初級|中級|高級/ });
+    expect(options[0]).toHaveTextContent("完全新手");
+    fireEvent.click(screen.getByRole("button", { name: /完全新手/ }));
+    expect(props.onChooseLevel).toHaveBeenCalledWith("starter");
+  });
+
+  it("the #526 chip displays 完全新手 when the starter band is active", () => {
+    renderHome({ targetLevel: "starter", progressAttempts: [sampleAttempt] });
+    const chip = screen.getByRole("button", { name: /變更/ });
+    expect(chip).toHaveTextContent("完全新手");
+  });
+});
+
+describe("HomePanel daily CTA level gate (#532)", () => {
+  it("with a level set, the CTA starts daily immediately (unchanged)", () => {
+    const props = renderHome({ targetLevel: "n4n5", progressAttempts: [sampleAttempt] });
+    fireEvent.click(screen.getByRole("button", { name: /開始今日練習/ }));
+    expect(props.onStartDaily).toHaveBeenCalledTimes(1);
+  });
+
+  it("without a level, the CTA does NOT start daily -- it asks for a level first", () => {
+    const props = renderHome({ targetLevel: null });
+    fireEvent.click(screen.getByRole("button", { name: /開始今日練習/ }));
+    expect(props.onStartDaily).not.toHaveBeenCalled();
+    expect(screen.getByText(/先選擇你的程度/)).toBeInTheDocument();
+  });
+
+  it("after the gated ask, choosing a band from the onboarding card auto-continues into daily", () => {
+    const props = renderHome({ targetLevel: null });
+    fireEvent.click(screen.getByRole("button", { name: /開始今日練習/ }));
+    fireEvent.click(screen.getByRole("button", { name: /初級/ }));
+    expect(props.onChooseLevel).toHaveBeenCalledWith("n4n5");
+    expect(props.onStartDaily).toHaveBeenCalledTimes(1);
+  });
+
+  it("a returning learner without a preference gets the chip picker expanded by the gate", () => {
+    const props = renderHome({ targetLevel: null, progressAttempts: [sampleAttempt] });
+    fireEvent.click(screen.getByRole("button", { name: /開始今日練習/ }));
+    expect(props.onStartDaily).not.toHaveBeenCalled();
+    // The chip's band picker is now open; picking a band auto-continues.
+    fireEvent.click(screen.getByRole("button", { name: /中級/ }));
+    expect(props.onChooseLevel).toHaveBeenCalledWith("n2n3");
+    expect(props.onStartDaily).toHaveBeenCalledTimes(1);
+  });
+
+  it("a level choice made WITHOUT the gated ask does not auto-start daily", () => {
+    const props = renderHome({ targetLevel: null });
+    fireEvent.click(screen.getByRole("button", { name: /高級/ }));
+    expect(props.onChooseLevel).toHaveBeenCalledWith("n1n2");
+    expect(props.onStartDaily).not.toHaveBeenCalled();
   });
 });
 
