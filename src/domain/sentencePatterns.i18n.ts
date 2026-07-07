@@ -1175,6 +1175,134 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "頻度は「期間＋に＋回数」：１しゅうかんに ２かい。この に は期間への割り当てを表す。「を」「へ」「と」は期間の語に付かない。"
     }
   },
+  "pattern-n4-ndesu-001": {
+    "hintI18n": { "en": "Your friend looks pale — check on them.", "ja": "相手の様子がおかしいので声をかける。" },
+    "promptContextI18n": { "en": "\"You look pale — what's wrong?\"", "ja": "「顔色が悪いですね。どうしたんですか。」" },
+    "explanationI18n": {
+      "en": "Pressing for an explanation of something you see uses 「〜んですか」: どうしたんですか = what's wrong? The preceding した is a plain form, so 「ですか」「ますか」「でしたか」 can't attach — among these four options only んですか parses. ※顔色 = complexion.",
+      "ja": "目の前の様子について説明を求めるのが「〜んですか」：どうしたんですか。直前の「した」は普通形なので、「ですか」「ますか」「でしたか」は接続できない——この四択で文になるのは んですか だけ。"
+    }
+  },
+  "pattern-n4-ndesu-002": {
+    "hintI18n": { "en": "Explaining why you were late.", "ja": "遅れた事情を説明する。" },
+    "promptContextI18n": { "en": "\"Why were you late?\" \"The train stopped.\"", "ja": "「どうして遅れたんですか。」「電車が止まったんです。」" },
+    "explanationI18n": {
+      "en": "Answering a 「どうして〜んですか」 probe uses 「〜んです」 to explain: 電車が止まったんです. 止まった is plain, so 「です」「ます」「ましょう」 can't attach. The pair: んですか ⇄ んです. ※遅れる = to be late.",
+      "ja": "「どうして〜んですか」への答えは「〜んです」で事情を説明：電車が止まったんです。「止まった」は普通形なので「です」「ます」「ましょう」は接続不可。問いと答えはセット：んですか⇄んです。"
+    }
+  },
+  "pattern-n4-ndesu-003": {
+    "hintI18n": { "en": "Setting the scene before asking for moving help.", "ja": "手伝いを頼む前に事情を切り出す。" },
+    "promptContextI18n": { "en": "\"I'm moving tomorrow — could you give me a hand?\"", "ja": "「明日引っ越しなんですが、手伝ってくれませんか。」" },
+    "explanationI18n": {
+      "en": "Cushioning a request uses 「〜んですが」; a noun needs な before んです: 引っ越し + な + んですが. 「引っ越しんですが」 is missing the な; 「だんですが」「のんですが」 are attachments that don't exist — this is the same な as in なので. ※引っ越し = moving house, 手伝う = to help.",
+      "ja": "頼みごとの前置きは「〜んですが」。名詞は な を挟む：引っ越し＋な＋んですが。「引っ越しんですが」は な 抜け。「だんですが」「のんですが」は存在しない接続——なので と同じ な。"
+    }
+  },
+  "pattern-n4-ndesu-004": {
+    "hintI18n": { "en": "Explaining why you bought a cake.", "ja": "ケーキを買った理由を説明する。" },
+    "promptContextI18n": { "en": "\"It's my birthday today — that's why I bought a cake.\"", "ja": "「今日は誕生日なんです。だからケーキを買いました。」" },
+    "explanationI18n": {
+      "en": "Explaining the background of your own action uses 「〜んです」: 誕生日なんです = (you see,) it's my birthday. The な is already in the prompt; the other three options can't follow な — this な is the same family as なので and なのに.",
+      "ja": "自分の行動の背景説明は「〜んです」：誕生日なんです。空欄の前にもう な がある——ほかの三つは な の後ろにつながらない。この な は なので・なのに と同じ仲間。"
+    }
+  },
+  "pattern-n4-ndesu-005": {
+    "hintI18n": { "en": "Your friend's carrying a big bag — ask where to.", "ja": "大きいかばんを持つ友だちに聞いてみる。" },
+    "promptContextI18n": { "en": "\"(Seeing the big bag) Where are you off to?\"", "ja": "「（大きいかばんを見て）どこへ行くんですか。」" },
+    "explanationI18n": {
+      "en": "Asking with interest about what you see uses 「〜んですか」: どこへ行くんですか. 行く is the dictionary form — 「ですか」「ましたか」「でしたか」 can't attach; a neutral question would be 行きますか.",
+      "ja": "目にした様子への関心をこめて聞くのが「〜んですか」：どこへ行くんですか。「行く」は辞書形で、「ですか」「ましたか」「でしたか」は接続できない——中立に聞くなら 行きますか。"
+    }
+  },
+  "pattern-n4-ndesu-006": {
+    "hintI18n": { "en": "Explaining why you were absent.", "ja": "休んだ事情を説明する。" },
+    "promptContextI18n": { "en": "\"Why were you off?\" \"I was sick.\"", "ja": "「どうして休んだんですか。」「病気だったんです。」" },
+    "explanationI18n": {
+      "en": "A noun's past form attaches to んです with no な: 病気だった + んです. 「病気だったなんです」 has a superfluous な; 「だったです」「だったでした」 aren't sentences. Summary: present = 病気なんです, past = 病気だったんです.",
+      "ja": "名詞の過去形は な なしで んです に接続：病気だった＋んです。「病気だったなんです」は な が余計。「だったです」「だったでした」は文にならない。整理：現在＝病気なんです、過去＝病気だったんです。"
+    }
+  },
+  "pattern-n4-ndesu-007": {
+    "hintI18n": { "en": "Opening a question to your teacher.", "ja": "先生に質問を切り出す。" },
+    "promptContextI18n": { "en": "\"Sensei, I have a question — is now a good time?\"", "ja": "「先生、質問があるんですが、今いいですか。」" },
+    "explanationI18n": {
+      "en": "The cushion before speaking up: a verb's plain form attaches directly to 「んですが」 — 質問があるんですが. 「あるですが」 isn't a sentence (you'd say ありますが); 「あるなんですが」 adds a な that belongs only to nouns and な-adjectives; 「あるました」 isn't a form.",
+      "ja": "切り出しの前置き：動詞の普通形は「んですが」に直接——質問があるんですが。「あるですが」は文にならない（ありますが と言う）。「あるなんですが」の な は名詞・な形容詞専用。「あるました」は形として存在しない。"
+    }
+  },
+  "pattern-n4-ndesu-008": {
+    "hintI18n": { "en": "Confirming your friend's study-abroad plan.", "ja": "留学の予定を確かめられて答える。" },
+    "promptContextI18n": { "en": "\"You're studying abroad in Japan?\" \"Yes — I leave next year.\"", "ja": "「日本へ留学するんですか。」「はい、来年行くんです。」" },
+    "explanationI18n": {
+      "en": "Asked with 「〜んですか」, you answer in kind with 「〜んです」: 来年行くんです. 「行くです」「行くます」「行くでした」 are all non-sentences — after the dictionary form, only んです among these four parses. ※留学 = studying abroad.",
+      "ja": "「〜んですか」と聞かれたら「〜んです」で受ける：来年行くんです。「行くです」「行くます」「行くでした」はどれも文にならない——辞書形の後ろでこの四択なら んです だけ。"
+    }
+  },
+  "pattern-n4-suiryou-001": {
+    "hintI18n": { "en": "Reading the sky.", "ja": "空模様を見て一言。" },
+    "promptContextI18n": { "en": "\"The sky's dark — it might rain.\"", "ja": "「空が暗いですね。雨が降るかもしれません。」" },
+    "explanationI18n": {
+      "en": "Possibility uses 「〜かもしれません」 = might ~: 雨が降るかもしれません. 「かしれません」 lost the も; 「かもしりません」 garbles しれ into しり; 「かもしれました」 — no such past form exists. Memorize it as one fixed chunk. ※暗い = dark.",
+      "ja": "可能性は「〜かもしれません」：雨が降るかもしれません。「かしれません」は も 抜け。「かもしりません」は しれ→しり の崩れ。「かもしれました」という過去形はない——固定形としてまるごと覚える。"
+    }
+  },
+  "pattern-n4-suiryou-002": {
+    "hintI18n": { "en": "Chatting about tomorrow's weather in plain style.", "ja": "普通体で明日の天気の話。" },
+    "promptContextI18n": { "en": "\"It'll probably clear up tomorrow.\"", "ja": "「明日はたぶん晴れるだろう。」" },
+    "explanationI18n": {
+      "en": "「だろう」 is the plain-style counterpart of でしょう = probably: 晴れるだろう. Attaching 「だ」「だった」「ではない」 directly to the dictionary form makes no sentence — of the だ family, only だろう follows a plain verb. ※晴れる = to clear up.",
+      "ja": "「だろう」は でしょう の普通体：晴れるだろう。辞書形に「だ」「だった」「ではない」を直接付けても文にならない——だ 系で動詞普通形に付くのは だろう だけ。"
+    }
+  },
+  "pattern-n4-suiryou-003": {
+    "hintI18n": { "en": "Homework troubles.", "ja": "宿題の悩みをこぼす。" },
+    "promptContextI18n": { "en": "\"My homework won't get done and I'm stuck.\"", "ja": "「宿題が終わらなくて、困っています。」" },
+    "explanationI18n": {
+      "en": "A negative cause uses 「〜なくて」: 終わらない → 終わらなくて = because it won't finish (I'm stuck). 「終わるなくて」 bolts ない onto the dictionary form; 「終わらなくで」 is misspelled; 「終わないで」 dropped the ら. When the result is a feeling or state (困る), the cause takes なくて. ※宿題 = homework.",
+      "ja": "原因の否定は「〜なくて」：終わらない→終わらなくて。「終わるなくて」は辞書形に ない 系を無理付け。「終わらなくで」は綴りの崩れ。「終わないで」は ら 抜け。後件が感情・状態（困る）のとき、原因は なくて。"
+    }
+  },
+  "pattern-n4-suiryou-004": {
+    "hintI18n": { "en": "Explaining what put you at ease.", "ja": "安心した理由を言う。" },
+    "promptContextI18n": { "en": "\"I heard I passed, and felt relieved.\"", "ja": "「合格の知らせを聞いて、安心しました。」" },
+    "explanationI18n": {
+      "en": "The cause of a feeling (安心, びっくり, うれしい…) uses the て form: 知らせを聞いて、安心しました. 「聞くて」「聞きて」 are wrong sound changes; 「聞いで」 uses the いで that belongs to ぐ-verbs (泳ぐ→泳いで) — く-verbs take いて (聞く→聞いて). ※合格 = passing, 知らせ = news/notice, 安心する = to feel relieved.",
+      "ja": "感情（安心・びっくり・うれしい…）の原因は て形：知らせを聞いて、安心しました。「聞くて」「聞きて」は誤った音便。「聞いで」の いで は ぐ 動詞用（泳ぐ→泳いで）——く 動詞は いて（聞く→聞いて）。"
+    }
+  },
+  "pattern-n4-suiryou-005": {
+    "hintI18n": { "en": "Guessing who that person is.", "ja": "あの人の身分を推測する。" },
+    "promptContextI18n": { "en": "\"That person might be a student.\"", "ja": "「あの人は学生かもしれません。」" },
+    "explanationI18n": {
+      "en": "A noun attaches to かもしれない bare — だ drops: 学生かもしれません. 「学生だかもしれません」 keeps the だ and is wrong; 「なかもしれません」 imports んです's な; 「のかもしれません」 straight after a noun has a stray の (学生なのかもしれません is a different, valid shape). Contrast: んです wants な, かも attaches bare.",
+      "ja": "名詞は かもしれない に裸で付く——だ は落とす：学生かもしれません。「学生だかもしれません」は だ が残った誤り。「なかもしれません」は んです の な の混入。「のかもしれません」は名詞直後だと の が余計（「学生なのかもしれません」なら別の正しい形）。対照：んです は な、かも は裸。"
+    }
+  },
+  "pattern-n4-suiryou-006": {
+    "hintI18n": { "en": "Guessing whether the shop is open, plain style.", "ja": "店が開いているか普通体で推測。" },
+    "promptContextI18n": { "en": "\"That shop's probably closed today.\"", "ja": "「たぶんあの店は休みだろう。」" },
+    "explanationI18n": {
+      "en": "Nouns also attach to だろう bare: 休みだろう. 「なだろう」 imports んです's な; 「休みのだろう」 has a stray の (休みなのだろう is a different valid shape); 「いだろう」 is no form. Before かも, だろう, でしょう: present-tense だ always drops (past だった stays: 休みだっただろう).",
+      "ja": "名詞は だろう にも裸で付く：休みだろう。「なだろう」は んです の な の混入。「休みのだろう」は の が余計（「休みなのだろう」なら別の形）。「いだろう」は形にならない。かも・だろう・でしょう の前では現在形の だ は必ず落とす（過去の だった は残る：休みだっただろう）。"
+    }
+  },
+  "pattern-n4-suiryou-007": {
+    "hintI18n": { "en": "Guessing how an old friend is doing.", "ja": "しばらく会っていない友だちの近況を推測。" },
+    "promptContextI18n": { "en": "\"She's probably doing fine.\"", "ja": "「彼女はたぶん元気でしょう。」" },
+    "explanationI18n": {
+      "en": "な-adjectives attach to でしょう bare — no だ, no な: 元気でしょう. 「なでしょう」「だでしょう」 overdo it; 「元気のでしょう」 has a stray の. The family rule: かもしれない, だろう, でしょう — present-tense nouns and な-adjectives attach bare (past だった stays: 元気だったでしょう).",
+      "ja": "な形容詞は でしょう に裸で付く——だ も な も不要：元気でしょう。「なでしょう」「だでしょう」は蛇足。「元気のでしょう」は の が余計。この一家のルール：かもしれない・だろう・でしょう——名詞・な形容詞の現在形は裸接続（過去の だった は残る：元気だったでしょう）。"
+    }
+  },
+  "pattern-n4-suiryou-008": {
+    "hintI18n": { "en": "Why your stomach is growling.", "ja": "おなかがすいたわけを言う。" },
+    "promptContextI18n": { "en": "\"I skipped breakfast and now I'm hungry.\"", "ja": "「朝ごはんを食べなくて、おなかがすきました。」" },
+    "explanationI18n": {
+      "en": "The negative cause once more: 食べない → 食べなくて = because I didn't eat (I'm hungry). 「食べなくで」「食べずて」「食べないくて」 are all nonexistent forms — formula: drop the い of ない, add くて.",
+      "ja": "原因の否定をもう一度：食べない→食べなくて。「食べなくで」「食べずて」「食べないくて」はどれも存在しない形——公式は「ない の い を取って くて」。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",

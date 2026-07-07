@@ -99,6 +99,26 @@ describe("N5 grammar patterns (#543: sonzai + ichi / #544: joshi2 + joshi3)", ()
     }
   });
 
+  it("N4 drills (#549) carry 8 items with unique solutions and full overlays", () => {
+    // N4 decks use kanji-mixed orthography, so no kana-only assertion here.
+    const ndesu = buildSentencePatternPool({ patternIds: ["n4-ndesu"] });
+    const suiryou = buildSentencePatternPool({ patternIds: ["n4-suiryou"] });
+    expect(ndesu).toHaveLength(8);
+    expect(suiryou).toHaveLength(8);
+    for (const q of [...ndesu, ...suiryou]) {
+      expect(q.options, q.id).toHaveLength(4);
+      expect(new Set(q.options).size, q.id).toBe(4);
+      expect(q.options!.filter((o) => q.expectedAnswers.includes(o)), q.id).toHaveLength(1);
+      expect(q.hintZh ?? "", q.id).not.toContain(q.expectedAnswers[0]);
+      const overlay = sentencePatternI18n[q.id];
+      expect(overlay?.hintI18n?.ja && overlay?.hintI18n?.en, q.id).toBeTruthy();
+      expect(
+        overlay?.explanationI18n?.ja && overlay?.explanationI18n?.en,
+        q.id
+      ).toBeTruthy();
+    }
+  });
+
   it("the two N5 chapters sit in the N5 文法 category with pattern completion", () => {
     const byId = (id: string) => learningBlocks.find((b) => b.id === id)!;
     expect(byId("n5-sonzai").category).toBe("N5 文法");

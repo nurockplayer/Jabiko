@@ -231,6 +231,8 @@ export const vi: Copy = {
   drillPatternN5Keiyoushi: "Luyện nối tính từ",
   drillPatternN5Josuushi: "Luyện trợ số từ",
   drillPatternN5Teido: "Luyện mức độ và tần suất",
+  drillPatternN4Ndesu: "Luyện ngữ khí giải thích んです",
+  drillPatternN4Suiryou: "Luyện suy đoán và nguyên nhân",
   drillPatternTeKudasai: "Luyện mẫu câu: yêu cầu / cho phép / cấm đoán",
   drillPatternNakuteMoII: "Luyện mẫu câu: không cần phải vs. bắt buộc",
   drillPatternTeMorau: "Luyện mẫu câu: góc nhìn cho & nhận",

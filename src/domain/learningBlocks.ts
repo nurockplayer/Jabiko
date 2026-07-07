@@ -606,6 +606,56 @@ export const learningBlocks: LearningBlock[] = [
     recommendedAfter: ["n5-josuushi"]
   },
   {
+    id: "n4-ndesu",
+    group: "basic",
+    category: "N4 文法",
+    kicker: "N4 句型",
+    title: "說明語氣 〜んです",
+    subtitle: "どうしたんですか／引っ越しなんです",
+    explanation:
+      "N4 最高頻的語氣系統。「〜んです」不是單純的です——它帶著「說明、解釋」的態度：看到不尋常的狀況追問（どうしたんですか）、說明自己行為的緣由（誕生日なんです）、拜託人之前先鋪墊（質問があるんですが…）。接續整理：動詞・い形容詞普通形直接接（行くんです、痛いんです）；名詞・な形容詞現在肯定要加な（引っ越しなんです）；過去だった直接接（病気だったんです）。問答成組：〜んですか 的回答用 〜んです。",
+    examples: [
+      { formula: "どうしたんですか", note: "求說明的追問" },
+      { formula: "電車が止まったんです", note: "回答：說明緣由" },
+      { formula: "引っ越しなんですが、…", note: "名詞＋な＋んです；が＝鋪墊" },
+      { formula: "病気だったんです", note: "過去だった直接接" },
+      { formula: "質問があるんですが、今いいですか", note: "開口前的前置き" }
+    ],
+    pitfalls: [
+      "普通形＋です/ます 不成句：×行くです——要嘛 行きます、要嘛 行くんです",
+      "名詞・な形容詞加な：学生なんです；但過去 だったんです 不再加な",
+      "看到情況才用んですか；沒有前提就用會顯得質問——單純問句用ますか"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN4Ndesu", patternIds: ["n4-ndesu"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n5-teido"]
+  },
+  {
+    id: "n4-suiryou",
+    group: "basic",
+    category: "N4 文法",
+    kicker: "N4 句型",
+    title: "推量與原因 かもしれない・て",
+    subtitle: "雨が降るかもしれません／終わらなくて",
+    explanation:
+      "把握度的階梯：〜かもしれない（說不定，五成以下）＜〜だろう/でしょう（大概吧）。だろう是でしょう的普通體。接續共同鐵則：名詞・な形容詞一律裸接、だ要去掉——学生かもしれない、休みだろう、元気でしょう（對照：んです才要な）。另一塊是「て形表原因」：感情或狀態的緣由用て/なくて——知らせを聞いて安心した、宿題が終わらなくて困っている。否定公式：ない去い＋くて。",
+    examples: [
+      { formula: "雨が降るかもしれません", note: "說不定：可能性" },
+      { formula: "明日は晴れるだろう", note: "だろう＝でしょう的普通體" },
+      { formula: "学生かもしれない／休みだろう", note: "名詞裸接、だ去掉" },
+      { formula: "知らせを聞いて、安心しました", note: "て＝感情的原因" },
+      { formula: "終わらなくて、困っています", note: "原因的否定：なくて" }
+    ],
+    pitfalls: [
+      "かも/だろう/でしょう 前面 だ 全部去掉：×学生だかもしれない",
+      "但んです要な：学生なんです——兩家規則別互相污染",
+      "原因的否定用なくて（狀態・感情）；ないで是「不做A而做B」的付帶狀況"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN4Suiryou", patternIds: ["n4-suiryou"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n4-ndesu"]
+  },
+  {
     id: "adverbial",
     group: "basic",
     category: "形容詞 / 名詞 修飾",
