@@ -420,6 +420,86 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "n5-hikaku": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Comparison: より・ほうが・いちばん",
+      "explanation":
+        "The comparison trio. (1) 「AはBより〜」 = A is more ~ than B (より follows the standard of comparison). (2) 「〜のほうが〜」 = ~ is more ~; it's also how you answer 「AとBと、どちらが〜」. (3) The superlative 「(range)で 〜が いちばん〜」 = the most ~ within ~. Two iron rules: the pick-one-of-two question word is どちら (not なに), and a question-word subject only takes が.",
+      "notes": [
+        "A is more ~ than B",
+        "Pick-one-of-two question",
+        "Answering: ~ is more ~",
+        "Superlative: range + で",
+        "ほど + negative: not as ~ as"
+      ],
+      "pitfalls": [
+        "ほど also follows a comparison standard, but demands a negative (〜ほど〜ない)",
+        "\"Which (of two)\" is どちら; どれ/なに are for three or more",
+        "The superlative range takes で: クラスで, 日本で, スポーツのなかで"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "比較 より・ほうが・いちばん",
+      "explanation":
+        "比較の三点セット。①「AはBより〜」＝AはBより〜（より は比較の基準の後ろ）。②「〜のほうが〜」——「AとBと、どちらが〜」への答え方でもある。③最上級「（範囲）で 〜が いちばん〜」。鉄則二つ：二択の疑問詞は どちら（なに ではない）、疑問詞が主語なら助詞は が だけ。",
+      "notes": [
+        "AはBより〜",
+        "二択の質問",
+        "答え方：〜のほうが〜",
+        "最上級：範囲＋で",
+        "ほど＋否定：〜ほど〜ない"
+      ],
+      "pitfalls": [
+        "ほど も比較の基準に付くが、必ず否定とセット（〜ほど〜ない）",
+        "「どちら」は二択。三つ以上は どれ/なに",
+        "最上級の範囲は で：クラスで、日本で、スポーツのなかで"
+      ]
+    }
+  },
+  "n5-suki-dekiru": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Likes & Ability: 〜が すき・できる",
+      "explanation":
+        "The family of patterns for \"I like ~ / I can ~\", united by one thing: the object takes 「が」. すき/きらい (like/dislike), じょうず/へた (good at/bad at), わかる (understand), できる (can). Chinese and English instincts reach for を (like \"the cat\"), but this family fixes on が — one of N5's most important switches. To say you can DO something, nominalize the verb with 「こと」 first: およぐ ことが できます.",
+      "notes": [
+        "Like: object takes が",
+        "Good at",
+        "Understand",
+        "Can (noun)",
+        "Can do ~: verb + ことが できる"
+      ],
+      "pitfalls": [
+        "This family's object takes が, not を: ×にほんごを わかります",
+        "Colloquial 「〜をすき」 exists, but tests and writing use が",
+        "きらい looks like an い-adjective but is a な-adjective (きらいな 人)"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "好き・できる 〜が の仲間",
+      "explanation":
+        "「好き・できる」を言う文型ファミリー。共通点は対象が「が」になること：すき/きらい、じょうず/へた、わかる、できる。中国語や英語の感覚では を を使いたくなるが、この仲間は が で固定——N5 でいちばん大事な切り替えのひとつ。動詞で「〜できる」と言うなら、まず「こと」で名詞化：およぐ ことが できます。",
+      "notes": [
+        "好き：対象は が",
+        "上手",
+        "わかる",
+        "できる（名詞）",
+        "〜できる：動詞＋ことが できる"
+      ],
+      "pitfalls": [
+        "この仲間の対象は が。×にほんごを わかります",
+        "話し言葉の「〜をすき」はあるが、試験と書き言葉は が",
+        "きらい は い形容詞に見えるが な形容詞（きらいな 人）"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",

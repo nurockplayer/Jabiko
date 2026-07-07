@@ -222,6 +222,8 @@ export const en: Copy = {
   drillPatternN5Ichi: "Drill position words + この・その",
   drillPatternN5Joshi2: "Drill particles へ・で・と・や",
   drillPatternN5Joshi3: "Drill particles の・も・か・から",
+  drillPatternN5Hikaku: "Drill comparison patterns",
+  drillPatternN5SukiDekiru: "Drill likes + ability",
   drillPatternTeKudasai: "Pattern drill: request / permission / prohibition",
   drillPatternNakuteMoII: "Pattern drill: don't have to vs. must",
   drillPatternTeMorau: "Pattern drill: giving & receiving perspective",

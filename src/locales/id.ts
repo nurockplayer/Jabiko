@@ -222,6 +222,8 @@ export const id: Copy = {
   drillPatternN5Ichi: "Latih kata posisi + この・その",
   drillPatternN5Joshi2: "Latih partikel へ・で・と・や",
   drillPatternN5Joshi3: "Latih partikel の・も・か・から",
+  drillPatternN5Hikaku: "Latih pola perbandingan",
+  drillPatternN5SukiDekiru: "Latih suka + kemampuan",
   drillPatternTeKudasai: "Latih pola: permintaan / izin / larangan",
   drillPatternNakuteMoII: "Latih pola: tidak perlu vs harus",
   drillPatternTeMorau: "Latih pola: sudut pandang memberi-menerima",
