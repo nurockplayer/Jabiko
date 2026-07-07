@@ -23,5 +23,12 @@ export function useFurigana() {
     });
   };
 
-  return { enabled, toggle };
+  // Idempotent ON: used when the learner picks 完全新手 at onboarding (#532)
+  // -- a beginner needs readings everywhere and won't find the toggle.
+  const enable = () => {
+    writeStored(FURIGANA_STORAGE_KEY, "on");
+    setEnabled(true);
+  };
+
+  return { enabled, toggle, enable };
 }

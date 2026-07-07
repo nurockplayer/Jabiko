@@ -527,17 +527,78 @@ describe("App", () => {
     expect(screen.queryByText(/やいなや/)).not.toBeInTheDocument();
   });
 
-  it("starts a 今日練習 session from the home entry", async () => {
+  it("gates the home 今日練習 CTA on a level choice, then auto-continues (#532)", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    // The prominent home CTA launches the mixed daily session.
+    // A brand-new visitor taps the CTA with no level chosen: the session
+    // must NOT start (the old behaviour fell back to the N1/N2-heavy "all"
+    // pool). Instead the level ask appears...
     await user.click(screen.getByRole("button", { name: /開始今日練習/ }));
+    expect(screen.queryByRole("region", { name: "目前題目" })).not.toBeInTheDocument();
+    expect(screen.getByText(/先選擇你的程度/)).toBeInTheDocument();
 
-    // Lands in the challenge view with a question and the 今日練習 mode
-    // card selected.
+    // ...and answering it continues straight into the daily session.
+    await user.click(screen.getByRole("button", { name: /初級/ }));
     await screen.findByRole("region", { name: "目前題目" });
     expect(screen.getByRole("button", { name: /今日練習/ })).toHaveClass("selected");
+  });
+
+  it("starts a 今日練習 session directly when a level is already set", async () => {
+    localStorage.setItem("jabiko:targetLevel", "n2n3");
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /開始今日練習/ }));
+
+    await screen.findByRole("region", { name: "目前題目" });
+    expect(screen.getByRole("button", { name: /今日練習/ })).toHaveClass("selected");
+  });
+
+  it("完全新手 onboarding: enables furigana and lands on the 入門 chapters (#532)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(localStorage.getItem("jabiko.furigana")).toBeNull();
+    await user.click(screen.getByRole("button", { name: /完全新手/ }));
+
+    // Preference persisted, furigana forced on for the beginner...
+    expect(localStorage.getItem("jabiko:targetLevel")).toBe("starter");
+    expect(localStorage.getItem("jabiko.furigana")).toBe("on");
+    expect(screen.getByRole("button", { name: "隱藏註音" })).toHaveAttribute("aria-pressed", "true");
+    // ...and the app lands on Learn, whose default-active chapter for a
+    // fresh history is 五十音・平假名.
+    expect(screen.getByRole("heading", { name: "一章一章解鎖" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "五十音・平假名" }).length).toBeGreaterThan(0);
+  });
+
+  it("gate -> 完全新手: honours the practice intent (starter daily, furigana on) (#532)", async () => {
+    // Combined path: a brand-new visitor taps the daily CTA FIRST (gated),
+    // THEN answers with 完全新手. The pick must continue into the starter
+    // daily session -- they asked to practise, and the starter daily serves
+    // 入門 questions -- NOT detour to the chapter list. Furigana still
+    // turns on. (The learn-landing applies to the non-gated card path.)
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /開始今日練習/ }));
+    await user.click(screen.getByRole("button", { name: /完全新手/ }));
+
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    expect(panel.getAttribute("data-question-id")).toMatch(/^(kana-|starter-)/);
+    expect(localStorage.getItem("jabiko.furigana")).toBe("on");
+    expect(localStorage.getItem("jabiko:targetLevel")).toBe("starter");
+  });
+
+  it("完全新手 daily session serves 入門 content, not exam items (#532)", async () => {
+    localStorage.setItem("jabiko:targetLevel", "starter");
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /開始今日練習/ }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    // Every question in a starter daily comes from the kana / starter pools.
+    expect(panel.getAttribute("data-question-id")).toMatch(/^(kana-|starter-)/);
   });
 
   it("mock exam is a section picker that launches a filtered exam drill", async () => {

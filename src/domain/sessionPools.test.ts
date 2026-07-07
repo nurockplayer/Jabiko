@@ -3,6 +3,7 @@ import { buildClozeQuestionPool } from "./cloze";
 import { clozeSentences } from "./cloze-data";
 import { ADJECTIVE_FORMS } from "./conjugation";
 import { buildExamQuestionPool } from "./examBlocks";
+import { buildKanaQuestionPool } from "./kanaDrill";
 import { levelsForRange } from "./levelRange";
 import { buildQuestionPool } from "./practice";
 import {
@@ -371,6 +372,43 @@ describe("composeDailySet", () => {
     // The empty vocab slots roll into N4/N5 exam (which carry their own 4
     // baked options), so EVERY item is exam_style -- no short-option 漢字読み.
     expect(set.every((q) => q.vocabulary.tags?.includes("exam_style"))).toBe(true);
+  });
+
+  it("完全新手 starter: the fresh portion is 入門 content only (kana + starter vocab), never exam (#532)", () => {
+    const set = composeDailySet([], "starter");
+    expect(set.length).toBe(20);
+    expect(
+      set.every(
+        (question) => question.id.startsWith("kana-") || question.id.startsWith("starter-")
+      )
+    ).toBe(true);
+    // A real mix, not a single-pool dump.
+    expect(set.some((question) => question.id.startsWith("kana-"))).toBe(true);
+    expect(set.some((question) => question.id.startsWith("starter-"))).toBe(true);
+  });
+
+  it("starter back-fills from words when the kana pool is exhausted (codex review)", () => {
+    // Every kana question is due -> the fresh kana pool filters to empty.
+    // The word half must then expand to fill ALL fresh slots, not leave the
+    // session short.
+    const allKana = [
+      ...buildKanaQuestionPool({ script: "hiragana" }),
+      ...buildKanaQuestionPool({ script: "katakana" })
+    ];
+    const set = composeDailySet(allKana, "starter");
+    expect(set).toHaveLength(20);
+    // 10 due kana lead; the 10 fresh are all starter words.
+    expect(set.slice(10).every((question) => question.id.startsWith("starter-"))).toBe(true);
+  });
+
+  it("starter keeps the reviews-first promise: due 入門 items lead the set (#532)", () => {
+    const due = composeDailySet([], "starter").slice(0, 3);
+    const set = composeDailySet(due, "starter");
+    expect(set.slice(0, due.length).map((question) => question.id)).toEqual(
+      due.map((question) => question.id)
+    );
+    const dueIds = new Set(due.map((question) => question.id));
+    expect(set.slice(due.length).some((question) => dueIds.has(question.id))).toBe(false);
   });
 
   it("defaults to the prior all-levels behaviour when no range is passed (#199)", () => {

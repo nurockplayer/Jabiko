@@ -232,7 +232,7 @@ export const my: Copy = {
   practiceType: "လေ့ကျင့်မှု အမျိုးအစား",
   practiceMode: "လေ့ကျင့်မှု မုဒ်",
   levelRange: "မေးခွန်း အစုအဝေး",
-  levelRangeOptions: { all: "အားလုံး", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5" },
+  levelRangeOptions: { all: "အားလုံး", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "လုံးဝ အစပြုသူ" },
   levelOnboarding: {
     title: "သင့်အဆင့်ကို ရွေးပါ",
     subtitle: "ဒီနေ့ လေ့ကျင့်ခန်းနှင့် မေးခွန်းအစုအဝေးတစ်ခုစီ၏ မူရင်းအခက်အခဲကို သတ်မှတ်သည် — အချိန်မရွေး ပြောင်းနိုင်သည်။",
@@ -242,9 +242,12 @@ export const my: Copy = {
     intermediateHint: "N2・N3",
     advanced: "အဆင့်မြင့်",
     advancedHint: "N1・N2",
+    starter: "လုံးဝ အစပြုသူ",
+    starterHint: "သုညမှစ",
     manageTitle: "ပန်းတိုင်အဆင့်",
     change: "ပြောင်းရန်",
-    notSet: "မသတ်မှတ်ရသေးပါ"
+    notSet: "မသတ်မှတ်ရသေးပါ",
+    chooseFirst: "အရင် သင့်အဆင့်ကို ရွေးပါ — ဒီနေ့ လေ့ကျင့်ခန်း ချက်ချင်း စတင်ပါမည်။"
   },
   sessionLength: "တစ်စုလျှင် မေးခွန်းအရေအတွက်",
   sessionLengthAll: "အားလုံး",

@@ -215,7 +215,14 @@ export type Copy = {
   practiceType: string;
   practiceMode: string;
   levelRange: string;
-  levelRangeOptions: { all: string; n1n2: string; n2n3: string; n3n4: string; n4n5: string };
+  levelRangeOptions: {
+    all: string;
+    n1n2: string;
+    n2n3: string;
+    n3n4: string;
+    n4n5: string;
+    starter: string;
+  };
   levelOnboarding: {
     title: string;
     subtitle: string;
@@ -225,9 +232,13 @@ export type Copy = {
     intermediateHint: string;
     advanced: string;
     advancedHint: string;
+    starter: string;
+    starterHint: string;
     manageTitle: string;
     change: string;
     notSet: string;
+    /** Daily-CTA gate (#532): shown when 今日練習 is tapped with no level set. */
+    chooseFirst: string;
   };
   sessionLength: string;
   sessionLengthAll: string;

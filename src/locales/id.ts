@@ -232,7 +232,7 @@ export const id: Copy = {
   practiceType: "Jenis latihan",
   practiceMode: "Mode latihan",
   levelRange: "Cakupan bank soal",
-  levelRangeOptions: { all: "Semua", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5" },
+  levelRangeOptions: { all: "Semua", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "Pemula total" },
   levelOnboarding: {
     title: "Pilih tingkatmu",
     subtitle: "Atur tingkat kesulitan default untuk latihan hari ini dan tiap bank soal; bisa diubah kapan saja nanti.",
@@ -242,9 +242,12 @@ export const id: Copy = {
     intermediateHint: "N2・N3",
     advanced: "Mahir",
     advancedHint: "N1・N2",
+    starter: "Pemula total",
+    starterHint: "Dari nol",
     manageTitle: "Level target",
     change: "Ubah",
-    notSet: "Belum diatur"
+    notSet: "Belum diatur",
+    chooseFirst: "Pilih levelmu dulu — latihan hari ini langsung dimulai."
   },
   sessionLength: "Soal per set",
   sessionLengthAll: "Semua",

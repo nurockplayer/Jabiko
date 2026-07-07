@@ -11,12 +11,18 @@ describe("levelsForRange", () => {
     expect(levelsForRange("n4n5")).toEqual(["N4", "N5"]);
   });
 
-  it("offers 全部 first, then the target bands high→low", () => {
+  it("offers 全部 first, then the target bands high→low, then the starter band (#532)", () => {
     expect(LEVEL_RANGE_OPTIONS[0]).toBe("all");
-    expect(LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3", "n3n4", "n4n5"]);
+    expect(LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3", "n3n4", "n4n5", "starter"]);
   });
 
-  it("excludes n4n5 from the vocab picker (no N4/N5 jlpt words)", () => {
+  it("maps the starter band to the gentlest exam pool (N5 only)", () => {
+    // 完全新手 shouldn't be in exam mode at all, but if they wander in, the
+    // pool must be the shallowest -- never the N1/N2 default.
+    expect(levelsForRange("starter")).toEqual(["N5"]);
+  });
+
+  it("excludes n4n5 and starter from the vocab picker (no N4/N5 jlpt words)", () => {
     expect(VOCAB_LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3"]);
   });
 });

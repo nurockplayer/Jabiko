@@ -232,7 +232,7 @@ export const ko: Copy = {
   practiceType: "연습 유형",
   practiceMode: "연습 모드",
   levelRange: "문제 풀(pool)",
-  levelRangeOptions: { all: "전체", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5" },
+  levelRangeOptions: { all: "전체", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "완전 초보" },
   levelOnboarding: {
     title: "레벨을 선택하세요",
     subtitle: "오늘의 연습과 각 문제 풀의 기본 난이도를 정합니다 — 언제든 바꿀 수 있어요.",
@@ -242,9 +242,12 @@ export const ko: Copy = {
     intermediateHint: "N2・N3",
     advanced: "고급",
     advancedHint: "N1・N2",
+    starter: "완전 초보",
+    starterHint: "제로부터",
     manageTitle: "목표 레벨",
     change: "변경",
-    notSet: "미설정"
+    notSet: "미설정",
+    chooseFirst: "먼저 레벨을 고르면 바로 오늘의 연습이 시작돼요."
   },
   sessionLength: "세트당 문제 수",
   sessionLengthAll: "전체",

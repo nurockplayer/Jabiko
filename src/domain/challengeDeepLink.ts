@@ -12,7 +12,7 @@ import type { LevelRange } from "./levelRange";
 export type ChallengeDeepLink = { mode?: PracticeMode; levelRange?: LevelRange };
 
 const MODES: readonly PracticeMode[] = ["basic", "cloze", "daily", "kana", "starter", "pattern", "exam", "review", "vocab"];
-const RANGES: readonly LevelRange[] = ["all", "n1n2", "n2n3", "n3n4", "n4n5"];
+const RANGES: readonly LevelRange[] = ["all", "n1n2", "n2n3", "n3n4", "n4n5", "starter"];
 
 function asMode(value: string | null): PracticeMode | undefined {
   return value !== null && (MODES as readonly string[]).includes(value) ? (value as PracticeMode) : undefined;

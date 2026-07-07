@@ -233,7 +233,7 @@ export const th: Copy = {
   practiceType: "ประเภทการฝึก",
   practiceMode: "โหมดการฝึก",
   levelRange: "ขอบเขตคลังข้อสอบ",
-  levelRangeOptions: { all: "ทั้งหมด", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5" },
+  levelRangeOptions: { all: "ทั้งหมด", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "มือใหม่สุด ๆ" },
   levelOnboarding: {
     title: "เลือกระดับของคุณ",
     subtitle: "ตั้งค่าความยากเริ่มต้นของการฝึกประจำวันและคลังข้อสอบแต่ละชุด เปลี่ยนทีหลังได้ตลอด",
@@ -243,9 +243,12 @@ export const th: Copy = {
     intermediateHint: "N2・N3",
     advanced: "ระดับสูง",
     advancedHint: "N1・N2",
+    starter: "มือใหม่สุด ๆ",
+    starterHint: "เริ่มจากศูนย์",
     manageTitle: "ระดับเป้าหมาย",
     change: "เปลี่ยน",
-    notSet: "ยังไม่ได้ตั้ง"
+    notSet: "ยังไม่ได้ตั้ง",
+    chooseFirst: "เลือกระดับของคุณก่อน แล้วฝึกประจำวันจะเริ่มทันที"
   },
   sessionLength: "จำนวนข้อต่อชุด",
   sessionLengthAll: "ทั้งหมด",

@@ -62,6 +62,44 @@ export function composeDailySet(
   const isFresh = (question: PracticeQuestion) => !dueIds.has(question.id);
   const freshSlots = DAILY_TARGET - dueTake.length;
 
+  // 完全新手 (#532): the fresh portion is 入門 content ONLY -- kana
+  // recognition + starter vocab -- never exam items (kanji-laden JLPT
+  // questions are exactly what a zero-base learner must not meet on day
+  // one). Reviews still lead the set, same as every other band.
+  if (range === "starter") {
+    // Reserved halves (mirroring the vocab-floor pattern below): a naive
+    // shuffle over both pools would often draw kana only -- the kana bank is
+    // ~5x the word deck -- so the session reserves word slots explicitly.
+    // Either pool being short rolls its slots into the other.
+    const kanaAll = shuffleQuestions(
+      [
+        ...buildKanaQuestionPool({ script: "hiragana" }),
+        ...buildKanaQuestionPool({ script: "katakana" })
+      ].filter(isFresh)
+    );
+    const wordsAll = shuffleQuestions(
+      buildQuestionPool(starterVocabulary, {
+        partOfSpeech: "mixed",
+        verbGroup: "all",
+        targetForms: ["meaning"]
+      }).filter(isFresh)
+    );
+    const wordTake = wordsAll.slice(0, Math.ceil(freshSlots / 2));
+    const kanaTake = kanaAll.slice(0, freshSlots - wordTake.length);
+    // Back-fill in BOTH directions (codex review): a short kana pool (e.g.
+    // everything due) rolls its unfilled slots back into words, so the
+    // session never comes up short while either pool still has questions.
+    const wordTopUp = wordsAll.slice(
+      wordTake.length,
+      wordTake.length + (freshSlots - wordTake.length - kanaTake.length)
+    );
+    const starterMix = reduceAdjacentClusters(
+      [...kanaTake, ...wordTake, ...wordTopUp],
+      (question) => question.promptLabel ?? question.targetForm
+    );
+    return [...dueTake, ...starterMix];
+  }
+
   // Narrow the fresh pools to the learner's target band (#199). `null`
   // (range "all") keeps each bank's own default mix -- the prior behaviour,
   // so a learner with no preference is unaffected.

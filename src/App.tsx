@@ -277,7 +277,7 @@ export default function App() {
   const { theme, toggleTheme } = useTheme();
   // Global furigana (ruby) preference, default OFF (#134). The hook owns the
   // button state; FuriganaContext broadcasts `enabled` to every <Ruby>.
-  const { enabled: furiganaEnabled, toggle: toggleFurigana } = useFurigana();
+  const { enabled: furiganaEnabled, toggle: toggleFurigana, enable: enableFurigana } = useFurigana();
   const { user, error: authError, signInWithGoogle, signOut } = useAuth();
   // `user` drives cross-device sync: on login the hook merges the remote
   // attempt history into the local store and pushes the local-only delta.
@@ -308,6 +308,25 @@ export default function App() {
     writeLevelPreference(range);
     setTargetLevel(range);
     trackEvent("level_changed", { scope: "global", levelRange: range, locale: language });
+    if (range === "starter") {
+      // 完全新手 (#532): a zero-base learner needs readings everywhere and
+      // won't find the header toggle -- turn furigana on for them (their
+      // choice stays overridable via the toggle; the global default is
+      // untouched for everyone else).
+      enableFurigana();
+      // Land TRUE newcomers on the 入門 chapters (kana is the default-active
+      // chapter for a fresh history). Returning learners switching bands via
+      // the #526 chip keep their current view -- no surprise navigation.
+      // DELIBERATE exception (same-batch override): when this choice answers
+      // the daily-CTA gate, HomePanel's auto-continue fires openChallenge
+      // right after and its setAppView("challenge") wins the batch -- the
+      // learner asked to START PRACTISING, and the starter daily serves 入門
+      // questions, so honouring that intent beats detouring to the chapter
+      // list. Locked by the "gate -> 完全新手" App test.
+      if (progressAttempts.length === 0 && appView === "home") {
+        setAppView("learn");
+      }
+    }
   };
 
   const themeToggleLabel = theme === "dark" ? t.themeLight : t.themeDark;
