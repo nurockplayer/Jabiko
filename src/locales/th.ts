@@ -221,6 +221,8 @@ export const th: Copy = {
   drillPatternStarterParticles: "ฝึกคำช่วย は・を・に・が",
   drillPatternN5Sonzai: "ฝึก あります・います",
   drillPatternN5Ichi: "ฝึกคำบอกตำแหน่ง + この・その",
+  drillPatternN5Joshi2: "ฝึกคำช่วย へ・で・と・や",
+  drillPatternN5Joshi3: "ฝึกคำช่วย の・も・か・から",
   drillPatternTeKudasai: "ฝึกรูปประโยค: ขอร้อง / อนุญาต / ห้าม",
   drillPatternNakuteMoII: "ฝึกรูปประโยค: ไม่จำเป็น vs จำเป็น",
   drillPatternTeMorau: "ฝึกรูปประโยค: มุมมองการให้-รับ",

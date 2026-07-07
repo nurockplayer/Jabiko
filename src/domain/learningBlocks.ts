@@ -328,6 +328,59 @@ export const learningBlocks: LearningBlock[] = [
     recommendedAfter: ["n5-sonzai"]
   },
   {
+    id: "n5-joshi2",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "助詞II へ・で・と・や",
+    subtitle: "バスで がっこうへ いきます",
+    explanation:
+      "入門章教了は/を/に/が，這章補上移動與工具的助詞。へ（讀 e）＝移動的方向；で 一詞三用：動作的場所（としょかんで）、手段工具（バスで、はしで）、合計（ぜんぶで）；と＝把名詞「全部列出」的和（パンと たまご）；や＝「舉例、還有別的」的和，常配句尾的など（ほんや ペンなど）。と 和 や 的差別是 N5 考試最愛考的點。",
+    examples: [
+      { formula: "とうきょうへ いきます", note: "へ：移動方向（讀 e）" },
+      { formula: "バスで いきます／はしで たべます", note: "で：交通工具、手段" },
+      { formula: "としょかんで べんきょうします", note: "で：動作的場所" },
+      { formula: "ぜんぶで いくらですか", note: "で：合計" },
+      { formula: "パンと たまご", note: "と：全部列出" },
+      { formula: "ほんや ペンなど", note: "や：舉例（還有別的）" }
+    ],
+    pitfalls: [
+      "方向 へ/に 常可互換：へ 重「朝向」、に 重「到達點」",
+      "と＝清單全列完；や＝只舉例（常配など）——考題用など當提示",
+      "助詞 へ 讀作 e 不讀 he（跟 は 讀 wa 同一類規則）"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Joshi2", patternIds: ["n5-joshi2"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["starter-particles"]
+  },
+  {
+    id: "n5-joshi3",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "助詞III の・も・か・から〜まで",
+    subtitle: "わたしの／おとうとも／９じから",
+    explanation:
+      "剩下的 N5 常用助詞一次收齊。の＝「的」（わたしの かばん），還能代替說過的名詞（たなかさんの です＝田中的〈那支筆〉）；も＝「也」，直接取代は/が 的位置；「疑問詞＋も＋否定」＝全面否定（だれも いません）；か 放在名詞中間＝「或」（コーヒーか おちゃ）；〜から〜まで＝「從～到～」（時間、場所都能用）；だけ＝「只有」。",
+    examples: [
+      { formula: "わたしの かばん", note: "の：的（所有）" },
+      { formula: "たなかさんの です", note: "の：代替前面的名詞" },
+      { formula: "おとうとも がくせいです", note: "も：也" },
+      { formula: "だれも いません", note: "疑問詞＋も＋否定＝全面否定" },
+      { formula: "コーヒーか おちゃ", note: "か：或（二選一）" },
+      { formula: "９じから ３じまで", note: "から〜まで：從～到～" },
+      { formula: "ひとりだけ います", note: "だけ：只有" }
+    ],
+    pitfalls: [
+      "も 直接取代は/が，不能寫「はも」「がも」",
+      "だれも/なにも 後面接否定；「某人/某物」用 だれか/なにか＋肯定",
+      "だけ 接肯定就好；「しか」也表「只」但一定要配否定（N4 再學）"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Joshi3", patternIds: ["n5-joshi3"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n5-joshi2"]
+  },
+  {
     id: "adverbial",
     group: "basic",
     category: "形容詞 / 名詞 修飾",

@@ -220,6 +220,8 @@ export const id: Copy = {
   drillPatternStarterParticles: "Latih partikel は・を・に・が",
   drillPatternN5Sonzai: "Latih あります・います",
   drillPatternN5Ichi: "Latih kata posisi + この・その",
+  drillPatternN5Joshi2: "Latih partikel へ・で・と・や",
+  drillPatternN5Joshi3: "Latih partikel の・も・か・から",
   drillPatternTeKudasai: "Latih pola: permintaan / izin / larangan",
   drillPatternNakuteMoII: "Latih pola: tidak perlu vs harus",
   drillPatternTeMorau: "Latih pola: sudut pandang memberi-menerima",

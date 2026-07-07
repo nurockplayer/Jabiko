@@ -220,6 +220,8 @@ export const zhHant: Copy = {
   drillPatternStarterParticles: "練助詞 は・を・に・が",
   drillPatternN5Sonzai: "練あります・います",
   drillPatternN5Ichi: "練位置詞與この・その",
+  drillPatternN5Joshi2: "練助詞II へ・で・と・や",
+  drillPatternN5Joshi3: "練助詞III の・も・か・から",
   drillPatternTeKudasai: "練句型：請求 / 許可 / 禁止",
   drillPatternNakuteMoII: "練句型：不必 vs 必須",
   drillPatternTeMorau: "練句型：授受視角",

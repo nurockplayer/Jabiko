@@ -6,6 +6,8 @@ export type SentencePatternId =
   | "starter-particles"
   | "n5-sonzai"
   | "n5-ichi"
+  | "n5-joshi2"
+  | "n5-joshi3"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -37,6 +39,8 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "starter-particles": "助詞入門",
   "n5-sonzai": "存在 あります・います",
   "n5-ichi": "位置與指示",
+  "n5-joshi2": "助詞II へ・で・と・や",
+  "n5-joshi3": "助詞III の・も・か・から",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -239,6 +243,200 @@ const N5_ICHI_ITEMS: SentencePatternItem[] = [
     options: ["その", "この", "あの", "どの"],
     explanation:
       "「その＋名詞」＝靠近對方的。傘在對方手上 → その。あの＝離雙方都遠；どの＝哪一個（疑問）。※かさ＝傘、あいて＝對方。"
+  }
+];
+
+// ===========================================================================
+// N5 pattern: n5-joshi2 -- へ・で(手段/場所)・と(並列)・や (#544).
+//   Known near-synonym traps are kept OUT of the option sets by design:
+//   に never appears where へ is the answer (direction overlap), enumerative
+//   に (パンに たまご) never competes where と(並列) is the answer, と never
+//   appears where や+など is the answer, と(with) never competes with で.
+// ===========================================================================
+const N5_JOSHI2_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-joshi2-001",
+    patternId: "n5-joshi2",
+    promptText: "あした、とうきょう___ いきます。",
+    hintZh: "說明天要去哪個城市。",
+    promptContextZh: "「明天去東京。」",
+    expectedAnswer: "へ",
+    options: ["へ", "を", "が", "と"],
+    explanation:
+      "移動的方向用「へ」（讀作 e）。方向也可以用「に」，語感差異：へ 強調「朝那個方向」、に 強調「到達點」——這題選項中用「へ」。「を」接動作對象；「と」是「和某人」。※とうきょう＝東京。"
+  },
+  {
+    id: "pattern-n5-joshi2-002",
+    patternId: "n5-joshi2",
+    promptText: "バス___ がっこうへ いきます。",
+    hintZh: "說怎麼去上學。",
+    promptContextZh: "「搭公車去學校。」",
+    expectedAnswer: "で",
+    options: ["で", "に", "を", "へ"],
+    explanation:
+      "交通工具、手段用「で」：バスで＝搭公車。「に」在這裡接不上（バスに のります〈上車〉才用に）；方向已經有「がっこうへ」了。※バス＝公車。"
+  },
+  {
+    id: "pattern-n5-joshi2-003",
+    patternId: "n5-joshi2",
+    promptText: "はし___ ごはんを たべます。",
+    hintZh: "說用什麼吃飯。",
+    promptContextZh: "「用筷子吃飯。」",
+    expectedAnswer: "で",
+    options: ["で", "を", "に", "へ"],
+    explanation:
+      "工具用「で」：はしで＝用筷子。動作對象「ごはんを」已經在句子裡；「に」表時間點或到達點、「へ」只表方向，都接不上工具。※はし＝筷子。"
+  },
+  {
+    id: "pattern-n5-joshi2-004",
+    patternId: "n5-joshi2",
+    promptText: "きのう、パン___ たまごを かいました。",
+    hintZh: "說昨天買的兩樣東西（全部列出）。",
+    promptContextZh: "「昨天買了麵包和蛋。」",
+    expectedAnswer: "と",
+    options: ["と", "を", "へ", "で"],
+    explanation:
+      "把名詞「全部列出來」的「和」用「と」：パンと たまご＝麵包和蛋（就這兩樣）。若只是舉例（還有別的）用「や」。「を」已經接在たまご後面了。※パン＝麵包、たまご＝蛋。"
+  },
+  {
+    id: "pattern-n5-joshi2-005",
+    patternId: "n5-joshi2",
+    promptText: "かばんの なかに ほん___ ペンなどが あります。",
+    hintZh: "說包包裡放著哪些東西（沒有一一說完）。",
+    promptContextZh: "「包包裡有書、筆等等。」",
+    expectedAnswer: "や",
+    options: ["や", "も", "を", "へ"],
+    explanation:
+      "「舉幾個例子、暗示還有別的」用「や」，常和句尾的「など（等等）」搭配：ほんや ペンなど。全部列完用「と」（不和など搭配）。※ペン＝筆。"
+  },
+  {
+    id: "pattern-n5-joshi2-006",
+    patternId: "n5-joshi2",
+    promptText: "りんごは ぜんぶ___ いくらですか。",
+    hintZh: "問全部加起來的價錢。",
+    promptContextZh: "「蘋果全部多少錢？」",
+    expectedAnswer: "で",
+    options: ["で", "を", "に", "も"],
+    explanation:
+      "「合計、總共」用「で」：ぜんぶで いくら＝全部加起來多少錢。「を」「に」「も」都無法把「ぜんぶ」變成合計的單位。※りんご＝蘋果、ぜんぶ＝全部。"
+  },
+  {
+    id: "pattern-n5-joshi2-007",
+    patternId: "n5-joshi2",
+    promptText: "としょかん___ べんきょうします。",
+    hintZh: "說在哪裡讀書。",
+    promptContextZh: "「在圖書館讀書。」",
+    expectedAnswer: "で",
+    options: ["で", "へ", "が", "と"],
+    explanation:
+      "「在某處做動作」用「で」——讀書是動作。「へ」是朝某方向移動（としょかんへ いきます 才用へ）；「が」會把圖書館變成讀書的主語，不通。※としょかん＝圖書館、べんきょうします＝讀書/學習。"
+  },
+  {
+    id: "pattern-n5-joshi2-008",
+    patternId: "n5-joshi2",
+    promptText: "にちようび、ともだちと こうえん___ いきます。",
+    hintZh: "說星期天和朋友要去的地方。",
+    promptContextZh: "「星期天和朋友去公園。」",
+    expectedAnswer: "へ",
+    options: ["へ", "を", "が", "で"],
+    explanation:
+      "移動的方向用「へ」。「で」是動作發生的場所——こうえんで あそびます（在公園玩）才用で，「去」公園是移動。※にちようび＝星期天、こうえん＝公園。"
+  }
+];
+
+// ===========================================================================
+// N5 pattern: n5-joshi3 -- の・も・か(選擇)・から〜まで・だけ (#544).
+//   は never competes where も/だけ is the answer (topicalized readings are
+//   grammatical); と never competes with selectional か.
+// ===========================================================================
+const N5_JOSHI3_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-joshi3-001",
+    patternId: "n5-joshi3",
+    promptText: "これは わたし___ かばんです。",
+    hintZh: "說這個包包是誰的。",
+    promptContextZh: "「這是我的包包。」",
+    expectedAnswer: "の",
+    options: ["の", "は", "が", "を"],
+    explanation:
+      "「誰的東西」用「の」連接：わたしの かばん＝我的包包。「は」「が」標主題/主語，放進去句子就斷掉了；「を」接動作對象。"
+  },
+  {
+    id: "pattern-n5-joshi3-002",
+    patternId: "n5-joshi3",
+    promptText: "「これは だれの ペンですか。」「たなかさん___ です。」",
+    hintZh: "回答筆的主人是誰（不重複說「筆」）。",
+    promptContextZh: "「這是誰的筆？」「是田中的。」",
+    expectedAnswer: "の",
+    options: ["の", "は", "が", "へ"],
+    explanation:
+      "「の」可以代替前面說過的名詞：たなかさんの（です）＝田中的（筆）——不用把「ペン」再說一次。這是の的「代替」用法。※ペン＝筆。"
+  },
+  {
+    id: "pattern-n5-joshi3-003",
+    patternId: "n5-joshi3",
+    promptText: "わたしは がくせいです。おとうと___ がくせいです。",
+    hintZh: "接著介紹弟弟的身分。",
+    promptContextZh: "「我是學生。弟弟也是學生。」",
+    expectedAnswer: "も",
+    options: ["も", "に", "を", "へ"],
+    explanation:
+      "「也」用「も」：前一句說了我是學生，弟弟「也」是 → おとうとも。「も」直接取代は/が 的位置；「に」「を」「へ」都放不進主語的位置。※おとうと＝弟弟。"
+  },
+  {
+    id: "pattern-n5-joshi3-004",
+    patternId: "n5-joshi3",
+    promptText: "きょうしつに だれ___ いません。",
+    hintZh: "說教室裡一個人都沒有。",
+    promptContextZh: "「教室裡誰都不在。」",
+    expectedAnswer: "も",
+    options: ["も", "か", "を", "の"],
+    explanation:
+      "「疑問詞＋も＋否定」＝全面否定：だれも いません（誰都不在）、なにも ありません（什麼都沒有）。這句是在「陳述」教室裡誰都不在，所以用 だれも＋否定；「だれか」是「某人」，用在別的句型（如 だれか いませんか？）。"
+  },
+  {
+    id: "pattern-n5-joshi3-005",
+    patternId: "n5-joshi3",
+    promptText: "コーヒー___ おちゃ、どちらが いいですか。",
+    hintZh: "請對方二選一。",
+    promptContextZh: "「咖啡或茶，哪個好？」",
+    expectedAnswer: "か",
+    options: ["か", "や", "も", "を"],
+    explanation:
+      "「A或B（二選一）」用「か」：コーヒーか おちゃ。「や」是舉例（還有別的），跟「どちら（兩個之中哪個）」矛盾。※コーヒー＝咖啡、おちゃ＝茶。"
+  },
+  {
+    id: "pattern-n5-joshi3-006",
+    patternId: "n5-joshi3",
+    promptText: "がっこうは ９じ___ ３じまでです。",
+    hintZh: "說學校的起訖時間。",
+    promptContextZh: "「學校從九點到三點。」",
+    expectedAnswer: "から",
+    options: ["から", "まで", "に", "へ"],
+    explanation:
+      "「從～到～」＝「〜から〜まで」：９じから ３じまで。起點用から、終點用まで——句尾已有まで，空格是起點。※〜じ＝〜點鐘。"
+  },
+  {
+    id: "pattern-n5-joshi3-007",
+    patternId: "n5-joshi3",
+    promptText: "いえ___ えきまで あるきます。",
+    hintZh: "說走路的起點和終點。",
+    promptContextZh: "「從家走到車站。」",
+    expectedAnswer: "から",
+    options: ["から", "まで", "を", "で"],
+    explanation:
+      "「〜から〜まで」也用在場所：いえから えきまで＝從家到車站。「で」是動作場所（不是起點）；「を」的通過用法（みちを あるきます）接的是走過的路，不是起點。※あるきます＝走路。"
+  },
+  {
+    id: "pattern-n5-joshi3-008",
+    patternId: "n5-joshi3",
+    promptText: "きょうしつに がくせいが ひとり___ います。",
+    hintZh: "說教室裡除了一個學生，沒有別人。",
+    promptContextZh: "「教室裡只有一個學生。」",
+    expectedAnswer: "だけ",
+    options: ["だけ", "も", "を", "へ"],
+    explanation:
+      "「只、只有」用「だけ」：ひとりだけ＝只有一個人。「ひとりも」要接否定（ひとりも いません＝一個人都沒有），跟句尾肯定的「います」矛盾。※ひとり＝一個人。"
   }
 ];
 
@@ -1089,6 +1287,8 @@ export const sentencePatternItems: SentencePatternItem[] = [
   ...STARTER_PARTICLES_ITEMS,
   ...N5_SONZAI_ITEMS,
   ...N5_ICHI_ITEMS,
+  ...N5_JOSHI2_ITEMS,
+  ...N5_JOSHI3_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,

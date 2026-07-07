@@ -220,6 +220,8 @@ export const vi: Copy = {
   drillPatternStarterParticles: "Luyện trợ từ は・を・に・が",
   drillPatternN5Sonzai: "Luyện あります・います",
   drillPatternN5Ichi: "Luyện từ chỉ vị trí + この・その",
+  drillPatternN5Joshi2: "Luyện trợ từ へ・で・と・や",
+  drillPatternN5Joshi3: "Luyện trợ từ の・も・か・から",
   drillPatternTeKudasai: "Luyện mẫu câu: yêu cầu / cho phép / cấm đoán",
   drillPatternNakuteMoII: "Luyện mẫu câu: không cần phải vs. bắt buộc",
   drillPatternTeMorau: "Luyện mẫu câu: góc nhìn cho & nhận",
