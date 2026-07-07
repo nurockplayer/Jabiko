@@ -95,6 +95,7 @@ export function HomePanel({
   onStartReview,
   onStartVocab,
   onStartDaily,
+  onStartExamPreset,
   targetLevel,
   onChooseLevel
 }: {
@@ -105,6 +106,9 @@ export function HomePanel({
   onStartReview: () => void;
   onStartVocab: () => void;
   onStartDaily: () => void;
+  // Launches the 綜合/備考 exam session for a band -- the 下一步 banner's
+  // target for non-starter learners (level-aware funnel).
+  onStartExamPreset: (range: LevelRange) => void;
   // Global target-level preference (#199): null = not chosen yet. Drives the
   // first-run onboarding card; selecting a band persists it via onChooseLevel.
   targetLevel: LevelRange | null;
@@ -183,6 +187,21 @@ export function HomePanel({
     }
   };
   const showHowItWorks = showLevelOnboarding && !howItWorksDismissed;
+
+  // Level-aware funnel: the 背 card's destination content. jlptVocabulary has
+  // no N4/N5 entries, so for the starter/n4n5 bands the 単字讀音 card was a
+  // dead end (it clamped to the N1/N2 reading deck). Those bands get the
+  // 基礎詞彙 deck instead -- swap back per-band once #535 lands N5 vocab.
+  const vocabCardIsStarter = targetLevel === "starter" || targetLevel === "n4n5";
+
+  // 你的下一步 (level-aware funnel): the third banner layer. Review and
+  // continue-chapter keep priority; when neither applies but a band IS
+  // chosen, suggest the band's natural next stop -- 入門 chapters for a
+  // starter, the band's 備考 pool for everyone else.
+  const showNextStep =
+    reviewCount === 0 &&
+    targetLevel !== null &&
+    !(totalAttempts > 0 && nextIncompleteChapter);
 
   // Persistent "目標級別" control (#526): once the first-run card is gone, this
   // compact chip is the only way to see and re-pick the target level. Shown to
@@ -393,6 +412,36 @@ export function HomePanel({
           </span>
           <ArrowRight aria-hidden="true" />
         </button>
+      ) : showNextStep && targetLevel === "starter" ? (
+        <button
+          type="button"
+          className="home-banner home-banner-continue"
+          onClick={() => onNavigate("learn")}
+        >
+          <BookOpen aria-hidden="true" />
+          <span className="home-banner-text">
+            <strong>{t.homeBannerNextLearnMain}</strong>
+            <small>{t.homeBannerNextLearnSub}</small>
+          </span>
+          <ArrowRight aria-hidden="true" />
+        </button>
+      ) : showNextStep && targetLevel !== null ? (
+        <button
+          type="button"
+          className="home-banner home-banner-continue"
+          onClick={() => onStartExamPreset(targetLevel)}
+        >
+          <Target aria-hidden="true" />
+          <span className="home-banner-text">
+            <strong>
+              {targetLevel === "all"
+                ? t.homeBannerNextExamAllMain
+                : t.homeBannerNextExamMain(t.levelRangeOptions[targetLevel])}
+            </strong>
+            <small>{t.homeBannerNextExamSub}</small>
+          </span>
+          <ArrowRight aria-hidden="true" />
+        </button>
       ) : null}
 
       {/* Names the entry-card grid as a self-serve section (a plain,
@@ -426,9 +475,11 @@ export function HomePanel({
         </button>
         <button type="button" className="home-card" onClick={onStartVocab}>
           <SpeechSpot className="home-card-spot" />
-          <h2>{t.homeCardVocabTitle}</h2>
-          <p>{t.homeCardVocabSub}</p>
-          <span className="home-card-meta">{t.homeCardVocabMeta}</span>
+          <h2>{vocabCardIsStarter ? t.homeCardVocabTitleStarter : t.homeCardVocabTitle}</h2>
+          <p>{vocabCardIsStarter ? t.homeCardVocabSubStarter : t.homeCardVocabSub}</p>
+          <span className="home-card-meta">
+            {vocabCardIsStarter ? t.homeCardVocabMetaStarter : t.homeCardVocabMeta}
+          </span>
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
         <button type="button" className="home-card" onClick={() => onNavigate("mock")}>

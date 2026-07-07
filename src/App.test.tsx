@@ -590,6 +590,32 @@ describe("App", () => {
     expect(localStorage.getItem("jabiko:targetLevel")).toBe("starter");
   });
 
+  it("level-aware 背 card: a starter learner lands in the 基礎詞彙 drill, not N1/N2 readings", async () => {
+    localStorage.setItem("jabiko:targetLevel", "starter");
+    const user = userEvent.setup();
+    render(<App />);
+
+    // The card's sub-copy is unique to it (the 下一步 banner also mentions
+    // 基礎詞彙, so the title alone would be ambiguous).
+    await user.click(screen.getByRole("button", { name: /看詞選意思/ }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    expect(panel.getAttribute("data-question-id")).toMatch(/^starter-/);
+  });
+
+  it("level-aware 下一步 banner: a fresh n4n5 learner is offered their 備考 pool", async () => {
+    localStorage.setItem("jabiko:targetLevel", "n4n5");
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /開始 N4＋N5 備考/ }));
+    await screen.findByRole("region", { name: "目前題目" });
+    // Lands in exam mode with the N4 備考 preset active.
+    expect(screen.getByRole("button", { name: /N4 備考/ })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+  });
+
   it("完全新手 daily session serves 入門 content, not exam items (#532)", async () => {
     localStorage.setItem("jabiko:targetLevel", "starter");
     const user = userEvent.setup();

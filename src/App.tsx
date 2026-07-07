@@ -594,8 +594,19 @@ export default function App() {
             target === "challenge" ? openChallenge({ mode: "daily" }) : setAppView(target)
           }
           onStartReview={() => openChallenge({ mode: "review" })}
-          onStartVocab={() => openChallenge({ mode: "vocab" })}
+          onStartVocab={() =>
+            // Level-aware funnel: jlptVocabulary has no N4/N5, so the 背 card
+            // serves the 基礎詞彙 deck to the starter/n4n5 bands instead of
+            // clamping them into the N1/N2 reading deck (swap back per-band
+            // once #535 lands N5 vocab).
+            openChallenge(
+              targetLevel === "starter" || targetLevel === "n4n5"
+                ? { mode: "starter" }
+                : { mode: "vocab" }
+            )
+          }
           onStartDaily={() => openChallenge({ mode: "daily" })}
+          onStartExamPreset={(range) => openChallenge({ mode: "exam", levelRange: range })}
           targetLevel={targetLevel}
           onChooseLevel={handleChooseLevel}
         />

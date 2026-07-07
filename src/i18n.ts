@@ -356,6 +356,16 @@ export type Copy = {
   homeCardVocabTitle: string;
   homeCardVocabSub: string;
   homeCardVocabMeta: string;
+  /** 背 card variant for the starter/n4n5 bands (level-aware funnel). */
+  homeCardVocabTitleStarter: string;
+  homeCardVocabSubStarter: string;
+  homeCardVocabMetaStarter: string;
+  /** 你的下一步 banner (level-aware funnel). */
+  homeBannerNextLearnMain: string;
+  homeBannerNextLearnSub: string;
+  homeBannerNextExamMain: (band: string) => string;
+  homeBannerNextExamAllMain: string;
+  homeBannerNextExamSub: string;
   // ---- Dashboard / review ---------------------------------------------------
   dashboardEyebrow: string;
   dashboardReviewPending: (count: number) => string;
