@@ -392,6 +392,7 @@ export const vi: Copy = {
     review: { title: "Ôn điểm yếu", subtitle: "Luyện lại những câu bạn làm sai cho đến khi đúng" },
     bookmarks: { title: "Mục đã lưu", subtitle: "Luyện lại những câu bạn đã đánh dấu" }
   },
+  modeGroups: { dailyGroup: "Hằng ngày", examGroup: "Luyện thi", focusedGroup: "Luyện chuyên sâu" },
   modeQuestionCount: (count) => `${count} câu trong kho`,
   homeCardVocabTitle: "Cách đọc từ vựng",
   homeCardVocabSub: "Kiểm tra nhanh cách đọc các từ kanji N1 / N2. Nghĩa được kiểm tra trong câu ở ngân hàng đề đầy đủ; ở đây thuần túy là よみ.",

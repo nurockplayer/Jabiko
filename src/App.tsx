@@ -1,5 +1,21 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { BookOpen, ChevronDown, Globe, Languages, MessageCircle, Moon, Newspaper, Sun } from "lucide-react";
+import {
+  BookA,
+  BookOpen,
+  ChevronDown,
+  ClipboardList,
+  Globe,
+  GraduationCap,
+  Home,
+  Info,
+  Languages,
+  MessageCircle,
+  Moon,
+  Newspaper,
+  Sun,
+  Table,
+  Target
+} from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import type { JlptLevel } from "./domain/types";
@@ -78,6 +94,11 @@ type DrillPreset = LearningBlockDrillPreset;
 // option's label is that locale's own native name (copy[code].languageName).
 // Locales with untranslated content stay hidden until they ship (i18n.ts).
 const LANGUAGE_OPTIONS: readonly Language[] = LAUNCHED_LANGUAGES;
+
+// Every view-switch tab carries a small icon (user feedback 2026-07: only
+// 文型/文章 had one, which looked half-finished). One shared style keeps
+// the nine call sites identical.
+const navIconStyle = { verticalAlign: "middle", marginRight: "0.2rem" } as const;
 
 // Lightweight URL routing: each top-level view maps to a path so the browser
 // back/forward buttons, refresh, and shareable/bookmarkable links all work
@@ -506,6 +527,7 @@ export default function App() {
           aria-current={appView === "home" ? "page" : undefined}
           onClick={() => setAppView("home")}
         >
+          <Home aria-hidden="true" size={16} style={navIconStyle} />
           {t.home}
         </button>
         <button
@@ -514,6 +536,7 @@ export default function App() {
           aria-current={appView === "learn" ? "page" : undefined}
           onClick={() => setAppView("learn")}
         >
+          <GraduationCap aria-hidden="true" size={16} style={navIconStyle} />
           {t.learn}
         </button>
         <button
@@ -522,6 +545,7 @@ export default function App() {
           aria-current={appView === "rules" ? "page" : undefined}
           onClick={() => setAppView("rules")}
         >
+          <Table aria-hidden="true" size={16} style={navIconStyle} />
           {t.rules}
         </button>
         <button
@@ -530,6 +554,7 @@ export default function App() {
           aria-current={appView === "kanji" ? "page" : undefined}
           onClick={() => setAppView("kanji")}
         >
+          <BookA aria-hidden="true" size={16} style={navIconStyle} />
           {t.kanji}
         </button>
         <button
@@ -538,7 +563,7 @@ export default function App() {
           aria-current={appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute) ? "page" : undefined}
           onClick={() => { setGrammarSurface(null); setAppView("grammar"); }}
         >
-          <BookOpen aria-hidden="true" size={16} style={{ verticalAlign: "middle", marginRight: "0.2rem" }} />
+          <BookOpen aria-hidden="true" size={16} style={navIconStyle} />
           {t.grammar}
         </button>
         {blogAvailable ? (
@@ -548,7 +573,7 @@ export default function App() {
             aria-current={appView === "blog" ? "page" : undefined}
             onClick={() => { setBlogSlug(null); setAppView("blog"); }}
           >
-            <Newspaper aria-hidden="true" size={16} style={{ verticalAlign: "middle", marginRight: "0.2rem" }} />
+            <Newspaper aria-hidden="true" size={16} style={navIconStyle} />
             {t.blog}
           </button>
         ) : null}
@@ -558,6 +583,7 @@ export default function App() {
           aria-current={appView === "challenge" ? "page" : undefined}
           onClick={() => openChallenge({ mode: "daily" })}
         >
+          <Target aria-hidden="true" size={16} style={navIconStyle} />
           {t.challenge}
         </button>
         <button
@@ -566,6 +592,7 @@ export default function App() {
           aria-current={appView === "mock" ? "page" : undefined}
           onClick={() => setAppView("mock")}
         >
+          <ClipboardList aria-hidden="true" size={16} style={navIconStyle} />
           {t.mockExam}
         </button>
         <button
@@ -574,6 +601,7 @@ export default function App() {
           aria-current={appView === "about" ? "page" : undefined}
           onClick={() => setAppView("about")}
         >
+          <Info aria-hidden="true" size={16} style={navIconStyle} />
           {t.about}
         </button>
       </nav>

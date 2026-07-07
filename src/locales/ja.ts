@@ -400,6 +400,7 @@ export const ja: Copy = {
     review: { title: "弱点復習", subtitle: "前回間違えた問題を、正解できるまで練習" },
     bookmarks: { title: "お気に入り", subtitle: "ブックマークした問題をもう一度練習" }
   },
+  modeGroups: { dailyGroup: "毎日", examGroup: "本番対策", focusedGroup: "分野別練習" },
   modeQuestionCount: (count) => `問題集 ${count} 問`,
   homeCardVocabTitle: "単語の読み",
   homeCardVocabSub: "N1 / N2 の漢字語の読みをサッとテスト。意味は総合問題集で文として出題、ここはよみ専門。",

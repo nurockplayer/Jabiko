@@ -183,6 +183,21 @@ select:disabled {
   gap: 0.5rem;
 }
 
+/* #566 IA pass: the mode list is split into three labelled sections
+   (每日 / 備考題庫 / 專項練習) so the fold stops hiding review/bookmarks. */
+.mode-group + .mode-group {
+  margin-top: 0.9rem;
+}
+
+.mode-group-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.35rem;
+  text-transform: uppercase;
+}
+
 .mode-card {
   display: flex;
   flex-direction: column;

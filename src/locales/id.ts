@@ -392,6 +392,7 @@ export const id: Copy = {
     review: { title: "Ulang kelemahan", subtitle: "Latih ulang soal yang sebelumnya salah sampai benar" },
     bookmarks: { title: "Markah", subtitle: "Latih ulang soal yang kamu bintangi" }
   },
+  modeGroups: { dailyGroup: "Harian", examGroup: "Bank Soal Ujian", focusedGroup: "Latihan Terfokus" },
   modeQuestionCount: (count) => `Bank soal ${count} soal`,
   homeCardVocabTitle: "Bacaan kosakata",
   homeCardVocabSub: "Tes cepat bacaan kata berkanji N1 / N2. Artinya diuji lewat kalimat di bank soal komprehensif; di sini khusus latihan よみ.",

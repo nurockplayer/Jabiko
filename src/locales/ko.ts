@@ -392,6 +392,7 @@ export const ko: Copy = {
     review: { title: "약점 복습", subtitle: "틀린 문제를 맞힐 때까지 다시 연습" },
     bookmarks: { title: "즐겨찾기", subtitle: "별표 표시한 문제를 다시 연습" }
   },
+  modeGroups: { dailyGroup: "매일", examGroup: "시험 대비", focusedGroup: "분야별 연습" },
   modeQuestionCount: (count) => `풀에 ${count}문제`,
   homeCardVocabTitle: "어휘 읽기",
   homeCardVocabSub: "N1 / N2 한자어의 빠른 읽기 확인. 뜻은 전체 은행에서 문장으로 출제되며, 여기서는 순수하게 よみ만 다룹니다.",

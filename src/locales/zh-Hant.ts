@@ -392,6 +392,7 @@ export const zhHant: Copy = {
     review: { title: "弱點複習", subtitle: "把上次答錯的題目重練到對為止" },
     bookmarks: { title: "我的收藏", subtitle: "重練你星標收藏的題目" }
   },
+  modeGroups: { dailyGroup: "每日", examGroup: "備考題庫", focusedGroup: "專項練習" },
   modeQuestionCount: (count) => `題庫 ${count} 題`,
   homeCardVocabTitle: "単字讀音",
   homeCardVocabSub: "N1 / N2 漢字詞讀音快測。意思在綜合題庫用句子來考，這裡專練よみ。",

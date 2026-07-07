@@ -1,6 +1,6 @@
 import type { LocaleCode, PartOfSpeech, TargetForm, VerbGroup } from "./domain/types";
 import type { QuestionType } from "./domain/analytics/questionType";
-import type { ModeCopyKey } from "./domain/practiceMode";
+import type { ModeCopyKey, ModeGroupId } from "./domain/practiceMode";
 import type { AuthErrorCode } from "./hooks/useAuth";
 
 // Single source of truth for the locale code union lives in the domain layer
@@ -367,6 +367,7 @@ export type Copy = {
   keyboardHint: string;
   focusSummaryEmpty: string;
   modeOptions: Record<ModeCopyKey, { title: string; subtitle: string }>;
+  modeGroups: Record<ModeGroupId, string>;
   modeQuestionCount: (count: number) => string;
   homeCardVocabTitle: string;
   homeCardVocabSub: string;
