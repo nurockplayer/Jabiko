@@ -18,5 +18,5 @@ export const CONTENT_STATS = {
   patternChecks: 62,
   vocab: 579,
   kanjiReadings: 671,
-  grammarPatterns: 92
+  grammarPatterns: 83
 } as const;
