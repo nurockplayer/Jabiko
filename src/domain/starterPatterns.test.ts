@@ -55,14 +55,18 @@ describe("starter sentence patterns (#534)", () => {
   });
 });
 
-describe("N5 grammar patterns (#543: sonzai + ichi)", () => {
+describe("N5 grammar patterns (#543: sonzai + ichi / #544: joshi2 + joshi3)", () => {
   const sonzai = buildSentencePatternPool({ patternIds: ["n5-sonzai"] });
   const ichi = buildSentencePatternPool({ patternIds: ["n5-ichi"] });
+  const joshi2 = buildSentencePatternPool({ patternIds: ["n5-joshi2"] });
+  const joshi3 = buildSentencePatternPool({ patternIds: ["n5-joshi3"] });
 
   it("each drill carries 8 kana-only items with unique solutions and full overlays", () => {
     expect(sonzai).toHaveLength(8);
     expect(ichi).toHaveLength(8);
-    for (const q of [...sonzai, ...ichi]) {
+    expect(joshi2).toHaveLength(8);
+    expect(joshi3).toHaveLength(8);
+    for (const q of [...sonzai, ...ichi, ...joshi2, ...joshi3]) {
       expect(q.options, q.id).toHaveLength(4);
       expect(new Set(q.options).size, q.id).toBe(4);
       expect(q.options!.filter((o) => q.expectedAnswers.includes(o)), q.id).toHaveLength(1);

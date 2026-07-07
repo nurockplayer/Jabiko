@@ -334,6 +334,92 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "n5-joshi2": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Particles II: へ・で・と・や",
+      "explanation":
+        "The starter chapter covered は/を/に/が; this one adds movement and means. へ (read e) = direction of movement. で does triple duty: place of an action (としょかんで), means/tool (バスで, はしで), and totals (ぜんぶで). と = \"and\" listing EVERYTHING (パンと たまご); や = \"and\" giving EXAMPLES, usually paired with sentence-final など (ほんや ペンなど). The と/や split is one of N5's favourite test points.",
+      "notes": [
+        "へ: direction of movement (read e)",
+        "で: transport, means",
+        "で: place of an action",
+        "で: totals",
+        "と: listing everything",
+        "や: examples (more exists)"
+      ],
+      "pitfalls": [
+        "Direction へ/に are often interchangeable: へ stresses the heading, に the arrival point",
+        "と = the full list; や = examples only (usually with など) — tests use など as the giveaway",
+        "The particle へ is read e, not he (same rule family as は read wa)"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "助詞II へ・で・と・や",
+      "explanation":
+        "入門の章では は/を/に/が を学んだ。この章は移動と手段の助詞を足す。へ（e と読む）＝移動の方向。で は三役：動作の場所（としょかんで）、手段・道具（バスで、はしで）、合計（ぜんぶで）。と＝名詞を「全部」挙げる「と」（パンと たまご）。や＝「例を挙げる」和で、文末の など とよくペアになる（ほんや ペンなど）。と／や の違いは N5 の定番の出題ポイント。",
+      "notes": [
+        "へ：移動の方向（e と読む）",
+        "で：乗り物・手段",
+        "で：動作の場所",
+        "で：合計",
+        "と：全部挙げる",
+        "や：例を挙げる（ほかにもある）"
+      ],
+      "pitfalls": [
+        "方向の へ/に は入れ替え可能なことが多い：へ は「向かう方向」、に は「到達点」",
+        "と＝リストを全部言い切る；や＝例だけ（など とセット）——試験では など がヒント",
+        "助詞の へ は he ではなく e と読む（は を wa と読むのと同じ仲間）"
+      ]
+    }
+  },
+  "n5-joshi3": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Particles III: の・も・か・から〜まで",
+      "explanation":
+        "The remaining everyday N5 particles in one place. の = possessive \"'s\" (わたしの かばん) and can also stand in for a noun already mentioned (たなかさんの です = Tanaka's [pen]). も = \"also\", replacing は/が directly; question word + も + negative = total negation (だれも いません). か between nouns = \"or\" (コーヒーか おちゃ). 〜から〜まで = \"from ~ to ~\" for both time and place. だけ = \"only\".",
+      "notes": [
+        "の: possessive",
+        "の: standing in for a mentioned noun",
+        "も: also",
+        "Question word + も + negative = total negation",
+        "か: or (pick one of two)",
+        "から〜まで: from ~ to ~",
+        "だけ: only"
+      ],
+      "pitfalls": [
+        "も replaces は/が directly — never はも or がも",
+        "だれも/なにも take a negative; \"someone/something\" is だれか/なにか with an affirmative",
+        "だけ works with affirmatives; しか also means \"only\" but demands a negative (an N4 topic)"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "助詞III の・も・か・から〜まで",
+      "explanation":
+        "残りの N5 常用助詞をまとめて。の＝「の」（わたしの かばん）。前に出た名詞の代わりにもなる（たなかさんの です＝田中さんの〈ペン〉）。も＝「も」、は/が の位置をそのまま置き換える。「疑問詞＋も＋否定」＝全否定（だれも いません）。名詞の間の か＝「か（二択）」（コーヒーか おちゃ）。〜から〜まで＝時間にも場所にも使える。だけ＝「だけ」。",
+      "notes": [
+        "の：所有",
+        "の：前の名詞の代わり",
+        "も：〜も",
+        "疑問詞＋も＋否定＝全否定",
+        "か：または（二択）",
+        "から〜まで：〜から〜まで",
+        "だけ：〜だけ"
+      ],
+      "pitfalls": [
+        "も は は/が をそのまま置き換える——「はも」「がも」とは言わない",
+        "だれも/なにも は否定と使う。「誰か/何か」は だれか/なにか＋肯定",
+        "だけ は肯定でよい。「しか」も「だけ」の意味だが必ず否定とセット（N4 で学ぶ）"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",

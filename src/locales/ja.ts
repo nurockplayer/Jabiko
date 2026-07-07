@@ -228,6 +228,8 @@ export const ja: Copy = {
   drillPatternStarterParticles: "助詞 は・を・に・が を練習",
   drillPatternN5Sonzai: "あります・います を練習",
   drillPatternN5Ichi: "位置詞と この・その を練習",
+  drillPatternN5Joshi2: "助詞II へ・で・と・や を練習",
+  drillPatternN5Joshi3: "助詞III の・も・か・から を練習",
   drillPatternTeKudasai: "文型を練習：依頼 / 許可 / 禁止",
   drillPatternNakuteMoII: "文型を練習：不要 vs 義務",
   drillPatternTeMorau: "文型を練習：授受の視点",

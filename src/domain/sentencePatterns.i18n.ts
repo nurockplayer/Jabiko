@@ -471,6 +471,134 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "「その＋名詞」＝相手の近く。傘は相手の手の中 → その。あの＝どちらからも遠い、どの＝疑問。"
     }
   },
+  "pattern-n5-joshi2-001": {
+    "hintI18n": { "en": "Saying which city you're going to tomorrow.", "ja": "あした行く都市を言う。" },
+    "promptContextI18n": { "en": "\"Tomorrow I'm going to Tokyo.\"", "ja": "「あした、東京へ行きます。」" },
+    "explanationI18n": {
+      "en": "Direction of movement takes 「へ」 (read e). 「に」 also works for direction — へ stresses the heading, に the arrival point; this item's options use 「へ」. 「を」 marks an object; 「と」 means \"with someone\". ※とうきょう = Tokyo.",
+      "ja": "移動の方向は「へ」（e と読む）。方向は「に」も使える——へ は「向かう方向」、に は「到達点」の感じ。この問題の選択肢では「へ」。「を」は対象、「と」は「誰かと」。"
+    }
+  },
+  "pattern-n5-joshi2-002": {
+    "hintI18n": { "en": "Saying how you get to school.", "ja": "学校までどうやって行くかを言う。" },
+    "promptContextI18n": { "en": "\"I go to school by bus.\"", "ja": "「バスで学校へ行きます。」" },
+    "explanationI18n": {
+      "en": "Transport and means take 「で」: バスで = by bus. 「に」 doesn't fit here (バスに のります \"board the bus\" is the に usage); direction is already covered by 「がっこうへ」. ※バス = bus.",
+      "ja": "乗り物・手段は「で」：バスで。「に」はここでは合わない（バスに のります〈乗車〉が に の使い方）。方向はすでに「がっこうへ」がある。"
+    }
+  },
+  "pattern-n5-joshi2-003": {
+    "hintI18n": { "en": "Saying what you eat with.", "ja": "何を使ってごはんを食べるかを言う。" },
+    "promptContextI18n": { "en": "\"I eat with chopsticks.\"", "ja": "「はしでごはんを食べます。」" },
+    "explanationI18n": {
+      "en": "Tools take 「で」: はしで = with chopsticks. The object 「ごはんを」 is already in the sentence; 「に」 marks a time or arrival point and 「へ」 only direction — neither can mark a tool. ※はし = chopsticks.",
+      "ja": "道具は「で」：はしで。対象の「ごはんを」はもう文の中にある。「に」は時点や到達点、「へ」は方向だけで、道具には付かない。"
+    }
+  },
+  "pattern-n5-joshi2-004": {
+    "hintI18n": { "en": "Listing the two things you bought yesterday (the full list).", "ja": "きのう買った二つの物を言う（全部で二つ）。" },
+    "promptContextI18n": { "en": "\"Yesterday I bought bread and eggs.\"", "ja": "「きのう、パンとたまごを買いました。」" },
+    "explanationI18n": {
+      "en": "\"And\" that lists EVERYTHING takes 「と」: パンと たまご = bread and eggs (that's all). If you're only giving examples (there's more), use 「や」. 「を」 already follows たまご. ※パン = bread, たまご = egg.",
+      "ja": "名詞を「全部」挙げる「と」：パンと たまご（それで全部）。例を挙げるだけ（ほかにもある）なら「や」。「を」はもう たまご の後ろにある。"
+    }
+  },
+  "pattern-n5-joshi2-005": {
+    "hintI18n": { "en": "Naming some of the things in the bag (not an exhaustive list).", "ja": "かばんの中の物をいくつか言う（全部ではない）。" },
+    "promptContextI18n": { "en": "\"There are books, pens and so on in the bag.\"", "ja": "「かばんの中に本やペンなどがあります。」" },
+    "explanationI18n": {
+      "en": "Giving examples while implying there's more takes 「や」, usually paired with sentence-final 「など」 (and so on): ほんや ペンなど. A complete list uses 「と」 (which doesn't pair with など). ※ペン = pen.",
+      "ja": "「例をいくつか挙げて、ほかにもあると匂わせる」のが「や」。文末の「など」とよくペアになる：ほんや ペンなど。全部言い切るなら「と」（など とはペアにならない）。"
+    }
+  },
+  "pattern-n5-joshi2-006": {
+    "hintI18n": { "en": "Asking the price of all of them together.", "ja": "全部あわせた値段を聞く。" },
+    "promptContextI18n": { "en": "\"How much are the apples altogether?\"", "ja": "「りんごは全部でいくらですか。」" },
+    "explanationI18n": {
+      "en": "Totals take 「で」: ぜんぶで いくら = how much all together. Neither 「を」, 「に」 nor 「も」 can turn ぜんぶ into a totalling unit. ※りんご = apple, ぜんぶ = all.",
+      "ja": "合計は「で」：ぜんぶで いくら。「を」「に」「も」では「ぜんぶ」を合計の単位にできない。"
+    }
+  },
+  "pattern-n5-joshi2-007": {
+    "hintI18n": { "en": "Saying where you study.", "ja": "どこで勉強するかを言う。" },
+    "promptContextI18n": { "en": "\"I study at the library.\"", "ja": "「図書館で勉強します。」" },
+    "explanationI18n": {
+      "en": "\"Doing an action somewhere\" takes 「で」 — studying is an action. 「へ」 is for heading somewhere (としょかんへ いきます); 「が」 would make the library the one studying, which is nonsense. ※としょかん = library, べんきょうします = to study.",
+      "ja": "「ある場所で動作する」は「で」——勉強は動作。「へ」はどこかへ向かうとき（としょかんへ いきます）。「が」だと図書館が勉強する主語になってしまう。"
+    }
+  },
+  "pattern-n5-joshi2-008": {
+    "hintI18n": { "en": "Saying where you're going with a friend on Sunday.", "ja": "日曜日に友だちとどこへ行くかを言う。" },
+    "promptContextI18n": { "en": "\"On Sunday I'm going to the park with a friend.\"", "ja": "「日曜日、友だちと公園へ行きます。」" },
+    "explanationI18n": {
+      "en": "Direction of movement takes 「へ」. 「で」 marks where an action happens — こうえんで あそびます (play AT the park); going TO the park is movement. ※にちようび = Sunday, こうえん = park.",
+      "ja": "移動の方向は「へ」。「で」は動作の場所——こうえんで あそびます なら で。公園へ「行く」のは移動。"
+    }
+  },
+  "pattern-n5-joshi3-001": {
+    "hintI18n": { "en": "Saying whose bag this is.", "ja": "このかばんが誰のものかを言う。" },
+    "promptContextI18n": { "en": "\"This is my bag.\"", "ja": "「これはわたしのかばんです。」" },
+    "explanationI18n": {
+      "en": "Possession links with 「の」: わたしの かばん = my bag. 「は」/「が」 mark topics/subjects and would break the phrase; 「を」 marks an action's object.",
+      "ja": "所有は「の」でつなぐ：わたしの かばん。「は」「が」は主題／主語に付くもので、ここに入れると文が壊れる。「を」は動作の対象。"
+    }
+  },
+  "pattern-n5-joshi3-002": {
+    "hintI18n": { "en": "Answering whose pen it is (without repeating \"pen\").", "ja": "ペンの持ち主を答える（「ペン」を繰り返さずに）。" },
+    "promptContextI18n": { "en": "\"Whose pen is this?\" \"It's Tanaka's.\"", "ja": "「これは誰のペンですか。」「田中さんのです。」" },
+    "explanationI18n": {
+      "en": "「の」 can stand in for a noun already mentioned: たなかさんの（です） = Tanaka's (pen) — no need to say ペン again. This is の's stand-in usage. ※ペン = pen.",
+      "ja": "「の」は前に出た名詞の代わりになれる：たなかさんの（です）＝田中さんの〈ペン〉。「ペン」をもう一度言わなくていい。の の「代用」の使い方。"
+    }
+  },
+  "pattern-n5-joshi3-003": {
+    "hintI18n": { "en": "Going on to introduce your younger brother.", "ja": "続けて弟の身分を紹介する。" },
+    "promptContextI18n": { "en": "\"I'm a student. My brother is a student too.\"", "ja": "「わたしは学生です。弟も学生です。」" },
+    "explanationI18n": {
+      "en": "\"Too/also\" takes 「も」: the previous sentence said I'm a student, and the brother is one TOO → おとうとも. 「も」 replaces は/が directly; 「に」/「を」/「へ」 can't fill the subject slot. ※おとうと = younger brother.",
+      "ja": "「〜も」は「も」：前の文で自分が学生だと言い、弟「も」そうだ → おとうとも。「も」は は/が の位置をそのまま置き換える。「に」「を」「へ」は主語の位置に入らない。"
+    }
+  },
+  "pattern-n5-joshi3-004": {
+    "hintI18n": { "en": "Saying there's not a single person in the classroom.", "ja": "教室に誰一人いないことを言う。" },
+    "promptContextI18n": { "en": "\"There's no one in the classroom.\"", "ja": "「教室に誰もいません。」" },
+    "explanationI18n": {
+      "en": "Question word + 「も」 + negative = total negation: だれも いません (no one's there), なにも ありません (there's nothing). This sentence STATES that nobody is there, so だれも + negative; 「だれか」 (someone) belongs to other shapes like だれか いませんか?",
+      "ja": "「疑問詞＋も＋否定」＝全否定：だれも いません、なにも ありません。この文は「誰もいない」と述べているので だれも＋否定。「だれか」は だれか いませんか？ のような別の形で使う。"
+    }
+  },
+  "pattern-n5-joshi3-005": {
+    "hintI18n": { "en": "Asking the listener to pick one of two.", "ja": "相手に二つから一つ選んでもらう。" },
+    "promptContextI18n": { "en": "\"Coffee or tea — which would you like?\"", "ja": "「コーヒーかお茶、どちらがいいですか。」" },
+    "explanationI18n": {
+      "en": "\"A or B (pick one)\" takes 「か」: コーヒーか おちゃ. 「や」 gives examples (implying more), which contradicts 「どちら」 (which of the two). ※コーヒー = coffee, おちゃ = tea.",
+      "ja": "「AかB（二択）」は「か」：コーヒーか おちゃ。「や」は例を挙げる言い方（ほかにもある）なので、「どちら（二つのうちどれ）」と矛盾する。"
+    }
+  },
+  "pattern-n5-joshi3-006": {
+    "hintI18n": { "en": "Saying the school's opening hours.", "ja": "学校の始まりと終わりの時間を言う。" },
+    "promptContextI18n": { "en": "\"School runs from 9 to 3.\"", "ja": "「学校は9時から3時までです。」" },
+    "explanationI18n": {
+      "en": "\"From ~ to ~\" = 「〜から〜まで」: ９じから ３じまで. から marks the start, まで the end — まで is already at the end of the sentence, so the blank is the start. ※〜じ = ~ o'clock.",
+      "ja": "「〜から〜まで」：９じから ３じまで。起点が から、終点が まで——文末にもう まで があるので、空欄は起点。"
+    }
+  },
+  "pattern-n5-joshi3-007": {
+    "hintI18n": { "en": "Saying where the walk starts and ends.", "ja": "歩く区間の始まりと終わりを言う。" },
+    "promptContextI18n": { "en": "\"I walk from home to the station.\"", "ja": "「家から駅まで歩きます。」" },
+    "explanationI18n": {
+      "en": "「〜から〜まで」 works for places too: いえから えきまで = from home to the station. 「で」 marks where an action happens (not a start point); the 「を」 of passage (みちを あるきます) marks the path walked, not the origin. ※あるきます = to walk.",
+      "ja": "「〜から〜まで」は場所にも使う：いえから えきまで。「で」は動作の場所（起点ではない）。通過の「を」（みちを あるきます）は歩く道に付くもので、起点には付かない。"
+    }
+  },
+  "pattern-n5-joshi3-008": {
+    "hintI18n": { "en": "Saying there's one student in the classroom and no one else.", "ja": "教室に学生が一人いて、ほかには誰もいないと言う。" },
+    "promptContextI18n": { "en": "\"There's only one student in the classroom.\"", "ja": "「教室に学生が一人だけいます。」" },
+    "explanationI18n": {
+      "en": "\"Only\" takes 「だけ」: ひとりだけ = just one person. 「ひとりも」 demands a negative (ひとりも いません = not a single person), contradicting the affirmative 「います」. ※ひとり = one person.",
+      "ja": "「〜だけ」：ひとりだけ。「ひとりも」は否定とセット（ひとりも いません）なので、肯定の「います」と矛盾する。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",
