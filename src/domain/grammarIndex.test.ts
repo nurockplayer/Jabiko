@@ -23,16 +23,16 @@ describe("getPatternsByLevel", () => {
     expect(ids).toEqual([...ids].sort());
   });
 
-  it("returns 14 patterns for N4 sorted by id", () => {
+  it("returns 19 patterns for N4 sorted by id", () => {
     const patterns = getPatternsByLevel("N4");
-    expect(patterns).toHaveLength(14);
+    expect(patterns).toHaveLength(19);
     const ids = patterns.map((p) => p.id);
     expect(ids).toEqual([...ids].sort());
   });
 
-  it("returns 14 patterns for N2 sorted by id", () => {
+  it("returns 15 patterns for N2 sorted by id", () => {
     const patterns = getPatternsByLevel("N2");
-    expect(patterns).toHaveLength(14);
+    expect(patterns).toHaveLength(15);
     const ids = patterns.map((p) => p.id);
     // production code sorts with localeCompare, verify order is non-decreasing
     for (let i = 1; i < ids.length; i++) {
@@ -40,14 +40,14 @@ describe("getPatternsByLevel", () => {
     }
   });
 
-  it("returns 27 patterns for N3 sorted by id", () => {
+  it("returns 26 patterns for N3 sorted by id", () => {
     const patterns = getPatternsByLevel("N3");
-    expect(patterns).toHaveLength(27);
+    expect(patterns).toHaveLength(26);
   });
 
-  it("returns 21 patterns for N1 sorted by id", () => {
+  it("returns 7 patterns for N1 (post #554 cleanup) sorted by id", () => {
     const patterns = getPatternsByLevel("N1");
-    expect(patterns).toHaveLength(21);
+    expect(patterns).toHaveLength(7);
   });
 });
 
@@ -55,10 +55,10 @@ describe("getPatternsGroupedByLevel", () => {
   it("groups patterns by JLPT level with correct counts", () => {
     const grouped = getPatternsGroupedByLevel();
     expect(grouped.N5).toHaveLength(16);
-    expect(grouped.N4).toHaveLength(14);
-    expect(grouped.N2).toHaveLength(14);
-    expect(grouped.N3).toHaveLength(27);
-    expect(grouped.N1).toHaveLength(21);
+    expect(grouped.N4).toHaveLength(19);
+    expect(grouped.N2).toHaveLength(15);
+    expect(grouped.N3).toHaveLength(26);
+    expect(grouped.N1).toHaveLength(7);
   });
 
   it("sorts patterns within each group by id", () => {
@@ -280,10 +280,10 @@ describe("getLevelSummary", () => {
   it("returns correct totals per level", () => {
     const summary = getLevelSummary();
     expect(summary.N5.total).toBe(16);
-    expect(summary.N4.total).toBe(14);
-    expect(summary.N2.total).toBe(14);
-    expect(summary.N3.total).toBe(27);
-    expect(summary.N1.total).toBe(21);
+    expect(summary.N4.total).toBe(19);
+    expect(summary.N2.total).toBe(15);
+    expect(summary.N3.total).toBe(26);
+    expect(summary.N1.total).toBe(7);
   });
 
   it("returns correct mustKnow counts", () => {
