@@ -26,10 +26,11 @@ function renderHome(overrides: Partial<Parameters<typeof HomePanel>[0]> = {}) {
     language: "zh-Hant" as const,
     progressAttempts: [] as Attempt[],
     reviewCount: 0,
-    onNavigate: noop,
+    onNavigate: vi.fn(),
     onStartReview: noop,
     onStartVocab: noop,
     onStartDaily: vi.fn(),
+    onStartExamPreset: vi.fn(),
     targetLevel: null,
     onChooseLevel: vi.fn(),
     ...overrides
@@ -66,6 +67,57 @@ describe("HomePanel level onboarding (#199)", () => {
   it("hides the card for a returning learner with attempts (even without a preference)", () => {
     renderHome({ progressAttempts: [sampleAttempt] });
     expect(screen.queryByText("選擇你的程度")).not.toBeInTheDocument();
+  });
+});
+
+describe("HomePanel level-aware entry cards (funnel design)", () => {
+  it("the vocab card reads 基礎詞彙 for starter/n4n5 learners (their floor), 単字讀音 for the rest", () => {
+    renderHome({ targetLevel: "starter", progressAttempts: [sampleAttempt] });
+    expect(screen.getByRole("heading", { name: "基礎詞彙" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "単字讀音" })).not.toBeInTheDocument();
+  });
+
+  it("n4n5 also gets the 基礎詞彙 card (jlptVocabulary has no N4/N5 -- the old card was a dead end)", () => {
+    renderHome({ targetLevel: "n4n5", progressAttempts: [sampleAttempt] });
+    expect(screen.getByRole("heading", { name: "基礎詞彙" })).toBeInTheDocument();
+  });
+
+  it("mid/high bands keep the original 単字讀音 card unchanged", () => {
+    renderHome({ targetLevel: "n2n3", progressAttempts: [sampleAttempt] });
+    expect(screen.getByRole("heading", { name: "単字讀音" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "基礎詞彙" })).not.toBeInTheDocument();
+  });
+});
+
+describe("HomePanel 你的下一步 banner (funnel design)", () => {
+  it("a fresh learner with a band but no history sees a next-step banner for their band", () => {
+    const props = renderHome({ targetLevel: "n4n5", progressAttempts: [] });
+    const banner = screen.getByRole("button", { name: /開始 N4＋N5 備考/ });
+    fireEvent.click(banner);
+    expect(props.onStartExamPreset).toHaveBeenCalledWith("n4n5");
+  });
+
+  it("a starter learner's next step points at the 入門 chapters instead", () => {
+    const props = renderHome({ targetLevel: "starter", progressAttempts: [] });
+    fireEvent.click(screen.getByRole("button", { name: /開始入門課程/ }));
+    expect(props.onNavigate).toHaveBeenCalledWith("learn");
+  });
+
+  it("the review banner still wins when there are mistakes to clear", () => {
+    renderHome({ targetLevel: "n4n5", progressAttempts: [], reviewCount: 3 });
+    expect(screen.getByRole("button", { name: /等待複習/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /開始 N4＋N5 備考/ })).not.toBeInTheDocument();
+  });
+
+  it("the continue banner still wins for a learner mid-chapter", () => {
+    renderHome({ targetLevel: "n4n5", progressAttempts: [sampleAttempt] });
+    expect(screen.getByText("上次還沒完成的章節。")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /開始 N4＋N5 備考/ })).not.toBeInTheDocument();
+  });
+
+  it("no next-step banner without a chosen level (the onboarding card owns that state)", () => {
+    renderHome({ targetLevel: null, progressAttempts: [] });
+    expect(screen.queryByRole("button", { name: /備考|開始入門課程/ })).not.toBeInTheDocument();
   });
 });
 
