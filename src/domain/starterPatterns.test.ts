@@ -55,6 +55,48 @@ describe("starter sentence patterns (#534)", () => {
   });
 });
 
+describe("N5 grammar patterns (#543: sonzai + ichi)", () => {
+  const sonzai = buildSentencePatternPool({ patternIds: ["n5-sonzai"] });
+  const ichi = buildSentencePatternPool({ patternIds: ["n5-ichi"] });
+
+  it("each drill carries 8 kana-only items with unique solutions and full overlays", () => {
+    expect(sonzai).toHaveLength(8);
+    expect(ichi).toHaveLength(8);
+    for (const q of [...sonzai, ...ichi]) {
+      expect(q.options, q.id).toHaveLength(4);
+      expect(new Set(q.options).size, q.id).toBe(4);
+      expect(q.options!.filter((o) => q.expectedAnswers.includes(o)), q.id).toHaveLength(1);
+      expect(q.promptText, q.id).not.toMatch(/[一-鿿]/);
+      expect(q.hintZh ?? "", q.id).not.toContain(q.expectedAnswers[0]);
+      const overlay = sentencePatternI18n[q.id];
+      expect(overlay?.hintI18n?.ja && overlay?.hintI18n?.en, q.id).toBeTruthy();
+      expect(
+        overlay?.explanationI18n?.ja && overlay?.explanationI18n?.en,
+        q.id
+      ).toBeTruthy();
+    }
+  });
+
+  it("the two N5 chapters sit in the N5 文法 category with pattern completion", () => {
+    const byId = (id: string) => learningBlocks.find((b) => b.id === id)!;
+    expect(byId("n5-sonzai").category).toBe("N5 文法");
+    expect(byId("n5-ichi").category).toBe("N5 文法");
+    expect(
+      isLearningBlockComplete(
+        [{ isCorrect: true, targetForm: "reading", questionId: "pattern-n5-sonzai-001" }],
+        byId("n5-sonzai")
+      )
+    ).toBe(true);
+    // Real-history implicit completion applies here too (no banner hijack).
+    const regular = Array.from({ length: 5 }, (_, index) => ({
+      isCorrect: true,
+      targetForm: "te",
+      questionId: `n2-item-${index}`
+    }));
+    expect(isLearningBlockComplete(regular, byId("n5-ichi"))).toBe(true);
+  });
+});
+
 describe("Lesson-0 grammar chapters (#534)", () => {
   const byId = (id: string) => learningBlocks.find((b) => b.id === id)!;
 
@@ -63,7 +105,7 @@ describe("Lesson-0 grammar chapters (#534)", () => {
     expect(learningBlocks[4].id).toBe("starter-particles");
     expect(learningBlocks[3].category).toBe("入門");
     expect(learningBlocks[4].category).toBe("入門");
-    expect(learningBlocks[5].category).not.toBe("入門");
+    expect(learningBlocks[5].category).toBe("N5 文法"); // #543 chapters follow the 入門 block
     expect(byId("starter-desu").patternDrills?.[0].patternIds).toEqual(["starter-desu"]);
     expect(byId("starter-particles").patternDrills?.[0].patternIds).toEqual([
       "starter-particles"

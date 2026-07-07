@@ -218,6 +218,8 @@ export const en: Copy = {
   drillDesiderative: "Drill たい・たがる",
   drillPatternStarterDesu: "Drill basic 〜です sentences",
   drillPatternStarterParticles: "Drill particles は・を・に・が",
+  drillPatternN5Sonzai: "Drill あります・います",
+  drillPatternN5Ichi: "Drill position words + この・その",
   drillPatternTeKudasai: "Pattern drill: request / permission / prohibition",
   drillPatternNakuteMoII: "Pattern drill: don't have to vs. must",
   drillPatternTeMorau: "Pattern drill: giving & receiving perspective",

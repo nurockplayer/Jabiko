@@ -252,6 +252,88 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "n5-sonzai": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Existence: あります・います",
+      "explanation":
+        "The pattern for saying \"there is / it's at\". Two verbs split the work: things and plants take あります, people and animals take います. The two sentence shapes come as a pair: to introduce that something exists, use 「場所に 〜が あります/います」; to answer where a known thing is, use 「〜は 場所に あります/います」. The place of existence always takes に — で is for where an ACTION happens, the single most important に/で split.",
+      "notes": [
+        "Existence: there's a cat in the room (animal → います)",
+        "Existence: there's a book on the desk (thing → あります)",
+        "Location: answering \"where's the book?\"",
+        "The set phrase for asking directions",
+        "Negatives: isn't there / there's none"
+      ],
+      "pitfalls": [
+        "います is only for living, moving beings (people/animals); plants and things take あります",
+        "Existence takes に, actions take で: にわに います (is in the yard) vs にわで あそびます (plays in the yard)",
+        "First mention uses 〜が あります; a known topic uses 〜は 〜に あります — don't swap が/は"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "存在文 あります・います",
+      "explanation":
+        "「何がある・どこにいる」を言う文型。動詞は二つで分担：物と植物は あります、人と動物は います。文の形はペアで覚える：「何かがある」と紹介するなら「場所に 〜が あります/います」、「どこにあるか」を答えるなら「〜は 場所に あります/います」。存在の場所は必ず に——「ある場所で動作する」なら で。に／で の一番大事な分かれ目。",
+      "notes": [
+        "存在文：部屋に猫がいます（動物→います）",
+        "存在文：机の上に本があります（物→あります）",
+        "所在文：「本はどこ？」に答える",
+        "道をたずねる決まり文句",
+        "否定：いません／ありません"
+      ],
+      "pitfalls": [
+        "います は生きて動くもの（人・動物）だけ。植物と物は あります",
+        "存在は に、動作は で：にわに います vs にわで あそびます",
+        "初めての紹介は「〜が あります」、既知の話題は「〜は 〜に あります」——が/は を入れ替えない"
+      ]
+    }
+  },
+  "n5-ichi": {
+    "en": {
+      "category": "N5 Grammar",
+      "kicker": "N5 Patterns",
+      "title": "Position Words + この・その",
+      "explanation":
+        "Positions are said as 「noun + の + position word + に」: かばんの なかに (inside the bag), つくえの うえに (on the desk). The common position words: うえ/した/なか/まえ/うしろ/となり/よこ/ちかく. For demonstratives, this chapter covers the noun-attached forms: この/その/あの + noun (これ/それ/あれ stand alone; この must be followed by a noun). The distance split matches the これ series: near me → この, near you → その, far from both → あの.",
+      "notes": [
+        "なか = inside",
+        "うえ = on/above, した = under",
+        "まえ = in front, うしろ = behind",
+        "となり = next door, よこ = beside, ちかく = nearby",
+        "この + noun: near me",
+        "その + noun: near you"
+      ],
+      "pitfalls": [
+        "この/その/あの must be followed by a noun; standing alone, switch to これ/それ/あれ",
+        "となり = adjacent in a row (next door), よこ = to the side, ちかく = in the vicinity — three different ranges",
+        "\"On the desk\" is つくえの うえ — things on a surface always take うえ, don't drop it"
+      ]
+    },
+    "ja": {
+      "category": "N5文法",
+      "kicker": "N5文型",
+      "title": "位置のことばと この・その",
+      "explanation":
+        "位置は「名詞の＋位置のことば＋に」で言う：かばんの なかに、つくえの うえに。よく使う位置のことば：うえ/した/なか/まえ/うしろ/となり/よこ/ちかく。指示詞はここで「名詞に付く形」を学ぶ：この/その/あの＋名詞（これ/それ/あれ は単独で使う。この の後ろには必ず名詞）。距離の使い分けは これ系と同じ：自分の近く→この、相手の近く→その、どちらからも遠い→あの。",
+      "notes": [
+        "なか＝中",
+        "うえ＝上、した＝下",
+        "まえ＝前、うしろ＝後ろ",
+        "となり＝隣、よこ＝横、ちかく＝近く",
+        "この＋名詞：自分の近く",
+        "その＋名詞：相手の近く"
+      ],
+      "pitfalls": [
+        "この/その/あの の後ろには必ず名詞。単独なら これ/それ/あれ に替える",
+        "となり＝並んで隣接、よこ＝横の方向、ちかく＝近辺——範囲が違う",
+        "「机の上」は つくえの うえ。面の上にある物はいつも うえ を付けて言う"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",

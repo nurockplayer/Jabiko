@@ -218,6 +218,8 @@ export const ko: Copy = {
   drillDesiderative: "たい・たがる 연습",
   drillPatternStarterDesu: "기본 문장 〜です 연습",
   drillPatternStarterParticles: "조사 は・を・に・が 연습",
+  drillPatternN5Sonzai: "あります・います 연습",
+  drillPatternN5Ichi: "위치어와 この・その 연습",
   drillPatternTeKudasai: "문형 연습: 요청 / 허가 / 금지",
   drillPatternNakuteMoII: "문형 연습: ~하지 않아도 됨 vs ~해야 함",
   drillPatternTeMorau: "문형 연습: 주고받기 관점",

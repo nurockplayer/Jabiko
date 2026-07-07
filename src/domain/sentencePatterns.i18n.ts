@@ -247,6 +247,230 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "「動作をする場所」は「で」——家で「食べる」のは動作。「に」は存在の場所や行き先（いえに います、いえに かえります）。動作動詞の場所は「で」。に／で の一番大事な使い分け。"
     }
   },
+  "pattern-n5-sonzai-001": {
+    "hintI18n": {
+      "en": "Telling the listener what's in the room.",
+      "ja": "部屋に何がいるかを相手に伝える。"
+    },
+    "promptContextI18n": {
+      "en": "\"There's a cat in the room.\"",
+      "ja": "「部屋に猫がいます。」"
+    },
+    "explanationI18n": {
+      "en": "「〜に 〜が います」 is the fixed existence pattern: the newly-introduced thing takes 「が」. 「を」 marks an action's object, but います isn't an action; 「へ」 marks direction; 「で」 marks where an ACTION happens and can't attach to existence. ※へや = room.",
+      "ja": "「〜に 〜が います」は存在文の決まった形：初めて登場するものには「が」。「を」は動作の対象だが います は動作ではない。「へ」は方向。「で」は動作の場所で、存在の います には付かない。"
+    }
+  },
+  "pattern-n5-sonzai-002": {
+    "hintI18n": {
+      "en": "Saying what's on the desk.",
+      "ja": "机の上に何があるかを言う。"
+    },
+    "promptContextI18n": {
+      "en": "\"There's a book on the desk.\"",
+      "ja": "「机の上に本があります。」"
+    },
+    "explanationI18n": {
+      "en": "Existence 「〜に 〜が あります」: the book is newly introduced, so 「が」. 「で」 marks the place of an action and doesn't fit 「あります」 (existence). ※つくえ = desk, うえ = top/on.",
+      "ja": "存在文「〜に 〜が あります」：本は初めて登場するものなので「が」。「で」は動作の場所で、存在の「あります」には合わない。"
+    }
+  },
+  "pattern-n5-sonzai-003": {
+    "hintI18n": {
+      "en": "Answering where the dog is.",
+      "ja": "犬がどこにいるかを答える。"
+    },
+    "promptContextI18n": {
+      "en": "\"The dog is in the yard.\"",
+      "ja": "「犬は庭にいます。」"
+    },
+    "explanationI18n": {
+      "en": "The place where something EXISTS takes 「に」 — the dog IS in the yard, it isn't DOING something there. 「で」 goes with action verbs (にわで あそびます); this is the key に/で split. ※にわ = yard.",
+      "ja": "「存在する場所」は「に」——犬は庭に「いる」のであって、庭で何かを「する」のではない。「で」は動作動詞と使う（にわで あそびます）。に／で の一番大事な使い分け。"
+    }
+  },
+  "pattern-n5-sonzai-004": {
+    "hintI18n": {
+      "en": "Saying who's in the classroom.",
+      "ja": "教室に誰がいるかを言う。"
+    },
+    "promptContextI18n": {
+      "en": "\"There are students in the classroom.\"",
+      "ja": "「教室に学生がいます。」"
+    },
+    "explanationI18n": {
+      "en": "Living, moving beings (people/animals) take 「います」; things and plants take 「あります」. Students are people → 「います」. ※きょうしつ = classroom, がくせい = student.",
+      "ja": "生きて動くもの（人・動物）は「います」、物と植物は「あります」。学生は人 →「います」。"
+    }
+  },
+  "pattern-n5-sonzai-005": {
+    "hintI18n": {
+      "en": "Saying what's inside the bag.",
+      "ja": "かばんの中に何があるかを言う。"
+    },
+    "promptContextI18n": {
+      "en": "\"There's a phone in the bag.\"",
+      "ja": "「かばんの中に携帯があります。」"
+    },
+    "explanationI18n": {
+      "en": "A phone is a thing (not alive), so existence uses 「あります」. 「います」 is reserved for people and animals. ※なか = inside.",
+      "ja": "携帯は物（生きていない）ので、存在は「あります」。「います」は人と動物のためのもの。"
+    }
+  },
+  "pattern-n5-sonzai-006": {
+    "hintI18n": {
+      "en": "Asking where the restroom is.",
+      "ja": "トイレの場所をたずねる。"
+    },
+    "promptContextI18n": {
+      "en": "\"Excuse me, where is the restroom?\"",
+      "ja": "「すみません、トイレはどこにありますか。」"
+    },
+    "explanationI18n": {
+      "en": "Asking \"where\" = asking about the place of existence, and places take 「に」. 「トイレは どこに ありますか」 is the set phrase for asking directions. 「へ」 marks direction, not a static location; 「を」 marks an object; the topic 「は」 already took 「が」's slot. ※トイレ = restroom.",
+      "ja": "「どこにあるか」＝存在の場所を聞いている。場所は「に」。「トイレは どこに ありますか」は道をたずねる決まり文句。「へ」は方向で、静的な存在の場所には使わない。「を」は対象。主題の「は」があるので「が」は入らない。"
+    }
+  },
+  "pattern-n5-sonzai-007": {
+    "hintI18n": {
+      "en": "Saying the cat isn't home right now (it went out).",
+      "ja": "今、猫が家にいないことを言う（外に出ている）。"
+    },
+    "promptContextI18n": {
+      "en": "\"The cat isn't home right now.\"",
+      "ja": "「今、猫は家にいません。」"
+    },
+    "explanationI18n": {
+      "en": "A cat is an animal → the negative of います, 「いません」. 「ありません」 negates things; 「いました」 is past, contradicting 「いま」 (now). The hint says the cat is out, so affirmative 「います」 is wrong too.",
+      "ja": "猫は動物 → います の否定「いません」。「ありません」は物の否定。「いました」は過去で「いま」と矛盾。ヒントで猫はいないと言っているので肯定の「います」も違う。"
+    }
+  },
+  "pattern-n5-sonzai-008": {
+    "hintI18n": {
+      "en": "Answering \"where's the book?\"",
+      "ja": "「本はどこ？」に答える。"
+    },
+    "promptContextI18n": {
+      "en": "\"The book is on the desk.\"",
+      "ja": "「本は机の上にあります。」"
+    },
+    "explanationI18n": {
+      "en": "This is the LOCATION sentence: known thing (ほんは) + place に + あります. A book is a thing → 「あります」. 「〜は 〜に あります」 answers where; 「〜に 〜が あります」 introduces existence — the two shapes are a pair. ※つくえ = desk, うえ = top/on.",
+      "ja": "これは「所在文」：既知のもの（ほんは）＋場所に＋あります。本は物 →「あります」。「〜は 〜に あります」は場所を答える形、「〜に 〜が あります」は存在を紹介する形。二つでペア。"
+    }
+  },
+  "pattern-n5-ichi-001": {
+    "hintI18n": {
+      "en": "Saying where the phone is: INSIDE the bag.",
+      "ja": "携帯の場所を言う：かばんの「中」。"
+    },
+    "promptContextI18n": {
+      "en": "\"The phone is inside the bag.\"",
+      "ja": "「携帯はかばんの中にあります。」"
+    },
+    "explanationI18n": {
+      "en": "Positions are said as 「noun + の + position word + に」: かばんの なかに = inside the bag. なか = inside, うえ = on/above, した = under, まえ = in front.",
+      "ja": "位置は「名詞＋の＋位置のことば＋に」：かばんの なかに＝かばんの中。なか＝中、うえ＝上、した＝下、まえ＝前。"
+    }
+  },
+  "pattern-n5-ichi-002": {
+    "hintI18n": {
+      "en": "Saying where the cat is: UNDER the desk.",
+      "ja": "猫の場所を言う：机の「下」。"
+    },
+    "promptContextI18n": {
+      "en": "\"The cat is under the desk.\"",
+      "ja": "「猫は机の下にいます。」"
+    },
+    "explanationI18n": {
+      "en": "した = under. 「つくえの したに」 = under the desk. 「つくえの なか」 refers to the inside of the desk's storage (drawers, where textbooks go), not the space beneath it; うしろ = behind. ※つくえ = desk.",
+      "ja": "した＝下。「つくえの したに」＝机の下。「つくえの なか」は引き出しなど収納の内部（教科書をしまう所）で、机の下の空間ではない。うしろ＝後ろ。"
+    }
+  },
+  "pattern-n5-ichi-003": {
+    "hintI18n": {
+      "en": "Saying where the book is: ON the desk.",
+      "ja": "本の場所を言う：机の「上」。"
+    },
+    "promptContextI18n": {
+      "en": "\"The book is on the desk.\"",
+      "ja": "「本は机の上にあります。」"
+    },
+    "explanationI18n": {
+      "en": "うえ = on/above. English says \"on the desk\" with a preposition; Japanese uses the structure 「noun + の + position word」: 「つくえの うえに」. Things on a surface always take うえ.",
+      "ja": "うえ＝上。日本語は「名詞＋の＋位置のことば」の形で言う：「つくえの うえに」。面の上にある物はいつも うえ。"
+    }
+  },
+  "pattern-n5-ichi-004": {
+    "hintI18n": {
+      "en": "Saying where the school is: IN FRONT OF the station.",
+      "ja": "学校の場所を言う：駅の「前」。"
+    },
+    "promptContextI18n": {
+      "en": "\"The school is in front of the station.\"",
+      "ja": "「学校は駅の前にあります。」"
+    },
+    "explanationI18n": {
+      "en": "まえ = in front, うしろ = behind. 「えきの まえ」 (in front of the station) is one of the most common ways to describe a location. ※えき = station.",
+      "ja": "まえ＝前、うしろ＝後ろ。「えきの まえ」は場所の説明でいちばんよく使う言い方のひとつ。"
+    }
+  },
+  "pattern-n5-ichi-005": {
+    "hintI18n": {
+      "en": "Saying where the restroom is: NEXT TO the room (adjacent).",
+      "ja": "トイレの場所を言う：部屋の「隣」（すぐ横に並んで）。"
+    },
+    "promptContextI18n": {
+      "en": "\"The restroom is next to the room.\"",
+      "ja": "「トイレは部屋の隣にあります。」"
+    },
+    "explanationI18n": {
+      "en": "となり = next to (adjacent, side by side). Japanese also has 「よこ」 (beside): となり stresses being adjacent in a row (next door), よこ just means to the side. ※トイレ = restroom, へや = room.",
+      "ja": "となり＝隣（並んで隣接）。「よこ」も横の意味だが、となり は並んで隣り合うこと（隣室）、よこ は横の方向だけを言う。"
+    }
+  },
+  "pattern-n5-ichi-006": {
+    "hintI18n": {
+      "en": "Saying where the bank is: BEHIND the supermarket.",
+      "ja": "銀行の場所を言う：スーパーの「後ろ」。"
+    },
+    "promptContextI18n": {
+      "en": "\"The bank is behind the supermarket.\"",
+      "ja": "「銀行はスーパーの後ろにあります。」"
+    },
+    "explanationI18n": {
+      "en": "うしろ = behind. まえ/うしろ come as a pair and are the staple of giving directions. ※ぎんこう = bank, スーパー = supermarket.",
+      "ja": "うしろ＝後ろ。まえ／うしろ はペアで、道案内の定番。"
+    }
+  },
+  "pattern-n5-ichi-007": {
+    "hintI18n": {
+      "en": "Saying the book in your own hand is yours.",
+      "ja": "自分の手にある本が自分のものだと言う。"
+    },
+    "promptContextI18n": {
+      "en": "\"(Looking at the book in my hand) This book is mine.\"",
+      "ja": "「（自分の手にある本を見て）この本はわたしのです。」"
+    },
+    "explanationI18n": {
+      "en": "「この + noun」 = near me. これ stands alone (これは ほんです); この must be followed by a noun (この ほん). In my own hand → この. ※て = hand.",
+      "ja": "「この＋名詞」＝自分の近く。これ は単独で使い（これは ほんです）、この の後ろには必ず名詞（この ほん）。自分の手の中 → この。"
+    }
+  },
+  "pattern-n5-ichi-008": {
+    "hintI18n": {
+      "en": "Asking if the umbrella in the listener's hand is theirs.",
+      "ja": "相手の手にある傘が相手のものかをたずねる。"
+    },
+    "promptContextI18n": {
+      "en": "\"(Looking at the umbrella in your hand) Is that umbrella yours?\"",
+      "ja": "「（相手の手にある傘を見て）その傘はあなたのですか。」"
+    },
+    "explanationI18n": {
+      "en": "「その + noun」 = near the listener. The umbrella is in their hand → その. あの = far from both; どの = which (question). ※かさ = umbrella, あいて = the other person.",
+      "ja": "「その＋名詞」＝相手の近く。傘は相手の手の中 → その。あの＝どちらからも遠い、どの＝疑問。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",

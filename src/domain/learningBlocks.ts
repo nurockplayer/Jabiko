@@ -275,6 +275,58 @@ export const learningBlocks: LearningBlock[] = [
     implicitCompleteWithHistory: true,
     recommendedAfter: ["starter-desu"]
   },
+  // ---- N5 文法（#542/#543 起的 N5 句型補完系列）----------------------------
+  {
+    id: "n5-sonzai",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "存在句 あります・います",
+    subtitle: "へやに ねこが います",
+    explanation:
+      "說「有什麼、在哪裡」的句型。兩個動詞分工：東西和植物用あります、人和動物用います。兩種句式是一對：介紹「有什麼」用「場所に 〜が あります/います」；回答「在哪裡」用「〜は 場所に あります/います」。存在的場所一定用に——「在某處做動作」才用で，這是に/で最重要的分界。",
+    examples: [
+      { formula: "へやに ねこが います", note: "存在文：房間裡有貓（動物→います）" },
+      { formula: "つくえの うえに ほんが あります", note: "存在文：桌上有書（東西→あります）" },
+      { formula: "ほんは つくえの うえに あります", note: "所在文：回答「書在哪」" },
+      { formula: "トイレは どこに ありますか", note: "問路的固定句" },
+      { formula: "ねこは いません／ほんは ありません", note: "否定：不在/沒有" }
+    ],
+    pitfalls: [
+      "います限「有生命會動的」（人/動物）；植物和東西用あります",
+      "存在用に、動作用で：にわに います（在院子）vs にわで あそびます（在院子玩）",
+      "第一次介紹用「〜が あります」、已知話題用「〜は 〜に あります」——が/は 別互換"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Sonzai", patternIds: ["n5-sonzai"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["starter-particles"]
+  },
+  {
+    id: "n5-ichi",
+    group: "basic",
+    category: "N5 文法",
+    kicker: "N5 句型",
+    title: "位置詞與この・その",
+    subtitle: "かばんの なかに あります",
+    explanation:
+      "位置的說法是「名詞の＋位置詞＋に」：かばんの なかに（包包裡）、つくえの うえに（桌上）。常用位置詞：うえ/した/なか/まえ/うしろ/となり/よこ/ちかく。指示詞這裡學「接名詞」的用法：この/その/あの＋名詞（これ/それ/あれ 單獨用、この 後面一定要接名詞），距離分工跟これ系一樣：近自己→この、近對方→その、都遠→あの。",
+    examples: [
+      { formula: "かばんの なかに けいたいが あります", note: "なか＝裡面" },
+      { formula: "つくえの うえ／した", note: "うえ＝上面、した＝下面" },
+      { formula: "えきの まえ／うしろ", note: "まえ＝前面、うしろ＝後面" },
+      { formula: "へやの となり／よこ／ちかく", note: "となり＝隔壁、よこ＝側邊、ちかく＝附近" },
+      { formula: "この ほんは わたしのです", note: "この＋名詞：近自己" },
+      { formula: "その かさは あなたのですか", note: "その＋名詞：近對方" }
+    ],
+    pitfalls: [
+      "この/その/あの 後面一定接名詞；單獨用要換 これ/それ/あれ",
+      "となり＝並排相鄰（隔壁）、よこ＝側面方向、ちかく＝附近——三個範圍不同",
+      "「桌上」日文說 つくえの うえ，東西放桌面都用うえ、不能省略"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN5Ichi", patternIds: ["n5-ichi"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n5-sonzai"]
+  },
   {
     id: "adverbial",
     group: "basic",

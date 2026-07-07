@@ -4,6 +4,8 @@ import { patternInstructionI18n, sentencePatternI18n } from "./sentencePatterns.
 export type SentencePatternId =
   | "starter-desu"
   | "starter-particles"
+  | "n5-sonzai"
+  | "n5-ichi"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -33,6 +35,8 @@ export type SentencePatternItem = {
 const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "starter-desu": "基本句 〜です",
   "starter-particles": "助詞入門",
+  "n5-sonzai": "存在 あります・います",
+  "n5-ichi": "位置與指示",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -41,6 +45,202 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "nagara-tari": "並列・同時",
   "te-aux": "補助動詞"
 };
+
+// ===========================================================================
+// N5 pattern: n5-sonzai -- あります/います existence sentences (#543).
+//   The biggest single N5 gap from the coverage audit. Kana-first with
+//   starter-deck words; new words get a ※gloss in the explanation.
+//   Unique-solution levers: alive/inanimate subject picks あります vs
+//   います; で (action location) vs に (existence location) is the classic
+//   trap and appears only where the verb makes it dead.
+// ===========================================================================
+const N5_SONZAI_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-sonzai-001",
+    patternId: "n5-sonzai",
+    promptText: "へやに ねこ___ います。",
+    hintZh: "告訴對方房間裡有什麼。",
+    promptContextZh: "「房間裡有一隻貓。」",
+    expectedAnswer: "が",
+    options: ["が", "を", "へ", "で"],
+    explanation:
+      "「〜に 〜が います」是存在句的固定形：第一次提到「有什麼」時，那個東西用「が」。「を」接動作對象，但います不是動作；「へ」表方向；「で」是動作發生的場所，跟います（存在）接不上。※へや＝房間。"
+  },
+  {
+    id: "pattern-n5-sonzai-002",
+    patternId: "n5-sonzai",
+    promptText: "つくえの うえに ほん___ あります。",
+    hintZh: "說桌上有什麼東西。",
+    promptContextZh: "「桌上有書。」",
+    expectedAnswer: "が",
+    options: ["が", "を", "で", "へ"],
+    explanation:
+      "存在句「〜に 〜が あります」：書是第一次登場的東西，用「が」。「で」是動作發生的場所，跟「あります（存在）」接不上。※つくえ＝桌子、うえ＝上面。"
+  },
+  {
+    id: "pattern-n5-sonzai-003",
+    patternId: "n5-sonzai",
+    promptText: "いぬは にわ___ います。",
+    hintZh: "回答狗在哪裡。",
+    promptContextZh: "「狗在院子裡。」",
+    expectedAnswer: "に",
+    options: ["に", "で", "を", "へ"],
+    explanation:
+      "「存在的場所」用「に」——狗「在」院子，不是在院子「做」什麼。「で」配動作動詞（にわで あそびます）；這是 に／で 最重要的分工。※にわ＝院子。"
+  },
+  {
+    id: "pattern-n5-sonzai-004",
+    patternId: "n5-sonzai",
+    promptText: "きょうしつに がくせいが ___。",
+    hintZh: "說教室裡有誰。",
+    promptContextZh: "「教室裡有學生。」",
+    expectedAnswer: "います",
+    options: ["います", "あります", "です", "でした"],
+    explanation:
+      "人和動物這些「有生命、會動的」用「います」；東西和植物用「あります」。學生是人 →「います」。※きょうしつ＝教室、がくせい＝學生。"
+  },
+  {
+    id: "pattern-n5-sonzai-005",
+    patternId: "n5-sonzai",
+    promptText: "かばんの なかに けいたいが ___。",
+    hintZh: "說包包裡有什麼東西。",
+    promptContextZh: "「包包裡有手機。」",
+    expectedAnswer: "あります",
+    options: ["あります", "います", "ですか", "じゃありません"],
+    explanation:
+      "手機是東西（沒有生命），存在用「あります」。「います」留給人和動物。※なか＝裡面。"
+  },
+  {
+    id: "pattern-n5-sonzai-006",
+    patternId: "n5-sonzai",
+    promptText: "すみません、トイレは どこ___ ありますか。",
+    hintZh: "問廁所的位置。",
+    promptContextZh: "「不好意思，廁所在哪裡？」",
+    expectedAnswer: "に",
+    options: ["に", "へ", "を", "が"],
+    explanation:
+      "問「在哪裡」＝問存在的場所，場所用「に」。「トイレは どこに ありますか」是問路的固定句。「へ」表方向，不表靜態存在的位置；「を」接動作對象；「が」的位置已被主題「は」佔走。※トイレ＝廁所。"
+  },
+  {
+    id: "pattern-n5-sonzai-007",
+    patternId: "n5-sonzai",
+    promptText: "いま、いえに ねこは ___。",
+    hintZh: "說現在家裡沒有貓（貓出門了）。",
+    promptContextZh: "「現在貓不在家。」",
+    expectedAnswer: "いません",
+    options: ["いません", "ありません", "います", "いました"],
+    explanation:
+      "貓是動物 → 用います的否定「いません」。「ありません」是東西的否定；「いました」是過去，跟「いま（現在）」矛盾。提示說了貓不在，所以肯定的「います」也不對。"
+  },
+  {
+    id: "pattern-n5-sonzai-008",
+    patternId: "n5-sonzai",
+    promptText: "ほんは つくえの うえに ___。",
+    hintZh: "回答「書在哪裡」。",
+    promptContextZh: "「書在桌子上。」",
+    expectedAnswer: "あります",
+    options: ["あります", "います", "です", "でしたか"],
+    explanation:
+      "這是「所在句」：已知的東西（ほんは）＋場所に＋あります。書是東西 →「あります」。「〜は 〜に あります」回答位置、「〜に 〜が あります」介紹存在，兩個句型是一對。※つくえ＝桌子、うえ＝上面。"
+  }
+];
+
+// ===========================================================================
+// N5 pattern: n5-ichi -- position words + この/その demonstratives (#543).
+//   Position-word cloze items are locked by the hint's Chinese description
+//   of the spatial relation (the established pattern-item lever) plus
+//   option control; この/その items anchor on who is holding the object.
+// ===========================================================================
+const N5_ICHI_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n5-ichi-001",
+    patternId: "n5-ichi",
+    promptText: "けいたいは かばんの ___に あります。",
+    hintZh: "說手機的位置：在包包「裡面」。",
+    promptContextZh: "「手機在包包裡面。」",
+    expectedAnswer: "なか",
+    options: ["なか", "うえ", "した", "まえ"],
+    explanation:
+      "位置的說法是「名詞＋の＋位置詞＋に」：かばんの なかに＝在包包裡面。なか＝裡面、うえ＝上面、した＝下面、まえ＝前面。"
+  },
+  {
+    id: "pattern-n5-ichi-002",
+    patternId: "n5-ichi",
+    promptText: "ねこは つくえの ___に います。",
+    hintZh: "說貓的位置：在桌子「下面」。",
+    promptContextZh: "「貓在桌子下面。」",
+    expectedAnswer: "した",
+    options: ["した", "うえ", "なか", "うしろ"],
+    explanation:
+      "した＝下面。「つくえの したに」＝在桌子下面。「つくえの なか」指的是抽屜等收納空間的內部（放課本的地方），不是桌子底下；うしろ＝後面。※つくえ＝桌子。"
+  },
+  {
+    id: "pattern-n5-ichi-003",
+    patternId: "n5-ichi",
+    promptText: "ほんは つくえの ___に あります。",
+    hintZh: "說書的位置：在桌子「上面」。",
+    promptContextZh: "「書在桌子上面。」",
+    expectedAnswer: "うえ",
+    options: ["うえ", "した", "まえ", "となり"],
+    explanation:
+      "うえ＝上面。中文說「桌上」，日文要用「名詞＋の＋位置詞」的結構：「つくえの うえに」。東西放在桌面上都用 うえ。"
+  },
+  {
+    id: "pattern-n5-ichi-004",
+    patternId: "n5-ichi",
+    promptText: "がっこうは えきの ___に あります。",
+    hintZh: "說學校的位置：在車站「前面」。",
+    promptContextZh: "「學校在車站前面。」",
+    expectedAnswer: "まえ",
+    options: ["まえ", "うしろ", "なか", "うえ"],
+    explanation:
+      "まえ＝前面、うしろ＝後面。「えきの まえ」（車站前）是描述地點最常用的說法之一。※えき＝車站。"
+  },
+  {
+    id: "pattern-n5-ichi-005",
+    patternId: "n5-ichi",
+    promptText: "トイレは へやの ___に あります。",
+    hintZh: "說廁所的位置：在房間「旁邊」（緊鄰的隔壁）。",
+    promptContextZh: "「廁所在房間旁邊。」",
+    expectedAnswer: "となり",
+    options: ["となり", "うえ", "なか", "まえ"],
+    explanation:
+      "となり＝旁邊（緊鄰、同類並排）。日文還有「よこ」也是旁邊，差別：となり 強調並排相鄰（隔壁），よこ 只說在側面方向。※トイレ＝廁所、へや＝房間。"
+  },
+  {
+    id: "pattern-n5-ichi-006",
+    patternId: "n5-ichi",
+    promptText: "ぎんこうは スーパーの ___に あります。",
+    hintZh: "說銀行的位置：在超市「後面」。",
+    promptContextZh: "「銀行在超市後面。」",
+    expectedAnswer: "うしろ",
+    options: ["うしろ", "まえ", "した", "となり"],
+    explanation:
+      "うしろ＝後面。まえ／うしろ 是一對，配路標描述最常用。※ぎんこう＝銀行、スーパー＝超市。"
+  },
+  {
+    id: "pattern-n5-ichi-007",
+    patternId: "n5-ichi",
+    promptText: "（じぶんの てに ある ほんを みて）___ ほんは わたしのです。",
+    hintZh: "說自己手上拿著的這本書是自己的。",
+    promptContextZh: "「（看著自己手上的書）這本書是我的。」",
+    expectedAnswer: "この",
+    options: ["この", "その", "あの", "どの"],
+    explanation:
+      "「この＋名詞」＝靠近自己的。これ 單獨用（これは ほんです）、この 後面一定接名詞（この ほん）。在自己手上 → この。※て＝手。"
+  },
+  {
+    id: "pattern-n5-ichi-008",
+    patternId: "n5-ichi",
+    promptText: "（あいての てに ある かさを みて）___ かさは あなたのですか。",
+    hintZh: "問對方手上拿著的那把傘是不是對方的。",
+    promptContextZh: "「（看著對方手上的傘）那把傘是你的嗎？」",
+    expectedAnswer: "その",
+    options: ["その", "この", "あの", "どの"],
+    explanation:
+      "「その＋名詞」＝靠近對方的。傘在對方手上 → その。あの＝離雙方都遠；どの＝哪一個（疑問）。※かさ＝傘、あいて＝對方。"
+  }
+];
 
 // ===========================================================================
 // Lesson-0 pattern A: starter-desu -- the AはBです sentence family (#534).
@@ -887,6 +1087,8 @@ const TE_AUX_ITEMS: SentencePatternItem[] = [
 export const sentencePatternItems: SentencePatternItem[] = [
   ...STARTER_DESU_ITEMS,
   ...STARTER_PARTICLES_ITEMS,
+  ...N5_SONZAI_ITEMS,
+  ...N5_ICHI_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,
