@@ -940,6 +940,86 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "n4-shushoku": {
+    "en": {
+      "category": "N4 Grammar",
+      "kicker": "N4 Patterns",
+      "title": "Noun-Modifying Clauses: 〜した＋noun",
+      "explanation":
+        "N4's biggest syntactic leap: parking a whole sentence in front of a noun as its modifier — きのう買った本 (the book I bought yesterday), 大阪に住んでいる友だち (a friend living in Osaka). Three iron rules: (1) inside the clause use plain forms — polite ます/です can't enter; (2) the clause's tense tracks whether ITS OWN event happened, not the main clause — 来週泊まるホテルは、もう予約しました (the stay hasn't happened → dictionary form, even though the booking is past); (3) the clause's subject takes が (母が作った料理), interchangeable with の (母の作った料理). Introduce names with 「〜という＋noun」 (さくらという店); define terms with 「〜というのは」.",
+      "notes": [
+        "Plain forms inside the clause",
+        "Clause tense = the event's own tense",
+        "Clause subject: が (or の)",
+        "Introducing: 〜という + noun",
+        "Defining: 〜というのは"
+      ],
+      "pitfalls": [
+        "Polite forms can't modify: ×歌っています人 → 歌っている人",
+        "は can't enter a modifier clause — its subject takes が (or の)",
+        "Clause tense is independent: bought yesterday = 買った, staying next week = 泊まる"
+      ]
+    },
+    "ja": {
+      "category": "N4文法",
+      "kicker": "N4文型",
+      "title": "名詞修飾節 〜した＋名詞",
+      "explanation":
+        "N4 最大の構文ジャンプ：文をまるごと名詞の前に置いて修飾する——きのう買った本、大阪に住んでいる友だち。鉄則三つ：①節の中は普通形。ます/です は入れない。②節の時制は「その出来事」が起きたかどうかで決まり、主文に引きずられない——来週泊まるホテルは、もう予約しました。③節内の主語は が（母が作った料理）で、の と交替できる（母の作った料理）。名前の紹介は「〜という＋名詞」、定義は「〜というのは」。",
+      "notes": [
+        "節の中は普通形",
+        "節の時制は出来事基準",
+        "節内主語は が（／の）",
+        "紹介：〜という＋名詞",
+        "定義：〜というのは"
+      ],
+      "pitfalls": [
+        "敬体は修飾節に入れない：×歌っています人→歌っている人",
+        "は は修飾節に入れない——節内主語は が（または の）",
+        "節の時制は独立：昨日買った＝買った、来週泊まる＝泊まる"
+      ]
+    }
+  },
+  "n4-kansetsu": {
+    "en": {
+      "category": "N4 Grammar",
+      "kicker": "N4 Patterns",
+      "title": "Indirect Questions: かどうか・〜か",
+      "explanation":
+        "Embedding a question inside a sentence = an indirect question, and the split is a single line: if the clause HAS a question word (いつ, どこ, だれ, どうして…) use 「〜か」 — いつ始まるか知っていますか; a yes/no clause WITHOUT one uses 「〜かどうか」 — 行くかどうか、まだ決めていません (expanded form: 行くか行かないか). Attachment follows the conjecture family: nouns and な-adjectives attach bare, だ drops (本当かどうか); the inside stays plain — polite forms can't enter (×来るですか → 来るか); politeness lives at the end of the sentence.",
+      "notes": [
+        "No question word → かどうか",
+        "Question word → か",
+        "Nouns attach bare, だ drops",
+        "Plain forms inside",
+        "Expanded: 〜か〜ないか"
+      ],
+      "pitfalls": [
+        "Question word + かどうか is wrong: ×いつ来るかどうか → いつ来るか",
+        "Polite forms inside fail: ×来ますか教えて → 来るか教えて",
+        "Nouns drop だ before かどうか: ×本当だかどうか"
+      ]
+    },
+    "ja": {
+      "category": "N4文法",
+      "kicker": "N4文型",
+      "title": "間接疑問 かどうか・〜か",
+      "explanation":
+        "質問を文の中に埋め込むのが間接疑問。線引きは一本だけ：節内に疑問詞（いつ・どこ・だれ・どうして…）が「ある」なら「〜か」——いつ始まるか知っていますか；疑問詞の「ない」Yes/No 型は「〜かどうか」——行くかどうか、まだ決めていません（展開形＝行くか行かないか）。接続は推量の仲間と同じ：名詞・な形容詞は裸接続で だ を落とす（本当かどうか）；中身は普通形——敬体は入れない（×来るですか→来るか）。丁寧さは文末に置けば足りる。",
+      "notes": [
+        "疑問詞なし→かどうか",
+        "疑問詞あり→か",
+        "名詞は裸接続、だ を落とす",
+        "中身は普通形",
+        "展開形：〜か〜ないか"
+      ],
+      "pitfalls": [
+        "疑問詞＋かどうか は誤り：×いつ来るかどうか→いつ来るか",
+        "中の敬体は文にならない：×来ますか教えて→来るか教えて",
+        "名詞は だ を落とす：×本当だかどうか"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",

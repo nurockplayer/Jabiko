@@ -105,11 +105,15 @@ describe("N5 grammar patterns (#543: sonzai + ichi / #544: joshi2 + joshi3)", ()
     const suiryou = buildSentencePatternPool({ patternIds: ["n4-suiryou"] });
     const ishi = buildSentencePatternPool({ patternIds: ["n4-ishi"] });
     const meirei = buildSentencePatternPool({ patternIds: ["n4-meirei"] });
+    const shushoku = buildSentencePatternPool({ patternIds: ["n4-shushoku"] });
+    const kansetsu = buildSentencePatternPool({ patternIds: ["n4-kansetsu"] });
     expect(ndesu).toHaveLength(8);
     expect(suiryou).toHaveLength(8);
     expect(ishi).toHaveLength(8);
     expect(meirei).toHaveLength(8);
-    for (const q of [...ndesu, ...suiryou, ...ishi, ...meirei]) {
+    expect(shushoku).toHaveLength(8);
+    expect(kansetsu).toHaveLength(8);
+    for (const q of [...ndesu, ...suiryou, ...ishi, ...meirei, ...shushoku, ...kansetsu]) {
       expect(q.options, q.id).toHaveLength(4);
       expect(new Set(q.options).size, q.id).toBe(4);
       expect(q.options!.filter((o) => q.expectedAnswers.includes(o)), q.id).toHaveLength(1);

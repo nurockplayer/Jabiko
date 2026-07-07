@@ -236,6 +236,8 @@ export const th: Copy = {
   drillPatternN4Suiryou: "ฝึกการคาดคะเนและเหตุผล",
   drillPatternN4Ishi: "ฝึกความตั้งใจและการตัดสินใจ",
   drillPatternN4Meirei: "ฝึกคำสั่งและการห้าม",
+  drillPatternN4Shushoku: "ฝึกอนุประโยคขยายคำนาม",
+  drillPatternN4Kansetsu: "ฝึกคำถามทางอ้อม",
   drillPatternTeKudasai: "ฝึกรูปประโยค: ขอร้อง / อนุญาต / ห้าม",
   drillPatternNakuteMoII: "ฝึกรูปประโยค: ไม่จำเป็น vs จำเป็น",
   drillPatternTeMorau: "ฝึกรูปประโยค: มุมมองการให้-รับ",

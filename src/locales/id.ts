@@ -235,6 +235,8 @@ export const id: Copy = {
   drillPatternN4Suiryou: "Latih dugaan + sebab",
   drillPatternN4Ishi: "Latih niat + keputusan",
   drillPatternN4Meirei: "Latih perintah + larangan",
+  drillPatternN4Shushoku: "Latih klausa pewatas nomina",
+  drillPatternN4Kansetsu: "Latih pertanyaan tak langsung",
   drillPatternTeKudasai: "Latih pola: permintaan / izin / larangan",
   drillPatternNakuteMoII: "Latih pola: tidak perlu vs harus",
   drillPatternTeMorau: "Latih pola: sudut pandang memberi-menerima",

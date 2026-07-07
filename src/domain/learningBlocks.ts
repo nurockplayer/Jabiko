@@ -706,6 +706,56 @@ export const learningBlocks: LearningBlock[] = [
     recommendedAfter: ["n4-ishi"]
   },
   {
+    id: "n4-shushoku",
+    group: "basic",
+    category: "N4 文法",
+    kicker: "N4 句型",
+    title: "名詞修飾節 〜した＋名詞",
+    subtitle: "きのう買った本／大阪に住んでいる友だち",
+    explanation:
+      "N4 句法最大的一跳：把整個句子塞到名詞前面當形容詞用——きのう買った本（昨天買的書）、大阪に住んでいる友だち（住大阪的朋友）。三條鐵則：①修飾節內用普通形，敬體（ます/です）進不去；②修飾節的時態看「事件本身」發生了沒，不看主句——来週泊まるホテルは、もう予約しました（住宿未發生用辭書形、即使主句是過去）；③修飾節內的主語用が（母が作った料理），且可換成の（母の作った料理）。引介名字用「〜という＋名詞」（さくらという店）；下定義用「〜というのは」。",
+    examples: [
+      { formula: "きのう買った本", note: "修飾節＝普通形" },
+      { formula: "来週泊まるホテルは、もう予約しました", note: "時態看事件不看主句" },
+      { formula: "母が作った料理（＝母の作った料理）", note: "節內主語が、可換の" },
+      { formula: "「さくら」という店", note: "引介：〜という＋名詞" },
+      { formula: "「さくら」というのは、花の名前です", note: "定義：〜というのは" }
+    ],
+    pitfalls: [
+      "敬體不進修飾節：×歌っています人→歌っている人",
+      "は進不了修飾節——節內主語只能が（或換の）",
+      "修飾節時態獨立：昨天買的＝買った、下週住的＝泊まる"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN4Shushoku", patternIds: ["n4-shushoku"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n4-meirei"]
+  },
+  {
+    id: "n4-kansetsu",
+    group: "basic",
+    category: "N4 文法",
+    kicker: "N4 句型",
+    title: "間接疑問 かどうか・〜か",
+    subtitle: "行くかどうか／いつ始まるか",
+    explanation:
+      "把問句塞進句子裡＝間接疑問，分工只有一條線：句子裡「有疑問詞」（いつ、どこ、だれ、どうして…）就用「〜か」——いつ始まるか知っていますか；「沒有疑問詞」的是否句用「〜かどうか」——行くかどうか、まだ決めていません（展開形＝行くか行かないか）。接續規則跟推量家族一樣：名詞・な形容詞裸接、だ去掉（本当かどうか）；內部一律普通形，敬體不進去（×来るですか→来るか），禮貌放在句尾就好。",
+    examples: [
+      { formula: "行くかどうか、まだ決めていません", note: "無疑問詞→かどうか" },
+      { formula: "いつ始まるか、知っていますか", note: "有疑問詞→か" },
+      { formula: "本当かどうか、分かりません", note: "名詞裸接、だ去掉" },
+      { formula: "何時に来るか教えてください", note: "內部用普通形" },
+      { formula: "行くか行かないか", note: "かどうか的展開形" }
+    ],
+    pitfalls: [
+      "疑問詞＋かどうか是錯的：×いつ来るかどうか→いつ来るか",
+      "內部敬體不成句：×来ますか教えて→来るか教えて",
+      "名詞接かどうか要去だ：×本当だかどうか"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN4Kansetsu", patternIds: ["n4-kansetsu"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n4-shushoku"]
+  },
+  {
     id: "adverbial",
     group: "basic",
     category: "形容詞 / 名詞 修飾",
