@@ -103,9 +103,13 @@ describe("N5 grammar patterns (#543: sonzai + ichi / #544: joshi2 + joshi3)", ()
     // N4 decks use kanji-mixed orthography, so no kana-only assertion here.
     const ndesu = buildSentencePatternPool({ patternIds: ["n4-ndesu"] });
     const suiryou = buildSentencePatternPool({ patternIds: ["n4-suiryou"] });
+    const ishi = buildSentencePatternPool({ patternIds: ["n4-ishi"] });
+    const meirei = buildSentencePatternPool({ patternIds: ["n4-meirei"] });
     expect(ndesu).toHaveLength(8);
     expect(suiryou).toHaveLength(8);
-    for (const q of [...ndesu, ...suiryou]) {
+    expect(ishi).toHaveLength(8);
+    expect(meirei).toHaveLength(8);
+    for (const q of [...ndesu, ...suiryou, ...ishi, ...meirei]) {
       expect(q.options, q.id).toHaveLength(4);
       expect(new Set(q.options).size, q.id).toBe(4);
       expect(q.options!.filter((o) => q.expectedAnswers.includes(o)), q.id).toHaveLength(1);

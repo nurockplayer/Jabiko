@@ -656,6 +656,56 @@ export const learningBlocks: LearningBlock[] = [
     recommendedAfter: ["n4-ndesu"]
   },
   {
+    id: "n4-ishi",
+    group: "basic",
+    category: "N4 文法",
+    kicker: "N4 句型",
+    title: "打算與決定 つもり・ことにする",
+    subtitle: "行こうと思っています／行くことにしました",
+    explanation:
+      "「打算」的三個說法，強度與場合不同：「意向形＋と思っています」＝當下的意志表明（やめようと思っています）；「〜つもりだ」＝抱著的打算，否定放前面（買わないつもり），轉述別人用つもりらしい；「〜予定だ」＝排程——無生物（飛機、會議）只能用予定，つもり要有意志的人。決定一對：自己拍板＝「〜ことにする」、別人／組織拍板＝「〜ことになる」；決定後持續遵守＝「〜ことにしている」。",
+    examples: [
+      { formula: "たばこをやめようと思っています", note: "意志：意向形＋と思う" },
+      { formula: "日本で働くつもりです／買わないつもりです", note: "打算與其否定" },
+      { formula: "飛行機は出発する予定です", note: "排程：無生物用予定" },
+      { formula: "走ることにしました／転勤することになりました", note: "自己決定 vs 外部決定" },
+      { formula: "食べないことにしています", note: "決定並持續" }
+    ],
+    pitfalls: [
+      "二類動詞的意向形＝語幹＋よう（やめよう）；ろう是一類る動詞的（帰ろう）",
+      "つもり是名詞不會活用；別人的打算＝つもりらしい（意向形不能接らしい）",
+      "ことにする（自己）／ことになる（外部）——主語是誰拍的板"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN4Ishi", patternIds: ["n4-ishi"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n4-suiryou"]
+  },
+  {
+    id: "n4-meirei",
+    group: "basic",
+    category: "N4 文法",
+    kicker: "N4 句型",
+    title: "命令與禁止 しろ・するな",
+    subtitle: "早く逃げろ！／ここに捨てるな",
+    explanation:
+      "命令的階梯，從粗到軟：命令形（一類＝語尾え段：走れ；二類＝語幹＋ろ：逃げろ；する→しろ、来る→こい）→「〜なさい」（ます形語幹＋なさい，家長老師的口吻）→ て形請求（N5 教過）。禁止＝辭書形＋な（捨てるな）。口語義務縮約：「〜なきゃ」（＝なければ）與「〜なくちゃ」（＝なくては）。轉述指示用「〜ように言う」（医者にやめるように言われた）。命令形本人少用，但告示（止まれ）、緊急（逃げろ）、引用（しろと言われた）都靠它。",
+    examples: [
+      { formula: "早く逃げろ！／もっと速く走れ！", note: "命令形：二類ろ、一類え段" },
+      { formula: "ここにごみを捨てるな", note: "禁止：辭書形＋な" },
+      { formula: "早く宿題をしなさい", note: "溫和命令：ます形語幹＋なさい" },
+      { formula: "帰らなきゃ／帰らなくちゃ", note: "口語義務縮約" },
+      { formula: "やめるように言いました", note: "間接命令：ように言う" }
+    ],
+    pitfalls: [
+      "なさい接ます形語幹（しなさい）；接辭書形（×するなさい）不成句",
+      "な兩張臉：辭書形＋な＝禁止（行くな）；ます語幹＋な＝催促（行きな）——完全相反",
+      "する的命令形＝しろ（書面測驗會看到文語せよ）"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN4Meirei", patternIds: ["n4-meirei"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n4-ishi"]
+  },
+  {
     id: "adverbial",
     group: "basic",
     category: "形容詞 / 名詞 修飾",

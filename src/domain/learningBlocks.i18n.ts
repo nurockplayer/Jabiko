@@ -860,6 +860,86 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "n4-ishi": {
+    "en": {
+      "category": "N4 Grammar",
+      "kicker": "N4 Patterns",
+      "title": "Intention & Decision: つもり・ことにする",
+      "explanation":
+        "Three ways to say \"I plan to\", differing in strength and setting: volitional + と思っています = declaring an intention right now (やめようと思っています); 「〜つもりだ」 = a plan you hold — its negative goes on the verb (買わないつもり), and someone else's plan is reported as つもりらしい; 「〜予定だ」 = a schedule — inanimate things (planes, meetings) can only take 予定, since つもり needs a willful agent. The decision pair: you decide = 「〜ことにする」, someone/something else decides = 「〜ことになる」; a decision you keep observing = 「〜ことにしている」.",
+      "notes": [
+        "Intention: volitional + と思う",
+        "つもり and its negative",
+        "Schedules: inanimate → 予定",
+        "ことにする vs ことになる",
+        "ことにしている = standing rule"
+      ],
+      "pitfalls": [
+        "Group-2 volitional = stem + よう (やめよう); ろう belongs to group-1 る-verbs (帰ろう)",
+        "つもり is a noun and never conjugates; someone else's plan = つもりらしい (volitionals can't take らしい)",
+        "ことにする (you) / ことになる (the outside) — ask who made the call"
+      ]
+    },
+    "ja": {
+      "category": "N4文法",
+      "kicker": "N4文型",
+      "title": "意志と決定 つもり・ことにする",
+      "explanation":
+        "「〜するつもり」の言い分け三つ：意向形＋と思っています＝いまの意志表明（やめようと思っています）；「〜つもりだ」＝抱えている予定で、否定は前の動詞に付く（買わないつもり）。他人の予定は つもりらしい で伝える。「〜予定だ」＝スケジュール——無生物（飛行機・会議）は 予定 しか使えない（つもり は意志の主体が要る）。決定のペア：自分で決める＝「〜ことにする」、外から決まる＝「〜ことになる」；決めて続けている＝「〜ことにしている」。",
+      "notes": [
+        "意志：意向形＋と思う",
+        "つもり とその否定",
+        "スケジュール：無生物は 予定",
+        "ことにする vs ことになる",
+        "ことにしている＝自分ルール"
+      ],
+      "pitfalls": [
+        "二類の意向形＝語幹＋よう（やめよう）。ろう は一類る動詞のもの（帰ろう）",
+        "つもり は名詞で活用しない。他人の予定＝つもりらしい（意向形に らしい は付かない）",
+        "ことにする（自分）／ことになる（外部）——決めたのは誰か"
+      ]
+    }
+  },
+  "n4-meirei": {
+    "en": {
+      "category": "N4 Grammar",
+      "kicker": "N4 Patterns",
+      "title": "Commands & Prohibition: しろ・するな",
+      "explanation":
+        "The command ladder, blunt to soft: the imperative (group 1 = final vowel to え: 走れ; group 2 = stem + ろ: 逃げろ; する→しろ, 来る→こい) → 「〜なさい」 (ます-stem + なさい, the parent/teacher register) → て-form requests (from N5). Prohibition = dictionary form + な (捨てるな). Colloquial obligation contractions: 「〜なきゃ」 (= なければ) and 「〜なくちゃ」 (= なくては). Relayed orders use 「〜ように言う」. You rarely bark imperatives yourself, but signs (止まれ), emergencies (逃げろ), and quotations (しろと言われた) all run on them.",
+      "notes": [
+        "Imperative: group-2 ろ, group-1 え row",
+        "Prohibition: dictionary form + な",
+        "Soft command: ます-stem + なさい",
+        "なきゃ / なくちゃ contractions",
+        "Relayed order: ように言う"
+      ],
+      "pitfalls": [
+        "なさい takes the ます-stem (しなさい); dictionary form + なさい (×するなさい) is no sentence",
+        "な has two faces: dictionary form + な = don't (行くな); ます-stem + な = go on (行きな) — opposites",
+        "する's imperative is しろ (written tests use the literary せよ)"
+      ]
+    },
+    "ja": {
+      "category": "N4文法",
+      "kicker": "N4文型",
+      "title": "命令と禁止 しろ・するな",
+      "explanation":
+        "命令のはしご（強→柔）：命令形（一類＝語尾え段：走れ；二類＝語幹＋ろ：逃げろ；する→しろ、来る→こい）→「〜なさい」（ます形の語幹＋なさい。親や先生の口調）→ て形の依頼（N5）。禁止＝辞書形＋な（捨てるな）。口語の義務の縮約：「〜なきゃ」（＝なければ）と「〜なくちゃ」（＝なくては）。指示の伝達は「〜ように言う」。命令形を自分で使う場面は少ないが、標識（止まれ）・緊急（逃げろ）・引用（しろと言われた）はみなこれ。",
+      "notes": [
+        "命令形：二類ろ・一類え段",
+        "禁止：辞書形＋な",
+        "柔らかい命令：〜なさい",
+        "なきゃ／なくちゃ",
+        "伝達：ように言う"
+      ],
+      "pitfalls": [
+        "なさい は ます形の語幹に付く（しなさい）。辞書形＋なさい（×するなさい）は文にならない",
+        "な の二つの顔：辞書形＋な＝禁止（行くな）、ます語幹＋な＝促し（行きな）——正反対",
+        "する の命令形は しろ（書面の指示では文語の せよ）"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",
