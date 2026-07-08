@@ -1687,6 +1687,198 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
       "ja": "否定の変化＝ない の い を取って く＋なる：来ない→来なくなりました。「来ないく」は い が残り、「来なさく」「来ずく」は存在しない形——ない の変化は い形容詞と同じ（い を取って く）。"
     }
   },
+  "pattern-n4-jikan-001": {
+    "hintI18n": { "en": "How you spent the whole summer break.", "ja": "夏休みの間ずっと何をしていたか。" },
+    "promptContextI18n": { "en": "\"During summer break, I stayed home the whole time.\"", "ja": "「夏休みの間、ずっと家にいました。」" },
+    "explanationI18n": {
+      "en": "A whole span with a durative predicate (ずっといました) uses 「〜間 (あいだ)」: 夏休みの間. 「間に」 marks one point within, for a one-off event (間に電話が来た), clashing with ずっと; 「までに」 is a deadline, 「ころに」 is roughly-when — neither attaches. ※夏休み = summer break.",
+      "ja": "ひとまとまりの期間＋継続の述語（ずっといました）は「〜間」：夏休みの間。「間に」は期間内の一点で一回の出来事（間に電話が来た）用、ずっと と矛盾。「までに」は期限、「ころに」は大体の時で、どちらも接続しない。"
+    }
+  },
+  "pattern-n4-jikan-002": {
+    "hintI18n": { "en": "Something that happened while you slept.", "ja": "寝ている最中に起きたこと。" },
+    "promptContextI18n": { "en": "\"While I was sleeping, a call came.\"", "ja": "「私が寝ている間に、電話が来ました。」" },
+    "explanationI18n": {
+      "en": "A one-off event at some point within a span uses 「〜間に」: 寝ている間に電話が来た. 「ながら」 attaches to the ます-stem (寝ながら) and can't follow 「寝ている」; 「までに」 is a deadline (for a one-shot action, 寝るまでに), 「おきに」 a fixed interval — neither fits.",
+      "ja": "期間内の一点で起こる一回の出来事は「〜間に」：寝ている間に電話が来た。「ながら」は ます形の語幹に付き（寝ながら）、「寝ている」には付かない。「までに」は期限（一回の動作、寝るまでに）、「おきに」は一定の間隔で、合わない。"
+    }
+  },
+  "pattern-n4-jikan-003": {
+    "hintI18n": { "en": "When the report needs to be handed in.", "ja": "レポートをいつ出すか。" },
+    "promptContextI18n": { "en": "\"Please submit the report by Friday.\"", "ja": "「レポートは金曜日までに出してください。」" },
+    "explanationI18n": {
+      "en": "\"Finish (a one-shot action) before a time\" uses 「〜までに」: 金曜日までに出す. 「まで」 = last until (a durative action: 金曜日まで待つ), clashing with one-shot 出す; 「間に」「から」 don't fit this deadline. ※レポート = report.",
+      "ja": "「ある時までに（一回の動作を）終える」は「〜までに」：金曜日までに出す。「まで」は「〜まで続く」（継続動作：金曜日まで待つ）で、一回の「出す」と合わない。「間に」「から」はこの期限に付かない。"
+    }
+  },
+  "pattern-n4-jikan-004": {
+    "hintI18n": { "en": "Waiting on the spot until the teacher shows up.", "ja": "先生が現れるまでその場で待つ。" },
+    "promptContextI18n": { "en": "\"Let's wait here until the teacher comes.\"", "ja": "「先生が来るまで、ここで待ちましょう。」" },
+    "explanationI18n": {
+      "en": "A durative action (待つ) lasting until a time uses 「まで」: 来るまで待つ. 「までに」 is a deadline for a one-shot action (来るまでに準備する), clashing with durative 待つ; 「間に」「ほど」 don't attach.",
+      "ja": "ある時まで続く継続動作（待つ）は「まで」：来るまで待つ。「までに」は一回の動作の期限（来るまでに準備する）で、継続の「待つ」と合わない。「間に」「ほど」は接続しない。"
+    }
+  },
+  "pattern-n4-jikan-005": {
+    "hintI18n": { "en": "How often to take this medicine.", "ja": "この薬を飲むペース。" },
+    "promptContextI18n": { "en": "\"Take this medicine every six hours.\"", "ja": "「この薬は6時間おきに飲んでください。」" },
+    "explanationI18n": {
+      "en": "A fixed time interval uses 「〜おきに」: 6時間おきに = every six hours. 「までに」 is a deadline, 「あいだに」 a point within a span, 「ずつ」 an amount per portion (一つずつ) — none means \"interval.\" ※薬 = medicine.",
+      "ja": "一定の時間間隔は「〜おきに」：6時間おきに。「までに」は期限、「あいだに」は期間内の一点、「ずつ」は一回分の量（一つずつ）で、どれも「間隔」ではない。"
+    }
+  },
+  "pattern-n4-jikan-006": {
+    "hintI18n": { "en": "You're on a call right now.", "ja": "今まさに電話をしている。" },
+    "promptContextI18n": { "en": "\"I'm on the phone right now — I'll call you later.\"", "ja": "「今、電話中ですから、あとでかけます。」" },
+    "explanationI18n": {
+      "en": "\"In the middle of ~\" uses 「noun + 中 (ちゅう)」: 電話中 = on a call; 工事中, 使用中 work the same way. 「間」 is a span, 「まで」 is until, 「ごろ」 is roughly — none conveys \"in progress.\"",
+      "ja": "「〜の最中」は「名詞＋中（ちゅう）」：電話中、工事中、使用中も同様。「間」は期間、「まで」は〜まで、「ごろ」は大体で、「進行中」の意味にならない。"
+    }
+  },
+  "pattern-n4-jikan-007": {
+    "hintI18n": { "en": "Get home before it gets dark.", "ja": "暗くなる前に家に帰る。" },
+    "promptContextI18n": { "en": "\"Let's get home before it gets dark.\"", "ja": "「暗くなるまでに、家に帰りましょう。」" },
+    "explanationI18n": {
+      "en": "\"Before ~ (finishing the one-shot action of getting home)\" uses 「までに」: 暗くなるまでに帰る. 「まで」 would mean \"stay out until it's dark\" — the opposite; 「間に」 needs a lasting span (寝ている間に…), but 暗くなる is an instantaneous change, so it won't attach; 「ほど」 doesn't fit.",
+      "ja": "「〜する前に（帰るという一回の動作を終える）」は「までに」：暗くなるまでに帰る。「まで」だと「暗くなるまで外にいる」で逆。「間に」は続く区間が要る（寝ている間に…）が、「暗くなる」は瞬間変化で付かない。「ほど」は合わない。"
+    }
+  },
+  "pattern-n4-jikan-008": {
+    "hintI18n": { "en": "Those three years you lived in Osaka.", "ja": "大阪に住んでいた三年間。" },
+    "promptContextI18n": { "en": "\"For three years, I lived in Osaka.\"", "ja": "「3年の間、大阪に住んでいました。」" },
+    "explanationI18n": {
+      "en": "A whole span with a lasting state (住んでいた) uses 「〜間」: 3年の間. 「間に」 needs a one-off event (3年の間に一度引っ越した); 「までに」 is a deadline, 「ずつ」 an amount per portion — neither attaches.",
+      "ja": "ひとまとまりの期間＋継続状態（住んでいた）は「〜間」：3年の間。「間に」は一回の出来事が要る（3年の間に一度引っ越した）。「までに」は期限、「ずつ」は一回分の量で、接続しない。"
+    }
+  },
+  "pattern-n4-juju-001": {
+    "hintI18n": { "en": "A friend gave you something.", "ja": "友だちが自分に何かをくれた。" },
+    "promptContextI18n": { "en": "\"A friend gave me a present.\"", "ja": "「友だちが私にプレゼントをくれました。」" },
+    "explanationI18n": {
+      "en": "\"Someone gives ME\" uses 「くれる」: 友だちが私にくれた. 「あげる」 is me giving out (giving to my side needs くれる) — wrong way; 「もらう」's subject must be the receiver (私は友だちにもらった), but here the subject is 友だちが; 「とどく (arrive)」 is intransitive — プレゼントを届く is no sentence (you'd say プレゼントが届く).",
+      "ja": "「相手が『私』にくれる」は「くれる」：友だちが私にくれた。「あげる」は自分が出す（自分側へは くれる）で逆方向。「もらう」の主語は受け手（私は友だちにもらった）だが、ここは 友だちが が主語。「とどく」は自動詞で、プレゼントを届く は文にならない（プレゼントが届く）。"
+    }
+  },
+  "pattern-n4-juju-002": {
+    "hintI18n": { "en": "You got a pen from a friend.", "ja": "友だちからペンを手に入れた。" },
+    "promptContextI18n": { "en": "\"I got a pen from a friend.\"", "ja": "「私は友だちからペンをもらいました。」" },
+    "explanationI18n": {
+      "en": "\"I receive from someone\" uses 「もらう」, with the source in に or から: 友だちからもらった. 「くれる」's subject must be the giver (友だちが私にくれた), not 「私は」; 「あげる」 is me giving, and から can't attach to あげる (the recipient takes に) — wrong direction and attachment; 「なる」 doesn't fit.",
+      "ja": "「私が相手から受け取る」は「もらう」。出どころは に か から：友だちからもらった。「くれる」の主語は与える人（友だちが私にくれた）で「私は」に付かない。「あげる」は自分が与える方で、から は あげる に付かない（相手は に）——方向も接続も違う。「なる」は合わない。"
+    }
+  },
+  "pattern-n4-juju-003": {
+    "hintI18n": { "en": "Dad gave flowers to an outsider.", "ja": "父が身内でない人に花を渡す。" },
+    "promptContextI18n": { "en": "\"My father gave flowers to Mr. Yamada.\"", "ja": "「父は山田さんに花をあげました。」" },
+    "explanationI18n": {
+      "en": "My own side (父) giving to an outsider (山田さん) uses 「あげる」: 父は山田さんにあげた. 「くれる」 needs the receiver to be my side, but 山田さん is an outsider and my side (父) is the giver; 「もらう」's subject must be the receiver, but here it's the giver 父; 「なる」 doesn't fit.",
+      "ja": "身内（父）が外の人（山田さん）に渡すのは「あげる」：父は山田さんにあげた。「くれる」は受け手が自分側でないと使えないが、山田さんは外の人で、自分側（父）が与える方。「もらう」の主語は受け手だが、ここは与える方の父。「なる」は合わない。"
+    }
+  },
+  "pattern-n4-juju-004": {
+    "hintI18n": { "en": "You give your teacher a souvenir.", "ja": "先生にお土産を渡す。" },
+    "promptContextI18n": { "en": "\"I gave my teacher a souvenir.\"", "ja": "「私は先生にお土産をさしあげました。」" },
+    "explanationI18n": {
+      "en": "\"I respectfully give to a superior\" uses あげる's humble form 「さしあげる」: 先生にさしあげた. 「くださる」 is a superior giving me — its subject would be 先生 (先生が私に), wrong way; 「やる」 is for juniors/plants/animals, rude to a teacher; 「いたす」 is the humble of する and can't take 「お土産を」. ※お土産 = souvenir.",
+      "ja": "「目上に恭しく与える」は あげる の謙譲語「さしあげる」：先生にさしあげた。「くださる」は目上が私に与える語で、主語は 先生（先生が私に）——逆方向。「やる」は目下・動植物用で先生には失礼。「いたす」は する の謙譲語で「お土産を」に付かない。"
+    }
+  },
+  "pattern-n4-juju-005": {
+    "hintI18n": { "en": "The teacher gave you a dictionary.", "ja": "先生が自分に辞書をくれた場面。" },
+    "promptContextI18n": { "en": "\"My teacher gave me a dictionary.\"", "ja": "「先生が私に辞書をくださいました。」" },
+    "explanationI18n": {
+      "en": "\"A superior gives ME\" uses くれる's honorific form 「くださる」: 先生が私にくださった. 「さしあげる」 is me giving to a superior — wrong way; 「いただく」 is me receiving (its subject would be me); 「やる」 is for juniors and is rude applied to a teacher. ※辞書 = dictionary.",
+      "ja": "「目上が『私』に与える」は くれる の尊敬語「くださる」：先生が私にくださった。「さしあげる」は自分が目上に与える語で逆方向。「いただく」は自分が受け取る語（主語は私になる）。「やる」は目下用で先生には失礼。"
+    }
+  },
+  "pattern-n4-juju-006": {
+    "hintI18n": { "en": "You received a present from your teacher.", "ja": "先生からプレゼントを受け取る。" },
+    "promptContextI18n": { "en": "\"I received a present from my teacher.\"", "ja": "「私は先生からプレゼントをいただきました。」" },
+    "explanationI18n": {
+      "en": "\"I respectfully receive from a superior\" uses もらう's humble form 「いただく」, source in から/に: 先生からいただいた. 「くださる」's subject must be the teacher (先生が私に), so 「私は」 is wrong; 「さしあげる」 is me giving out, and から can't attach to it (the recipient takes に) — wrong direction and attachment; 「なさる」 is the honorific of する and doesn't fit.",
+      "ja": "「目上から恭しく受け取る」は もらう の謙譲語「いただく」。出どころは から/に：先生からいただいた。「くださる」の主語は先生（先生が私に）で「私は」は不適。「さしあげる」は自分が出す語で、から は付かない（相手は に）——方向も接続も違う。「なさる」は する の尊敬語で合わない。"
+    }
+  },
+  "pattern-n4-juju-007": {
+    "hintI18n": { "en": "Politely asking someone to help you.", "ja": "手伝ってほしいと丁寧に頼む。" },
+    "promptContextI18n": { "en": "\"Excuse me, could I trouble you to help a little?\"", "ja": "「すみません、ちょっと手伝っていただけませんか。」" },
+    "explanationI18n": {
+      "en": "Deferentially asking someone to do something for you = 「〜ていただけませんか」 = couldn't you ~ for me (the humble potential of もらう): 手伝っていただけませんか. This is a 「すみません, (please) help me」 request; 「さしあげる」「あげる」「やる」 point the other way (I do it for you/someone), clashing with asking a favor.",
+      "ja": "相手に恭しくしてもらうよう頼むのは「〜ていただけませんか」（もらう の謙譲・可能形）：手伝っていただけませんか。本文は「すみません、（手伝って）ほしい」という依頼で、「さしあげる」「あげる」「やる」は「自分が相手にしてあげる」方向のため、頼み事の場面と合わない。"
+    }
+  },
+  "pattern-n4-juju-008": {
+    "hintI18n": { "en": "Grandma gave you money.", "ja": "祖母が自分にお金をくれた。" },
+    "promptContextI18n": { "en": "\"My grandmother gave me money.\"", "ja": "「祖母が私にお金をくれました。」" },
+    "explanationI18n": {
+      "en": "Family (grandma) giving ME uses plain 「くれる」: 祖母が私にくれた. 「あげる」 is me giving — wrong way; 「もらう」 and 「いただく」 both need the RECEIVER as subject (私は祖母に), but here the subject is 祖母が, the giver — so neither works. ※祖母 = grandmother.",
+      "ja": "身内（祖母）が「私」に与えるのは普通「くれる」：祖母が私にくれた。「あげる」は自分が与える方で逆。「もらう」「いただく」はどちらも受け取る人が主語（私は祖母に）だが、ここは 祖母が が主語＝与える方なので使えない。"
+    }
+  },
+  "pattern-n4-chikaku-001": {
+    "hintI18n": { "en": "Say what's visible from this room's window.", "ja": "この部屋の窓から何が見えるか。" },
+    "promptContextI18n": { "en": "\"You can see the sea from this room's window.\"", "ja": "「この部屋の窓から海が見えます。」" },
+    "explanationI18n": {
+      "en": "Scenery reaching your eyes unbidden uses 「見える」: 海が見えます. 「見る」 is to actively look (needs を: 海を見る); 「見せる」 is to show someone; 「見つかる」 is to be found — none is the spontaneous \"comes into view.\" (The 見える vs potential 「見られる」 = get-the-chance-to-see split is drilled in the next, opportunity item.) ※海 = sea.",
+      "ja": "風景が意志によらず目に入るのは「見える」：海が見えます。「見る」は自分から見る（を が要る：海を見る）、「見せる」は人に見せる、「見つかる」は見つかるで、自然に見える意味ではない。（「見える」と「機会があって見られる」の可能形との違いは、次の機会の問題で練習する。）"
+    }
+  },
+  "pattern-n4-chikaku-002": {
+    "hintI18n": { "en": "A sound coming from the next room.", "ja": "となりの部屋からの物音。" },
+    "promptContextI18n": { "en": "\"A strange noise can be heard from the next room.\"", "ja": "「となりの部屋から変な音が聞こえます。」" },
+    "explanationI18n": {
+      "en": "Sound reaching your ears unbidden uses 「聞こえる」: 変な音が聞こえます. 「聞ける」 is \"can (get to) listen\" (e.g. コンサートが聞ける) — but a random odd noise isn't something you set out to listen to; 「聞く」 is to actively listen; 「聞かせる」 is to let someone hear — none is the spontaneous \"reaches the ear.\" ※変な音 = a strange noise.",
+      "ja": "音が意志によらず耳に入るのは「聞こえる」：変な音が聞こえます。「聞ける」は「機会があって聞ける」（コンサートが聞ける）だが、変な物音はわざわざ聞く対象ではない。「聞く」は自分から聞く、「聞かせる」は人に聞かせるで、自然に聞こえる意味ではない。"
+    }
+  },
+  "pattern-n4-chikaku-003": {
+    "hintI18n": { "en": "Say what booking lets you do.", "ja": "予約すると何ができるか。" },
+    "promptContextI18n": { "en": "\"If you book, you can tour inside the factory.\"", "ja": "「予約すれば、工場の中が見られます。」" },
+    "explanationI18n": {
+      "en": "\"Can see (given a condition / opportunity)\" uses the potential 「見られる」: 予約すれば見られる = booking lets you tour. Here 「予約すれば」 marks a viewing opportunity gained by booking, foregrounding the chance — so the potential 見られる (not the spontaneous 見える). 「見る」「見せる」 don't fit. ※予約 = reservation, 工場 = factory.",
+      "ja": "「（条件・機会があって）見られる」は可能形「見られる」：予約すれば見られる。ここは「予約すれば」＝予約で得られる見学の機会を示し、機会を前面に出すので可能形 見られる（自然に目に入る 見える ではない）。「見る」「見せる」は付かない。"
+    }
+  },
+  "pattern-n4-chikaku-004": {
+    "hintI18n": { "en": "A smell wafting from the kitchen.", "ja": "台所からいい匂いが漂う。" },
+    "promptContextI18n": { "en": "\"A nice smell is coming from the kitchen.\"", "ja": "「台所からいい匂いがします。」" },
+    "explanationI18n": {
+      "en": "Perceiving a sensation (smell, sound, taste) uses 「〜がする」: 匂いがする = smell something. It's a fixed pairing — 「を」「に」「で」 make no sentence. Same family: 音がする, 味がする, 感じがする. ※台所 = kitchen, 匂い = smell.",
+      "ja": "感覚（匂い・音・味）の知覚は「〜がする」：匂いがする。固定の組み合わせで、「を」「に」「で」は文にならない。仲間：音がする、味がする、感じがする。"
+    }
+  },
+  "pattern-n4-chikaku-005": {
+    "hintI18n": { "en": "You've got a hunch.", "ja": "なんとなくそんな予感がある。" },
+    "promptContextI18n": { "en": "\"I have a feeling it'll rain tomorrow.\"", "ja": "「明日は雨が降る気がします。」" },
+    "explanationI18n": {
+      "en": "\"I somehow feel that ~\" uses 「〜気がする」: 降る気がする. 「の」「こと」「もの」 can't produce this idiomatic \"hunch / feeling\" — 気がする is a set phrase.",
+      "ja": "「なんとなく〜な気がする」は「〜気がする」：降る気がする。「の」「こと」「もの」ではこの慣用の「予感・感じ」の意味にならない——気がする は決まった言い方。"
+    }
+  },
+  "pattern-n4-chikaku-006": {
+    "hintI18n": { "en": "Comparing to yesterday: today isn't as cold.", "ja": "昨日と比べて、今日はそこまで寒くない。" },
+    "promptContextI18n": { "en": "\"Today isn't as cold as yesterday.\"", "ja": "「今日は昨日ほど寒くないです。」" },
+    "explanationI18n": {
+      "en": "\"Not as ~ as\" is the comparison pattern 「Bほど〜ない」: 昨日ほど寒くない = not as cold as yesterday. This comparison pattern always ends in a negative. 「まで」「と」「に」 can't form this \"falls short of\" comparison (と needs 同じ/違う, and 昨日 doesn't take に).",
+      "ja": "「〜ほど〜ない」は比較の文型：昨日ほど寒くない。この比較文型は必ず否定で終わる。「まで」「と」「に」ではこの「及ばない」比較にならない（と は 同じ/違う が要り、昨日 は に を取らない）。"
+    }
+  },
+  "pattern-n4-chikaku-007": {
+    "hintI18n": { "en": "Your wallet's down to almost nothing.", "ja": "財布にほんの少ししか残っていない。" },
+    "promptContextI18n": { "en": "\"There's only 100 yen in my wallet.\"", "ja": "「財布に100円しかありません。」" },
+    "explanationI18n": {
+      "en": "\"Only ~\" with a negative uses 「〜しか〜ない」: 100円しかありません = only 100 yen. 「だけ」 also means \"only,\" taking an affirmative for \"there's only\" (100円だけあります); 「100円だけありません」 is grammatical but shifts to \"only the 100 yen is missing (everything else is there)\" — so to say \"only 100 yen\" you need しか. 「ばかり」 is \"nothing but,\" 「まで」 is \"up to\" — neither attaches. ※財布 = wallet.",
+      "ja": "「〜だけ」を否定で言うのは「〜しか〜ない」：100円しかありません。「だけ」も「だけ」だが肯定で「〜だけある」（100円だけあります）。「100円だけありません」は文法上成立するが「100円だけがない（他はある）」の意味になる——「100円だけ」を言うには しか。「ばかり」は「〜ばかり」、「まで」は「〜まで」で付かない。"
+    }
+  },
+  "pattern-n4-chikaku-008": {
+    "hintI18n": { "en": "How much each person gets.", "ja": "一人あたりに配る数。" },
+    "promptContextI18n": { "en": "\"Please hand out one to each person.\"", "ja": "「みんなに一つずつ配ってください。」" },
+    "explanationI18n": {
+      "en": "Even distribution of \"~ per (person/turn)\" uses 「〜ずつ」: 一つずつ = one each. 「しか」 needs a negative (一つしか配らない) and won't sit in a positive request; 「まで」 is \"up to,\" 「ごろ」 is roughly-when — none means \"distributed evenly.\" ※配る = to hand out.",
+      "ja": "「（一人/一回）〜ずつ」の均等配分は「〜ずつ」：一つずつ。「しか」は否定が要り（一つしか配らない）、肯定の依頼文には入らない。「まで」は「〜まで」、「ごろ」は大体の時で、「均等に配る」意味ではない。"
+    }
+  },
   "pattern-te-kudasai-001": {
     "hintI18n": {
       "en": "A manager gives a subordinate a work deadline.",

@@ -806,6 +806,81 @@ export const learningBlocks: LearningBlock[] = [
     recommendedAfter: ["n4-fukugou"]
   },
   {
+    id: "n4-jikan",
+    group: "basic",
+    category: "N4 文法",
+    kicker: "N4 句型",
+    title: "時間 間・までに・おきに",
+    subtitle: "寝ている間に／金曜日までに",
+    explanation:
+      "時間的精細化。「〜間（あいだ）」＝整段期間，配持續的述語（夏休みの間ずっと家にいた）；「〜間に」＝那段期間裡的某一點，配一次性的事（寝ている間に電話が来た）——差別在述語是「持續」還是「一次」。期限一對：「〜までに」＝在某時之前完成（一次性動作：金曜日までに出す）；「〜まで」＝持續到某時為止（持續動作：来るまで待つ）。另外：「〜おきに」＝固定間隔（6時間おきに）；「名詞＋中（ちゅう）」＝正在進行（電話中・工事中）。",
+    examples: [
+      { formula: "夏休みの間、ずっと家にいた", note: "整段：間＋持續" },
+      { formula: "寝ている間に電話が来た", note: "期間內某點：間に＋一次" },
+      { formula: "金曜日までに出す／来るまで待つ", note: "期限までに vs 持續まで" },
+      { formula: "6時間おきに飲む", note: "固定間隔：おきに" },
+      { formula: "電話中・工事中", note: "正在進行：名詞＋中" }
+    ],
+    pitfalls: [
+      "間（持續述語）vs 間に（一次性事件）——看後面的動作",
+      "までに（期限＋一次動作）vs まで（持續到〜）——出す用までに、待つ用まで",
+      "おきに是間隔；平均分配的「每份」是ずつ，別混"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN4Jikan", patternIds: ["n4-jikan"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n4-henka"]
+  },
+  {
+    id: "n4-juju",
+    group: "basic",
+    category: "N4 文法",
+    kicker: "N4 句型",
+    title: "授受與請託 くれる・いただく",
+    subtitle: "先生がくださった／手伝っていただけませんか",
+    explanation:
+      "給與收的方向系統，加上敬語階。三根軸：あげる（我方給出去）、くれる（別人給我方）、もらう（我方收到，主語是收方）。敬語階往上：あげる→さしあげる（謙讓，給長輩）、くれる→くださる（尊敬，長輩給我）、もらう→いただく（謙讓，從長輩收下）。方向靠主語＋對象判斷：先生が私に→くださる；私が先生に（給）→さしあげる；私が先生に（收）→いただく。鄭重請託＝「〜ていただけませんか」＝能不能請您〜（もらう的謙讓可能形）。",
+    examples: [
+      { formula: "友だちが私にくれた", note: "別人給我：くれる" },
+      { formula: "私は友だちにもらった", note: "我收到：もらう（主語＝收方）" },
+      { formula: "先生が私にくださった", note: "長輩給我：くださる（尊敬）" },
+      { formula: "先生にさしあげた／いただいた", note: "給長輩／從長輩收（謙讓）" },
+      { formula: "手伝っていただけませんか", note: "鄭重請託" }
+    ],
+    pitfalls: [
+      "くれる/くださる＝別人→我方；あげる/さしあげる＝我方→別人，方向別搞反",
+      "もらう/いただく的主語是『收到的人』：私は先生にいただいた",
+      "やる是給晚輩/動植物，對長輩用會失禮——長輩用さしあげる"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN4Juju", patternIds: ["n4-juju"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n4-jikan"]
+  },
+  {
+    id: "n4-chikaku",
+    group: "basic",
+    category: "N4 文法",
+    kicker: "N4 句型",
+    title: "知覺與限定 見える・しか",
+    subtitle: "海が見える／100円しかない",
+    explanation:
+      "知覺：「見える／聞こえる」＝（不靠意志）自然映入眼／傳入耳（窓から海が見える）；跟可能形「見られる／聞ける」＝（有機會、有條件）能看/能聽（予約すれば見られる）不同。感覺用「〜がする」＝匂い・音・味・気がする。限定與比較：「〜ほど〜ない」＝沒有〜那麼〜（昨日ほど寒くない，後面一定否定）；「〜しか〜ない」＝只有〜（100円しかない，後面一定否定，跟配肯定的だけ相對）；「〜ずつ」＝平均每份（一つずつ）。",
+    examples: [
+      { formula: "窓から海が見える", note: "自然映入：見える" },
+      { formula: "予約すれば見られる", note: "有機會能看：可能形" },
+      { formula: "いい匂いがする", note: "知覺：がする" },
+      { formula: "昨日ほど寒くない", note: "比較否定：ほど〜ない" },
+      { formula: "100円しかない／一つずつ", note: "限定しか／分配ずつ" }
+    ],
+    pitfalls: [
+      "見える/聞こえる（自然）≠ 見られる/聞ける（有機會、能力）",
+      "ほど〜ない、しか〜ない——後面一定接否定",
+      "しか（配否定）vs だけ（配肯定）：しかない／だけある"
+    ],
+    patternDrills: [{ labelKey: "drillPatternN4Chikaku", patternIds: ["n4-chikaku"] }],
+    implicitCompleteWithHistory: true,
+    recommendedAfter: ["n4-juju"]
+  },
+  {
     id: "adverbial",
     group: "basic",
     category: "形容詞 / 名詞 修飾",

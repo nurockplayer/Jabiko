@@ -25,6 +25,9 @@ export type SentencePatternId =
   | "n4-kansetsu"
   | "n4-fukugou"
   | "n4-henka"
+  | "n4-jikan"
+  | "n4-juju"
+  | "n4-chikaku"
   | "te-kudasai"
   | "nakute-mo-ii"
   | "te-morau"
@@ -75,6 +78,9 @@ const PATTERN_LABEL_ZH: Record<SentencePatternId, string> = {
   "n4-kansetsu": "間接疑問 かどうか・〜か",
   "n4-fukugou": "複合動詞 〜はじめる・〜方",
   "n4-henka": "變化 ようになる・くする・まま",
+  "n4-jikan": "時間 間・までに・おきに",
+  "n4-juju": "授受與請託 くれる・いただく",
+  "n4-chikaku": "知覺與限定 見える・しか",
   "te-kudasai": "請求 / 許可 / 禁止",
   "nakute-mo-ii": "不必 / 必須",
   "te-morau": "授受視角",
@@ -2165,6 +2171,306 @@ const N4_HENKA_ITEMS: SentencePatternItem[] = [
 ];
 
 // ===========================================================================
+// N4 pattern: n4-jikan -- time II: 間/間に・までに/まで・おきに・中 (#553).
+//   間 vs 間に is locked by predicate continuity: 間 takes a durative
+//   predicate (ずっと〜), 間に a punctual event -- so the two never share
+//   an item's answerhood; the continuity is anchored in the prompt.
+//   までに vs まで is locked the same way (deadline event vs durative
+//   action). ごとに (a real near-synonym of おきに) never appears as a foil.
+// ===========================================================================
+const N4_JIKAN_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n4-jikan-001",
+    patternId: "n4-jikan",
+    promptText: "夏休みの___、ずっと家にいました。",
+    hintZh: "說整個暑假的狀態。",
+    promptContextZh: "「暑假期間，我一直待在家。」",
+    expectedAnswer: "間",
+    options: ["間", "間に", "までに", "ころに"],
+    explanation:
+      "整段期間、後面配持續動作（ずっといました）用「〜間（あいだ）」：夏休みの間。「間に」是「期間內的某一點」，要配一次性的事（間に電話が来た）、跟「ずっと」矛盾；「までに」是期限、「ころに」是大約某時，都接不上。※夏休み＝暑假。"
+  },
+  {
+    id: "pattern-n4-jikan-002",
+    patternId: "n4-jikan",
+    promptText: "私が寝ている___、電話が来ました。",
+    hintZh: "睡覺當中發生的事。",
+    promptContextZh: "「我在睡覺的時候，來了電話。」",
+    expectedAnswer: "間に",
+    options: ["間に", "ながら", "までに", "おきに"],
+    explanation:
+      "在一整段時間「裡的某一點」發生一次性的事用「〜間に」：寝ている間に電話が来た。「ながら」要接ます形語幹（寝ながら）、接不上「寝ている」；「までに」是期限（配一次動作、如寝るまでに）、「おきに」是固定間隔，都接不出這個意思。"
+  },
+  {
+    id: "pattern-n4-jikan-003",
+    patternId: "n4-jikan",
+    promptText: "レポートは金曜日___出してください。",
+    hintZh: "說報告什麼時候要交。",
+    promptContextZh: "「報告請在星期五之前交。」",
+    expectedAnswer: "までに",
+    options: ["までに", "まで", "間に", "から"],
+    explanation:
+      "「期限之前（完成一次性動作）」用「〜までに」：金曜日までに出す。「まで」是「持續到〜為止」，配的是持續動作（金曜日まで待つ）、跟一次性的「出す」不合；「間に」「から」接不上這個期限。※レポート＝報告。"
+  },
+  {
+    id: "pattern-n4-jikan-004",
+    patternId: "n4-jikan",
+    promptText: "先生が来る___、ここで待ちましょう。",
+    hintZh: "說在原地等到老師出現。",
+    promptContextZh: "「等到老師來為止，我們在這裡等吧。」",
+    expectedAnswer: "まで",
+    options: ["まで", "までに", "間に", "ほど"],
+    explanation:
+      "「一直〜到某時為止」的持續動作（待つ）用「まで」：来るまで待つ。「までに」是期限、配一次性動作（来るまでに準備する）、跟持續的「待つ」不合；「間に」「ほど」接不上。"
+  },
+  {
+    id: "pattern-n4-jikan-005",
+    patternId: "n4-jikan",
+    promptText: "この薬は6時間___飲んでください。",
+    hintZh: "說這個藥多久吃一次。",
+    promptContextZh: "「這個藥請每隔六小時吃一次。」",
+    expectedAnswer: "おきに",
+    options: ["おきに", "までに", "あいだに", "ずつ"],
+    explanation:
+      "固定的時間間隔用「〜おきに」：6時間おきに＝每隔六小時。「までに」是期限、「あいだに」是期間內某點、「ずつ」是「每份的量」（一つずつ），都不是「間隔」的意思。※薬＝藥。"
+  },
+  {
+    id: "pattern-n4-jikan-006",
+    patternId: "n4-jikan",
+    promptText: "今、電話___ですから、あとでかけます。",
+    hintZh: "現在正在講電話。",
+    promptContextZh: "「現在正在通話中，稍後再打。」",
+    expectedAnswer: "中",
+    options: ["中", "間", "まで", "ごろ"],
+    explanation:
+      "「正在〜當中」用「名詞＋中（ちゅう）」：電話中＝通話中，工事中、使用中同理。「間」是期間、「まで」是到〜為止、「ごろ」是大約，都接不出「正在進行」的意思。"
+  },
+  {
+    id: "pattern-n4-jikan-007",
+    patternId: "n4-jikan",
+    promptText: "暗くなる___、家に帰りましょう。",
+    hintZh: "趁天黑前回家。",
+    promptContextZh: "「趁天黑之前回家吧。」",
+    expectedAnswer: "までに",
+    options: ["までに", "まで", "間に", "ほど"],
+    explanation:
+      "「在〜之前（完成回家這個一次性動作）」用「までに」：暗くなるまでに帰る＝趁天黑前回到家。「まで」會變成「一直到天黑（都待在外面）」、方向相反；「間に」要接可持續的區間（寝ている間に…），但「暗くなる」是瞬間變化、接不上；「ほど」接不上。"
+  },
+  {
+    id: "pattern-n4-jikan-008",
+    patternId: "n4-jikan",
+    promptText: "3年の___、大阪に住んでいました。",
+    hintZh: "說住大阪的那三年。",
+    promptContextZh: "「有三年的時間，我住在大阪。」",
+    expectedAnswer: "間",
+    options: ["間", "間に", "までに", "ずつ"],
+    explanation:
+      "整段期間、配持續狀態（住んでいた）用「〜間」：3年の間。「間に」要配一次性的事（3年の間に一度引っ越した）；「までに」是期限、「ずつ」是每份，都接不上。"
+  }
+];
+
+// ===========================================================================
+// N4 pattern: n4-juju -- giving/receiving nouns + keigo tiers + requests
+//   (#553). Direction is locked by an explicit subject + recipient: くれる/
+//   くださる need giver-as-subject toward the speaker's side, あげる/さし
+//   あげる the speaker's side giving out, もらう/いただく the receiver as
+//   subject. Plain もらう never competes where いただく is the answer (both
+//   real -- the 先生に anchor forces the humble tier, and もらう stays out
+//   of that item's options). The polite-request item locks by direction:
+//   the three giving-forms all read as "shall I ~ for you", clashing with
+//   the apologetic すみません request opener.
+// ===========================================================================
+const N4_JUJU_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n4-juju-001",
+    patternId: "n4-juju",
+    promptText: "友だちが私にプレゼントを___。",
+    hintZh: "朋友送了我東西。",
+    promptContextZh: "「朋友送了我一份禮物。」",
+    expectedAnswer: "くれました",
+    options: ["くれました", "あげました", "もらいました", "とどきました"],
+    explanation:
+      "「別人給『我』」用「くれる」：友だちが私にくれた。「あげる」是我給別人（給我方要用くれる）、方向相反；「もらう」的主語要是收禮的人（私は友だちにもらった）、但這句主語是友だちが；「とどく（送達）」是自動詞，「プレゼントを届く」不成句（要說プレゼントが届く）。"
+  },
+  {
+    id: "pattern-n4-juju-002",
+    patternId: "n4-juju",
+    promptText: "私は友だちからペンを___。",
+    hintZh: "從朋友那裡拿到筆。",
+    promptContextZh: "「我從朋友那裡得到一支筆。」",
+    expectedAnswer: "もらいました",
+    options: ["もらいました", "くれました", "あげました", "なりました"],
+    explanation:
+      "「我從別人那裡得到」用「もらう」，來源可用に或から：友だちからもらった。「くれる」的主語要是給的人（友だちが私にくれた）、不能配「私は」；「あげる」是我給、而且「から」不能接あげる（給的對象要用に），方向與接續都不對；「なる」語意不對。"
+  },
+  {
+    id: "pattern-n4-juju-003",
+    patternId: "n4-juju",
+    promptText: "父は山田さんに花を___。",
+    hintZh: "說爸爸送花給外人。",
+    promptContextZh: "「爸爸送花給山田先生。」",
+    expectedAnswer: "あげました",
+    options: ["あげました", "くれました", "もらいました", "なりました"],
+    explanation:
+      "自家人（父）給外人（山田さん）用「あげる」：父は山田さんにあげた。「くれる」要收方是我方、但山田さん是外人、我方（父）是給的一邊；「もらう」主語要是收方、這裡主語是給方的父；「なる」語意不對。"
+  },
+  {
+    id: "pattern-n4-juju-004",
+    patternId: "n4-juju",
+    promptText: "私は先生にお土産を___。",
+    hintZh: "說自己送伴手禮給老師。",
+    promptContextZh: "「我送了伴手禮給老師。」",
+    expectedAnswer: "さしあげました",
+    options: ["さしあげました", "くださいました", "やりました", "いたしました"],
+    explanation:
+      "「我恭敬地給長輩」用「あげる」的自謙語「さしあげる」：先生にさしあげた。「くださる」是長輩給我、主語要是先生（先生が私に），方向相反；「やる」是給晚輩/動植物，對老師失禮；「いたす」是「する」的自謙語、接不上「お土産を」。※お土産＝伴手禮。"
+  },
+  {
+    id: "pattern-n4-juju-005",
+    patternId: "n4-juju",
+    promptText: "先生が私に辞書を___。",
+    hintZh: "說老師給了我一本字典。",
+    promptContextZh: "「老師給了我一本字典。」",
+    expectedAnswer: "くださいました",
+    options: ["くださいました", "さしあげました", "いただきました", "やりました"],
+    explanation:
+      "「長輩給『我』」用「くれる」的尊敬語「くださる」：先生が私にくださった。「さしあげる」是我給長輩、方向相反；「いただく」是我收下（主語會是我）；「やる」對象是晚輩，用在老師身上失禮。※辞書＝字典。"
+  },
+  {
+    id: "pattern-n4-juju-006",
+    patternId: "n4-juju",
+    promptText: "私は先生からプレゼントを___。",
+    hintZh: "說自己從老師那裡收到禮物。",
+    promptContextZh: "「我從老師那裡收到了禮物。」",
+    expectedAnswer: "いただきました",
+    options: ["いただきました", "くださいました", "さしあげました", "なさいました"],
+    explanation:
+      "「我恭敬地從長輩那裡收下」用「もらう」的自謙語「いただく」，來源用から/に：先生からいただいた。「くださる」的主語要是老師（先生が私に）、配「私は」不對；「さしあげる」是我給出去、而且「から」不能接さしあげる（給的對象用に），方向與接續都不對；「なさる」是「する」的尊敬語、語意不對。"
+  },
+  {
+    id: "pattern-n4-juju-007",
+    patternId: "n4-juju",
+    promptText: "すみません、ちょっと手伝って___か。",
+    hintZh: "客氣地拜託對方幫忙。",
+    promptContextZh: "「不好意思，可以請你幫我一下嗎？」",
+    expectedAnswer: "いただけません",
+    options: ["いただけません", "さしあげません", "あげません", "やりません"],
+    explanation:
+      "鄭重地請對方為我做＝「〜ていただけませんか」＝能不能請您〜（用もらう的自謙可能形）：手伝っていただけませんか。本句是「すみません、（請你）幫我」的請託——「さしあげる」「あげる」「やる」是「（我）為對方做」的方向，跟拜託對方的語境不合。"
+  },
+  {
+    id: "pattern-n4-juju-008",
+    patternId: "n4-juju",
+    promptText: "祖母は私にお金を___。",
+    hintZh: "奶奶給了我錢。",
+    promptContextZh: "「奶奶給了我錢。」",
+    expectedAnswer: "くれました",
+    options: ["くれました", "あげました", "もらいました", "いただきました"],
+    explanation:
+      "家人（祖母）給「我」，一般用「くれる」：祖母が私にくれた。「あげる」是我給、方向相反；「もらう」「いただく」的主語都要是收下的人（私は祖母に）、但這句主語是祖母が＝給的一邊，所以不能用。※祖母＝祖母、奶奶。"
+  }
+];
+
+// ===========================================================================
+// N4 pattern: n4-chikaku -- perception + limiting (#553).
+//   見える/聞こえる (spontaneous) vs 見られる/聞ける (potential) is locked
+//   by the frame: spontaneous items describe what reaches the senses
+//   unbidden (窓から〜が), potential items carry an opportunity condition
+//   (予約すれば〜). しか and ほど pair with an explicit negative predicate;
+//   だけ (takes affirmatives) never shares answerhood with しか.
+// ===========================================================================
+const N4_CHIKAKU_ITEMS: SentencePatternItem[] = [
+  {
+    id: "pattern-n4-chikaku-001",
+    patternId: "n4-chikaku",
+    promptText: "この部屋の窓から海が___。",
+    hintZh: "說從這個房間的窗戶看得到什麼。",
+    promptContextZh: "「從這個房間的窗戶看得到海。」",
+    expectedAnswer: "見えます",
+    options: ["見えます", "見ます", "見せます", "見つかります"],
+    explanation:
+      "風景自然映入眼簾（不靠意志）用「見える」：海が見えます。「見る」是主動看（要用を：海を見る）；「見せる」是給人看；「見つかる」是被找到，都不是自然映入的意思。（「見える」和表『有機會能看』的可能形「見られる」的分別，在下一個機會題會練到。）※海＝海。"
+  },
+  {
+    id: "pattern-n4-chikaku-002",
+    patternId: "n4-chikaku",
+    promptText: "となりの部屋から変な音が___。",
+    hintZh: "說隔壁房間傳來的聲響。",
+    promptContextZh: "「從隔壁房間傳來奇怪的聲音。」",
+    expectedAnswer: "聞こえます",
+    options: ["聞こえます", "聞けます", "聞きます", "聞かせます"],
+    explanation:
+      "聲音自然傳入耳朵用「聞こえる」：変な音が聞こえます。「聞ける」是「能聽到（有機會、如コンサートが聞ける）」——但奇怪的雜音不是特地去聽的對象；「聞く」是主動聽；「聞かせる」是講給人聽，都不是自然入耳。※変な音＝奇怪的聲音。"
+  },
+  {
+    id: "pattern-n4-chikaku-003",
+    patternId: "n4-chikaku",
+    promptText: "予約すれば、工場の中が___。",
+    hintZh: "說預約之後可以做什麼。",
+    promptContextZh: "「只要預約，就可以參觀工廠內部。」",
+    expectedAnswer: "見られます",
+    options: ["見られます", "見えます", "見ます", "見せます"],
+    explanation:
+      "「（有條件、有機會）能看到」用可能形「見られる」：予約すれば見られる＝預約就能參觀。本句「予約すれば」表示是「預約後取得的參觀機會」，強調機會，所以用可能形見られる（而不是自然映入眼簾的見える）。「見る」「見せる」接不上。※予約＝預約、工場＝工廠。"
+  },
+  {
+    id: "pattern-n4-chikaku-004",
+    patternId: "n4-chikaku",
+    promptText: "台所からいい匂い___します。",
+    hintZh: "說廚房飄來香味。",
+    promptContextZh: "「廚房飄來很香的味道。」",
+    expectedAnswer: "が",
+    options: ["が", "を", "に", "で"],
+    explanation:
+      "感覺（味道、聲音、感覺）的知覺用「〜がする」：匂いがする＝聞到味道。這是固定搭配，「を」「に」「で」都不成句。同類：音がする、味がする、感じがする。※台所＝廚房、匂い＝味道・氣味。"
+  },
+  {
+    id: "pattern-n4-chikaku-005",
+    patternId: "n4-chikaku",
+    promptText: "明日は雨が降る___がします。",
+    hintZh: "說自己有種預感。",
+    promptContextZh: "「我有種明天會下雨的感覺。」",
+    expectedAnswer: "気",
+    options: ["気", "の", "こと", "もの"],
+    explanation:
+      "「總覺得〜、有種〜的感覺」用「〜気がする」：降る気がする。「の」「こと」「もの」都接不出這個慣用的「預感、感覺」的意思——気がする 是固定說法。"
+  },
+  {
+    id: "pattern-n4-chikaku-006",
+    patternId: "n4-chikaku",
+    promptText: "今日は昨日___寒くないです。",
+    hintZh: "拿今天跟昨天比，今天沒那麼冷。",
+    promptContextZh: "「今天沒有昨天那麼冷。」",
+    expectedAnswer: "ほど",
+    options: ["ほど", "まで", "と", "に"],
+    explanation:
+      "「沒有〜那麼〜」＝比較句型「Bほど〜ない」：昨日ほど寒くない＝沒有昨天那麼冷。這個比較句型後面固定接否定。「まで」「と」「に」都接不出這個『不及』的比較（と要配同じ/違う、昨日 也不接に）。"
+  },
+  {
+    id: "pattern-n4-chikaku-007",
+    patternId: "n4-chikaku",
+    promptText: "財布に100円___ありません。",
+    hintZh: "說錢包裡只剩一點點。",
+    promptContextZh: "「錢包裡只有一百日圓。」",
+    expectedAnswer: "しか",
+    options: ["しか", "だけ", "ばかり", "まで"],
+    explanation:
+      "「只有〜」配否定用「〜しか〜ない」：100円しかありません＝只有一百日圓。「だけ」也是「只」，但配肯定表『只有』（100円だけあります）；「100円だけありません」文法雖成立、意思卻變成『只有一百日圓沒有（其他都有）』——要表達『只有一百日圓』得用しか。「ばかり」是淨是、「まで」是到〜為止，都接不上。※財布＝錢包。"
+  },
+  {
+    id: "pattern-n4-chikaku-008",
+    patternId: "n4-chikaku",
+    promptText: "みんなに一つ___配ってください。",
+    hintZh: "說每人分到的份量。",
+    promptContextZh: "「請每人發一個。」",
+    expectedAnswer: "ずつ",
+    options: ["ずつ", "しか", "まで", "ごろ"],
+    explanation:
+      "「每（人/次）〜份」的平均分配用「〜ずつ」：一つずつ＝一人一個。「しか」要配否定（一つしか配らない）、放在肯定的請託句不成立；「まで」是到〜為止、「ごろ」是大約某時，都不是「平均分配」的意思。※配る＝分發。"
+  }
+];
+
+// ===========================================================================
 // Lesson-0 pattern A: starter-desu -- the AはBです sentence family (#534).
 //   Absolute-beginner floor: kana-only sentences built from the starter
 //   vocabulary deck. Unique solutions are locked by IN-SENTENCE anchors
@@ -3030,6 +3336,9 @@ export const sentencePatternItems: SentencePatternItem[] = [
   ...N4_KANSETSU_ITEMS,
   ...N4_FUKUGOU_ITEMS,
   ...N4_HENKA_ITEMS,
+  ...N4_JIKAN_ITEMS,
+  ...N4_JUJU_ITEMS,
+  ...N4_CHIKAKU_ITEMS,
   ...TE_KUDASAI_ITEMS,
   ...NAKUTE_MO_II_ITEMS,
   ...TE_MORAU_ITEMS,
