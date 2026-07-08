@@ -2,12 +2,24 @@
   display: grid;
   gap: 1rem;
   grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1.55fr);
+  /* Top-align the columns: the chapter list (left) grew long as chapters were
+   * added, and grid's default align-items:stretch was stretching the detail
+   * panel (right) to match that height -- leaving a huge empty right side
+   * (reported "右邊超長"). Each column now takes its natural height. */
+  align-items: start;
   min-height: 640px;
 }
 
 .chapter-index,
 .chapter-content {
   min-width: 0;
+}
+
+/* With the long chapter list, keep the detail panel in view as you scroll
+   the index rather than leaving it stranded above the fold. */
+.chapter-content {
+  position: sticky;
+  top: 1rem;
 }
 
 .chapter-index {
