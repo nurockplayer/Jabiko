@@ -2763,5 +2763,81 @@ export const learningBlockI18n: LearningBlockOverlays = {
         "ように＋伝達動詞（言う／頼む／注意する）＝依頼・忠告；Vる／Vないように＋自分の意志動作＝目的・防止（忘れないようにメモする）——後ろで見分ける"
       ]
     }
+  },
+  "n3-ukemi-shieki": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Passive / Causative, Advanced",
+      "title": "Passive / Causative / Causative-Passive / Adversative Passive",
+      "explanation": "A review and step-up on passive and causative. Passive (be ~ed) = 「AはBに〜られる」: 先生に褒められた = was praised by the teacher. Causative (make/let ~) = 「AはBに/を〜させる」: 母は弟に部屋を掃除させた = Mom made my brother clean the room. Two advanced ones: the causative-passive 「〜させられる」 = be made to do (you didn't want to but were told to: 父にお酒を飲まされた) — group-1 verbs often contract to 「飲まされる」 in speech (but す-ending ones don't: 話させられる), group-2 stays 「食べさせられる」. The adversative (indirect) passive = suffering from someone's action: 雨に降られた = got rained on (a nuisance); 子どもに泣かれた = the kid cried on me (troublesome) — the verb is intransitive and the sufferer is the subject.",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "Passive: be ~ed (AはBに〜られる).",
+        "Causative: make/let ~ (に/を〜させる).",
+        "Causative-passive: be made to (〜させられる).",
+        "Adversative passive: suffer from (intransitive)."
+      ],
+      "pitfalls": [
+        "Causative-passive contraction: most group-1 verbs contract (飲ませられる→飲まされる, 書かせられる→書かされる), but す-ending ones don't (話す→話させられる, not 話さされる); group-2 never contracts (食べさせられる).",
+        "The adversative passive uses an intransitive verb (降る・泣く・来る) with the sufferer as subject, carrying a \"got inconvenienced\" nuance.",
+        "The passive agent takes 「に」 (先生に褒められた); in a causative with a transitive verb that has an object, the one made to act takes 「に」 (弟に部屋を掃除させた); with an intransitive verb the causee often takes 「を」 (弟を行かせた)."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "受身・使役の発展",
+      "title": "受身 / 使役 / 使役受身 / 迷惑の受身",
+      "explanation": "受身と使役の整理と発展。受身＝「AはBに〜られる」：先生に褒められた。使役＝「AはBに/を〜させる」：母は弟に部屋を掃除させた。発展二つ：使役受身「〜させられる」＝いやでもさせられる（父にお酒を飲まされた）——一類は口語で「飲まされる」と縮む（す結尾は縮まない：話させられる）、二類は「食べさせられる」。迷惑の受身（間接受身）＝他人の動作で迷惑・被害を受ける：雨に降られた；子どもに泣かれた——自動詞で、被害者が主語。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "受身：〜られる（AはBに〜られる）",
+        "使役：〜させる（に/を〜させる）",
+        "使役受身：〜させられる",
+        "迷惑の受身：被害（自動詞）"
+      ],
+      "pitfalls": [
+        "使役受身の縮約：一類の多くは縮む（飲ませられる→飲まされる、書かせられる→書かされる）が、す結尾は縮まない（話す→話させられる、話さされる ではない）。二類は縮まない（食べさせられる）",
+        "迷惑の受身は自動詞（降る・泣く・来る）で被害者が主語。「〜されて困った」ニュアンス",
+        "受身の動作主は「に」（先生に褒められた）。他動詞＋目的語の使役でさせられる人は「に」（弟に部屋を掃除させた）；自動詞なら「を」（弟を行かせた）"
+      ]
+    }
+  },
+  "n3-okage-sei": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Evaluating a Cause",
+      "title": "おかげで / せいで (credit vs blame)",
+      "explanation": "Both say \"because of ~,\" but with the speaker's evaluation attached. 「〜おかげで／おかげだ」 = thanks to ~ (positive — a good result credited to a cause: あなたのおかげで成功した = succeeded thanks to you). 「〜せいで／せいだ」 = because of / it's ~'s fault (negative — a bad result blamed on a cause: 雨のせいで試合が中止になった). 「〜せいか」 = maybe because of ~ (a tentative guess at the cause: 年のせいか、疲れやすい = maybe it's my age, but I tire easily). A neutral, non-judgmental \"because\" is 「〜ため(に)」 (see the purpose/cause chapter).",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "おかげで: thanks to ~ (positive).",
+        "せいで: because of / ~'s fault (negative).",
+        "せいか: maybe because of ~.",
+        "ため(に): neutral because."
+      ],
+      "pitfalls": [
+        "おかげで = credit for a good result (positive); せいで = blame for a bad result (negative) — pick wrong and you flip the judgment.",
+        "せいか is a tentative \"maybe it's because of this,\" softer than せいで.",
+        "「おかげで」 can be used ironically (calling something bad \"thanks to you\"); a neutral cause uses ため(に)."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "原因の評価",
+      "title": "おかげで / せいで（恩恵 vs 非難）",
+      "explanation": "同じ「〜だから」でも話し手の評価が付く。「〜おかげで／おかげだ」＝〜のおかげで（プラス：良い結果を原因のおかげにする：あなたのおかげで成功した）。「〜せいで／せいだ」＝〜のせいで（マイナス：悪い結果を原因のせいにする：雨のせいで試合が中止になった）。「〜せいか」＝〜のせいか（原因の推測、不確か：年のせいか、疲れやすい）。中立で評価のない「〜だから」は「〜ため(に)」（目的・原因章）。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "おかげで：〜のおかげで（プラス）",
+        "せいで：〜のせいで（マイナス）",
+        "せいか：〜のせいか（推測）",
+        "ため(に)：中立の原因"
+      ],
+      "pitfalls": [
+        "おかげで＝良い結果の功績（プラス）、せいで＝悪い結果の責任（マイナス）——選び間違えると評価が逆",
+        "せいか は「〜のせいか（もしれない）」の推測で、せいで より柔らかい",
+        "「おかげで」は皮肉にも使える（悪いことを『おかげで』と言う）。中立の因果は ため(に)"
+      ]
+    }
   }
 };
