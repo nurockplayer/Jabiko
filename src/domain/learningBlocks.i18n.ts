@@ -2375,5 +2375,85 @@ export const learningBlockI18n: LearningBlockOverlays = {
         "「がる」は動詞で、今の状態を描写するときはよく〜ている を使う（ほしがっている／行きたがっている）"
       ]
     }
+  },
+  "n3-jikan-kikan": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Span / Range / Frequency",
+      "title": "最中に / 途中で / から〜にかけて / ごとに・おきに",
+      "explanation": "A set for talking about time more precisely. Beyond 「〜間に」 (a point within a span, learned at N4), there are sharper options. 「〜最中に」 = right in the middle of doing something, often with a sudden or intruding event (食事の最中に電話が来た) — more sharply \"at that very moment\" than 間に. 「〜途中で／途中に」 = in the course of / on the way (帰る途中でパンを買った). 「〜から〜にかけて」 = roughly across from A to B (time or space, vaguer than から〜まで, stressing one continuous stretch: 夜から朝にかけて雨). The frequency pair everyone gets tested on: 「〜ごとに」 = every (the unit included, 三日ごと = every three days, day 1 → day 4); 「〜おきに」 = at intervals of, with the gap skipped (三日おき = a three-day gap, day 1 → day 5).",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "最中に: right at that moment (sudden event).",
+        "途中で: in the course of, on the way.",
+        "途中に: a midway location.",
+        "から〜にかけて: roughly A-to-B range.",
+        "ごとに: every (unit included)."
+      ],
+      "pitfalls": [
+        "ごとに (三日ごと: day 1 → day 4, a 3-day period) vs おきに (三日おき: a 3-day gap between, day 1 → day 5) — one day apart, a favourite exam trap.",
+        "から〜にかけて is a rough \"from A to B\" stretch; use から〜まで for clear start/end points (にかけて can take a time endpoint but still feels approximate, not exact or exhaustive).",
+        "最中に only takes an ongoing action, and the main clause is usually a sudden or intruding event; a plain \"when\" is still とき／間に."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "期間・範囲・頻度",
+      "title": "最中に / 途中で / から〜にかけて / ごとに・おきに",
+      "explanation": "時間を細かく言うためのセット。「〜間に」（期間内の一点、N4で学習）のほかに、より正確な言い方がある。「〜最中に」＝何かをしているまさにその最中で、突発・割り込みの出来事が続くことが多い（食事の最中に電話が来た）。間に より「ちょうどその瞬間」を強調。「〜途中で／途中に」＝過程の途中・道すがら（帰る途中でパンを買った）。「〜から〜にかけて」＝だいたい A から B にかけての一続き（時間・空間。から〜まで より曖昧で、連続したひと続きを強調：夜から朝にかけて雨）。頻度のペアが最頻出：「〜ごとに」＝〜ごと（その単位を含む、三日ごと＝1日目→4日目）；「〜おきに」＝〜おき（間を飛ばす、三日おき＝間に3日あけて、1日目→5日目）。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "最中に：まさにその瞬間（突発の出来事）",
+        "途中で：過程の途中・道すがら",
+        "途中に：中間の位置",
+        "から〜にかけて：だいたい A〜B の範囲",
+        "ごとに：〜ごと（単位を含む）"
+      ],
+      "pitfalls": [
+        "ごとに（三日ごと：1日目→4日目、3日周期）vs おきに（三日おき：間に3日、1日目→5日目）——1日違い、試験の定番",
+        "から〜にかけて は「だいたい A から B」の一続き。明確な起点・終点は から〜まで（にかけて は時刻の端点も置けるが語感はやはり曖昧で、正確・網羅を保証しない）",
+        "最中に は「進行中」の事にだけ付き、主節はたいてい突発・割り込み。ふつうの「〜のとき」は とき／間に"
+      ]
+    }
+  },
+  "n3-jikan-keiki": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Trigger / Sequence",
+      "title": "たとたん / たびに / ついでに / てはじめて / てからでないと",
+      "explanation": "Trigger and ordering between actions. 「〜たとたん(に)」 = the instant ~ (sudden, unexpected, uncontrolled; ドアを開けたとたん、猫が飛び出した) — the two events are near-simultaneous and the second is unforeseen. 「〜たびに」 = every time ~ (each occurrence; 会うたびにけんかする). 「〜ついでに」 = while doing A, also do B (taking the opportunity; 買い物のついでに、郵便局に寄った). 「〜てはじめて」 = only after ~ (realizing for the first time; 親になってはじめて、親のありがたさがわかった). 「〜てからでないと／てからでなければ」 = unless you first ~ (a prerequisite; 手を洗ってからでないと、食べられない).",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "たとたん: the instant ~ (sudden, unexpected).",
+        "たびに: every time ~.",
+        "ついでに: while at it, also.",
+        "てはじめて: only after ~ (realizing).",
+        "てからでないと: unless you first ~."
+      ],
+      "pitfalls": [
+        "The たとたん main clause is usually a sudden, unexpected result and can't take the speaker's volition, command, request, or plan (×〜しよう／〜してください) — use 「たら」 for those.",
+        "With ついでに, A is the main goal and B is just tacked on; reversing the priority sounds off.",
+        "てはじめて carries an \"I didn't get it before, now I do\" epiphany, often with わかった／気づいた; plain time-sequence is just てから."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "契機・順序",
+      "title": "たとたん / たびに / ついでに / てはじめて / てからでないと",
+      "explanation": "動作どうしの契機と前後関係。「〜たとたん(に)」＝〜した瞬間に…（突然・意外・不可抗；ドアを開けたとたん、猫が飛び出した）——二つの出来事がほぼ同時で、後件は予想外。「〜たびに」＝〜するたびに…（毎回そうなる；会うたびにけんかする）。「〜ついでに」＝Aをする機会にBもする（買い物のついでに、郵便局に寄った）。「〜てはじめて」＝〜して初めて…（初めて実感する；親になってはじめて、親のありがたさがわかった）。「〜てからでないと／てからでなければ」＝まず〜しないと…できない（前提条件；手を洗ってからでないと、食べられない）。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "たとたん：〜した瞬間（突然・意外）",
+        "たびに：〜するたびに",
+        "ついでに：ついでにBも",
+        "てはじめて：〜して初めて（実感）",
+        "てからでないと：まず〜しないと"
+      ],
+      "pitfalls": [
+        "たとたん の主節は突然・意外の結果が多く、話者の意志・命令・依頼・予定は付かない（×〜しよう／〜してください）——それらは「たら」",
+        "ついでに は A が主目的で B はついで。主従が逆だと不自然",
+        "てはじめて は「今まで分からず、経てやっと分かる」実感を伴い、わかった／気づいた と共起。単なる時間順は てから"
+      ]
+    }
   }
 };
