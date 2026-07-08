@@ -275,6 +275,36 @@ describe("exam content guard", () => {
       `語順組合 fragments not in answer order: ${offenders.join(" | ")}`
     ).toEqual([]);
   });
+
+  it("shows the target word in ≥2 options on 用法 items (not only the answer)", () => {
+    // A vocabulary-usage (詞彙用法 / 語彙用法) item must present the SAME target
+    // word in several different sentences so the learner judges by naturalness.
+    // If the word appears in only the correct option, the item is trivially
+    // guessable by spotting the word (the reported n3-usage-komu 込む flaw).
+    // Contract: the target's kanji stem appears in at least 2 of the 4 options.
+    // Scope: only surfaces that CONTAIN kanji -- the kanji stem (e.g. 込 in 込む)
+    // survives conjugation (込んで/込んだ), so a substring check is reliable.
+    // Pure-kana verbs (こじつける → こじつけて) would need conjugation-aware
+    // stemming, which is too fragile here; those are left to the LLM sweep.
+    const USAGE_LABELS = new Set(["詞彙用法", "語彙用法"]);
+    const offenders: string[] = [];
+    for (const question of examStyleQuestions) {
+      if (!USAGE_LABELS.has(question.promptLabel ?? "")) continue;
+      const options = question.options ?? [];
+      if (options.length < 2) continue;
+      const kanjiRuns = question.vocabulary.surface.match(/[一-鿿]+/g);
+      if (!kanjiRuns || kanjiRuns.length === 0) continue; // kana-only surface
+      const target = kanjiRuns.reduce((a, b) => (b.length > a.length ? b : a));
+      const hits = options.filter((option) => option.includes(target)).length;
+      if (hits < 2) {
+        offenders.push(`${question.id} (kanji "${target}" in ${hits}/${options.length} options)`);
+      }
+    }
+    expect(
+      offenders,
+      `用法 items with the target word in <2 options (guessable): ${offenders.join(" | ")}`
+    ).toEqual([]);
+  });
 });
 
 // Per-pattern banlist: phrases that would tip off the answer if they
