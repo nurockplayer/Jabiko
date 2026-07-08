@@ -2687,5 +2687,81 @@ export const learningBlockI18n: LearningBlockOverlays = {
         "「〜だけでなく」は中立、「〜ばかりでなく」はやや書き言葉（ばかり章）、「〜のみならず」は書き言葉——語体が違う"
       ]
     }
+  },
+  "n3-joutai": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "State / Appearance",
+      "title": "だらけ / ずに / がする",
+      "explanation": "A set for describing states and appearances. 「〜だらけ」 = full of, covered in (noun + だらけ, usually negative: 泥だらけ = covered in mud; 間違いだらけ = riddled with mistakes). 「〜ずに」 = without ~ing (the written-style ないで: 何も言わずに帰った = left without saying anything) — note that する becomes 「せずに」. 「〜がする」 = there's (a sense of) ~ (perception: 音・匂い・味・気・感じ がする; いい匂いがする = there's a nice smell; 気がする = I have a feeling) — you met 音・匂い at N4; here's the full set.",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "だらけ: full of ~ (often negative).",
+        "ずに: without ~ing (written ないで).",
+        "する → せずに (irregular).",
+        "がする: a sense of ~ (perception)."
+      ],
+      "pitfalls": [
+        "だらけ takes a noun and is almost always negative (泥・間違い・借金だらけ); a neutral \"full of\" is 「〜でいっぱい」.",
+        "ずに = ないで (written style); the する form is 「せずに」, not 「しずに」.",
+        "The object of がする takes が (匂いがする); 「気がする」 = have a feeling / a hunch (plain form + 気がする)."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "状態・様子",
+      "title": "だらけ / ずに / がする",
+      "explanation": "状態・様子を描くセット。「〜だらけ」＝〜だらけ（名詞＋だらけ、多くマイナス：泥だらけ；間違いだらけ）。「〜ずに」＝〜しないで（書き言葉の ないで：何も言わずに帰った）——する は「せずに」。「〜がする」＝〜がする（知覚：音・匂い・味・気・感じ がする；いい匂いがする；気がする）——N4 で音・匂いを学習、ここで全体をそろえる。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "だらけ：〜だらけ（多く負）",
+        "ずに：〜しないで（書き言葉）",
+        "する→せずに（不規則）",
+        "がする：知覚"
+      ],
+      "pitfalls": [
+        "だらけ は名詞に付き、ほぼマイナス（泥・間違い・借金だらけ）。中立の「いっぱい」は「〜でいっぱい」",
+        "ずに＝ないで（書き言葉）。する の形は「せずに」、「しずに」ではない",
+        "がする の対象は が（匂いがする）。「気がする」＝なんとなくそう思う（普通形＋気がする）"
+      ]
+    }
+  },
+  "n3-ganbou": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Wish / Request",
+      "title": "てほしい / といい・ばいい / ように (request/advice)",
+      "explanation": "A set for wanting someone to act, or expressing a wish. 「〜てほしい」 = want (someone else) to ~ (unlike 〜たい, your own wish: 手伝ってほしい = I want you to help; the negative is 〜ないでほしい). 「〜といい／〜ばいい／〜たらいい」 = it'd be good if ~, I hope ~ (雨が降るといい; どうすればいい? = what should I do?). 「〜ように」 (request/advice) = tell someone to ~ (followed by a reporting verb like 言う・頼む・注意する: 早く来るように言った = told them to come early; 忘れ物をしないように注意した) — same form as the purpose ように (忘れないようにメモする, see n3-mokuteki); tell them apart by whether a reporting verb or your own willed action follows.",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "てほしい: want (someone else) to ~.",
+        "といい: I hope ~ (wish).",
+        "ばいい: what to do (advice).",
+        "ように + 言う: telling someone to ~."
+      ],
+      "pitfalls": [
+        "「〜たい」 is your own wish to do; 「〜てほしい」 is wanting someone else to do — different subjects, don't mix them.",
+        "といい／ばいい／たらいい all express a wish or suggestion; \"what should I do\" is usually 「どうすればいい／どうしたらいい」.",
+        "ように + a reporting verb (言う／頼む／注意する) = request/advice (telling someone to ~); Vる／Vない ように + your own willed action = purpose/prevention (忘れないようにメモする) — tell them apart by what follows."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "願望・依頼",
+      "title": "てほしい / といい・ばいい / ように（依頼・忠告）",
+      "explanation": "人に〜してほしい、あるいは願望を表すセット。「〜てほしい」＝（相手に）〜してほしい（自分の願望の〜たい とは別：手伝ってほしい。否定は〜ないでほしい）。「〜といい／〜ばいい／〜たらいい」＝〜といい・〜ばいい（雨が降るといい；どうすればいい？）。「〜ように」（依頼・忠告）＝〜するように（後ろに言う・頼む・注意する などの伝達動詞：早く来るように言った；忘れ物をしないように注意した）——目的・防止の ように（忘れないようにメモする、n3-mokuteki）と同形、後ろが伝達動詞か自分の意志動作かで見分ける。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "てほしい：（相手に）〜してほしい",
+        "といい：〜といい（願望）",
+        "ばいい：どうすればいい（助言）",
+        "ように＋言う：〜するように（依頼）"
+      ],
+      "pitfalls": [
+        "「〜たい」は自分がしたい、「〜てほしい」は相手にしてほしい——主体が違う",
+        "といい／ばいい／たらいい はどれも願望・提案。「どうしたらいいか」は「どうすればいい／どうしたらいい」",
+        "ように＋伝達動詞（言う／頼む／注意する）＝依頼・忠告；Vる／Vないように＋自分の意志動作＝目的・防止（忘れないようにメモする）——後ろで見分ける"
+      ]
+    }
   }
 };
