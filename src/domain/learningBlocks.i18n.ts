@@ -2535,5 +2535,81 @@ export const learningBlockI18n: LearningBlockOverlays = {
         "ないことはない は二重否定の「留保つきの肯定」（なんとか可能、まったく不可能ではない）で控えめ。強い肯定ではない"
       ]
     }
+  },
+  "n3-teido-hikaku": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Degree / Comparison",
+      "title": "ほど / ほど〜はない / くらい / に比べて",
+      "explanation": "Degree and comparison — \"how much / to what extent / compared to.\" 「〜ほど」 = to the extent of (死ぬほど疲れた = dead tired; 三日ほど休む = rest about three days) — marks a degree, whether an exaggerated figure of speech or a plain objective amount. 「〜ほど〜はない／〜くらい〜はない」 = nothing is more ~ than (a superlative: 富士山ほど美しい山はない) — ほど takes the top standard, and 「〜はない／いない」 denies that anything more ~ exists. 「〜くらい／〜ぐらい」 = about, to the degree of (子どもでもわかるくらい簡単 = so simple even a child gets it) — more colloquial, approximate, for examples or a bare minimum; ほど leans toward \"reaching a standard.\" 「〜に比べて」 = compared with (去年に比べて、今年は暑い).",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "ほど: to the extent of.",
+        "ほど〜はない: superlative (nothing more ~).",
+        "くらい: to the degree of.",
+        "に比べて: compared with."
+      ],
+      "pitfalls": [
+        "「Nほど〜Nはない」 = nothing of the same kind is more ~ than N (superlative); 「AはBほど〜ない」 = A isn't as ~ as B (comparison-negative, from N4) — same ほど, judge by the pattern.",
+        "In the superlative, the noun before 「〜はない／いない」 is the compared set being denied (美しい山はない / 速い人はいない); the noun before ほど is the top standard, not the subject.",
+        "くらい／ぐらい lean colloquial / approximate / example / \"bare minimum\" (死ぬくらい疲れた is fine); ほど leans toward reaching a standard. に比べて / と比べて both work — に as the baseline, と as the thing held up for contrast."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "程度・比較",
+      "title": "ほど / ほど〜はない / くらい / に比べて",
+      "explanation": "「どのくらい／どれほど／〜に比べて」の程度と比較。「〜ほど」＝〜くらいの程度（死ぬほど疲れた；三日ほど休む）——誇張したたとえのことも、客観的な量のこともある。「〜ほど〜はない／〜くらい〜はない」＝〜より〜なものはない（最上級：富士山ほど美しい山はない）——ほど が最高の基準を取り、「〜はない／いない」がそれ以上〜なものの存在を否定。「〜くらい／〜ぐらい」＝だいたい・〜の程度（子どもでもわかるくらい簡単）——口語・おおよそ・例示・最低限より。ほど は「基準に達する」寄り。「〜に比べて」＝〜と比べて（去年に比べて、今年は暑い）。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "ほど：〜くらいの程度",
+        "ほど〜はない：最上級（〜より〜はない）",
+        "くらい：〜の程度",
+        "に比べて：〜と比べて"
+      ],
+      "pitfalls": [
+        "「Nほど〜Nはない」＝同類でN より〜なものはない（最上級）；「AはBほど〜ない」＝A は B ほど〜ではない（比較の否定、N4）——同じ ほど、文型で見分ける",
+        "最上級の「〜はない／いない」の前は否定される比較の集合（美しい山はない／速い人はいない）。ほど の前の名詞は最高の基準で、主語ではない",
+        "くらい／ぐらい は口語・おおよそ・例示・最低限寄り（死ぬくらい疲れた も可）。ほど は基準に達する寄り。に比べて／と比べて はどちらも可、に は基準、と は対照"
+      ]
+    }
+  },
+  "n3-kyouchou": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Emphasis / Focus",
+      "title": "こそ / さえ・でさえ / など・なんか・なんて / だけで",
+      "explanation": "A set that singles out one element for emphasis. 「〜こそ」 = precisely, exactly (今度こそ成功する = this time for sure; こちらこそ). 「〜さえ／〜でさえ」 = even, going so far as (子どもでさえ知っている = even a child knows) — spotlight an unexpected, extreme, or minimal case to imply the rest goes without saying. 「〜など／〜なんか／〜なんて」 = ~ and the like: など leans written / listing, なんか colloquial (disdain or self-deprecation), なんて colloquial (disdain, or heading a whole clause of surprise: 合格するなんて！). 「〜だけで」 = just by ~ (見ただけで泣いた = cried just from looking).",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "こそ: precisely, this time for sure.",
+        "でさえ: even (unexpected/extreme example).",
+        "なんか: ~ and the like (colloquial).",
+        "だけで: just by ~."
+      ],
+      "pitfalls": [
+        "The focus 「さえ」 (even) vs the conditional (only if ~): the conditional is 「Xさえ + conditional」 (さえ〜ば / さえすれば / でさえあれば) — look for the \"only if\" shape, not just a ば.",
+        "など／なんか／なんて aren't a simple neutral→scornful line: など leans written / listing (can also belittle or be humble), なんか is colloquial (disdain or self-deprecation), なんて is colloquial (disdain, quoting a whole clause, or surprise).",
+        "こそ is positive emphasis (this very one); でさえ cites an unexpected/extreme example; だけで is \"just from this alone\" — three different kinds of emphasis."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "強調・取り立て",
+      "title": "こそ / さえ・でさえ / など・なんか・なんて / だけで",
+      "explanation": "ある要素を「特に取り立てて」強調するセット。「〜こそ」＝まさに〜、〜こそ（今度こそ成功する；こちらこそ）。「〜さえ／〜でさえ」＝〜さえ・〜すら（子どもでさえ知っている）——意外・極端・最低限の例を取り立て、他は言うまでもないと示す。「〜など／〜なんか／〜なんて」＝〜など：など は書き言葉・列挙寄り、なんか は口語（軽視や謙遜）、なんて は口語（軽視、文を丸ごと引用、意外も：合格するなんて！）。「〜だけで」＝〜だけで（見ただけで泣いた）。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "こそ：まさに・今度こそ",
+        "でさえ：〜さえ（意外・極端な例）",
+        "なんか：〜など（口語）",
+        "だけで：〜だけで"
+      ],
+      "pitfalls": [
+        "取り立ての「さえ」（〜さえ）と条件（〜さえ〜ば）は別物——条件は「Xさえ＋条件形」（さえ〜ば／さえすれば／でさえあれば）。「〜さえ〜ば＝〜しさえすれば」の形かどうかを見る、ば の有無だけではない",
+        "など／なんか／なんて は単純な中立→軽蔑ではない：など は書き言葉・列挙寄り（軽視・謙遜も）、なんか は口語（軽視・謙遜）、なんて は口語（軽視・丸ごと引用・意外）",
+        "こそ は肯定の強調（まさにこれ）、でさえ は意外・極端な例、だけで は「これだけで」——三種の違う強調"
+      ]
+    }
   }
 };
