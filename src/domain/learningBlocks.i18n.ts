@@ -2839,5 +2839,81 @@ export const learningBlockI18n: LearningBlockOverlays = {
         "「おかげで」は皮肉にも使える（悪いことを『おかげで』と言う）。中立の因果は ため(に)"
       ]
     }
+  },
+  "n3-keishiki-meishi": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Formal Nouns",
+      "title": "ことがある / まま / ふりをする",
+      "explanation": "Formal-noun uses that nominalize a verb phrase. 「Vることがある」 = sometimes ~, it sometimes happens that ~ (たまに学校に遅れることがある = sometimes I'm late) — a different attachment and meaning from 「Vたことがある」 (experience, N4). 「〜まま／〜たまま」 = leaving in a state (reviewed from N4: めがねをかけたまま寝た = fell asleep with my glasses on; the ない-form works too: 何も食べないまま出かけた). 「〜ふりをする」 = pretend to (知らないふりをする = pretend not to know; 寝たふり = pretend to sleep) — verb / い-adjective plain form + ふり, な-adjective stem + なふり (元気なふり), noun + のふり (病気のふり).",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "Vることがある: sometimes ~ (habit).",
+        "たまま: leaving in a state (N4 review).",
+        "ふりをする: pretend to.",
+        "〜のふり: pretend (noun)."
+      ],
+      "pitfalls": [
+        "Vることがある (sometimes ~, occasionally happens) ≠ Vたことがある (have once ~, experience) — the attachment (dictionary vs た form) sets the meaning.",
+        "Before まま: a done state takes た (つけたまま), an undone one takes ない (消さないまま).",
+        "ふりをする attachment: verb / い-adj + ふり, な-adjective + なふり (元気なふり, not 元気だふり), noun + のふり (病気のふり)."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "形式名詞",
+      "title": "ことがある / まま / ふりをする",
+      "explanation": "動詞句を名詞化する形式名詞の用法。「Vることがある」＝時々〜する（現在の習慣：たまに学校に遅れることがある）——「Vたことがある」（経験、N4）とは接続も意味も違う。「〜まま／〜たまま」＝そのままの状態（N4 の復習：めがねをかけたまま寝た；ない形も：何も食べないまま出かけた）。「〜ふりをする」＝〜ふりをする（知らないふりをする；寝たふり）——動詞・形容詞の普通形＋ふりをする。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "Vることがある：時々〜する（習慣）",
+        "たまま：そのままの状態（N4 復習）",
+        "ふりをする：〜ふりをする",
+        "〜のふり：ふり（名詞）"
+      ],
+      "pitfalls": [
+        "Vることがある（時々〜する、現在の習慣）≠ Vたことがある（経験）——接続（辞書形/た形）で意味が決まる",
+        "まま の前：した状態は た形（つけたまま）、していない状態は ない形（消さないまま）",
+        "ふりをする＝ふりをする（知っていて知らない/聞こえないふり）。名詞は「〜のふり」（病気のふり）"
+      ]
+    }
+  },
+  "n3-hanashi-kotoba": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Speech / Sentence-final",
+      "title": "Contractions ちゃう・とく・なきゃ / もの・もん",
+      "explanation": "The colloquial contractions and sentence-final forms you meet constantly in listening and conversation. Contractions: 「〜ちゃう／じゃう」 = 〜てしまう／でしまう (食べちゃった = ate it all up / ate it by accident); 「〜とく／どく」 = 〜ておく／でおく (やっとく = do it in advance; 飲んどく = 飲んでおく); 「〜てる」 = 〜ている (待ってる); 「〜なきゃ／なくちゃ」 = なければ／なくては (帰らなきゃ; なきゃ is なければ with the following ならない／いけない dropped, from N4). Sentence-final: 「〜もの／もん」 = giving a reason or excuse (a pouting/coaxing tone: だって、疲れたもん = but I'm tired!) — colloquial, もん more casual than もの.",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "ちゃう = てしまう (done / by accident).",
+        "とく = ておく (in advance).",
+        "なきゃ = なければ (…ならない dropped).",
+        "もん: reason / excuse."
+      ],
+      "pitfalls": [
+        "Un-contracting: ちゃう→てしまう, じゃう→でしまう, とく→ておく, どく→でおく (飲んどく = 飲んでおく), てる→ている, なきゃ→なければ (…ならない dropped), なくちゃ→なくては.",
+        "Verbs ending in ぐ・ぬ・ぶ・む take the で-series, and so do their contractions: 飲んでしまう→飲んじゃう, 飲んでおく→飲んどく.",
+        "もの／もん at the end gives a reason with a \"but you see… / I just…\" excusing tone; not for formal settings."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "話し言葉・文末",
+      "title": "縮約形 ちゃう・とく・なきゃ / もの・もん",
+      "explanation": "聴解・会話で頻出の口語の縮約と文末表現。縮約形：「〜ちゃう／じゃう」＝〜てしまう／でしまう（食べちゃった）；「〜とく／どく」＝〜ておく／でおく（やっとく；飲んどく＝飲んでおく）；「〜てる」＝〜ている（待ってる）；「〜なきゃ／なくちゃ」＝なければ／なくては（帰らなきゃ。なきゃ は なければ〔ならない／いけない〕の後半省略、N4）。文末：「〜もの／もん」＝理由・言い訳（すねる・甘える口調：だって、疲れたもん）——口語で、もん は もの よりくだけている。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "ちゃう＝てしまう（完了/うっかり）",
+        "とく＝ておく（前もって）",
+        "なきゃ＝なければ（ならない省略）",
+        "もん：理由・言い訳"
+      ],
+      "pitfalls": [
+        "元に戻す：ちゃう→てしまう、じゃう→でしまう、とく→ておく、どく→でおく（飲んどく＝飲んでおく）、てる→ている、なきゃ→なければ（ならない省略）、なくちゃ→なくては",
+        "ぐ・ぬ・ぶ・む で終わる動詞は で 系、縮約も で 系：飲んでしまう→飲んじゃう、飲んでおく→飲んどく",
+        "もの／もん は文末で理由を述べ、「だって〜んだもん」の言い訳口調。改まった場では使わない"
+      ]
+    }
   }
 };
