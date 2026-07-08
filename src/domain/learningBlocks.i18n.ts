@@ -2611,5 +2611,81 @@ export const learningBlockI18n: LearningBlockOverlays = {
         "こそ は肯定の強調（まさにこれ）、でさえ は意外・極端な例、だけで は「これだけで」——三種の違う強調"
       ]
     }
+  },
+  "n3-kooo-fukushi": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Adverb Agreement",
+      "title": "決して / なかなか / 別に〜ない / 今にも〜そうだ",
+      "explanation": "Some adverbs demand a particular ending — \"agreement,\" a staple of reading and grammar questions. Negative agreement: 「決して〜ない」 = absolutely not, by no means (a strong negation: 決して忘れない / 決して悪い人ではない); 「なかなか〜ない」 = won't ~ easily, just won't ~ (expected but not happening: バスがなかなか来ない); 「別に〜ない」 = not particularly, nothing much (別に問題ない). Aspect agreement: 「今にも〜そうだ」 = about to ~ any moment (今にも雨が降りそうだ). See the adverb up front and you can predict the ending.",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "決して〜ない: absolutely not.",
+        "なかなか〜ない: won't ~ easily.",
+        "別に〜ない: not particularly.",
+        "今にも〜そうだ: about to ~ any moment."
+      ],
+      "pitfalls": [
+        "「決して」 almost always pairs with a negative; 「なかなか」 and 「別に」 depend on the ending — they carry a specific nuance when negative and mean something else when affirmative (below).",
+        "なかなか + affirmative = quite, rather (なかなかおいしい); なかなか + negative = won't ~ easily. 別に + negative = not particularly (the colloquial 別にいい／別に is this same 別に) — judge by the ending.",
+        "今にも〜そうだ = \"about to happen (a predictable change right before your eyes: rain, collapsing, crying…),\" taking the ます-stem (降りそう／倒れそう); different from the hearsay そうだ (plain form)."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "副詞の呼応",
+      "title": "決して / なかなか / 別に〜ない / 今にも〜そうだ",
+      "explanation": "ある副詞が出ると文末が特定の形になる——これが「呼応」で、読解・文法の定番。否定の呼応：「決して〜ない」＝決して〜ない・断じて〜ない（強い否定：決して忘れない／決して悪い人ではない）；「なかなか〜ない」＝なかなか〜ない（期待しても起こらない：バスがなかなか来ない）；「別に〜ない」＝特に〜ない（別に問題ない）。様態の呼応：「今にも〜そうだ」＝今にも〜しそうだ（今にも雨が降りそうだ）。前の副詞を見たら文末を予測する。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "決して〜ない：断じて〜ない",
+        "なかなか〜ない：なかなか〜ない",
+        "別に〜ない：特に〜ない",
+        "今にも〜そうだ：今にも〜しそう"
+      ],
+      "pitfalls": [
+        "「決して」はほぼ必ず否定と呼応。「なかなか」「別に」は文末しだい——否定では特定の語感、肯定では別の意味（下）",
+        "なかなか＋肯定＝かなり・けっこう（なかなかおいしい）；なかなか＋否定＝なかなか〜ない。別に＋否定＝特に〜ない（口語の「別にいい／別に」も同じ 別に）——文末で見分ける",
+        "今にも〜そうだ は「今にも（目の前の変化が）起こりそう」（雨・倒れる・泣く…）で ます形の語幹に付く（降りそう／倒れそう）。伝聞の そうだ（普通形接続）とは別"
+      ]
+    }
+  },
+  "n3-heiretsu": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Coordination / Addition",
+      "title": "だけでなく〜も / はもちろん / も〜ば〜も",
+      "explanation": "A set for coordinating and adding items. 「〜だけでなく〜も」 = not only ~ but also (英語だけでなく、中国語も話せる = can speak not only English but Chinese). 「〜はもちろん(〜も)」 = ~ of course, and also (漢字はもちろん、ひらがなも書けない = can't even write hiragana, let alone kanji) — the first item is taken for granted, the second is the point. 「〜も〜ば〜も／〜も〜なら〜も」 = both ~ and ~ (頭もよければ、性格もいい = both smart and good-natured) — 「ば／なら」 strings two parallel items together.",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "だけでなく〜も: not only ~ but also.",
+        "はもちろん: ~ of course (and also).",
+        "も〜ば〜も: both ~ and ~.",
+        "〜し: (near) listing reasons / coordination."
+      ],
+      "pitfalls": [
+        "はもちろん takes the first item as a given, with the weight on the second (even ~); だけでなく is a plain \"not only A but also B.\"",
+        "The ば in も〜ば〜も isn't a conditional — it strings two parallel items (頭もよ『ければ』…); don't read it as a hypothesis.",
+        "For \"not only,\" だけでなく (neutral) / ばかりでなく (a touch written, see the ばかり chapter) / のみならず (written) differ in register."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "並列・添加",
+      "title": "だけでなく〜も / はもちろん / も〜ば〜も",
+      "explanation": "二つを並べる・付け足すセット。「〜だけでなく〜も」＝〜だけでなく〜も（英語だけでなく、中国語も話せる）。「〜はもちろん(〜も)」＝〜はもちろん〜も（漢字はもちろん、ひらがなも書けない）——前は当然、後ろが重点。「〜も〜ば〜も／〜も〜なら〜も」＝〜も〜し〜も（頭もよければ、性格もいい）——「ば／なら」で二つの並列項をつなぐ。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "だけでなく〜も：〜だけでなく〜も",
+        "はもちろん：〜はもちろん〜も",
+        "も〜ば〜も：〜も〜し〜も",
+        "〜し：（近義）理由の列挙・並列"
+      ],
+      "pitfalls": [
+        "はもちろん は前を当然とし、重点は後ろ（〜も）。だけでなく は素直に「AだけでなくBも」",
+        "も〜ば〜も の「ば」は条件ではなく、二つの並列項をつなぐ（頭もよ『ければ』…）。仮定と読まない",
+        "「〜だけでなく」は中立、「〜ばかりでなく」はやや書き言葉（ばかり章）、「〜のみならず」は書き言葉——語体が違う"
+      ]
+    }
   }
 };
