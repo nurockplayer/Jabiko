@@ -2455,5 +2455,85 @@ export const learningBlockI18n: LearningBlockOverlays = {
         "てはじめて は「今まで分からず、経てやっと分かる」実感を伴い、わかった／気づいた と共起。単なる時間順は てから"
       ]
     }
+  },
+  "n3-fukugou-aspect": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Stages of an Action",
+      "title": "かける / きる / っぱなし / 一方だ / 直す / ようとする",
+      "explanation": "A whole set for what stage an action is at (attachments differ: かける/きる/っぱなし/直す take the ます-stem; 一方だ takes the dictionary form; (よ)うとする takes the volitional). 「〜かける／〜かけの」 = halfway, about to start (言いかけてやめた = broke off mid-sentence; 食べかけのパン = half-eaten bread). 「〜きる」 = do thoroughly, to the end (使いきる = use up); 「〜きれる／〜きれない」 = (can't) finish (食べきれない = can't finish eating). 「〜っぱなし」 = (1) leave as is (電気をつけっぱなし = left the light on) or (2) keep doing without a break (立ちっぱなし = kept standing, often a burden). 「〜一方だ」 = dictionary form + 一方だ, keeps heading one way (a one-directional trend, often negative: 物価は上がる一方だ = prices just keep rising). 「〜直す」 = redo (書き直す = rewrite). 「〜(よ)うとする」 = volitional + とする, be about to / try to (帰ろうとした時); 「〜(よ)うとしない」 = for a willful subject \"refuses to\" (話を聞こうとしない), for a non-volitional one \"shows no sign of ~ing\" (雨がやもうとしない = the rain won't let up).",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "かける: halfway done.",
+        "きる: do it thoroughly.",
+        "きれない: can't finish.",
+        "っぱなし: leave as is / keep doing.",
+        "一方だ: one-way trend (often negative)."
+      ],
+      "pitfalls": [
+        "Attachments: かける/きる/っぱなし/直す take the ます-stem; 一方だ takes the dictionary form; (よ)うとする takes the volitional — not all ます-stem.",
+        "っぱなし has two senses: (1) leave-as-is (つけっぱなし, left when you should've dealt with it — negative) and (2) unbroken action (立ちっぱなし = kept standing, often a burden); a plain neutral \"kept state\" is 〜たまま.",
+        "(よ)うとしない: with a person = won't/refuses to (often frustrated); with a non-volitional thing = shows no sign of changing (雨がやもうとしない)."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "動作の段階",
+      "title": "かける / きる / っぱなし / 一方だ / 直す / ようとする",
+      "explanation": "動作がどの段階かを表すセット（接続は別々：かける/きる/っぱなし/直す は ます形の語幹、一方だ は辞書形、(よ)うとする は意向形）。「〜かける／〜かけの」＝途中まで・し始める（言いかけてやめた；食べかけのパン）。「〜きる」＝すっかりし終える・し尽くす（使いきる）；「〜きれる／〜きれない」＝し終えられる（ない）（食べきれない）。「〜っぱなし」＝①放置する（電気をつけっぱなし）②切れ目なく続ける（立ちっぱなし、負担を伴うことが多い）。「〜一方だ」＝辞書形＋一方だ、一方向に進み続ける（多くマイナス：物価は上がる一方だ）。「〜直す」＝やり直す（書き直す）。「〜(よ)うとする」＝意向形＋とする、〜しようとする（帰ろうとした時）；「〜(よ)うとしない」＝意志ある人なら「どうしても〜しない」（話を聞こうとしない）、無意志の物なら「〜する気配がない」（雨がやもうとしない）。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "かける：途中まで",
+        "きる：すっかりし終える",
+        "きれない：し終えられない",
+        "っぱなし：放置／続ける",
+        "一方だ：一方向の傾向（多く負）"
+      ],
+      "pitfalls": [
+        "接続：かける/きる/っぱなし/直す は ます形語幹、一方だ は辞書形、(よ)うとする は意向形——全部 ます形ではない",
+        "っぱなし は二種：①放置（つけっぱなし、片づけるべきなのに放置、負）②切れ目なく続ける（立ちっぱなし、負担を伴う）。単なる中性の「状態保持」は 〜たまま",
+        "（よ）うとしない：人＝どうしても〜しない（不満を伴う）、無意志の物＝〜する気配がない（雨がやもうとしない）"
+      ]
+    }
+  },
+  "n3-gimu": {
+    "en": {
+      "category": "N3 Grammar",
+      "kicker": "Obligation / Natural / No Need",
+      "title": "べきだ / ことはない / ないこともない / こと / 必要がある",
+      "explanation": "The set for \"should / no need to / have to.\" 「〜べきだ／〜べきではない」 = (morally/logically) should / shouldn't (謝るべきだ = ought to apologize) — an assertion carrying the speaker's judgment; attaches to the dictionary form, and する takes 「すべき」 or 「するべき」. 「〜ことはない」 = there's no need to (心配することはない = no need to worry) — reassuring or dissuading. 「〜ないことはない／〜ないこともない」 = it's not that you can't (a double negative = partial, reserved affirmation: 食べられないことはない = it's not that I can't eat it — I sort of can). 「〜こと」 (sentence-final) = a rule/instruction (廊下を走らないこと = no running in the hall). 「〜必要がある」 = there is a need to (予約する必要がある).",
+      "drillNote": "* This chapter is a grammar overview; use the button to drill the N3 grammar-form multiple-choice bank and get comfortable as you go.",
+      "notes": [
+        "べきだ: (logically) should.",
+        "ことはない: no need to.",
+        "ないこともない: it's not that you can't.",
+        "こと: a rule (sentence-final).",
+        "必要がある: there's a need to."
+      ],
+      "pitfalls": [
+        "べきだ is a \"logically ought to\" assertion (a judgment); 「必要がある」 is an objective \"there's a need\" — different tone.",
+        "ことはない (no need, dissuading) ≠ Vることがある (sometimes happens) ≠ Vたことがある (have once done) — the attachment and the meaning both differ.",
+        "ないことはない is a double-negative \"reserved yes\" (sort of possible, not entirely impossible), soft — not a strong affirmation."
+      ]
+    },
+    "ja": {
+      "category": "N3 文法",
+      "kicker": "義務・当然・不要",
+      "title": "べきだ / ことはない / ないこともない / こと / 必要がある",
+      "explanation": "「〜すべき／〜しなくていい／〜しなければ」の評価と義務のセット。「〜べきだ／〜べきではない」＝（道理として）〜すべき／すべきでない（謝るべきだ）——話し手の判断を伴う主張。辞書形に付き、する は「すべき」か「するべき」。「〜ことはない」＝〜する必要はない（心配することはない）——相手を慰める・とめる。「〜ないことはない／〜ないこともない」＝〜しないわけではない（二重否定＝部分肯定・留保：食べられないことはない）。「〜こと」（文末）＝規則・指示（廊下を走らないこと）。「〜必要がある」＝〜する必要がある（予約する必要がある）。",
+      "drillNote": "※ この章は文法の整理。ボタンで N3 文法の形式選択問題を練習し、練習しながら慣れていく。",
+      "notes": [
+        "べきだ：（道理として）すべき",
+        "ことはない：〜する必要はない",
+        "ないこともない：しないわけではない",
+        "こと：規則（文末）",
+        "必要がある：〜する必要がある"
+      ],
+      "pitfalls": [
+        "べきだ は「道理としてすべき」という主張（判断）。「必要がある」は客観的な「必要がある」——ニュアンスが違う",
+        "ことはない（必要ない・とめる）≠ Vることがある（時々ある）≠ Vたことがある（経験）——接続も意味も違う",
+        "ないことはない は二重否定の「留保つきの肯定」（なんとか可能、まったく不可能ではない）で控えめ。強い肯定ではない"
+      ]
+    }
   }
 };
