@@ -17,6 +17,12 @@
     min-height: 0;
   }
 
+  /* Stacked single column on mobile: the detail sits below the index, so the
+     desktop sticky (which follows the long side-by-side list) isn't wanted. */
+  .chapter-content {
+    position: static;
+  }
+
   .chapter-index {
     border-bottom: 1px solid var(--rule);
     border-right: 0;
