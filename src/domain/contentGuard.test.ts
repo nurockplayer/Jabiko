@@ -246,6 +246,35 @@ describe("exam content guard", () => {
     const duplicates = [...counts].filter(([, n]) => n > 1).map(([text]) => text);
     expect(duplicates, `duplicate promptText: ${duplicates.join(" | ")}`).toEqual([]);
   });
+
+  it("lists 語順組合 fragments in answer order (［a / b / c］ concatenated == the answer)", () => {
+    // shuffleOrderFragments (src/domain/wordOrder.ts) assumes the ［...］ list
+    // is in the CORRECT answer order and shuffles it for display, using that
+    // order as the baseline for its "never leak the answer" guard. If an item
+    // lists its fragments out of answer order, the leak-guard compares against
+    // the wrong baseline (it can surface the real answer) and the review shows
+    // a sequence that doesn't assemble to the answer -- the user-reported
+    // "sequence explained is wrong". So the contract is: joined fragments ==
+    // expectedAnswer.
+    const offenders: string[] = [];
+    for (const question of examStyleQuestions) {
+      if (question.promptLabel !== "語順組合") continue;
+      const text = question.promptText?.trim() ?? "";
+      if (!text.startsWith("［") || !text.endsWith("］")) continue;
+      const joined = text
+        .slice(1, -1)
+        .split("/")
+        .map((fragment) => fragment.trim())
+        .filter(Boolean)
+        .join("");
+      const answer = question.expectedAnswers[0];
+      if (joined !== answer) offenders.push(`${question.id}: "${joined}" != "${answer}"`);
+    }
+    expect(
+      offenders,
+      `語順組合 fragments not in answer order: ${offenders.join(" | ")}`
+    ).toEqual([]);
+  });
 });
 
 // Per-pattern banlist: phrases that would tip off the answer if they
