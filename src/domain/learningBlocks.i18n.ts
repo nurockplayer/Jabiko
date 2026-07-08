@@ -1100,6 +1100,126 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "n4-jikan": {
+    "en": {
+      "category": "N4 Grammar",
+      "kicker": "N4 Patterns",
+      "title": "Time: 間・までに・おきに",
+      "explanation":
+        "Fine-tuning time. 「〜間 (あいだ)」 = a whole span, with a durative predicate (夏休みの間ずっと家にいた); 「〜間に」 = one point within that span, with a punctual event (寝ている間に電話が来た) — the difference is whether the predicate lasts or happens once. The deadline pair: 「〜までに」 = finish before a time (a one-shot action: 金曜日までに出す); 「〜まで」 = last until a time (a durative action: 来るまで待つ). Also: 「〜おきに」 = at fixed intervals (6時間おきに); 「noun + 中 (ちゅう)」 = in progress (電話中, 工事中).",
+      "notes": [
+        "Whole span: 間 + durative",
+        "One point: 間に + punctual",
+        "までに (deadline) vs まで (until)",
+        "Fixed interval: おきに",
+        "In progress: noun + 中"
+      ],
+      "pitfalls": [
+        "間 (durative predicate) vs 間に (one-time event) — look at the following action",
+        "までに (deadline + one-shot) vs まで (last until) — 出す takes までに, 待つ takes まで",
+        "おきに is an interval; the \"each portion\" 〜ずつ is different — don't mix them"
+      ]
+    },
+    "ja": {
+      "category": "N4文法",
+      "kicker": "N4文型",
+      "title": "時間 間・までに・おきに",
+      "explanation":
+        "時間の細かい使い分け。「〜間（あいだ）」＝ひとまとまりの期間、継続する述語（夏休みの間ずっと家にいた）。「〜間に」＝その期間の中の一点、一回の出来事（寝ている間に電話が来た）——述語が続くか一回かの違い。期限のペア：「〜までに」＝ある時までに終える（一回の動作：金曜日までに出す）、「〜まで」＝ある時まで続く（継続動作：来るまで待つ）。ほかに：「〜おきに」＝一定の間隔（6時間おきに）、「名詞＋中（ちゅう）」＝進行中（電話中・工事中）。",
+      "notes": [
+        "ひとまとまり：間＋継続",
+        "一点：間に＋一回",
+        "までに（期限）vs まで（継続）",
+        "一定間隔：おきに",
+        "進行中：名詞＋中"
+      ],
+      "pitfalls": [
+        "間（継続の述語）vs 間に（一回の出来事）——後ろの動作で見分ける",
+        "までに（期限＋一回）vs まで（〜まで続く）——出す は までに、待つ は まで",
+        "おきに は間隔。均等配分の「〜ずつ」とは別物"
+      ]
+    }
+  },
+  "n4-juju": {
+    "en": {
+      "category": "N4 Grammar",
+      "kicker": "N4 Patterns",
+      "title": "Giving & Requests: くれる・いただく",
+      "explanation":
+        "The direction system for giving and receiving, plus honorific tiers. Three axes: あげる (my side gives out), くれる (someone gives my side), もらう (my side receives — the subject is the receiver). Stepping up in politeness: あげる→さしあげる (humble, giving to a superior), くれる→くださる (honorific, a superior gives me), もらう→いただく (humble, receiving from a superior). Direction is read from subject + recipient: 先生が私に → くださる; 私が先生に (give) → さしあげる; 私が先生に (receive) → いただく. The deferential request = 「〜ていただけませんか」 = couldn't you ~ for me (the humble potential of もらう).",
+      "notes": [
+        "Someone gives me: くれる",
+        "I receive: もらう (subject = receiver)",
+        "A superior gives me: くださる",
+        "To/from a superior: さしあげる/いただく",
+        "Deferential request"
+      ],
+      "pitfalls": [
+        "くれる/くださる = other → my side; あげる/さしあげる = my side → other — don't flip the arrow",
+        "The subject of もらう/いただく is the RECEIVER: 私は先生にいただいた",
+        "やる is for juniors/plants/animals — rude to a superior; use さしあげる"
+      ]
+    },
+    "ja": {
+      "category": "N4文法",
+      "kicker": "N4文型",
+      "title": "授受と依頼 くれる・いただく",
+      "explanation":
+        "やり・もらいの方向システムと敬語の段階。三本の軸：あげる（自分側が出す）、くれる（相手が自分側に）、もらう（自分側が受け取る＝主語は受け手）。敬語の段：あげる→さしあげる（謙譲、目上へ）、くれる→くださる（尊敬、目上が私に）、もらう→いただく（謙譲、目上から受け取る）。方向は主語＋相手で読む：先生が私に→くださる、私が先生に（あげる）→さしあげる、私が先生に（もらう）→いただく。丁重な依頼＝「〜ていただけませんか」（もらう の謙譲・可能形）。",
+      "notes": [
+        "相手が私に：くれる",
+        "私が受け取る：もらう（主語＝受け手）",
+        "目上が私に：くださる",
+        "目上へ／から：さしあげる・いただく",
+        "丁重な依頼"
+      ],
+      "pitfalls": [
+        "くれる/くださる＝相手→自分側、あげる/さしあげる＝自分側→相手——矢印を逆にしない",
+        "もらう/いただく の主語は「受け取る人」：私は先生にいただいた",
+        "やる は目下・動植物用。目上には失礼——さしあげる を使う"
+      ]
+    }
+  },
+  "n4-chikaku": {
+    "en": {
+      "category": "N4 Grammar",
+      "kicker": "N4 Patterns",
+      "title": "Perception & Limits: 見える・しか",
+      "explanation":
+        "Perception: 「見える／聞こえる」 = something reaches your eyes/ears unbidden (窓から海が見える), distinct from the potential 「見られる／聞ける」 = you get the chance/ability to see/hear (予約すれば見られる). Sensations use 「〜がする」 = 匂い・音・味・気がする. Limiting and comparison: 「〜ほど〜ない」 = not as ~ as (昨日ほど寒くない — always ends negative); 「〜しか〜ない」 = only ~ (100円しかない — always ends negative, opposite of だけ which takes affirmatives); 「〜ずつ」 = ~ apiece (一つずつ).",
+      "notes": [
+        "Reaches the senses: 見える",
+        "Get to see: potential 見られる",
+        "Sensation: がする",
+        "Not as ~ as: ほど〜ない",
+        "Only しか / apiece ずつ"
+      ],
+      "pitfalls": [
+        "見える/聞こえる (spontaneous) ≠ 見られる/聞ける (opportunity, ability)",
+        "ほど〜ない and しか〜ない always end in a negative",
+        "しか (with a negative) vs だけ (with an affirmative): しかない / だけある"
+      ]
+    },
+    "ja": {
+      "category": "N4文法",
+      "kicker": "N4文型",
+      "title": "知覚と限定 見える・しか",
+      "explanation":
+        "知覚：「見える／聞こえる」＝意志によらず自然に目・耳に入る（窓から海が見える）。可能形「見られる／聞ける」＝機会・条件があって見られる/聞ける（予約すれば見られる）とは別。感覚は「〜がする」＝匂い・音・味・気がする。限定と比較：「〜ほど〜ない」＝〜ほど〜ない（昨日ほど寒くない。必ず否定で終わる）、「〜しか〜ない」＝〜だけ（100円しかない。必ず否定で終わり、肯定と組む だけ と対）、「〜ずつ」＝均等に（一つずつ）。",
+      "notes": [
+        "自然に入る：見える",
+        "見る機会：可能形 見られる",
+        "感覚：がする",
+        "〜ほど〜ない",
+        "しか／ずつ"
+      ],
+      "pitfalls": [
+        "見える/聞こえる（自然）≠ 見られる/聞ける（機会・能力）",
+        "ほど〜ない、しか〜ない は必ず否定で終わる",
+        "しか（否定と）vs だけ（肯定と）：しかない／だけある"
+      ]
+    }
+  },
   "adverbial": {
     "en": {
       "category": "Modifying Adjectives / Nouns",
