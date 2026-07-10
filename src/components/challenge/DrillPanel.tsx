@@ -12,7 +12,7 @@ import {
   TeaCupSpot,
   ToriiSpot
 } from "../../illustrations";
-import { isReadingPrompt } from "../../domain/furigana";
+import { allowsOptionFurigana, isReadingPrompt } from "../../domain/furigana";
 import { pickDoneSpot, type DoneSpotKey } from "../../domain/doneSpot";
 import { pickLocalized } from "../../domain/localizedContent";
 import { ExamPrompt } from "../ExamPrompt";
@@ -250,7 +250,7 @@ export function DrillPanel({
                   data-selected={isSelected ? "true" : undefined}
                   data-result={dataResult}
                 >
-                  {choice}
+                  <Ruby text={choice} plain={!allowsOptionFurigana(currentQuestion.promptLabel)} />
                 </button>
               );
             })}
