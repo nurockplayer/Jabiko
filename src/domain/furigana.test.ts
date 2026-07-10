@@ -5,7 +5,8 @@ import {
   alignToken,
   tokensToSegments,
   applyReadingOverrides,
-  isReadingPrompt
+  isReadingPrompt,
+  allowsOptionFurigana
 } from "./furigana";
 
 describe("isReadingPrompt", () => {
@@ -34,6 +35,28 @@ describe("isReadingPrompt", () => {
   it("still suppresses 漢字読み regardless of targetForm (answer-leak guard)", () => {
     expect(isReadingPrompt("漢字読み", "reading")).toBe(true);
     expect(isReadingPrompt("漢字読み", "ta")).toBe(true);
+  });
+});
+
+describe("allowsOptionFurigana (#589)", () => {
+  it("blocks 表記 options (distractors are real words with DIFFERENT readings; ruby exposes them)", () => {
+    expect(allowsOptionFurigana("表記")).toBe(false);
+  });
+
+  it("blocks 語形成 options (a natural reading over an affix candidate hints the real compound)", () => {
+    expect(allowsOptionFurigana("語形成")).toBe(false);
+  });
+
+  it("allows grammar / vocab / context items (their answers are never about how an option reads)", () => {
+    expect(allowsOptionFurigana("文法形式選擇")).toBe(true);
+    expect(allowsOptionFurigana("詞彙用法")).toBe(true);
+    expect(allowsOptionFurigana("文章脈絡")).toBe(true);
+    expect(allowsOptionFurigana("語順組合")).toBe(true);
+  });
+
+  it("allows unlabelled basic drills (options are kana forms with no baked entries anyway)", () => {
+    expect(allowsOptionFurigana(undefined)).toBe(true);
+    expect(allowsOptionFurigana(null)).toBe(true);
   });
 });
 

@@ -188,3 +188,19 @@ export function isReadingPrompt(
   if (promptLabel) return false;
   return targetForm === "reading";
 }
+
+/**
+ * Whether a question's ANSWER OPTIONS may carry furigana when the global
+ * toggle is on (#589). Options leak differently from stems: on 表記
+ * (orthography) items the distractors are often real words with DIFFERENT
+ * readings, so ruby would expose the odd ones out; on 語形成 items a natural
+ * reading over an affix candidate hints which combination is a real word.
+ * Everything else is safe -- those answers are never about how an option
+ * reads. Reading drills need no entry here: their options are kana strings,
+ * which the bake step never stores (and <Ruby> falls back to plain text).
+ */
+const OPTION_FURIGANA_BLOCKED = new Set(["表記", "語形成"]);
+
+export function allowsOptionFurigana(promptLabel: string | null | undefined): boolean {
+  return !OPTION_FURIGANA_BLOCKED.has(promptLabel ?? "");
+}

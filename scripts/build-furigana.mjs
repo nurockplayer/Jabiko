@@ -45,7 +45,7 @@ try {
   const { vocabulary } = await server.ssrLoadModule("/src/domain/vocabulary.ts");
   const { jlptVocabulary } = await server.ssrLoadModule("/src/domain/vocabulary-jlpt.ts");
   const { examStyleQuestions } = await server.ssrLoadModule("/src/domain/examBlocks.ts");
-  const { tokensToSegments, applyReadingOverrides } =
+  const { tokensToSegments, applyReadingOverrides, allowsOptionFurigana } =
     await server.ssrLoadModule("/src/domain/furigana.ts");
 
   // Manual fixes for words IPADIC misreads. ONLY unambiguous ones (see
@@ -101,15 +101,26 @@ try {
   for (const v of vocabulary) for (const ex of v.examples ?? []) sentences.add(ex.japanese);
   for (const v of jlptVocabulary) for (const ex of v.examples ?? []) sentences.add(ex.japanese);
   let examStems = 0;
+  let examOptions = 0;
   for (const q of examStyleQuestions) {
     for (const ex of q.vocabulary.examples ?? []) sentences.add(ex.japanese);
     if (q.promptText && q.promptLabel !== "漢字読み") {
       sentences.add(q.promptText);
       examStems += 1;
     }
+    // #589: bake answer options so the choice buttons carry ruby too. Blocked
+    // labels (表記 / 語形成 -- see allowsOptionFurigana) are skipped here AND
+    // suppressed at render time; kana-only options fall out of the
+    // "no reading -> not stored" rule below.
+    if (allowsOptionFurigana(q.promptLabel)) {
+      for (const opt of q.options ?? []) {
+        sentences.add(opt);
+        examOptions += 1;
+      }
+    }
   }
   console.log(
-    `sources -> basic:${vocabulary.length} jlpt:${jlptVocabulary.length} exam:${examStyleQuestions.length} (stems:${examStems}) · unique sentences:${sentences.size}`
+    `sources -> basic:${vocabulary.length} jlpt:${jlptVocabulary.length} exam:${examStyleQuestions.length} (stems:${examStems} options:${examOptions}) · unique sentences:${sentences.size}`
   );
 
   const tokenizer = await new Promise((resolve, reject) =>
