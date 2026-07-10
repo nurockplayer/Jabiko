@@ -2776,9 +2776,9 @@ export const n2Items: PracticeQuestion[] = [
     hintZh: "前句的事實導出後句的判斷。",
     hintI18n: { "ja": "前文の事実から後文の判断を導きます。", "en": "The fact in the first clause leads to the judgment in the second." },
     expectedAnswer: "したがって",
-    options: ["したがって", "もっとも", "ところが", "たとえば"],
-    explanation: "「したがって」表示根據前述理由導出結論。本句由「高溫下性能下降」推出「不採用於高溫設備」。「もっとも」是補充但書；「ところが」是逆接；「たとえば」是舉例，皆不形成因果結論，唯「したがって」成立。",
-    explanationI18n: { "ja": "「したがって」は前述の理由に基づいて結論を導くことを表します。この文は「高温下で性能が落ちる」から「高温設備には採用しない」を導いています。「もっとも」は但し書きの補足。「ところが」は逆接。「たとえば」は例示で、いずれも因果的な結論を作らないので、「したがって」だけが成り立ちます。", "en": "\"したがって\" indicates a conclusion drawn from the stated reason. Here, \"performance drops at high temperatures\" leads to \"not adopting it for high-temperature equipment.\" \"もっとも\" adds a qualifying proviso; \"ところが\" is an adversative; \"たとえば\" gives an example — none form a cause-and-effect conclusion, so only \"したがって\" works." },
+    options: ["したがって", "一方", "ところが", "たとえば"],
+    explanation: "「したがって」表示根據前述理由導出結論。本句由「高溫下性能下降」推出「不採用於高溫設備」。「一方」用於並列對比兩件事，但後句是前句的直接結果、不是對比；「ところが」是逆接；「たとえば」是舉例，皆不形成因果結論，唯「したがって」成立。",
+    explanationI18n: { "ja": "「したがって」は前述の理由に基づいて結論を導くことを表します。この文は「高温下で性能が落ちる」から「高温設備には採用しない」を導いています。「一方」は二つの事柄を並べて対比する表現で、後文は前文の直接の結果であり対比ではありません。「ところが」は逆接。「たとえば」は例示で、いずれも因果的な結論を作らないので、「したがって」だけが成り立ちます。", "en": "\"したがって\" indicates a conclusion drawn from the stated reason. Here, \"performance drops at high temperatures\" leads to \"not adopting it for high-temperature equipment.\" \"一方\" sets up a parallel contrast between two matters, but the second clause is a direct consequence, not a contrast; \"ところが\" is an adversative; \"たとえば\" gives an example — none form a cause-and-effect conclusion, so only \"したがって\" works." },
   }),
   examQuestion({
     id: "issue79-context-shitagatte-kaijou",
