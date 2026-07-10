@@ -18,8 +18,11 @@
   }
 
   /* Stacked single column on mobile: the detail sits below the index, so the
-     desktop sticky (which follows the long side-by-side list) isn't wanted. */
+     desktop sticky (which follows the long side-by-side list) isn't wanted,
+     nor the viewport cap + inner scrollbar that comes with it. */
   .chapter-content {
+    max-height: none;
+    overflow-y: visible;
     position: static;
   }
 
