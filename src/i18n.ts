@@ -32,6 +32,8 @@ export type Copy = {
   routeErrorTitle: string;
   routeErrorBody: string;
   routeErrorReload: string;
+  routeErrorClearCache: string;
+  routeErrorGoHome: string;
   home: string;
   learn: string;
   rules: string;

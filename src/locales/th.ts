@@ -16,6 +16,8 @@ export const th: Copy = {
   routeErrorTitle: "โหลดหน้าไม่สำเร็จ",
   routeErrorBody: "เบราว์เซอร์อาจยังใช้ไฟล์แอปเวอร์ชันเก่าอยู่ โปรดโหลดใหม่เพื่อใช้เวอร์ชันล่าสุด",
   routeErrorReload: "โหลดใหม่",
+  routeErrorClearCache: "ล้างแคชแล้วโหลดใหม่",
+  routeErrorGoHome: "กลับหน้าแรก",
   home: "หน้าแรก",
   learn: "เรียนรู้",
   rules: "ตารางกฎ",

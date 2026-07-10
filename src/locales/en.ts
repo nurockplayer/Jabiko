@@ -16,6 +16,8 @@ export const en: Copy = {
   routeErrorTitle: "Page failed to load",
   routeErrorBody: "Your browser may still be using an older app file. Reload to get the latest version.",
   routeErrorReload: "Reload",
+  routeErrorClearCache: "Clear cache and reload",
+  routeErrorGoHome: "Back home",
   home: "Home",
   learn: "Learn",
   rules: "Rules",

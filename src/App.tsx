@@ -45,6 +45,7 @@ import { readLevelPreference, writeLevelPreference } from "./domain/levelPrefere
 import type { LevelRange } from "./domain/levelRange";
 import { trackEvent } from "./lib/analytics";
 import { canonicalArticleSlug } from "./domain/articlesMeta";
+import packageJson from "../package.json";
 import "./styles.css";
 
 // Lazy routes. The challenge view owns the practice engine, which
@@ -86,6 +87,7 @@ const BlogIndexPage = lazy(() =>
 const BlogArticlePage = lazy(() =>
   import("./components/BlogArticlePage").then((module) => ({ default: module.BlogArticlePage }))
 );
+const BUILD_VERSION = packageJson.version;
 
 type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about" | "grammar" | "blog";
 type DrillPreset = LearningBlockDrillPreset;
@@ -612,6 +614,18 @@ export default function App() {
         title={t.routeErrorTitle}
         body={t.routeErrorBody}
         reloadLabel={t.routeErrorReload}
+        clearCacheLabel={t.routeErrorClearCache}
+        homeLabel={t.routeErrorGoHome}
+        onGoHome={() => {
+          setGrammarSurface(null);
+          setBlogSlug(null);
+          setAppView("home");
+        }}
+        context={{
+          route: window.location.pathname,
+          locale: language,
+          buildVersion: BUILD_VERSION
+        }}
       >
       {appView === "home" ? (
         <HomePanel

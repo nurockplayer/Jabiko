@@ -16,6 +16,8 @@ export const vi: Copy = {
   routeErrorTitle: "Không tải được trang",
   routeErrorBody: "Trình duyệt có thể vẫn đang dùng tệp ứng dụng cũ. Tải lại để nhận phiên bản mới nhất.",
   routeErrorReload: "Tải lại",
+  routeErrorClearCache: "Xoá bộ nhớ đệm rồi tải lại",
+  routeErrorGoHome: "Về trang chủ",
   home: "Trang chủ",
   learn: "Học",
   rules: "Bảng quy tắc",

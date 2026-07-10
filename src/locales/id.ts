@@ -16,6 +16,8 @@ export const id: Copy = {
   routeErrorTitle: "Halaman gagal dimuat",
   routeErrorBody: "Browser Anda mungkin masih memakai file aplikasi lama. Muat ulang untuk mengambil versi terbaru.",
   routeErrorReload: "Muat ulang",
+  routeErrorClearCache: "Hapus cache lalu muat ulang",
+  routeErrorGoHome: "Kembali ke beranda",
   home: "Beranda",
   learn: "Belajar",
   rules: "Tabel aturan",

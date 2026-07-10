@@ -583,3 +583,16 @@
   color: var(--muted);
   line-height: 1.7;
 }
+
+.route-error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.route-error-home {
+  background: transparent;
+  color: var(--text);
+}

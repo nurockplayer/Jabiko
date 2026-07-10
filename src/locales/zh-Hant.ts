@@ -16,6 +16,8 @@ export const zhHant: Copy = {
   routeErrorTitle: "頁面載入失敗",
   routeErrorBody: "可能是瀏覽器還在使用舊版本檔案。請重新整理，載入最新版本。",
   routeErrorReload: "重新整理",
+  routeErrorClearCache: "清除快取後重載",
+  routeErrorGoHome: "回首頁",
   home: "首頁",
   learn: "學習",
   rules: "規則表",

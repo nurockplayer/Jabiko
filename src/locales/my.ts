@@ -16,6 +16,8 @@ export const my: Copy = {
   routeErrorTitle: "စာမျက်နှာကို ဖွင့်မရပါ",
   routeErrorBody: "ဘရောက်ဇာသည် အက်ပ်ဖိုင်ဟောင်းကို သုံးနေဆဲဖြစ်နိုင်သည်။ နောက်ဆုံးဗားရှင်းကို ရယူရန် ပြန်လည်ဖွင့်ပါ။",
   routeErrorReload: "ပြန်လည်ဖွင့်ပါ",
+  routeErrorClearCache: "cache ဖျက်ပြီး ပြန်လည်ဖွင့်ပါ",
+  routeErrorGoHome: "ပင်မစာမျက်နှာသို့",
   home: "ပင်မ",
   learn: "လေ့လာရန်",
   rules: "စည်းမျဉ်းများ",

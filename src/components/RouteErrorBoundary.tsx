@@ -27,6 +27,14 @@ type RouteErrorBoundaryProps = {
   title: string;
   body: string;
   reloadLabel: string;
+  clearCacheLabel: string;
+  homeLabel: string;
+  onGoHome: () => void;
+  context: {
+    route: string;
+    locale: string;
+    buildVersion: string;
+  };
   children: ReactNode;
   /** Injectable for tests; defaults to the real cache-repair routine. */
   recover?: (error: unknown) => Promise<boolean>;
@@ -64,7 +72,12 @@ export class RouteErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("[route-error]", error, errorInfo);
+    console.error("[route-error]", error, {
+      route: this.props.context.route,
+      locale: this.props.context.locale,
+      buildVersion: this.props.context.buildVersion,
+      componentStack: errorInfo.componentStack
+    });
     // Chunk-load failures are almost always a poisoned/stale local cache
     // (immutable HTTP entry or old SW shell) — a bare reload can't fix those,
     // so repair the caches and reload once, silently. Ordinary render errors
@@ -85,10 +98,20 @@ export class RouteErrorBoundary extends Component<
   }
 
   handleReloadClick = () => {
+    this.setState({ recovering: true });
+    const { reload = () => window.location.reload() } = this.props;
+    reload();
+  };
+
+  handleClearCacheClick = () => {
     // The button must actually repair, not just reload: for a user pinned by
     // a poisoned immutable cache entry + stale SW, reload alone is a no-op.
     this.setState({ recovering: true });
     this.repairThenReload(this.state.error);
+  };
+
+  handleGoHomeClick = () => {
+    this.props.onGoHome();
   };
 
   render() {
@@ -113,6 +136,24 @@ export class RouteErrorBoundary extends Component<
         >
           {this.props.reloadLabel}
         </button>
+        <div className="route-error-actions">
+          <button
+            type="button"
+            className="next-button"
+            disabled={this.state.recovering}
+            onClick={this.handleClearCacheClick}
+          >
+            {this.props.clearCacheLabel}
+          </button>
+          <button
+            type="button"
+            className="next-button route-error-home"
+            disabled={this.state.recovering}
+            onClick={this.handleGoHomeClick}
+          >
+            {this.props.homeLabel}
+          </button>
+        </div>
       </section>
     );
   }
