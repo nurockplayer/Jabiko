@@ -16,8 +16,14 @@
 }
 
 /* With the long chapter list, keep the detail panel in view as you scroll
-   the index rather than leaving it stranded above the fold. */
+   the index rather than leaving it stranded above the fold. Cap it to the
+   viewport and let it scroll on its own: a sticky panel taller than the
+   screen pins its overflow out of reach until the page bottom (reported
+   as "content won't scroll" / "chapter drill only visible at the very
+   bottom"). */
 .chapter-content {
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
   position: sticky;
   top: 1rem;
 }
