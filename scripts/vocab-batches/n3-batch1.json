@@ -1,0 +1,1042 @@
+[
+  {
+    "surface": "予約",
+    "reading": "よやく",
+    "meaningZh": "預約",
+    "partOfSpeech": "noun",
+    "en": "reservation; booking",
+    "ja": "前もって申し込んでおくこと"
+  },
+  {
+    "surface": "手続き",
+    "reading": "てつづき",
+    "meaningZh": "手續",
+    "partOfSpeech": "noun",
+    "en": "procedure; formalities",
+    "ja": "物事を行うのに必要な一連の手順"
+  },
+  {
+    "surface": "申し込み",
+    "reading": "もうしこみ",
+    "meaningZh": "申請、報名",
+    "partOfSpeech": "noun",
+    "en": "application; sign-up",
+    "ja": "参加や購入を願い出ること。応募"
+  },
+  {
+    "surface": "中止",
+    "reading": "ちゅうし",
+    "meaningZh": "中止、停辦",
+    "partOfSpeech": "noun",
+    "en": "cancellation; calling off",
+    "ja": "予定をやめること。取りやめ"
+  },
+  {
+    "surface": "延期",
+    "reading": "えんき",
+    "meaningZh": "延期、延後舉行",
+    "partOfSpeech": "noun",
+    "en": "postponement",
+    "ja": "日程を後に延ばすこと"
+  },
+  {
+    "surface": "許可",
+    "reading": "きょか",
+    "meaningZh": "許可、批准",
+    "partOfSpeech": "noun",
+    "en": "permission; approval",
+    "ja": "願いを認めること。許し"
+  },
+  {
+    "surface": "遅刻",
+    "reading": "ちこく",
+    "meaningZh": "遲到",
+    "partOfSpeech": "noun",
+    "en": "being late; tardiness",
+    "ja": "決まった時刻に遅れること"
+  },
+  {
+    "surface": "欠席",
+    "reading": "けっせき",
+    "meaningZh": "缺席",
+    "partOfSpeech": "noun",
+    "en": "absence from a class or meeting",
+    "ja": "授業や会に出ないこと"
+  },
+  {
+    "surface": "早退",
+    "reading": "そうたい",
+    "meaningZh": "早退",
+    "partOfSpeech": "noun",
+    "en": "leaving work or school early",
+    "ja": "終わる時間より前に帰ること"
+  },
+  {
+    "surface": "残業",
+    "reading": "ざんぎょう",
+    "meaningZh": "加班",
+    "partOfSpeech": "noun",
+    "en": "overtime work",
+    "ja": "定時の後も残って働くこと"
+  },
+  {
+    "surface": "面接",
+    "reading": "めんせつ",
+    "meaningZh": "面試",
+    "partOfSpeech": "noun",
+    "en": "job or school interview",
+    "ja": "直接会って質問し、人物や適性を判断すること"
+  },
+  {
+    "surface": "履歴書",
+    "reading": "りれきしょ",
+    "meaningZh": "履歷表",
+    "partOfSpeech": "noun",
+    "en": "resume; curriculum vitae",
+    "ja": "学歴や職歴を書いた書類"
+  },
+  {
+    "surface": "募集",
+    "reading": "ぼしゅう",
+    "meaningZh": "招募、徵求",
+    "partOfSpeech": "noun",
+    "en": "recruitment; call for applicants",
+    "ja": "人や作品を広く呼びかけて集めること"
+  },
+  {
+    "surface": "書類",
+    "reading": "しょるい",
+    "meaningZh": "文件、資料",
+    "partOfSpeech": "noun",
+    "en": "documents; papers",
+    "ja": "事務で使う文書"
+  },
+  {
+    "surface": "締め切り",
+    "reading": "しめきり",
+    "meaningZh": "截止日期",
+    "partOfSpeech": "noun",
+    "en": "deadline; closing date",
+    "ja": "受付を終える期限"
+  },
+  {
+    "surface": "上司",
+    "reading": "じょうし",
+    "meaningZh": "上司",
+    "partOfSpeech": "noun",
+    "en": "one's boss; superior at work",
+    "ja": "職場で自分より上の立場の人"
+  },
+  {
+    "surface": "同僚",
+    "reading": "どうりょう",
+    "meaningZh": "同事",
+    "partOfSpeech": "noun",
+    "en": "colleague; coworker",
+    "ja": "同じ職場で働く仲間"
+  },
+  {
+    "surface": "成績",
+    "reading": "せいせき",
+    "meaningZh": "成績",
+    "partOfSpeech": "noun",
+    "en": "grades; academic results",
+    "ja": "試験や仕事の結果の評価"
+  },
+  {
+    "surface": "合格",
+    "reading": "ごうかく",
+    "meaningZh": "合格、考上",
+    "partOfSpeech": "noun",
+    "en": "passing an exam",
+    "ja": "試験に受かること"
+  },
+  {
+    "surface": "奨学金",
+    "reading": "しょうがくきん",
+    "meaningZh": "獎學金",
+    "partOfSpeech": "noun",
+    "en": "scholarship",
+    "ja": "学生に支給または貸与されるお金"
+  },
+  {
+    "surface": "通勤",
+    "reading": "つうきん",
+    "meaningZh": "通勤",
+    "partOfSpeech": "noun",
+    "en": "commuting to work",
+    "ja": "職場へ通うこと"
+  },
+  {
+    "surface": "到着",
+    "reading": "とうちゃく",
+    "meaningZh": "抵達、到達",
+    "partOfSpeech": "noun",
+    "en": "arrival",
+    "ja": "目的地に着くこと"
+  },
+  {
+    "surface": "渋滞",
+    "reading": "じゅうたい",
+    "meaningZh": "塞車、堵塞",
+    "partOfSpeech": "noun",
+    "en": "traffic jam; congestion",
+    "ja": "道路が混んで車が進まないこと"
+  },
+  {
+    "surface": "満員",
+    "reading": "まんいん",
+    "meaningZh": "客滿、額滿",
+    "partOfSpeech": "noun",
+    "en": "fully occupied; packed with people",
+    "ja": "人でいっぱいの状態"
+  },
+  {
+    "surface": "乗り換え",
+    "reading": "のりかえ",
+    "meaningZh": "轉乘、換車",
+    "partOfSpeech": "noun",
+    "en": "transfer between trains or buses",
+    "ja": "別の電車やバスに乗り移ること"
+  },
+  {
+    "surface": "割引",
+    "reading": "わりびき",
+    "meaningZh": "折扣、打折",
+    "partOfSpeech": "noun",
+    "en": "discount",
+    "ja": "値段を安くすること。値引き"
+  },
+  {
+    "surface": "値上げ",
+    "reading": "ねあげ",
+    "meaningZh": "漲價",
+    "partOfSpeech": "noun",
+    "en": "price increase",
+    "ja": "値段を高くすること"
+  },
+  {
+    "surface": "現金",
+    "reading": "げんきん",
+    "meaningZh": "現金",
+    "partOfSpeech": "noun",
+    "en": "cash",
+    "ja": "紙幣や硬貨のお金"
+  },
+  {
+    "surface": "貯金",
+    "reading": "ちょきん",
+    "meaningZh": "存錢、存款",
+    "partOfSpeech": "noun",
+    "en": "savings; putting money aside",
+    "ja": "お金をためること。たくわえ"
+  },
+  {
+    "surface": "家賃",
+    "reading": "やちん",
+    "meaningZh": "房租",
+    "partOfSpeech": "noun",
+    "en": "rent for housing",
+    "ja": "家や部屋を借りる料金"
+  },
+  {
+    "surface": "料金",
+    "reading": "りょうきん",
+    "meaningZh": "費用、使用費",
+    "partOfSpeech": "noun",
+    "en": "charge; fee for a service",
+    "ja": "サービスの利用に払うお金"
+  },
+  {
+    "surface": "無料",
+    "reading": "むりょう",
+    "meaningZh": "免費",
+    "partOfSpeech": "noun",
+    "en": "free of charge",
+    "ja": "お金がいらないこと。ただ"
+  },
+  {
+    "surface": "売り切れ",
+    "reading": "うりきれ",
+    "meaningZh": "售完、賣光",
+    "partOfSpeech": "noun",
+    "en": "sold out",
+    "ja": "全部売れて品物がないこと"
+  },
+  {
+    "surface": "返品",
+    "reading": "へんぴん",
+    "meaningZh": "退貨",
+    "partOfSpeech": "noun",
+    "en": "returning purchased goods",
+    "ja": "買った品物を店に返すこと"
+  },
+  {
+    "surface": "領収書",
+    "reading": "りょうしゅうしょ",
+    "meaningZh": "收據",
+    "partOfSpeech": "noun",
+    "en": "receipt for payment",
+    "ja": "お金を受け取った証明の紙"
+  },
+  {
+    "surface": "症状",
+    "reading": "しょうじょう",
+    "meaningZh": "症狀",
+    "partOfSpeech": "noun",
+    "en": "symptom",
+    "ja": "病気やけがのあらわれ"
+  },
+  {
+    "surface": "診察",
+    "reading": "しんさつ",
+    "meaningZh": "看診、診察",
+    "partOfSpeech": "noun",
+    "en": "medical examination by a doctor",
+    "ja": "医者が病状を調べること"
+  },
+  {
+    "surface": "予防",
+    "reading": "よぼう",
+    "meaningZh": "預防",
+    "partOfSpeech": "noun",
+    "en": "prevention",
+    "ja": "病気や事故を前もって防ぐこと"
+  },
+  {
+    "surface": "栄養",
+    "reading": "えいよう",
+    "meaningZh": "營養",
+    "partOfSpeech": "noun",
+    "en": "nutrition; nourishment",
+    "ja": "体に必要な養分"
+  },
+  {
+    "surface": "体調",
+    "reading": "たいちょう",
+    "meaningZh": "身體狀況",
+    "partOfSpeech": "noun",
+    "en": "physical condition",
+    "ja": "体の調子"
+  },
+  {
+    "surface": "停電",
+    "reading": "ていでん",
+    "meaningZh": "停電",
+    "partOfSpeech": "noun",
+    "en": "power outage; blackout",
+    "ja": "電気の供給が止まること"
+  },
+  {
+    "surface": "避難",
+    "reading": "ひなん",
+    "meaningZh": "避難",
+    "partOfSpeech": "noun",
+    "en": "evacuation; taking refuge",
+    "ja": "危険を避けて安全な場所へ逃げること"
+  },
+  {
+    "surface": "災害",
+    "reading": "さいがい",
+    "meaningZh": "災害",
+    "partOfSpeech": "noun",
+    "en": "disaster; calamity",
+    "ja": "地震や台風などによる被害"
+  },
+  {
+    "surface": "気温",
+    "reading": "きおん",
+    "meaningZh": "氣溫",
+    "partOfSpeech": "noun",
+    "en": "air temperature",
+    "ja": "空気の温度"
+  },
+  {
+    "surface": "苦労",
+    "reading": "くろう",
+    "meaningZh": "辛苦、辛勞",
+    "partOfSpeech": "noun",
+    "en": "hardship; toil",
+    "ja": "苦しい思いをして骨を折ること"
+  },
+  {
+    "surface": "感動",
+    "reading": "かんどう",
+    "meaningZh": "感動",
+    "partOfSpeech": "noun",
+    "en": "being deeply moved emotionally",
+    "ja": "心を強く動かされること"
+  },
+  {
+    "surface": "態度",
+    "reading": "たいど",
+    "meaningZh": "態度",
+    "partOfSpeech": "noun",
+    "en": "attitude; manner",
+    "ja": "物事に対する構え方や振る舞い"
+  },
+  {
+    "surface": "性格",
+    "reading": "せいかく",
+    "meaningZh": "個性、性格",
+    "partOfSpeech": "noun",
+    "en": "personality; character",
+    "ja": "その人の持って生まれた性質"
+  },
+  {
+    "surface": "癖",
+    "reading": "くせ",
+    "meaningZh": "（個人的）習慣、癖好",
+    "partOfSpeech": "noun",
+    "en": "habit; quirk",
+    "ja": "無意識に出てしまう習慣"
+  },
+  {
+    "surface": "噂",
+    "reading": "うわさ",
+    "meaningZh": "謠言、傳聞",
+    "partOfSpeech": "noun",
+    "en": "rumor; gossip",
+    "ja": "確かでないのに広まる話。風説"
+  },
+  {
+    "surface": "冗談",
+    "reading": "じょうだん",
+    "meaningZh": "玩笑",
+    "partOfSpeech": "noun",
+    "en": "joke; jest",
+    "ja": "ふざけて言う話"
+  },
+  {
+    "surface": "喧嘩",
+    "reading": "けんか",
+    "meaningZh": "吵架、打架",
+    "partOfSpeech": "noun",
+    "en": "quarrel; fight",
+    "ja": "言い争いや殴り合い"
+  },
+  {
+    "surface": "誤解",
+    "reading": "ごかい",
+    "meaningZh": "誤會、誤解",
+    "partOfSpeech": "noun",
+    "en": "misunderstanding",
+    "ja": "間違って理解すること。勘違い"
+  },
+  {
+    "surface": "真面目",
+    "reading": "まじめ",
+    "meaningZh": "認真、正經",
+    "partOfSpeech": "na_adjective",
+    "en": "serious; earnest",
+    "ja": "誠実で一生懸命なさま"
+  },
+  {
+    "surface": "正直",
+    "reading": "しょうじき",
+    "meaningZh": "誠實、老實",
+    "partOfSpeech": "na_adjective",
+    "en": "honest; truthful",
+    "ja": "嘘をつかないさま"
+  },
+  {
+    "surface": "素直",
+    "reading": "すなお",
+    "meaningZh": "坦率、聽話",
+    "partOfSpeech": "na_adjective",
+    "en": "obedient; unaffectedly frank",
+    "ja": "ひねくれず従順なさま"
+  },
+  {
+    "surface": "丁寧",
+    "reading": "ていねい",
+    "meaningZh": "客氣周到、仔細",
+    "partOfSpeech": "na_adjective",
+    "en": "polite; careful and thorough",
+    "ja": "礼儀正しく、注意深いさま"
+  },
+  {
+    "surface": "乱暴",
+    "reading": "らんぼう",
+    "meaningZh": "粗暴、粗魯",
+    "partOfSpeech": "na_adjective",
+    "en": "rough; violent",
+    "ja": "荒々しくて暴力的なさま"
+  },
+  {
+    "surface": "新鮮",
+    "reading": "しんせん",
+    "meaningZh": "新鮮",
+    "partOfSpeech": "na_adjective",
+    "en": "fresh",
+    "ja": "新しくて生きがいいさま"
+  },
+  {
+    "surface": "豊富",
+    "reading": "ほうふ",
+    "meaningZh": "豐富",
+    "partOfSpeech": "na_adjective",
+    "en": "abundant; plentiful",
+    "ja": "豊かでたくさんあるさま"
+  },
+  {
+    "surface": "派手",
+    "reading": "はで",
+    "meaningZh": "花俏、華麗顯眼",
+    "partOfSpeech": "na_adjective",
+    "en": "showy; flashy",
+    "ja": "華やかで目立つさま"
+  },
+  {
+    "surface": "地味",
+    "reading": "じみ",
+    "meaningZh": "樸素、不起眼",
+    "partOfSpeech": "na_adjective",
+    "en": "plain; subdued",
+    "ja": "目立たず控えめなさま"
+  },
+  {
+    "surface": "楽",
+    "reading": "らく",
+    "meaningZh": "輕鬆、不費力",
+    "partOfSpeech": "na_adjective",
+    "en": "easy; requiring little effort",
+    "ja": "苦労がなく簡単なさま"
+  },
+  {
+    "surface": "快適",
+    "reading": "かいてき",
+    "meaningZh": "舒適、愜意",
+    "partOfSpeech": "na_adjective",
+    "en": "comfortable; pleasant",
+    "ja": "心地よく気持ちがいいさま"
+  },
+  {
+    "surface": "突然",
+    "reading": "とつぜん",
+    "meaningZh": "突然、忽然",
+    "partOfSpeech": "adverb",
+    "en": "suddenly; abruptly",
+    "ja": "急に。いきなり"
+  },
+  {
+    "surface": "絶対",
+    "reading": "ぜったい",
+    "meaningZh": "絕對、一定",
+    "partOfSpeech": "adverb",
+    "en": "absolutely; definitely",
+    "ja": "必ず。どんなことがあっても"
+  },
+  {
+    "surface": "案外",
+    "reading": "あんがい",
+    "meaningZh": "出乎意料地",
+    "partOfSpeech": "adverb",
+    "en": "unexpectedly; contrary to expectations",
+    "ja": "思ったより。意外に"
+  },
+  {
+    "surface": "早速",
+    "reading": "さっそく",
+    "meaningZh": "立刻、馬上（著手）",
+    "partOfSpeech": "adverb",
+    "en": "immediately; right away",
+    "ja": "すぐに。ただちに"
+  },
+  {
+    "surface": "相当",
+    "reading": "そうとう",
+    "meaningZh": "相當、頗為",
+    "partOfSpeech": "adverb",
+    "en": "considerably; quite",
+    "ja": "かなり。だいぶ"
+  },
+  {
+    "surface": "大抵",
+    "reading": "たいてい",
+    "meaningZh": "大多、通常",
+    "partOfSpeech": "adverb",
+    "en": "usually; mostly",
+    "ja": "ほとんどの場合。たいがい"
+  },
+  {
+    "surface": "結局",
+    "reading": "けっきょく",
+    "meaningZh": "結果、到頭來",
+    "partOfSpeech": "adverb",
+    "en": "in the end; after all",
+    "ja": "最終的に。つまるところ"
+  },
+  {
+    "surface": "一応",
+    "reading": "いちおう",
+    "meaningZh": "姑且、暫且；大致上",
+    "partOfSpeech": "adverb",
+    "en": "tentatively; for the time being",
+    "ja": "とりあえず。ひととおり"
+  },
+  {
+    "surface": "当然",
+    "reading": "とうぜん",
+    "meaningZh": "當然、理所當然",
+    "partOfSpeech": "adverb",
+    "en": "naturally; as a matter of course",
+    "ja": "当たり前に。もちろん"
+  },
+  {
+    "surface": "次第に",
+    "reading": "しだいに",
+    "meaningZh": "逐漸、漸漸",
+    "partOfSpeech": "adverb",
+    "en": "gradually; little by little",
+    "ja": "だんだん。少しずつ"
+  },
+  {
+    "surface": "実は",
+    "reading": "じつは",
+    "meaningZh": "其實、老實說",
+    "partOfSpeech": "adverb",
+    "en": "actually; to tell the truth",
+    "ja": "本当のことを言うと"
+  },
+  {
+    "surface": "意識",
+    "reading": "いしき",
+    "meaningZh": "意識；對事物的自覺",
+    "partOfSpeech": "noun",
+    "en": "consciousness; awareness",
+    "ja": "気づいていること。はっきりした心の働き"
+  },
+  {
+    "surface": "価値",
+    "reading": "かち",
+    "meaningZh": "價值",
+    "partOfSpeech": "noun",
+    "en": "value; worth",
+    "ja": "値打ち。大切さの度合い"
+  },
+  {
+    "surface": "目的",
+    "reading": "もくてき",
+    "meaningZh": "目的；行動的理由",
+    "partOfSpeech": "noun",
+    "en": "purpose; aim",
+    "ja": "何かをする理由やねらい"
+  },
+  {
+    "surface": "目標",
+    "reading": "もくひょう",
+    "meaningZh": "目標；想達成的標的",
+    "partOfSpeech": "noun",
+    "en": "goal; target",
+    "ja": "達成しようとするめあて"
+  },
+  {
+    "surface": "原因",
+    "reading": "げんいん",
+    "meaningZh": "原因",
+    "partOfSpeech": "noun",
+    "en": "cause; source of a problem",
+    "ja": "物事を引き起こすもと"
+  },
+  {
+    "surface": "議論",
+    "reading": "ぎろん",
+    "meaningZh": "討論、爭論",
+    "partOfSpeech": "noun",
+    "en": "discussion; debate",
+    "ja": "意見を出し合って論じ合うこと"
+  },
+  {
+    "surface": "検討",
+    "reading": "けんとう",
+    "meaningZh": "仔細研究考慮",
+    "partOfSpeech": "noun",
+    "en": "examination; careful consideration",
+    "ja": "よく調べて考えること"
+  },
+  {
+    "surface": "感情",
+    "reading": "かんじょう",
+    "meaningZh": "感情、情緒",
+    "partOfSpeech": "noun",
+    "en": "emotion; feeling",
+    "ja": "喜びや怒りなどの気持ち"
+  },
+  {
+    "surface": "感覚",
+    "reading": "かんかく",
+    "meaningZh": "感覺、知覺",
+    "partOfSpeech": "noun",
+    "en": "sense; sensation",
+    "ja": "目や耳などで感じる働き"
+  },
+  {
+    "surface": "感想",
+    "reading": "かんそう",
+    "meaningZh": "感想、心得",
+    "partOfSpeech": "noun",
+    "en": "impressions; thoughts about an experience",
+    "ja": "感じたことや思ったこと"
+  },
+  {
+    "surface": "記録",
+    "reading": "きろく",
+    "meaningZh": "記錄；（比賽的）紀錄",
+    "partOfSpeech": "noun",
+    "en": "record; documentation",
+    "ja": "後に残すために書き留めること。競技の成績"
+  },
+  {
+    "surface": "疑問",
+    "reading": "ぎもん",
+    "meaningZh": "疑問",
+    "partOfSpeech": "noun",
+    "en": "question; doubt",
+    "ja": "本当かどうか疑わしく思うこと"
+  },
+  {
+    "surface": "予想",
+    "reading": "よそう",
+    "meaningZh": "預想、預料",
+    "partOfSpeech": "noun",
+    "en": "expectation; forecast",
+    "ja": "前もってこうなるだろうと考えること"
+  },
+  {
+    "surface": "発表",
+    "reading": "はっぴょう",
+    "meaningZh": "發表、公布",
+    "partOfSpeech": "noun",
+    "en": "announcement; presentation",
+    "ja": "広く世間に知らせること"
+  },
+  {
+    "surface": "発展",
+    "reading": "はってん",
+    "meaningZh": "發展、擴展",
+    "partOfSpeech": "noun",
+    "en": "development; expansion",
+    "ja": "勢いが伸び広がっていくこと"
+  },
+  {
+    "surface": "進歩",
+    "reading": "しんぽ",
+    "meaningZh": "進步",
+    "partOfSpeech": "noun",
+    "en": "progress; advance",
+    "ja": "前よりも良くなっていくこと"
+  },
+  {
+    "surface": "成功",
+    "reading": "せいこう",
+    "meaningZh": "成功",
+    "partOfSpeech": "noun",
+    "en": "success",
+    "ja": "物事がうまくいくこと"
+  },
+  {
+    "surface": "実行",
+    "reading": "じっこう",
+    "meaningZh": "實行、付諸行動",
+    "partOfSpeech": "noun",
+    "en": "execution; carrying out",
+    "ja": "実際に行うこと"
+  },
+  {
+    "surface": "能力",
+    "reading": "のうりょく",
+    "meaningZh": "能力",
+    "partOfSpeech": "noun",
+    "en": "ability; capacity",
+    "ja": "物事を成し遂げる力"
+  },
+  {
+    "surface": "条件",
+    "reading": "じょうけん",
+    "meaningZh": "條件",
+    "partOfSpeech": "noun",
+    "en": "condition; requirement",
+    "ja": "物事が成り立つために必要な事柄"
+  },
+  {
+    "surface": "資料",
+    "reading": "しりょう",
+    "meaningZh": "資料",
+    "partOfSpeech": "noun",
+    "en": "materials; data for reference",
+    "ja": "研究や判断のもとになる材料"
+  },
+  {
+    "surface": "常識",
+    "reading": "じょうしき",
+    "meaningZh": "常識",
+    "partOfSpeech": "noun",
+    "en": "common sense; common knowledge",
+    "ja": "誰もが知っているはずの知識や考え"
+  },
+  {
+    "surface": "決心",
+    "reading": "けっしん",
+    "meaningZh": "決心",
+    "partOfSpeech": "noun",
+    "en": "determination; resolution",
+    "ja": "こうしようと心を決めること"
+  },
+  {
+    "surface": "決定",
+    "reading": "けってい",
+    "meaningZh": "決定",
+    "partOfSpeech": "noun",
+    "en": "decision; settlement",
+    "ja": "はっきり決めること"
+  },
+  {
+    "surface": "遠慮",
+    "reading": "えんりょ",
+    "meaningZh": "客氣、顧忌而克制",
+    "partOfSpeech": "noun",
+    "en": "reserve; holding back out of politeness",
+    "ja": "控えめにすること。断ること"
+  },
+  {
+    "surface": "理解",
+    "reading": "りかい",
+    "meaningZh": "理解",
+    "partOfSpeech": "noun",
+    "en": "understanding; comprehension",
+    "ja": "内容や意味が分かること"
+  },
+  {
+    "surface": "協力",
+    "reading": "きょうりょく",
+    "meaningZh": "協力、合作",
+    "partOfSpeech": "noun",
+    "en": "cooperation",
+    "ja": "力を合わせて取り組むこと"
+  },
+  {
+    "surface": "訓練",
+    "reading": "くんれん",
+    "meaningZh": "訓練",
+    "partOfSpeech": "noun",
+    "en": "training; drill",
+    "ja": "上達するように繰り返し練習させること"
+  },
+  {
+    "surface": "工夫",
+    "reading": "くふう",
+    "meaningZh": "下功夫想辦法、巧思",
+    "partOfSpeech": "noun",
+    "en": "ingenuity; devising ways",
+    "ja": "良い方法をあれこれ考えること"
+  },
+  {
+    "surface": "手段",
+    "reading": "しゅだん",
+    "meaningZh": "手段、方法",
+    "partOfSpeech": "noun",
+    "en": "means; method to achieve a goal",
+    "ja": "目的を果たすためのやり方"
+  },
+  {
+    "surface": "場面",
+    "reading": "ばめん",
+    "meaningZh": "場面、情景",
+    "partOfSpeech": "noun",
+    "en": "scene; situation",
+    "ja": "その場の様子。シーン"
+  },
+  {
+    "surface": "立場",
+    "reading": "たちば",
+    "meaningZh": "立場、處境",
+    "partOfSpeech": "noun",
+    "en": "standpoint; position one is in",
+    "ja": "その人の置かれている状況や見地"
+  },
+  {
+    "surface": "都合",
+    "reading": "つごう",
+    "meaningZh": "（時間或狀況上的）方便與否",
+    "partOfSpeech": "noun",
+    "en": "convenience; personal circumstances",
+    "ja": "何かをするときの事情の良し悪し"
+  },
+  {
+    "surface": "特徴",
+    "reading": "とくちょう",
+    "meaningZh": "特徵、特色",
+    "partOfSpeech": "noun",
+    "en": "characteristic; distinctive feature",
+    "ja": "他と比べて目立つ点"
+  },
+  {
+    "surface": "性質",
+    "reading": "せいしつ",
+    "meaningZh": "（事物的）性質；天性",
+    "partOfSpeech": "noun",
+    "en": "nature; property of a thing",
+    "ja": "生まれつきの気質。物の持つ特性"
+  },
+  {
+    "surface": "習慣",
+    "reading": "しゅうかん",
+    "meaningZh": "習慣",
+    "partOfSpeech": "noun",
+    "en": "habit; custom",
+    "ja": "いつも繰り返して行うこと"
+  },
+  {
+    "surface": "自信",
+    "reading": "じしん",
+    "meaningZh": "自信",
+    "partOfSpeech": "noun",
+    "en": "confidence; self-assurance",
+    "ja": "自分の力を信じる気持ち"
+  },
+  {
+    "surface": "安定",
+    "reading": "あんてい",
+    "meaningZh": "安定、穩定",
+    "partOfSpeech": "noun",
+    "en": "stability; steadiness",
+    "ja": "落ち着いていて変動が少ないこと"
+  },
+  {
+    "surface": "緊張",
+    "reading": "きんちょう",
+    "meaningZh": "緊張",
+    "partOfSpeech": "noun",
+    "en": "tension; nervousness",
+    "ja": "心や体が張りつめること"
+  },
+  {
+    "surface": "興味",
+    "reading": "きょうみ",
+    "meaningZh": "興趣",
+    "partOfSpeech": "noun",
+    "en": "interest; curiosity",
+    "ja": "面白いと感じて心が引かれること"
+  },
+  {
+    "surface": "感心",
+    "reading": "かんしん",
+    "meaningZh": "佩服、欽佩",
+    "partOfSpeech": "noun",
+    "en": "admiration; being impressed",
+    "ja": "立派だと心を動かされること"
+  },
+  {
+    "surface": "反省",
+    "reading": "はんせい",
+    "meaningZh": "反省、檢討",
+    "partOfSpeech": "noun",
+    "en": "self-reflection; reviewing one's conduct",
+    "ja": "自分の言動を振り返って考えること"
+  },
+  {
+    "surface": "相談",
+    "reading": "そうだん",
+    "meaningZh": "商量、諮詢",
+    "partOfSpeech": "noun",
+    "en": "consultation; asking for advice",
+    "ja": "意見を聞くために話し合うこと"
+  },
+  {
+    "surface": "費用",
+    "reading": "ひよう",
+    "meaningZh": "費用、開銷",
+    "partOfSpeech": "noun",
+    "en": "expense; cost",
+    "ja": "何かをするのにかかるお金"
+  },
+  {
+    "surface": "就職",
+    "reading": "しゅうしょく",
+    "meaningZh": "就業、找到工作",
+    "partOfSpeech": "noun",
+    "en": "finding employment; getting a job",
+    "ja": "職に就くこと"
+  },
+  {
+    "surface": "盛ん",
+    "reading": "さかん",
+    "meaningZh": "興盛的、盛行的",
+    "partOfSpeech": "na_adjective",
+    "en": "thriving; flourishing, popular",
+    "ja": "勢いが良く、広く行われている様子"
+  },
+  {
+    "surface": "真剣",
+    "reading": "しんけん",
+    "meaningZh": "認真的、一絲不苟的",
+    "partOfSpeech": "na_adjective",
+    "en": "serious; earnest",
+    "ja": "本気で取り組む様子"
+  },
+  {
+    "surface": "積極的",
+    "reading": "せっきょくてき",
+    "meaningZh": "積極的、主動的",
+    "partOfSpeech": "na_adjective",
+    "en": "active; proactive",
+    "ja": "自分から進んで行う様子"
+  },
+  {
+    "surface": "貴重",
+    "reading": "きちょう",
+    "meaningZh": "貴重的、寶貴的",
+    "partOfSpeech": "na_adjective",
+    "en": "precious; highly valuable",
+    "ja": "とても値打ちがあって大切な様子"
+  },
+  {
+    "surface": "豊か",
+    "reading": "ゆたか",
+    "meaningZh": "豐富的、富裕的",
+    "partOfSpeech": "na_adjective",
+    "en": "rich; abundant",
+    "ja": "たっぷりあって満ち足りている様子"
+  },
+  {
+    "surface": "平気",
+    "reading": "へいき",
+    "meaningZh": "不在乎的、若無其事的",
+    "partOfSpeech": "na_adjective",
+    "en": "unconcerned; unfazed",
+    "ja": "気にしないで落ち着いている様子"
+  },
+  {
+    "surface": "意外",
+    "reading": "いがい",
+    "meaningZh": "出乎意料的",
+    "partOfSpeech": "na_adjective",
+    "en": "unexpected; surprising",
+    "ja": "思いがけない様子"
+  },
+  {
+    "surface": "実際",
+    "reading": "じっさい",
+    "meaningZh": "實際上",
+    "partOfSpeech": "adverb",
+    "en": "actually; in fact",
+    "ja": "本当のところ。現実に"
+  },
+  {
+    "surface": "主に",
+    "reading": "おもに",
+    "meaningZh": "主要、大多",
+    "partOfSpeech": "adverb",
+    "en": "mainly; chiefly",
+    "ja": "中心として。大部分は"
+  },
+  {
+    "surface": "多少",
+    "reading": "たしょう",
+    "meaningZh": "稍微、多少有些",
+    "partOfSpeech": "adverb",
+    "en": "somewhat; a little",
+    "ja": "少し。いくらか"
+  }
+]

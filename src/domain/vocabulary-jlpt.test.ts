@@ -22,11 +22,18 @@ describe("jlptVocabulary integrity", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("only contains N1 / N2 items", () => {
+  it("only contains N1 / N2 / N3 items", () => {
     const offenders = jlptVocabulary
-      .filter((item) => item.level !== "N1" && item.level !== "N2")
+      .filter((item) => item.level !== "N1" && item.level !== "N2" && item.level !== "N3")
       .map((item) => item.surface);
     expect(offenders).toEqual([]);
+  });
+
+  // #583: the N3 tier fills the documented "初級 hole" (empty n2n3 band pool,
+  // daily-set vocab slot spilling to exam). Guard that the tier stays populated.
+  it("includes the N3 tier (#583)", () => {
+    const n3Count = jlptVocabulary.filter((item) => item.level === "N3").length;
+    expect(n3Count).toBeGreaterThanOrEqual(100);
   });
 
   it("gives every entry a surface, reading, and meaning", () => {
