@@ -80,6 +80,9 @@ describe("blog articles data guard", () => {
     expect(bodyText).toContain("幾句重點歌詞");
     expect(bodyText).toContain("杜拜巧克力");
     expect(bodyText).toContain("敢把沒有必要解釋的東西也放進歌裡");
+    // Personal sentence-level walkthroughs (author's own study notes).
+    expect(bodyText).toContain("三句我自己也查了才懂");
+    expect(bodyText).toContain("從裡到外一起燒起來");
     const divider = article?.body.find((block) => block.kind === "divider");
     expect(divider && "label" in divider ? divider.label : "").toContain("附錄");
   });
