@@ -16,6 +16,8 @@ export const ko: Copy = {
   routeErrorTitle: "페이지를 불러오지 못했습니다",
   routeErrorBody: "브라우저가 이전 앱 파일을 사용 중일 수 있습니다. 새로고침하여 최신 버전을 불러오세요.",
   routeErrorReload: "새로고침",
+  routeErrorClearCache: "캐시를 지우고 다시 불러오기",
+  routeErrorGoHome: "홈으로 돌아가기",
   home: "홈",
   learn: "학습",
   rules: "규칙표",

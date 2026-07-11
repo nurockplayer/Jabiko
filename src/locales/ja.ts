@@ -16,6 +16,8 @@ export const ja: Copy = {
   routeErrorTitle: "ページの読み込みに失敗しました",
   routeErrorBody: "古いバージョンのファイルが残っている可能性があります。再読み込みして最新バージョンを取得してください。",
   routeErrorReload: "再読み込み",
+  routeErrorClearCache: "キャッシュを消して再読み込み",
+  routeErrorGoHome: "ホームに戻る",
   home: "ホーム",
   learn: "学習",
   rules: "活用表",

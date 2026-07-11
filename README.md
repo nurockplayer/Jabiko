@@ -24,6 +24,7 @@ points. Open it and practise; nothing to install, no account needed.
 - **Cross-device sync** — your progress follows you across devices (optional sign-in; everything works logged-out too, stored locally first).
 - **8-language UI** — Traditional Chinese, Japanese, English, Thai, Indonesian, Korean, Vietnamese, Burmese. Furigana toggle, dark / light theme.
 - **Installable PWA** — add to home screen and practise offline.
+- **App-level recovery screen** — if a lazy chunk or stale cache blows up, Jabiko shows reload / clear-cache / back-home actions instead of a blank screen. This is local recovery only, not third-party error monitoring.
 
 ## Who it's for
 

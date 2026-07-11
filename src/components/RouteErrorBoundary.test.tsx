@@ -36,6 +36,10 @@ describe("RouteErrorBoundary", () => {
         title="Page failed"
         body="Reload the app."
         reloadLabel="Reload"
+        clearCacheLabel="Clear cache and reload"
+        homeLabel="Back home"
+        onGoHome={() => {}}
+        context={{ route: "/challenge", locale: "zh-Hant", buildVersion: "0.1.0" }}
       >
         <Thrower />
       </RouteErrorBoundary>
@@ -43,6 +47,8 @@ describe("RouteErrorBoundary", () => {
 
     expect(screen.getByRole("alert")).toHaveTextContent("Page failed");
     expect(screen.getByRole("button", { name: "Reload" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Clear cache and reload" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Back home" })).toBeInTheDocument();
   });
 
   it("auto-recovers a chunk-load failure once: repair caches, then reload", async () => {
@@ -56,6 +62,10 @@ describe("RouteErrorBoundary", () => {
         title="Page failed"
         body="Reload the app."
         reloadLabel="Reload"
+        clearCacheLabel="Clear cache and reload"
+        homeLabel="Back home"
+        onGoHome={() => {}}
+        context={{ route: "/challenge", locale: "zh-Hant", buildVersion: "0.1.0" }}
         recover={recover}
         reload={reload}
       >
@@ -80,6 +90,10 @@ describe("RouteErrorBoundary", () => {
         title="Page failed"
         body="Reload the app."
         reloadLabel="Reload"
+        clearCacheLabel="Clear cache and reload"
+        homeLabel="Back home"
+        onGoHome={() => {}}
+        context={{ route: "/challenge", locale: "zh-Hant", buildVersion: "0.1.0" }}
         recover={recover}
         reload={reload}
       >
@@ -108,6 +122,10 @@ describe("RouteErrorBoundary", () => {
         title="Page failed"
         body="Reload the app."
         reloadLabel="Reload"
+        clearCacheLabel="Clear cache and reload"
+        homeLabel="Back home"
+        onGoHome={() => {}}
+        context={{ route: "/challenge", locale: "zh-Hant", buildVersion: "0.1.0" }}
         recover={recover}
         reload={reload}
       >
@@ -119,7 +137,7 @@ describe("RouteErrorBoundary", () => {
     expect(reload).not.toHaveBeenCalled();
   });
 
-  it("the reload button repairs caches before reloading (never a bare reload)", async () => {
+  it("the clear-cache button repairs caches before reloading", async () => {
     sessionStorage.clear();
     const user = userEvent.setup();
     const recover = vi.fn().mockResolvedValue(true);
@@ -131,6 +149,40 @@ describe("RouteErrorBoundary", () => {
         title="Page failed"
         body="Reload the app."
         reloadLabel="Reload"
+        clearCacheLabel="Clear cache and reload"
+        homeLabel="Back home"
+        onGoHome={() => {}}
+        context={{ route: "/challenge", locale: "zh-Hant", buildVersion: "0.1.0" }}
+        recover={recover}
+        reload={reload}
+      >
+        <Thrower />
+      </RouteErrorBoundary>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Clear cache and reload" }));
+
+    await waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
+    expect(recover).toHaveBeenCalledTimes(1);
+    expect(recover.mock.invocationCallOrder[0]).toBeLessThan(reload.mock.invocationCallOrder[0]);
+  });
+
+  it("the reload button does a direct reload without cache repair", async () => {
+    sessionStorage.clear();
+    const user = userEvent.setup();
+    const recover = vi.fn().mockResolvedValue(true);
+    const reload = vi.fn();
+
+    render(
+      <RouteErrorBoundary
+        resetKey="route-a"
+        title="Page failed"
+        body="Reload the app."
+        reloadLabel="Reload"
+        clearCacheLabel="Clear cache and reload"
+        homeLabel="Back home"
+        onGoHome={() => {}}
+        context={{ route: "/challenge", locale: "zh-Hant", buildVersion: "0.1.0" }}
         recover={recover}
         reload={reload}
       >
@@ -140,10 +192,60 @@ describe("RouteErrorBoundary", () => {
 
     await user.click(screen.getByRole("button", { name: "Reload" }));
 
-    await waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
-    expect(recover).toHaveBeenCalledTimes(1);
-    // recover must complete before reload fires
-    expect(recover.mock.invocationCallOrder[0]).toBeLessThan(reload.mock.invocationCallOrder[0]);
+    expect(reload).toHaveBeenCalledTimes(1);
+    expect(recover).not.toHaveBeenCalled();
+  });
+
+  it("the back-home button calls the home callback", async () => {
+    sessionStorage.clear();
+    const user = userEvent.setup();
+    const onGoHome = vi.fn();
+
+    render(
+      <RouteErrorBoundary
+        resetKey="route-a"
+        title="Page failed"
+        body="Reload the app."
+        reloadLabel="Reload"
+        clearCacheLabel="Clear cache and reload"
+        homeLabel="Back home"
+        onGoHome={onGoHome}
+        context={{ route: "/challenge", locale: "zh-Hant", buildVersion: "0.1.0" }}
+      >
+        <Thrower />
+      </RouteErrorBoundary>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Back home" }));
+
+    expect(onGoHome).toHaveBeenCalledTimes(1);
+  });
+
+  it("logs only the approved route metadata with the error", () => {
+    render(
+      <RouteErrorBoundary
+        resetKey="route-a"
+        title="Page failed"
+        body="Reload the app."
+        reloadLabel="Reload"
+        clearCacheLabel="Clear cache and reload"
+        homeLabel="Back home"
+        onGoHome={() => {}}
+        context={{ route: "/challenge", locale: "ja", buildVersion: "0.1.0" }}
+      >
+        <Thrower />
+      </RouteErrorBoundary>
+    );
+
+    expect(console.error).toHaveBeenCalledWith(
+      "[route-error]",
+      expect.any(Error),
+      {
+        route: "/challenge",
+        locale: "ja",
+        buildVersion: "0.1.0"
+      }
+    );
   });
 
   it("resets after the route key changes", () => {
@@ -153,6 +255,10 @@ describe("RouteErrorBoundary", () => {
         title="Page failed"
         body="Reload the app."
         reloadLabel="Reload"
+        clearCacheLabel="Clear cache and reload"
+        homeLabel="Back home"
+        onGoHome={() => {}}
+        context={{ route: "/challenge", locale: "zh-Hant", buildVersion: "0.1.0" }}
       >
         <Thrower />
       </RouteErrorBoundary>
@@ -164,6 +270,10 @@ describe("RouteErrorBoundary", () => {
         title="Page failed"
         body="Reload the app."
         reloadLabel="Reload"
+        clearCacheLabel="Clear cache and reload"
+        homeLabel="Back home"
+        onGoHome={() => {}}
+        context={{ route: "/challenge", locale: "zh-Hant", buildVersion: "0.1.0" }}
       >
         <Ok />
       </RouteErrorBoundary>

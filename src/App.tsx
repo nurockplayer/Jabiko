@@ -45,6 +45,7 @@ import { readLevelPreference, writeLevelPreference } from "./domain/levelPrefere
 import type { LevelRange } from "./domain/levelRange";
 import { trackEvent } from "./lib/analytics";
 import { canonicalArticleSlug } from "./domain/articlesMeta";
+import packageJson from "../package.json";
 import "./styles.css";
 
 // Lazy routes. The challenge view owns the practice engine, which
@@ -86,6 +87,7 @@ const BlogIndexPage = lazy(() =>
 const BlogArticlePage = lazy(() =>
   import("./components/BlogArticlePage").then((module) => ({ default: module.BlogArticlePage }))
 );
+const BUILD_VERSION = packageJson.version;
 
 type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about" | "grammar" | "blog";
 type DrillPreset = LearningBlockDrillPreset;
@@ -406,6 +408,24 @@ export default function App() {
 
   return (
     <main className="app-shell">
+      <RouteErrorBoundary
+        resetKey={routeResetKey}
+        title={t.routeErrorTitle}
+        body={t.routeErrorBody}
+        reloadLabel={t.routeErrorReload}
+        clearCacheLabel={t.routeErrorClearCache}
+        homeLabel={t.routeErrorGoHome}
+        onGoHome={() => {
+          setGrammarSurface(null);
+          setBlogSlug(null);
+          setAppView("home");
+        }}
+        context={{
+          route: window.location.pathname,
+          locale: language,
+          buildVersion: BUILD_VERSION
+        }}
+      >
       {needRefresh && <UpdateToast label={t.updateAvailable} onUpdate={updateApp} />}
       {langPickerOpen && (
         <LanguagePicker
@@ -607,12 +627,6 @@ export default function App() {
       </nav>
 
       <FuriganaContext.Provider value={{ enabled: furiganaEnabled }}>
-      <RouteErrorBoundary
-        resetKey={routeResetKey}
-        title={t.routeErrorTitle}
-        body={t.routeErrorBody}
-        reloadLabel={t.routeErrorReload}
-      >
       {appView === "home" ? (
         <HomePanel
           language={language}
@@ -738,8 +752,8 @@ export default function App() {
           />
         </Suspense>
       )}
-      </RouteErrorBoundary>
       </FuriganaContext.Provider>
+      </RouteErrorBoundary>
     </main>
   );
 }
