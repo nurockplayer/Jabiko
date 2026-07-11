@@ -12,6 +12,7 @@
  * carry no `r` and render as bare text.
  */
 export type FuriganaSegment = { t: string; r?: string };
+export type InlineRubySegment = { text: string; ruby: boolean };
 
 // kuromoji's token shape, narrowed to the two fields we consume. Loose so
 // callers can pass real kuromoji tokens or plain fixtures.
@@ -33,12 +34,111 @@ export function hasKanji(value: string): boolean {
   return KANJI_RE.test(value);
 }
 
+const KANA_ONLY_RE = /[ぁ-ゖ゙-゜ァ-ヺー]/;
+function hasKana(value: string): boolean {
+  return KANA_ONLY_RE.test(value);
+}
+
 // Hiragana / katakana / long-vowel mark / combining marks count as "kana"
 // for run-splitting. 々 is deliberately excluded (it repeats the preceding
 // kanji, so it groups WITH the kanji run).
 const KANA_RE = /[ぁ-ゖ゙-゜ァ-ヺー]/;
 function isKana(ch: string): boolean {
   return KANA_RE.test(ch);
+}
+
+const INLINE_JAPANESE_TOKEN_RE = /[A-Za-zＡ-Ｚａ-ｚ0-9０-９ぁ-ゖ゙-゜ァ-ヺー一-鿿々・＋-]+/g;
+
+function mergePlainSegments(segments: InlineRubySegment[]): InlineRubySegment[] {
+  const out: InlineRubySegment[] = [];
+  for (const segment of segments) {
+    const last = out[out.length - 1];
+    if (last && !last.ruby && !segment.ruby) last.text += segment.text;
+    else out.push(segment);
+  }
+  return out;
+}
+
+function splitTokenCandidates(text: string, quoted: boolean): InlineRubySegment[] {
+  const segments: InlineRubySegment[] = [];
+  let lastIndex = 0;
+  let allowQuotedKanji = quoted;
+  for (const match of text.matchAll(INLINE_JAPANESE_TOKEN_RE)) {
+    const index = match.index ?? 0;
+    if (index > lastIndex) {
+      const plainText = text.slice(lastIndex, index);
+      segments.push({ text: plainText, ruby: false });
+      if (quoted && plainText.includes("／")) allowQuotedKanji = false;
+    }
+    const token = match[0];
+    const ruby = hasKana(token) || (allowQuotedKanji && hasKanji(token));
+    segments.push({ text: token, ruby });
+    lastIndex = index + token.length;
+  }
+  if (lastIndex < text.length) {
+    segments.push({ text: text.slice(lastIndex), ruby: false });
+  }
+  return mergePlainSegments(segments);
+}
+
+/**
+ * Split mixed explanation text into plain spans and ruby-eligible Japanese
+ * spans. Outside quotes we only mark kana-containing runs, which keeps the
+ * Chinese source prose plain; inside Japanese quotes we also allow kanji-only
+ * tokens like 「学校」.
+ */
+export function splitTextForRuby(text: string): InlineRubySegment[] {
+  const segments: InlineRubySegment[] = [];
+  let cursor = 0;
+
+  while (cursor < text.length) {
+    const open = text.indexOf("「", cursor);
+    if (open === -1) {
+      segments.push(...splitTokenCandidates(text.slice(cursor), false));
+      break;
+    }
+
+    if (open > cursor) {
+      segments.push(...splitTokenCandidates(text.slice(cursor, open), false));
+    }
+
+    const close = text.indexOf("」", open + 1);
+    if (close === -1) {
+      segments.push(...splitTokenCandidates(text.slice(open), false));
+      break;
+    }
+
+    segments.push({ text: "「", ruby: false });
+    segments.push(...splitTokenCandidates(text.slice(open + 1, close), true));
+    segments.push({ text: "」", ruby: false });
+    cursor = close + 1;
+  }
+
+  return mergePlainSegments(segments);
+}
+
+/**
+ * Collect safe build-time furigana sources from a mixed-language explanation.
+ * Only kana-containing runs are baked from free text so Chinese prose like
+ * 「有生命」 never picks up a bogus Japanese reading.
+ */
+export function collectJapaneseRubySources(text: string | null | undefined): string[] {
+  if (typeof text !== "string") return [];
+
+  const isBakeable = (value: string): boolean => {
+    if (!hasKana(value)) return false;
+    if (value.length === 1 && !hasKanji(value)) return false;
+    if (hasKanji(value)) return /[ぁ-ゖ゙-゜ァ-ヺー]$/.test(value);
+    return true;
+  };
+
+  return Array.from(
+    new Set(
+      splitTextForRuby(text)
+        .filter((segment) => segment.ruby && isBakeable(segment.text))
+        .map((segment) => segment.text)
+    )
+  );
 }
 
 type Run = { kanji: boolean; text: string };

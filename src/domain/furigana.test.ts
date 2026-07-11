@@ -6,7 +6,9 @@ import {
   tokensToSegments,
   applyReadingOverrides,
   isReadingPrompt,
-  allowsOptionFurigana
+  allowsOptionFurigana,
+  splitTextForRuby,
+  collectJapaneseRubySources
 } from "./furigana";
 
 describe("isReadingPrompt", () => {
@@ -57,6 +59,53 @@ describe("allowsOptionFurigana (#589)", () => {
   it("allows unlabelled basic drills (options are kana forms with no baked entries anyway)", () => {
     expect(allowsOptionFurigana(undefined)).toBe(true);
     expect(allowsOptionFurigana(null)).toBe(true);
+  });
+});
+
+describe("splitTextForRuby", () => {
+  it("marks kana-containing runs outside quotes but leaves zh prose plain", () => {
+    expect(splitTextForRuby("這裡用 Vてください 表示請求。")).toEqual([
+      { text: "這裡用 ", ruby: false },
+      { text: "Vてください", ruby: true },
+      { text: " 表示請求。", ruby: false }
+    ]);
+  });
+
+  it("allows kanji-only tokens inside Japanese quotes", () => {
+    expect(splitTextForRuby("正解「学校」在這裡。")).toEqual([
+      { text: "正解「", ruby: false },
+      { text: "学校", ruby: true },
+      { text: "」在這裡。", ruby: false }
+    ]);
+  });
+
+  it("keeps a Japanese term separate from its Chinese gloss after a full-width slash", () => {
+    expect(splitTextForRuby("干擾「あかるい（明るい／明亮）」")).toEqual([
+      { text: "干擾「", ruby: false },
+      { text: "あかるい", ruby: true },
+      { text: "（", ruby: false },
+      { text: "明るい", ruby: true },
+      { text: "／明亮）」", ruby: false }
+    ]);
+  });
+});
+
+describe("collectJapaneseRubySources", () => {
+  it("collects only safe kana-containing runs from mixed explanation text", () => {
+    expect(
+      collectJapaneseRubySources("正解「学校」：文法「Vてください」と「食べる」を一起記。中文「有生命」不要烤。")
+    ).toEqual(["Vてください", "食べる"]);
+  });
+
+  it("collects the Japanese term without its Chinese gloss after a full-width slash", () => {
+    expect(collectJapaneseRubySources("干擾「あかるい（明るい／明亮）」")).toEqual([
+      "あかるい",
+      "明るい"
+    ]);
+  });
+
+  it("ignores a missing explanation source", () => {
+    expect(collectJapaneseRubySources(undefined)).toEqual([]);
   });
 });
 

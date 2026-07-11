@@ -27,4 +27,8 @@ describe("furiganaData option coverage (#589)", () => {
       `kanji options without a baked furigana entry (run pnpm build:furigana): ${missing.slice(0, 10).join(" | ")}`
     ).toEqual([]);
   });
+
+  it("does not bake a localized meaning answer as Japanese text", () => {
+    expect(furiganaData["今天"]).toBeUndefined();
+  });
 });

@@ -583,6 +583,48 @@ describe("FeedbackPanel furigana (#134)", () => {
     const readings = Array.from(container.querySelectorAll(".example rt")).map((n) => n.textContent);
     expect(readings).toContain("がっこう");
   });
+
+  it("extends furigana to Japanese runs inside the explanation when the toggle is on (#588)", () => {
+    const explanationQuestion = {
+      ...question,
+      explanation: "正解「学校」：這題先記這個讀音。",
+      vocabulary: {
+        ...question.vocabulary,
+        examples: []
+      }
+    };
+    const { container } = render(
+      <FuriganaContext.Provider value={{ enabled: true }}>
+        <FeedbackPanel
+          feedback={{ status: "correct", question: explanationQuestion, submittedAnswer: null }}
+          language="zh-Hant"
+          options={[]}
+        />
+      </FuriganaContext.Provider>
+    );
+    const readings = Array.from(container.querySelectorAll("rt")).map((n) => n.textContent);
+    expect(readings).toEqual(["がっこう"]);
+  });
+
+  it("keeps the explanation plain when furigana is off", () => {
+    const explanationQuestion = {
+      ...question,
+      explanation: "正解「学校」：這題先記這個讀音。",
+      vocabulary: {
+        ...question.vocabulary,
+        examples: []
+      }
+    };
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question: explanationQuestion, submittedAnswer: null }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    expect(container.querySelectorAll("rt")).toHaveLength(0);
+    expect(container.textContent).toContain("正解「学校」：這題先記這個讀音。");
+  });
 });
 
 describe("FeedbackPanel vocab notes (#453)", () => {

@@ -9,6 +9,7 @@ import { pickLocalized } from "../domain/localizedContent";
 import { GrammarNoteCard } from "./GrammarNoteCard";
 import { QuestionReportForm } from "./QuestionReportForm";
 import { Ruby } from "./Ruby";
+import { RubyText } from "./RubyText";
 import type { Feedback } from "./types";
 
 // Post-answer panel: shows correct/incorrect/revealed status, the
@@ -39,6 +40,11 @@ export function FeedbackPanel({
   const isRevealed = feedback.status === "revealed";
   const title = isCorrect ? t.correct : isRevealed ? t.revealed : t.incorrect;
   const Icon = isCorrect ? CheckCircle2 : XCircle;
+  const explanation = pickLocalized(
+    feedback.question.explanation,
+    feedback.question.explanationI18n,
+    language
+  );
   // Post-answer JLPT level tag (N1/N2/N3) for items that carry one -- exam
   // questions + JLPT vocab. Shown only here, never pre-answer, so it can't
   // tip off the question. Basic/cloze/pattern items have no level -> hidden.
@@ -108,7 +114,7 @@ export function FeedbackPanel({
         </p>
       ) : null}
       <p className="answer-key">{t.answerKey}：{feedback.question.expectedAnswers.join(" / ")}</p>
-      <p>{pickLocalized(feedback.question.explanation, feedback.question.explanationI18n, language)}</p>
+      <p><RubyText text={explanation} /></p>
       {distractorGlosses.length > 0 ? (
         <div className="distractor-gloss">
           <p className="distractor-gloss-label">{t.feedbackOtherOptions}：</p>
