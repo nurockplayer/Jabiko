@@ -72,7 +72,11 @@ export default defineConfig({
           name: "domain-node",
           environment: "node",
           setupFiles: "./src/test/setupNode.ts",
-          include: ["src/domain/**/*.test.ts"],
+          include: [
+            "src/domain/**/*.test.ts",
+            "functions/**/*.test.mjs",
+            "scripts/**/*.test.ts"
+          ],
           exclude: [
             "src/domain/bookmarks.test.ts",
             "src/domain/levelPreference.test.ts",
