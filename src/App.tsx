@@ -294,8 +294,14 @@ export default function App() {
   // Persistent feedback entry (#456): the suggestion box was only reachable from
   // the homepage footer; this opens the same form from the always-visible header.
   const [feedbackKind, setFeedbackKind] = useState<FeedbackCategory | null>(null);
-  // Service-worker update prompt (#327): toast when a new build is ready.
-  const { needRefresh, updateApp } = usePwaUpdate();
+  // Service-worker update lifecycle (#327): toast when a new build is ready,
+  // plus safe-window auto apply — a pending update installs itself when the
+  // tab is hidden or the view changes, but NEVER mid-practice (challenge /
+  // mock own live question sets a reload would wipe), where the toast stays
+  // the only path.
+  const { needRefresh, updateApp } = usePwaUpdate(
+    appView === "challenge" || appView === "mock" ? null : appView
+  );
 
   const { theme, toggleTheme } = useTheme();
   // Global furigana (ruby) preference, default OFF (#134). The hook owns the
