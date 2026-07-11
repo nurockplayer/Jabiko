@@ -73,6 +73,18 @@ describe("blog articles data guard", () => {
     expect(bodyText).toContain("多說 アツアツ");
     expect(links).toContain("https://www.youtube.com/watch?v=2OQEgEYjPY4");
     expect(links?.some((url) => url.includes("embeds_referring"))).toBe(false);
+    // 2026-07-12 discussion additions: the lead anchors on まだ美味しい, the
+    // lyric walkthrough section exists, the 電波/意味不明-as-old-flavor point
+    // is stated, and the teaching half reads as an appendix.
+    expect(bodyText).toContain("從一盤蝦仁");
+    expect(bodyText).toContain("幾句重點歌詞");
+    expect(bodyText).toContain("杜拜巧克力");
+    expect(bodyText).toContain("敢把沒有必要解釋的東西也放進歌裡");
+    // Personal sentence-level walkthroughs (author's own study notes).
+    expect(bodyText).toContain("三句我自己也查了才懂");
+    expect(bodyText).toContain("從裡到外一起燒起來");
+    const divider = article?.body.find((block) => block.kind === "divider");
+    expect(divider && "label" in divider ? divider.label : "").toContain("附錄");
   });
 
   it("keeps titles and descriptions within SEO-friendly lengths", () => {
