@@ -78,6 +78,16 @@ describe("splitTextForRuby", () => {
       { text: "」在這裡。", ruby: false }
     ]);
   });
+
+  it("keeps a Japanese term separate from its Chinese gloss after a full-width slash", () => {
+    expect(splitTextForRuby("干擾「あかるい（明るい／明亮）」")).toEqual([
+      { text: "干擾「", ruby: false },
+      { text: "あかるい", ruby: true },
+      { text: "（", ruby: false },
+      { text: "明るい", ruby: true },
+      { text: "／明亮）」", ruby: false }
+    ]);
+  });
 });
 
 describe("collectJapaneseRubySources", () => {
@@ -85,6 +95,13 @@ describe("collectJapaneseRubySources", () => {
     expect(
       collectJapaneseRubySources("正解「学校」：文法「Vてください」と「食べる」を一起記。中文「有生命」不要烤。")
     ).toEqual(["Vてください", "食べる"]);
+  });
+
+  it("collects the Japanese term without its Chinese gloss after a full-width slash", () => {
+    expect(collectJapaneseRubySources("干擾「あかるい（明るい／明亮）」")).toEqual([
+      "あかるい",
+      "明るい"
+    ]);
   });
 });
 

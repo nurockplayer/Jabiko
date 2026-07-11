@@ -89,9 +89,10 @@ try {
   };
 
   // Sources: every currently reachable question's post-answer examples,
-  // prompt stems, key words, allowed options, and the Japanese runs quoted in
-  // explanations. Explanations are mixed zh/ja prose, so we only extract the
-  // ruby-worthy Japanese runs instead of tokenising the whole paragraph.
+  // prompt stems, key words, non-localized answers, allowed options, and the
+  // Japanese runs quoted in explanations. Explanations are mixed zh/ja prose,
+  // so we only extract the ruby-worthy Japanese runs instead of tokenising the
+  // whole paragraph.
   const sentences = new Set();
   let promptStems = 0;
   let optionRuns = 0;
@@ -103,7 +104,9 @@ try {
       sentences.add(q.promptText);
       promptStems += 1;
     }
-    for (const answer of q.expectedAnswers) sentences.add(answer);
+    if (q.targetForm !== "meaning") {
+      for (const answer of q.expectedAnswers) sentences.add(answer);
+    }
     if (allowsOptionFurigana(q.promptLabel)) {
       for (const opt of q.options ?? []) {
         sentences.add(opt);

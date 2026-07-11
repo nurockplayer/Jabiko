@@ -250,7 +250,13 @@ export function DrillPanel({
                   data-selected={isSelected ? "true" : undefined}
                   data-result={dataResult}
                 >
-                  <Ruby text={choice} plain={!allowsOptionFurigana(currentQuestion.promptLabel)} />
+                  <Ruby
+                    text={choice}
+                    plain={
+                      currentQuestion.targetForm === "meaning" ||
+                      !allowsOptionFurigana(currentQuestion.promptLabel)
+                    }
+                  />
                 </button>
               );
             })}

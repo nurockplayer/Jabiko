@@ -47,7 +47,7 @@ function isKana(ch: string): boolean {
   return KANA_RE.test(ch);
 }
 
-const INLINE_JAPANESE_TOKEN_RE = /[A-Za-zＡ-Ｚａ-ｚ0-9０-９ぁ-ゖ゙-゜ァ-ヺー一-鿿々・／＋-]+/g;
+const INLINE_JAPANESE_TOKEN_RE = /[A-Za-zＡ-Ｚａ-ｚ0-9０-９ぁ-ゖ゙-゜ァ-ヺー一-鿿々・＋-]+/g;
 
 function mergePlainSegments(segments: InlineRubySegment[]): InlineRubySegment[] {
   const out: InlineRubySegment[] = [];
@@ -62,13 +62,16 @@ function mergePlainSegments(segments: InlineRubySegment[]): InlineRubySegment[] 
 function splitTokenCandidates(text: string, quoted: boolean): InlineRubySegment[] {
   const segments: InlineRubySegment[] = [];
   let lastIndex = 0;
+  let allowQuotedKanji = quoted;
   for (const match of text.matchAll(INLINE_JAPANESE_TOKEN_RE)) {
     const index = match.index ?? 0;
     if (index > lastIndex) {
-      segments.push({ text: text.slice(lastIndex, index), ruby: false });
+      const plainText = text.slice(lastIndex, index);
+      segments.push({ text: plainText, ruby: false });
+      if (quoted && plainText.includes("／")) allowQuotedKanji = false;
     }
     const token = match[0];
-    const ruby = quoted ? hasKanji(token) || hasKana(token) : hasKana(token);
+    const ruby = hasKana(token) || (allowQuotedKanji && hasKanji(token));
     segments.push({ text: token, ruby });
     lastIndex = index + token.length;
   }

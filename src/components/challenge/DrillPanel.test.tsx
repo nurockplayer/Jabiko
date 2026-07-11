@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { DrillPanel } from "./DrillPanel";
+import { FuriganaContext } from "../furiganaContext";
 import type { Attempt, PracticeQuestion } from "../../domain/types";
 import type { Language } from "../../i18n";
 
@@ -103,6 +104,23 @@ describe("DrillPanel", () => {
   it("keeps the zh gloss for zh-Hant", () => {
     renderPanel("zh-Hant");
     expect(screen.getByText("寫")).toBeInTheDocument();
+  });
+
+  it("keeps localized meaning choices plain even when the same Hanzi has Japanese ruby data", () => {
+    const meaningQuestion: PracticeQuestion = {
+      ...question,
+      targetForm: "meaning",
+      expectedAnswers: ["水"],
+      vocabulary: { ...question.vocabulary, surface: "水", reading: "みず", meaningZh: "水" }
+    };
+
+    render(
+      <FuriganaContext.Provider value={{ enabled: true }}>
+        <DrillPanel {...baseProps} language="zh-Hant" currentQuestion={meaningQuestion} choiceOptions={["水"]} />
+      </FuriganaContext.Provider>
+    );
+
+    expect(screen.getByRole("button", { name: /水/ }).querySelector("rt")).toBeNull();
   });
 
   describe("session-complete card", () => {
