@@ -221,7 +221,7 @@ describe("RouteErrorBoundary", () => {
     expect(onGoHome).toHaveBeenCalledTimes(1);
   });
 
-  it("logs safe route metadata with the error", () => {
+  it("logs only the approved route metadata with the error", () => {
     render(
       <RouteErrorBoundary
         resetKey="route-a"
@@ -240,12 +240,11 @@ describe("RouteErrorBoundary", () => {
     expect(console.error).toHaveBeenCalledWith(
       "[route-error]",
       expect.any(Error),
-      expect.objectContaining({
+      {
         route: "/challenge",
         locale: "ja",
-        buildVersion: "0.1.0",
-        componentStack: expect.any(String)
-      })
+        buildVersion: "0.1.0"
+      }
     );
   });
 

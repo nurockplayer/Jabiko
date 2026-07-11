@@ -408,6 +408,24 @@ export default function App() {
 
   return (
     <main className="app-shell">
+      <RouteErrorBoundary
+        resetKey={routeResetKey}
+        title={t.routeErrorTitle}
+        body={t.routeErrorBody}
+        reloadLabel={t.routeErrorReload}
+        clearCacheLabel={t.routeErrorClearCache}
+        homeLabel={t.routeErrorGoHome}
+        onGoHome={() => {
+          setGrammarSurface(null);
+          setBlogSlug(null);
+          setAppView("home");
+        }}
+        context={{
+          route: window.location.pathname,
+          locale: language,
+          buildVersion: BUILD_VERSION
+        }}
+      >
       {needRefresh && <UpdateToast label={t.updateAvailable} onUpdate={updateApp} />}
       {langPickerOpen && (
         <LanguagePicker
@@ -609,24 +627,6 @@ export default function App() {
       </nav>
 
       <FuriganaContext.Provider value={{ enabled: furiganaEnabled }}>
-      <RouteErrorBoundary
-        resetKey={routeResetKey}
-        title={t.routeErrorTitle}
-        body={t.routeErrorBody}
-        reloadLabel={t.routeErrorReload}
-        clearCacheLabel={t.routeErrorClearCache}
-        homeLabel={t.routeErrorGoHome}
-        onGoHome={() => {
-          setGrammarSurface(null);
-          setBlogSlug(null);
-          setAppView("home");
-        }}
-        context={{
-          route: window.location.pathname,
-          locale: language,
-          buildVersion: BUILD_VERSION
-        }}
-      >
       {appView === "home" ? (
         <HomePanel
           language={language}
@@ -752,8 +752,8 @@ export default function App() {
           />
         </Suspense>
       )}
-      </RouteErrorBoundary>
       </FuriganaContext.Provider>
+      </RouteErrorBoundary>
     </main>
   );
 }

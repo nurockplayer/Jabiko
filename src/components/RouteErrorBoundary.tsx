@@ -1,4 +1,4 @@
-import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Component, type ReactNode } from "react";
 import { isChunkLoadError, recoverPoisonedAssets } from "../lib/assetRecovery";
 
 // One silent self-repair per session: enough to recover a poisoned cache
@@ -71,12 +71,11 @@ export class RouteErrorBoundary extends Component<
     }
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  componentDidCatch(error: Error) {
     console.error("[route-error]", error, {
       route: this.props.context.route,
       locale: this.props.context.locale,
-      buildVersion: this.props.context.buildVersion,
-      componentStack: errorInfo.componentStack
+      buildVersion: this.props.context.buildVersion
     });
     // Chunk-load failures are almost always a poisoned/stale local cache
     // (immutable HTTP entry or old SW shell) — a bare reload can't fix those,
