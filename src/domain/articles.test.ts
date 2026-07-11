@@ -42,6 +42,9 @@ describe("blog articles data guard", () => {
 
   it("serves the complete ebichili essay and teaching sections", () => {
     const article = articleBySlug("shiritsu-ebisu-chugaku-ebichili-hajimemashita");
+    const links = article?.body.flatMap((block) =>
+      block.kind === "links" ? block.items.map((item) => item.url) : []
+    );
     const bodyText = article?.body
       .flatMap((block) => {
         if ("text" in block) return [block.text];
@@ -54,14 +57,22 @@ describe("blog articles data guard", () => {
 
     expect(article?.title).toContain("えびチリ、はじめました");
     expect(bodyText).toContain("原点回帰");
-    expect(bodyText).toContain("現在的私立恵比寿中学");
+    expect(bodyText).toContain("十年前那種資訊量很大");
+    expect(bodyText).toContain("同一口鍋又開了火");
+    expect(bodyText).toContain("2009 年成立");
+    expect(bodyText).toContain("超ときめき♡宣伝部");
     expect(bodyText).toContain("まだ");
     expect(bodyText).toContain("到現在仍然好吃嗎");
     expect(bodyText).toContain("ご唱和ください");
     expect(bodyText).toContain("〜ような気がする");
     expect(bodyText).toContain("食べよ");
     expect(bodyText).toContain("MV 不是把歌詞照著拍一遍");
-    expect(bodyText).toContain("回流、初次認識、現場意願");
+    expect(bodyText).toContain("離開的人想回來");
+    expect(bodyText).toContain("お待ちどおさま");
+    expect(bodyText).toContain("昔の流行がまた巡ってきた");
+    expect(bodyText).toContain("多說 アツアツ");
+    expect(links).toContain("https://www.youtube.com/watch?v=2OQEgEYjPY4");
+    expect(links?.some((url) => url.includes("embeds_referring"))).toBe(false);
   });
 
   it("keeps titles and descriptions within SEO-friendly lengths", () => {
