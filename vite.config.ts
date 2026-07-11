@@ -64,8 +64,44 @@ export default defineConfig({
     })
   ],
   test: {
-    environment: "jsdom",
     globals: true,
-    setupFiles: "./src/test/setup.ts"
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "domain-node",
+          environment: "node",
+          setupFiles: "./src/test/setupNode.ts",
+          include: [
+            "src/domain/**/*.test.ts",
+            "functions/**/*.test.mjs",
+            "scripts/**/*.test.ts"
+          ],
+          exclude: [
+            "src/domain/bookmarks.test.ts",
+            "src/domain/levelPreference.test.ts",
+            "src/domain/originMigration.test.ts"
+          ]
+        }
+      },
+      {
+        extends: true,
+        test: {
+          name: "jsdom",
+          environment: "jsdom",
+          setupFiles: "./src/test/setup.ts",
+          include: [
+            "src/App*.test.tsx",
+            "src/components/**/*.test.{ts,tsx}",
+            "src/hooks/**/*.test.{ts,tsx}",
+            "src/i18n.test.ts",
+            "src/lib/**/*.test.{ts,tsx}",
+            "src/domain/bookmarks.test.ts",
+            "src/domain/levelPreference.test.ts",
+            "src/domain/originMigration.test.ts"
+          ]
+        }
+      }
+    ]
   }
 });

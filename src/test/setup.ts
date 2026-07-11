@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 
-import { beforeEach, vi } from "vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach, beforeEach, vi } from "vitest";
 
 // The PWA register module (#327) is a build-time virtual module with no test
 // implementation; stub it so anything importing usePwaUpdate (App) can load.
@@ -20,6 +21,10 @@ function pinTestLocale() {
 }
 
 pinTestLocale();
+
+afterEach(() => {
+  cleanup();
+});
 
 beforeEach(() => {
   pinTestLocale();
