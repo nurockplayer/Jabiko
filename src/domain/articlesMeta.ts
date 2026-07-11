@@ -29,6 +29,14 @@ const BLOG_SLUG_ALIASES: Record<string, string> = {
 
 const rawArticleMetas: ReadonlyArray<ArticleMeta> = [
   {
+    slug: "shiritsu-ebisu-chugaku-ebichili-hajimemashita",
+    title: "從歌詞學日文系列 私立恵比寿中学 - えびチリ、はじめました：現在的我們，還好吃嗎？",
+    description:
+      "從私立恵比寿中学〈えびチリ、はじめました〉讀懂町中華、原點回歸、變與不變，以及最後一句「まだ美味しい」為什麼讓人想哭。",
+    tag: "歌詞學日文",
+    publishedAt: "2026-07-12"
+  },
+  {
     slug: "sweet-steady-sweet-step",
     title: "從「SWEET STEP」學日文：在 ありのまま 裡找真正的自己",
     description:

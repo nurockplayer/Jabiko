@@ -40,6 +40,30 @@ describe("blog articles data guard", () => {
     }
   });
 
+  it("serves the complete ebichili essay and teaching sections", () => {
+    const article = articleBySlug("shiritsu-ebisu-chugaku-ebichili-hajimemashita");
+    const bodyText = article?.body
+      .flatMap((block) => {
+        if ("text" in block) return [block.text];
+        if (block.kind === "vocab") {
+          return block.items.flatMap((item) => [item.word, item.reading, item.meaning, item.note ?? ""]);
+        }
+        return [];
+      })
+      .join("\n");
+
+    expect(article?.title).toContain("えびチリ、はじめました");
+    expect(bodyText).toContain("原点回帰");
+    expect(bodyText).toContain("現在的私立恵比寿中学");
+    expect(bodyText).toContain("まだ");
+    expect(bodyText).toContain("到現在仍然好吃嗎");
+    expect(bodyText).toContain("ご唱和ください");
+    expect(bodyText).toContain("〜ような気がする");
+    expect(bodyText).toContain("食べよ");
+    expect(bodyText).toContain("MV 不是把歌詞照著拍一遍");
+    expect(bodyText).toContain("回流、初次認識、現場意願");
+  });
+
   it("keeps titles and descriptions within SEO-friendly lengths", () => {
     for (const a of articles) {
       expect(a.title.length).toBeGreaterThan(0);
