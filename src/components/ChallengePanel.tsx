@@ -29,7 +29,6 @@ export function ChallengePanel({
   language,
   targetLevel = null,
   onExit,
-  onOpenGrammar,
   onOpenFeedback
 }: {
   init?: SessionInit;
@@ -40,8 +39,6 @@ export function ChallengePanel({
   // session hook to seed the daily / 綜合 / 単字 level range.
   targetLevel?: LevelRange | null;
   onExit: () => void;
-  // Navigate to a grammar point's study page from the post-answer feedback (#282).
-  onOpenGrammar?: (surface: string) => void;
   // Open the in-app feedback form from the completion card (#456).
   onOpenFeedback?: () => void;
 }) {
@@ -59,7 +56,6 @@ export function ChallengePanel({
       <DrillPanel
         language={language}
         onExit={onExit}
-        onOpenGrammar={onOpenGrammar}
         onOpenFeedback={onOpenFeedback}
         {...session}
       />

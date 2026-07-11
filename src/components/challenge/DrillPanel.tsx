@@ -92,7 +92,6 @@ export function DrillPanel({
   isQuestionBookmarked,
   onToggleBookmark,
   onExit,
-  onOpenGrammar,
   onOpenFeedback
 }: Pick<
   PracticeSession,
@@ -123,7 +122,6 @@ export function DrillPanel({
 > & {
   language: Language;
   onExit: () => void;
-  onOpenGrammar?: (surface: string) => void;
   // Opens the in-app feedback form (#456) from the completion card, so a
   // learner who just spotted a bad question can report it in context.
   onOpenFeedback?: () => void;
@@ -280,7 +278,6 @@ export function DrillPanel({
               feedback={feedback}
               language={language}
               options={choiceOptions}
-              onOpenGrammar={onOpenGrammar}
               bookmarked={isQuestionBookmarked(feedback.question.id)}
               onToggleBookmark={() => onToggleBookmark(feedback.question.id)}
             />
