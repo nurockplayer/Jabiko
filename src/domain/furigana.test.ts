@@ -103,6 +103,10 @@ describe("collectJapaneseRubySources", () => {
       "明るい"
     ]);
   });
+
+  it("ignores a missing explanation source", () => {
+    expect(collectJapaneseRubySources(undefined)).toEqual([]);
+  });
 });
 
 describe("kataToHira", () => {

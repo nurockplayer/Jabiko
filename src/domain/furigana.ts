@@ -122,7 +122,9 @@ export function splitTextForRuby(text: string): InlineRubySegment[] {
  * Only kana-containing runs are baked from free text so Chinese prose like
  * 「有生命」 never picks up a bogus Japanese reading.
  */
-export function collectJapaneseRubySources(text: string): string[] {
+export function collectJapaneseRubySources(text: string | null | undefined): string[] {
+  if (typeof text !== "string") return [];
+
   const isBakeable = (value: string): boolean => {
     if (!hasKana(value)) return false;
     if (value.length === 1 && !hasKanji(value)) return false;
