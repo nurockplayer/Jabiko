@@ -1,0 +1,1138 @@
+[
+  {
+    "surface": "気候",
+    "reading": "きこう",
+    "meaningZh": "氣候",
+    "partOfSpeech": "noun",
+    "en": "climate",
+    "ja": "その土地の平均的な天気の様子"
+  },
+  {
+    "surface": "湿気",
+    "reading": "しっけ",
+    "meaningZh": "濕氣、潮氣",
+    "partOfSpeech": "noun",
+    "en": "moisture; dampness; humidity",
+    "ja": "空気や物に含まれる水分"
+  },
+  {
+    "surface": "日差し",
+    "reading": "ひざし",
+    "meaningZh": "陽光照射、日照",
+    "partOfSpeech": "noun",
+    "en": "sunlight; rays of the sun",
+    "ja": "太陽の光が差すこと"
+  },
+  {
+    "surface": "梅雨",
+    "reading": "つゆ",
+    "meaningZh": "梅雨（初夏雨季）",
+    "partOfSpeech": "noun",
+    "en": "rainy season in early summer",
+    "ja": "六月ごろの雨が多く降る時期"
+  },
+  {
+    "surface": "雷",
+    "reading": "かみなり",
+    "meaningZh": "雷、打雷",
+    "partOfSpeech": "noun",
+    "en": "thunder; lightning",
+    "ja": "空で光って大きな音が鳴るもの"
+  },
+  {
+    "surface": "虹",
+    "reading": "にじ",
+    "meaningZh": "彩虹",
+    "partOfSpeech": "noun",
+    "en": "rainbow",
+    "ja": "雨上がりに空にかかる七色の弓形"
+  },
+  {
+    "surface": "霧",
+    "reading": "きり",
+    "meaningZh": "霧",
+    "partOfSpeech": "noun",
+    "en": "fog; mist",
+    "ja": "空気中の細かい水滴で辺りが白くかすむもの"
+  },
+  {
+    "surface": "夕焼け",
+    "reading": "ゆうやけ",
+    "meaningZh": "晚霞",
+    "partOfSpeech": "noun",
+    "en": "sunset glow; red evening sky",
+    "ja": "日が沈むころ空が赤く染まること"
+  },
+  {
+    "surface": "温度",
+    "reading": "おんど",
+    "meaningZh": "溫度",
+    "partOfSpeech": "noun",
+    "en": "temperature",
+    "ja": "熱さや冷たさの度合い"
+  },
+  {
+    "surface": "地面",
+    "reading": "じめん",
+    "meaningZh": "地面",
+    "partOfSpeech": "noun",
+    "en": "ground; surface of the earth",
+    "ja": "土の表面、大地の上の面"
+  },
+  {
+    "surface": "森林",
+    "reading": "しんりん",
+    "meaningZh": "森林",
+    "partOfSpeech": "noun",
+    "en": "forest; woodland",
+    "ja": "木がたくさん茂っている広い所"
+  },
+  {
+    "surface": "湖",
+    "reading": "みずうみ",
+    "meaningZh": "湖泊",
+    "partOfSpeech": "noun",
+    "en": "lake",
+    "ja": "陸に囲まれた大きな水のたまり"
+  },
+  {
+    "surface": "坂",
+    "reading": "さか",
+    "meaningZh": "坡道、斜坡",
+    "partOfSpeech": "noun",
+    "en": "slope; hill road",
+    "ja": "傾いている道"
+  },
+  {
+    "surface": "岸",
+    "reading": "きし",
+    "meaningZh": "岸邊",
+    "partOfSpeech": "noun",
+    "en": "shore; bank; coast",
+    "ja": "海や川と陸との境目"
+  },
+  {
+    "surface": "岩",
+    "reading": "いわ",
+    "meaningZh": "岩石",
+    "partOfSpeech": "noun",
+    "en": "rock; boulder",
+    "ja": "大きくて硬い石"
+  },
+  {
+    "surface": "泥",
+    "reading": "どろ",
+    "meaningZh": "泥巴",
+    "partOfSpeech": "noun",
+    "en": "mud",
+    "ja": "水を含んで柔らかくなった土"
+  },
+  {
+    "surface": "砂",
+    "reading": "すな",
+    "meaningZh": "沙子",
+    "partOfSpeech": "noun",
+    "en": "sand",
+    "ja": "石が細かく砕けた粒"
+  },
+  {
+    "surface": "波",
+    "reading": "なみ",
+    "meaningZh": "波浪",
+    "partOfSpeech": "noun",
+    "en": "wave",
+    "ja": "水面が上下にうねって動くもの"
+  },
+  {
+    "surface": "谷",
+    "reading": "たに",
+    "meaningZh": "山谷",
+    "partOfSpeech": "noun",
+    "en": "valley",
+    "ja": "山と山の間の低い所"
+  },
+  {
+    "surface": "影",
+    "reading": "かげ",
+    "meaningZh": "影子",
+    "partOfSpeech": "noun",
+    "en": "shadow; silhouette",
+    "ja": "光が遮られてできる暗い形"
+  },
+  {
+    "surface": "煙",
+    "reading": "けむり",
+    "meaningZh": "煙",
+    "partOfSpeech": "noun",
+    "en": "smoke",
+    "ja": "物が燃えるときに出て、空中に立ちのぼるもの"
+  },
+  {
+    "surface": "会場",
+    "reading": "かいじょう",
+    "meaningZh": "會場",
+    "partOfSpeech": "noun",
+    "en": "venue; event hall",
+    "ja": "催しが行われる場所"
+  },
+  {
+    "surface": "倉庫",
+    "reading": "そうこ",
+    "meaningZh": "倉庫",
+    "partOfSpeech": "noun",
+    "en": "warehouse; storehouse",
+    "ja": "品物をしまっておく建物"
+  },
+  {
+    "surface": "屋根",
+    "reading": "やね",
+    "meaningZh": "屋頂",
+    "partOfSpeech": "noun",
+    "en": "roof",
+    "ja": "雨や日光を防ぐため建物の上を覆う部分"
+  },
+  {
+    "surface": "天井",
+    "reading": "てんじょう",
+    "meaningZh": "天花板",
+    "partOfSpeech": "noun",
+    "en": "ceiling",
+    "ja": "部屋の上の面"
+  },
+  {
+    "surface": "床",
+    "reading": "ゆか",
+    "meaningZh": "地板",
+    "partOfSpeech": "noun",
+    "en": "floor",
+    "ja": "部屋の下の、足で踏む面"
+  },
+  {
+    "surface": "窓口",
+    "reading": "まどぐち",
+    "meaningZh": "（辦事）窗口、櫃檯",
+    "partOfSpeech": "noun",
+    "en": "service counter; ticket window",
+    "ja": "役所や銀行などで手続きをする受付"
+  },
+  {
+    "surface": "広場",
+    "reading": "ひろば",
+    "meaningZh": "廣場",
+    "partOfSpeech": "noun",
+    "en": "open square; plaza",
+    "ja": "建物のない広い場所"
+  },
+  {
+    "surface": "施設",
+    "reading": "しせつ",
+    "meaningZh": "設施、機構",
+    "partOfSpeech": "noun",
+    "en": "facility; institution",
+    "ja": "ある目的のために作られた建物や設備"
+  },
+  {
+    "surface": "非常口",
+    "reading": "ひじょうぐち",
+    "meaningZh": "緊急出口",
+    "partOfSpeech": "noun",
+    "en": "emergency exit",
+    "ja": "火事などのときに逃げるための出口"
+  },
+  {
+    "surface": "温泉",
+    "reading": "おんせん",
+    "meaningZh": "溫泉",
+    "partOfSpeech": "noun",
+    "en": "hot spring",
+    "ja": "地下から湧く温かい湯、またその風呂"
+  },
+  {
+    "surface": "正面",
+    "reading": "しょうめん",
+    "meaningZh": "正面、正前方",
+    "partOfSpeech": "noun",
+    "en": "the front; facade",
+    "ja": "物のまっすぐ前の面"
+  },
+  {
+    "surface": "裏",
+    "reading": "うら",
+    "meaningZh": "背面、後面",
+    "partOfSpeech": "noun",
+    "en": "back; reverse side",
+    "ja": "表と反対の側、後ろの面"
+  },
+  {
+    "surface": "隅",
+    "reading": "すみ",
+    "meaningZh": "角落",
+    "partOfSpeech": "noun",
+    "en": "corner; nook",
+    "ja": "部屋などの端の角の所"
+  },
+  {
+    "surface": "底",
+    "reading": "そこ",
+    "meaningZh": "底部",
+    "partOfSpeech": "noun",
+    "en": "bottom; base",
+    "ja": "物のいちばん下の部分"
+  },
+  {
+    "surface": "手前",
+    "reading": "てまえ",
+    "meaningZh": "跟前、靠自己這一側",
+    "partOfSpeech": "noun",
+    "en": "this side; the area just before something",
+    "ja": "自分に近い側"
+  },
+  {
+    "surface": "翌日",
+    "reading": "よくじつ",
+    "meaningZh": "翌日、第二天",
+    "partOfSpeech": "noun",
+    "en": "the next day; the following day",
+    "ja": "次の日"
+  },
+  {
+    "surface": "当日",
+    "reading": "とうじつ",
+    "meaningZh": "活動當天、指定那一天",
+    "partOfSpeech": "noun",
+    "en": "the very day of an event",
+    "ja": "催しや約束があるその日"
+  },
+  {
+    "surface": "深夜",
+    "reading": "しんや",
+    "meaningZh": "深夜",
+    "partOfSpeech": "noun",
+    "en": "late at night; the small hours",
+    "ja": "夜のとても遅い時間"
+  },
+  {
+    "surface": "真夜中",
+    "reading": "まよなか",
+    "meaningZh": "半夜、午夜",
+    "partOfSpeech": "noun",
+    "en": "midnight; dead of night",
+    "ja": "夜の十二時ごろ、夜のいちばん深い時間"
+  },
+  {
+    "surface": "夜明け",
+    "reading": "よあけ",
+    "meaningZh": "黎明、天亮時分",
+    "partOfSpeech": "noun",
+    "en": "dawn; daybreak",
+    "ja": "朝、空が明るくなり始めるころ"
+  },
+  {
+    "surface": "早朝",
+    "reading": "そうちょう",
+    "meaningZh": "清晨",
+    "partOfSpeech": "noun",
+    "en": "early morning",
+    "ja": "朝のとても早い時間"
+  },
+  {
+    "surface": "平日",
+    "reading": "へいじつ",
+    "meaningZh": "平日、工作日",
+    "partOfSpeech": "noun",
+    "en": "weekday",
+    "ja": "土日や祝日ではない日"
+  },
+  {
+    "surface": "祝日",
+    "reading": "しゅくじつ",
+    "meaningZh": "國定假日",
+    "partOfSpeech": "noun",
+    "en": "national holiday",
+    "ja": "国が決めた休みの日"
+  },
+  {
+    "surface": "期限",
+    "reading": "きげん",
+    "meaningZh": "期限、截止時間",
+    "partOfSpeech": "noun",
+    "en": "deadline; time limit",
+    "ja": "いつまでと決められた時"
+  },
+  {
+    "surface": "布",
+    "reading": "ぬの",
+    "meaningZh": "布料",
+    "partOfSpeech": "noun",
+    "en": "cloth; fabric",
+    "ja": "糸を織って作ったもの"
+  },
+  {
+    "surface": "毛布",
+    "reading": "もうふ",
+    "meaningZh": "毛毯",
+    "partOfSpeech": "noun",
+    "en": "blanket",
+    "ja": "寝るときに掛ける厚い布"
+  },
+  {
+    "surface": "缶",
+    "reading": "かん",
+    "meaningZh": "金屬罐",
+    "partOfSpeech": "noun",
+    "en": "can; tin",
+    "ja": "金属でできた入れ物"
+  },
+  {
+    "surface": "袋",
+    "reading": "ふくろ",
+    "meaningZh": "袋子",
+    "partOfSpeech": "noun",
+    "en": "bag; sack",
+    "ja": "物を入れる柔らかい入れ物"
+  },
+  {
+    "surface": "棚",
+    "reading": "たな",
+    "meaningZh": "架子、置物架",
+    "partOfSpeech": "noun",
+    "en": "shelf; rack",
+    "ja": "物を載せて置くための板"
+  },
+  {
+    "surface": "畳",
+    "reading": "たたみ",
+    "meaningZh": "榻榻米",
+    "partOfSpeech": "noun",
+    "en": "traditional Japanese straw floor mat",
+    "ja": "和室の床に敷くもの"
+  },
+  {
+    "surface": "透明",
+    "reading": "とうめい",
+    "meaningZh": "透明的",
+    "partOfSpeech": "na_adjective",
+    "en": "transparent; clear",
+    "ja": "向こうが透けて見える様子"
+  },
+  {
+    "surface": "平ら",
+    "reading": "たいら",
+    "meaningZh": "平坦的",
+    "partOfSpeech": "na_adjective",
+    "en": "flat; level; even",
+    "ja": "でこぼこがなく水平な様子"
+  },
+  {
+    "surface": "清潔",
+    "reading": "せいけつ",
+    "meaningZh": "清潔衛生的",
+    "partOfSpeech": "na_adjective",
+    "en": "clean; hygienic",
+    "ja": "汚れがなくきれいな様子"
+  },
+  {
+    "surface": "無事",
+    "reading": "ぶじ",
+    "meaningZh": "平安無事的",
+    "partOfSpeech": "na_adjective",
+    "en": "safe; without incident",
+    "ja": "事故や問題がない様子"
+  },
+  {
+    "surface": "真っ暗",
+    "reading": "まっくら",
+    "meaningZh": "一片漆黑的",
+    "partOfSpeech": "na_adjective",
+    "en": "pitch-dark",
+    "ja": "光が全くなく暗い様子"
+  },
+  {
+    "surface": "真っ白",
+    "reading": "まっしろ",
+    "meaningZh": "純白的、一片雪白的",
+    "partOfSpeech": "na_adjective",
+    "en": "pure white",
+    "ja": "完全に白い様子"
+  },
+  {
+    "surface": "完全",
+    "reading": "かんぜん",
+    "meaningZh": "完全的、完整的",
+    "partOfSpeech": "na_adjective",
+    "en": "complete; perfect",
+    "ja": "欠けた所が全くない様子"
+  },
+  {
+    "surface": "明らか",
+    "reading": "あきらか",
+    "meaningZh": "明顯的、清楚的",
+    "partOfSpeech": "na_adjective",
+    "en": "obvious; evident; clear",
+    "ja": "誰が見てもはっきりしている様子"
+  },
+  {
+    "surface": "様々",
+    "reading": "さまざま",
+    "meaningZh": "各式各樣的",
+    "partOfSpeech": "na_adjective",
+    "en": "various; a wide variety of",
+    "ja": "種類が多い様子、いろいろ"
+  },
+  {
+    "surface": "別々",
+    "reading": "べつべつ",
+    "meaningZh": "各自分開的",
+    "partOfSpeech": "na_adjective",
+    "en": "separate; individual",
+    "ja": "一緒ではなく、それぞれ分かれている様子"
+  },
+  {
+    "surface": "巨大",
+    "reading": "きょだい",
+    "meaningZh": "巨大的",
+    "partOfSpeech": "na_adjective",
+    "en": "huge; gigantic",
+    "ja": "非常に大きい様子"
+  },
+  {
+    "surface": "常に",
+    "reading": "つねに",
+    "meaningZh": "總是、一直",
+    "partOfSpeech": "adverb",
+    "en": "always; at all times",
+    "ja": "いつも"
+  },
+  {
+    "surface": "再び",
+    "reading": "ふたたび",
+    "meaningZh": "再次、再度",
+    "partOfSpeech": "adverb",
+    "en": "again; once more",
+    "ja": "もう一度"
+  },
+  {
+    "surface": "最も",
+    "reading": "もっとも",
+    "meaningZh": "最、最為",
+    "partOfSpeech": "adverb",
+    "en": "most; the most",
+    "ja": "いちばん"
+  },
+  {
+    "surface": "更に",
+    "reading": "さらに",
+    "meaningZh": "更加、進一步",
+    "partOfSpeech": "adverb",
+    "en": "furthermore; even more",
+    "ja": "その上に、もっと"
+  },
+  {
+    "surface": "決して",
+    "reading": "けっして",
+    "meaningZh": "（後接否定）絕對（不）",
+    "partOfSpeech": "adverb",
+    "en": "never; by no means",
+    "ja": "絶対に（後ろに打ち消しが来る）"
+  },
+  {
+    "surface": "全く",
+    "reading": "まったく",
+    "meaningZh": "完全、簡直；（接否定）完全不",
+    "partOfSpeech": "adverb",
+    "en": "entirely; utterly; not at all",
+    "ja": "完全に、全然"
+  },
+  {
+    "surface": "一体",
+    "reading": "いったい",
+    "meaningZh": "到底、究竟",
+    "partOfSpeech": "adverb",
+    "en": "what on earth; on earth",
+    "ja": "疑問語とともに使って、驚きやいらだちをこめて強く問う言葉"
+  },
+  {
+    "surface": "相変わらず",
+    "reading": "あいかわらず",
+    "meaningZh": "依舊、一如往常",
+    "partOfSpeech": "adverb",
+    "en": "as usual; as ever",
+    "ja": "前と同じように"
+  },
+  {
+    "surface": "既に",
+    "reading": "すでに",
+    "meaningZh": "已經",
+    "partOfSpeech": "adverb",
+    "en": "already",
+    "ja": "もう"
+  },
+  {
+    "surface": "少なくとも",
+    "reading": "すくなくとも",
+    "meaningZh": "至少",
+    "partOfSpeech": "adverb",
+    "en": "at least",
+    "ja": "どんなに少なく見ても"
+  },
+  {
+    "surface": "次々に",
+    "reading": "つぎつぎに",
+    "meaningZh": "接二連三地",
+    "partOfSpeech": "adverb",
+    "en": "one after another; in succession",
+    "ja": "休みなく続けて、次から次へと"
+  },
+  {
+    "surface": "移動",
+    "reading": "いどう",
+    "meaningZh": "移動、移位",
+    "partOfSpeech": "noun",
+    "en": "movement; relocation",
+    "ja": "場所を変えること"
+  },
+  {
+    "surface": "上達",
+    "reading": "じょうたつ",
+    "meaningZh": "（技能）進步、變熟練",
+    "partOfSpeech": "noun",
+    "en": "improvement in a skill",
+    "ja": "腕前が上がること"
+  },
+  {
+    "surface": "進行",
+    "reading": "しんこう",
+    "meaningZh": "進行、進展",
+    "partOfSpeech": "noun",
+    "en": "progress; moving forward",
+    "ja": "物事が進んでいくこと"
+  },
+  {
+    "surface": "拡大",
+    "reading": "かくだい",
+    "meaningZh": "擴大、擴張",
+    "partOfSpeech": "noun",
+    "en": "expansion; enlargement",
+    "ja": "規模を大きく広げること"
+  },
+  {
+    "surface": "整理",
+    "reading": "せいり",
+    "meaningZh": "整理、收拾",
+    "partOfSpeech": "noun",
+    "en": "sorting out; tidying up",
+    "ja": "きちんと片付けること"
+  },
+  {
+    "surface": "発達",
+    "reading": "はったつ",
+    "meaningZh": "發達、發育",
+    "partOfSpeech": "noun",
+    "en": "development; growth",
+    "ja": "成長してより高度になること"
+  },
+  {
+    "surface": "発生",
+    "reading": "はっせい",
+    "meaningZh": "發生、產生",
+    "partOfSpeech": "noun",
+    "en": "occurrence; outbreak",
+    "ja": "物事が起こること"
+  },
+  {
+    "surface": "回復",
+    "reading": "かいふく",
+    "meaningZh": "恢復、康復",
+    "partOfSpeech": "noun",
+    "en": "recovery; restoration",
+    "ja": "元の状態に戻ること"
+  },
+  {
+    "surface": "完了",
+    "reading": "かんりょう",
+    "meaningZh": "完成、辦完",
+    "partOfSpeech": "noun",
+    "en": "completion; being finished",
+    "ja": "すっかり終わること"
+  },
+  {
+    "surface": "延長",
+    "reading": "えんちょう",
+    "meaningZh": "延長",
+    "partOfSpeech": "noun",
+    "en": "extension; prolongation",
+    "ja": "時間や期間を延ばすこと"
+  },
+  {
+    "surface": "交換",
+    "reading": "こうかん",
+    "meaningZh": "交換、更換",
+    "partOfSpeech": "noun",
+    "en": "exchange; swap",
+    "ja": "互いに取り替えること"
+  },
+  {
+    "surface": "交代",
+    "reading": "こうたい",
+    "meaningZh": "交替、輪換",
+    "partOfSpeech": "noun",
+    "en": "taking turns; shift change",
+    "ja": "入れ替わって役目を引き継ぐこと"
+  },
+  {
+    "surface": "帰宅",
+    "reading": "きたく",
+    "meaningZh": "回家、返家",
+    "partOfSpeech": "noun",
+    "en": "returning home",
+    "ja": "自分の家に帰ること"
+  },
+  {
+    "surface": "外出",
+    "reading": "がいしゅつ",
+    "meaningZh": "外出、出門",
+    "partOfSpeech": "noun",
+    "en": "going out",
+    "ja": "よそへ出かけること"
+  },
+  {
+    "surface": "出勤",
+    "reading": "しゅっきん",
+    "meaningZh": "上班、出勤",
+    "partOfSpeech": "noun",
+    "en": "going to work; reporting for duty",
+    "ja": "勤め先に出ること"
+  },
+  {
+    "surface": "節約",
+    "reading": "せつやく",
+    "meaningZh": "節約、節省",
+    "partOfSpeech": "noun",
+    "en": "saving; economizing",
+    "ja": "無駄を省いて切り詰めること"
+  },
+  {
+    "surface": "生産",
+    "reading": "せいさん",
+    "meaningZh": "生產、製造",
+    "partOfSpeech": "noun",
+    "en": "production; manufacturing",
+    "ja": "品物を作り出すこと"
+  },
+  {
+    "surface": "輸入",
+    "reading": "ゆにゅう",
+    "meaningZh": "進口、輸入",
+    "partOfSpeech": "noun",
+    "en": "importing goods",
+    "ja": "外国から品物を買い入れること"
+  },
+  {
+    "surface": "輸出",
+    "reading": "ゆしゅつ",
+    "meaningZh": "出口、外銷",
+    "partOfSpeech": "noun",
+    "en": "exporting goods",
+    "ja": "外国へ品物を売り出すこと"
+  },
+  {
+    "surface": "連続",
+    "reading": "れんぞく",
+    "meaningZh": "連續、接連",
+    "partOfSpeech": "noun",
+    "en": "succession; series",
+    "ja": "続けざまに起こること"
+  },
+  {
+    "surface": "継続",
+    "reading": "けいぞく",
+    "meaningZh": "繼續、持續",
+    "partOfSpeech": "noun",
+    "en": "continuation; keeping on",
+    "ja": "途中でやめずに続けること"
+  },
+  {
+    "surface": "停止",
+    "reading": "ていし",
+    "meaningZh": "停止、停擺",
+    "partOfSpeech": "noun",
+    "en": "stop; suspension",
+    "ja": "動きを止めること"
+  },
+  {
+    "surface": "通過",
+    "reading": "つうか",
+    "meaningZh": "通過、經過",
+    "partOfSpeech": "noun",
+    "en": "passing through",
+    "ja": "止まらずに通り過ぎること"
+  },
+  {
+    "surface": "横断",
+    "reading": "おうだん",
+    "meaningZh": "橫越、穿越",
+    "partOfSpeech": "noun",
+    "en": "crossing (a road, ocean, etc.)",
+    "ja": "横切って渡ること"
+  },
+  {
+    "surface": "追加",
+    "reading": "ついか",
+    "meaningZh": "追加、補充",
+    "partOfSpeech": "noun",
+    "en": "addition; adding on",
+    "ja": "後から付け加えること"
+  },
+  {
+    "surface": "記入",
+    "reading": "きにゅう",
+    "meaningZh": "填寫、寫入",
+    "partOfSpeech": "noun",
+    "en": "filling in a form; writing in",
+    "ja": "書類などに書き込むこと"
+  },
+  {
+    "surface": "申請",
+    "reading": "しんせい",
+    "meaningZh": "申請",
+    "partOfSpeech": "noun",
+    "en": "formal application to authorities",
+    "ja": "役所などに願い出ること"
+  },
+  {
+    "surface": "応募",
+    "reading": "おうぼ",
+    "meaningZh": "應徵、報名",
+    "partOfSpeech": "noun",
+    "en": "applying for a job or contest",
+    "ja": "募集に応じること"
+  },
+  {
+    "surface": "応援",
+    "reading": "おうえん",
+    "meaningZh": "聲援、加油支持",
+    "partOfSpeech": "noun",
+    "en": "cheering; support",
+    "ja": "励まして力づけること"
+  },
+  {
+    "surface": "握手",
+    "reading": "あくしゅ",
+    "meaningZh": "握手",
+    "partOfSpeech": "noun",
+    "en": "handshake",
+    "ja": "互いに手を握り合うこと"
+  },
+  {
+    "surface": "指導",
+    "reading": "しどう",
+    "meaningZh": "指導、教導",
+    "partOfSpeech": "noun",
+    "en": "guidance; coaching",
+    "ja": "教え導くこと"
+  },
+  {
+    "surface": "指示",
+    "reading": "しじ",
+    "meaningZh": "指示、指令",
+    "partOfSpeech": "noun",
+    "en": "instructions; directions",
+    "ja": "どうするかを具体的に示すこと"
+  },
+  {
+    "surface": "伝言",
+    "reading": "でんごん",
+    "meaningZh": "留言、口信",
+    "partOfSpeech": "noun",
+    "en": "verbal message left for someone",
+    "ja": "人に頼んで伝えてもらう言葉"
+  },
+  {
+    "surface": "宣伝",
+    "reading": "せんでん",
+    "meaningZh": "宣傳",
+    "partOfSpeech": "noun",
+    "en": "publicity; promotion",
+    "ja": "広く知らせて広めること"
+  },
+  {
+    "surface": "広告",
+    "reading": "こうこく",
+    "meaningZh": "廣告",
+    "partOfSpeech": "noun",
+    "en": "advertisement",
+    "ja": "商品などを世間に知らせるもの"
+  },
+  {
+    "surface": "投票",
+    "reading": "とうひょう",
+    "meaningZh": "投票",
+    "partOfSpeech": "noun",
+    "en": "voting; casting a ballot",
+    "ja": "票を入れて意思を示すこと"
+  },
+  {
+    "surface": "選挙",
+    "reading": "せんきょ",
+    "meaningZh": "選舉",
+    "partOfSpeech": "noun",
+    "en": "election",
+    "ja": "投票で代表を選ぶこと"
+  },
+  {
+    "surface": "逮捕",
+    "reading": "たいほ",
+    "meaningZh": "逮捕",
+    "partOfSpeech": "noun",
+    "en": "arrest",
+    "ja": "犯罪の疑いがある人の身柄を法的に拘束すること"
+  },
+  {
+    "surface": "救助",
+    "reading": "きゅうじょ",
+    "meaningZh": "救助、救援",
+    "partOfSpeech": "noun",
+    "en": "rescue",
+    "ja": "危険から人を助け出すこと"
+  },
+  {
+    "surface": "爆発",
+    "reading": "ばくはつ",
+    "meaningZh": "爆炸",
+    "partOfSpeech": "noun",
+    "en": "explosion; blowing up",
+    "ja": "激しく破裂すること"
+  },
+  {
+    "surface": "故障",
+    "reading": "こしょう",
+    "meaningZh": "故障",
+    "partOfSpeech": "noun",
+    "en": "breakdown; malfunction",
+    "ja": "機械が壊れて動かなくなること"
+  },
+  {
+    "surface": "混乱",
+    "reading": "こんらん",
+    "meaningZh": "混亂",
+    "partOfSpeech": "noun",
+    "en": "confusion; chaos",
+    "ja": "入り乱れて秩序を失うこと"
+  },
+  {
+    "surface": "合計",
+    "reading": "ごうけい",
+    "meaningZh": "合計、總計",
+    "partOfSpeech": "noun",
+    "en": "total; sum",
+    "ja": "全部を合わせた数"
+  },
+  {
+    "surface": "割合",
+    "reading": "わりあい",
+    "meaningZh": "比率、占比",
+    "partOfSpeech": "noun",
+    "en": "ratio; proportion",
+    "ja": "全体に対する部分の比"
+  },
+  {
+    "surface": "悪化",
+    "reading": "あっか",
+    "meaningZh": "惡化、變糟",
+    "partOfSpeech": "noun",
+    "en": "worsening; deterioration",
+    "ja": "状態が悪くなること"
+  },
+  {
+    "surface": "低下",
+    "reading": "ていか",
+    "meaningZh": "下降、降低",
+    "partOfSpeech": "noun",
+    "en": "decline; drop in level or quality",
+    "ja": "程度や質が下がること"
+  },
+  {
+    "surface": "流行",
+    "reading": "りゅうこう",
+    "meaningZh": "流行、風行",
+    "partOfSpeech": "noun",
+    "en": "fashion; trend; something in vogue",
+    "ja": "世間に広くはやること"
+  },
+  {
+    "surface": "挑戦",
+    "reading": "ちょうせん",
+    "meaningZh": "挑戰、嘗試",
+    "partOfSpeech": "noun",
+    "en": "challenge; attempt at something difficult",
+    "ja": "難しいことに立ち向かうこと"
+  },
+  {
+    "surface": "勝負",
+    "reading": "しょうぶ",
+    "meaningZh": "勝負、比試",
+    "partOfSpeech": "noun",
+    "en": "match; contest of winning and losing",
+    "ja": "勝ち負けを争うこと"
+  },
+  {
+    "surface": "勝利",
+    "reading": "しょうり",
+    "meaningZh": "勝利、獲勝",
+    "partOfSpeech": "noun",
+    "en": "victory; win",
+    "ja": "戦いや試合に勝つこと"
+  },
+  {
+    "surface": "優勝",
+    "reading": "ゆうしょう",
+    "meaningZh": "冠軍、奪冠",
+    "partOfSpeech": "noun",
+    "en": "championship; winning first place",
+    "ja": "大会で一位になること"
+  },
+  {
+    "surface": "活動",
+    "reading": "かつどう",
+    "meaningZh": "活動",
+    "partOfSpeech": "noun",
+    "en": "activity",
+    "ja": "活発に動いて働くこと"
+  },
+  {
+    "surface": "活躍",
+    "reading": "かつやく",
+    "meaningZh": "活躍、大顯身手",
+    "partOfSpeech": "noun",
+    "en": "playing an active and successful part",
+    "ja": "目覚ましく働くこと"
+  },
+  {
+    "surface": "無駄",
+    "reading": "むだ",
+    "meaningZh": "白費的、浪費的",
+    "partOfSpeech": "na_adjective",
+    "en": "wasteful; futile",
+    "ja": "役に立たないこと"
+  },
+  {
+    "surface": "急激",
+    "reading": "きゅうげき",
+    "meaningZh": "急劇的、驟然的",
+    "partOfSpeech": "na_adjective",
+    "en": "sudden and drastic",
+    "ja": "変化が非常に急なさま"
+  },
+  {
+    "surface": "急速",
+    "reading": "きゅうそく",
+    "meaningZh": "快速的、迅速的",
+    "partOfSpeech": "na_adjective",
+    "en": "rapid; fast-paced",
+    "ja": "進み方が非常に速いさま"
+  },
+  {
+    "surface": "大幅",
+    "reading": "おおはば",
+    "meaningZh": "大幅度的",
+    "partOfSpeech": "na_adjective",
+    "en": "substantial; large-scale (change)",
+    "ja": "変動の程度が大きいさま"
+  },
+  {
+    "surface": "見事",
+    "reading": "みごと",
+    "meaningZh": "出色的、精彩的",
+    "partOfSpeech": "na_adjective",
+    "en": "splendid; admirable",
+    "ja": "素晴らしく立派なさま"
+  },
+  {
+    "surface": "深刻",
+    "reading": "しんこく",
+    "meaningZh": "嚴重的、嚴峻的",
+    "partOfSpeech": "na_adjective",
+    "en": "serious; grave",
+    "ja": "事態が重大で差し迫ったさま"
+  },
+  {
+    "surface": "重大",
+    "reading": "じゅうだい",
+    "meaningZh": "重大的、影響深遠的",
+    "partOfSpeech": "na_adjective",
+    "en": "momentous; of great consequence",
+    "ja": "極めて重要で軽視できないさま"
+  },
+  {
+    "surface": "勝手",
+    "reading": "かって",
+    "meaningZh": "任性的、自作主張的",
+    "partOfSpeech": "na_adjective",
+    "en": "selfish; arbitrary",
+    "ja": "自分の都合だけで行動するさま"
+  },
+  {
+    "surface": "有効",
+    "reading": "ゆうこう",
+    "meaningZh": "有效的",
+    "partOfSpeech": "na_adjective",
+    "en": "effective; valid",
+    "ja": "効き目や効力があるさま"
+  },
+  {
+    "surface": "活発",
+    "reading": "かっぱつ",
+    "meaningZh": "活潑的、活躍的",
+    "partOfSpeech": "na_adjective",
+    "en": "lively; vigorous",
+    "ja": "生き生きして元気なさま"
+  },
+  {
+    "surface": "手軽",
+    "reading": "てがる",
+    "meaningZh": "簡便的、不費事的",
+    "partOfSpeech": "na_adjective",
+    "en": "easy and convenient",
+    "ja": "簡単で手間がかからないさま"
+  },
+  {
+    "surface": "案の定",
+    "reading": "あんのじょう",
+    "meaningZh": "果然、不出所料",
+    "partOfSpeech": "adverb",
+    "en": "just as expected",
+    "ja": "予想した通り"
+  },
+  {
+    "surface": "一斉に",
+    "reading": "いっせいに",
+    "meaningZh": "一齊、同時",
+    "partOfSpeech": "adverb",
+    "en": "all together; simultaneously",
+    "ja": "みんな同時に"
+  },
+  {
+    "surface": "度々",
+    "reading": "たびたび",
+    "meaningZh": "屢次、再三",
+    "partOfSpeech": "adverb",
+    "en": "often; repeatedly",
+    "ja": "何度も"
+  },
+  {
+    "surface": "次々",
+    "reading": "つぎつぎ",
+    "meaningZh": "接二連三、一個接一個",
+    "partOfSpeech": "adverb",
+    "en": "one after another",
+    "ja": "次から次へと"
+  },
+  {
+    "surface": "一気に",
+    "reading": "いっきに",
+    "meaningZh": "一口氣、一鼓作氣",
+    "partOfSpeech": "adverb",
+    "en": "in one go; without stopping",
+    "ja": "休まずに一度で"
+  }
+]
