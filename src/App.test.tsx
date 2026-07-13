@@ -53,12 +53,16 @@ describe("App", () => {
   // once here so every test below renders them synchronously regardless of
   // run order -- otherwise whichever test first navigates to a view would
   // run its synchronous assertions before the lazy chunk finished loading.
+  // GrammarPointPage is reached through a direct URL rather than one of these
+  // navigation clicks, so preload it explicitly for the route-level heading
+  // test below as well.
   // Generous timeouts here: this hook cold-loads the lazy chunks, and the
   // challenge chunk now carries the ~700KB pre-baked furigana table (#134 P4),
   // so the first transform+eval can exceed the 1s findBy default in CI before
   // any other test has warmed the modules. Once primed, the per-test
   // navigations below resolve from cache at the default timeout.
   beforeAll(async () => {
+    await import("./components/GrammarPointPage");
     const user = userEvent.setup();
     const { unmount } = render(<App />);
     await user.click(screen.getByRole("button", { name: "挑戰" }));
