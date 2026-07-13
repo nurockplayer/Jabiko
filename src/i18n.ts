@@ -158,6 +158,9 @@ export type Copy = {
   kanjiSearchEmpty: string;
   learningRegion: string;
   chapterIndexLabel: string;
+  // #608 mobile chapter bar: prev / next chapter controls.
+  chapterPrev: string;
+  chapterNext: string;
   chapterEyebrow: string;
   chapterHeading: string;
   chapterIntro: string;

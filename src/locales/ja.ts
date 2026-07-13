@@ -161,6 +161,8 @@ export const ja: Copy = {
   kanjiSearchEmpty: "該当する漢字が見つかりません。",
   learningRegion: "学習",
   chapterIndexLabel: "学習チャプター",
+  chapterPrev: "前の章",
+  chapterNext: "次の章",
   chapterEyebrow: "コースチャプター",
   chapterHeading: "一章ずつ進める",
   chapterIntro: "章を選んで、ルール・例・よくある間違いを確認してから、チャレンジで練習します。",

@@ -159,6 +159,8 @@ export const vi: Copy = {
   kanjiSearchEmpty: "Không tìm thấy kanji phù hợp.",
   learningRegion: "Học",
   chapterIndexLabel: "Chương học",
+  chapterPrev: "Chương trước",
+  chapterNext: "Chương sau",
   chapterEyebrow: "Chương khóa học",
   chapterHeading: "Mở khóa từng chương một",
   chapterIntro: "Chọn một chương để đọc quy tắc, ví dụ và các bẫy thường gặp, rồi luyện nó ở trang luyện tập.",

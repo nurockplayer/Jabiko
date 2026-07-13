@@ -159,6 +159,8 @@ export const en: Copy = {
   kanjiSearchEmpty: "No matching kanji found.",
   learningRegion: "Learn",
   chapterIndexLabel: "Study chapters",
+  chapterPrev: "Previous chapter",
+  chapterNext: "Next chapter",
   chapterEyebrow: "Course chapter",
   chapterHeading: "Unlock one chapter at a time",
   chapterIntro: "Pick a chapter to read the rule, examples, and common traps, then drill it on the practice page.",
