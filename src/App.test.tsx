@@ -129,7 +129,11 @@ describe("App", () => {
     window.history.replaceState({}, "", `/grammar/${encodeURIComponent(surface)}`);
     render(<App />);
 
-    await screen.findByRole("heading", { name: surface, level: 1 });
+    // This route resolves the heaviest lazy chain in the app (GrammarPointPage
+    // -> grammar notes -> exam bank; #611 split furigana into one more async
+    // module). The default 1s findBy timeout flaked on slow CI runners even
+    // though local runs pass, so give the first paint room to land.
+    await screen.findByRole("heading", { name: surface, level: 1 }, { timeout: 15000 });
     // Exactly one h1 on the SEO landing page, and it's the page-specific surface.
     const h1s = screen.getAllByRole("heading", { level: 1 });
     expect(h1s).toHaveLength(1);
