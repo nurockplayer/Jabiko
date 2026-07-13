@@ -10,6 +10,7 @@ import { GrammarNoteCard } from "./GrammarNoteCard";
 import { QuestionReportForm } from "./QuestionReportForm";
 import { Ruby } from "./Ruby";
 import { RubyText } from "./RubyText";
+import { ExplanationFuriganaBoundary } from "./ExplanationFuriganaBoundary";
 import type { Feedback } from "./types";
 
 // Post-answer panel: shows correct/incorrect/revealed status, the
@@ -111,7 +112,7 @@ export function FeedbackPanel({
         </p>
       ) : null}
       <p className="answer-key">{t.answerKey}：{feedback.question.expectedAnswers.join(" / ")}</p>
-      <p><RubyText text={explanation} /></p>
+      <p><ExplanationFuriganaBoundary><RubyText text={explanation} /></ExplanationFuriganaBoundary></p>
       {distractorGlosses.length > 0 ? (
         <div className="distractor-gloss">
           <p className="distractor-gloss-label">{t.feedbackOtherOptions}：</p>
