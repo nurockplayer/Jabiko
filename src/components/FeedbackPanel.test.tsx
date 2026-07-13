@@ -260,25 +260,11 @@ describe("FeedbackPanel grammar note (#137)", () => {
   });
 });
 
-describe("FeedbackPanel grammar study link (#282)", () => {
+describe("FeedbackPanel grammar study link (#282, #469)", () => {
   const grammarBase = examStyleQuestions.find((q) => q.promptLabel === "文法形式選擇")!;
   const linkName = copy["zh-Hant"].grammarStudyLink;
 
-  it("links a grammar item to its study page, calling onOpenGrammar with the surface", () => {
-    const onOpenGrammar = vi.fn();
-    render(
-      <FeedbackPanel
-        feedback={{ status: "incorrect", question: grammarBase, submittedAnswer: null }}
-        language="zh-Hant"
-        options={grammarBase.options ?? []}
-        onOpenGrammar={onOpenGrammar}
-      />
-    );
-    fireEvent.click(screen.getByRole("button", { name: linkName }));
-    expect(onOpenGrammar).toHaveBeenCalledWith(grammarBase.vocabulary.surface);
-  });
-
-  it("hides the link when no onOpenGrammar navigator is wired in", () => {
+  it("opens a grammar item in a separate tab so the active drill remains mounted", () => {
     render(
       <FeedbackPanel
         feedback={{ status: "incorrect", question: grammarBase, submittedAnswer: null }}
@@ -286,7 +272,10 @@ describe("FeedbackPanel grammar study link (#282)", () => {
         options={grammarBase.options ?? []}
       />
     );
-    expect(screen.queryByRole("button", { name: linkName })).toBeNull();
+    const link = screen.getByRole("link", { name: linkName });
+    expect(link).toHaveAttribute("href", `/grammar/${encodeURIComponent(grammarBase.vocabulary.surface)}`);
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
   });
 
   it("hides the link for a non-grammar (reading) item", () => {
@@ -295,10 +284,9 @@ describe("FeedbackPanel grammar study link (#282)", () => {
         feedback={{ status: "incorrect", question: readingPool[0], submittedAnswer: null }}
         language="zh-Hant"
         options={[]}
-        onOpenGrammar={vi.fn()}
       />
     );
-    expect(screen.queryByRole("button", { name: linkName })).toBeNull();
+    expect(screen.queryByRole("link", { name: linkName })).toBeNull();
   });
 
   it("hides the link for a grammar surface that has no study page", () => {
@@ -311,10 +299,9 @@ describe("FeedbackPanel grammar study link (#282)", () => {
         feedback={{ status: "incorrect", question, submittedAnswer: null }}
         language="zh-Hant"
         options={[]}
-        onOpenGrammar={vi.fn()}
       />
     );
-    expect(screen.queryByRole("button", { name: linkName })).toBeNull();
+    expect(screen.queryByRole("link", { name: linkName })).toBeNull();
   });
 });
 

@@ -753,7 +753,6 @@ export default function App() {
             language={language}
             targetLevel={targetLevel}
             onExit={() => setAppView("home")}
-            onOpenGrammar={openGrammar}
             onOpenFeedback={() => setFeedbackKind("wish")}
           />
         </Suspense>

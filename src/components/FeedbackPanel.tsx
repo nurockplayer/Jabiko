@@ -20,15 +20,12 @@ export function FeedbackPanel({
   feedback,
   language,
   options,
-  onOpenGrammar,
   bookmarked,
   onToggleBookmark
 }: {
   feedback: NonNullable<Feedback>;
   language: Language;
   options: string[];
-  /** Navigate to this grammar point's study page (#282). Omitted = no link. */
-  onOpenGrammar?: (surface: string) => void;
   /** Whether the current question is bookmarked (#470). Omit both to hide the star. */
   bookmarked?: boolean;
   onToggleBookmark?: () => void;
@@ -71,9 +68,9 @@ export function FeedbackPanel({
     promptLabel === "文法形式選擇" || promptLabel === "語順組合" || promptLabel === "文章脈絡";
   const grammarSurface = feedback.question.vocabulary.surface;
   const grammarNote = isGrammarItem ? lookupGrammarNote(grammarSurface) : null;
-  // "Study this grammar point →" deep link (#282): only for grammar items whose
-  // point actually has a study page, and only when a navigator is wired in.
-  const showStudyLink = isGrammarItem && Boolean(onOpenGrammar) && hasGrammarPoint(grammarSurface);
+  // "Study this grammar point →" opens separately (#282, #469), preserving the
+  // active drill session in this tab while the learner reads the explanation.
+  const showStudyLink = isGrammarItem && hasGrammarPoint(grammarSurface);
 
   // One gloss string PER distractor, rendered one-per-line, so a long
   // option list stays readable on mobile instead of wrapping mid-item.
@@ -170,14 +167,15 @@ export function FeedbackPanel({
         </div>
       ) : null}
       {showStudyLink ? (
-        <button
-          type="button"
+        <a
           className="grammar-study-link"
-          onClick={() => onOpenGrammar?.(grammarSurface)}
+          href={`/grammar/${encodeURIComponent(grammarSurface)}`}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           {t.grammarStudyLink}
           <ArrowRight aria-hidden="true" />
-        </button>
+        </a>
       ) : null}
       <div className="report-question-block">
         {onToggleBookmark ? (
