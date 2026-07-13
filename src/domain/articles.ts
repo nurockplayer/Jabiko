@@ -13,6 +13,7 @@
 // surrounding commentary + example sentences are original.
 import { articleMetas, articleMetaBySlug, type ArticleMeta } from "./articlesMeta";
 import { ebichiliBody } from "./articleBodies/ebichili";
+import { restaurantOrderingBody } from "./articleBodies/restaurantOrdering";
 import { sweetStepBody } from "./articleBodies/sweetStep";
 import { tasteExpressionsBody } from "./articleBodies/tasteExpressions";
 
@@ -312,7 +313,8 @@ const BODIES: Record<string, ReadonlyArray<ArticleBlock>> = {
 const BODY_OVERRIDES: Partial<Record<string, ReadonlyArray<ArticleBlock>>> = {
   "shiritsu-ebisu-chugaku-ebichili-hajimemashita": ebichiliBody,
   "sweet-steady-sweet-step": sweetStepBody,
-  "japanese-taste-texture-expressions": tasteExpressionsBody
+  "japanese-taste-texture-expressions": tasteExpressionsBody,
+  "japanese-restaurant-ordering-phrases": restaurantOrderingBody
 };
 
 function withBody(meta: ArticleMeta): BlogArticle {
