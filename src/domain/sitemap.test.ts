@@ -95,9 +95,13 @@ describe("sitemap grammar level hubs and lastmod (#584-B)", () => {
   });
 
   it("omits lastmod for grammar detail pages (no reliable per-page date)", () => {
-    const locs = [...sitemapXml.matchAll(/<loc>(https:\/\/jabiko\.app\/grammar\/[^n][^<]+)<\/loc>/g)].map(
-      (m) => m[1]
-    );
+    // Reuse the same URL construction as "lists every grammar-point page" to
+    // avoid drift between the two guards.
+    const locs: string[] = [];
+    for (const p of grammarPatterns) {
+      const surface = p.pattern.replace(/^[〜～]/, "");
+      locs.push(`https://jabiko.app/grammar/${encodeURIComponent(surface)}`);
+    }
     expect(locs.length).toBeGreaterThan(0);
     for (const loc of locs) {
       const block = urlBlockFor(loc);

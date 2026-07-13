@@ -15,6 +15,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { splitArrayEntries } from "./parse-article-entries.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ORIGIN = "https://jabiko.app";
@@ -52,19 +53,35 @@ function grammarSurfaces() {
   return [...surfaces];
 }
 
-// Published blog-article slugs with publishedAt dates. Bare regex parse of
-// articlesMeta.ts (no bundler needed): split the rawArticleMetas array into
-// per-entry chunks, extract slug + publishedAt, and skip any entry flagged
-// `draft: true` (drafts stay out of search).
+// Published blog-article slugs with publishedAt dates. Uses the
+// quote-aware parser from parse-article-entries.mjs to split the
+// rawArticleMetas array, then extracts slug + publishedAt from each entry
+// via simple regex (strings inside the entry are already correctly
+// delimited by the parser).  Skips entries flagged `draft: true`.
 function blogArticles() {
   const src = readFileSync(path.join(ROOT, "src/domain/articlesMeta.ts"), "utf8");
   const arr = src.match(/rawArticleMetas[^=]*=\s*\[([\s\S]*?)\];/);
   if (!arr) return [];
+  const body = arr[1];
+  let entries;
+  try {
+    entries = splitArrayEntries(body);
+  } catch (e) {
+    throw new Error(
+      `Failed to parse rawArticleMetas array: ${e.message}`
+    );
+  }
   const articles = [];
-  for (const chunk of arr[1].split(/\},/)) {
-    const slug = chunk.match(/slug:\s*"([^"]+)"/);
-    const publishedAt = chunk.match(/publishedAt:\s*"([^"]+)"/);
-    if (slug && publishedAt && !/draft:\s*true/.test(chunk)) {
+  for (const entry of entries) {
+    const slug = entry.match(/slug:\s*"([^"]+)"/);
+    const publishedAt = entry.match(/publishedAt:\s*"([^"]+)"/);
+    if (!slug) continue; // not an article entry (e.g. a non-object)
+    if (!publishedAt) {
+      throw new Error(
+        `rawArticleMetas entry for slug "${slug[1]}" is missing publishedAt`
+      );
+    }
+    if (!/draft:\s*true/.test(entry)) {
       articles.push({ slug: slug[1], publishedAt: publishedAt[1] });
     }
   }
