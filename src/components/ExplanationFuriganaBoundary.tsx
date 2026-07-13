@@ -32,11 +32,10 @@ export function ExplanationFuriganaBoundary({
     string,
     FuriganaSegment[]
   > | null>(null);
-  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     // Only load when furigana is on AND there is text to annotate.
-    if (!enabled || failed) return;
+    if (!enabled) return;
     if (hasJapaneseRuns === false) return;
 
     let cancelled = false;
@@ -44,14 +43,14 @@ export function ExplanationFuriganaBoundary({
       .then((map) => {
         if (!cancelled) setExplanationMap(map);
       })
-      .catch(() => {
-        if (!cancelled) setFailed(true);
-      });
+      // Loader clears its own promise on failure, so the next render
+      // cycle (e.g. toggling furigana off/on) will retry naturally.
+      .catch(() => {});
 
     return () => {
       cancelled = true;
     };
-  }, [enabled, hasJapaneseRuns, failed]);
+  }, [enabled, hasJapaneseRuns]);
 
   return (
     <ExplanationFuriganaContext.Provider value={explanationMap}>
