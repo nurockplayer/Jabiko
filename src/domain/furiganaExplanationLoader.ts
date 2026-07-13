@@ -22,9 +22,12 @@ let loadPromise: Promise<ExplanationMap> | null = null;
  */
 export function loadExplanationMap(): Promise<ExplanationMap> {
   if (!loadPromise) {
-    loadPromise = import("./furiganaExplanationData").then(
-      (mod) => mod.furiganaExplanationData
-    );
+    loadPromise = import("./furiganaExplanationData")
+      .then((mod) => mod.furiganaExplanationData)
+      .catch((err) => {
+        loadPromise = null;
+        throw err;
+      });
   }
   return loadPromise;
 }

@@ -38,10 +38,23 @@ describe("furiganaData option coverage (#589)", () => {
 // The base map must NOT contain explanation-only keys, while the explanation
 // map must still cover the explanation examples #591 introduced.
 describe("furiganaExplanationData drift guard (#599)", () => {
-  // Representative keys that only appear in explanations, never in stems/options.
-  // These are real kanji-bearing explanation runs from popular exam items.
+  // Keys that exist in the base map (from stems/options/examples)
+  // and SHOULD NOT appear in the explanation map — if they do, it means
+  // the classification in build-furigana.mjs let base-only content leak
+  // into the explanation table. These are representative prompt stems
+  // that never appear in explanations.
+  const BASE_ONLY_KEYS = [
+    " ___ 作った料理なのに、誰も食べてくれなかった。", // exam stem with blank
+    "SNS上では、その企業の対応をめぐって ___ 批判が続いている。",
+    "彼は、何があってもあきらめない人だ。",             // vocab example
+  ];
+
+  // Explanation-exclusive Japanese runs (extracted via collectJapaneseRubySources
+  // from explanation text, not present in any stem/option/example).
+  // These must survive in the explanation map for #591 compatibility.
   const EXPLANATION_ONLY_KEYS = [
-    "明るい",            // appears in 「明るい／明亮」gloss inside explanation — may also appear in base if a stem uses it
+    "あいさつを食べました",      // appears in explanation examples
+    "あえては自ら進んで行うこと", // explanation-only grammar gloss
   ];
 
   it("is a non-empty generated table", () => {
@@ -49,21 +62,15 @@ describe("furiganaExplanationData drift guard (#599)", () => {
   });
 
   it("contains explanation-only Japanese runs (the #591 coverage)", () => {
-    // At least some of the explanation keys must be present.
     const present = EXPLANATION_ONLY_KEYS.filter((k) => furiganaExplanationData[k]);
     expect(present.length).toBeGreaterThan(0);
   });
 
-  it("does not contain base-map keys that are not explanation-only", () => {
-    // The explanation map may overlap with the base map by design (same word
-    // may appear in both a prompt and an explanation). But typical stem-only
-    // keys like exam prompt stems must NOT be explanation-only -- check a few
-    // representative ones.
-    for (const key of Object.keys(furiganaExplanationData)) {
-      // If the key is also in base, that's fine (shared). The point is that
-      // explanation keys aren't MISSING from the explanation map.
-      expect(furiganaExplanationData[key]).toBeDefined();
-    }
+  it("does not contain base-only keys (stems/examples)", () => {
+    // Base-only keys that never appear in explanations must NOT leak
+    // into the explanation map. This guards the classification boundary.
+    const leaking = BASE_ONLY_KEYS.filter((k) => furiganaExplanationData[k]);
+    expect(leaking, `base-only keys leaked into explanation map: ${leaking.join(" | ")}`).toEqual([]);
   });
 
   it("has deterministic key ordering (sorted)", () => {

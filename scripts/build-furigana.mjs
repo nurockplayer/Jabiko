@@ -140,9 +140,10 @@ try {
   }
 
   function writeTable(keys, outPath, bannerSuffix, exportName) {
-    const entries = Object.keys(data)
+    const filteredKeys = Object.keys(data)
       .filter((k) => keys.has(k))
-      .sort()
+      .sort();
+    const entries = filteredKeys
       .map((key) => `  ${JSON.stringify(key)}: ${JSON.stringify(data[key])}`)
       .join(",\n");
 
@@ -156,7 +157,7 @@ try {
       `export const ${exportName}: Record<string, FuriganaSegment[]> = {\n${entries}\n};\n`;
 
     writeFileSync(outPath, file, "utf8");
-    return entries.length;
+    return filteredKeys.length;
   }
 
   const baseEntries = writeTable(

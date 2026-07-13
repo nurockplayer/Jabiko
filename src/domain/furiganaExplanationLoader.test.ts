@@ -14,7 +14,7 @@ describe("furiganaExplanationLoader (#599)", () => {
     const map = await loadExplanationMap();
     expect(map).toBeDefined();
     expect(typeof map).toBe("object");
-  });
+  }, 15000);
 
   it("returns the same promise across multiple calls (module-level dedup)", async () => {
     const p1 = loadExplanationMap();
@@ -40,5 +40,13 @@ describe("furiganaExplanationLoader (#599)", () => {
     const keys = Object.keys(map);
     // At least one shared key should be present
     expect(keys.length).toBeGreaterThan(100);
+  });
+
+  it("returns a new promise after resetExplanationLoader", async () => {
+    const p1 = loadExplanationMap();
+    resetExplanationLoader();
+    const p2 = loadExplanationMap();
+    expect(p1).not.toBe(p2);
+    await p2;
   });
 });

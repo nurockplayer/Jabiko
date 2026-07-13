@@ -5,14 +5,6 @@ import { FuriganaContext } from "./furiganaContext";
 import { RubyText } from "./RubyText";
 import { Ruby } from "./Ruby";
 
-// Mock the dynamic import to control loading state
-const mockExplanationData = vi.hoisted(() => ({
-  furiganaExplanationData: {
-    "学校": [{ t: "学校", r: "がっこう" }],
-    "食べる": [{ t: "食", r: "た" }, { t: "べる" }],
-  }
-}));
-
 beforeEach(() => {
   vi.restoreAllMocks();
 });
@@ -28,7 +20,6 @@ describe("ExplanationFuriganaBoundary (#599)", () => {
   });
 
   it("does not load explanation data when furigana is OFF", () => {
-    const loaderSpy = vi.fn();
     // The point is the boundary won't trigger dynamic import when not enabled.
     // We verify by checking render output: no ruby <rt> for explanation keys.
     const { container } = render(
