@@ -1,10 +1,98 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { StrictMode } from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { articleBySlug } from "../domain/articles";
 import { BlogArticlePage } from "./BlogArticlePage";
 
+const analyticsMocks = vi.hoisted(() => ({ trackEvent: vi.fn() }));
+
+vi.mock("../lib/analytics", () => analyticsMocks);
+vi.mock("../domain/articles", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../domain/articles")>();
+  return { ...actual, articleBySlug: vi.fn(actual.articleBySlug) };
+});
+
 describe("BlogArticlePage", () => {
+  beforeEach(() => {
+    analyticsMocks.trackEvent.mockClear();
+    vi.mocked(articleBySlug).mockClear();
+  });
+
+  it("fires article_viewed once after a published article is displayed", () => {
+    render(
+      <BlogArticlePage
+        slug="sweet-steady-sweet-step"
+        language="zh-Hant"
+        onBack={vi.fn()}
+        onCta={vi.fn()}
+      />
+    );
+
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith("article_viewed", {
+      slug: "sweet-steady-sweet-step"
+    });
+  });
+
+  it("dedupes rerenders and StrictMode while tracking a new published slug", () => {
+    const props = {
+      language: "zh-Hant" as const,
+      onBack: vi.fn(),
+      onCta: vi.fn()
+    };
+    const { rerender } = render(
+      <StrictMode>
+        <BlogArticlePage slug="sweet-steady-sweet-step" {...props} />
+      </StrictMode>
+    );
+
+    rerender(
+      <StrictMode>
+        <BlogArticlePage slug="sweet-steady-sweet-step" {...props} />
+      </StrictMode>
+    );
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <StrictMode>
+        <BlogArticlePage slug="cho-saikyo-tokimeki" {...props} />
+      </StrictMode>
+    );
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(2);
+    expect(analyticsMocks.trackEvent).toHaveBeenLastCalledWith("article_viewed", {
+      slug: "cho-saikyo-tokimeki"
+    });
+  });
+
+  it("does not track a draft or an unknown article", () => {
+    const published = articleBySlug("sweet-steady-sweet-step");
+    if (!published) throw new Error("Expected published article fixture");
+    vi.mocked(articleBySlug).mockReturnValueOnce({ ...published, draft: true });
+
+    const { rerender } = render(
+      <BlogArticlePage slug="draft-article" language="zh-Hant" onBack={vi.fn()} onCta={vi.fn()} />
+    );
+    rerender(
+      <BlogArticlePage slug="unknown-article" language="zh-Hant" onBack={vi.fn()} onCta={vi.fn()} />
+    );
+
+    expect(analyticsMocks.trackEvent).not.toHaveBeenCalled();
+  });
+
+  it("tracks the same article again after leaving its route", () => {
+    const props = {
+      language: "zh-Hant" as const,
+      onBack: vi.fn(),
+      onCta: vi.fn()
+    };
+    const { rerender } = render(<BlogArticlePage slug="sweet-steady-sweet-step" {...props} />);
+    rerender(<BlogArticlePage slug="unknown-article" {...props} />);
+    rerender(<BlogArticlePage slug="sweet-steady-sweet-step" {...props} />);
+
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(2);
+  });
+
   it("renders the SWEET STEP article from the canonical slug", () => {
     render(
       <BlogArticlePage

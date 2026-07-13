@@ -1,6 +1,8 @@
 import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { copy, type Language } from "../i18n";
 import { articleBySlug, type ArticleBlock, type ArticleCta } from "../domain/articles";
+import { trackEvent } from "../lib/analytics";
 
 // Single blog article page. The article body is zh-Hant original content and
 // is lazy-loaded from the blog route, so prose stays out of the initial bundle.
@@ -17,6 +19,21 @@ export function BlogArticlePage({
 }) {
   const t = copy[language];
   const article = articleBySlug(slug);
+  // Effects run after the article is committed, so only a successfully
+  // displayed published article is counted. Keep the last slug for this route
+  // instance: React StrictMode and ordinary rerenders cannot double-count it,
+  // while a different slug (or a route departure) starts a new view.
+  const lastViewedSlugRef = useRef<string | null>(null);
+  useEffect(() => {
+    const publishedSlug = article && !article.draft ? article.slug : null;
+    if (publishedSlug !== null && lastViewedSlugRef.current !== publishedSlug) {
+      lastViewedSlugRef.current = publishedSlug;
+      trackEvent("article_viewed", { slug: publishedSlug });
+    }
+    if (publishedSlug === null) {
+      lastViewedSlugRef.current = null;
+    }
+  }, [article?.draft, article?.slug]);
 
   const backButton = (
     <button type="button" className="ghost-button blog-back" onClick={onBack}>
