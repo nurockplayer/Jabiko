@@ -42,7 +42,7 @@ import { useProgressAttempts } from "./hooks/useProgressAttempts";
 import type { SessionInit } from "./hooks/usePracticeSession";
 import { challengeInitFromQuery } from "./domain/challengeDeepLink";
 import { readLevelPreference, writeLevelPreference } from "./domain/levelPreference";
-import type { LevelRange } from "./domain/levelRange";
+import { kanjiDefaultLevel, type LevelRange } from "./domain/levelRange";
 import { trackEvent } from "./lib/analytics";
 import { canonicalArticleSlug } from "./domain/articlesMeta";
 import packageJson from "../package.json";
@@ -681,7 +681,7 @@ export default function App() {
         <AboutPanel language={language} />
       ) : appView === "kanji" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
-          <KanjiOnyomiPanel language={language} />
+          <KanjiOnyomiPanel language={language} defaultLevel={kanjiDefaultLevel(targetLevel)} />
         </Suspense>
       ) : appView === "mock" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>

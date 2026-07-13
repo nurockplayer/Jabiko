@@ -132,6 +132,12 @@
   gap: 0.5rem;
 }
 
+/* #608: batched table -- families past the entry budget sit behind this. */
+.kanji-load-more {
+  justify-content: center;
+  width: 100%;
+}
+
 .kanji-family-head {
   margin: 0;
   display: flex;

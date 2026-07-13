@@ -157,6 +157,7 @@ export const en: Copy = {
   kanjiExamplesLabel: "Example words",
   kanjiNoExamples: "(No example words yet)",
   kanjiSearchEmpty: "No matching kanji found.",
+  kanjiLoadMore: (count: number) => `Load more (${count} more)`,
   learningRegion: "Learn",
   chapterIndexLabel: "Study chapters",
   chapterPrev: "Previous chapter",

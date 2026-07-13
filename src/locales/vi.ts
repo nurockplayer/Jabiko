@@ -157,6 +157,7 @@ export const vi: Copy = {
   kanjiExamplesLabel: "Từ ví dụ",
   kanjiNoExamples: "(Chưa có từ ví dụ)",
   kanjiSearchEmpty: "Không tìm thấy kanji phù hợp.",
+  kanjiLoadMore: (count: number) => `Tải thêm (còn ${count} chữ)`,
   learningRegion: "Học",
   chapterIndexLabel: "Chương học",
   chapterPrev: "Chương trước",

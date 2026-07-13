@@ -35,3 +35,14 @@ const RANGE_LEVELS: Record<Exclude<LevelRange, "all">, JlptLevel[]> = {
 export function levelsForRange(range: LevelRange): JlptLevel[] | null {
   return range === "all" ? null : RANGE_LEVELS[range];
 }
+
+// #608 P1: the kanji quick-reference defaults to the learner's band instead
+// of "all" (671 entries at once). A range maps to its HARDER level -- the
+// exam the learner is studying toward; starter learners get N5. No stored
+// preference (or the explicit all band) keeps the unfiltered view, which the
+// panel's batched rendering keeps cheap anyway.
+export function kanjiDefaultLevel(range: LevelRange | null): JlptLevel | "all" {
+  if (range === null || range === "all") return "all";
+  if (range === "starter") return "N5";
+  return RANGE_LEVELS[range][0];
+}
