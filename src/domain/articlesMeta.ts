@@ -29,6 +29,14 @@ const BLOG_SLUG_ALIASES: Record<string, string> = {
 
 const rawArticleMetas: ReadonlyArray<ArticleMeta> = [
   {
+    slug: "japanese-restaurant-ordering-phrases",
+    title: "日本店員到底在問什麼？從點餐、加購到結帳的實用回答",
+    description:
+      "從進店、點餐、套餐與袋子一路到結帳，整理日本餐廳、咖啡店和便利商店常見問句、自然回答與店規注意事項。",
+    tag: "旅遊日文",
+    publishedAt: "2026-07-13"
+  },
+  {
     slug: "japanese-taste-texture-expressions",
     title: "日本人吃東西不只說「おいしい」：味道、口感與吃後感的實用日文",
     description:
