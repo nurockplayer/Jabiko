@@ -5,21 +5,22 @@
 // A drift guard (src/domain/sitemap.test.ts) fails if the committed file omits
 // any grammar surface, so this can't silently go stale.
 //
-// Bare regex parse of grammarDatabase.ts (no bundler needed): the 93 data
-// entries are the 4-space-indented `pattern: "..."` fields (the 2-space
-// `pattern: string;` interface field is excluded by the indent).
+// Bare regex parse of grammarDatabase.ts and articlesMeta.ts (no bundler needed).
+//
+// lastmod rules (#584-B):
+//  - Blog articles use publishedAt from articlesMeta.ts
+//  - /blog index uses the newest published article's publishedAt
+//  - Static routes without a reliable content date omit <lastmod>
+//  - Grammar level hubs and detail pages omit <lastmod> (no per-page date available)
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ORIGIN = "https://jabiko.app";
-// Bump when regenerating for a content refresh; Google largely ignores lastmod
-// for small sites, and the drift guard checks URL presence, not this date.
-const LASTMOD = "2026-07-05";
 
 // Static routes (mirrors src/domain/seo.ts view coverage) + the grammar/blog
-// indexes.
+// indexes. The five grammar level hubs are listed separately below.
 const ROUTES = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/learn", changefreq: "weekly", priority: "0.8" },
@@ -33,6 +34,13 @@ const ROUTES = [
   { path: "/about", changefreq: "monthly", priority: "0.5" },
 ];
 
+// Grammar level hub pages (present in prerender but missing from sitemap — #584-B).
+const LEVEL_HUBS = ["n5", "n4", "n3", "n2", "n1"].map((level) => ({
+  path: `/grammar/${level}`,
+  changefreq: "weekly",
+  priority: "0.6",
+}));
+
 function grammarSurfaces() {
   const src = readFileSync(path.join(ROOT, "src/domain/grammarDatabase.ts"), "utf8");
   const surfaces = new Set();
@@ -44,42 +52,61 @@ function grammarSurfaces() {
   return [...surfaces];
 }
 
-// Published blog-article slugs (#483). Bare regex parse of articlesMeta.ts (no
-// bundler needed): split the articleMetas array into per-entry chunks, take the
-// slug, and skip any entry flagged `draft: true` (drafts stay out of search).
-// The drift guard (sitemap.test.ts) cross-checks against the real module, so a
-// parse miss here can't silently ship.
-function blogArticleSlugs() {
+// Published blog-article slugs with publishedAt dates. Bare regex parse of
+// articlesMeta.ts (no bundler needed): split the rawArticleMetas array into
+// per-entry chunks, extract slug + publishedAt, and skip any entry flagged
+// `draft: true` (drafts stay out of search).
+function blogArticles() {
   const src = readFileSync(path.join(ROOT, "src/domain/articlesMeta.ts"), "utf8");
-  const arr = src.match(/(?:rawArticleMetas|articleMetas)[^=]*=\s*\[([\s\S]*?)\];/);
+  const arr = src.match(/rawArticleMetas[^=]*=\s*\[([\s\S]*?)\];/);
   if (!arr) return [];
-  const slugs = [];
+  const articles = [];
   for (const chunk of arr[1].split(/\},/)) {
     const slug = chunk.match(/slug:\s*"([^"]+)"/);
-    if (slug && !/draft:\s*true/.test(chunk)) slugs.push(slug[1]);
+    const publishedAt = chunk.match(/publishedAt:\s*"([^"]+)"/);
+    if (slug && publishedAt && !/draft:\s*true/.test(chunk)) {
+      articles.push({ slug: slug[1], publishedAt: publishedAt[1] });
+    }
   }
-  return slugs;
+  return articles;
 }
 
-function urlEntry(loc, changefreq, priority) {
-  return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${LASTMOD}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+function urlEntry(loc, changefreq, priority, lastmod) {
+  let entry = `  <url>\n    <loc>${loc}</loc>`;
+  if (lastmod) entry += `\n    <lastmod>${lastmod}</lastmod>`;
+  entry += `\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+  return entry;
 }
 
 const surfaces = grammarSurfaces();
-const blogSlugs = blogArticleSlugs();
+const blog = blogArticles();
+
+// /blog index gets the latest published article date as lastmod.
+const blogLastmod = blog.reduce((max, a) => (a.publishedAt > max ? a.publishedAt : max), "");
+
 const entries = [
-  ...ROUTES.map((r) => urlEntry(ORIGIN + r.path, r.changefreq, r.priority)),
-  ...surfaces.map((s) =>
-    urlEntry(`${ORIGIN}/grammar/${encodeURIComponent(s)}`, "monthly", "0.6")
+  // Static routes — no lastmod (no reliable content modification date).
+  ...ROUTES.filter((r) => r.path !== "/blog").map((r) =>
+    urlEntry(ORIGIN + r.path, r.changefreq, r.priority),
   ),
-  ...blogSlugs.map((s) =>
-    urlEntry(`${ORIGIN}/blog/${encodeURIComponent(s)}`, "monthly", "0.6")
+  // /blog index with latest publishedAt as lastmod.
+  urlEntry(ORIGIN + "/blog", "weekly", "0.7", blogLastmod),
+  // Grammar level hubs — no lastmod.
+  ...LEVEL_HUBS.map((h) => urlEntry(ORIGIN + h.path, h.changefreq, h.priority)),
+  // Grammar detail pages — no lastmod (no per-page date available).
+  ...surfaces.map((s) =>
+    urlEntry(`${ORIGIN}/grammar/${encodeURIComponent(s)}`, "monthly", "0.6"),
+  ),
+  // Blog articles with publishedAt as lastmod.
+  ...blog.map((a) =>
+    urlEntry(`${ORIGIN}/blog/${encodeURIComponent(a.slug)}`, "monthly", "0.6", a.publishedAt),
   ),
 ];
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`;
 
 writeFileSync(path.join(ROOT, "public/sitemap.xml"), xml);
+const routeCount = ROUTES.length + LEVEL_HUBS.length;
 console.log(
-  `wrote public/sitemap.xml — ${ROUTES.length} routes + ${surfaces.length} grammar pages + ${blogSlugs.length} blog articles = ${entries.length} URLs`
+  `wrote public/sitemap.xml — ${routeCount} routes + ${surfaces.length} grammar pages + ${blog.length} blog articles = ${entries.length} URLs`,
 );

@@ -2,31 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://jabiko.app/</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://jabiko.app/learn</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://jabiko.app/challenge</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://jabiko.app/mock</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://jabiko.app/kanji</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -38,553 +33,492 @@
   </url>
   <url>
     <loc>https://jabiko.app/rules</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar</loc>
-    <lastmod>2026-07-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://jabiko.app/blog</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://jabiko.app/about</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://jabiko.app/blog</loc>
+    <lastmod>2026-07-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://jabiko.app/grammar/n5</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://jabiko.app/grammar/n4</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://jabiko.app/grammar/n3</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://jabiko.app/grammar/n2</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://jabiko.app/grammar/n1</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://jabiko.app/grammar/%E3%81%A6%E3%82%82%E3%81%84%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A6%E3%81%AF%E3%81%84%E3%81%91%E3%81%AA%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AA%E3%81%91%E3%82%8C%E3%81%B0%E3%81%AA%E3%82%89%E3%81%AA%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AA%E3%81%8F%E3%81%A6%E3%82%82%E3%81%84%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%9F%E3%81%BB%E3%81%86%E3%81%8C%E3%81%84%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AA%E3%81%84%E3%81%BB%E3%81%86%E3%81%8C%E3%81%84%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%93%E3%81%A8%E3%81%8C%E3%81%A7%E3%81%8D%E3%82%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%9F%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A6%E3%81%8F%E3%81%A0%E3%81%95%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A8%E6%80%9D%E3%81%86</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%8B%E3%82%89</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AE%E3%81%A7</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%82%88%E3%82%8A</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%BB%E3%81%86%E3%81%8C</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%BE%E3%81%97%E3%82%87%E3%81%86</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A6%E3%81%84%E3%82%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A6%E3%81%82%E3%82%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A6%E3%81%8A%E3%81%8F</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A6%E3%81%97%E3%81%BE%E3%81%86</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A6%E3%81%BF%E3%82%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%9F%E3%81%93%E3%81%A8%E3%81%8C%E3%81%82%E3%82%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%82%84%E3%81%99%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E3%81%8F%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%99%E3%81%8E%E3%82%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AA%E3%81%8C%E3%82%89</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%B0%E3%80%9C%E3%81%BB%E3%81%A9</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%97%E3%81%8B%E3%80%9C%E3%81%AA%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AF%E3%81%9A</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A4%E3%82%82%E3%82%8A</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AE%E3%81%AB</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%82%8F%E3%81%91%E3%81%AB%E3%81%AF%E3%81%84%E3%81%8B%E3%81%AA%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%8B%E3%82%8F%E3%82%8A%E3%81%AB</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E9%96%A2%E3%81%97%E3%81%A6</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E5%AF%BE%E3%81%97%E3%81%A6</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E3%81%8A%E3%81%84%E3%81%A6</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%9F%E3%81%B0%E3%81%8B%E3%82%8A</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%82%88%E3%81%86%E3%81%AB%E3%81%AA%E3%82%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%93%E3%81%A8%E3%81%AB%E3%81%AA%E3%82%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%93%E3%81%A8%E3%81%AB%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A6%E3%81%8F%E3%82%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A6%E3%81%84%E3%81%8F</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E3%82%88%E3%81%A3%E3%81%A6</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E3%82%88%E3%82%8B%E3%81%A8%EF%BC%8F%E3%80%9C%E3%81%AB%E3%82%88%E3%82%8C%E3%81%B0</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E3%81%A8%E3%81%A3%E3%81%A6</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A8%E3%81%97%E3%81%A6</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E9%81%95%E3%81%84%E3%81%AA%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%97%E3%81%8B%E3%81%AA%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%B0%E3%81%8B%E3%82%8A</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%95%E3%81%88%E3%80%9C%E3%81%B0</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%82%E3%81%BE%E3%82%8A</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E5%90%91%E3%81%91</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%86%E3%81%A1%E3%81%AB</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%9F%E3%81%A8%E3%81%93%E3%82%8D</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E6%B0%97%E5%91%B3</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%8C%E3%81%A1</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A3%E3%81%BD%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A8%E3%81%8A%E3%82%8A%E3%81%AB</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E3%81%97%E3%81%A6%E3%82%82</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%8B%E3%81%AD%E3%82%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%82%8F%E3%82%8A%E3%81%AB</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A8%E3%81%97%E3%81%A6%E3%82%82</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%82%82%E3%81%AE%E3%81%AE</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E3%82%82%E3%81%8B%E3%81%8B%E3%82%8F%E3%82%89%E3%81%9A</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%B0%E3%81%8B%E3%82%8A%E3%81%AB</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A0%E3%81%91%E3%81%82%E3%81%A3%E3%81%A6</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%82%E3%81%92%E3%81%8F</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E9%99%90%E3%81%A3%E3%81%A6</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%96%E3%82%8B%E3%82%92%E5%BE%97%E3%81%AA%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E5%BF%9C%E3%81%98%E3%81%A6</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%82%92%E9%80%9A%E3%81%98%E3%81%A6</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E3%81%8B%E3%81%91%E3%81%A6%E3%81%AF</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%93%E3%81%A8%E3%81%8B%E3%82%89</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%8B%E3%81%9F%E3%81%8C%E3%81%9F</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%8C%E3%81%A6%E3%82%89</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%82%82%E3%81%AE%E3%81%A0</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%B9%E3%81%8B%E3%82%89%E3%81%9A</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%B9%E3%81%8F%E3%81%97%E3%81%A6</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A8%E3%81%AF%E9%99%90%E3%82%89%E3%81%AA%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A8%E3%81%84%E3%81%88%E3%81%B0</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A8%E3%81%84%E3%81%86%E3%81%A8</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%8C%E6%97%A9%E3%81%84%E3%81%8B</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%AB%E3%81%AF%E5%8F%8A%E3%81%B0%E3%81%AA%E3%81%84</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A8%E3%81%84%E3%81%88%E3%81%A9%E3%82%82</loc>
-    <lastmod>2026-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/blog/japanese-restaurant-ordering-phrases</loc>
-    <lastmod>2026-07-05</lastmod>
+    <lastmod>2026-07-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/blog/japanese-taste-texture-expressions</loc>
-    <lastmod>2026-07-05</lastmod>
+    <lastmod>2026-07-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/blog/shiritsu-ebisu-chugaku-ebichili-hajimemashita</loc>
-    <lastmod>2026-07-05</lastmod>
+    <lastmod>2026-07-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/blog/sweet-steady-sweet-step</loc>
-    <lastmod>2026-07-05</lastmod>
+    <lastmod>2026-07-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://jabiko.app/blog/cho-saikyo-tokimeki</loc>
-    <lastmod>2026-07-05</lastmod>
+    <lastmod>2026-07-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
