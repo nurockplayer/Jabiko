@@ -159,6 +159,8 @@ export const zhHant: Copy = {
   kanjiSearchEmpty: "找不到符合的漢字。",
   learningRegion: "學習",
   chapterIndexLabel: "學習章節",
+  chapterPrev: "上一章",
+  chapterNext: "下一章",
   chapterEyebrow: "課程章節",
   chapterHeading: "一章一章解鎖",
   chapterIntro: "選一章看規則、例子與常見陷阱，再到挑戰頁練。",

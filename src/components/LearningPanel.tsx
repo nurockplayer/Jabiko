@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, ArrowRight } from "lucide-react";
+import { AlertTriangle, ArrowRight, ChevronDown } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
 import type { KanaScript } from "../domain/kana";
@@ -77,6 +77,12 @@ export function LearningPanel({
 
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const activeCard = blockCards.find((card) => card.block.id === selectedBlockId) ?? recommended;
+  // #608 P0: on phones the 74-button index used to sit above the lesson,
+  // pushing the material thousands of px down. The mobile chapter bar keeps
+  // the index collapsed by default (desktop ignores this state; its sidebar
+  // is always visible via CSS) and offers prev/next in reading order.
+  const [indexOpen, setIndexOpen] = useState(false);
+  const activeIndex = blockCards.findIndex((card) => card.block.id === activeCard.block.id);
   // Localized copy of the active block. localizeLearningBlock preserves every
   // logic field (id / drills / examDrill / requiredForms …) and only swaps the
   // Chinese display text, so it's safe to use for both rendering and handlers.
@@ -129,7 +135,42 @@ export function LearningPanel({
   return (
     <section className="learning-panel" aria-label={t.learningRegion}>
       <div className="chapter-shell">
-        <aside className="chapter-index" aria-label={t.chapterIndexLabel}>
+        <div className="chapter-mobile-bar" data-testid="chapter-mobile-bar">
+          <button
+            type="button"
+            className="chapter-mobile-toggle"
+            data-testid="chapter-mobile-toggle"
+            aria-expanded={indexOpen}
+            onClick={() => setIndexOpen((open) => !open)}
+          >
+            <span className="chapter-mobile-progress">
+              {activeIndex + 1} / {blockCards.length}
+            </span>
+            <strong>{active.title}</strong>
+            <ChevronDown aria-hidden="true" />
+          </button>
+          <div className="chapter-mobile-nav">
+            <button
+              type="button"
+              disabled={activeIndex <= 0}
+              onClick={() => setSelectedBlockId(blockCards[activeIndex - 1].block.id)}
+            >
+              {t.chapterPrev}
+            </button>
+            <button
+              type="button"
+              disabled={activeIndex >= blockCards.length - 1}
+              onClick={() => setSelectedBlockId(blockCards[activeIndex + 1].block.id)}
+            >
+              {t.chapterNext}
+            </button>
+          </div>
+        </div>
+
+        <aside
+          className={`chapter-index${indexOpen ? " mobile-open" : ""}`}
+          aria-label={t.chapterIndexLabel}
+        >
           <div className="dashboard-card" aria-label={t.dashboardEyebrow}>
             <SproutSpot size={48} className="dashboard-spot" />
             <p className="eyebrow">{t.dashboardEyebrow}</p>
@@ -186,7 +227,12 @@ export function LearningPanel({
                       className={`chapter-list-button${block.id === active.id ? " selected" : ""}${complete ? " complete" : ""}`}
                       aria-label={t.chapterViewLabel(disp.title)}
                       aria-pressed={block.id === active.id}
-                      onClick={() => setSelectedBlockId(block.id)}
+                      onClick={() => {
+                        setSelectedBlockId(block.id);
+                        // Collapse the mobile index so the picked material is
+                        // immediately in view (no-op visually on desktop).
+                        setIndexOpen(false);
+                      }}
                     >
                       {status ? <span>{status}</span> : null}
                       <strong>{disp.title}</strong>

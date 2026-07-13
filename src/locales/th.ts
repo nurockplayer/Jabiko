@@ -160,6 +160,8 @@ export const th: Copy = {
   kanjiSearchEmpty: "ไม่พบคันจิที่ตรงกัน",
   learningRegion: "เรียนรู้",
   chapterIndexLabel: "บทเรียน",
+  chapterPrev: "บทก่อนหน้า",
+  chapterNext: "บทถัดไป",
   chapterEyebrow: "บทคอร์ส",
   chapterHeading: "ปลดล็อกทีละบท",
   chapterIntro: "เลือกหนึ่งบทเพื่ออ่านกฎ ตัวอย่าง และจุดที่พลาดบ่อย แล้วไปฝึกต่อในหน้าฝึกทำโจทย์",

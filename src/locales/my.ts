@@ -159,6 +159,8 @@ export const my: Copy = {
   kanjiSearchEmpty: "ကိုက်ညီသော ခန်းဂျိ မတွေ့ပါ။",
   learningRegion: "လေ့လာရန်",
   chapterIndexLabel: "လေ့လာမှု အခန်းများ",
+  chapterPrev: "ယခင်အခန်း",
+  chapterNext: "နောက်အခန်း",
   chapterEyebrow: "သင်တန်း အခန်း",
   chapterHeading: "တစ်ခန်းချင်း ဖွင့်ပါ",
   chapterIntro: "အခန်းတစ်ခုကို ရွေး၍ စည်းမျဉ်း၊ နမူနာများနှင့် အမှားများကို ဖတ်ပြီး လေ့ကျင့်ရန်စာမျက်နှာတွင် လေ့ကျင့်ပါ။",

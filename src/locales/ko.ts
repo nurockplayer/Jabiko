@@ -159,6 +159,8 @@ export const ko: Copy = {
   kanjiSearchEmpty: "일치하는 한자를 찾을 수 없어요.",
   learningRegion: "학습",
   chapterIndexLabel: "학습 챕터",
+  chapterPrev: "이전 장",
+  chapterNext: "다음 장",
   chapterEyebrow: "코스 챕터",
   chapterHeading: "한 번에 한 챕터씩 잠금 해제",
   chapterIntro: "챕터를 골라 규칙, 예문, 자주 빠지는 함정을 읽은 뒤 연습 페이지에서 풀어 보세요.",

@@ -19,18 +19,80 @@
 
   /* Stacked single column on mobile: the detail sits below the index, so the
      desktop sticky (which follows the long side-by-side list) isn't wanted,
-     nor the viewport cap + inner scrollbar that comes with it. */
+     nor the viewport cap + inner scrollbar that comes with it. #608: the
+     lesson takes reading-order slot 2, right under the chapter bar. */
   .chapter-content {
     max-height: none;
+    order: 2;
     overflow-y: visible;
     position: static;
   }
 
+  /* #608 P0: material first on phones. The index aside dissolves
+     (display:contents) so its pieces reorder independently inside the
+     shell: the 74-button list only shows while the chapter bar is
+     expanded (slot 1, right under the bar), the review dashboard and
+     the challenge button stay reachable BELOW the lesson (slots 3-4),
+     and the sidebar intro copy is desktop-only. */
   .chapter-index {
-    border-bottom: 1px solid var(--rule);
-    border-right: 0;
-    grid-template-rows: auto;
-    padding: 0 0 1rem;
+    display: contents;
+  }
+
+  .chapter-index-copy {
+    display: none;
+  }
+
+  .chapter-list {
+    display: none;
+  }
+
+  .chapter-index.mobile-open .chapter-list {
+    display: grid;
+    order: 1;
+  }
+
+  .chapter-index .dashboard-card {
+    order: 3;
+  }
+
+  .chapter-index .secondary-challenge-button {
+    order: 4;
+  }
+
+  /* #608: the chapter bar itself (hidden on desktop in learning.css). */
+  .chapter-mobile-bar {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .chapter-mobile-toggle {
+    align-items: center;
+    display: flex;
+    gap: 0.6rem;
+    justify-content: flex-start;
+    min-height: 44px;
+    text-align: left;
+  }
+
+  .chapter-mobile-toggle strong {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chapter-mobile-progress {
+    color: var(--teal);
+    flex: 0 0 auto;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  .chapter-mobile-nav {
+    display: grid;
+    gap: 0.55rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   /* Chapters are grouped now: keep the groups stacked, but lay each

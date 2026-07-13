@@ -15,6 +15,13 @@
   min-width: 0;
 }
 
+/* #608: phone-only chapter bar (current chapter + prev/next + index toggle).
+   Desktop keeps the always-visible sidebar, so the bar stays hidden here;
+   the phone layout in responsive.css turns it on and reorders the shell. */
+.chapter-mobile-bar {
+  display: none;
+}
+
 /* With the long chapter list, keep the detail panel in view as you scroll
    the index rather than leaving it stranded above the fold. Cap it to the
    viewport and let it scroll on its own: a sticky panel taller than the

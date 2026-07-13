@@ -159,6 +159,8 @@ export const id: Copy = {
   kanjiSearchEmpty: "Tidak ditemukan kanji yang cocok.",
   learningRegion: "Belajar",
   chapterIndexLabel: "Bab pelajaran",
+  chapterPrev: "Bab sebelumnya",
+  chapterNext: "Bab berikutnya",
   chapterEyebrow: "Bab kursus",
   chapterHeading: "Buka bab satu per satu",
   chapterIntro: "Pilih satu bab untuk melihat aturan, contoh, dan kesalahan umum, lalu berlatih di halaman tantangan.",
