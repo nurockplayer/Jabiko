@@ -29,6 +29,14 @@ const BLOG_SLUG_ALIASES: Record<string, string> = {
 
 const rawArticleMetas: ReadonlyArray<ArticleMeta> = [
   {
+    slug: "japanese-taste-texture-expressions",
+    title: "日本人吃東西不只說「おいしい」：味道、口感與吃後感的實用日文",
+    description:
+      "整理あっさり、こってり、サクサク、もちもち等味道與口感日文，也收錄吃完拉麵後對店員說的自然句子。",
+    tag: "生活日文",
+    publishedAt: "2026-07-13"
+  },
+  {
     slug: "shiritsu-ebisu-chugaku-ebichili-hajimemashita",
     title: "從歌詞學日文系列 私立恵比寿中学 - えびチリ、はじめました：現在的我們，還好吃嗎？",
     description:

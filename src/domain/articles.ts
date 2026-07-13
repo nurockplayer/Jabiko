@@ -14,6 +14,7 @@
 import { articleMetas, articleMetaBySlug, type ArticleMeta } from "./articlesMeta";
 import { ebichiliBody } from "./articleBodies/ebichili";
 import { sweetStepBody } from "./articleBodies/sweetStep";
+import { tasteExpressionsBody } from "./articleBodies/tasteExpressions";
 
 export type { ArticleMeta } from "./articlesMeta";
 
@@ -310,7 +311,8 @@ const BODIES: Record<string, ReadonlyArray<ArticleBlock>> = {
 
 const BODY_OVERRIDES: Partial<Record<string, ReadonlyArray<ArticleBlock>>> = {
   "shiritsu-ebisu-chugaku-ebichili-hajimemashita": ebichiliBody,
-  "sweet-steady-sweet-step": sweetStepBody
+  "sweet-steady-sweet-step": sweetStepBody,
+  "japanese-taste-texture-expressions": tasteExpressionsBody
 };
 
 function withBody(meta: ArticleMeta): BlogArticle {

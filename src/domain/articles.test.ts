@@ -87,6 +87,28 @@ describe("blog articles data guard", () => {
     expect(divider && "label" in divider ? divider.label : "").toContain("附錄");
   });
 
+  it("serves the taste and texture guide as a broad everyday-Japanese article", () => {
+    const article = articleBySlug("japanese-taste-texture-expressions");
+    const bodyText = article?.body
+      .flatMap((block) => {
+        if ("text" in block) return [block.text];
+        if (block.kind === "vocab") {
+          return block.items.flatMap((item) => [item.word, item.reading, item.meaning, item.note ?? ""]);
+        }
+        return [];
+      })
+      .join("\n");
+
+    expect(article?.tag).toBe("生活日文");
+    expect(bodyText).toContain("普通においしい");
+    expect(bodyText).toContain("コクがある");
+    expect(bodyText).toContain("サクサク");
+    expect(bodyText).toContain("クセになる");
+    expect(bodyText).toContain("ご飯が進む");
+    expect(bodyText).toContain("ごちそうさまでした");
+    expect(bodyText).toContain("お会計お願いします");
+  });
+
   it("keeps titles and descriptions within SEO-friendly lengths", () => {
     for (const a of articles) {
       expect(a.title.length).toBeGreaterThan(0);
