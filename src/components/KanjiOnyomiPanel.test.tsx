@@ -43,4 +43,24 @@ describe("KanjiOnyomiPanel (#195)", () => {
     fireEvent.click(screen.getByRole("button", { name: "訓讀" }));
     expect(screen.getAllByText(/たかい/).length).toBeGreaterThan(0);
   });
+
+  // #608 P1: the unfiltered view used to put all 671 kanji in the DOM at once
+  // (~54,000px page on phones). Families render in batches with a load-more.
+  it("caps the initial render and loads more on demand (#608)", () => {
+    const { container } = render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const initial = container.querySelectorAll(".kanji-cell").length;
+    expect(initial).toBeGreaterThan(0);
+    expect(initial).toBeLessThanOrEqual(80);
+
+    const loadMore = screen.getByRole("button", { name: /載入更多/ });
+    fireEvent.click(loadMore);
+    const afterOneClick = container.querySelectorAll(".kanji-cell").length;
+    expect(afterOneClick).toBeGreaterThan(initial);
+  });
+
+  it("defaults the level filter to the learner's band when provided (#608)", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N2" />);
+    expect(screen.getByRole("button", { name: "N2" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "全部" })).toHaveAttribute("aria-pressed", "false");
+  });
 });

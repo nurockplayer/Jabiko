@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { copy, type Language } from "../i18n";
 import type { JlptLevel } from "../domain/types";
 import { kanjiOnyomi, kanjiExamples, type KanjiOnyomiEntry } from "../domain/kanjiOnyomi";
@@ -10,18 +10,37 @@ import { InkstoneSpot, MagnifierKanjiSpot } from "../illustrations";
 const LEVELS: Array<JlptLevel | "all"> = ["all", "N5", "N4", "N3", "N2", "N1"];
 type ReadingType = "on" | "kun";
 
+// #608 P1: whole reading-families render in batches of roughly this many
+// entries (the family that crosses the budget is included whole, so a batch
+// tops out around budget + biggest-family ≈ 40 + 23). Keeps the initial DOM
+// at ~50 cells instead of all 671 (~54,000px pages on phones).
+const FAMILY_ENTRY_BUDGET = 40;
+
 // 漢字讀音 速查表 (#195): browse kanji grouped by their primary reading
 // (homophone families -- the こう / しょう / せい ... that learners mix up),
 // toggle between 音読み and 訓読み, filter by level (N5–N1), search, and open a
 // card showing both readings + real example words (pulled from the vocab bank)
 // with TTS. The point is to confirm readings without getting fooled by voicing;
 // the example words keep it anchored to how the kanji reads inside compounds.
-export function KanjiOnyomiPanel({ language }: { language: Language }) {
+export function KanjiOnyomiPanel({
+  language,
+  // #608 P1: start on the learner's band (App maps the stored level
+  // preference via kanjiDefaultLevel) instead of all 671 entries.
+  defaultLevel = "all"
+}: {
+  language: Language;
+  defaultLevel?: JlptLevel | "all";
+}) {
   const t = copy[language];
   const [query, setQuery] = useState("");
-  const [level, setLevel] = useState<JlptLevel | "all">("all");
+  const [level, setLevel] = useState<JlptLevel | "all">(defaultLevel);
   const [readingType, setReadingType] = useState<ReadingType>("on");
   const [selected, setSelected] = useState<string | null>(null);
+  const [entryBudget, setEntryBudget] = useState(FAMILY_ENTRY_BUDGET);
+  useEffect(() => {
+    // Any filter change starts a fresh batched view.
+    setEntryBudget(FAMILY_ENTRY_BUDGET);
+  }, [query, level, readingType]);
 
   const activeLabel = readingType === "on" ? t.kanjiOnyomiLabel : t.kanjiKunyomiLabel;
 
@@ -54,6 +73,18 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
       (a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], "ja")
     );
   }, [query, level, readingType, language]);
+
+  // Batched view (#608): show whole families until the entry budget is
+  // crossed; the rest sits behind a load-more button.
+  const visibleFamilies: typeof families = [];
+  let shownEntries = 0;
+  for (const family of families) {
+    if (shownEntries >= entryBudget) break;
+    visibleFamilies.push(family);
+    shownEntries += family[1].length;
+  }
+  const totalEntries = families.reduce((sum, [, entries]) => sum + entries.length, 0);
+  const remainingEntries = totalEntries - shownEntries;
 
   const detail = selected ? kanjiOnyomi.find((entry) => entry.kanji === selected) ?? null : null;
   const examples = detail ? kanjiExamples(detail.kanji) : [];
@@ -150,7 +181,7 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
       ) : null}
 
       {families.length > 0 ? (
-        families.map(([reading, entries]) => (
+        visibleFamilies.map(([reading, entries]) => (
           <div className="kanji-family" key={reading}>
             <h3 className="kanji-family-head">
               {reading}
@@ -187,6 +218,16 @@ export function KanjiOnyomiPanel({ language }: { language: Language }) {
           <p>{t.kanjiSearchEmpty}</p>
         </div>
       )}
+
+      {remainingEntries > 0 ? (
+        <button
+          type="button"
+          className="kanji-load-more"
+          onClick={() => setEntryBudget((budget) => budget + FAMILY_ENTRY_BUDGET)}
+        >
+          {t.kanjiLoadMore(remainingEntries)}
+        </button>
+      ) : null}
     </section>
   );
 }

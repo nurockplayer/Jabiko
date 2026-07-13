@@ -159,6 +159,7 @@ export const ja: Copy = {
   kanjiExamplesLabel: "例語",
   kanjiNoExamples: "（収録された例語はまだありません）",
   kanjiSearchEmpty: "該当する漢字が見つかりません。",
+  kanjiLoadMore: (count: number) => `もっと見る（あと${count}字）`,
   learningRegion: "学習",
   chapterIndexLabel: "学習チャプター",
   chapterPrev: "前の章",

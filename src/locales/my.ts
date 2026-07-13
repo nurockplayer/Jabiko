@@ -157,6 +157,7 @@ export const my: Copy = {
   kanjiExamplesLabel: "နမူနာ စကားလုံးများ",
   kanjiNoExamples: "(နမူနာစကားလုံး မရှိသေးပါ)",
   kanjiSearchEmpty: "ကိုက်ညီသော ခန်းဂျိ မတွေ့ပါ။",
+  kanjiLoadMore: (count: number) => `နောက်ထပ်ကြည့်ရန် (ကျန် ${count} လုံး)`,
   learningRegion: "လေ့လာရန်",
   chapterIndexLabel: "လေ့လာမှု အခန်းများ",
   chapterPrev: "ယခင်အခန်း",

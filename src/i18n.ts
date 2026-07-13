@@ -156,6 +156,8 @@ export type Copy = {
   kanjiExamplesLabel: string;
   kanjiNoExamples: string;
   kanjiSearchEmpty: string;
+  // #608 batched kanji table: "load more (N left)" button label.
+  kanjiLoadMore: (count: number) => string;
   learningRegion: string;
   chapterIndexLabel: string;
   // #608 mobile chapter bar: prev / next chapter controls.

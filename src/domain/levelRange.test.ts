@@ -1,6 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { levelsForRange, LEVEL_RANGE_OPTIONS, VOCAB_LEVEL_RANGE_OPTIONS } from "./levelRange";
+import {
+  kanjiDefaultLevel,
+  levelsForRange,
+  LEVEL_RANGE_OPTIONS,
+  VOCAB_LEVEL_RANGE_OPTIONS
+} from "./levelRange";
 import { buildExamQuestionPool } from "./examBlocks";
+
+// #608 P1: the kanji quick-reference defaults to the learner's band instead
+// of "all" (671 entries at once). A range maps to its HARDER level (the exam
+// they study toward); starter learners get N5; no preference keeps "all".
+describe("kanjiDefaultLevel", () => {
+  it("maps each band to its harder level", () => {
+    expect(kanjiDefaultLevel("n1n2")).toBe("N1");
+    expect(kanjiDefaultLevel("n2n3")).toBe("N2");
+    expect(kanjiDefaultLevel("n3n4")).toBe("N3");
+    expect(kanjiDefaultLevel("n4n5")).toBe("N4");
+    expect(kanjiDefaultLevel("starter")).toBe("N5");
+  });
+
+  it("keeps 全部 for the all band and for learners with no preference", () => {
+    expect(kanjiDefaultLevel("all")).toBe("all");
+    expect(kanjiDefaultLevel(null)).toBe("all");
+  });
+});
 
 describe("levelsForRange", () => {
   it("maps presets to JLPT levels and null for all", () => {

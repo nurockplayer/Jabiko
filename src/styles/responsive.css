@@ -150,6 +150,26 @@
   .surface {
     font-size: 5rem;
   }
+
+  /* #608 P2: keyboard shortcuts don't exist on touch screens. */
+  .kbd-hint {
+    display: none;
+  }
+
+  /* #608 P1: swipe hint for the wide conjugation tables -- CSS-only
+     scrolling shadows (background-attachment local/scroll): the inner
+     shadow at an edge shows only while more columns hide past it, and
+     the paper-coloured cover layers erase it once fully scrolled. */
+  .rules-table-wrap {
+    background:
+      linear-gradient(90deg, var(--paper) 35%, transparent),
+      linear-gradient(270deg, var(--paper) 35%, transparent) 100% 0,
+      radial-gradient(farthest-side at 0 50%, color-mix(in srgb, var(--ink) 30%, transparent), transparent),
+      radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--ink) 30%, transparent), transparent) 100% 0;
+    background-attachment: local, local, scroll, scroll;
+    background-repeat: no-repeat;
+    background-size: 2.6rem 100%, 2.6rem 100%, 0.9rem 100%, 0.9rem 100%;
+  }
 }
 
 @media (max-width: 560px) {

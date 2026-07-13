@@ -157,6 +157,7 @@ export const zhHant: Copy = {
   kanjiExamplesLabel: "例詞",
   kanjiNoExamples: "（暫無收錄例詞）",
   kanjiSearchEmpty: "找不到符合的漢字。",
+  kanjiLoadMore: (count: number) => `載入更多（還有 ${count} 字）`,
   learningRegion: "學習",
   chapterIndexLabel: "學習章節",
   chapterPrev: "上一章",

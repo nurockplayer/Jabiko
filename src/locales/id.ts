@@ -157,6 +157,7 @@ export const id: Copy = {
   kanjiExamplesLabel: "Contoh kata",
   kanjiNoExamples: "（belum ada contoh kata）",
   kanjiSearchEmpty: "Tidak ditemukan kanji yang cocok.",
+  kanjiLoadMore: (count: number) => `Muat lebih banyak (${count} lagi)`,
   learningRegion: "Belajar",
   chapterIndexLabel: "Bab pelajaran",
   chapterPrev: "Bab sebelumnya",

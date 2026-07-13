@@ -158,6 +158,7 @@ export const th: Copy = {
   kanjiExamplesLabel: "คำตัวอย่าง",
   kanjiNoExamples: "(ยังไม่มีคำตัวอย่าง)",
   kanjiSearchEmpty: "ไม่พบคันจิที่ตรงกัน",
+  kanjiLoadMore: (count: number) => `โหลดเพิ่ม (เหลืออีก ${count} ตัว)`,
   learningRegion: "เรียนรู้",
   chapterIndexLabel: "บทเรียน",
   chapterPrev: "บทก่อนหน้า",

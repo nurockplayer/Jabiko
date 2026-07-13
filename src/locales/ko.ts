@@ -157,6 +157,7 @@ export const ko: Copy = {
   kanjiExamplesLabel: "예시 단어",
   kanjiNoExamples: "(아직 예시 단어가 없어요)",
   kanjiSearchEmpty: "일치하는 한자를 찾을 수 없어요.",
+  kanjiLoadMore: (count: number) => `더 보기 (${count}자 남음)`,
   learningRegion: "학습",
   chapterIndexLabel: "학습 챕터",
   chapterPrev: "이전 장",
