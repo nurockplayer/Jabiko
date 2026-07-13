@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 // =============================================================================
-// build-furigana.mjs -- pre-bake furigana for sentences (#134, P1)
+// build-furigana.mjs -- pre-bake furigana for sentences (#134, P1 → #599)
 // =============================================================================
 //
 // Offline pass: kuromoji (IPADIC, a devDependency — NOT in the app bundle)
 // segments each Japanese sentence, src/domain/furigana.ts turns the tokens
-// into <ruby> segments, and we write them to src/domain/furiganaData.ts so
-// the frontend renders furigana with ZERO runtime tokenisation.
+// into <ruby> segments, and we write them to two generated tables:
+//
+//   src/domain/furiganaData.ts           base map (stems, options, examples)
+//   src/domain/furiganaExplanationData.ts  explanation map (feedback only)
+//
+// so the base map stays lean and the explanation map is loaded on demand.
 //
 //   pnpm build:furigana
 //
@@ -14,11 +18,6 @@
 // than parsed as text: the source uses extensionless TS imports that plain
 // Node can't resolve, and this gives us the real objects + the SAME aligner
 // the app's unit tests cover.
-//
-// P1 scope: the basic foundation deck (N5/N4 — vocabulary items with no
-// explicit JLPT level). Reading-test items (漢字読み) never reach here — these
-// are vocabulary EXAMPLE sentences, not exam reading prompts. Higher levels
-// and exam prompt stems are later phases (P3/P4).
 // =============================================================================
 
 import { createServer } from "vite";
@@ -31,7 +30,8 @@ import kuromoji from "kuromoji";
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIC = path.join(path.dirname(require.resolve("kuromoji/package.json")), "dict");
-const OUT = path.join(ROOT, "src", "domain", "furiganaData.ts");
+const OUT_BASE = path.join(ROOT, "src", "domain", "furiganaData.ts");
+const OUT_EXPLANATION = path.join(ROOT, "src", "domain", "furiganaExplanationData.ts");
 
 const server = await createServer({
   configFile: false,
@@ -55,81 +55,83 @@ try {
     一人: "ひとり",
     二人: "ふたり",
     日本人: "にほんじん",
-    // Spot-check fixes (#134 P4): kuromoji/IPADIC misreads found by the
-    // parallel furigana audit. Compound/word keys only (context-stable in
-    // this content) -- never single ambiguous kanji like 後 (ご/あと/のち).
-    一言: "ひとこと", // was いちげん
-    九時: "くじ", // 九 was きゅう (clock counter)
-    七時: "しちじ", // 七 was なな (clock counter)
-    数日: "すうじつ", // 日 was にち
-    夜中: "よなか", // was やちゅう
-    港町: "みなとまち", // was みなとちょう
-    大勢: "おおぜい", // was たいせい (crowd, not "general trend")
-    堪え: "たえ", // was こた (堪える = endure)
+    一言: "ひとこと",
+    九時: "くじ",
+    七時: "しちじ",
+    数日: "すうじつ",
+    夜中: "よなか",
+    港町: "みなとまち",
+    大勢: "おおぜい",
+    堪え: "たえ",
     堪える: "たえる",
-    預け: "あずけ", // was あづ (modern kana ず)
+    預け: "あずけ",
     預ける: "あずける",
-    // Balance-loop content audit (2026-06-27): kuromoji picked the on'yomi
-    // for these standalone kun'yomi words. Phrase keys (not the bare kanji)
-    // so the override only fires in the disambiguating context -- 家/数/後
-    // are too ambiguous to override as single chars.
-    後にして: "あとにして", // 後 was ご (後にする idiom = set aside)
-    後にした: "あとにした", // past form of the same idiom (会見場を後にした)
+    後にして: "あとにして",
+    後にした: "あとにした",
     後にする: "あとにする",
-    家に: "いえに", // 家 was か (home, not the 〜家 suffix)
-    数の: "かずの", // 数 was すう (count/number, not 数〜 "several")
-    // Idol-flavored batch audit (2026-06-27):
-    瞬く間に: "またたくまに", // 瞬く was まばた (blink); idiom is またたく
-    後には: "あとには", // 後 was ご (afterwards = あと, not the 〜後 suffix)
-    宝物: "たからもの", // was ほうもつ (temple-treasure); everyday "precious thing" = たからもの
-    正義: "せいぎ", // was まさよし (given name); the common noun "justice" = せいぎ
-    微笑み: "ほほえみ", // kuromoji split it 微=び/笑=え; the word is ほほえみ
-    彷徨う: "さまよう", // was the on'yomi ほうこう; the verb 彷徨う = さまよう
-    瞬く: "またたく" // was まばた (blink); 瞬く (twinkle) = またたく
+    家に: "いえに",
+    数の: "かずの",
+    瞬く間に: "またたくまに",
+    後には: "あとには",
+    宝物: "たからもの",
+    正義: "せいぎ",
+    微笑み: "ほほえみ",
+    彷徨う: "さまよう",
+    瞬く: "またたく"
   };
 
-  // Sources: every currently reachable question's post-answer examples,
-  // prompt stems, key words, non-localized answers, allowed options, and the
-  // Japanese runs quoted in explanations. Explanations are mixed zh/ja prose,
-  // so we only extract the ruby-worthy Japanese runs instead of tokenising the
-  // whole paragraph.
-  const sentences = new Set();
+  // Collect base (pre-answer / always visible) and explanation (post-answer
+  // feedback) sentence sources separately. The pipeline must tag each source
+  // at collection time — no post-hoc guessing by filename or string length.
+  const baseSentences = new Set();
+  const explanationSentences = new Set();
   let promptStems = 0;
   let optionRuns = 0;
   let explanationRuns = 0;
+
   for (const q of questions) {
-    sentences.add(q.vocabulary.surface);
-    for (const ex of q.vocabulary.examples ?? []) sentences.add(ex.japanese);
+    // -- base sources --
+    baseSentences.add(q.vocabulary.surface);
+    for (const ex of q.vocabulary.examples ?? []) baseSentences.add(ex.japanese);
     if (q.promptText && q.promptLabel !== "漢字読み") {
-      sentences.add(q.promptText);
+      baseSentences.add(q.promptText);
       promptStems += 1;
     }
     if (q.targetForm !== "meaning") {
-      for (const answer of q.expectedAnswers) sentences.add(answer);
+      for (const answer of q.expectedAnswers) baseSentences.add(answer);
     }
     if (allowsOptionFurigana(q.promptLabel)) {
       for (const opt of q.options ?? []) {
-        sentences.add(opt);
+        baseSentences.add(opt);
         optionRuns += 1;
       }
     }
+
+    // -- explanation sources (post-answer only) --
     for (const text of [q.explanation, ...Object.values(q.explanationI18n ?? {})]) {
       for (const run of collectJapaneseRubySources(text)) {
-        sentences.add(run);
+        explanationSentences.add(run);
         explanationRuns += 1;
       }
     }
   }
+
   console.log(
-    `sources -> questions:${questions.length} stems:${promptStems} options:${optionRuns} explanation-runs:${explanationRuns} · unique strings:${sentences.size}`
+    `sources -> questions:${questions.length} stems:${promptStems} options:${optionRuns} explanation-runs:${explanationRuns}` +
+    ` · base unique:${baseSentences.size} explanation unique:${explanationSentences.size}`
   );
+
+  // Tokenise the union once (kuromoji is the expensive part), then split by
+  // source table. Both tables stay deterministic, sorted, and globally
+  // deduplicated.
+  const allSentences = new Set([...baseSentences, ...explanationSentences]);
 
   const tokenizer = await new Promise((resolve, reject) =>
     kuromoji.builder({ dicPath: DIC }).build((err, t) => (err ? reject(err) : resolve(t)))
   );
 
   const data = {};
-  for (const sentence of sentences) {
+  for (const sentence of allSentences) {
     const tokens = applyReadingOverrides(tokenizer.tokenize(sentence), READING_OVERRIDES);
     const segments = tokensToSegments(tokens);
     // Only store sentences that actually carry furigana; kana-only sentences
@@ -137,22 +139,39 @@ try {
     if (segments.some((seg) => seg.r !== undefined)) data[sentence] = segments;
   }
 
-  const entries = Object.keys(data)
-    .sort()
-    .map((key) => `  ${JSON.stringify(key)}: ${JSON.stringify(data[key])}`)
-    .join(",\n");
+  function writeTable(keys, outPath, bannerSuffix, exportName) {
+    const entries = Object.keys(data)
+      .filter((k) => keys.has(k))
+      .sort()
+      .map((key) => `  ${JSON.stringify(key)}: ${JSON.stringify(data[key])}`)
+      .join(",\n");
 
-  const banner =
-    "// AUTO-GENERATED by scripts/build-furigana.mjs — do not edit by hand.\n" +
-    "// Source: reachable question prompts/examples/answers + explanation runs.\n" +
-    "// Regenerate: pnpm build:furigana\n";
-  const file =
-    `${banner}import type { FuriganaSegment } from "./furigana";\n\n` +
-    `export const furiganaData: Record<string, FuriganaSegment[]> = {\n${entries}\n};\n`;
+    const banner =
+      "// AUTO-GENERATED by scripts/build-furigana.mjs — do not edit by hand.\n" +
+      `// ${bannerSuffix}\n` +
+      "// Regenerate: pnpm build:furigana\n";
 
-  writeFileSync(OUT, file, "utf8");
-  console.log(`sentences: ${sentences.size} · with furigana: ${Object.keys(data).length}`);
-  console.log(`wrote ${path.relative(ROOT, OUT)}`);
+    const file =
+      `${banner}import type { FuriganaSegment } from "./furigana";\n\n` +
+      `export const ${exportName}: Record<string, FuriganaSegment[]> = {\n${entries}\n};\n`;
+
+    writeFileSync(outPath, file, "utf8");
+    return entries.length;
+  }
+
+  const baseEntries = writeTable(
+    baseSentences, OUT_BASE,
+    "Source: reachable question prompts / examples / answers (base map).",
+    "furiganaData"
+  );
+  const explanationEntries = writeTable(
+    explanationSentences, OUT_EXPLANATION,
+    "Source: explanation / feedback Japanese runs only (lazy map).",
+    "furiganaExplanationData"
+  );
+
+  console.log(`base map:  ${baseEntries} entries · wrote ${path.relative(ROOT, OUT_BASE)}`);
+  console.log(`explanation map: ${explanationEntries} entries · wrote ${path.relative(ROOT, OUT_EXPLANATION)}`);
 } finally {
   await server.close();
 }
