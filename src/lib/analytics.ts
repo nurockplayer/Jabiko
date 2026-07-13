@@ -10,7 +10,8 @@ export type AnalyticsEventName =
   | "study_page_viewed"
   | "level_changed"
   | "locale_changed"
-  | "weak_review_started";
+  | "weak_review_started"
+  | "article_viewed";
 
 export interface PageViewPayload {
   view: string;
@@ -55,6 +56,9 @@ export interface WeakReviewStartedPayload {
   dueCount: number;
   locale: LocaleCode;
 }
+export interface ArticleViewedPayload {
+  slug: string;
+}
 
 export interface AnalyticsPayloadMap {
   page_view: PageViewPayload;
@@ -65,6 +69,7 @@ export interface AnalyticsPayloadMap {
   level_changed: LevelChangedPayload;
   locale_changed: LocaleChangedPayload;
   weak_review_started: WeakReviewStartedPayload;
+  article_viewed: ArticleViewedPayload;
 }
 
 const ZARAZ_ENABLED_FLAG = import.meta.env.VITE_ZARAZ_ENABLED;
@@ -83,7 +88,8 @@ const ALLOWED_PAYLOAD_KEYS: Record<AnalyticsEventName, readonly string[]> = {
   study_page_viewed: ["surface", "locale"],
   level_changed: ["scope", "levelRange", "locale"],
   locale_changed: ["from", "to"],
-  weak_review_started: ["dueCount", "locale"]
+  weak_review_started: ["dueCount", "locale"],
+  article_viewed: ["slug"]
 };
 
 function sanitizePayload<K extends AnalyticsEventName>(
