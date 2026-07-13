@@ -49,6 +49,17 @@ describe("analytics.trackEvent", () => {
     });
   });
 
+  it("accepts article_viewed with a slug-only payload", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+
+    trackEvent("article_viewed", { slug: "sweet-steady-sweet-step" });
+
+    expect(track).toHaveBeenCalledWith("article_viewed", {
+      slug: "sweet-steady-sweet-step"
+    });
+  });
+
   it("no-ops without throwing when window.zaraz is missing", () => {
     __setAnalyticsEnabledForTest(true);
     clearZaraz();
@@ -99,6 +110,11 @@ describe("analytics.trackEvent", () => {
     trackEvent("level_changed", { scope: "global", levelRange: "all", locale: "zh-Hant", userId: "abc-123" });
   });
 
+  it("rejects article content at compile time", () => {
+    // @ts-expect-error -- article_viewed must never include title or body text
+    trackEvent("article_viewed", { slug: "sweet-steady-sweet-step", title: "文章標題" });
+  });
+
   it("accepts each Phase 1 event with its documented payload shape", () => {
     __setAnalyticsEnabledForTest(true);
     const track = installZaraz();
@@ -129,7 +145,8 @@ describe("analytics.trackEvent", () => {
     });
     trackEvent("locale_changed", { from: "ja", to: "zh-Hant" });
     trackEvent("weak_review_started", { dueCount: 5, locale: "zh-Hant" });
-    expect(track).toHaveBeenCalledTimes(7);
+    trackEvent("article_viewed", { slug: "sweet-steady-sweet-step" });
+    expect(track).toHaveBeenCalledTimes(8);
   });
 
   it("module import has no firing side effects", () => {
@@ -170,6 +187,24 @@ describe("analytics.trackEvent", () => {
       questionType: "daily",
       isCorrect: true,
       locale: "zh-Hant"
+    });
+  });
+
+  it("strips article content and navigation metadata from article_viewed", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+    const smuggled = {
+      slug: "sweet-steady-sweet-step",
+      title: "從歌詞學日文",
+      body: "文章正文",
+      referrer: "https://example.com/",
+      search: "?q=private"
+    };
+
+    trackEvent("article_viewed", smuggled);
+
+    expect(track).toHaveBeenCalledWith("article_viewed", {
+      slug: "sweet-steady-sweet-step"
     });
   });
 });

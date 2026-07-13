@@ -2,18 +2,19 @@
 
 This document describes the **Phase 1** anonymous learning analytics layer
 introduced in issue #404. It is intentionally small: a single typed helper,
-an environment gate, eight learning events, and a hard privacy contract.
+an environment gate, nine coarse events, and a hard privacy contract.
 
 ## Why Zaraz
 
 Jabiko is a free, no-signup-first JLPT self-study app. The most valuable early
 analytics signal is whether learners actually start practice, submit answers,
-complete practice, change levels/locales, and return to weak-point review.
+complete practice, change levels/locales, return to weak-point review, and
+open published articles.
 Cloudflare Zaraz is used as an event router / tag manager — it does **not**
 replace Jabiko's own learning-progress data model or Supabase sync.
 
 Zaraz provides 1,000,000 free events/month per Cloudflare account. Phase 1
-event volume is kept intentionally small (eight learning-flow events, not
+event volume is kept intentionally small (nine coarse flow events, not
 per-interaction UI events).
 
 ## Helper
@@ -64,6 +65,12 @@ is correctly treated as disabled.
 | `level_changed`      | the learner changes the level range    | `scope` ("global" or "session"), `levelRange`, `locale`          |
 | `locale_changed`     | the learner switches the UI language   | `from` (LocaleCode), `to` (LocaleCode)                          |
 | `weak_review_started`| the learner opens weak-point review    | `dueCount` (a count, not content), `locale`                     |
+| `article_viewed`     | a published article is successfully displayed | `slug` (canonical article slug only)                       |
+
+`article_viewed` is emitted by `BlogArticlePage` after a published article has
+committed to the UI. The component keeps the last displayed slug in a ref, so
+StrictMode and re-renders do not duplicate an event; entering a different
+slug, or leaving and later re-entering an article route, is a new view.
 
 ### `view` allowed values
 
@@ -105,6 +112,10 @@ keys. The following are NOT present on any shape and cannot be passed through
 - raw Supabase user id / any PII id
 - IP address
 - nested objects or arrays containing user-generated content
+- article title, body, query string, referrer, or other navigation/free text
+
+`article_viewed` is deliberately limited to the canonical `slug`; it must not
+carry article prose or visitor/navigation data.
 
 This is enforced by a per-event allowlist of typed keys. To add a new payload
 field, the shape in `AnalyticsPayloadMap` must be extended first; ad-hoc keys
@@ -127,4 +138,6 @@ are rejected by the compiler.
 `window.zaraz.track`, missing `window.zaraz`, `window.zaraz.track` throwing,
 `window.zaraz.track` not a function, unknown event name (compile error),
 wrong payload type (compile error), and sensitive-key rejection (compile
-error).
+error), including the slug-only `article_viewed` allowlist. `BlogArticlePage`
+tests cover published-only triggering, StrictMode/rerender deduplication, slug
+changes, unknown/draft suppression, and re-entry after route departure.

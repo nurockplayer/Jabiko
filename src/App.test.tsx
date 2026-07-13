@@ -53,12 +53,16 @@ describe("App", () => {
   // once here so every test below renders them synchronously regardless of
   // run order -- otherwise whichever test first navigates to a view would
   // run its synchronous assertions before the lazy chunk finished loading.
+  // GrammarPointPage is reached through a direct URL rather than one of these
+  // navigation clicks, so preload it explicitly for the route-level heading
+  // test below as well.
   // Generous timeouts here: this hook cold-loads the lazy chunks, and the
   // challenge chunk now carries the ~700KB pre-baked furigana table (#134 P4),
   // so the first transform+eval can exceed the 1s findBy default in CI before
   // any other test has warmed the modules. Once primed, the per-test
   // navigations below resolve from cache at the default timeout.
   beforeAll(async () => {
+    await import("./components/GrammarPointPage");
     const user = userEvent.setup();
     const { unmount } = render(<App />);
     await user.click(screen.getByRole("button", { name: "挑戰" }));
@@ -129,7 +133,11 @@ describe("App", () => {
     window.history.replaceState({}, "", `/grammar/${encodeURIComponent(surface)}`);
     render(<App />);
 
-    await screen.findByRole("heading", { name: surface, level: 1 });
+    // This route resolves the heaviest lazy chain in the app (GrammarPointPage
+    // -> grammar notes -> exam bank; #611 split furigana into one more async
+    // module). The default 1s findBy timeout flaked on slow CI runners even
+    // though local runs pass, so give the first paint room to land.
+    await screen.findByRole("heading", { name: surface, level: 1 }, { timeout: 15000 });
     // Exactly one h1 on the SEO landing page, and it's the page-specific surface.
     const h1s = screen.getAllByRole("heading", { level: 1 });
     expect(h1s).toHaveLength(1);
