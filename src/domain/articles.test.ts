@@ -109,6 +109,26 @@ describe("blog articles data guard", () => {
     expect(bodyText).toContain("お会計お願いします");
   });
 
+  it("serves the restaurant ordering guide with real-world usage cautions", () => {
+    const article = articleBySlug("japanese-restaurant-ordering-phrases");
+    const bodyText = article?.body
+      .flatMap((block) => {
+        if ("text" in block) return [block.text];
+        if (block.kind === "vocab") {
+          return block.items.flatMap((item) => [item.word, item.reading, item.meaning, item.note ?? ""]);
+        }
+        return [];
+      })
+      .join("\n");
+
+    expect(article?.tag).toBe("旅遊日文");
+    expect(bodyText).toContain("はい、お願いします");
+    expect(bodyText).toContain("すみません、もう一度お願いします");
+    expect(bodyText).toContain("個別会計はご遠慮ください");
+    expect(bodyText).toContain("では、まとめて払います");
+    expect(bodyText).toContain("ごちそうさまでした");
+  });
+
   it("keeps titles and descriptions within SEO-friendly lengths", () => {
     for (const a of articles) {
       expect(a.title.length).toBeGreaterThan(0);
