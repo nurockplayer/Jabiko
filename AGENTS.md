@@ -21,7 +21,7 @@ Jabiko（jabiko.app）是免費、免註冊的 **JLPT N5–N1 日檢自習室**�
 直接執行指令即可（**沒有 `rtk` 這個工具**——舊規範遺留，勿再等待或宣稱缺它而跳過驗證）。
 
 - Node／frontend tooling 一律 `pnpm`；不得使用 npm/yarn/bun（也不得產生其 lockfile）
-- 驗證三閘：`pnpm check:exam`（改題庫必跑）、`pnpm test`、`pnpm build`
+- 驗證三閘：`pnpm test`、`pnpm build` 每個 PR 必跑；`pnpm check:exam` 在改動題庫（`src/domain/exam/`）時必跑，其他改動可省
 - 新增／修改**文章**後必跑 `pnpm build:sitemap`（sitemap drift guard 會擋 CI——這是 Codex 歷史上最常漏的一步）
 - 新增 exam 例句／題幹後跑 `pnpm build:furigana`
 
@@ -32,7 +32,7 @@ Jabiko（jabiko.app）是免費、免註冊的 **JLPT N5–N1 日檢自習室**�
 - **語言隔離**：`*Zh` 欄位不得對 zh-Hant 以外渲染，除非走 `pickLocalized()`＋有效 i18n overlay；`isZhHant` 是唯一閘門變數；不得動 `LAUNCHED_LANGUAGES`／`LocaleCode`／`pickLocalized()` fallback
 - **分層**：領域邏輯在 `src/domain/`，React 元件不放商業邏輯；TypeScript strict、禁 `any`
 - **Bundle 紀律**：examBlocks／furigana 資料／文章 body 只准進 lazy chunk，勿從 eager 路徑（App／components barrel／首頁）import
-- **EOL**：`exam/items/*.ts` 是 `-text`，暫存用 `git -c core.autocrlf=false add`，commit 前 `git diff --cached --check` 必須乾淨
+- **EOL**：`exam/items/*.ts` 是 `-text`，暫存用 `git -c core.autocrlf=false add <files>`（明列檔名），commit 前 `git diff --cached --check` 必須乾淨
 
 ## Scope 邊界
 
