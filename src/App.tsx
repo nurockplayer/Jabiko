@@ -67,6 +67,11 @@ const MockExamPanel = lazy(() =>
 const KanjiOnyomiPanel = lazy(() =>
   import("./components/KanjiOnyomiPanel").then((module) => ({ default: module.KanjiOnyomiPanel }))
 );
+// 五十音表 standalone reference (#619). Small data, but lazy for consistency
+// (only search-engine and kana-chapter traffic reaches it).
+const KanaTablePage = lazy(() =>
+  import("./components/KanaTablePage").then((module) => ({ default: module.KanaTablePage }))
+);
 // Per-grammar-point study page (#281). Pulls the exam bank + grammar notes via
 // buildGrammarPoint, so it's lazy + imported directly (never via the barrel) to
 // keep that data out of the initial bundle.
@@ -89,7 +94,7 @@ const BlogArticlePage = lazy(() =>
 );
 const BUILD_VERSION = packageJson.version;
 
-type AppView = "home" | "learn" | "rules" | "kanji" | "challenge" | "mock" | "about" | "grammar" | "blog";
+type AppView = "home" | "learn" | "rules" | "kanji" | "kana" | "challenge" | "mock" | "about" | "grammar" | "blog";
 type DrillPreset = LearningBlockDrillPreset;
 
 // The LAUNCHED locales, in menu order, for the header language picker. Each
@@ -113,6 +118,10 @@ const VIEW_PATHS: Record<AppView, string> = {
   learn: "/learn",
   rules: "/rules",
   kanji: "/kanji",
+  // #619: standalone kana chart. Route only -- deliberately NOT a nav tab
+  // (header entries are being consolidated, #608); reached from the kana
+  // study chapters, the beginner flow, and search engines.
+  kana: "/kana",
   challenge: "/challenge",
   mock: "/mock",
   about: "/about",
@@ -674,6 +683,7 @@ export default function App() {
             openChallenge({ mode: "kana", filter: { kanaScript: script } })
           }
           onStartStarterDrill={() => openChallenge({ mode: "starter" })}
+          onOpenKana={() => setAppView("kana")}
         />
       ) : appView === "rules" ? (
         <RulesPanel language={language} />
@@ -682,6 +692,15 @@ export default function App() {
       ) : appView === "kanji" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
           <KanjiOnyomiPanel language={language} defaultLevel={kanjiDefaultLevel(targetLevel)} />
+        </Suspense>
+      ) : appView === "kana" ? (
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <KanaTablePage
+            language={language}
+            onStartKanaDrill={(script) =>
+              openChallenge({ mode: "kana", filter: { kanaScript: script } })
+            }
+          />
         </Suspense>
       ) : appView === "mock" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>

@@ -15,6 +15,7 @@ import { SITE_ORIGIN, VIEW_SEO, seoForView, type SeoView } from "../seo";
 import { grammarPatterns, type GrammarPattern } from "../grammarDatabase";
 import { publishedArticleMetas } from "../articlesMeta";
 import { publishedArticles, type ArticleBlock } from "../articles";
+import { KANA_TABLE, type KanaGroup, type KanaScript } from "../kana";
 import type { JlptLevel } from "../types";
 
 export interface StaticPage {
@@ -231,6 +232,37 @@ function homeBody(): string {
   );
 }
 
+// #619: the /kana page's whole value to a crawler IS the chart, so render the
+// full tables (kana + romaji, grouped like the app) instead of a description.
+function kanaBody(): string {
+  const scripts: Array<{ script: KanaScript; label: string }> = [
+    { script: "hiragana", label: "平假名" },
+    { script: "katakana", label: "片假名" }
+  ];
+  const groupSections: Array<{ groups: KanaGroup[]; label: string }> = [
+    { groups: ["seion"], label: "清音" },
+    { groups: ["dakuon", "handakuon"], label: "濁音・半濁音" },
+    { groups: ["youon"], label: "拗音" }
+  ];
+  const parts: string[] = [paragraph(VIEW_SEO.kana.description)];
+  for (const { script, label } of scripts) {
+    parts.push(`<h2>${escapeHtml(label)}</h2>`);
+    for (const section of groupSections) {
+      const cells = KANA_TABLE.filter(
+        (entry) => entry.script === script && section.groups.includes(entry.group)
+      )
+        .map(
+          (entry) =>
+            `<li><span lang="ja">${escapeHtml(entry.kana)}</span>（${escapeHtml(entry.romaji)}）</li>`
+        )
+        .join("");
+      parts.push(`<h3>${escapeHtml(section.label)}</h3><ul>${cells}</ul>`);
+    }
+  }
+  parts.push(`<p><a href="/learn">進分章學習</a> · <a href="/challenge">練假名認讀</a></p>`);
+  return wrap("五十音表（平假名・片假名對照）", parts.join(""));
+}
+
 function simpleViewBody(view: SeoView): string {
   const entry = VIEW_SEO[view];
   return wrap(entry.title.split(" · ")[0], `${paragraph(entry.description)}<p><a href="/">回 Jabiko 首頁</a></p>`);
@@ -251,6 +283,7 @@ export function buildStaticPages(): StaticPage[] {
   for (const view of ["learn", "rules", "kanji", "challenge", "mock", "about"] as const) {
     push(view, VIEW_SEO[view].path, simpleViewBody(view));
   }
+  push("kana", "/kana", kanaBody());
   push("grammar", "/grammar", grammarIndexBody());
   for (const level of LEVELS) {
     push("grammar", `/grammar/${level.toLowerCase()}`, grammarIndexBody(level), level.toLowerCase());

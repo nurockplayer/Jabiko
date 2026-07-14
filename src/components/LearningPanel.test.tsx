@@ -7,8 +7,8 @@ import { learningBlocks } from "../domain/learningBlocks";
 // pushing the material ~7000px down. The mobile chapter bar surfaces the
 // current chapter + progress, prev/next, and a collapsible index. It renders
 // unconditionally (desktop hides it with CSS), so jsdom can exercise it.
-function renderPanel() {
-  return render(
+function renderPanel(onOpenKana = vi.fn()) {
+  render(
     <LearningPanel
       language="zh-Hant"
       progressAttempts={[]}
@@ -20,8 +20,10 @@ function renderPanel() {
       onStartExamSection={vi.fn()}
       onStartKanaDrill={vi.fn()}
       onStartStarterDrill={vi.fn()}
+      onOpenKana={onOpenKana}
     />
   );
+  return onOpenKana;
 }
 
 const basicBlocks = learningBlocks.filter((block) => block.group === "basic");
@@ -53,6 +55,15 @@ describe("LearningPanel mobile chapter bar (#608)", () => {
       `1 / ${basicBlocks.length}`
     );
     expect(screen.getByRole("button", { name: "上一章" })).toBeDisabled();
+  });
+
+  // #619: kana chapters link out to the standalone /kana reference chart.
+  it("offers the full kana chart link on kana chapters", () => {
+    const onOpenKana = renderPanel();
+    // Default selection for a fresh learner is the first chapter (五十音).
+    const link = screen.getByRole("button", { name: /五十音表/ });
+    fireEvent.click(link);
+    expect(onOpenKana).toHaveBeenCalled();
   });
 
   it("toggles the chapter index open and closes it again when a chapter is picked", () => {

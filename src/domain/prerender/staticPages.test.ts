@@ -88,6 +88,7 @@ describe("buildStaticPages", () => {
       "/learn",
       "/rules",
       "/kanji",
+      "/kana",
       "/challenge",
       "/mock",
       "/about",
@@ -96,6 +97,18 @@ describe("buildStaticPages", () => {
     ]) {
       expect(byPath.has(route), route).toBe(true);
     }
+  });
+
+  // #619: /kana is an SEO reference page -- the prerendered body must carry
+  // the actual charts (both scripts, with romaji), not just a shell.
+  it("prerenders the full kana charts on /kana", () => {
+    const page = byPath.get("/kana");
+    expect(page).toBeDefined();
+    expect(page!.bodyHtml).toContain("あ");
+    expect(page!.bodyHtml).toContain("ア");
+    expect(page!.bodyHtml).toContain("きゃ");
+    expect(page!.bodyHtml).toContain("平假名");
+    expect(page!.bodyHtml).toContain("片假名");
   });
 
   it("covers the five JLPT level indexes", () => {

@@ -26,6 +26,7 @@ const ROUTES = [
   { path: "/challenge", changefreq: "weekly", priority: "0.8" },
   { path: "/mock", changefreq: "weekly", priority: "0.8" },
   { path: "/kanji", changefreq: "weekly", priority: "0.7" },
+  { path: "/kana", changefreq: "monthly", priority: "0.7" },
   { path: "/rules", changefreq: "monthly", priority: "0.7" },
   { path: "/grammar", changefreq: "weekly", priority: "0.7" },
   { path: "/blog", changefreq: "weekly", priority: "0.7" },

@@ -158,6 +158,14 @@ export type Copy = {
   kanjiSearchEmpty: string;
   // #608 batched kanji table: "load more (N left)" button label.
   kanjiLoadMore: (count: number) => string;
+  // #619 standalone /kana reference page.
+  kanaPageTitle: string;
+  kanaPageIntro: string;
+  kanaHiragana: string;
+  kanaKatakana: string;
+  kanaGroupSeion: string;
+  kanaGroupDakuon: string;
+  kanaGroupYouon: string;
   learningRegion: string;
   chapterIndexLabel: string;
   // #608 mobile chapter bar: prev / next chapter controls.
