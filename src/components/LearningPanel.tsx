@@ -30,7 +30,8 @@ export function LearningPanel({
   onStartPatternDrill,
   onStartExamSection,
   onStartKanaDrill,
-  onStartStarterDrill
+  onStartStarterDrill,
+  onOpenKana
 }: {
   language: Language;
   progressAttempts: Attempt[];
@@ -44,6 +45,8 @@ export function LearningPanel({
   onStartKanaDrill: (script: KanaScript) => void;
   // Launches the starter-vocab meaning drill (#533).
   onStartStarterDrill: () => void;
+  // Opens the standalone /kana chart page (#619).
+  onOpenKana: () => void;
 }) {
   const t = copy[language];
   // Study-chapter translations are heavy and grow per language, so they're
@@ -296,6 +299,10 @@ export function LearningPanel({
                 >
                   <ArrowRight aria-hidden="true" />
                   {drillButtonLabel(active.kanaDrill)}
+                </button>
+                <button className="inline-drill-button" type="button" onClick={onOpenKana}>
+                  <ArrowRight aria-hidden="true" />
+                  {t.kanaPageTitle}
                 </button>
               </div>
             ) : null}

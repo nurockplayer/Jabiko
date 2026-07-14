@@ -9,6 +9,7 @@ const VIEWS: Exclude<SeoView, "grammar">[] = [
   "learn",
   "rules",
   "kanji",
+  "kana",
   "challenge",
   "mock",
   "about",

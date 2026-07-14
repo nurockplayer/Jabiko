@@ -15,6 +15,7 @@ export type SeoView =
   | "learn"
   | "rules"
   | "kanji"
+  | "kana"
   | "challenge"
   | "mock"
   | "about"
@@ -55,6 +56,12 @@ export const VIEW_SEO: Record<SeoView, PageSeo> = {
     description:
       "依音讀（同音家族）查漢字、確認讀音與例詞，把濁音、長短音一次搞清楚，涵蓋 JLPT／日檢 N5〜N1 漢字。",
     path: "/kanji"
+  },
+  kana: {
+    title: "五十音表（平假名・片假名對照）· 附發音 · Jabiko",
+    description:
+      "完整五十音表：平假名、片假名對照，清音、濁音・半濁音、拗音分區，每格附羅馬拼音與發音播放，看完可直接進假名認讀練習。",
+    path: "/kana"
   },
   challenge: {
     title: "JLPT／日檢線上題庫練習 · Jabiko 自習室",
