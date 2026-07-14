@@ -26,6 +26,17 @@ jobs:
           node-version: 22
           cache: pnpm
 
+      # #315: pnpm is the only package manager. Consistency with package.json
+      # is already enforced by --frozen-lockfile below; this step blocks a
+      # foreign lockfile from ever landing in the repo (agents occasionally
+      # run npm/yarn by habit).
+      - name: Lockfile guard (pnpm only)
+        run: |
+          if ls package-lock.json yarn.lock bun.lockb bun.lock npm-shrinkwrap.json 2>/dev/null | grep -q .; then
+            echo "::error::Foreign lockfile detected — pnpm-lock.yaml is the only allowed lockfile. Remove npm/yarn/bun lockfiles."
+            exit 1
+          fi
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
