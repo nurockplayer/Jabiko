@@ -1,7 +1,8 @@
 import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { useSeoMeta } from "./useSeoMeta";
-import { seoForView, type SeoView } from "../domain/seo";
+import { seoForView } from "../domain/seo";
+import type { AppView } from "../domain/routes";
 
 const desc = () =>
   document.head.querySelector('meta[name="description"]')?.getAttribute("content");
@@ -34,7 +35,7 @@ describe("useSeoMeta", () => {
 
   it("updates existing tags in place when the view changes (no duplicates)", () => {
     const { rerender } = renderHook(({ v }) => useSeoMeta(v), {
-      initialProps: { v: "home" as SeoView }
+      initialProps: { v: "home" as AppView }
     });
     rerender({ v: "kanji" });
 

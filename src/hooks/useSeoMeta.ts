@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { seoForView, type SeoView } from "../domain/seo";
+import { seoForView } from "../domain/seo";
+import type { AppView } from "../domain/routes";
 
 // Find-or-create a <meta> tag (keyed by name= or property=) and set its content.
 function upsertMeta(attr: "name" | "property", key: string, content: string) {
@@ -28,7 +29,7 @@ function upsertCanonical(href: string) {
 // renders the JS sees route-specific title/description rather than the shared
 // static shell. Idempotent: re-applies in place, never duplicates a tag.
 export function useSeoMeta(
-  view: SeoView,
+  view: AppView,
   grammarSurface?: string | null,
   blogSlug?: string | null
 ) {
