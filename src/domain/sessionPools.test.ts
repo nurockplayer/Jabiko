@@ -6,6 +6,7 @@ import { buildExamQuestionPool } from "./examBlocks";
 import { buildKanaQuestionPool } from "./kanaDrill";
 import { levelsForRange } from "./levelRange";
 import { buildQuestionPool } from "./practice";
+import type { PracticeMode } from "./practiceMode";
 import { buildSentencePatternPool } from "./sentencePatterns";
 import {
   buildAllKnownQuestions,
@@ -14,16 +15,16 @@ import {
   composeDailySet,
   resolveBookmarkedQuestions,
   uniqueForms,
-  type PracticePoolRequest
+  type PracticePoolOptions
 } from "./sessionPools";
 import type { PracticeQuestion } from "./types";
 import { vocabulary } from "./vocabulary";
 import { jlptVocabulary } from "./vocabulary-jlpt";
 
-// Default request = the "basic" drill. Each test changes exactly one mode,
+// Default options = the "basic" drill. Each test changes exactly one mode,
 // so the branch under test is isolated and impossible mode combinations
 // cannot be constructed.
-function poolParams(overrides: Partial<PracticePoolRequest> = {}): PracticePoolRequest {
+function poolParams(overrides: Partial<PracticePoolOptions> = {}): PracticePoolOptions {
   return {
     mode: "basic",
     partOfSpeech: "verb",
@@ -36,17 +37,25 @@ function poolParams(overrides: Partial<PracticePoolRequest> = {}): PracticePoolR
   };
 }
 
-describe("buildPracticeQuestions mode request (#623)", () => {
+describe("buildPracticeQuestions mode options (#623)", () => {
   it("selects exactly one pool branch from mode", () => {
     const questions = buildPracticeQuestions({
       ...poolParams(),
       mode: "kana",
       kanaScript: "katakana",
-      sessionLength: 10
+      sessionLength: null
     });
 
-    expect(questions).toHaveLength(10);
+    expect(questions).toHaveLength(312);
     expect(questions.every((question) => question.id.startsWith("kana-katakana-"))).toBe(true);
+  });
+
+  it("throws for a corrupt mode instead of silently falling back to basic", () => {
+    const corruptMode = "corrupt" as unknown as PracticeMode;
+
+    expect(() => buildPracticeQuestions(poolParams({ mode: corruptMode }))).toThrow(
+      "Unsupported practice mode: corrupt"
+    );
   });
 });
 
@@ -238,10 +247,14 @@ describe("buildPracticeQuestions", () => {
     expect(new Set(questions.map((q) => q.id))).toEqual(new Set(expected.map((q) => q.id)));
   });
 
-  it("pattern mode: returns the sentence-pattern pool (same membership)", () => {
-    const questions = buildPracticeQuestions(poolParams({ mode: "pattern" }));
-    const expected = buildSentencePatternPool();
+  it("pattern mode: passes patternIds through to the filtered pool", () => {
+    const patternIds = ["starter-desu"] as const;
+    const questions = buildPracticeQuestions(
+      poolParams({ mode: "pattern", patternIds: [...patternIds] })
+    );
+    const expected = buildSentencePatternPool({ patternIds: [...patternIds] });
 
+    expect(questions.length).toBeGreaterThan(0);
     expect(new Set(questions.map((q) => q.id))).toEqual(new Set(expected.map((q) => q.id)));
   });
 

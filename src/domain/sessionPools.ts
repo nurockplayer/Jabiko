@@ -36,6 +36,10 @@ export function uniqueForms(forms: TargetForm[]): TargetForm[] {
   return Array.from(new Set(forms));
 }
 
+// Deliberate runtime contract: the legacy flag dispatcher could silently fall
+// through to the basic pool for a malformed state; an unknown mode now throws.
+// Any future persisted/query-string session mode must be validated against the
+// PracticeMode union before it reaches this boundary.
 function assertNever(value: never): never {
   throw new Error(`Unsupported practice mode: ${String(value)}`);
 }
@@ -219,10 +223,10 @@ export function resolveBookmarkedQuestions(
 // hook derives these from its state (one mode), props (reviewQueue
 // snapshot), and config (filter / partOfSpeech / verbGroup / targetForms
 // / levelRange), then hands them in so this stays a pure function.
-export type PracticePoolRequest = {
+export type PracticePoolOptions = {
   // A single mode value makes impossible states (for example exam + review)
-  // unrepresentable. The previous nine booleans also made branch priority
-  // depend on the order of the if-statements below.
+  // unrepresentable. With the previous nine booleans, branch priority depended
+  // on the order of the old if-statements.
   mode: PracticeMode;
   examSection?: { level: MockExamLevel; promptLabel: string };
   patternIds?: SentencePatternId[];
@@ -257,7 +261,7 @@ export type PracticePoolRequest = {
 // mode/range branch (section-filtered exam, 綜合 level-range exam, cloze,
 // pattern, review snapshot, vocab reading drill, 今日練習, basic drill)
 // stays exactly as it was.
-export function buildPracticeQuestions(params: PracticePoolRequest): PracticeQuestion[] {
+export function buildPracticeQuestions(options: PracticePoolOptions): PracticeQuestion[] {
   const {
     mode,
     examSection,
@@ -271,7 +275,7 @@ export function buildPracticeQuestions(params: PracticePoolRequest): PracticeQue
     bookmarkedQuestions,
     sessionLength,
     attemptedIds
-  } = params;
+  } = options;
   const fresh = (pool: PracticeQuestion[]): PracticeQuestion[] =>
     attemptedIds ? prioritizeUnattempted(pool, attemptedIds) : pool;
 
@@ -331,8 +335,8 @@ export function buildPracticeQuestions(params: PracticePoolRequest): PracticeQue
     case "review":
       // Snapshot the SRS queue at session start. Subsequent answers
       // update the LIVE reviewQueue (used by the home banner count),
-      // but this useMemo is intentionally NOT re-keyed on it -- see
-      // the deps comment below for the regression that fixes.
+      // but the questions memo is intentionally NOT re-keyed on it -- see the
+      // dependency comment in usePracticeSession.ts for the regression fixed.
       // Ordering is preserved (no extra shuffle): getReviewQueue
       // already sorts most-overdue first.
       return reviewQueue;
@@ -376,8 +380,9 @@ export function buildPracticeQuestions(params: PracticePoolRequest): PracticeQue
 
     case "daily":
       // Snapshot the current due queue at session start (same as review
-      // mode); the live reviewQueue stays excluded from the deps below. The
-      // fresh portion is narrowed to the learner's target band (#199).
+      // mode); the live reviewQueue stays excluded from the questions memo
+      // dependencies in usePracticeSession.ts. The fresh portion is narrowed
+      // to the learner's target band (#199).
       return composeDailySet(reviewQueue, levelRange);
 
     case "bookmarks":
