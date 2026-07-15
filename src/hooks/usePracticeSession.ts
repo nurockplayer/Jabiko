@@ -279,15 +279,7 @@ export function usePracticeSession({
     () => {
       void sessionSeed;
       return buildPracticeQuestions({
-        isExamFocus,
-        isClozeFocus,
-        isPatternFocus,
-        isReviewFocus,
-        isVocabFocus,
-        isDailyFocus,
-        isKanaFocus,
-        isStarterFocus,
-        isBookmarksFocus,
+        mode: practiceMode,
         examSection: practiceFilter.examSection,
         patternIds: practiceFilter.patternIds,
         kanaScript: practiceFilter.kanaScript,
@@ -315,15 +307,7 @@ export function usePracticeSession({
     // snapshot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      isExamFocus,
-      isClozeFocus,
-      isPatternFocus,
-      isReviewFocus,
-      isVocabFocus,
-      isDailyFocus,
-      isKanaFocus,
-      isStarterFocus,
-      isBookmarksFocus,
+      practiceMode,
       practiceFilter.patternIds,
       practiceFilter.examSection,
       practiceFilter.kanaScript,
