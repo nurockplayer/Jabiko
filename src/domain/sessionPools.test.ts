@@ -6,6 +6,8 @@ import { buildExamQuestionPool } from "./examBlocks";
 import { buildKanaQuestionPool } from "./kanaDrill";
 import { levelsForRange } from "./levelRange";
 import { buildQuestionPool } from "./practice";
+import type { PracticeMode } from "./practiceMode";
+import { buildSentencePatternPool } from "./sentencePatterns";
 import {
   buildAllKnownQuestions,
   buildModeCounts,
@@ -13,26 +15,18 @@ import {
   composeDailySet,
   resolveBookmarkedQuestions,
   uniqueForms,
-  type PracticePoolParams
+  type PracticePoolOptions
 } from "./sessionPools";
 import type { PracticeQuestion } from "./types";
 import { vocabulary } from "./vocabulary";
 import { jlptVocabulary } from "./vocabulary-jlpt";
 
-// Default mode flags = the "basic" drill (every focus flag false). Each
-// test flips exactly the flag(s) for the branch it exercises, so the
-// branch under test is isolated.
-function poolParams(overrides: Partial<PracticePoolParams> = {}): PracticePoolParams {
+// Default options = the "basic" drill. Each test changes exactly one mode,
+// so the branch under test is isolated and impossible mode combinations
+// cannot be constructed.
+function poolParams(overrides: Partial<PracticePoolOptions> = {}): PracticePoolOptions {
   return {
-    isExamFocus: false,
-    isClozeFocus: false,
-    isPatternFocus: false,
-    isReviewFocus: false,
-    isVocabFocus: false,
-    isDailyFocus: false,
-    isKanaFocus: false,
-    isStarterFocus: false,
-    isBookmarksFocus: false,
+    mode: "basic",
     partOfSpeech: "verb",
     verbGroup: "godan",
     targetForms: ["te"],
@@ -43,28 +37,50 @@ function poolParams(overrides: Partial<PracticePoolParams> = {}): PracticePoolPa
   };
 }
 
+describe("buildPracticeQuestions mode options (#623)", () => {
+  it("selects exactly one pool branch from mode", () => {
+    const questions = buildPracticeQuestions({
+      ...poolParams(),
+      mode: "kana",
+      kanaScript: "katakana",
+      sessionLength: null
+    });
+
+    expect(questions).toHaveLength(312);
+    expect(questions.every((question) => question.id.startsWith("kana-katakana-"))).toBe(true);
+  });
+
+  it("throws for a corrupt mode instead of silently falling back to basic", () => {
+    const corruptMode = "corrupt" as unknown as PracticeMode;
+
+    expect(() => buildPracticeQuestions(poolParams({ mode: corruptMode }))).toThrow(
+      "Unsupported practice mode: corrupt"
+    );
+  });
+});
+
 describe("buildPracticeQuestions kana branch (#533)", () => {
   it("kana focus builds the requested script's pool, defaulting to hiragana", () => {
     const hira = buildPracticeQuestions(
-      poolParams({ isKanaFocus: true, kanaScript: "hiragana", sessionLength: null })
+      poolParams({ mode: "kana", kanaScript: "hiragana", sessionLength: null })
     );
     expect(hira).toHaveLength(208);
     expect(hira.every((question) => question.id.startsWith("kana-hiragana-"))).toBe(true);
 
     const fallback = buildPracticeQuestions(
-      poolParams({ isKanaFocus: true, sessionLength: null })
+      poolParams({ mode: "kana", sessionLength: null })
     );
     expect(fallback.every((question) => question.id.startsWith("kana-hiragana-"))).toBe(true);
 
     const kata = buildPracticeQuestions(
-      poolParams({ isKanaFocus: true, kanaScript: "katakana", sessionLength: null })
+      poolParams({ mode: "kana", kanaScript: "katakana", sessionLength: null })
     );
     expect(kata).toHaveLength(312);
   });
 
   it("kana focus honours the session-length cap", () => {
     const capped = buildPracticeQuestions(
-      poolParams({ isKanaFocus: true, kanaScript: "hiragana", sessionLength: 10 })
+      poolParams({ mode: "kana", kanaScript: "hiragana", sessionLength: 10 })
     );
     expect(capped).toHaveLength(10);
   });
@@ -78,7 +94,7 @@ describe("buildPracticeQuestions kana branch (#533)", () => {
 
 describe("buildPracticeQuestions starter branch (#533)", () => {
   it("starter focus builds one meaning question per deck word", () => {
-    const pool = buildPracticeQuestions(poolParams({ isStarterFocus: true, sessionLength: null }));
+    const pool = buildPracticeQuestions(poolParams({ mode: "starter", sessionLength: null }));
     expect(pool.length).toBeGreaterThanOrEqual(90);
     expect(pool.every((question) => question.targetForm === "meaning")).toBe(true);
     expect(pool.every((question) => question.id.startsWith("starter-"))).toBe(true);
@@ -86,7 +102,7 @@ describe("buildPracticeQuestions starter branch (#533)", () => {
 
   it("starter focus honours the session-length cap and resolves in buildAllKnownQuestions", () => {
     const capped = buildPracticeQuestions(
-      poolParams({ isStarterFocus: true, sessionLength: 10 })
+      poolParams({ mode: "starter", sessionLength: 10 })
     );
     expect(capped).toHaveLength(10);
     const known = buildAllKnownQuestions();
@@ -174,14 +190,14 @@ describe("buildPracticeQuestions", () => {
   });
 
   it("exam mode (綜合, range all): mirrors the default exam pool contents", () => {
-    const questions = buildPracticeQuestions(poolParams({ isExamFocus: true, levelRange: "all" }));
+    const questions = buildPracticeQuestions(poolParams({ mode: "exam", levelRange: "all" }));
     const expected = buildExamQuestionPool("all");
 
     expect(new Set(questions.map((q) => q.id))).toEqual(new Set(expected.map((q) => q.id)));
   });
 
   it("exam mode (綜合, n1n2 range): narrows to N1+N2 only", () => {
-    const questions = buildPracticeQuestions(poolParams({ isExamFocus: true, levelRange: "n1n2" }));
+    const questions = buildPracticeQuestions(poolParams({ mode: "exam", levelRange: "n1n2" }));
 
     expect(questions.length).toBeGreaterThan(0);
     expect(
@@ -190,7 +206,7 @@ describe("buildPracticeQuestions", () => {
   });
 
   it("exam mode (綜合, n2n3 range): narrows to N2+N3 only", () => {
-    const questions = buildPracticeQuestions(poolParams({ isExamFocus: true, levelRange: "n2n3" }));
+    const questions = buildPracticeQuestions(poolParams({ mode: "exam", levelRange: "n2n3" }));
 
     expect(questions.length).toBeGreaterThan(0);
     expect(
@@ -199,7 +215,7 @@ describe("buildPracticeQuestions", () => {
   });
 
   it("exam mode (備考, n4n5 range): narrows to N4+N5 only (#65/#92)", () => {
-    const questions = buildPracticeQuestions(poolParams({ isExamFocus: true, levelRange: "n4n5" }));
+    const questions = buildPracticeQuestions(poolParams({ mode: "exam", levelRange: "n4n5" }));
 
     expect(questions.length).toBeGreaterThan(0);
     expect(
@@ -216,7 +232,7 @@ describe("buildPracticeQuestions", () => {
     const promptLabel = sample!.promptLabel!;
 
     const questions = buildPracticeQuestions(
-      poolParams({ isExamFocus: true, examSection: { level: "N1", promptLabel } })
+      poolParams({ mode: "exam", examSection: { level: "N1", promptLabel } })
     );
 
     expect(questions.length).toBeGreaterThan(0);
@@ -225,16 +241,27 @@ describe("buildPracticeQuestions", () => {
   });
 
   it("cloze mode: returns the cloze pool (same membership)", () => {
-    const questions = buildPracticeQuestions(poolParams({ isClozeFocus: true }));
+    const questions = buildPracticeQuestions(poolParams({ mode: "cloze" }));
     const expected = buildClozeQuestionPool(clozeSentences, vocabulary);
 
+    expect(new Set(questions.map((q) => q.id))).toEqual(new Set(expected.map((q) => q.id)));
+  });
+
+  it("pattern mode: passes patternIds through to the filtered pool", () => {
+    const patternIds = ["starter-desu"] as const;
+    const questions = buildPracticeQuestions(
+      poolParams({ mode: "pattern", patternIds: [...patternIds] })
+    );
+    const expected = buildSentencePatternPool({ patternIds: [...patternIds] });
+
+    expect(questions.length).toBeGreaterThan(0);
     expect(new Set(questions.map((q) => q.id))).toEqual(new Set(expected.map((q) => q.id)));
   });
 
   it("review mode: returns the snapshot queue verbatim (same order, no shuffle)", () => {
     const snapshot = buildExamQuestionPool("N1").slice(0, 3);
     const questions = buildPracticeQuestions(
-      poolParams({ isReviewFocus: true, reviewQueue: snapshot })
+      poolParams({ mode: "review", reviewQueue: snapshot })
     );
 
     expect(questions).toBe(snapshot);
@@ -243,7 +270,7 @@ describe("buildPracticeQuestions", () => {
   it("bookmarks mode: returns the bookmarked snapshot verbatim (add-order, no shuffle)", () => {
     const snapshot = buildExamQuestionPool("N1").slice(0, 3);
     const questions = buildPracticeQuestions(
-      poolParams({ isBookmarksFocus: true, bookmarkedQuestions: snapshot })
+      poolParams({ mode: "bookmarks", bookmarkedQuestions: snapshot })
     );
 
     expect(questions).toBe(snapshot);
@@ -251,13 +278,13 @@ describe("buildPracticeQuestions", () => {
 
   it("bookmarks mode: empty when nothing is starred", () => {
     const questions = buildPracticeQuestions(
-      poolParams({ isBookmarksFocus: true, bookmarkedQuestions: [] })
+      poolParams({ mode: "bookmarks", bookmarkedQuestions: [] })
     );
     expect(questions).toEqual([]);
   });
 
   it("vocab mode: reading-only drill, narrowed by level range", () => {
-    const questions = buildPracticeQuestions(poolParams({ isVocabFocus: true, levelRange: "n1n2" }));
+    const questions = buildPracticeQuestions(poolParams({ mode: "vocab", levelRange: "n1n2" }));
 
     expect(questions.length).toBeGreaterThan(0);
     expect(questions.every((q) => q.targetForm === "reading")).toBe(true);
@@ -269,13 +296,13 @@ describe("buildPracticeQuestions", () => {
   it("vocab mode (n4n5 has no JLPT vocab): falls back to a non-empty reading pool (#199)", () => {
     // 単字 only has N1/N2 jlpt entries. A global n4n5 preference must not
     // empty the 単字 pool -- it falls back to the full reading deck.
-    const questions = buildPracticeQuestions(poolParams({ isVocabFocus: true, levelRange: "n4n5" }));
+    const questions = buildPracticeQuestions(poolParams({ mode: "vocab", levelRange: "n4n5" }));
     expect(questions.length).toBeGreaterThan(0);
     expect(questions.every((q) => q.targetForm === "reading")).toBe(true);
   });
 
   it("vocab mode (range all): keeps the whole JLPT vocab reading pool", () => {
-    const questions = buildPracticeQuestions(poolParams({ isVocabFocus: true, levelRange: "all" }));
+    const questions = buildPracticeQuestions(poolParams({ mode: "vocab", levelRange: "all" }));
     const expected = buildQuestionPool(jlptVocabulary, {
       partOfSpeech: "mixed",
       verbGroup: "all",
@@ -287,7 +314,7 @@ describe("buildPracticeQuestions", () => {
 
   it("daily mode: composes a finite 今日練習 set from the due snapshot", () => {
     const due = buildExamQuestionPool("N1").slice(0, 4);
-    const questions = buildPracticeQuestions(poolParams({ isDailyFocus: true, reviewQueue: due }));
+    const questions = buildPracticeQuestions(poolParams({ mode: "daily", reviewQueue: due }));
 
     expect(questions.length).toBeGreaterThan(0);
     expect(questions.length).toBeLessThanOrEqual(20);
@@ -299,7 +326,7 @@ describe("buildPracticeQuestions", () => {
 
   it("daily mode: threads the level range into the composed set (n4n5 -> N4/N5) (#199)", () => {
     const questions = buildPracticeQuestions(
-      poolParams({ isDailyFocus: true, reviewQueue: [], levelRange: "n4n5" })
+      poolParams({ mode: "daily", reviewQueue: [], levelRange: "n4n5" })
     );
     expect(questions.length).toBeGreaterThan(0);
     expect(
@@ -430,7 +457,7 @@ describe("buildPracticeQuestions unattempted-first exam ordering (#385)", () => 
     const pool = buildExamQuestionPool("all");
     const attemptedIds = new Set(pool.slice(0, 8).map((q) => q.id));
     const out = buildPracticeQuestions(
-      poolParams({ isExamFocus: true, levelRange: "all", attemptedIds })
+      poolParams({ mode: "exam", levelRange: "all", attemptedIds })
     );
     // membership unchanged...
     expect(new Set(out.map((q) => q.id))).toEqual(new Set(pool.map((q) => q.id)));
@@ -445,7 +472,7 @@ describe("buildPracticeQuestions unattempted-first exam ordering (#385)", () => 
     const pool = buildExamQuestionPool("all");
     const attemptedIds = new Set(pool.slice(0, 10).map((q) => q.id));
     const capped = buildPracticeQuestions(
-      poolParams({ isExamFocus: true, levelRange: "all", sessionLength: 20, attemptedIds })
+      poolParams({ mode: "exam", levelRange: "all", sessionLength: 20, attemptedIds })
     );
     expect(capped.length).toBe(20);
     // The bank has far more than 20 unattempted, so a capped set is all fresh.
@@ -453,7 +480,7 @@ describe("buildPracticeQuestions unattempted-first exam ordering (#385)", () => 
   });
 
   it("no attemptedIds: membership unchanged (fresh learner sees the plain pool)", () => {
-    const out = buildPracticeQuestions(poolParams({ isExamFocus: true, levelRange: "all" }));
+    const out = buildPracticeQuestions(poolParams({ mode: "exam", levelRange: "all" }));
     expect(new Set(out.map((q) => q.id))).toEqual(
       new Set(buildExamQuestionPool("all").map((q) => q.id))
     );
@@ -491,14 +518,14 @@ describe("buildPracticeQuestions session-length cap (#154)", () => {
 
   it("caps the exam pool to sessionLength", () => {
     const capped = buildPracticeQuestions(
-      poolParams({ isExamFocus: true, levelRange: "all", sessionLength: 20 })
+      poolParams({ mode: "exam", levelRange: "all", sessionLength: 20 })
     );
     expect(capped.length).toBe(20);
   });
 
   it("treats null sessionLength as no cap (full pool)", () => {
     const full = buildPracticeQuestions(
-      poolParams({ isExamFocus: true, levelRange: "all", sessionLength: null })
+      poolParams({ mode: "exam", levelRange: "all", sessionLength: null })
     );
     expect(full.length).toBe(buildExamQuestionPool("all").length);
   });
@@ -506,14 +533,14 @@ describe("buildPracticeQuestions session-length cap (#154)", () => {
   it("does NOT cap review mode (clears the whole due queue)", () => {
     const due = buildExamQuestionPool("all").slice(0, 25);
     const questions = buildPracticeQuestions(
-      poolParams({ isReviewFocus: true, reviewQueue: due, sessionLength: 20 })
+      poolParams({ mode: "review", reviewQueue: due, sessionLength: 20 })
     );
     expect(questions.length).toBe(25);
   });
 
   it("does NOT shrink 今日練習 below its own target via sessionLength", () => {
     const daily = buildPracticeQuestions(
-      poolParams({ isDailyFocus: true, reviewQueue: [], sessionLength: 5 })
+      poolParams({ mode: "daily", reviewQueue: [], sessionLength: 5 })
     );
     expect(daily.length).toBeGreaterThan(5);
   });

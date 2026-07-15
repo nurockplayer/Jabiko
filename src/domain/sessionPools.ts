@@ -19,6 +19,7 @@ import { buildKanaQuestionPool } from "./kanaDrill";
 import type { KanaScript } from "./kana";
 import { levelsForRange, type LevelRange } from "./levelRange";
 import type { MockExamLevel } from "./mockExam";
+import type { PracticeMode } from "./practiceMode";
 import { buildSentencePatternPool, type SentencePatternId } from "./sentencePatterns";
 import {
   buildQuestionPool,
@@ -33,6 +34,14 @@ import { jlptVocabulary } from "./vocabulary-jlpt";
 
 export function uniqueForms(forms: TargetForm[]): TargetForm[] {
   return Array.from(new Set(forms));
+}
+
+// Deliberate runtime contract: the legacy flag dispatcher could silently fall
+// through to the basic pool for a malformed state; an unknown mode now throws.
+// Any future persisted/query-string session mode must be validated against the
+// PracticeMode union before it reaches this boundary.
+function assertNever(value: never): never {
+  throw new Error(`Unsupported practice mode: ${String(value)}`);
 }
 
 const DAILY_TARGET = 20;
@@ -211,19 +220,14 @@ export function resolveBookmarkedQuestions(
 }
 
 // All the inputs the active-pool builder needs from the React layer. The
-// hook derives these from its state (mode flags), props (reviewQueue
+// hook derives these from its state (one mode), props (reviewQueue
 // snapshot), and config (filter / partOfSpeech / verbGroup / targetForms
 // / levelRange), then hands them in so this stays a pure function.
-export type PracticePoolParams = {
-  isExamFocus: boolean;
-  isClozeFocus: boolean;
-  isPatternFocus: boolean;
-  isReviewFocus: boolean;
-  isVocabFocus: boolean;
-  isDailyFocus: boolean;
-  isKanaFocus: boolean;
-  isStarterFocus: boolean;
-  isBookmarksFocus: boolean;
+export type PracticePoolOptions = {
+  // A single mode value makes impossible states (for example exam + review)
+  // unrepresentable. With the previous nine booleans, branch priority depended
+  // on the order of the old if-statements.
+  mode: PracticeMode;
   examSection?: { level: MockExamLevel; promptLabel: string };
   patternIds?: SentencePatternId[];
   // Gojuon script for kana mode (#533); undefined -> hiragana.
@@ -257,17 +261,9 @@ export type PracticePoolParams = {
 // mode/range branch (section-filtered exam, 綜合 level-range exam, cloze,
 // pattern, review snapshot, vocab reading drill, 今日練習, basic drill)
 // stays exactly as it was.
-export function buildPracticeQuestions(params: PracticePoolParams): PracticeQuestion[] {
+export function buildPracticeQuestions(options: PracticePoolOptions): PracticeQuestion[] {
   const {
-    isExamFocus,
-    isClozeFocus,
-    isPatternFocus,
-    isReviewFocus,
-    isVocabFocus,
-    isDailyFocus,
-    isKanaFocus,
-    isStarterFocus,
-    isBookmarksFocus,
+    mode,
     examSection,
     patternIds,
     kanaScript,
@@ -279,7 +275,7 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
     bookmarkedQuestions,
     sessionLength,
     attemptedIds
-  } = params;
+  } = options;
   const fresh = (pool: PracticeQuestion[]): PracticeQuestion[] =>
     attemptedIds ? prioritizeUnattempted(pool, attemptedIds) : pool;
 
@@ -290,123 +286,123 @@ export function buildPracticeQuestions(params: PracticePoolParams): PracticeQues
   const cap = (pool: PracticeQuestion[]): PracticeQuestion[] =>
     sessionLength != null && sessionLength > 0 ? pool.slice(0, sessionLength) : pool;
 
-  if (isExamFocus) {
-    // Section-filtered when launched from the 模擬考 picker; the
-    // plain "綜合考題庫" mode card leaves examSection unset and
-    // mixes every section.
-    const section = examSection;
-    if (section) {
+  switch (mode) {
+    case "exam": {
+      // Section-filtered when launched from the 模擬考 picker; the
+      // plain "綜合考題庫" mode card leaves examSection unset and
+      // mixes every section.
+      const section = examSection;
+      if (section) {
+        return cap(
+          shuffleQuestions(
+            buildExamQuestionPool(section.level).filter(
+              (question) => question.promptLabel === section.promptLabel
+            )
+          )
+        );
+      }
+      // 綜合考題庫 + 備考 presets: optionally narrowed to a level range, then
+      // unattempted (新題) items first so a capped session pulls new content
+      // before anything already done (#385). The section-filtered mock path
+      // above keeps its pure shuffle (a mock test shouldn't reorder by history).
+      return cap(fresh(shuffleQuestions(buildExamQuestionPool(levelsForRange(levelRange) ?? "all"))));
+    }
+
+    case "cloze":
+      return cap(shuffleQuestions(buildClozeQuestionPool(clozeSentences, vocabulary)));
+
+    case "pattern":
+      return cap(shuffleQuestions(buildSentencePatternPool({ patternIds })));
+
+    case "kana":
+      // Kana recognition drill (#533): the 入門 chapter CTAs pick the script.
+      return cap(shuffleQuestions(buildKanaQuestionPool({ script: kanaScript ?? "hiragana" })));
+
+    case "starter":
+      // Starter-vocab meaning drill (#533): see the kana word, pick its
+      // meaning. Distractors come from the same deck (pool-based), whose
+      // pairwise-distinct meanings are locked by starterVocabulary.test.ts.
       return cap(
         shuffleQuestions(
-          buildExamQuestionPool(section.level).filter(
-            (question) => question.promptLabel === section.promptLabel
-          )
+          buildQuestionPool(starterVocabulary, {
+            partOfSpeech: "mixed",
+            verbGroup: "all",
+            targetForms: ["meaning"]
+          })
+        )
+      );
+
+    case "review":
+      // Snapshot the SRS queue at session start. Subsequent answers
+      // update the LIVE reviewQueue (used by the home banner count),
+      // but the questions memo is intentionally NOT re-keyed on it -- see the
+      // dependency comment in usePracticeSession.ts for the regression fixed.
+      // Ordering is preserved (no extra shuffle): getReviewQueue
+      // already sorts most-overdue first.
+      return reviewQueue;
+
+    case "vocab": {
+      // 単字 mode: N1/N2 reading drill. Reading-only on purpose --
+      // for a Chinese-speaking learner the kanji usually telegraphs
+      // the meaning (影響 = 影響), so an isolated meaning question is
+      // trivial and can't be rescued by stronger distractors. The
+      // genuinely hard, JLPT-relevant skill is the READING (よみ):
+      // 影響 is えいきょう, not えいきゅう. Meaning is still tested,
+      // but in CONTEXT, via the exam pool's 詞彙填空 / 類義替換 /
+      // 詞彙用法 sections -- which is the authentic way to test it.
+      const levels = levelsForRange(levelRange);
+      const narrowed = levels
+        ? jlptVocabulary.filter((item) => item.level != null && levels.includes(item.level))
+        : jlptVocabulary;
+      // 単字 only has N1/N2 jlpt entries (VOCAB_LEVEL_RANGE_OPTIONS excludes
+      // n4n5 for this reason). A global n4n5 preference would narrow this to an
+      // empty pool, so fall back to the full reading deck rather than show an
+      // empty 単字 session (#199).
+      const vocabSource = narrowed.length > 0 ? narrowed : jlptVocabulary;
+      const vocabPool = shuffleQuestions(
+        buildQuestionPool(vocabSource, {
+          partOfSpeech: "mixed",
+          verbGroup: "all",
+          targetForms: ["reading"]
+        })
+      );
+      // De-run by reading length: consecutive questions then tend to
+      // have different-length answers -> different distractor bands ->
+      // no "same options twice in a row" feel even when the random
+      // shuffle clusters same-length words together.
+      return cap(
+        reduceAdjacentClusters(
+          vocabPool,
+          (question) => String(question.expectedAnswers[0]?.length ?? 0)
         )
       );
     }
-    // 綜合考題庫 + 備考 presets: optionally narrowed to a level range, then
-    // unattempted (新題) items first so a capped session pulls new content
-    // before anything already done (#385). The section-filtered mock path
-    // above keeps its pure shuffle (a mock test shouldn't reorder by history).
-    return cap(fresh(shuffleQuestions(buildExamQuestionPool(levelsForRange(levelRange) ?? "all"))));
-  }
 
-  if (isClozeFocus) {
-    return cap(shuffleQuestions(buildClozeQuestionPool(clozeSentences, vocabulary)));
-  }
+    case "daily":
+      // Snapshot the current due queue at session start (same as review
+      // mode); the live reviewQueue stays excluded from the questions memo
+      // dependencies in usePracticeSession.ts. The fresh portion is narrowed
+      // to the learner's target band (#199).
+      return composeDailySet(reviewQueue, levelRange);
 
-  if (isPatternFocus) {
-    return cap(shuffleQuestions(buildSentencePatternPool({ patternIds })));
-  }
+    case "bookmarks":
+      // 收藏 mode (#470): a finite pass over the learner's starred questions,
+      // in add-order (getBookmarkedIds order). Snapshot at session start like
+      // review -- toggling a star mid-session doesn't reshuffle the live pass.
+      return bookmarkedQuestions;
 
-  if (isKanaFocus) {
-    // Kana recognition drill (#533): the 入門 chapter CTAs pick the script.
-    return cap(shuffleQuestions(buildKanaQuestionPool({ script: kanaScript ?? "hiragana" })));
-  }
+    case "basic":
+      return cap(
+        shuffleQuestions(
+          buildQuestionPool(vocabulary, {
+            partOfSpeech,
+            verbGroup,
+            targetForms
+          })
+        )
+      );
 
-  if (isStarterFocus) {
-    // Starter-vocab meaning drill (#533): see the kana word, pick its
-    // meaning. Distractors come from the same deck (pool-based), whose
-    // pairwise-distinct meanings are locked by starterVocabulary.test.ts.
-    return cap(
-      shuffleQuestions(
-        buildQuestionPool(starterVocabulary, {
-          partOfSpeech: "mixed",
-          verbGroup: "all",
-          targetForms: ["meaning"]
-        })
-      )
-    );
+    default:
+      return assertNever(mode);
   }
-
-  if (isReviewFocus) {
-    // Snapshot the SRS queue at session start. Subsequent answers
-    // update the LIVE reviewQueue (used by the home banner count),
-    // but this useMemo is intentionally NOT re-keyed on it -- see
-    // the deps comment below for the regression that fixes.
-    // Ordering is preserved (no extra shuffle): getReviewQueue
-    // already sorts most-overdue first.
-    return reviewQueue;
-  }
-
-  if (isVocabFocus) {
-    // 単字 mode: N1/N2 reading drill. Reading-only on purpose --
-    // for a Chinese-speaking learner the kanji usually telegraphs
-    // the meaning (影響 = 影響), so an isolated meaning question is
-    // trivial and can't be rescued by stronger distractors. The
-    // genuinely hard, JLPT-relevant skill is the READING (よみ):
-    // 影響 is えいきょう, not えいきゅう. Meaning is still tested,
-    // but in CONTEXT, via the exam pool's 詞彙填空 / 類義替換 /
-    // 詞彙用法 sections -- which is the authentic way to test it.
-    const levels = levelsForRange(levelRange);
-    const narrowed = levels
-      ? jlptVocabulary.filter((item) => item.level != null && levels.includes(item.level))
-      : jlptVocabulary;
-    // 単字 only has N1/N2 jlpt entries (VOCAB_LEVEL_RANGE_OPTIONS excludes
-    // n4n5 for this reason). A global n4n5 preference would narrow this to an
-    // empty pool, so fall back to the full reading deck rather than show an
-    // empty 単字 session (#199).
-    const vocabSource = narrowed.length > 0 ? narrowed : jlptVocabulary;
-    const vocabPool = shuffleQuestions(
-      buildQuestionPool(vocabSource, {
-        partOfSpeech: "mixed",
-        verbGroup: "all",
-        targetForms: ["reading"]
-      })
-    );
-    // De-run by reading length: consecutive questions then tend to
-    // have different-length answers -> different distractor bands ->
-    // no "same options twice in a row" feel even when the random
-    // shuffle clusters same-length words together.
-    return cap(
-      reduceAdjacentClusters(
-        vocabPool,
-        (question) => String(question.expectedAnswers[0]?.length ?? 0)
-      )
-    );
-  }
-
-  if (isDailyFocus) {
-    // Snapshot the current due queue at session start (same as review
-    // mode); the live reviewQueue stays excluded from the deps below. The
-    // fresh portion is narrowed to the learner's target band (#199).
-    return composeDailySet(reviewQueue, levelRange);
-  }
-
-  if (isBookmarksFocus) {
-    // 收藏 mode (#470): a finite pass over the learner's starred questions,
-    // in add-order (getBookmarkedIds order). Snapshot at session start like
-    // review -- toggling a star mid-session doesn't reshuffle the live pass.
-    return bookmarkedQuestions;
-  }
-
-  return cap(
-    shuffleQuestions(
-      buildQuestionPool(vocabulary, {
-        partOfSpeech,
-        verbGroup,
-        targetForms
-      })
-    )
-  );
 }
