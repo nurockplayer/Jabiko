@@ -17,6 +17,7 @@ import {
   buildModeCounts,
   buildPracticeQuestions,
   resolveBookmarkedQuestions,
+  type PracticePoolOptions,
   uniqueForms
 } from "../domain/sessionPools";
 import { collectAttemptedIds } from "../domain/unattempted";
@@ -73,6 +74,16 @@ export type SessionInit = {
   // JLPT level range for the exam (綜合) + vocab (単字) pools; default all.
   levelRange?: LevelRange;
 };
+
+type LivePracticePoolInputs = Pick<
+  PracticePoolOptions,
+  "reviewQueue" | "bookmarkedQuestions" | "attemptedIds"
+>;
+
+// One immutable set of pool-building inputs for the active pass. Live
+// progress and bookmark changes are intentionally captured only when a
+// mode/config change or explicit reset starts a new pass.
+type PracticePoolSnapshot = Readonly<PracticePoolOptions>;
 
 // The level range a session starts in (#199). An explicit launch request
 // (init.levelRange) always wins; otherwise it inherits the learner's global
@@ -235,10 +246,9 @@ export function usePracticeSession({
     setBookmarkVersion((version) => version + 1);
   };
 
-  // Snapshot of every question the learner has attempted, so the exam pool
-  // surfaces 新題 (unattempted) first (#385). Like reviewQueue it's fed into
-  // the pool builder but kept OUT of the `questions` memo deps below -- a fresh
-  // snapshot is captured on mode change / reset, never reshuffled mid-session.
+  // Every question the learner has attempted, so the exam pool surfaces 新題
+  // (unattempted) first (#385). The live value is captured into the session
+  // snapshot below on mode/config change or reset, never mid-session.
   const attemptedIds = useMemo(() => collectAttemptedIds(progressAttempts), [progressAttempts]);
 
   // Pool size per practice mode, shown on the mode cards so the learner
@@ -275,10 +285,23 @@ export function usePracticeSession({
     ? t.targetForms[selectedForm]
     : activeFocusForms.map((form) => t.targetForms[form]).join(" / ") || t.focusSummaryEmpty;
 
-  const questions = useMemo(
+  // Keep the latest dynamic inputs available for the next snapshot without
+  // making them recapture (and reshuffle/shrink) the active pass. Updating a
+  // ref during render is safe here: it is only read while constructing a new
+  // snapshot, never used directly to render the current pass.
+  const latestPoolInputsRef = useRef<LivePracticePoolInputs>({
+    reviewQueue,
+    bookmarkedQuestions,
+    attemptedIds
+  });
+  latestPoolInputsRef.current = { reviewQueue, bookmarkedQuestions, attemptedIds };
+
+  const poolSnapshot = useMemo<PracticePoolSnapshot>(
     () => {
+      // sessionSeed is the explicit "start a fresh pass" signal.
       void sessionSeed;
-      return buildPracticeQuestions({
+      const liveInputs = latestPoolInputsRef.current;
+      return {
         mode: practiceMode,
         examSection: practiceFilter.examSection,
         patternIds: practiceFilter.patternIds,
@@ -287,25 +310,12 @@ export function usePracticeSession({
         verbGroup,
         targetForms,
         levelRange,
-        reviewQueue,
-        bookmarkedQuestions,
+        reviewQueue: liveInputs.reviewQueue,
+        bookmarkedQuestions: liveInputs.bookmarkedQuestions,
         sessionLength,
-        attemptedIds
-      });
+        attemptedIds: liveInputs.attemptedIds
+      };
     },
-    // INTENTIONALLY excluding `reviewQueue` from deps. The live queue
-    // is reactive to every progressAttempts change (any answered
-    // question shifts it), and including it here would re-run the
-    // useMemo on every answer -- which in non-review modes reshuffles
-    // the pool, and in review mode shrinks it. Either way the result
-    // is currentQuestion getting ripped out from under the feedback
-    // panel that's still showing the previous answer (user-visible
-    // bug: "答題後跳到下一題、不能答、解析還在；按下一題又跳一題").
-    // The closure inside captures the latest `reviewQueue` whenever
-    // this useMemo DOES re-run (mode change / sessionSeed bump), so
-    // entering review mode + explicit reset still get a fresh
-    // snapshot.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       practiceMode,
       practiceFilter.patternIds,
@@ -319,6 +329,8 @@ export function usePracticeSession({
       sessionSeed
     ]
   );
+
+  const questions = useMemo(() => buildPracticeQuestions(poolSnapshot), [poolSnapshot]);
   // Review and 今日練習 are FINITE passes over a snapshot: walk each item
   // once, no modulo wrap, then stop (and show a completion screen). Every
   // other mode is an endless drill (modulo wrap via selectQuestion).

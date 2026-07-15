@@ -1,5 +1,8 @@
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+import { BOOKMARKS_KEY } from "../domain/bookmarks";
+import { buildAllKnownQuestions } from "../domain/sessionPools";
+import type { Attempt, PracticeQuestion } from "../domain/types";
 import { initialLevelRange, usePracticeSession } from "./usePracticeSession";
 
 const baseHookArgs = {
@@ -7,6 +10,79 @@ const baseHookArgs = {
   progressAttempts: [],
   recordAttempt: () => {}
 };
+
+function makeAttempt(question: PracticeQuestion, isCorrect: boolean, timestamp: number): Attempt {
+  return {
+    questionId: question.id,
+    vocabularyId: question.vocabulary.id,
+    targetForm: question.targetForm,
+    prompt: question.vocabulary.surface,
+    expectedAnswers: question.expectedAnswers,
+    submittedAnswer: isCorrect ? question.expectedAnswers[0] : "wrong",
+    isCorrect,
+    timestamp,
+    responseTimeMs: 100
+  };
+}
+
+describe("usePracticeSession pool snapshot (#623)", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it("keeps the review pass stable until an explicit reset captures the latest queue", () => {
+    const question = buildAllKnownQuestions()[0];
+    const missed = makeAttempt(question, false, 1);
+    const cleared = makeAttempt(question, true, 2);
+    const { result, rerender } = renderHook(
+      ({ progressAttempts }: { progressAttempts: Attempt[] }) =>
+        usePracticeSession({
+          ...baseHookArgs,
+          init: { mode: "review" },
+          progressAttempts
+        }),
+      { initialProps: { progressAttempts: [missed] } }
+    );
+
+    expect(result.current.currentQuestion?.id).toBe(question.id);
+    expect(result.current.sessionTotal).toBe(1);
+
+    rerender({ progressAttempts: [missed, cleared] });
+
+    expect(result.current.reviewQueue).toHaveLength(0);
+    expect(result.current.currentQuestion?.id).toBe(question.id);
+    expect(result.current.sessionTotal).toBe(1);
+
+    act(() => result.current.resetSession());
+
+    expect(result.current.reviewEmpty).toBe(true);
+    expect(result.current.currentQuestion).toBeNull();
+    expect(result.current.sessionTotal).toBe(0);
+  });
+
+  it("keeps the bookmark pass stable until an explicit reset captures the latest bookmarks", () => {
+    const question = buildAllKnownQuestions()[0];
+    window.localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([question.id]));
+    const { result } = renderHook(() =>
+      usePracticeSession({ ...baseHookArgs, init: { mode: "bookmarks" } })
+    );
+
+    expect(result.current.currentQuestion?.id).toBe(question.id);
+    expect(result.current.sessionTotal).toBe(1);
+
+    act(() => result.current.onToggleBookmark(question.id));
+
+    expect(result.current.bookmarkedQuestions).toHaveLength(0);
+    expect(result.current.currentQuestion?.id).toBe(question.id);
+    expect(result.current.sessionTotal).toBe(1);
+
+    act(() => result.current.resetSession());
+
+    expect(result.current.bookmarksEmpty).toBe(true);
+    expect(result.current.currentQuestion).toBeNull();
+    expect(result.current.sessionTotal).toBe(0);
+  });
+});
 
 // applyModePreset must keep honouring the global target preference when a
 // mode is picked from the in-session picker -- not only on first mount.
