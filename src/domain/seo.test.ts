@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { SITE_ORIGIN, VIEW_SEO, seoForView, type SeoView } from "./seo";
+import { SITE_ORIGIN, VIEW_SEO, seoForView } from "./seo";
+import type { AppView } from "./routes";
 
-// The static-route views (every SeoView except the dynamic "grammar" route).
+// The static-route views (every AppView except the dynamic "grammar" route).
 // "blog" has a static index entry (VIEW_SEO.blog) plus a dynamic /blog/<slug>
 // variant, tested separately below like grammar.
-const VIEWS: Exclude<SeoView, "grammar">[] = [
+const VIEWS: Exclude<AppView, "grammar">[] = [
   "home",
   "learn",
   "rules",
@@ -18,7 +19,7 @@ const VIEWS: Exclude<SeoView, "grammar">[] = [
 
 describe("seo", () => {
   it("has an entry for every view", () => {
-    const allViews: SeoView[] = [...VIEWS, "grammar"];
+    const allViews: AppView[] = [...VIEWS, "grammar"];
     for (const view of allViews) {
       expect(VIEW_SEO[view], view).toBeDefined();
     }
@@ -32,7 +33,7 @@ describe("seo", () => {
   });
 
   it("gives every view a distinct title and description (no shared SPA meta)", () => {
-    const allViews: SeoView[] = [...VIEWS, "grammar"];
+    const allViews: AppView[] = [...VIEWS, "grammar"];
     const titles = new Set(allViews.map((v) => seoForView(v).title));
     const descriptions = new Set(allViews.map((v) => seoForView(v).description));
     expect(titles.size).toBe(allViews.length);
@@ -47,7 +48,7 @@ describe("seo", () => {
   });
 
   it("keeps descriptions within a sane SEO length (<=160 chars)", () => {
-    const allViews: SeoView[] = [...VIEWS, "grammar"];
+    const allViews: AppView[] = [...VIEWS, "grammar"];
     for (const view of allViews) {
       expect(seoForView(view).description.length, view).toBeLessThanOrEqual(160);
     }

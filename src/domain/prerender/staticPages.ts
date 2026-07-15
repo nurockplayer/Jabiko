@@ -11,7 +11,8 @@
 //
 // Pure data -> strings; no fs, no DOM. The I/O lives in scripts/prerender.mjs.
 // NOT imported by the app (build-time only), so it adds zero bundle weight.
-import { SITE_ORIGIN, VIEW_SEO, seoForView, type SeoView } from "../seo";
+import { SITE_ORIGIN, VIEW_SEO, seoForView } from "../seo";
+import type { AppView } from "../routes";
 import { grammarPatterns, type GrammarPattern } from "../grammarDatabase";
 import { publishedArticleMetas } from "../articlesMeta";
 import { publishedArticles, type ArticleBlock } from "../articles";
@@ -263,7 +264,7 @@ function kanaBody(): string {
   return wrap("五十音表（平假名・片假名對照）", parts.join(""));
 }
 
-function simpleViewBody(view: SeoView): string {
+function simpleViewBody(view: AppView): string {
   const entry = VIEW_SEO[view];
   return wrap(entry.title.split(" · ")[0], `${paragraph(entry.description)}<p><a href="/">回 Jabiko 首頁</a></p>`);
 }
@@ -274,7 +275,7 @@ export function buildStaticPages(): StaticPage[] {
   const pages: StaticPage[] = [];
   const byId = new Map(grammarPatterns.map((pattern) => [pattern.id, pattern]));
 
-  const push = (view: SeoView, path: string, bodyHtml: string, surface?: string, slug?: string) => {
+  const push = (view: AppView, path: string, bodyHtml: string, surface?: string, slug?: string) => {
     const seo = seoForView(view, surface ?? null, slug ?? null);
     pages.push({ path, title: seo.title, description: seo.description, canonical: seo.canonical, bodyHtml });
   };

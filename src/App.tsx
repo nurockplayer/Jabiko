@@ -44,7 +44,7 @@ import { challengeInitFromQuery } from "./domain/challengeDeepLink";
 import { readLevelPreference, writeLevelPreference } from "./domain/levelPreference";
 import { kanjiDefaultLevel, type LevelRange } from "./domain/levelRange";
 import { trackEvent } from "./lib/analytics";
-import { canonicalArticleSlug } from "./domain/articlesMeta";
+import { parseRoute, serializeRoute, type AppView } from "./domain/routes";
 import packageJson from "../package.json";
 import "./styles.css";
 
@@ -94,7 +94,6 @@ const BlogArticlePage = lazy(() =>
 );
 const BUILD_VERSION = packageJson.version;
 
-type AppView = "home" | "learn" | "rules" | "kanji" | "kana" | "challenge" | "mock" | "about" | "grammar" | "blog";
 type DrillPreset = LearningBlockDrillPreset;
 
 // The LAUNCHED locales, in menu order, for the header language picker. Each
@@ -106,81 +105,6 @@ const LANGUAGE_OPTIONS: readonly Language[] = LAUNCHED_LANGUAGES;
 // 文型/文章 had one, which looked half-finished). One shared style keeps
 // the nine call sites identical.
 const navIconStyle = { verticalAlign: "middle", marginRight: "0.2rem" } as const;
-
-// Lightweight URL routing: each top-level view maps to a path so the browser
-// back/forward buttons, refresh, and shareable/bookmarkable links all work
-// (no router dependency). The challenge view's internal mode/filter stays as
-// ephemeral state -- deep-linking a specific drill is out of scope here.
-// Needs a SPA fallback on the host (public/_redirects) so a direct hit on a
-// sub-path serves index.html.
-const VIEW_PATHS: Record<AppView, string> = {
-  home: "/",
-  learn: "/learn",
-  rules: "/rules",
-  kanji: "/kanji",
-  // #619: standalone kana chart. Route only -- deliberately NOT a nav tab
-  // (header entries are being consolidated, #608); reached from the kana
-  // study chapters, the beginner flow, and search engines.
-  kana: "/kana",
-  challenge: "/challenge",
-  mock: "/mock",
-  about: "/about",
-  // Base path; the live grammar route carries a surface segment (see parseRoute
-  // / pathForView). Bare /grammar with no surface falls back to home.
-  grammar: "/grammar",
-  // Blog index; individual articles carry a slug segment (/blog/<slug>).
-  blog: "/blog"
-};
-
-function viewFromPath(pathname: string): AppView {
-  const match = (Object.entries(VIEW_PATHS) as [AppView, string][]).find(
-    ([, path]) => path === pathname
-  );
-  return match ? match[0] : "home";
-}
-
-// Per-grammar-point study pages (#281) live at /grammar/<encoded-surface>, the
-// one dynamic route. parseRoute pulls both the view and (for grammar) the
-// decoded surface off the path; pathForView is its inverse for URL sync.
-function parseRoute(pathname: string): {
-  view: AppView;
-  grammarSurface: string | null;
-  blogSlug: string | null;
-} {
-  const grammar = pathname.match(/^\/grammar\/(.+)$/);
-  if (grammar) {
-    let surface = grammar[1];
-    try {
-      surface = decodeURIComponent(surface);
-    } catch {
-      // Malformed escape -- keep the raw segment rather than throwing.
-    }
-    return { view: "grammar", grammarSurface: surface, blogSlug: null };
-  }
-  // Individual article route /blog/<slug> (#483); bare /blog is the index.
-  const blog = pathname.match(/^\/blog\/(.+)$/);
-  if (blog) {
-    let slug = blog[1];
-    try {
-      slug = decodeURIComponent(slug);
-    } catch {
-      // Malformed escape -- keep the raw segment.
-    }
-    slug = canonicalArticleSlug(slug);
-    return { view: "blog", grammarSurface: null, blogSlug: slug };
-  }
-  return { view: viewFromPath(pathname), grammarSurface: null, blogSlug: null };
-}
-
-function pathForView(view: AppView, grammarSurface: string | null, blogSlug: string | null): string {
-  if (view === "grammar" && grammarSurface) {
-    return `/grammar/${encodeURIComponent(grammarSurface)}`;
-  }
-  if (view === "blog" && blogSlug) {
-    return `/blog/${encodeURIComponent(blogSlug)}`;
-  }
-  return VIEW_PATHS[view];
-}
 
 export default function App() {
   const [appView, setAppView] = useState<AppView>(() => parseRoute(window.location.pathname).view);
@@ -216,7 +140,7 @@ export default function App() {
   // Keep the URL in sync when the view changes (push a history entry only
   // when the path actually differs, so popstate-driven changes don't loop).
   useEffect(() => {
-    const target = pathForView(appView, grammarSurface, blogSlug);
+    const target = serializeRoute({ view: appView, grammarSurface, blogSlug });
     if (window.location.pathname !== target) {
       window.history.pushState({ view: appView }, "", target);
     }
