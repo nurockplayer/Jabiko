@@ -2343,8 +2343,8 @@ export const n1Items: PracticeQuestion[] = [
     hintI18n: { "ja": "行為が合法かどうかを判断する際に基準とするもの。", "en": "The reference standard used to judge whether the conduct is lawful." },
     expectedAnswer: "に照らして",
     options: ["に照らして","に基づいて","にともなって","について"],
-    explanation: "「N + に照らして」是「對照 N（標準／前例／規定）來判斷」（正式、書面）。「に基づいて」是「以 N 為依據／基礎」（中性依據，不含對照動作）；「にともなって」是「隨著 N」（連動）；「について」是「關於」（主題）。本句要強調「拿法律當標尺判斷他的行為」的對照動作，「に照らして」最精準。",
-    explanationI18n: { "ja": "「N + に照らして」は「N（基準・前例・規定）と照らし合わせて判断する」（正式・書き言葉）です。「に基づいて」は「Nに基づいて／を基礎にして」（中立的な根拠で、照らし合わせるという動作は含まない）、「にともなって」は「Nに伴って」（連動）、「について」は「…について」（主題）です。この文は「法律をものさしにして彼の行為を判断する」という照合の動作を強調したいので、「に照らして」が最も的確です。", "en": "「N + に照らして」means \"to judge in light of N (a standard / precedent / rule)\" (formal, written). 「に基づいて」means \"based on / grounded in N\" (a neutral basis, without the act of comparison); 「にともなって」means \"along with N\" (linkage); 「について」means \"about\" (a topic). Here, to stress the act of \"holding his conduct up against the law as a yardstick,\" 「に照らして」is the most precise." },
+    explanation: "「N + に照らして」是「對照 N（標準／前例／規定）來檢驗、評斷」（正式、書面），後面可直接接判斷結果——本句的「法律」正是檢驗行為是否違規的「基準」。「に基づいて」則要求後件出現「判断する／決定する／処分する」這類「以 N 為根據去做某事」的動作述語；本句後件是名詞述語「違反だ」，句中沒有可依附的動作，所以不成立（會覺得通順，是因為腦中自動補上了「に基づいて（判断すると）」）。「にともなって」是「隨著 N」（連動）；「について」是「關於」（主題）。",
+    explanationI18n: { "ja": "「に基づいて」は「Nを土台にして何かを判断する・決める・行う」という動作述語（「判断する」「決定する」「処分する」など）を後件に要求します。この文の後件は名詞述語「違反だ」で、基づくべき判断行為が文中に現れていないため成立しません（自然に読めるとすれば「に基づいて（判断すると）」と頭の中で補っているからです）。ここでの「法律」は行為が違反かどうかを照合する「基準」なので、「N + に照らして」（基準・前例・規定と照らし合わせて判断する／正式・書き言葉）が正解です。「にともなって」は「Nに伴って」（連動）、「について」は「…について」（主題）です。", "en": "「に基づいて」requires an action/decision predicate built ON N — 判断する, 決定する, 処分する and the like. This sentence ends in the bare noun predicate 違反だ, so there is no action for に基づいて to anchor to; it only \"sounds fine\" if you mentally insert (判断すると). The law here is the standard the conduct is checked AGAINST, which is exactly 「N + に照らして」 (\"in light of N\"; formal, written). 「にともなって」means \"along with N\" (linkage); 「について」means \"about\" (a topic)." },
   }),
   examQuestion({
     id: "n1-grammar-yorihokanai",

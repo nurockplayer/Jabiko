@@ -181,6 +181,36 @@
   box-shadow: var(--button-hover-shadow);
 }
 
+/* In-place TTS on the selected cell (2026-07 feedback: hearing a reading used
+   to require scrolling back up to the detail card). The wrap keeps the speak
+   control a SIBLING of the cell button -- buttons can't nest. */
+.kanji-cell-wrap {
+  position: relative;
+  display: flex;
+}
+
+.kanji-cell-wrap > .kanji-cell {
+  flex: 1;
+  width: 100%;
+}
+
+.kanji-cell-speak {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+}
+
+.kanji-cell-speak .speak-button {
+  margin-left: 0;
+  background: var(--paper);
+  /* Compact circle: the global 2.75rem button min-height would drape the
+     pill over the cell's reading line -- exactly what the learner is here
+     to see. Top-right beside the large glyph is the one empty corner. */
+  width: 1.9rem;
+  height: 1.9rem;
+  min-height: 1.9rem;
+}
+
 .kanji-cell.selected {
   border-color: var(--matcha);
   background: color-mix(in srgb, var(--matcha) 12%, var(--paper));

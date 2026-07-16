@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KanjiOnyomiPanel } from "./KanjiOnyomiPanel";
 
 // The default view renders the whole table (~hundreds of cells), which makes
@@ -62,5 +62,100 @@ describe("KanjiOnyomiPanel (#195)", () => {
     render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N2" />);
     expect(screen.getByRole("button", { name: "N2" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "全部" })).toHaveAttribute("aria-pressed", "false");
+  });
+});
+
+// Feedback 2026-07: hearing a kanji's reading used to require selecting the
+// cell, scrolling up to the detail card's TTS button, then scrolling back down
+// to pick the next kanji. The selected cell now grows an in-place speak button
+// so the listen-compare loop never leaves the grid.
+type MockSynth = {
+  speaking: boolean;
+  pending: boolean;
+  speak: ReturnType<typeof vi.fn>;
+  cancel: ReturnType<typeof vi.fn>;
+  pause: ReturnType<typeof vi.fn>;
+  resume: ReturnType<typeof vi.fn>;
+  getVoices: () => unknown[];
+};
+
+function setupSynth(): MockSynth {
+  const synth: MockSynth = {
+    speaking: false,
+    pending: false,
+    speak: vi.fn(),
+    cancel: vi.fn(),
+    pause: vi.fn(),
+    resume: vi.fn(),
+    getVoices: () => []
+  };
+  (window as unknown as { speechSynthesis: MockSynth }).speechSynthesis = synth;
+  (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance = class {
+    text: string;
+    lang = "";
+    rate = 1;
+    voice: unknown = null;
+    constructor(t: string) {
+      this.text = t;
+    }
+    addEventListener() {}
+    removeEventListener() {}
+  };
+  return synth;
+}
+
+// Pull the first reading of the given type out of a cell's own text (the cell
+// shows "音 こう・…" / "訓 たかい・…"), so the assertions never hardcode data.
+function firstCellReading(cell: HTMLElement, type: "on" | "kun"): string {
+  const text = cell.querySelector(`.kanji-cell-${type}`)?.textContent ?? "";
+  return text.replace(/^\S+\s+/, "").split("・")[0];
+}
+
+describe("KanjiOnyomiPanel in-place cell TTS", () => {
+  let synth: MockSynth;
+  beforeEach(() => {
+    synth = setupSynth();
+  });
+  afterEach(() => {
+    delete (window as unknown as { speechSynthesis?: unknown }).speechSynthesis;
+    delete (window as unknown as { SpeechSynthesisUtterance?: unknown }).SpeechSynthesisUtterance;
+  });
+
+  it("grows a speak button on the selected cell only, reading its 音読み", () => {
+    renderNarrowed("高");
+    const grid = document.querySelector(".kanji-grid") as HTMLElement;
+    expect(within(grid).queryByRole("button", { name: "朗讀日文" })).toBeNull();
+
+    const cell = grid.querySelector<HTMLButtonElement>("button.kanji-cell");
+    expect(cell).not.toBeNull();
+    const expectedReading = firstCellReading(cell!, "on");
+    expect(expectedReading.length).toBeGreaterThan(0);
+    fireEvent.click(cell!);
+
+    const wrap = cell!.closest(".kanji-cell-wrap");
+    expect(wrap).not.toBeNull();
+    const speak = within(wrap as HTMLElement).getByRole("button", { name: "朗讀日文" });
+    expect(within(grid).getAllByRole("button", { name: "朗讀日文" })).toHaveLength(1);
+
+    fireEvent.click(speak);
+    expect(synth.speak).toHaveBeenCalledTimes(1);
+    expect((synth.speak.mock.calls[0][0] as { text: string }).text).toBe(expectedReading);
+  });
+
+  it("reads the active reading type (訓讀 view speaks the kun reading)", () => {
+    renderNarrowed("高");
+    fireEvent.click(screen.getByRole("button", { name: "訓讀" }));
+
+    const grid = document.querySelector(".kanji-grid") as HTMLElement;
+    const cell = grid.querySelector<HTMLButtonElement>("button.kanji-cell");
+    expect(cell).not.toBeNull();
+    const expectedReading = firstCellReading(cell!, "kun");
+    expect(expectedReading.length).toBeGreaterThan(0);
+
+    fireEvent.click(cell!);
+    const wrap = cell!.closest(".kanji-cell-wrap") as HTMLElement;
+    fireEvent.click(within(wrap).getByRole("button", { name: "朗讀日文" }));
+
+    expect((synth.speak.mock.calls[0][0] as { text: string }).text).toBe(expectedReading);
   });
 });
