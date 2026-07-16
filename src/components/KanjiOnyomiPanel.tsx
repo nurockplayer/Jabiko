@@ -189,26 +189,44 @@ export function KanjiOnyomiPanel({
               <span className="kanji-family-count">{entries.length}</span>
             </h3>
             <div className="kanji-grid">
-              {entries.map((entry) => (
-                <button
-                  key={entry.kanji}
-                  type="button"
-                  className={`kanji-cell${selected === entry.kanji ? " selected" : ""}`}
-                  aria-pressed={selected === entry.kanji}
-                  onClick={() => setSelected(entry.kanji)}
-                >
-                  <span className="kanji-cell-char">{entry.kanji}</span>
-                  <span className="kanji-cell-read">
-                    {entry.onyomi.length > 0 ? (
-                      <span className="kanji-cell-on">{t.kanjiCellOnPrefix} {entry.onyomi.join("・")}</span>
+              {entries.map((entry) => {
+                const isSelected = selected === entry.kanji;
+                // Feedback 2026-07: listening used to mean scrolling back up to
+                // the detail card's TTS button after every selection. The
+                // selected cell grows an in-place speak button instead; it reads
+                // the ACTIVE type's reading (the family the learner is browsing),
+                // unlike the card which always leads with 音読み.
+                const cellSpeak =
+                  readingType === "on"
+                    ? entry.onyomi[0] ?? entry.kunyomi[0]
+                    : entry.kunyomi[0] ?? entry.onyomi[0];
+                return (
+                  <div className="kanji-cell-wrap" key={entry.kanji}>
+                    <button
+                      type="button"
+                      className={`kanji-cell${isSelected ? " selected" : ""}`}
+                      aria-pressed={isSelected}
+                      onClick={() => setSelected(entry.kanji)}
+                    >
+                      <span className="kanji-cell-char">{entry.kanji}</span>
+                      <span className="kanji-cell-read">
+                        {entry.onyomi.length > 0 ? (
+                          <span className="kanji-cell-on">{t.kanjiCellOnPrefix} {entry.onyomi.join("・")}</span>
+                        ) : null}
+                        {entry.kunyomi.length > 0 ? (
+                          <span className="kanji-cell-kun">{t.kanjiCellKunPrefix} {entry.kunyomi.join("・")}</span>
+                        ) : null}
+                      </span>
+                      <span className="kanji-cell-mean">{kanjiMeaning(entry, language)}</span>
+                    </button>
+                    {isSelected && cellSpeak ? (
+                      <span className="kanji-cell-speak">
+                        <SpeakButton text={cellSpeak} language={language} />
+                      </span>
                     ) : null}
-                    {entry.kunyomi.length > 0 ? (
-                      <span className="kanji-cell-kun">{t.kanjiCellKunPrefix} {entry.kunyomi.join("・")}</span>
-                    ) : null}
-                  </span>
-                  <span className="kanji-cell-mean">{kanjiMeaning(entry, language)}</span>
-                </button>
-              ))}
+                  </div>
+                );
+              })}
             </div>
           </div>
         ))
