@@ -21,7 +21,7 @@ import type { SentencePatternId } from "./domain/sentencePatterns";
 import type { JlptLevel } from "./domain/types";
 import { countMistakes } from "./domain/srs";
 import { copy, LAUNCHED_LANGUAGES, type Language } from "./i18n";
-import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
+import { HomePanel, LearningPanel, RulesPanel, AboutPanel, LegalPanel } from "./components";
 import { LanguagePicker } from "./components/LanguagePicker";
 import { LanguageFlag } from "./components/LanguageFlag";
 import { FeedbackForm } from "./components/FeedbackForm";
@@ -701,6 +701,8 @@ export default function App() {
         <RulesPanel language={language} />
       ) : appView === "about" ? (
         <AboutPanel language={language} />
+      ) : appView === "privacy" || appView === "terms" ? (
+        <LegalPanel language={language} page={appView} />
       ) : appView === "kanji" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
           <KanjiOnyomiPanel language={language} defaultLevel={kanjiDefaultLevel(targetLevel)} />

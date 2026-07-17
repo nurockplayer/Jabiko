@@ -14,6 +14,8 @@ const VIEWS: Exclude<AppView, "grammar">[] = [
   "challenge",
   "mock",
   "about",
+  "privacy",
+  "terms",
   "blog"
 ];
 

@@ -11,6 +11,8 @@ export const APP_VIEW_PATHS = {
   challenge: "/challenge",
   mock: "/mock",
   about: "/about",
+  privacy: "/privacy",
+  terms: "/terms",
   grammar: "/grammar",
   blog: "/blog"
 } as const;

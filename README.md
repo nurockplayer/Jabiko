@@ -1,11 +1,11 @@
 # Jabiko · ジャビ子
 
-**A free, open, no-signup JLPT self-study web app.** Practice grammar, kanji
+**A free, no-signup JLPT self-study web app.** Practice grammar, kanji
 readings, vocabulary, and mock-exam-style questions from **N5 to N1** — wrong
 answers flow into spaced-repetition review, so you keep drilling your weak
 points. Open it and practise; nothing to install, no account needed.
 
-> 免費、免註冊、開源的 **JLPT 日檢自習室**：N5〜N1 文法、漢字讀音、單字與依官方題型的練習，答錯自動排進間隔重複複習，跨裝置同步，打開就能練。
+> 免費、免註冊的 **JLPT 日檢自習室**：N5〜N1 文法、漢字讀音、單字與依官方題型的練習，答錯自動排進間隔重複複習，跨裝置同步，打開就能練。
 
 **▶ Live: [jabiko.app](https://jabiko.app/)**
 
@@ -69,11 +69,14 @@ flight / planned: AI-assisted content localisation (per-locale explanations),
 a personal favourites list, more grammar study chapters (N3/N2), achievement
 badges + daily goals, and data-driven difficulty once there's enough signal.
 
-## License & credits
+## Ownership, privacy & terms
 
 Built by **花雪 (HanaYukii)**. The mascot ジャビ子 is Jabiko's own.
 
-> **License:** the source is public but a formal open-source license file has
-> not been added yet — see [issue tracker] before reusing the code.
+Source visibility does not grant permission to copy, modify, redistribute, or
+use the code commercially. Unless a specific file says otherwise, rights are
+reserved in the source code, original articles, question bank, Jabiko name,
+mascot, and visual assets.
 
-[issue tracker]: https://github.com/nurockplayer/Jabiko/issues
+- [Privacy Policy](https://jabiko.app/privacy)
+- [Terms of Use](https://jabiko.app/terms)

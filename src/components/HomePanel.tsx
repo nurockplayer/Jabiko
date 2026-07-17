@@ -15,6 +15,7 @@ import { ActivityTrend } from "./dashboard/ActivityTrend";
 import { TypeBars } from "./dashboard/TypeBars";
 import { FeedbackForm } from "./FeedbackForm";
 import { ShareButtons } from "./challenge/ShareButtons";
+import { LegalLinks } from "./LegalLinks";
 import type { FeedbackCategory } from "../domain/feedbackRemote";
 
 // External walkthrough / 使用說明書: the author's blog post about Jabiko.
@@ -595,6 +596,7 @@ export function HomePanel({
         <div className="home-footer-share">
           <ShareButtons language={language} text={t.shareSiteText} title={t.shareSiteTitle} />
         </div>
+        <LegalLinks language={language} />
       </footer>
     </section>
   );

@@ -24,7 +24,7 @@ export const VIEW_SEO: Record<AppView, PageSeo> = {
   home: {
     title: "Jabiko · JLPT 日檢自習室｜N5–N1 文法單字題型練習",
     description:
-      "免費、免註冊、開源的 JLPT 日檢自習室：N5〜N1 文法、漢字、單字與依官方題型分區練習，答錯自動排進間隔重複複習，支援跨裝置同步，打開就能練、免安裝。",
+      "免費、免註冊的 JLPT 日檢自習室：N5〜N1 文法、漢字、單字與依官方題型分區練習，答錯自動排進間隔重複複習，支援跨裝置同步，打開就能練、免安裝。",
     path: APP_VIEW_PATHS.home
   },
   learn: {
@@ -66,8 +66,20 @@ export const VIEW_SEO: Record<AppView, PageSeo> = {
   about: {
     title: "關於 Jabiko · JLPT 自習室",
     description:
-      "Jabiko 的名字由來與作者介紹——一個免費、開源、和朋友一起做的 JLPT 自習網站。",
+      "Jabiko 的名字由來與作者介紹——一個免費、和朋友一起做的 JLPT 自習網站。",
     path: APP_VIEW_PATHS.about
+  },
+  privacy: {
+    title: "隱私政策｜Jabiko",
+    description:
+      "了解 Jabiko 在瀏覽器、Google 登入、跨裝置同步、匿名使用分析與回報功能中如何處理資料。",
+    path: APP_VIEW_PATHS.privacy
+  },
+  terms: {
+    title: "使用條款｜Jabiko",
+    description:
+      "Jabiko 的服務範圍、合理使用規則、內容責任、程式碼與原創內容權利，以及外部服務說明。",
+    path: APP_VIEW_PATHS.terms
   },
   grammar: {
     title: "JLPT 文型資料庫 · 日檢文法索引 · Jabiko",
