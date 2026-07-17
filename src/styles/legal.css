@@ -38,7 +38,7 @@
   background: var(--paper);
 }
 
-.legal-section h2 {
+.legal-section h3 {
   margin: 0 0 0.55rem;
   color: var(--ink);
   font-size: 1.05rem;

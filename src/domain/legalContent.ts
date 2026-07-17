@@ -1,4 +1,5 @@
 import type { LocaleCode } from "./types";
+import { legalLabelsFor, type LegalPageLabels } from "./legalLabels";
 
 export type LegalPageKind = "privacy" | "terms";
 
@@ -16,27 +17,23 @@ export interface LegalDocument {
   sections: readonly LegalSection[];
 }
 
-export interface LegalPageCopy {
-  navigationLabel: string;
-  privacyLabel: string;
-  termsLabel: string;
+export interface LegalPageCopy extends LegalPageLabels {
   privacy: LegalDocument;
   terms: LegalDocument;
 }
 
-const UPDATED_AT = "2026-07-17";
+const PRIVACY_UPDATED_AT = "2026-07-18";
+const TERMS_UPDATED_AT = "2026-07-18";
 
 const LEGAL_COPY = {
   "zh-Hant": {
-    navigationLabel: "法律與隱私",
-    privacyLabel: "隱私政策",
-    termsLabel: "使用條款",
+    ...legalLabelsFor("zh-Hant"),
     privacy: {
       eyebrow: "法律與隱私",
       title: "隱私政策",
       intro:
         "Jabiko 以免註冊即可使用為原則。這份政策說明資料會留在哪裡、登入同步與回報功能會送出什麼，以及你可以如何處理自己的資料。",
-      updatedLabel: `最後更新：${UPDATED_AT}`,
+      updatedLabel: `最後更新：${PRIVACY_UPDATED_AT}`,
       sections: [
         {
           title: "1. 未登入時儲存在瀏覽器的資料",
@@ -49,7 +46,7 @@ const LEGAL_COPY = {
           title: "2. Google 登入與跨裝置同步",
           paragraphs: [
             "登入是選用功能，由 Google OAuth 與 Supabase Auth 處理。登入時，Jabiko 會取得帳號識別碼，以及 Google 提供的基本帳號資訊，例如名稱與電子郵件地址。",
-            "登入後，練習紀錄會同步到 Supabase。同步資料可能包含題目識別碼、題目提示、預期答案、你送出的答案、正誤、時間戳與作答時間，目的是讓進度可以在不同裝置合併與延續。每位使用者只能透過公開 API 讀取或寫入自己的練習紀錄。"
+            "登入後，練習紀錄會同步到 Supabase。同步資料可能包含題目識別碼、單字識別碼、作答目標形式、題目提示、預期答案、你送出的答案、正誤、時間戳與作答時間，目的是讓進度可以在不同裝置合併與延續。每位使用者只能透過公開 API 讀取或寫入自己的練習紀錄。"
           ]
         },
         {
@@ -62,7 +59,7 @@ const LEGAL_COPY = {
         {
           title: "4. 意見回饋與題目回報",
           paragraphs: [
-            "送出一般回饋時，會保存類別、訊息、是否希望回覆，以及你自行填寫的聯絡方式。題目回報還會包含題目 ID、提示、預期答案、你所選的答案、級別與介面語言，方便定位問題。",
+            "送出一般回饋時，會保存類別、訊息、是否希望回覆，以及你自行填寫的聯絡方式。題目回報還會包含回報原因、題目 ID、題型標籤、作答目標形式、級別、單字 ID、單字表記與讀音、題目提示、預期答案、你所選的答案、介面語言，以及你自行填寫的補充說明，方便定位問題。",
             "若你已登入，Supabase 會在伺服器端記錄帳號 ID、電子郵件與登入提供者；匿名使用者則不會有這些帳號欄位。回報資料不會透過網站公開讀取。請不要在自由輸入欄位提供不必要的敏感資料。"
           ]
         },
@@ -94,8 +91,8 @@ const LEGAL_COPY = {
       eyebrow: "法律與隱私",
       title: "使用條款",
       intro:
-        "使用 Jabiko 即表示你理解這是一項免費的日文學習輔助服務。以下條款用白話說明服務範圍、內容責任與使用限制。",
-      updatedLabel: `最後更新：${UPDATED_AT}`,
+        "Jabiko 是一項免費的日文學習輔助服務。以下條款用白話說明服務範圍、內容責任與使用限制。",
+      updatedLabel: `最後更新：${TERMS_UPDATED_AT}`,
       sections: [
         {
           title: "1. 服務性質",
@@ -121,7 +118,7 @@ const LEGAL_COPY = {
         {
           title: "4. 外部服務與贊助連結",
           paragraphs: [
-            "網站可能連到 Google、ECPay、GitHub 或其他第三方服務。第三方網站的內容、交易、隱私與可用性由該服務負責。贊助屬自願支持，不會購買考試結果或保證功能永久提供。"
+            "網站可能連到 Google、ECPay、GitHub 或其他第三方服務。第三方網站的內容、交易、隱私與可用性由該服務負責。贊助屬自願支持，並非購買考試成績，也不保證功能永久提供。"
           ]
         },
         {
@@ -141,15 +138,13 @@ const LEGAL_COPY = {
     }
   },
   ja: {
-    navigationLabel: "法的情報・プライバシー",
-    privacyLabel: "プライバシーポリシー",
-    termsLabel: "利用規約",
+    ...legalLabelsFor("ja"),
     privacy: {
       eyebrow: "法的情報・プライバシー",
       title: "プライバシーポリシー",
       intro:
         "Jabiko は、登録しなくても使えることを基本としています。本ポリシーでは、ブラウザ内に残る情報、ログイン同期やフィードバックで送信される情報、その管理方法を説明します。",
-      updatedLabel: `最終更新：${UPDATED_AT}`,
+      updatedLabel: `最終更新：${PRIVACY_UPDATED_AT}`,
       sections: [
         {
           title: "1. ログイン前にブラウザへ保存される情報",
@@ -162,20 +157,20 @@ const LEGAL_COPY = {
           title: "2. Google ログインと端末間同期",
           paragraphs: [
             "ログインは任意で、Google OAuth と Supabase Auth を利用します。ログイン時にはアカウント識別子と、Google が提供する氏名・メールアドレスなどの基本情報を扱います。",
-            "ログイン後の練習履歴は Supabase に同期されます。同期情報には問題 ID、問題文、想定解、送信した回答、正誤、日時、回答時間が含まれる場合があります。公開 API では、各利用者は自分の履歴だけを読み書きできます。"
+            "ログイン後の練習履歴は Supabase に同期されます。同期情報には問題 ID、語彙 ID、解答対象の形式、問題の提示文、想定解、送信した回答、正誤、日時、回答時間が含まれる場合があります。公開 API では、各利用者は自分の履歴だけを読み書きできます。"
           ]
         },
         {
           title: "3. 匿名の利用状況分析",
           paragraphs: [
             "本番環境では Cloudflare Zaraz を通じ、利用した機能、練習モード、JLPT レベル、表示言語、正誤、完了数、文法ページ ID、記事スラッグなどの大まかなイベントを収集する場合があります。",
-            "Jabiko 独自の分析イベントには、問題全文、入力した回答、メールアドレス、Supabase のユーザー ID、記事本文、検索文字列、自由入力文を含めません。ただし Cloudflare などの基盤事業者は、通信・安全対策・不正防止のため IP アドレスや端末・リクエスト情報を処理する場合があります。"
+            "Jabiko 独自の分析イベントには、問題全文、入力した回答、メールアドレス、Supabase のユーザー ID、記事本文、クエリ文字列、自由入力文を含めません。ただし Cloudflare などの基盤事業者は、通信・安全対策・不正防止のため IP アドレスや端末・リクエスト情報を処理する場合があります。"
           ]
         },
         {
           title: "4. フィードバックと問題報告",
           paragraphs: [
-            "一般のフィードバックでは、種別、本文、返信希望の有無、任意で入力した連絡先を保存します。問題報告には、問題 ID、問題文、想定解、選択した回答、レベル、表示言語も含まれます。",
+            "一般のフィードバックでは、種別、本文、返信希望の有無、任意で入力した連絡先を保存します。問題報告には、報告理由、問題 ID、問題形式のラベル、解答対象の形式、レベル、語彙 ID、表記と読み、問題の提示文、想定解、選択した回答、表示言語、任意の補足説明も含まれます。",
             "ログイン中は、Supabase がサーバー側でアカウント ID、メールアドレス、ログイン事業者を記録します。匿名時はこれらの欄は空です。報告内容はサイトの公開 API から閲覧できません。不要な機微情報は入力しないでください。"
           ]
         },
@@ -208,19 +203,19 @@ const LEGAL_COPY = {
       title: "利用規約",
       intro:
         "Jabiko は無料の日本語学習補助サービスです。以下では、サービスの範囲、コンテンツに関する責任、利用上の制限を簡潔に説明します。",
-      updatedLabel: `最終更新：${UPDATED_AT}`,
+      updatedLabel: `最終更新：${TERMS_UPDATED_AT}`,
       sections: [
         {
           title: "1. サービスの性質",
           paragraphs: [
-            "Jabiko は文法、語彙、漢字、問題形式の練習、記事、学習進捗ツールを提供します。国際交流基金、国際教育支援協会、JLPT 公式とは関係がなく、試験結果や合格、内容の完全な正確性を保証しません。"
+            "Jabiko は文法、語彙、漢字、問題形式の練習、記事、学習進捗ツールを提供します。国際交流基金、日本国際教育支援協会、JLPT 公式とは関係がなく、試験結果や合格、内容の完全な正確性を保証しません。"
           ]
         },
         {
           title: "2. 適切な利用",
           items: [
             "自動化された過剰なリクエスト、攻撃、安全対策の回避など、サイトや他の利用者を妨害する行為は禁止します。",
-            "フィードバック欄を使って、違法な内容、権利侵害、悪意ある内容、大量の迷惑投稿を送信してはいけません。",
+            "フィードバック欄を使って、違法な内容、権利侵害、悪意ある内容、大量の迷惑投稿を送信しないでください。",
             "問題や解説の誤りは報告機能からお知らせください。Jabiko は判断により内容を修正、維持、削除できます。"
           ]
         },
@@ -240,29 +235,27 @@ const LEGAL_COPY = {
         {
           title: "5. 変更と可用性",
           paragraphs: [
-            "機能やコンテンツを追加、変更、停止、削除する場合があります。保守、外部事業者の障害、その他管理できない事情により一時的に利用できないこともあります。安全と継続に努めますが、無停止やデータの完全な保持は保証しません。必要な学習記録は利用者自身でも保管してください。"
+            "機能やコンテンツを追加、変更、停止、削除する場合があります。保守、外部事業者の障害、その他管理できない事情により一時的に利用できないこともあります。安全と継続に努めますが、中断なく利用できることやデータの完全な保持は保証しません。必要な学習記録は利用者自身でも保管してください。"
           ]
         },
         {
           title: "6. 責任の制限と問い合わせ",
           paragraphs: [
             "法令で認められる範囲で、本サービスの利用・利用不能、学習内容への依存、第三者サービス、データ消失から生じた間接損害について責任を負いません。法令上排除できない責任を除外するものではありません。",
-            "規約、プライバシー、コンテンツに関する質問は、サイトの「フィードバック」からお送りください。"
+            "規約、プライバシー、コンテンツに関する質問は、サイトの「ご意見・ご感想」からお送りください。"
           ]
         }
       ]
     }
   },
   en: {
-    navigationLabel: "Legal and privacy",
-    privacyLabel: "Privacy Policy",
-    termsLabel: "Terms of Use",
+    ...legalLabelsFor("en"),
     privacy: {
       eyebrow: "Legal and privacy",
       title: "Privacy Policy",
       intro:
         "Jabiko is designed to work without registration. This policy explains what stays in your browser, what is sent when you use sign-in, sync, analytics, or feedback, and how you can manage that data.",
-      updatedLabel: `Last updated: ${UPDATED_AT}`,
+      updatedLabel: `Last updated: ${PRIVACY_UPDATED_AT}`,
       sections: [
         {
           title: "1. Data stored in your browser before sign-in",
@@ -275,7 +268,7 @@ const LEGAL_COPY = {
           title: "2. Google sign-in and cross-device sync",
           paragraphs: [
             "Sign-in is optional and is handled by Google OAuth and Supabase Auth. When you sign in, Jabiko handles an account identifier and basic profile information provided by Google, such as your name and email address.",
-            "After sign-in, practice history is synced to Supabase. Synced records may include question and vocabulary IDs, prompts, expected answers, your submitted answer, correctness, timestamps, and response time. Public API access is restricted so each user can read or write only their own practice records."
+            "After sign-in, practice history is synced to Supabase. Synced records may include question and vocabulary IDs, target forms, prompts, expected answers, your submitted answer, correctness, timestamps, and response time. Public API access is restricted so each user can read or write only their own practice records."
           ]
         },
         {
@@ -288,7 +281,7 @@ const LEGAL_COPY = {
         {
           title: "4. Feedback and question reports",
           paragraphs: [
-            "General feedback stores its category, message, whether you requested a reply, and any contact detail you enter. A question report also includes the question ID, prompt, expected answers, selected answer, level, and interface language so the issue can be located.",
+            "General feedback stores its category, message, whether you requested a reply, and any contact detail you enter. A question report also includes its reason, question ID, question-type label, target form, level, vocabulary ID, surface form and reading, prompt, expected answers, selected answer, interface language, and any optional detail you provide so the issue can be located.",
             "If you are signed in, Supabase records your account ID, email, and sign-in provider on the server. Those fields remain empty for anonymous submissions. Reports are not readable through the site's public API. Do not include unnecessary sensitive information in free-form fields."
           ]
         },
@@ -321,7 +314,7 @@ const LEGAL_COPY = {
       title: "Terms of Use",
       intro:
         "Jabiko is a free Japanese-learning aid. These terms explain the scope of the service, responsibility for learning content, and basic limits on use.",
-      updatedLabel: `Last updated: ${UPDATED_AT}`,
+      updatedLabel: `Last updated: ${TERMS_UPDATED_AT}`,
       sections: [
         {
           title: "1. Nature of the service",
@@ -340,8 +333,8 @@ const LEGAL_COPY = {
         {
           title: "3. Source code, content, and brand",
           paragraphs: [
-            "Source code being visible in a public repository does not grant permission to copy, modify, redistribute, or use it commercially. Unless a specific file carries a separate express licence, rights are reserved in Jabiko's code, original articles, question bank, name, mascot, and visual assets.",
-            "This does not add restrictions to the Japanese language itself, general facts, or material you may otherwise lawfully use. Third-party trade marks, work titles, and external material remain the property of their respective owners."
+            "Source code being visible in a public repository does not grant permission to copy, modify, redistribute, or use it commercially. Unless a specific file carries a separate express license, rights are reserved in Jabiko's code, original articles, question bank, name, mascot, and visual assets.",
+            "This does not add restrictions to the Japanese language itself, general facts, or material you may otherwise lawfully use. Third-party trademarks, work titles, and external material remain the property of their respective owners."
           ]
         },
         {

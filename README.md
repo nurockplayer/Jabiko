@@ -54,7 +54,10 @@ The question bank is generated from typed data in `src/domain/exam/items/` via
 `scripts/import-exam-items.mjs`; content correctness is enforced by
 `src/domain/contentGuard.test.ts`.
 
-## Contributing
+## Development workflow
+
+These are maintainer workflow notes. Please contact the maintainer before
+preparing an external contribution.
 
 - **TDD** is the house rule: write the failing test first, then the code.
 - New question-bank content follows a batch pipeline (author → adversarial
@@ -62,12 +65,11 @@ The question bank is generated from typed data in `src/domain/exam/items/` via
   `CLAUDE.md` and `docs/item-quality-rubric.md`.
 - Every change lands via a PR; CI (`Test and build`) must be green before merge.
 
-## Roadmap
+## Project status
 
-Tracked in [GitHub Issues](https://github.com/nurockplayer/Jabiko/issues). In
-flight / planned: AI-assisted content localisation (per-locale explanations),
-a personal favourites list, more grammar study chapters (N3/N2), achievement
-badges + daily goals, and data-driven difficulty once there's enough signal.
+Concrete work is tracked in [GitHub Issues](https://github.com/nurockplayer/Jabiko/issues).
+The backlog intentionally keeps only scoped, independently verifiable work;
+broader ideas are opened when there is a current product need.
 
 ## Ownership, privacy & terms
 

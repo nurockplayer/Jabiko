@@ -1,5 +1,6 @@
 import type { Language } from "../i18n";
-import { legalCopyFor, type LegalPageKind } from "../domain/legalContent";
+import type { LegalPageKind } from "../domain/legalContent";
+import { legalLabelsFor } from "../domain/legalLabels";
 
 export function LegalLinks({
   language,
@@ -8,7 +9,7 @@ export function LegalLinks({
   language: Language;
   current?: LegalPageKind;
 }) {
-  const legal = legalCopyFor(language);
+  const legal = legalLabelsFor(language);
 
   return (
     <nav className="legal-links" aria-label={legal.navigationLabel}>

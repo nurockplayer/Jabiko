@@ -21,7 +21,7 @@ import type { SentencePatternId } from "./domain/sentencePatterns";
 import type { JlptLevel } from "./domain/types";
 import { countMistakes } from "./domain/srs";
 import { copy, LAUNCHED_LANGUAGES, type Language } from "./i18n";
-import { HomePanel, LearningPanel, RulesPanel, AboutPanel, LegalPanel } from "./components";
+import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
 import { LanguagePicker } from "./components/LanguagePicker";
 import { LanguageFlag } from "./components/LanguageFlag";
 import { FeedbackForm } from "./components/FeedbackForm";
@@ -92,6 +92,11 @@ const BlogIndexPage = lazy(() =>
 );
 const BlogArticlePage = lazy(() =>
   import("./components/BlogArticlePage").then((module) => ({ default: module.BlogArticlePage }))
+);
+// Legal documents carry full zh-Hant, ja, and en policy text. Keep that prose
+// out of the initial bundle; the footer labels live in a separate tiny module.
+const LegalPanel = lazy(() =>
+  import("./components/LegalPanel").then((module) => ({ default: module.LegalPanel }))
 );
 const BUILD_VERSION = packageJson.version;
 
@@ -702,7 +707,9 @@ export default function App() {
       ) : appView === "about" ? (
         <AboutPanel language={language} />
       ) : appView === "privacy" || appView === "terms" ? (
-        <LegalPanel language={language} page={appView} />
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <LegalPanel language={language} page={appView} />
+        </Suspense>
       ) : appView === "kanji" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
           <KanjiOnyomiPanel language={language} defaultLevel={kanjiDefaultLevel(targetLevel)} />

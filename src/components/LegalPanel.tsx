@@ -12,21 +12,21 @@ export function LegalPanel({
   language: Language;
   page: LegalPageKind;
 }) {
-  const document = legalDocumentFor(language, page);
+  const legalDocument = legalDocumentFor(language, page);
   const titleId = `legal-${page}-title`;
 
   return (
     <section className="legal-panel" aria-labelledby={titleId}>
       <header className="legal-hero">
-        <p className="eyebrow">{document.eyebrow}</p>
-        <h2 id={titleId}>{document.title}</h2>
-        <p className="legal-intro">{document.intro}</p>
-        <p className="legal-updated">{document.updatedLabel}</p>
+        <p className="eyebrow">{legalDocument.eyebrow}</p>
+        <h2 id={titleId}>{legalDocument.title}</h2>
+        <p className="legal-intro">{legalDocument.intro}</p>
+        <p className="legal-updated">{legalDocument.updatedLabel}</p>
       </header>
 
-      {document.sections.map((section) => (
+      {legalDocument.sections.map((section) => (
         <article className="legal-section" key={section.title}>
-          <h2>{section.title}</h2>
+          <h3>{section.title}</h3>
           {section.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
           {section.items ? (
             <ul>
