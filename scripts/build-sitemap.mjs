@@ -14,6 +14,12 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ORIGIN = "https://jabiko.app";
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+function isIsoCalendarDate(value) {
+  if (!ISO_DATE.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value;
+}
+
 const ROUTES = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/learn", changefreq: "weekly", priority: "0.8" },
@@ -46,6 +52,8 @@ function urlEntry({ path: routePath, changefreq, priority, lastmod }) {
 
 const server = await createServer({
   root: ROOT,
+  // These domain modules need only Vite's built-in TS transform. Avoid loading
+  // the app's React/PWA plugins for this build-time metadata read.
   configFile: false,
   logLevel: "error",
   server: { middlewareMode: true },
@@ -74,7 +82,7 @@ const grammarPaths = [
 ];
 
 for (const { slug, publishedAt } of publishedArticleMetas) {
-  if (!ISO_DATE.test(publishedAt)) {
+  if (!isIsoCalendarDate(publishedAt)) {
     throw new Error(`Invalid publishedAt for article "${slug}": ${publishedAt}`);
   }
 }

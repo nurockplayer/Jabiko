@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import sitemapXml from "../../public/sitemap.xml?raw";
 import { grammarPatterns } from "./grammarDatabase";
 import { articleMetas, publishedArticleMetas } from "./articlesMeta";
+import { buildStaticPages } from "./prerender/staticPages";
 
 // Helper: extract the <url> block containing a given <loc> value.
 function urlBlockFor(loc: string): string | undefined {
@@ -19,6 +20,15 @@ function urlBlockFor(loc: string): string | undefined {
 // until `pnpm build:sitemap` is re-run, so the long-tail pages never silently
 // drop out of search discovery.
 describe("sitemap.xml drift guard (#479 / #483)", () => {
+  it("matches the prerendered public route set in both directions", () => {
+    const locs = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+    const sitemapPaths = locs.map((loc) => decodeURIComponent(new URL(loc).pathname));
+    const prerenderPaths = buildStaticPages().map((page) => page.path);
+
+    expect(new Set(sitemapPaths).size, "sitemap contains duplicate URLs").toBe(locs.length);
+    expect([...sitemapPaths].sort()).toEqual([...prerenderPaths].sort());
+  });
+
   it("lists every grammar-point page", () => {
     const missing: string[] = [];
     for (const p of grammarPatterns) {
