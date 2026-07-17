@@ -118,6 +118,41 @@ export function splitTextForRuby(text: string): InlineRubySegment[] {
 }
 
 /**
+ * Split mixed Traditional Chinese teaching prose conservatively: only text
+ * inside matched Japanese corner quotes is ruby-eligible. Learning pitfalls
+ * often place unquoted Japanese after Chinese characters (for example
+ * `過去要放在最後的ならなかった`), which is readable as-is but unsafe to send
+ * through a Japanese tokenizer as one run because the Chinese prose may gain
+ * bogus readings.
+ */
+export function splitQuotedTextForRuby(text: string): InlineRubySegment[] {
+  const segments: InlineRubySegment[] = [];
+  let cursor = 0;
+
+  while (cursor < text.length) {
+    const open = text.indexOf("「", cursor);
+    if (open === -1) {
+      segments.push({ text: text.slice(cursor), ruby: false });
+      break;
+    }
+
+    const close = text.indexOf("」", open + 1);
+    if (close === -1) {
+      segments.push({ text: text.slice(cursor), ruby: false });
+      break;
+    }
+
+    segments.push({ text: text.slice(cursor, open + 1), ruby: false });
+    const quotedText = text.slice(open + 1, close);
+    if (quotedText) segments.push({ text: quotedText, ruby: true });
+    segments.push({ text: "」", ruby: false });
+    cursor = close + 1;
+  }
+
+  return mergePlainSegments(segments);
+}
+
+/**
  * Collect safe build-time furigana sources from a mixed-language explanation.
  * Only kana-containing runs are baked from free text so Chinese prose like
  * 「有生命」 never picks up a bogus Japanese reading.
@@ -136,6 +171,22 @@ export function collectJapaneseRubySources(text: string | null | undefined): str
     new Set(
       splitTextForRuby(text)
         .filter((segment) => segment.ruby && isBakeable(segment.text))
+        .map((segment) => segment.text)
+    )
+  );
+}
+
+/**
+ * Collect matched, kana-bearing 「Japanese」 spans from Traditional Chinese
+ * prose. Kana is the conservative language signal: quoted Chinese such as
+ * 「每份」 must not be sent through the Japanese tokenizer.
+ */
+export function collectQuotedRubySources(text: string | null | undefined): string[] {
+  if (typeof text !== "string") return [];
+  return Array.from(
+    new Set(
+      splitQuotedTextForRuby(text)
+        .filter((segment) => segment.ruby && hasKana(segment.text) && hasKanji(segment.text))
         .map((segment) => segment.text)
     )
   );

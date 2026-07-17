@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { LearningPanel } from "./LearningPanel";
 import { learningBlocks } from "../domain/learningBlocks";
+import { FuriganaContext } from "./furiganaContext";
 
 // #608 P0: on phones the 74-button chapter index used to sit ABOVE the lesson,
 // pushing the material ~7000px down. The mobile chapter bar surfaces the
@@ -27,6 +28,26 @@ function renderPanel(onOpenKana = vi.fn()) {
 }
 
 const basicBlocks = learningBlocks.filter((block) => block.group === "basic");
+
+function renderPanelWithFurigana(enabled: boolean) {
+  return render(
+    <FuriganaContext.Provider value={{ enabled }}>
+      <LearningPanel
+        language="zh-Hant"
+        progressAttempts={[]}
+        reviewCount={0}
+        onStartChallenge={vi.fn()}
+        onStartReview={vi.fn()}
+        onStartDrill={vi.fn()}
+        onStartPatternDrill={vi.fn()}
+        onStartExamSection={vi.fn()}
+        onStartKanaDrill={vi.fn()}
+        onStartStarterDrill={vi.fn()}
+        onOpenKana={vi.fn()}
+      />
+    </FuriganaContext.Provider>
+  );
+}
 
 describe("LearningPanel mobile chapter bar (#608)", () => {
   it("shows the current chapter title and progress position", () => {
@@ -86,5 +107,34 @@ describe("LearningPanel mobile chapter bar (#608)", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(index.className).not.toContain("mobile-open");
     expect(screen.getByRole("heading", { level: 3 }).textContent).toBe(basicBlocks[2].title);
+  });
+});
+
+describe("LearningPanel furigana (#618)", () => {
+  const target = learningBlocks.find((block) => block.id === "verb-types")!;
+
+  function openTargetChapter() {
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: (name) => name.includes(target.title)
+      })
+    );
+  }
+
+  it("keeps learning text plain when furigana is off", () => {
+    const { container } = renderPanelWithFurigana(false);
+    openTargetChapter();
+    expect(container.querySelector(".chapter-content rt")).toBeNull();
+  });
+
+  it("adds ruby to the focus formula, examples, and pitfalls when enabled", async () => {
+    const { container } = renderPanelWithFurigana(true);
+    openTargetChapter();
+
+    await waitFor(() => {
+      expect(container.querySelector(".focus-formula rt")).not.toBeNull();
+      expect(container.querySelector(".pipeline-card code rt")).not.toBeNull();
+      expect(container.querySelector(".block-pitfalls li rt")).not.toBeNull();
+    }, { timeout: 3_000 });
   });
 });

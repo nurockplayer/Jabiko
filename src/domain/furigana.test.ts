@@ -8,7 +8,9 @@ import {
   isReadingPrompt,
   allowsOptionFurigana,
   splitTextForRuby,
-  collectJapaneseRubySources
+  collectJapaneseRubySources,
+  splitQuotedTextForRuby,
+  collectQuotedRubySources
 } from "./furigana";
 
 describe("isReadingPrompt", () => {
@@ -106,6 +108,34 @@ describe("collectJapaneseRubySources", () => {
 
   it("ignores a missing explanation source", () => {
     expect(collectJapaneseRubySources(undefined)).toEqual([]);
+  });
+});
+
+describe("splitQuotedTextForRuby", () => {
+  it("only marks matched Japanese quotes in Traditional Chinese teaching prose", () => {
+    expect(
+      splitQuotedTextForRuby("過去要放在最後的ならなかった；「来る」變成「来ます」。")
+    ).toEqual([
+      { text: "過去要放在最後的ならなかった；「", ruby: false },
+      { text: "来る", ruby: true },
+      { text: "」變成「", ruby: false },
+      { text: "来ます", ruby: true },
+      { text: "」。", ruby: false }
+    ]);
+  });
+
+  it("keeps unmatched quotes plain", () => {
+    expect(splitQuotedTextForRuby("中文「来る 沒有結尾")).toEqual([
+      { text: "中文「来る 沒有結尾", ruby: false }
+    ]);
+  });
+});
+
+describe("collectQuotedRubySources", () => {
+  it("collects only kana-and-kanji quoted Japanese sources", () => {
+    expect(collectQuotedRubySources("中文「来る」和「ます」；外面ならない不處理")).toEqual([
+      "来る"
+    ]);
   });
 });
 

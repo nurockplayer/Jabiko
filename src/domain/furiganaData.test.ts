@@ -1,8 +1,17 @@
 import { describe, it, expect } from "vitest";
 import { furiganaData } from "./furiganaData";
 import { furiganaExplanationData } from "./furiganaExplanationData";
-import { allowsOptionFurigana, hasKanji, isReadingPrompt } from "./furigana";
+import { furiganaLearningData } from "./furiganaLearningData";
+import {
+  allowsOptionFurigana,
+  collectJapaneseRubySources,
+  collectQuotedRubySources,
+  hasKanji,
+  isReadingPrompt
+} from "./furigana";
 import { examStyleQuestions } from "./examBlocks";
+import { learningBlocks } from "./learningBlocks";
+import { learningBlockI18n } from "./learningBlocks.i18n";
 
 // #589: choice buttons render options through <Ruby>, which falls back to
 // plain text whenever a string has no baked entry. This drift guard keeps
@@ -77,5 +86,72 @@ describe("furiganaExplanationData drift guard (#599)", () => {
     const keys = Object.keys(furiganaExplanationData);
     const sorted = [...keys].sort();
     expect(keys).toEqual(sorted);
+  });
+});
+
+describe("furiganaLearningData drift guard (#618)", () => {
+  it("bakes every kanji-bearing learning formula and subtitle", () => {
+    const missing: string[] = [];
+    for (const block of learningBlocks) {
+      for (const text of [block.subtitle, ...block.examples.map((example) => example.formula)]) {
+        if (hasKanji(text) && !furiganaLearningData[text]) {
+          missing.push(`${block.id}: ${text}`);
+        }
+      }
+    }
+    expect(
+      missing,
+      `learning formulas without baked furigana (run pnpm build:furigana): ${missing.slice(0, 10).join(" | ")}`
+    ).toEqual([]);
+  });
+
+  it("bakes safe Japanese sources from source and localized pitfalls", () => {
+    const missing: string[] = [];
+    const check = (owner: string, text: string, locale: string) => {
+      const sources = locale === "ja"
+        ? [text]
+        : locale === "zh-Hant"
+          ? collectQuotedRubySources(text)
+          : collectJapaneseRubySources(text);
+      for (const run of sources) {
+        if (hasKanji(run) && !furiganaLearningData[run]) {
+          missing.push(`${owner}: ${run}`);
+        }
+      }
+    };
+
+    for (const block of learningBlocks) {
+      for (const pitfall of block.pitfalls ?? []) check(block.id, pitfall, "zh-Hant");
+    }
+    for (const [blockId, locales] of Object.entries(learningBlockI18n)) {
+      for (const [locale, overlay] of Object.entries(locales)) {
+        for (const pitfall of overlay?.pitfalls ?? []) {
+          check(`${blockId}/${locale}`, pitfall, locale);
+        }
+      }
+    }
+
+    expect(
+      missing,
+      `learning pitfalls without baked furigana (run pnpm build:furigana): ${missing.slice(0, 10).join(" | ")}`
+    ).toEqual([]);
+  });
+
+  it("does not bake mixed Traditional Chinese prose as Japanese", () => {
+    expect(furiganaLearningData["過去要放在最後的ならなかった"]).toBeUndefined();
+    expect(furiganaLearningData["不是買あます"]).toBeUndefined();
+    expect(furiganaLearningData["う結尾的一類動詞要變わ"]).toBeUndefined();
+  });
+
+  it("pins known context-sensitive learning readings", () => {
+    const causative = furiganaLearningData["来る → 来させる"];
+    expect(causative?.filter((segment) => segment.t === "来").map((segment) => segment.r))
+      .toEqual(["く", "こ"]);
+  });
+
+  it("is a non-empty generated table with deterministic key ordering", () => {
+    const keys = Object.keys(furiganaLearningData);
+    expect(keys.length).toBeGreaterThan(0);
+    expect(keys).toEqual([...keys].sort());
   });
 });
