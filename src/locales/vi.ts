@@ -13,6 +13,7 @@ export const vi: Copy = {
   flowLabel: "Lộ trình học",
   navMore: "Xem thêm",
   navMoreTools: "Cài đặt & công cụ",
+  navMoreWithCurrent: (page) => `Xem thêm (hiện tại: ${page})`,
   loading: "Đang tải…",
   updateAvailable: "Đã có phiên bản mới — chạm để cập nhật",
   routeErrorTitle: "Không tải được trang",

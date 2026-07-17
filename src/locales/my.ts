@@ -13,6 +13,7 @@ export const my: Copy = {
   flowLabel: "လေ့လာမှု အဆင့်ဆင့်",
   navMore: "နောက်ထပ်",
   navMoreTools: "ဆက်တင်နှင့် ကိရိယာများ",
+  navMoreWithCurrent: (page) => `နောက်ထပ် (လက်ရှိ - ${page})`,
   loading: "ဖွင့်နေသည်…",
   updateAvailable: "ဗားရှင်းအသစ် ရရှိနိုင်ပါပြီ — အပ်ဒိတ်လုပ်ရန် တို့ပါ",
   routeErrorTitle: "စာမျက်နှာကို ဖွင့်မရပါ",

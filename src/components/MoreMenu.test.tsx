@@ -39,8 +39,19 @@ function makeTools(overrides: Partial<MoreMenuTools> = {}): MoreMenuTools {
 }
 
 function renderMenu(items = makeItems(), tools = makeTools()) {
-  render(<MoreMenu triggerLabel="更多" items={items} tools={tools} />);
+  render(
+    <MoreMenu
+      triggerLabel="更多"
+      triggerCurrentLabel={(page) => `更多（目前：${page}）`}
+      items={items}
+      tools={tools}
+    />
+  );
   return { items, tools };
+}
+
+function menuItems(): HTMLButtonElement[] {
+  return [...screen.getByRole("menu").querySelectorAll<HTMLButtonElement>("[role^='menuitem']")];
 }
 
 describe("MoreMenu (#608)", () => {
@@ -74,7 +85,8 @@ describe("MoreMenu (#608)", () => {
       makeTools({ furigana: { label: "顯示註音", pressed: true, onToggle: vi.fn() } })
     );
 
-    await user.click(screen.getByRole("button", { name: "更多" }));
+    // With 漢字 selected the collapsed trigger already names the current page.
+    await user.click(screen.getByRole("button", { name: "更多（目前：漢字）" }));
     const menu = screen.getByRole("menu");
     expect(within(menu).getByRole("menuitem", { name: "漢字" })).toHaveAttribute(
       "aria-current",
@@ -127,6 +139,65 @@ describe("MoreMenu (#608)", () => {
     expect(screen.getByRole("menu")).toBeInTheDocument();
 
     fireEvent.keyDown(document.activeElement as HTMLElement, { key: "Escape" });
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+  });
+
+  // PR #628 review: while a folded view is active the collapsed trigger is the
+  // only place the current location can show -- it takes the selected style and
+  // names the current page.
+  it("marks the collapsed trigger selected and names the current page", () => {
+    renderMenu(makeItems([{}, { selected: true }]));
+
+    const trigger = screen.getByRole("button", { name: "更多（目前：漢字）" });
+    expect(trigger.className).toContain("selected");
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+
+  it("keeps the plain trigger name and no selected style when nothing inside is active", () => {
+    renderMenu();
+
+    const trigger = screen.getByRole("button", { name: "更多" });
+    expect(trigger.className).not.toContain("selected");
+  });
+
+  // PR #628 review: role="menu" implies a single tab stop -- only the focused
+  // item is tabbable, the rest sit at tabIndex -1.
+  it("roves tabindex with the focus (single tab stop)", async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    let items = menuItems();
+    expect(items[0].tabIndex).toBe(0);
+    expect(items.slice(1).every((item) => item.tabIndex === -1)).toBe(true);
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "ArrowDown" });
+    items = menuItems();
+    expect(items[0].tabIndex).toBe(-1);
+    expect(items[1].tabIndex).toBe(0);
+    expect(items[1]).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "End" });
+    items = menuItems();
+    expect(items[items.length - 1].tabIndex).toBe(0);
+    expect(items[items.length - 1]).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "Home" });
+    items = menuItems();
+    expect(items[0].tabIndex).toBe(0);
+    expect(items[0]).toHaveFocus();
+  });
+
+  it("Tab closes the menu and hands focus back to the trigger", async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    const trigger = screen.getByRole("button", { name: "更多" });
+    await user.click(trigger);
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "Tab" });
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
   });

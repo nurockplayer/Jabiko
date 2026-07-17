@@ -29,6 +29,8 @@ export type Copy = {
   flowLabel: string;
   navMore: string;
   navMoreTools: string;
+  /** Collapsed 更多 trigger's accessible name while a folded view is active. */
+  navMoreWithCurrent: (page: string) => string;
   loading: string;
   updateAvailable: string;
   routeErrorTitle: string;

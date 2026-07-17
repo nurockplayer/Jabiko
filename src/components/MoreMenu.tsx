@@ -35,24 +35,39 @@ export interface MoreMenuTools {
 
 export function MoreMenu({
   triggerLabel,
+  triggerCurrentLabel,
   items,
   tools
 }: {
   triggerLabel: string;
+  /** Accessible name for the collapsed trigger while a folded view is active,
+   *  e.g. 更多（目前：文章）-- the trigger is then the only place the current
+   *  location can show (PR #628 review). */
+  triggerCurrentLabel: (page: string) => string;
   items: MoreMenuNavItem[];
   tools: MoreMenuTools;
 }) {
   const [open, setOpen] = useState(false);
+  // role="menu" is a single tab stop: only the focused entry keeps tabIndex 0
+  // (roving tabindex), tracked by its data-menu-key.
+  const [focusKey, setFocusKey] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
 
+  const selectedItem = items.find((item) => item.selected) ?? null;
+
   // Focus the first entry once the panel is in the DOM (menu-button pattern).
   useEffect(() => {
-    if (!open) return;
-    rootRef.current
-      ?.querySelector<HTMLButtonElement>("[role^='menuitem']")
-      ?.focus();
+    if (!open) {
+      setFocusKey(null);
+      return;
+    }
+    const first = rootRef.current?.querySelector<HTMLButtonElement>("[role^='menuitem']");
+    if (first) {
+      setFocusKey(first.dataset.menuKey ?? null);
+      first.focus();
+    }
   }, [open]);
 
   // A press anywhere outside closes the menu without swallowing the press.
@@ -80,6 +95,13 @@ export function MoreMenu({
       triggerRef.current?.focus();
       return;
     }
+    if (event.key === "Tab") {
+      // Menu pattern: Tab leaves the menu. Close and put focus back on the
+      // trigger so the default Tab continues from there (no preventDefault).
+      close();
+      triggerRef.current?.focus();
+      return;
+    }
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp" && event.key !== "Home" && event.key !== "End") {
       return;
     }
@@ -97,18 +119,26 @@ export function MoreMenu({
           : event.key === "ArrowDown"
             ? (current + 1) % focusables.length
             : (current - 1 + focusables.length) % focusables.length;
-    focusables[next]?.focus();
+    const target = focusables[next];
+    if (target) {
+      setFocusKey(target.dataset.menuKey ?? null);
+      target.focus();
+    }
   };
+
+  // Roving-tabindex helper: only the focused entry is tabbable.
+  const rove = (key: string) => (focusKey === key ? 0 : -1);
 
   return (
     <div className="nav-more" ref={rootRef}>
       <button
         type="button"
         ref={triggerRef}
-        className="nav-more-trigger"
+        className={`nav-more-trigger${selectedItem ? " selected" : ""}`}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
+        aria-label={selectedItem ? triggerCurrentLabel(selectedItem.label) : undefined}
         onClick={() => setOpen((value) => !value)}
         onKeyDown={(event) => {
           if (event.key === "ArrowDown" && !open) {
@@ -133,6 +163,8 @@ export function MoreMenu({
               key={item.key}
               type="button"
               role="menuitem"
+              data-menu-key={item.key}
+              tabIndex={rove(item.key)}
               className={`nav-more-item${item.selected ? " selected" : ""}`}
               aria-current={item.selected ? "page" : undefined}
               onClick={closeAnd(item.onSelect)}
@@ -151,6 +183,8 @@ export function MoreMenu({
             <button
               type="button"
               role="menuitem"
+              data-menu-key="tool-language"
+              tabIndex={rove("tool-language")}
               className="nav-more-item"
               onClick={closeAnd(tools.language.onOpen)}
             >
@@ -161,6 +195,8 @@ export function MoreMenu({
           <button
             type="button"
             role="menuitemcheckbox"
+            data-menu-key="tool-furigana"
+            tabIndex={rove("tool-furigana")}
             className="nav-more-item"
             aria-checked={tools.furigana.pressed}
             onClick={closeAnd(tools.furigana.onToggle)}
@@ -171,6 +207,8 @@ export function MoreMenu({
           <button
             type="button"
             role="menuitem"
+            data-menu-key="tool-theme"
+            tabIndex={rove("tool-theme")}
             className="nav-more-item"
             onClick={closeAnd(tools.theme.onToggle)}
           >
@@ -180,6 +218,8 @@ export function MoreMenu({
           <button
             type="button"
             role="menuitem"
+            data-menu-key="tool-feedback"
+            tabIndex={rove("tool-feedback")}
             className="nav-more-item"
             onClick={closeAnd(tools.feedback.onOpen)}
           >
@@ -193,6 +233,8 @@ export function MoreMenu({
                 <button
                   type="button"
                   role="menuitem"
+                  data-menu-key="tool-auth"
+                  tabIndex={rove("tool-auth")}
                   className="nav-more-item"
                   onClick={closeAnd(tools.auth.onSignOut)}
                 >
@@ -203,6 +245,8 @@ export function MoreMenu({
                 <button
                   type="button"
                   role="menuitem"
+                  data-menu-key="tool-auth"
+                  tabIndex={rove("tool-auth")}
                   className="nav-more-item"
                   onClick={closeAnd(tools.auth.onSignIn)}
                 >

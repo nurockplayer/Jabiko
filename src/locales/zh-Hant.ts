@@ -13,6 +13,7 @@ export const zhHant: Copy = {
   flowLabel: "學習流程",
   navMore: "更多",
   navMoreTools: "設定與工具",
+  navMoreWithCurrent: (page) => `更多（目前：${page}）`,
   loading: "載入中…",
   updateAvailable: "有新版本，點此更新",
   routeErrorTitle: "頁面載入失敗",

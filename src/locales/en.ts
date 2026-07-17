@@ -13,6 +13,7 @@ export const en: Copy = {
   flowLabel: "Study flow",
   navMore: "More",
   navMoreTools: "Settings & tools",
+  navMoreWithCurrent: (page) => `More (current: ${page})`,
   loading: "Loading…",
   updateAvailable: "A new version is available — tap to update",
   routeErrorTitle: "Page failed to load",

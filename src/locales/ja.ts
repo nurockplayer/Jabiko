@@ -13,6 +13,7 @@ export const ja: Copy = {
   flowLabel: "学習の流れ",
   navMore: "その他",
   navMoreTools: "設定・ツール",
+  navMoreWithCurrent: (page) => `その他（現在：${page}）`,
   loading: "読み込み中…",
   updateAvailable: "新しいバージョンがあります。タップして更新",
   routeErrorTitle: "ページの読み込みに失敗しました",

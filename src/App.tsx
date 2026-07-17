@@ -624,6 +624,7 @@ export default function App() {
         </button>
         <MoreMenu
           triggerLabel={t.navMore}
+          triggerCurrentLabel={t.navMoreWithCurrent}
           items={moreMenuItems}
           tools={{
             heading: t.navMoreTools,

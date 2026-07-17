@@ -13,6 +13,7 @@ export const id: Copy = {
   flowLabel: "Alur belajar",
   navMore: "Lainnya",
   navMoreTools: "Pengaturan & alat",
+  navMoreWithCurrent: (page) => `Lainnya (saat ini: ${page})`,
   loading: "Memuat…",
   updateAvailable: "Versi baru tersedia — ketuk untuk memperbarui",
   routeErrorTitle: "Halaman gagal dimuat",

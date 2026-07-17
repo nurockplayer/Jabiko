@@ -1217,6 +1217,10 @@ describe("App", () => {
       "aria-current",
       "page"
     );
+    // The collapsed trigger carries the current location while a folded view
+    // is active (PR #628 review).
+    const selectedTrigger = within(nav).getByRole("button", { name: "更多（目前：關於）" });
+    expect(selectedTrigger.className).toContain("selected");
 
     window.history.replaceState({}, "", "/");
   });
