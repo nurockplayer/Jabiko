@@ -92,11 +92,23 @@ describe("buildStaticPages", () => {
       "/challenge",
       "/mock",
       "/about",
+      "/privacy",
+      "/terms",
       "/grammar",
       "/blog"
     ]) {
       expect(byPath.has(route), route).toBe(true);
     }
+  });
+
+  it("prerenders the full legal documents", () => {
+    const privacy = byPath.get("/privacy");
+    const terms = byPath.get("/terms");
+
+    expect(privacy?.bodyHtml).toContain("Google 登入與跨裝置同步");
+    expect(privacy?.bodyHtml).toContain("匿名使用分析");
+    expect(terms?.bodyHtml).toContain("程式碼、內容與品牌");
+    expect(terms?.bodyHtml).toContain("不代表已授權");
   });
 
   // #619: /kana is an SEO reference page -- the prerendered body must carry

@@ -93,6 +93,11 @@ const BlogIndexPage = lazy(() =>
 const BlogArticlePage = lazy(() =>
   import("./components/BlogArticlePage").then((module) => ({ default: module.BlogArticlePage }))
 );
+// Legal documents carry full zh-Hant, ja, and en policy text. Keep that prose
+// out of the initial bundle; the footer labels live in a separate tiny module.
+const LegalPanel = lazy(() =>
+  import("./components/LegalPanel").then((module) => ({ default: module.LegalPanel }))
+);
 const BUILD_VERSION = packageJson.version;
 
 type DrillPreset = LearningBlockDrillPreset;
@@ -701,6 +706,10 @@ export default function App() {
         <RulesPanel language={language} />
       ) : appView === "about" ? (
         <AboutPanel language={language} />
+      ) : appView === "privacy" || appView === "terms" ? (
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <LegalPanel language={language} page={appView} />
+        </Suspense>
       ) : appView === "kanji" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
           <KanjiOnyomiPanel language={language} defaultLevel={kanjiDefaultLevel(targetLevel)} />

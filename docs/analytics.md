@@ -75,7 +75,8 @@ slug, or leaving and later re-entering an article route, is a new view.
 ### `view` allowed values
 
 `page_view.view` is the app view string (`home`, `learn`, `rules`, `kanji`,
-`challenge`, `mock`, `about`, `grammar`). It is typed as `string` in the
+`kana`, `challenge`, `mock`, `about`, `privacy`, `terms`, `grammar`, or
+`blog`). It is typed as `string` in the
 payload (the lib layer intentionally does not import the App-internal
 `AppView` union to keep layering clean — see decision boundaries in
 `.codex-spec.md`).

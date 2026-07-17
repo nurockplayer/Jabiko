@@ -1,5 +1,6 @@
 import { copy, type Language } from "../i18n";
 import { JabikoMark } from "./JabikoMark";
+import { LegalLinks } from "./LegalLinks";
 
 // The author's personal "about" page.
 const ABOUT_URL = "https://hanayukii.dev/about";
@@ -43,6 +44,8 @@ export function AboutPanel({ language }: { language: Language }) {
         <p className="about-author-name">{t.aboutAuthor2Name}</p>
         <p>{t.aboutAuthor2Body}</p>
       </article>
+
+      <LegalLinks language={language} />
     </section>
   );
 }

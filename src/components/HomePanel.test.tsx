@@ -238,6 +238,21 @@ describe("HomePanel feedback entry", () => {
   });
 });
 
+describe("HomePanel legal links", () => {
+  it("links to the privacy policy and terms from the footer", () => {
+    renderHome();
+
+    expect(screen.getByRole("link", { name: "隱私政策" })).toHaveAttribute(
+      "href",
+      "/privacy"
+    );
+    expect(screen.getByRole("link", { name: "使用條款" })).toHaveAttribute(
+      "href",
+      "/terms"
+    );
+  });
+});
+
 describe("HomePanel donate link", () => {
   const ecpayUrl =
     "https://payment.ecpay.com.tw/Broadcaster/Donate/57DD8DC811013DF1C576D7ED22ACF911";

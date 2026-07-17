@@ -18,6 +18,7 @@ import { publishedArticleMetas } from "../articlesMeta";
 import { publishedArticles, type ArticleBlock } from "../articles";
 import { KANA_TABLE, type KanaGroup, type KanaScript } from "../kana";
 import type { JlptLevel } from "../types";
+import { legalDocumentFor, type LegalPageKind } from "../legalContent";
 
 export interface StaticPage {
   /** Decoded URL path, e.g. "/grammar/〜てもいい". */
@@ -95,7 +96,9 @@ const NAV_LINKS: ReadonlyArray<{ href: string; label: string }> = [
   { href: "/blog", label: "文章" },
   { href: "/challenge", label: "題庫練習" },
   { href: "/mock", label: "題型練習" },
-  { href: "/about", label: "關於" }
+  { href: "/about", label: "關於" },
+  { href: "/privacy", label: "隱私政策" },
+  { href: "/terms", label: "使用條款" }
 ];
 
 const LEVELS: JlptLevel[] = ["N5", "N4", "N3", "N2", "N1"];
@@ -269,6 +272,23 @@ function simpleViewBody(view: AppView): string {
   return wrap(entry.title.split(" · ")[0], `${paragraph(entry.description)}<p><a href="/">回 Jabiko 首頁</a></p>`);
 }
 
+function legalPageBody(page: LegalPageKind): string {
+  const document = legalDocumentFor("zh-Hant", page);
+  const sections = document.sections
+    .map((section) => {
+      const paragraphs = section.paragraphs?.map(paragraph).join("") ?? "";
+      const items = section.items
+        ? `<ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+        : "";
+      return `<section><h2>${escapeHtml(section.title)}</h2>${paragraphs}${items}</section>`;
+    })
+    .join("");
+  return wrap(
+    document.title,
+    `${paragraph(document.intro)}${paragraph(document.updatedLabel)}${sections}`
+  );
+}
+
 // ---------------------------------------------------------------------------
 
 export function buildStaticPages(): StaticPage[] {
@@ -283,6 +303,9 @@ export function buildStaticPages(): StaticPage[] {
   push("home", "/", homeBody());
   for (const view of ["learn", "rules", "kanji", "challenge", "mock", "about"] as const) {
     push(view, VIEW_SEO[view].path, simpleViewBody(view));
+  }
+  for (const view of ["privacy", "terms"] as const) {
+    push(view, VIEW_SEO[view].path, legalPageBody(view));
   }
   push("kana", "/kana", kanaBody());
   push("grammar", "/grammar", grammarIndexBody());
