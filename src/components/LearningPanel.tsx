@@ -16,6 +16,9 @@ import {
 } from "../domain/learningBlockText";
 import type { SentencePatternId } from "../domain/sentencePatterns";
 import { SproutSpot, TeaCupSpot } from "../illustrations";
+import { LearningFuriganaBoundary } from "./LearningFuriganaBoundary";
+import { LearningRuby } from "./LearningRuby";
+import { LearningRubyText } from "./LearningRubyText";
 
 // Chapter index + active-chapter detail (the "學習" view). Reads learner
 // progress to mark chapter completion and surface a review nudge, but
@@ -257,6 +260,7 @@ export function LearningPanel({
           </button>
         </aside>
 
+        <LearningFuriganaBoundary>
         <section className="chapter-content" aria-labelledby="active-chapter-title">
           <div className="chapter-content-head">
             <p className="eyebrow">{active.kicker ?? active.category}</p>
@@ -264,7 +268,7 @@ export function LearningPanel({
             <p>{active.explanation}</p>
             {active.subtitle ? (
               <div className="focus-formula" aria-label={t.chapterExampleLabel(active.title)}>
-                <span>{active.subtitle}</span>
+                <span><LearningRuby text={active.subtitle} /></span>
               </div>
             ) : null}
           </div>
@@ -273,7 +277,7 @@ export function LearningPanel({
             <div className="pipeline-grid">
               {active.examples.map((example) => (
                 <article className="pipeline-card" key={example.formula}>
-                  <code>{example.formula}</code>
+                  <code><LearningRuby text={example.formula} /></code>
                   {example.note ? <p>{example.note}</p> : null}
                 </article>
               ))}
@@ -284,7 +288,7 @@ export function LearningPanel({
                 <p className="block-pitfalls-title">{t.chapterPitfallsTitle}</p>
                 <ul>
                   {active.pitfalls.map((pitfall) => (
-                    <li key={pitfall}>{pitfall}</li>
+                    <li key={pitfall}><LearningRubyText text={pitfall} language={language} /></li>
                   ))}
                 </ul>
               </div>
@@ -372,6 +376,7 @@ export function LearningPanel({
             ) : null}
           </div>
         </section>
+        </LearningFuriganaBoundary>
       </div>
     </section>
   );

@@ -53,12 +53,10 @@ export default defineConfig({
         // precached via includeAssets above. Keeping them out of
         // globPatterns avoids duplicate precache entries for the same URL.
         globPatterns: ["**/*.{js,css,html,woff2}"],
-        // Exclude the on-demand explanation furigana chunk from initial
-        // precache (#599). This chunk is loaded only after the user submits
-        // an answer with furigana enabled; precaching it would shift the
-        // download cost from the route bundle to the SW install/update step
-        // without improving the critical path.
-        globIgnores: ["**/furiganaExplanationData*"],
+        // Exclude on-demand furigana data from initial precache (#599, #618).
+        // These chunks load only in the matching view with furigana enabled;
+        // precaching them would merely shift their cost to SW installation.
+        globIgnores: ["**/furiganaExplanationData*", "**/furiganaLearningData*"],
         // The lazy examBlocks chunk holds every exam item + its per-locale
         // content overlays (#400), so it grows with each language we translate
         // (~3.6MB at en, heading toward ~6MB once ja lands). Lift the precache
