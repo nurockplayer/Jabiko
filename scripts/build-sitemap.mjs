@@ -1,27 +1,19 @@
-// Generates public/sitemap.xml from the app's routes + every grammar-point page
-// (/grammar/<surface>) in grammarDatabase.ts, so search engines can discover the
-// ~93 long-tail grammar pages (they are NOT reachable from the raw-HTML shell).
-// Re-run when routes or grammar patterns change: `pnpm build:sitemap`.
-// A drift guard (src/domain/sitemap.test.ts) fails if the committed file omits
-// any grammar surface, so this can't silently go stale.
+// Generates public/sitemap.xml from the app's routes, grammar database, and
+// published article metadata. Re-run after route or content changes with
+// `pnpm build:sitemap`; src/domain/sitemap.test.ts guards against drift.
 //
-// Bare regex parse of grammarDatabase.ts and articlesMeta.ts (no bundler needed).
-//
-// lastmod rules (#584-B):
-//  - Blog articles use publishedAt from articlesMeta.ts
-//  - /blog index uses the newest published article's publishedAt
-//  - Static routes without a reliable content date omit <lastmod>
-//  - Grammar level hubs and detail pages omit <lastmod> (no per-page date available)
-import { readFileSync, writeFileSync } from "node:fs";
+// Vite is used only as a TypeScript module loader, matching prerender.mjs. This
+// keeps the sitemap on the same source of truth as the app instead of parsing
+// TypeScript source text with regular expressions.
+import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { splitArrayEntries } from "./parse-article-entries.mjs";
+import { createServer } from "vite";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ORIGIN = "https://jabiko.app";
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-// Static routes (mirrors src/domain/seo.ts view coverage) + the grammar/blog
-// indexes. The five grammar level hubs are listed separately below.
 const ROUTES = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/learn", changefreq: "weekly", priority: "0.8" },
@@ -35,95 +27,90 @@ const ROUTES = [
   { path: "/about", changefreq: "monthly", priority: "0.5" },
 ];
 
-// Grammar level hub pages (present in prerender but missing from sitemap — #584-B).
 const LEVEL_HUBS = ["n5", "n4", "n3", "n2", "n1"].map((level) => ({
   path: `/grammar/${level}`,
   changefreq: "weekly",
   priority: "0.6",
 }));
 
-function grammarSurfaces() {
-  const src = readFileSync(path.join(ROOT, "src/domain/grammarDatabase.ts"), "utf8");
-  const surfaces = new Set();
-  for (const m of src.matchAll(/^ {4}pattern:\s*"((?:[^"\\]|\\.)*)"/gm)) {
-    // Navigable surface = pattern with a leading 〜/～ stripped (matches how the
-    // index links: onOpenPattern(pattern.replace(/^[〜～]/, ""))).
-    surfaces.add(m[1].replace(/^[〜～]/, ""));
-  }
-  return [...surfaces];
+function urlEntry({ path: routePath, changefreq, priority, lastmod }) {
+  const lines = ["  <url>", `    <loc>${ORIGIN}${routePath}</loc>`];
+  if (lastmod) lines.push(`    <lastmod>${lastmod}</lastmod>`);
+  lines.push(
+    `    <changefreq>${changefreq}</changefreq>`,
+    `    <priority>${priority}</priority>`,
+    "  </url>",
+  );
+  return lines.join("\n");
 }
 
-// Published blog-article slugs with publishedAt dates. Uses the
-// quote-aware parser from parse-article-entries.mjs to split the
-// rawArticleMetas array, then extracts slug + publishedAt from each entry
-// via simple regex (strings inside the entry are already correctly
-// delimited by the parser).  Skips entries flagged `draft: true`.
-function blogArticles() {
-  const src = readFileSync(path.join(ROOT, "src/domain/articlesMeta.ts"), "utf8");
-  const arr = src.match(/rawArticleMetas[^=]*=\s*\[([\s\S]*?)\];/);
-  if (!arr) return [];
-  const body = arr[1];
-  let entries;
-  try {
-    entries = splitArrayEntries(body);
-  } catch (e) {
-    throw new Error(
-      `Failed to parse rawArticleMetas array: ${e.message}`
-    );
-  }
-  const articles = [];
-  for (const entry of entries) {
-    const slug = entry.match(/slug:\s*"([^"]+)"/);
-    const publishedAt = entry.match(/publishedAt:\s*"([^"]+)"/);
-    if (!slug) continue; // not an article entry (e.g. a non-object)
-    if (!publishedAt) {
-      throw new Error(
-        `rawArticleMetas entry for slug "${slug[1]}" is missing publishedAt`
-      );
-    }
-    if (!/draft:\s*true/.test(entry)) {
-      articles.push({ slug: slug[1], publishedAt: publishedAt[1] });
-    }
-  }
-  return articles;
+const server = await createServer({
+  root: ROOT,
+  configFile: false,
+  logLevel: "error",
+  server: { middlewareMode: true },
+  optimizeDeps: { noDiscovery: true },
+});
+
+let grammarPatterns;
+let publishedArticleMetas;
+try {
+  const [grammarModule, articleModule] = await Promise.all([
+    server.ssrLoadModule("/src/domain/grammarDatabase.ts"),
+    server.ssrLoadModule("/src/domain/articlesMeta.ts"),
+  ]);
+  grammarPatterns = grammarModule.grammarPatterns;
+  publishedArticleMetas = articleModule.publishedArticleMetas;
+} finally {
+  await server.close();
 }
 
-function urlEntry(loc, changefreq, priority, lastmod) {
-  let entry = `  <url>\n    <loc>${loc}</loc>`;
-  if (lastmod) entry += `\n    <lastmod>${lastmod}</lastmod>`;
-  entry += `\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
-  return entry;
-}
-
-const surfaces = grammarSurfaces();
-const blog = blogArticles();
-
-// /blog index gets the latest published article date as lastmod.
-const blogLastmod = blog.reduce((max, a) => (a.publishedAt > max ? a.publishedAt : max), "");
-
-const entries = [
-  // Static routes — no lastmod (no reliable content modification date).
-  ...ROUTES.filter((r) => r.path !== "/blog").map((r) =>
-    urlEntry(ORIGIN + r.path, r.changefreq, r.priority),
-  ),
-  // /blog index with latest publishedAt as lastmod.
-  urlEntry(ORIGIN + "/blog", "weekly", "0.7", blogLastmod),
-  // Grammar level hubs — no lastmod.
-  ...LEVEL_HUBS.map((h) => urlEntry(ORIGIN + h.path, h.changefreq, h.priority)),
-  // Grammar detail pages — no lastmod (no per-page date available).
-  ...surfaces.map((s) =>
-    urlEntry(`${ORIGIN}/grammar/${encodeURIComponent(s)}`, "monthly", "0.6"),
-  ),
-  // Blog articles with publishedAt as lastmod.
-  ...blog.map((a) =>
-    urlEntry(`${ORIGIN}/blog/${encodeURIComponent(a.slug)}`, "monthly", "0.6", a.publishedAt),
+const grammarPaths = [
+  ...new Set(
+    grammarPatterns.map(
+      ({ pattern }) => `/grammar/${encodeURIComponent(pattern.replace(/^[〜～]/, ""))}`,
+    ),
   ),
 ];
 
-const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`;
+for (const { slug, publishedAt } of publishedArticleMetas) {
+  if (!ISO_DATE.test(publishedAt)) {
+    throw new Error(`Invalid publishedAt for article "${slug}": ${publishedAt}`);
+  }
+}
+
+const newestArticleDate = publishedArticleMetas.reduce(
+  (latest, article) => (article.publishedAt > latest ? article.publishedAt : latest),
+  "",
+);
+
+const entries = [
+  ...ROUTES.map((route) =>
+    route.path === "/blog" ? { ...route, lastmod: newestArticleDate } : route,
+  ),
+  ...LEVEL_HUBS,
+  ...grammarPaths.map((routePath) => ({
+    path: routePath,
+    changefreq: "monthly",
+    priority: "0.6",
+  })),
+  ...publishedArticleMetas.map(({ slug, publishedAt }) => ({
+    path: `/blog/${encodeURIComponent(slug)}`,
+    changefreq: "monthly",
+    priority: "0.6",
+    lastmod: publishedAt,
+  })),
+];
+
+const xml = [
+  '<?xml version="1.0" encoding="UTF-8"?>',
+  '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+  ...entries.map(urlEntry),
+  "</urlset>",
+  "",
+].join("\n");
 
 writeFileSync(path.join(ROOT, "public/sitemap.xml"), xml);
-const routeCount = ROUTES.length + LEVEL_HUBS.length;
 console.log(
-  `wrote public/sitemap.xml — ${routeCount} routes + ${surfaces.length} grammar pages + ${blog.length} blog articles = ${entries.length} URLs`,
+  `wrote public/sitemap.xml — ${ROUTES.length + LEVEL_HUBS.length} routes + ${grammarPaths.length} grammar pages + ${publishedArticleMetas.length} blog articles = ${entries.length} URLs`,
 );
