@@ -281,6 +281,8 @@ export type Copy = {
     subtitle: string;
     beginner: string;
     beginnerHint: string;
+    lowerIntermediate: string;
+    lowerIntermediateHint: string;
     intermediate: string;
     intermediateHint: string;
     advanced: string;

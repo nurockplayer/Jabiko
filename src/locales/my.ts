@@ -287,6 +287,8 @@ export const my: Copy = {
     subtitle: "ဒီနေ့ လေ့ကျင့်ခန်းနှင့် မေးခွန်းအစုအဝေးတစ်ခုစီ၏ မူရင်းအခက်အခဲကို သတ်မှတ်သည် — အချိန်မရွေး ပြောင်းနိုင်သည်။",
     beginner: "အစပြုသူ",
     beginnerHint: "N4・N5",
+    lowerIntermediate: "အလယ်အလတ် အစပိုင်း",
+    lowerIntermediateHint: "N3・N4",
     intermediate: "အလယ်အလတ်",
     intermediateHint: "N2・N3",
     advanced: "အဆင့်မြင့်",

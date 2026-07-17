@@ -287,6 +287,8 @@ export const vi: Copy = {
     subtitle: "Đặt độ khó mặc định cho luyện tập hôm nay và từng kho đề — có thể đổi bất cứ lúc nào.",
     beginner: "Sơ cấp",
     beginnerHint: "N4・N5",
+    lowerIntermediate: "Sơ trung cấp",
+    lowerIntermediateHint: "N3・N4",
     intermediate: "Trung cấp",
     intermediateHint: "N2・N3",
     advanced: "Cao cấp",

@@ -287,6 +287,8 @@ export const zhHant: Copy = {
     subtitle: "設定今日練習與各題庫的預設難度，之後隨時可改。",
     beginner: "初級",
     beginnerHint: "N4・N5",
+    lowerIntermediate: "中初級",
+    lowerIntermediateHint: "N3・N4",
     intermediate: "中級",
     intermediateHint: "N2・N3",
     advanced: "高級",

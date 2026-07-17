@@ -287,6 +287,8 @@ export const id: Copy = {
     subtitle: "Atur tingkat kesulitan default untuk latihan hari ini dan tiap bank soal; bisa diubah kapan saja nanti.",
     beginner: "Pemula",
     beginnerHint: "N4・N5",
+    lowerIntermediate: "Pra-menengah",
+    lowerIntermediateHint: "N3・N4",
     intermediate: "Menengah",
     intermediateHint: "N2・N3",
     advanced: "Mahir",

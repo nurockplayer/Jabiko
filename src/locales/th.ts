@@ -288,6 +288,8 @@ export const th: Copy = {
     subtitle: "ตั้งค่าความยากเริ่มต้นของการฝึกประจำวันและคลังข้อสอบแต่ละชุด เปลี่ยนทีหลังได้ตลอด",
     beginner: "ระดับต้น",
     beginnerHint: "N4・N5",
+    lowerIntermediate: "ระดับกลางตอนต้น",
+    lowerIntermediateHint: "N3・N4",
     intermediate: "ระดับกลาง",
     intermediateHint: "N2・N3",
     advanced: "ระดับสูง",

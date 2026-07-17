@@ -547,7 +547,7 @@ describe("App", () => {
     expect(screen.getByText(/先選擇你的程度/)).toBeInTheDocument();
 
     // ...and answering it continues straight into the daily session.
-    await user.click(screen.getByRole("button", { name: /初級/ }));
+    await user.click(screen.getByRole("button", { name: /^初級N4・N5$/ }));
     await screen.findByRole("region", { name: "目前題目" });
     expect(screen.getByRole("button", { name: /今日練習/ })).toHaveClass("selected");
   });
