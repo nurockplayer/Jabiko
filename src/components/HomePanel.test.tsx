@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { HomePanel } from "./HomePanel";
 import type { Attempt } from "../domain/types";
@@ -29,6 +29,7 @@ function renderHome(overrides: Partial<Parameters<typeof HomePanel>[0]> = {}) {
     onNavigate: vi.fn(),
     onStartReview: noop,
     onStartVocab: noop,
+    onStartBookmarks: vi.fn(),
     onStartDaily: vi.fn(),
     onStartExamPreset: vi.fn(),
     targetLevel: null,
@@ -119,7 +120,10 @@ describe("HomePanel 你的下一步 banner (funnel design)", () => {
 
   it("no next-step banner without a chosen level (the onboarding card owns that state)", () => {
     renderHome({ targetLevel: null, progressAttempts: [] });
-    expect(screen.queryByRole("button", { name: /備考|開始入門課程/ })).not.toBeInTheDocument();
+    // Target the banner element, not a text regex -- the 挑戰 card's copy
+    // legitimately mentions 備考 since the 2026-07 grid refresh.
+    expect(document.querySelector(".home-banner-continue")).toBeNull();
+    expect(screen.queryByRole("button", { name: /開始入門課程/ })).not.toBeInTheDocument();
   });
 });
 
@@ -251,6 +255,53 @@ describe("HomePanel feedback entry", () => {
     expect(screen.queryByText("意見回饋")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /許願功能/ }));
     expect(screen.getByText("意見回饋")).toBeInTheDocument();
+  });
+});
+
+// 2026-07 home-grid refresh: the picker block grew a 收藏 card (6th) and a
+// lightweight reference quick-links row, and the 挑戰 card copy now matches
+// the three-group mode picker instead of the retired "四種模式" list.
+describe("HomePanel section grid refresh", () => {
+  it("offers a bookmarks card that starts the starred-questions pass", () => {
+    localStorage.setItem("jabiko:bookmarks", JSON.stringify(["q-1", "q-2"]));
+    const props = renderHome();
+
+    const card = screen.getByRole("button", { name: /我的收藏/ });
+    expect(card.textContent).toContain("2");
+    fireEvent.click(card);
+    expect(props.onStartBookmarks).toHaveBeenCalledTimes(1);
+
+    localStorage.removeItem("jabiko:bookmarks");
+  });
+
+  it("shows the empty-state hint on the bookmarks card when nothing is starred", () => {
+    localStorage.removeItem("jabiko:bookmarks");
+    renderHome();
+    const card = screen.getByRole("button", { name: /我的收藏/ });
+    expect(card.textContent).toContain("收藏");
+  });
+
+  it("describes the challenge card with the current three mode groups", () => {
+    renderHome();
+    const card = screen.getByRole("button", { name: /挑戰/ });
+    expect(card.textContent).not.toContain("四種模式");
+    expect(card.textContent).toContain("備考");
+  });
+
+  it("renders the reference quick links and navigates to each view", () => {
+    const props = renderHome();
+    const nav = screen.getByRole("navigation", { name: "查資料" });
+
+    const targets: Array<[string, string]> = [
+      ["文型資料庫", "grammar"],
+      ["漢字音讀", "kanji"],
+      ["規則速查表", "rules"],
+      ["五十音表", "kana"]
+    ];
+    for (const [label, view] of targets) {
+      fireEvent.click(within(nav).getByRole("button", { name: label }));
+      expect(props.onNavigate).toHaveBeenCalledWith(view);
+    }
   });
 });
 
