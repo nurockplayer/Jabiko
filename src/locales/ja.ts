@@ -287,6 +287,8 @@ export const ja: Copy = {
     subtitle: "今日の練習と各問題集の初期難易度を設定します。あとからいつでも変更できます。",
     beginner: "初級",
     beginnerHint: "N4・N5",
+    lowerIntermediate: "初中級",
+    lowerIntermediateHint: "N3・N4",
     intermediate: "中級",
     intermediateHint: "N2・N3",
     advanced: "上級",

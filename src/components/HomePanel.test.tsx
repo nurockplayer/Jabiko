@@ -47,16 +47,18 @@ describe("HomePanel level onboarding (#199)", () => {
 
   it("choosing 初級 calls onChooseLevel with the n4n5 band", () => {
     const props = renderHome();
-    fireEvent.click(screen.getByRole("button", { name: /初級/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^初級N4・N5$/ }));
     expect(props.onChooseLevel).toHaveBeenCalledWith("n4n5");
   });
 
-  it("maps 中級 -> n2n3 and 高級 -> n1n2", () => {
+  it("maps 中初級 -> n3n4, 中級 -> n2n3, and 高級 -> n1n2", () => {
     const props = renderHome();
+    fireEvent.click(screen.getByRole("button", { name: /中初級/ }));
     fireEvent.click(screen.getByRole("button", { name: /中級/ }));
     fireEvent.click(screen.getByRole("button", { name: /高級/ }));
-    expect(props.onChooseLevel).toHaveBeenNthCalledWith(1, "n2n3");
-    expect(props.onChooseLevel).toHaveBeenNthCalledWith(2, "n1n2");
+    expect(props.onChooseLevel).toHaveBeenNthCalledWith(1, "n3n4");
+    expect(props.onChooseLevel).toHaveBeenNthCalledWith(2, "n2n3");
+    expect(props.onChooseLevel).toHaveBeenNthCalledWith(3, "n1n2");
   });
 
   it("hides the card once a preference exists", () => {
@@ -124,8 +126,15 @@ describe("HomePanel 你的下一步 banner (funnel design)", () => {
 describe("HomePanel 完全新手 band (#532)", () => {
   it("the onboarding card offers 完全新手 first, mapping to the starter range", () => {
     const props = renderHome();
-    const options = screen.getAllByRole("button", { name: /完全新手|初級|中級|高級/ });
+    const options = screen.getAllByRole("button", { name: /完全新手|初級|中初級|中級|高級/ });
     expect(options[0]).toHaveTextContent("完全新手");
+    expect(options.map((option) => option.textContent)).toEqual([
+      expect.stringContaining("完全新手"),
+      expect.stringContaining("初級"),
+      expect.stringContaining("中初級"),
+      expect.stringContaining("中級"),
+      expect.stringContaining("高級")
+    ]);
     fireEvent.click(screen.getByRole("button", { name: /完全新手/ }));
     expect(props.onChooseLevel).toHaveBeenCalledWith("starter");
   });
@@ -154,7 +163,7 @@ describe("HomePanel daily CTA level gate (#532)", () => {
   it("after the gated ask, choosing a band from the onboarding card auto-continues into daily", () => {
     const props = renderHome({ targetLevel: null });
     fireEvent.click(screen.getByRole("button", { name: /開始今日練習/ }));
-    fireEvent.click(screen.getByRole("button", { name: /初級/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^初級N4・N5$/ }));
     expect(props.onChooseLevel).toHaveBeenCalledWith("n4n5");
     expect(props.onStartDaily).toHaveBeenCalledTimes(1);
   });
@@ -184,6 +193,13 @@ describe("HomePanel persistent level control (#526 change level anytime)", () =>
     // reflects the chosen band (中級 = n2n3) and offers a change action
     const chip = screen.getByRole("button", { name: /變更/ });
     expect(chip).toHaveTextContent("中級");
+  });
+
+  it("shows N4–N3 as the current target after it is saved", () => {
+    renderHome({ targetLevel: "n3n4", progressAttempts: [sampleAttempt] });
+    const chip = screen.getByRole("button", { name: /變更/ });
+    expect(chip).toHaveTextContent("中初級");
+    expect(chip).toHaveTextContent("N3・N4");
   });
 
   it("is collapsed by default -- the band picker is not shown until 變更 is clicked", () => {

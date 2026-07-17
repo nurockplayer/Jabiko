@@ -1032,8 +1032,8 @@
 
 .home-level-card-options {
   display: grid;
-  /* 4 bands since #532 (完全新手 leads) -- 2x2 reads better than a squeezed
-     single row. */
+  /* Keep level bands in two columns; a single row becomes cramped as the
+     available ranges grow. */
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.6rem;
 }
@@ -1064,8 +1064,8 @@
 }
 
 @media (max-width: 560px) {
-  .home-level-card-options {
-    grid-template-columns: 1fr;
+  .home-level-card-options .home-level-option:first-child {
+    grid-column: 1 / -1;
   }
 }
 

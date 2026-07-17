@@ -135,14 +135,19 @@ export function HomePanel({
   // First-run "choose your level" card: only for a brand-new learner -- no
   // saved preference AND no answer history -- so it's a one-time nudge, never
   // shown to returning learners. Selecting a band stores it and the card
-  // disappears (targetLevel becomes non-null). 初級/中級/高級 map to the
-  // existing LevelRange bands (n4n5 / n2n3 / n1n2); easy → hard order.
+  // disappears (targetLevel becomes non-null). Each label maps to an existing
+  // LevelRange band; options stay in easy → hard order.
   const showLevelOnboarding = targetLevel === null && progressAttempts.length === 0;
   const onboardingOptions: { range: LevelRange; label: string; hint: string }[] = [
     // 完全新手 first (#532): easy -> hard reading order, and the zero-base
     // learner is exactly who must not mis-classify themselves.
     { range: "starter", label: t.levelOnboarding.starter, hint: t.levelOnboarding.starterHint },
     { range: "n4n5", label: t.levelOnboarding.beginner, hint: t.levelOnboarding.beginnerHint },
+    {
+      range: "n3n4",
+      label: t.levelOnboarding.lowerIntermediate,
+      hint: t.levelOnboarding.lowerIntermediateHint
+    },
     { range: "n2n3", label: t.levelOnboarding.intermediate, hint: t.levelOnboarding.intermediateHint },
     { range: "n1n2", label: t.levelOnboarding.advanced, hint: t.levelOnboarding.advancedHint }
   ];
@@ -300,7 +305,7 @@ export function HomePanel({
       </button>
 
       {/* Persistent target-level control (#526): reflects the current band and,
-          when expanded, re-uses the same three-band picker as the first-run
+          when expanded, re-uses the same level picker as the first-run
           card so the level can be changed at any time. Not rendered for a
           brand-new visitor -- they get the big onboarding card above instead. */}
       {!showLevelOnboarding ? (

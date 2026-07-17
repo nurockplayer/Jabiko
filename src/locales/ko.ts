@@ -279,6 +279,8 @@ export const ko: Copy = {
     subtitle: "오늘의 연습과 각 문제 풀의 기본 난이도를 정합니다 — 언제든 바꿀 수 있어요.",
     beginner: "초급",
     beginnerHint: "N4・N5",
+    lowerIntermediate: "초중급",
+    lowerIntermediateHint: "N3・N4",
     intermediate: "중급",
     intermediateHint: "N2・N3",
     advanced: "고급",

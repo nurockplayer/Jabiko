@@ -279,6 +279,8 @@ export const en: Copy = {
     subtitle: "Sets the default difficulty for today's practice and each question pool — change it anytime.",
     beginner: "Beginner",
     beginnerHint: "N4・N5",
+    lowerIntermediate: "Pre-intermediate",
+    lowerIntermediateHint: "N3・N4",
     intermediate: "Intermediate",
     intermediateHint: "N2・N3",
     advanced: "Advanced",
