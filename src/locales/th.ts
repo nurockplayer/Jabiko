@@ -11,6 +11,8 @@ export const th: Copy = {
   furiganaShow: "แสดงคำอ่าน",
   furiganaHide: "ซ่อนคำอ่าน",
   flowLabel: "ขั้นตอนการเรียน",
+  navMore: "เพิ่มเติม",
+  navMoreTools: "การตั้งค่าและเครื่องมือ",
   loading: "กำลังโหลด…",
   updateAvailable: "มีเวอร์ชันใหม่ — แตะเพื่ออัปเดต",
   routeErrorTitle: "โหลดหน้าไม่สำเร็จ",

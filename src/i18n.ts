@@ -27,6 +27,8 @@ export type Copy = {
   furiganaShow: string;
   furiganaHide: string;
   flowLabel: string;
+  navMore: string;
+  navMoreTools: string;
   loading: string;
   updateAvailable: string;
   routeErrorTitle: string;

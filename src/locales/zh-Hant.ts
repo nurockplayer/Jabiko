@@ -11,6 +11,8 @@ export const zhHant: Copy = {
   furiganaShow: "顯示註音",
   furiganaHide: "隱藏註音",
   flowLabel: "學習流程",
+  navMore: "更多",
+  navMoreTools: "設定與工具",
   loading: "載入中…",
   updateAvailable: "有新版本，點此更新",
   routeErrorTitle: "頁面載入失敗",

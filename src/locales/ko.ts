@@ -11,6 +11,8 @@ export const ko: Copy = {
   furiganaShow: "후리가나 표시",
   furiganaHide: "후리가나 숨김",
   flowLabel: "학습 흐름",
+  navMore: "더보기",
+  navMoreTools: "설정 및 도구",
   loading: "불러오는 중…",
   updateAvailable: "새 버전이 있습니다 — 탭하여 업데이트",
   routeErrorTitle: "페이지를 불러오지 못했습니다",

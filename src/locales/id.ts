@@ -11,6 +11,8 @@ export const id: Copy = {
   furiganaShow: "Tampilkan furigana",
   furiganaHide: "Sembunyikan furigana",
   flowLabel: "Alur belajar",
+  navMore: "Lainnya",
+  navMoreTools: "Pengaturan & alat",
   loading: "Memuat…",
   updateAvailable: "Versi baru tersedia — ketuk untuk memperbarui",
   routeErrorTitle: "Halaman gagal dimuat",

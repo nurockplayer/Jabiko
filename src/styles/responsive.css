@@ -266,6 +266,81 @@
     display: inline-flex;
   }
 
+  /* ---- #608: compact mobile header + 5-entry nav ----------------------- */
+
+  /* The header tool row and auth block move into the nav's 更多 menu on
+     phones -- hidden here (not removed) so desktop keeps them inline. */
+  .utility-actions,
+  .heading-auth {
+    display: none;
+  }
+
+  /* Non-home views: one-line brand bar. The home view keeps the eyebrow +
+     tagline intro (the class is absent there). */
+  .app-heading-compact {
+    align-items: center;
+    margin-bottom: 0.6rem;
+  }
+
+  .app-heading-compact .eyebrow,
+  .app-heading-compact .heading-actions p {
+    display: none;
+  }
+
+  .app-heading-compact .app-brand-mark {
+    height: 2.1rem;
+    width: 2.1rem;
+  }
+
+  .app-heading-compact .app-title {
+    font-size: 1.3rem;
+  }
+
+  /* Five primary entries + 更多; the secondary views fold into the menu.
+     `order` re-ranks the surviving buttons by importance without touching
+     the desktop DOM order. */
+  .view-switch .nav-secondary {
+    display: none;
+  }
+
+  .view-switch .nav-more {
+    display: block;
+    order: 6;
+    /* Anchor the panel to the whole nav (below) instead of the trigger --
+       a trigger-anchored 13.5rem panel pokes past the viewport at 320px. */
+    position: static;
+  }
+
+  .view-switch.segmented {
+    position: relative;
+  }
+
+  .nav-more-panel {
+    left: 0;
+    min-width: 0;
+    right: 0;
+  }
+
+  .view-switch [data-nav="home"] {
+    order: 1;
+  }
+
+  .view-switch [data-nav="learn"] {
+    order: 2;
+  }
+
+  .view-switch [data-nav="challenge"] {
+    order: 3;
+  }
+
+  .view-switch [data-nav="mock"] {
+    order: 4;
+  }
+
+  .view-switch [data-nav="grammar"] {
+    order: 5;
+  }
+
   .controls-panel,
   .drill-panel,
   .learning-panel,

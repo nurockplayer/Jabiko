@@ -11,6 +11,8 @@ export const ja: Copy = {
   furiganaShow: "ふりがなを表示",
   furiganaHide: "ふりがなを隠す",
   flowLabel: "学習の流れ",
+  navMore: "その他",
+  navMoreTools: "設定・ツール",
   loading: "読み込み中…",
   updateAvailable: "新しいバージョンがあります。タップして更新",
   routeErrorTitle: "ページの読み込みに失敗しました",

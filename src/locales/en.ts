@@ -11,6 +11,8 @@ export const en: Copy = {
   furiganaShow: "Show furigana",
   furiganaHide: "Hide furigana",
   flowLabel: "Study flow",
+  navMore: "More",
+  navMoreTools: "Settings & tools",
   loading: "Loading…",
   updateAvailable: "A new version is available — tap to update",
   routeErrorTitle: "Page failed to load",
