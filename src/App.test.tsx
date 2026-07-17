@@ -1191,6 +1191,56 @@ describe("App", () => {
     window.history.replaceState({}, "", "/");
   });
 
+  it("navigates to secondary views through the nav's 更多 menu (#608)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const nav = screen.getByRole("navigation", { name: "學習流程" });
+    const trigger = within(nav).getByRole("button", { name: "更多" });
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+
+    await user.click(trigger);
+    const menu = screen.getByRole("menu", { name: "更多" });
+    // Secondary views first, then the header tools below the divider.
+    for (const label of ["規則表", "漢字", "文章", "關於"]) {
+      expect(within(menu).getByRole("menuitem", { name: label })).toBeInTheDocument();
+    }
+    expect(within(menu).getByRole("menuitemcheckbox", { name: /註音/ })).toBeInTheDocument();
+    expect(within(menu).getByRole("menuitem", { name: /色模式/ })).toBeInTheDocument();
+    expect(within(menu).getByRole("menuitem", { name: "意見回饋" })).toBeInTheDocument();
+
+    await user.click(within(menu).getByRole("menuitem", { name: "關於" }));
+    expect(screen.queryByRole("menu", { name: "更多" })).not.toBeInTheDocument();
+    // Same navigation contract as the plain nav button: URL + aria-current.
+    expect(window.location.pathname).toBe("/about");
+    expect(within(nav).getByRole("button", { name: "關於" })).toHaveAttribute(
+      "aria-current",
+      "page"
+    );
+    // The collapsed trigger carries the current location while a folded view
+    // is active (PR #628 review).
+    const selectedTrigger = within(nav).getByRole("button", { name: "更多（目前：關於）" });
+    expect(selectedTrigger.className).toContain("selected");
+
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("keeps the 文章 entry out of the 更多 menu for non-zh languages (#608/#483)", async () => {
+    localStorage.setItem("jabiko.lang", "en");
+    const user = userEvent.setup();
+    render(<App />);
+
+    const { copy } = await import("./i18n");
+    await user.click(screen.getByRole("button", { name: copy.en.navMore }));
+    const menu = screen.getByRole("menu", { name: copy.en.navMore });
+    expect(
+      within(menu).queryByRole("menuitem", { name: copy.en.blog })
+    ).not.toBeInTheDocument();
+    expect(within(menu).getByRole("menuitem", { name: copy.en.about })).toBeInTheDocument();
+
+    localStorage.setItem("jabiko.lang", "zh-Hant");
+  });
+
   it("opens the feedback form from a persistent header button (any view, #456)", async () => {
     const user = userEvent.setup();
     render(<App />);

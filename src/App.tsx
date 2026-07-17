@@ -30,6 +30,7 @@ import { UpdateToast } from "./components/UpdateToast";
 import { RouteErrorBoundary } from "./components/RouteErrorBoundary";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { JabikoMark } from "./components/JabikoMark";
+import { MoreMenu, type MoreMenuNavItem } from "./components/MoreMenu";
 import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
 import { useFurigana } from "./hooks/useFurigana";
@@ -295,6 +296,58 @@ export default function App() {
   const ThemeIcon = theme === "dark" ? Sun : Moon;
   const furiganaToggleLabel = furiganaEnabled ? t.furiganaHide : t.furiganaShow;
 
+  // One source for the sync-status line so the header auth block and the
+  // mobile 更多 menu can't drift apart (#608).
+  const authSyncHint = !user
+    ? t.authSignInHint
+    : syncStatus === "error"
+      ? t.authSyncErrorHint
+      : syncStatus === "synced"
+        ? t.authSyncedHint
+        : t.authSyncingHint;
+
+  // #608: on phones the nav keeps five primary entries (home / learn /
+  // challenge / mock / grammar); these four secondary views collapse into the
+  // 更多 menu. Same handlers as the full nav buttons, so navigation contract
+  // (URL sync, aria-current) is identical whichever entry point is used.
+  const moreMenuItems: MoreMenuNavItem[] = [
+    {
+      key: "rules",
+      label: t.rules,
+      icon: <Table aria-hidden="true" size={16} style={navIconStyle} />,
+      selected: appView === "rules",
+      onSelect: () => setAppView("rules")
+    },
+    {
+      key: "kanji",
+      label: t.kanji,
+      icon: <BookA aria-hidden="true" size={16} style={navIconStyle} />,
+      selected: appView === "kanji",
+      onSelect: () => setAppView("kanji")
+    },
+    ...(blogAvailable
+      ? [
+          {
+            key: "blog",
+            label: t.blog,
+            icon: <Newspaper aria-hidden="true" size={16} style={navIconStyle} />,
+            selected: appView === "blog",
+            onSelect: () => {
+              setBlogSlug(null);
+              setAppView("blog");
+            }
+          }
+        ]
+      : []),
+    {
+      key: "about",
+      label: t.about,
+      icon: <Info aria-hidden="true" size={16} style={navIconStyle} />,
+      selected: appView === "about",
+      onSelect: () => setAppView("about")
+    }
+  ];
+
   const openChallenge = (request?: SessionInit) => {
     // `request` seeds the session when ChallengePanel MOUNTS (its
     // usePracticeSession reads init via useState initializers). Every
@@ -386,7 +439,12 @@ export default function App() {
           onClose={() => setFeedbackKind(null)}
         />
       ) : null}
-      <div className="app-heading" aria-label={t.appIntroLabel}>
+      {/* #608: non-home views compress the heading to a one-line brand bar on
+          phones (CSS-only; desktop and the home hero keep the full intro). */}
+      <div
+        className={`app-heading${appView === "home" ? "" : " app-heading-compact"}`}
+        aria-label={t.appIntroLabel}
+      >
         <div className="app-brand">
           <JabikoMark className="app-brand-mark" />
           <div>
@@ -424,15 +482,7 @@ export default function App() {
                   {t.authErrors[authError]}
                 </span>
               ) : (
-                <span className="auth-hint">
-                  {!user
-                    ? t.authSignInHint
-                    : syncStatus === "error"
-                      ? t.authSyncErrorHint
-                      : syncStatus === "synced"
-                        ? t.authSyncedHint
-                        : t.authSyncingHint}
-                </span>
+                <span className="auth-hint">{authSyncHint}</span>
               )}
             </div>
           )}
@@ -482,6 +532,7 @@ export default function App() {
       <nav className="view-switch segmented" aria-label={t.flowLabel}>
         <button
           type="button"
+          data-nav="home"
           className={appView === "home" ? "selected" : ""}
           aria-current={appView === "home" ? "page" : undefined}
           onClick={() => setAppView("home")}
@@ -491,6 +542,7 @@ export default function App() {
         </button>
         <button
           type="button"
+          data-nav="learn"
           className={appView === "learn" ? "selected" : ""}
           aria-current={appView === "learn" ? "page" : undefined}
           onClick={() => setAppView("learn")}
@@ -500,7 +552,8 @@ export default function App() {
         </button>
         <button
           type="button"
-          className={appView === "rules" ? "selected" : ""}
+          data-nav="rules"
+          className={`nav-secondary${appView === "rules" ? " selected" : ""}`}
           aria-current={appView === "rules" ? "page" : undefined}
           onClick={() => setAppView("rules")}
         >
@@ -509,7 +562,8 @@ export default function App() {
         </button>
         <button
           type="button"
-          className={appView === "kanji" ? "selected" : ""}
+          data-nav="kanji"
+          className={`nav-secondary${appView === "kanji" ? " selected" : ""}`}
           aria-current={appView === "kanji" ? "page" : undefined}
           onClick={() => setAppView("kanji")}
         >
@@ -518,6 +572,7 @@ export default function App() {
         </button>
         <button
           type="button"
+          data-nav="grammar"
           className={appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute) ? "selected" : ""}
           aria-current={appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute) ? "page" : undefined}
           onClick={() => { setGrammarSurface(null); setAppView("grammar"); }}
@@ -528,7 +583,8 @@ export default function App() {
         {blogAvailable ? (
           <button
             type="button"
-            className={appView === "blog" ? "selected" : ""}
+            data-nav="blog"
+            className={`nav-secondary${appView === "blog" ? " selected" : ""}`}
             aria-current={appView === "blog" ? "page" : undefined}
             onClick={() => { setBlogSlug(null); setAppView("blog"); }}
           >
@@ -538,6 +594,7 @@ export default function App() {
         ) : null}
         <button
           type="button"
+          data-nav="challenge"
           className={appView === "challenge" ? "selected" : ""}
           aria-current={appView === "challenge" ? "page" : undefined}
           onClick={() => openChallenge({ mode: "daily" })}
@@ -547,6 +604,7 @@ export default function App() {
         </button>
         <button
           type="button"
+          data-nav="mock"
           className={appView === "mock" ? "selected" : ""}
           aria-current={appView === "mock" ? "page" : undefined}
           onClick={() => setAppView("mock")}
@@ -556,13 +614,43 @@ export default function App() {
         </button>
         <button
           type="button"
-          className={appView === "about" ? "selected" : ""}
+          data-nav="about"
+          className={`nav-secondary${appView === "about" ? " selected" : ""}`}
           aria-current={appView === "about" ? "page" : undefined}
           onClick={() => setAppView("about")}
         >
           <Info aria-hidden="true" size={16} style={navIconStyle} />
           {t.about}
         </button>
+        <MoreMenu
+          triggerLabel={t.navMore}
+          triggerCurrentLabel={t.navMoreWithCurrent}
+          items={moreMenuItems}
+          tools={{
+            heading: t.navMoreTools,
+            language:
+              LANGUAGE_OPTIONS.length > 1
+                ? { label: t.languageSwitchLabel, onOpen: () => setLangPickerOpen(true) }
+                : undefined,
+            furigana: {
+              label: furiganaToggleLabel,
+              pressed: furiganaEnabled,
+              onToggle: toggleFurigana
+            },
+            theme: { label: themeToggleLabel, onToggle: toggleTheme },
+            feedback: { label: t.feedbackTitle, onOpen: () => setFeedbackKind("wish") },
+            auth: isSupabaseConfigured
+              ? {
+                  signedInAs: user ? (user.user_metadata.full_name ?? user.email ?? "") : null,
+                  hint: authError ? t.authErrors[authError] : authSyncHint,
+                  signInLabel: t.authSignIn,
+                  signOutLabel: t.authSignOut,
+                  onSignIn: signInWithGoogle,
+                  onSignOut: signOut
+                }
+              : undefined
+          }}
+        />
       </nav>
 
       <FuriganaContext.Provider value={{ enabled: furiganaEnabled }}>

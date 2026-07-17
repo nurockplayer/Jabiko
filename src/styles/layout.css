@@ -246,6 +246,86 @@
   font-weight: 800;
 }
 
+/* ---- #608: nav 更多 menu (mobile-only trigger) ------------------------- */
+
+/* The menu block lives inside the nav; desktop shows all nine entries, so
+   the whole thing stays display:none until the phone breakpoint in
+   responsive.css flips it on. */
+.nav-more {
+  display: none;
+  position: relative;
+}
+
+.nav-more-trigger {
+  align-items: center;
+  display: inline-flex;
+  font-weight: 800;
+  gap: 0.25rem;
+  padding-inline: 0.9rem;
+}
+
+.nav-more-panel {
+  background: var(--paper);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 0.15rem;
+  min-width: 13.5rem;
+  padding: 0.45rem;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.4rem);
+  z-index: 30;
+}
+
+.nav-more-item {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  min-height: 44px;
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+  width: 100%;
+}
+
+.nav-more-item:hover,
+.nav-more-item:focus-visible {
+  background: var(--field-bg);
+}
+
+.nav-more-item.selected {
+  background: color-mix(in srgb, var(--matcha) 14%, var(--paper));
+}
+
+.nav-more-divider {
+  border-top: 1px solid var(--panel-border);
+  margin: 0.3rem 0.2rem 0.15rem;
+}
+
+.nav-more-heading {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin: 0;
+  padding: 0.1rem 0.65rem;
+}
+
+.nav-more-hint {
+  color: var(--muted);
+  display: grid;
+  font-size: 0.75rem;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0 0.65rem 0.3rem;
+}
+
 .eyebrow {
   color: var(--teal);
   font-size: 0.76rem;
