@@ -123,6 +123,14 @@ export type Copy = {
   homeCardReviewSubActive: (count: number) => string;
   homeCardReviewSubEmpty: string;
   homeCardReviewMeta: string;
+  homeCardBookmarksTitle: string;
+  homeCardBookmarksSubActive: (count: number) => string;
+  homeCardBookmarksSubEmpty: string;
+  homeCardBookmarksMeta: string;
+  homeQuickLinksLabel: string;
+  quickLinkGrammar: string;
+  quickLinkKanji: string;
+  quickLinkRules: string;
   homeGridLabel: string;
   mockExam: string;
   about: string;

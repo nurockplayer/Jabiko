@@ -17,6 +17,7 @@ import { FeedbackForm } from "./FeedbackForm";
 import { ShareButtons } from "./challenge/ShareButtons";
 import { LegalLinks } from "./LegalLinks";
 import type { FeedbackCategory } from "../domain/feedbackRemote";
+import { getBookmarkedIds } from "../domain/bookmarks";
 
 // External walkthrough / 使用說明書: the author's blog post about Jabiko.
 // Surfaced in the hero so first-time visitors can read how to use the app.
@@ -95,6 +96,7 @@ export function HomePanel({
   onNavigate,
   onStartReview,
   onStartVocab,
+  onStartBookmarks,
   onStartDaily,
   onStartExamPreset,
   targetLevel,
@@ -103,9 +105,13 @@ export function HomePanel({
   language: Language;
   progressAttempts: Attempt[];
   reviewCount: number;
-  onNavigate: (target: "learn" | "challenge" | "mock") => void;
+  // 2026-07 grid refresh: the picker block also links the reference views
+  // (grammar / kanji / rules / kana) via the quick-links row below the cards.
+  onNavigate: (target: "learn" | "challenge" | "mock" | "grammar" | "kanji" | "rules" | "kana") => void;
   onStartReview: () => void;
   onStartVocab: () => void;
+  // Starts the starred-questions pass (#470) from the new bookmarks card.
+  onStartBookmarks: () => void;
   onStartDaily: () => void;
   // Launches the 綜合/備考 exam session for a band -- the 下一步 banner's
   // target for non-starter learners (level-aware funnel).
@@ -116,6 +122,9 @@ export function HomePanel({
   onChooseLevel: (range: LevelRange) => void;
 }) {
   const t = copy[language];
+  // Render-time snapshot (same semantics as the review count): the card's
+  // number refreshes when home re-renders, which is enough for an entry card.
+  const bookmarkCount = getBookmarkedIds().length;
 
   // Chapter-title translations live in the heavy learningBlocks.i18n chunk,
   // so it's dynamically imported (same pattern as LearningPanel) to keep the
@@ -499,7 +508,32 @@ export function HomePanel({
           <span className="home-card-meta">{t.homeCardReviewMeta}</span>
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
+        <button type="button" className="home-card" onClick={onStartBookmarks}>
+          <OmamoriSpot className="home-card-spot" />
+          <h2>{t.homeCardBookmarksTitle}</h2>
+          <p>
+            {bookmarkCount > 0
+              ? t.homeCardBookmarksSubActive(bookmarkCount)
+              : t.homeCardBookmarksSubEmpty}
+          </p>
+          <span className="home-card-meta">{t.homeCardBookmarksMeta}</span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
       </div>
+
+      {/* Reference views (no session to start, just look things up). A light
+          pill row instead of more cards, so the grid stays practice-first
+          while the newer lookup surfaces are still one tap from home. */}
+      <nav className="home-quicklinks" aria-label={t.homeQuickLinksLabel}>
+        <span className="home-quicklinks-label">{t.homeQuickLinksLabel}</span>
+        {/* Labels are deliberately DISTINCT from the nav tabs (文型資料庫 vs
+            文型 …) -- two identically-named buttons on one page would be an
+            accessible-name collision. kana reuses its page title (not a tab). */}
+        <button type="button" onClick={() => onNavigate("grammar")}>{t.quickLinkGrammar}</button>
+        <button type="button" onClick={() => onNavigate("kanji")}>{t.quickLinkKanji}</button>
+        <button type="button" onClick={() => onNavigate("rules")}>{t.quickLinkRules}</button>
+        <button type="button" onClick={() => onNavigate("kana")}>{t.kanaPageTitle}</button>
+      </nav>
 
       {/* Stats sit BELOW the entry cards: the actionable cards are the
           headline; the progress dashboard is a glance-down afterthought. */}

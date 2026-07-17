@@ -892,11 +892,46 @@
 }
 
 .home-grid {
-  /* auto-fit so 4 cards stay 2×2 on desktop, 5 cards lay out as 2/2/1
-   * (or 3/2 at wider viewports), and mobile drops to 1 column. */
+  /* auto-fit: 6 cards sit 3×2 at wide viewports, 2×3 mid, 1 column on
+   * phones. */
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 0.85rem;
+}
+
+/* Reference quick links under the practice grid (2026-07 grid refresh):
+   lookup views ride a light pill row instead of full cards, so the grid
+   stays practice-first without hiding the newer reference surfaces. */
+.home-quicklinks {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.home-quicklinks-label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin-right: 0.2rem;
+}
+
+.home-quicklinks button {
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-pill);
+  color: var(--teal-dark);
+  font-size: 0.85rem;
+  font-weight: 700;
+  min-height: 44px;
+  padding: 0.35rem 0.85rem;
+}
+
+.home-quicklinks button:hover {
+  border-color: var(--teal);
+  color: var(--teal);
 }
 
 .home-card {

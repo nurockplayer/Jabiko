@@ -664,10 +664,18 @@ export default function App() {
           language={language}
           progressAttempts={progressAttempts}
           reviewCount={reviewCount}
-          onNavigate={(target) =>
-            target === "challenge" ? openChallenge({ mode: "daily" }) : setAppView(target)
-          }
+          onNavigate={(target) => {
+            if (target === "challenge") {
+              openChallenge({ mode: "daily" });
+              return;
+            }
+            // Mirror the nav button: a stale grammar-point surface would
+            // otherwise reopen the last-viewed point instead of the index.
+            if (target === "grammar") setGrammarSurface(null);
+            setAppView(target);
+          }}
           onStartReview={() => openChallenge({ mode: "review" })}
+          onStartBookmarks={() => openChallenge({ mode: "bookmarks" })}
           onStartVocab={() =>
             // Level-aware funnel: jlptVocabulary has no N4/N5, so the 背 card
             // serves the 基礎詞彙 deck to the starter/n4n5 bands instead of
