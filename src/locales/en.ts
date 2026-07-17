@@ -41,7 +41,7 @@ export const en: Copy = {
   aboutAuthorTitle: "Author",
   aboutAuthorName: "花雪 (HanaYukii)",
   aboutAuthorBody:
-    "A competitive-programming background and three years as an engineer at Google; after leaving in 2025, now a Tech Lead at an AI startup. Japanese was an old asset — N2 passed ten years ago and then shelved — until getting back into Japanese idols in 2024 brought it back. With a bit more time after that, the serious practice began — and that's when Jabiko was built: first for personal use, now open to other learners too, with more to come whenever there's a chance.",
+    "A competitive-programming background and three years as an engineer at Google; after leaving in 2025, now a Tech Lead at an AI startup. Japanese was an old asset — N2 passed ten years ago and then shelved — until getting back into Japanese idols in 2024 brought it back. With a bit more time after that, the serious practice began — and that's when Jabiko was built. It started as a purely personal tool, then unexpectedly picked up quite a few users; since people are actually using it, the plan now is to keep polishing it into a work to be genuinely proud of, share it with more people who are passionate about Japanese, and take the chance to connect with fellow fans and learners. Building the site and studying with it go hand in hand — the goal isn't just passing the JLPT, but a real, across-the-board jump in Japanese.",
   aboutAuthorLink: "More about the author →",
   aboutAuthor2Title: "Author",
   aboutAuthor2Name: "塔奇巧克力 (TachikoChoko)",

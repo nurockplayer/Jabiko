@@ -41,7 +41,7 @@ export const id: Copy = {
   aboutAuthorTitle: "Penulis",
   aboutAuthorName: "花雪（HanaYukii）",
   aboutAuthorBody:
-    "Berlatar belakang kompetisi pemrograman, sempat tiga tahun jadi insinyur di Google, dan setelah keluar pada 2025 kini menjadi Tech Lead di sebuah startup AI. Bahasa Jepang adalah modal lama yang ditinggalkan setelah lulus N2 sepuluh tahun lalu, sampai mulai mengejar idol Jepang lagi pada 2024 dan kembali menekuninya. Setelah itu ada sedikit waktu luang, lalu mulai serius melatihnya — dan dari sinilah Jabiko lahir: awalnya untuk dipakai sendiri, sekarang juga dibuka untuk orang lain yang sedang belajar, dan akan terus dikembangkan perlahan kalau ada kesempatan.",
+    "Berlatar belakang kompetisi pemrograman, sempat tiga tahun jadi insinyur di Google, dan setelah keluar pada 2025 kini menjadi Tech Lead di sebuah startup AI. Bahasa Jepang adalah modal lama yang ditinggalkan setelah lulus N2 sepuluh tahun lalu, sampai mulai mengejar idol Jepang lagi pada 2024 dan kembali menekuninya. Setelah itu ada sedikit waktu luang, lalu mulai serius melatihnya — dan dari sinilah Jabiko lahir. Awalnya murni untuk dipakai sendiri, tetapi tanpa disangka penggunanya perlahan bertambah; karena sudah dipakai orang, kini tujuannya adalah memolesnya menjadi karya yang benar-benar memuaskan, merekomendasikannya kepada lebih banyak orang yang antusias pada bahasa Jepang, sekaligus menjadi kesempatan bertukar pikiran dengan sesama penggemar. Sambil membangun situs ini pun terus belajar dengannya — targetnya bukan sekadar lulus ujian, melainkan kemajuan besar kemampuan bahasa Jepang secara keseluruhan.",
   aboutAuthorLink: "Selengkapnya tentang penulis →",
   aboutAuthor2Title: "Penulis",
   aboutAuthor2Name: "塔奇巧克力（TachikoChoko）",

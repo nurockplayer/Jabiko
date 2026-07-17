@@ -41,7 +41,7 @@ export const vi: Copy = {
   aboutAuthorTitle: "Tác giả",
   aboutAuthorName: "花雪 (HanaYukii)",
   aboutAuthorBody:
-    "Xuất thân từ lập trình thi đấu và ba năm làm kỹ sư tại Google; sau khi rời đi năm 2025, hiện là Tech Lead tại một startup AI. Tiếng Nhật là một vốn liếng cũ — đậu N2 mười năm trước rồi gác lại — cho đến khi quay lại với idol Nhật năm 2024 đã làm nó sống dậy. Sau đó có thêm chút thời gian, việc luyện tập nghiêm túc mới bắt đầu — và đó cũng là lúc Jabiko ra đời: đầu tiên để dùng cho bản thân, giờ mở ra cho cả những người học khác, và sẽ còn làm tiếp mỗi khi có dịp.",
+    "Xuất thân từ lập trình thi đấu và ba năm làm kỹ sư tại Google; sau khi rời đi năm 2025, hiện là Tech Lead tại một startup AI. Tiếng Nhật là một vốn liếng cũ — đậu N2 mười năm trước rồi gác lại — cho đến khi quay lại với idol Nhật năm 2024 đã làm nó sống dậy. Sau đó có thêm chút thời gian, việc luyện tập nghiêm túc mới bắt đầu — và đó cũng là lúc Jabiko ra đời. Ban đầu hoàn toàn để dùng riêng, không ngờ dần dần có thêm khá nhiều người dùng; đã vậy thì muốn mài giũa nó thành một tác phẩm khiến bản thân thật sự hài lòng, giới thiệu đến nhiều người yêu tiếng Nhật hơn, và cũng là dịp giao lưu với những người cùng sở thích. Vừa làm trang web vừa tiếp tục dùng nó để học — mục tiêu không chỉ là đậu kỳ thi, mà là để tiếng Nhật tiến bộ vượt bậc về mọi mặt.",
   aboutAuthorLink: "Tìm hiểu thêm về tác giả →",
   aboutAuthor2Title: "Tác giả",
   aboutAuthor2Name: "塔奇巧克力（TachikoChoko）",

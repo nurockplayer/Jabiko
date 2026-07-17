@@ -41,7 +41,7 @@ export const zhHant: Copy = {
   aboutAuthorTitle: "作者",
   aboutAuthorName: "花雪（HanaYukii）",
   aboutAuthorBody:
-    "程式競賽出身、在 Google 待了三年的工程師，2025 年離開後，現在於 AI 新創當 Tech Lead。日語是十年前考過 N2 就擱著的老本，直到 2024 年重新追起日系偶像才又撿了回來。那之後多了點時間，就開始認真把它練起來——Jabiko 就是這時候做出來的：一開始給自己用，現在也開放給其他在學的人，之後有機會再慢慢做下去。",
+    "程式競賽出身、在 Google 待了三年的工程師，2025 年離開後，現在於 AI 新創當 Tech Lead。日語是十年前考過 N2 就擱著的老本，直到 2024 年重新追起日系偶像才又撿了回來。那之後多了點時間，就開始認真把它練起來——Jabiko 就是這時候做出來的。一開始純粹自用，沒想到慢慢有了不少使用者；既然被用起來了，就想把它磨成一個自己真心滿意的作品，推薦給更多熱衷日文的人，也藉這個機會跟同好交流。一邊做網站，也一邊用它學習——目標不只是通過檢定，而是讓自己的日語整體大幅進步。",
   aboutAuthorLink: "更多關於作者 →",
   aboutAuthor2Title: "作者",
   aboutAuthor2Name: "塔奇巧克力（TachikoChoko）",
