@@ -1,25 +1,25 @@
-// Generates public/sitemap.xml from the app's routes + every grammar-point page
-// (/grammar/<surface>) in grammarDatabase.ts, so search engines can discover the
-// ~93 long-tail grammar pages (they are NOT reachable from the raw-HTML shell).
-// Re-run when routes or grammar patterns change: `pnpm build:sitemap`.
-// A drift guard (src/domain/sitemap.test.ts) fails if the committed file omits
-// any grammar surface, so this can't silently go stale.
+// Generates public/sitemap.xml from the app's routes, grammar database, and
+// published article metadata. Re-run after route or content changes with
+// `pnpm build:sitemap`; src/domain/sitemap.test.ts guards against drift.
 //
-// Bare regex parse of grammarDatabase.ts (no bundler needed): the 93 data
-// entries are the 4-space-indented `pattern: "..."` fields (the 2-space
-// `pattern: string;` interface field is excluded by the indent).
-import { readFileSync, writeFileSync } from "node:fs";
+// Vite is used only as a TypeScript module loader, matching prerender.mjs. This
+// keeps the sitemap on the same source of truth as the app instead of parsing
+// TypeScript source text with regular expressions.
+import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createServer } from "vite";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ORIGIN = "https://jabiko.app";
-// Bump when regenerating for a content refresh; Google largely ignores lastmod
-// for small sites, and the drift guard checks URL presence, not this date.
-const LASTMOD = "2026-07-05";
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-// Static routes (mirrors src/domain/seo.ts view coverage) + the grammar/blog
-// indexes.
+function isIsoCalendarDate(value) {
+  if (!ISO_DATE.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value;
+}
+
 const ROUTES = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/learn", changefreq: "weekly", priority: "0.8" },
@@ -33,53 +33,92 @@ const ROUTES = [
   { path: "/about", changefreq: "monthly", priority: "0.5" },
 ];
 
-function grammarSurfaces() {
-  const src = readFileSync(path.join(ROOT, "src/domain/grammarDatabase.ts"), "utf8");
-  const surfaces = new Set();
-  for (const m of src.matchAll(/^ {4}pattern:\s*"((?:[^"\\]|\\.)*)"/gm)) {
-    // Navigable surface = pattern with a leading 〜/～ stripped (matches how the
-    // index links: onOpenPattern(pattern.replace(/^[〜～]/, ""))).
-    surfaces.add(m[1].replace(/^[〜～]/, ""));
-  }
-  return [...surfaces];
+const LEVEL_HUBS = ["n5", "n4", "n3", "n2", "n1"].map((level) => ({
+  path: `/grammar/${level}`,
+  changefreq: "weekly",
+  priority: "0.6",
+}));
+
+function urlEntry({ path: routePath, changefreq, priority, lastmod }) {
+  const lines = ["  <url>", `    <loc>${ORIGIN}${routePath}</loc>`];
+  if (lastmod) lines.push(`    <lastmod>${lastmod}</lastmod>`);
+  lines.push(
+    `    <changefreq>${changefreq}</changefreq>`,
+    `    <priority>${priority}</priority>`,
+    "  </url>",
+  );
+  return lines.join("\n");
 }
 
-// Published blog-article slugs (#483). Bare regex parse of articlesMeta.ts (no
-// bundler needed): split the articleMetas array into per-entry chunks, take the
-// slug, and skip any entry flagged `draft: true` (drafts stay out of search).
-// The drift guard (sitemap.test.ts) cross-checks against the real module, so a
-// parse miss here can't silently ship.
-function blogArticleSlugs() {
-  const src = readFileSync(path.join(ROOT, "src/domain/articlesMeta.ts"), "utf8");
-  const arr = src.match(/(?:rawArticleMetas|articleMetas)[^=]*=\s*\[([\s\S]*?)\];/);
-  if (!arr) return [];
-  const slugs = [];
-  for (const chunk of arr[1].split(/\},/)) {
-    const slug = chunk.match(/slug:\s*"([^"]+)"/);
-    if (slug && !/draft:\s*true/.test(chunk)) slugs.push(slug[1]);
-  }
-  return slugs;
+const server = await createServer({
+  root: ROOT,
+  // These domain modules need only Vite's built-in TS transform. Avoid loading
+  // the app's React/PWA plugins for this build-time metadata read.
+  configFile: false,
+  logLevel: "error",
+  server: { middlewareMode: true },
+  optimizeDeps: { noDiscovery: true },
+});
+
+let grammarPatterns;
+let publishedArticleMetas;
+try {
+  const [grammarModule, articleModule] = await Promise.all([
+    server.ssrLoadModule("/src/domain/grammarDatabase.ts"),
+    server.ssrLoadModule("/src/domain/articlesMeta.ts"),
+  ]);
+  grammarPatterns = grammarModule.grammarPatterns;
+  publishedArticleMetas = articleModule.publishedArticleMetas;
+} finally {
+  await server.close();
 }
 
-function urlEntry(loc, changefreq, priority) {
-  return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${LASTMOD}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
-}
-
-const surfaces = grammarSurfaces();
-const blogSlugs = blogArticleSlugs();
-const entries = [
-  ...ROUTES.map((r) => urlEntry(ORIGIN + r.path, r.changefreq, r.priority)),
-  ...surfaces.map((s) =>
-    urlEntry(`${ORIGIN}/grammar/${encodeURIComponent(s)}`, "monthly", "0.6")
-  ),
-  ...blogSlugs.map((s) =>
-    urlEntry(`${ORIGIN}/blog/${encodeURIComponent(s)}`, "monthly", "0.6")
+const grammarPaths = [
+  ...new Set(
+    grammarPatterns.map(
+      ({ pattern }) => `/grammar/${encodeURIComponent(pattern.replace(/^[〜～]/, ""))}`,
+    ),
   ),
 ];
 
-const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`;
+for (const { slug, publishedAt } of publishedArticleMetas) {
+  if (!isIsoCalendarDate(publishedAt)) {
+    throw new Error(`Invalid publishedAt for article "${slug}": ${publishedAt}`);
+  }
+}
+
+const newestArticleDate = publishedArticleMetas.reduce(
+  (latest, article) => (article.publishedAt > latest ? article.publishedAt : latest),
+  "",
+);
+
+const entries = [
+  ...ROUTES.map((route) =>
+    route.path === "/blog" ? { ...route, lastmod: newestArticleDate } : route,
+  ),
+  ...LEVEL_HUBS,
+  ...grammarPaths.map((routePath) => ({
+    path: routePath,
+    changefreq: "monthly",
+    priority: "0.6",
+  })),
+  ...publishedArticleMetas.map(({ slug, publishedAt }) => ({
+    path: `/blog/${encodeURIComponent(slug)}`,
+    changefreq: "monthly",
+    priority: "0.6",
+    lastmod: publishedAt,
+  })),
+];
+
+const xml = [
+  '<?xml version="1.0" encoding="UTF-8"?>',
+  '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+  ...entries.map(urlEntry),
+  "</urlset>",
+  "",
+].join("\n");
 
 writeFileSync(path.join(ROOT, "public/sitemap.xml"), xml);
 console.log(
-  `wrote public/sitemap.xml — ${ROUTES.length} routes + ${surfaces.length} grammar pages + ${blogSlugs.length} blog articles = ${entries.length} URLs`
+  `wrote public/sitemap.xml — ${ROUTES.length + LEVEL_HUBS.length} routes + ${grammarPaths.length} grammar pages + ${publishedArticleMetas.length} blog articles = ${entries.length} URLs`,
 );
