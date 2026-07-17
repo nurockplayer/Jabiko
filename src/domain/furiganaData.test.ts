@@ -149,6 +149,64 @@ describe("furiganaLearningData drift guard (#618)", () => {
       .toEqual(["く", "こ"]);
   });
 
+  it("reads grammar-form terminology as けい without changing ordinary 形", () => {
+    // Kana-prefixed terms align as plain kana + 形(けい); all-kanji terms
+    // align as one ruby segment carrying the complete compound reading.
+    const readingOverShape: Record<string, string> = {
+      "て形": "けい",
+      "た形": "けい",
+      "ない形": "けい",
+      "ます形": "けい",
+      "辞書形": "じしょけい",
+      "い形": "けい",
+      "な形": "けい",
+      "普通形": "ふつうけい",
+      "未来形": "みらいけい",
+      "条件形": "じょうけんけい",
+      "可能形": "かのうけい",
+      "意向形": "いこうけい",
+      "命令形": "めいれいけい"
+    };
+    const allSegments = Object.values(furiganaLearningData).flat();
+
+    for (const [term, reading] of Object.entries(readingOverShape)) {
+      let occurrences = 0;
+      for (const [source, segments] of Object.entries(furiganaLearningData)) {
+        let fromIndex = 0;
+        while (true) {
+          const termIndex = source.indexOf(term, fromIndex);
+          if (termIndex === -1) break;
+          fromIndex = termIndex + term.length;
+          // い形容詞 / な形容詞 contain the same two characters but are a
+          // different word, not the grammar shorthand い形 / な形.
+          if ((term === "い形" || term === "な形") && source[fromIndex] === "容") continue;
+
+          occurrences += 1;
+          const shapeIndex = termIndex + term.length - 1;
+          let cursor = 0;
+          const segment = segments.find((candidate) => {
+            const containsShape = shapeIndex >= cursor && shapeIndex < cursor + candidate.t.length;
+            cursor += candidate.t.length;
+            return containsShape;
+          });
+          expect(segment?.r, `${term} in ${source}`).toBe(reading);
+        }
+      }
+      expect(occurrences, `${term} should occur in the generated learning map`).toBeGreaterThan(0);
+    }
+
+    expect(allSegments.some((segment) => segment.t === "形" && segment.r === "がた"))
+      .toBe(false);
+    expect(allSegments.some((segment) => segment.t === "形" && segment.r === "かたち"))
+      .toBe(true);
+  });
+
+  it("reads the chapter suffix in ばかり章 as しょう", () => {
+    const source = Object.entries(furiganaLearningData)
+      .find(([key]) => key.includes("ばかり章"));
+    expect(source?.[1].find((segment) => segment.t === "章")?.r).toBe("しょう");
+  });
+
   it("is a non-empty generated table with deterministic key ordering", () => {
     const keys = Object.keys(furiganaLearningData);
     expect(keys.length).toBeGreaterThan(0);
