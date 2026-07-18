@@ -40,7 +40,7 @@ describe("blog articles data guard", () => {
     }
   });
 
-  it("serves the complete ebichili essay and teaching sections", () => {
+  it("serves the rewritten ebichili essay and its practical lyric notes", () => {
     const article = articleBySlug("shiritsu-ebisu-chugaku-ebichili-hajimemashita");
     const links = article?.body.flatMap((block) =>
       block.kind === "links" ? block.items.map((item) => item.url) : []
@@ -55,36 +55,46 @@ describe("blog articles data guard", () => {
       })
       .join("\n");
 
-    expect(article?.title).toContain("えびチリ、はじめました");
-    expect(bodyText).toContain("原点回帰");
-    expect(bodyText).toContain("十年前那種資訊量很大");
-    expect(bodyText).toContain("同一口鍋又開了火");
-    expect(bodyText).toContain("2009 年成立");
-    expect(bodyText).toContain("超ときめき♡宣伝部");
-    expect(bodyText).toContain("まだ");
-    expect(bodyText).toContain("到現在仍然好吃嗎");
-    expect(bodyText).toContain("ご唱和ください");
-    expect(bodyText).toContain("〜ような気がする");
-    expect(bodyText).toContain("食べよ");
-    expect(bodyText).toContain("MV 不是把歌詞照著拍一遍");
-    expect(bodyText).toContain("離開的人想回來");
-    expect(bodyText).toContain("お待ちどおさま");
-    expect(bodyText).toContain("昔の流行がまた巡ってきた");
-    expect(bodyText).toContain("多說 アツアツ");
+    expect(article?.title).toBe("蝦中是什麼？〈えびチリ、はじめました〉日文筆記");
+    expect(article?.title).not.toContain("現在的我們，還好吃嗎");
+    expect(article?.description).not.toContain("最後一句");
+    expect(bodyText).toContain("恵比寿中学");
+    expect(bodyText).toContain("エビ中");
+    expect(bodyText).toContain("華語圈");
+    expect(bodyText).toContain("2012 年主流出道");
+    expect(bodyText).toContain("明年迎來主流出道 15 週年");
+    expect(bodyText).toContain("2026 年的方式");
+    expect(bodyText).toContain("十年前那種電波搞怪");
+    expect(bodyText).toContain("秘密結社★ブラックタイガー");
+    expect(bodyText).toContain("草蝦（虎蝦）");
+    expect(bodyText).toContain("Argentine");
+    expect(bodyText).toContain("argentum");
+    expect(bodyText).toContain("世界盃");
+    expect(bodyText).toContain("東（トン）");
+    expect(bodyText).toContain("北（ペー）");
+    expect(bodyText).toContain("歌裡唱的是 ペイ");
+    for (const term of [
+      "アルゼンチン",
+      "ピーチュー",
+      "ハオチー",
+      "貼り紙",
+      "ビタビタ",
+      "ガッツリ",
+      "ティラミス",
+      "タピオカ",
+      "ドバイチョコ",
+      "ぺろりんちょ",
+      "普通",
+      "こういうの冷やし中華？",
+      "肉厚",
+      "これはブラックタイガー！"
+    ]) {
+      expect(bodyText).toContain(term);
+    }
     expect(links).toContain("https://www.youtube.com/watch?v=2OQEgEYjPY4");
     expect(links?.some((url) => url.includes("embeds_referring"))).toBe(false);
-    // 2026-07-12 discussion additions: the lead anchors on まだ美味しい, the
-    // lyric walkthrough section exists, the 電波/意味不明-as-old-flavor point
-    // is stated, and the teaching half reads as an appendix.
-    expect(bodyText).toContain("從一盤蝦仁");
-    expect(bodyText).toContain("幾句重點歌詞");
-    expect(bodyText).toContain("杜拜巧克力");
-    expect(bodyText).toContain("敢把沒有必要解釋的東西也放進歌裡");
-    // Personal sentence-level walkthroughs (author's own study notes).
-    expect(bodyText).toContain("三句我自己也查了才懂");
-    expect(bodyText).toContain("從裡到外一起燒起來");
     const divider = article?.body.find((block) => block.kind === "divider");
-    expect(divider && "label" in divider ? divider.label : "").toContain("附錄");
+    expect(divider && "label" in divider ? divider.label : "").toBe("日文筆記");
   });
 
   it("serves the taste and texture guide as a broad everyday-Japanese article", () => {
