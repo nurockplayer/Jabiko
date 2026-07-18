@@ -124,9 +124,10 @@ describe("buildDiscoveryPrompt", () => {
 });
 
 describe("DEFAULT_MODEL", () => {
-  it("is a non-empty string", () => {
+  it("is a non-empty string that looks like a Gemini model", () => {
     expect(typeof DEFAULT_MODEL).toBe("string");
     expect(DEFAULT_MODEL.length).toBeGreaterThan(0);
+    expect(DEFAULT_MODEL).toMatch(/^gemini-/);
   });
 });
 

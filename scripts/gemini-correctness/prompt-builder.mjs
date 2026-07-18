@@ -9,7 +9,7 @@
 // =============================================================================
 
 export const MAX_TOTAL_CHARS = 500_000;
-export const DEFAULT_MODEL = "gemini-2.0-flash";
+export const DEFAULT_MODEL = "gemini-2.5-flash";
 
 const PROMPT_TEMPLATE = `You are a correctness reviewer for a JLPT study application written in TypeScript.
 Your task is to find ONE high-confidence correctness bug in the scanned code below.
