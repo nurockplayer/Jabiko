@@ -69,9 +69,10 @@ function parseArgs(argv) {
 // ---------------------------------------------------------------------------
 // Constrain output path to a tmp dir under REPO_ROOT/.tmp/
 // ---------------------------------------------------------------------------
+function resolveOutputPath(cliPath) {
   if (!cliPath) return null;
   const allowedDir = path.join(REPO_ROOT, ".tmp");
-  const safe = safeWritePath(cliPath, allowedDir, REPO_ROOT);
+  const safe = safeWritePath(cliPath, allowedDir);
   if (!safe) {
     console.error("--output path must be under .tmp/ (rejecting symlink escape)");
     process.exit(2);
