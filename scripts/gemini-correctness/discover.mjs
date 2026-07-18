@@ -36,7 +36,6 @@ const REPO_ROOT = path.resolve(
 function parseArgs(argv) {
   const o = {
     commitSha: "",
-    claudeMdFile: "",
     output: "",
     model: "",
     dryRun: false,
@@ -47,9 +46,6 @@ function parseArgs(argv) {
     switch (a) {
       case "--commit-sha":
         o.commitSha = argv[++i];
-        break;
-      case "--claude-md":
-        o.claudeMdFile = argv[++i];
         break;
       case "--output":
         o.output = argv[++i];
@@ -71,22 +67,8 @@ function parseArgs(argv) {
 }
 
 // ---------------------------------------------------------------------------
-// Path resolution helpers
+// Constrain output path to a tmp dir under REPO_ROOT/.tmp/
 // ---------------------------------------------------------------------------
-function resolveRepoPath(cliPath, label) {
-  if (!cliPath) return null;
-  if (!isPathSafe(cliPath)) {
-    console.error(`--${label} path is not safe: ${cliPath}`);
-    process.exit(2);
-  }
-  if (!isPathWithinRepo(cliPath, REPO_ROOT)) {
-    console.error(`--${label} path "${cliPath}" must be inside the repository`);
-    process.exit(2);
-  }
-  return path.resolve(REPO_ROOT, cliPath);
-}
-
-function resolveOutputPath(cliPath) {
   if (!cliPath) return null;
   const allowedDir = path.join(REPO_ROOT, ".tmp");
   const safe = safeWritePath(cliPath, allowedDir, REPO_ROOT);
@@ -128,15 +110,21 @@ async function main() {
     process.exit(2);
   }
 
-  // ---- 2. Read project rules ----
+  // ---- 2. Read project rules from canonical CLAUDE.md ----
   let claudeMdRules = "";
-  if (o.claudeMdFile) {
-    const safePath = resolveRepoPath(o.claudeMdFile, "claude-md");
-    try {
-      claudeMdRules = fs.readFileSync(safePath, "utf8");
-    } catch {
-      console.error(`Warning: CLAUDE.md file not found: ${safePath}`);
+  const claudeMdPath = path.join(REPO_ROOT, "CLAUDE.md");
+  try {
+    const stat = fs.statSync(claudeMdPath);
+    if (stat.isFile()) {
+      // Verify the CLAUDE.md is not a symlink escaping the repo
+      const real = fs.realpathSync(claudeMdPath);
+      const repoReal = fs.realpathSync(REPO_ROOT);
+      if (real.startsWith(repoReal + path.sep) || real === repoReal) {
+        claudeMdRules = fs.readFileSync(claudeMdPath, "utf8");
+      }
     }
+  } catch {
+    // CLAUDE.md optional — silently continue without rules
   }
 
   // ---- 3. Build prompt ----
