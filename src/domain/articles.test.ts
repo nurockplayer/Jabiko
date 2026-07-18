@@ -66,7 +66,7 @@ describe("blog articles data guard", () => {
     expect(article?.title).toBe("蝦中是什麼？〈えびチリ、はじめました〉日文筆記");
     expect(lead?.kind).toBe("lead");
     expect(lead && "text" in lead ? lead.text : "").toBe(
-      "私立恵比寿中学在 2009 年成立，是 STARDUST 在ももいろクローバー之後推出的第一個妹分團體，2012 年主流出道，明年迎來主流出道 15 週年。"
+      "私立恵比寿中学在 2009 年成立，是 STARDUST 在ももいろクローバーZ之後推出的第一個妹分團體，2012 年主流出道，明年迎來主流出道 15 週年。"
     );
     expect(lead && "text" in lead ? lead.text : "").not.toContain("？");
     expect(longEssayParagraphs).toEqual([]);
@@ -74,7 +74,8 @@ describe("blog articles data guard", () => {
     expect(article?.description).not.toContain("最後一句");
     expect(bodyText).toContain("恵比寿中学");
     expect(bodyText).not.toContain("先把「蝦中」講清楚");
-    expect(bodyText).toContain("STARDUST 在ももいろクローバー之後推出的第一個妹分團體");
+    expect(bodyText).toContain("STARDUST 在ももいろクローバーZ之後推出的第一個妹分團體");
+    expect(bodyText).not.toContain("ももいろクローバー之後");
     expect(bodyText).toContain("同門還有現在很紅的超ときめき♡宣伝部（超心宣）");
     expect(bodyText).toContain("事務所位在東京澀谷區惠比壽南");
     expect(bodyText).toContain("日語圈長年把團名簡稱為「エビ中」");

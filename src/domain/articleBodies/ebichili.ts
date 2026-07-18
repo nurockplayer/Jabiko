@@ -4,7 +4,7 @@ export const ebichiliBody: ReadonlyArray<ArticleBlock> = [
   {
     kind: "lead",
     text:
-      "私立恵比寿中学在 2009 年成立，是 STARDUST 在ももいろクローバー之後推出的第一個妹分團體，2012 年主流出道，明年迎來主流出道 15 週年。"
+      "私立恵比寿中学在 2009 年成立，是 STARDUST 在ももいろクローバーZ之後推出的第一個妹分團體，2012 年主流出道，明年迎來主流出道 15 週年。"
   },
   {
     kind: "paragraph",
