@@ -59,7 +59,7 @@ const LEGAL_COPY = {
         {
           title: "4. 意見回饋與題目回報",
           paragraphs: [
-            "送出一般回饋時，會保存類別、訊息、是否希望回覆，以及你自行填寫的聯絡方式。題目回報還會包含回報原因、題目 ID、題型標籤、作答目標形式、級別、單字 ID、單字表記與讀音、題目提示、預期答案、你所選的答案、介面語言，以及你自行填寫的補充說明，方便定位問題。",
+            "送出一般回饋時，會保存類別、訊息、是否希望回覆，以及你自行填寫的聯絡方式。題目回報還會包含回報原因、題目 ID、題型標籤、作答目標形式、級別、單字表記、題目提示、預期答案、你所選的答案、介面語言，以及你自行填寫的補充說明，方便定位問題；若勾選希望回覆，也會保存你填寫的聯絡方式。",
             "若你已登入，Supabase 會在伺服器端記錄帳號 ID、電子郵件與登入提供者；匿名使用者則不會有這些帳號欄位。回報資料不會透過網站公開讀取。請不要在自由輸入欄位提供不必要的敏感資料。"
           ]
         },
@@ -170,7 +170,7 @@ const LEGAL_COPY = {
         {
           title: "4. フィードバックと問題報告",
           paragraphs: [
-            "一般のフィードバックでは、種別、本文、返信希望の有無、任意で入力した連絡先を保存します。問題報告には、報告理由、問題 ID、問題形式のラベル、解答対象の形式、レベル、語彙 ID、表記と読み、問題の提示文、想定解、選択した回答、表示言語、任意の補足説明も含まれます。",
+            "一般のフィードバックでは、種別、本文、返信希望の有無、任意で入力した連絡先を保存します。問題報告には、報告理由、問題 ID、問題形式のラベル、解答対象の形式、レベル、語彙の表記、問題の提示文、想定解、選択した回答、表示言語、任意の補足説明も含まれます。返信を希望した場合は、入力した連絡先も保存されます。",
             "ログイン中は、Supabase がサーバー側でアカウント ID、メールアドレス、ログイン事業者を記録します。匿名時はこれらの欄は空です。報告内容はサイトの公開 API から閲覧できません。不要な機微情報は入力しないでください。"
           ]
         },
@@ -281,7 +281,7 @@ const LEGAL_COPY = {
         {
           title: "4. Feedback and question reports",
           paragraphs: [
-            "General feedback stores its category, message, whether you requested a reply, and any contact detail you enter. A question report also includes its reason, question ID, question-type label, target form, level, vocabulary ID, surface form and reading, prompt, expected answers, selected answer, interface language, and any optional detail you provide so the issue can be located.",
+            "General feedback stores its category, message, whether you requested a reply, and any contact detail you enter. A question report also includes its reason, question ID, question-type label, target form, level, surface form, prompt, expected answers, selected answer, interface language, and any optional detail you provide so the issue can be located; if you request a reply, the contact detail you enter is stored as well.",
             "If you are signed in, Supabase records your account ID, email, and sign-in provider on the server. Those fields remain empty for anonymous submissions. Reports are not readable through the site's public API. Do not include unnecessary sensitive information in free-form fields."
           ]
         },
