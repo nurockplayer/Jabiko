@@ -2,12 +2,16 @@
 // discover.mjs — Gemini correctness discovery orchestrator
 // =============================================================================
 //
-// Reads CLAUDE.md rules, scans the allowlisted code, builds a discovery
-// prompt, calls Gemini via the adapter, validates the result, and writes a
-// machine-readable finding report.
+// Orchestrates the full discovery pipeline:
+//   1. Parse CLI args
+//   2. Scan repository allowlisted files with content, line numbers, limits
+//   3. Read project rules (CLAUDE.md)
+//   4. Build prompt with actual source code and line numbers
+//   5. Call Gemini via adapter
+//   6. Validate result through JSON schema + repo-aware validation
+//   7. Write machine-readable report
 //
-// This script is READ-ONLY — it never modifies any repository file.  Output
-// and summary paths are constrained to the script's input-relative or tmp dir.
+// This script is READ-ONLY — it never modifies any repository file.
 // =============================================================================
 
 import fs from "node:fs";
@@ -15,16 +19,15 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { createGeminiClient } from "./gemini-client.mjs";
-import { getDefaultAllowlist, getDefaultProtectedPaths, isPathWithinRepo, isPathSafe, resolveProductionDir, safeWritePath } from "./policy.mjs";
+import { scanRepository } from "./scanner.mjs";
+import { buildDiscoveryPrompt, DEFAULT_MODEL } from "./prompt-builder.mjs";
+import { validateFindingWithRepo } from "./repo-validator.mjs";
+import { getDefaultAllowlist, getDefaultProtectedPaths, isPathWithinRepo, isPathSafe, safeWritePath } from "./policy.mjs";
 
 const REPO_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
   ".."
-);
-const PROMPTS_DIR = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "prompts"
 );
 
 // ---------------------------------------------------------------------------
@@ -35,8 +38,7 @@ function parseArgs(argv) {
     commitSha: "",
     claudeMdFile: "",
     output: "",
-    allowlist: null, // null = use default
-    model: "gemini-2.0-flash",
+    model: "",
     dryRun: false,
     summary: ""
   };
@@ -69,7 +71,7 @@ function parseArgs(argv) {
 }
 
 // ---------------------------------------------------------------------------
-// Constrain a CLI-provided file path to the repo root
+// Path resolution helpers
 // ---------------------------------------------------------------------------
 function resolveRepoPath(cliPath, label) {
   if (!cliPath) return null;
@@ -84,9 +86,6 @@ function resolveRepoPath(cliPath, label) {
   return path.resolve(REPO_ROOT, cliPath);
 }
 
-// ---------------------------------------------------------------------------
-// Constrain output path to a tmp dir under REPO_ROOT/.tmp/
-// ---------------------------------------------------------------------------
 function resolveOutputPath(cliPath) {
   if (!cliPath) return null;
   const allowedDir = path.join(REPO_ROOT, ".tmp");
@@ -96,23 +95,6 @@ function resolveOutputPath(cliPath) {
     process.exit(2);
   }
   return safe;
-}
-
-// ---------------------------------------------------------------------------
-// Prompt building
-// ---------------------------------------------------------------------------
-function buildPrompt(commitSha, claudeMdRules) {
-  const template = fs.readFileSync(
-    path.join(PROMPTS_DIR, "discover.md"),
-    "utf8"
-  );
-  let prompt = template.replace("{{commitSha}}", commitSha || "unknown");
-
-  if (claudeMdRules) {
-    prompt += `\n\n## Project rules\n\n${claudeMdRules}`;
-  }
-
-  return prompt;
 }
 
 // ---------------------------------------------------------------------------
@@ -126,10 +108,27 @@ async function main() {
     process.exit(2);
   }
 
-  const allowlist = o.allowlist ?? getDefaultAllowlist();
+  const model = o.model || DEFAULT_MODEL;
+  const allowlist = getDefaultAllowlist();
   const protectedPaths = getDefaultProtectedPaths();
 
-  // Read CLAUDE.md — must be inside the repo
+  // ---- 1. Scan the repository ----
+  let scanResult;
+  try {
+    scanResult = scanRepository({
+      repoRoot: REPO_ROOT,
+      allowlist,
+      protectedPaths,
+      maxFiles: 200,
+      maxBytesPerFile: 128 * 1024,
+      maxTotalBytes: 2 * 1024 * 1024
+    });
+  } catch (e) {
+    console.error(`Repository scan failed: ${e.message}`);
+    process.exit(2);
+  }
+
+  // ---- 2. Read project rules ----
   let claudeMdRules = "";
   if (o.claudeMdFile) {
     const safePath = resolveRepoPath(o.claudeMdFile, "claude-md");
@@ -140,35 +139,79 @@ async function main() {
     }
   }
 
-  // Build the discovery prompt
-  const prompt = buildPrompt(o.commitSha, claudeMdRules);
+  // ---- 3. Build prompt ----
+  const promptResult = buildDiscoveryPrompt({
+    commitSha: o.commitSha,
+    rules: claudeMdRules,
+    scannedFiles: scanResult.scannedFiles,
+    manifest: scanResult.manifest,
+    stats: scanResult.stats
+  });
 
+  // ---- 4. Dry-run output ----
   if (o.dryRun) {
-    console.log("[discover] --dry-run: would send prompt to Gemini");
-    console.log(`[discover] commit SHA: ${o.commitSha}`);
-    if (o.output) console.log(`[discover] output path: ${o.output}`);
-    console.log("[discover] prompt length:", prompt.length, "chars");
+    console.log(JSON.stringify({
+      dryRun: true,
+      commitSha: o.commitSha,
+      model,
+      scannedFiles: scanResult.stats.totalFiles,
+      totalBytes: scanResult.stats.totalBytes,
+      protectedExcluded: scanResult.stats.protectedExcluded,
+      promptLength: promptResult.length,
+      truncated: promptResult.truncated,
+      manifest: scanResult.manifest
+    }, null, 2));
     return;
   }
 
+  // ---- 5. Call Gemini ----
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error(
-      "GEMINI_API_KEY env is required (pass as GitHub Actions secret)"
-    );
+    console.error("GEMINI_API_KEY env is required (pass as GitHub Actions secret)");
     process.exit(2);
   }
 
-  const client = createGeminiClient({ apiKey, model: o.model });
+  const client = createGeminiClient({ apiKey, model });
   const result = await client.discover({
-    prompt,
+    prompt: promptResult.prompt,
     validationOptions: { allowlist, protectedPaths }
   });
 
-  // Write structured output — constrained to .tmp/ directory
-  const report = JSON.stringify(result, null, 2);
-  // Redact any residual API key in the output before printing/writing
-  const safeReport = report;
+  // ---- 6. Repository-aware validation ----
+  if (result.valid && result.result) {
+    const repoCheck = validateFindingWithRepo(result.result, {
+      repoRoot: REPO_ROOT,
+      manifest: scanResult.manifest,
+      allowlist,
+      protectedPaths
+    });
+
+    if (!repoCheck.valid) {
+      // Override the result: schema passed but repo validation failed
+      result.valid = false;
+      result.error = `Repo validation failed: ${repoCheck.error}`;
+      result.repoError = repoCheck.error;
+    }
+  }
+
+  // ---- 8. Redact any residual API key before writing output ----
+  const resultForOutput = JSON.parse(JSON.stringify(result));
+  // Recursively redact any string containing the API key pattern
+  function deepRedact(obj) {
+    if (typeof obj === "string") {
+      // Redact anything that looks like an API key in values
+      return obj.replace(/AIza[0-9A-Za-z_-]{35}/g, "REDACTED_KEY");
+    }
+    if (obj && typeof obj === "object") {
+      for (const key of Object.keys(obj)) {
+        obj[key] = deepRedact(obj[key]);
+      }
+    }
+    return obj;
+  }
+  const safeResult = deepRedact(resultForOutput);
+
+  const report = JSON.stringify(safeResult, null, 2);
 
   if (o.output) {
     const safeOut = resolveOutputPath(o.output);
@@ -176,11 +219,10 @@ async function main() {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    fs.writeFileSync(safeOut, safeReport);
+    fs.writeFileSync(safeOut, report);
   }
 
-  // Also print to stdout for capture in CI
-  console.log(safeReport);
+  console.log(report);
 
   if (o.summary) {
     const safeSummary = resolveOutputPath(o.summary);
@@ -188,10 +230,14 @@ async function main() {
       `## Gemini Correctness Discovery`,
       ``,
       `- commit: \`${o.commitSha}\``,
-      `- model: \`${o.model}\``,
+      `- model: \`${model}\``,
+      `- scanned files: ${scanResult.stats.totalFiles} (${scanResult.stats.totalBytes} bytes)`,
+      `- protected excluded: ${scanResult.stats.protectedExcluded}`,
+      `- prompt length: ${promptResult.length} chars`,
+      `- truncated: ${JSON.stringify(promptResult.truncated)}`,
       `- status: ${result.valid ? "valid" : "invalid"}`,
       result.result?.status === "finding"
-        ? `- title: ${result.result.title}`
+        ? `- finding: ${result.result.title}`
         : "",
       result.error ? `- error: ${result.error}` : "",
       ``
@@ -203,7 +249,6 @@ async function main() {
     fs.writeFileSync(safeSummary, summaryLines.filter(Boolean).join("\n") + "\n");
   }
 
-  // Exit code: 0 = valid finding/no-finding, 1 = error
   process.exit(result.valid ? 0 : 1);
 }
 
@@ -212,8 +257,6 @@ if (
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
   main().catch((e) => {
-    // Do not include the full error object which may contain environment info;
-    // log a safe generic error message instead.
     console.error(`[discover] failed: ${e?.message || "unknown error"}`);
     process.exit(1);
   });

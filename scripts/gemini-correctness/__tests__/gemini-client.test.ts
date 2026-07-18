@@ -47,7 +47,7 @@ describe("createGeminiClient", () => {
   });
 
   it("returns a client with discover method", () => {
-    const client = createGeminiClient({ apiKey: "test-key", fetchFn: originalFetch });
+    const client = createGeminiClient({ apiKey: "test-key", model: "gemini-2.0-flash", fetchFn: originalFetch });
     expect(client).toHaveProperty("discover");
     expect(typeof client.discover).toBe("function");
   });
@@ -69,22 +69,27 @@ describe("createGeminiClient", () => {
   });
 
   it("throws on invalid timeoutMs", () => {
-    expect(() => createGeminiClient({ apiKey: "sk-test", timeoutMs: 0, fetchFn: originalFetch })).toThrow();
-    expect(() => createGeminiClient({ apiKey: "sk-test", timeoutMs: -1, fetchFn: originalFetch })).toThrow();
-    expect(() => createGeminiClient({ apiKey: "sk-test", timeoutMs: 1.5, fetchFn: originalFetch })).toThrow();
-    expect(() => createGeminiClient({ apiKey: "sk-test", timeoutMs: NaN, fetchFn: originalFetch })).toThrow();
-    expect(() => createGeminiClient({ apiKey: "sk-test", timeoutMs: Infinity, fetchFn: originalFetch })).toThrow();
+    expect(() => createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", timeoutMs: 0, fetchFn: originalFetch })).toThrow();
+    expect(() => createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", timeoutMs: -1, fetchFn: originalFetch })).toThrow();
+    expect(() => createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", timeoutMs: 1.5, fetchFn: originalFetch })).toThrow();
+    expect(() => createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", timeoutMs: NaN, fetchFn: originalFetch })).toThrow();
+    expect(() => createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", timeoutMs: Infinity, fetchFn: originalFetch })).toThrow();
   });
 
   it("throws on invalid maxRetries", () => {
-    expect(() => createGeminiClient({ apiKey: "sk-test", maxRetries: -1, fetchFn: originalFetch })).toThrow();
-    expect(() => createGeminiClient({ apiKey: "sk-test", maxRetries: 1.5, fetchFn: originalFetch })).toThrow();
-    expect(() => createGeminiClient({ apiKey: "sk-test", maxRetries: NaN, fetchFn: originalFetch })).toThrow();
-    expect(() => createGeminiClient({ apiKey: "sk-test", maxRetries: Infinity, fetchFn: originalFetch })).toThrow();
+    expect(() => createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", maxRetries: -1, fetchFn: originalFetch })).toThrow();
+    expect(() => createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", maxRetries: 1.5, fetchFn: originalFetch })).toThrow();
+    expect(() => createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", maxRetries: NaN, fetchFn: originalFetch })).toThrow();
+    expect(() => createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", maxRetries: Infinity, fetchFn: originalFetch })).toThrow();
   });
 
   it("accepts timeoutMs=1 and maxRetries=0 as valid edge cases", () => {
-    expect(() => createGeminiClient({ apiKey: "sk-test", timeoutMs: 1, maxRetries: 0, fetchFn: originalFetch })).not.toThrow();
+    expect(() => createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", timeoutMs: 1, maxRetries: 0, fetchFn: originalFetch })).not.toThrow();
+  });
+
+  it("throws if model is missing", () => {
+    expect(() => createGeminiClient({ apiKey: "sk-test", fetchFn: originalFetch })).toThrow();
+    expect(() => createGeminiClient({ apiKey: "sk-test", model: "", fetchFn: originalFetch })).toThrow();
   });
 
   it("sends the correct request body", async () => {
@@ -126,7 +131,7 @@ describe("createGeminiClient", () => {
       productionFiles: ["src/domain/example.ts"],
       risk: "low"
     });
-    const client = createGeminiClient({ apiKey: "sk-test", fetchFn: globalThis.fetch });
+    const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", fetchFn: globalThis.fetch });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(true);
     expect(result.result?.status).toBe("finding");
@@ -134,6 +139,7 @@ describe("createGeminiClient", () => {
 
   it("returns invalid result for low-confidence finding", async () => {
     globalThis.fetch = mockFetchSuccess({
+      schemaVersion: 1,
       schemaVersion: 1,
       status: "finding",
       title: "maybe bug",
@@ -156,7 +162,7 @@ describe("createGeminiClient", () => {
       productionFiles: ["src/domain/example.ts"],
       risk: "low"
     });
-    const client = createGeminiClient({ apiKey: "sk-test", fetchFn: globalThis.fetch });
+    const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", fetchFn: globalThis.fetch });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(false);
     expect(result.error).toMatch(/confidence|threshold/i);
@@ -164,14 +170,14 @@ describe("createGeminiClient", () => {
 
   it("returns invalid result for non-JSON response", async () => {
     globalThis.fetch = mockFetchSuccess("not valid json at all");
-    const client = createGeminiClient({ apiKey: "sk-test", fetchFn: globalThis.fetch });
+    const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", fetchFn: globalThis.fetch });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(false);
   });
 
   it("returns error result for HTTP error (5xx)", async () => {
     globalThis.fetch = mockFetchError(500, "Internal Server Error", "server oops");
-    const client = createGeminiClient({ apiKey: "sk-test", fetchFn: globalThis.fetch });
+    const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", fetchFn: globalThis.fetch });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(false);
     expect(result.error).toMatch(/500|server/i);
@@ -179,7 +185,7 @@ describe("createGeminiClient", () => {
 
   it("returns error result for HTTP 429 (quota)", async () => {
     globalThis.fetch = mockFetchError(429, "Too Many Requests", "quota exceeded");
-    const client = createGeminiClient({ apiKey: "sk-test", fetchFn: globalThis.fetch });
+    const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", fetchFn: globalThis.fetch });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(false);
     expect(result.status).toBe("rate-limited");
@@ -205,7 +211,7 @@ describe("createGeminiClient", () => {
           })
       });
     globalThis.fetch = failThenSucceed;
-    const client = createGeminiClient({ apiKey: "sk-test", maxRetries: 1, fetchFn: failThenSucceed });
+    const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", maxRetries: 1, fetchFn: failThenSucceed });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(true);
     expect(failThenSucceed).toHaveBeenCalledTimes(2);
@@ -219,7 +225,7 @@ describe("createGeminiClient", () => {
       text: () => Promise.resolve("down")
     });
     globalThis.fetch = alwaysFail;
-    const client = createGeminiClient({ apiKey: "sk-test", maxRetries: 2, fetchFn: alwaysFail });
+    const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", maxRetries: 2, fetchFn: alwaysFail });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(false);
     expect(alwaysFail).toHaveBeenCalledTimes(3); // initial + 2 retries
@@ -241,7 +247,7 @@ describe("createGeminiClient", () => {
       });
     });
     globalThis.fetch = neverResolve;
-    const client = createGeminiClient({ apiKey: "sk-test", timeoutMs: 100, maxRetries: 0, fetchFn: neverResolve });
+    const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", timeoutMs: 100, maxRetries: 0, fetchFn: neverResolve });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(false);
     expect(result.error).toBeTruthy();
@@ -252,21 +258,21 @@ describe("createGeminiClient", () => {
 
   it("handles malformed response (missing candidates)", async () => {
     globalThis.fetch = mockFetchMalformed({});
-    const client = createGeminiClient({ apiKey: "sk-test", fetchFn: globalThis.fetch });
+    const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", fetchFn: globalThis.fetch });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(false);
   });
 
   it("handles empty candidates array", async () => {
     globalThis.fetch = mockFetchMalformed({ candidates: [] });
-    const client = createGeminiClient({ apiKey: "sk-test", fetchFn: globalThis.fetch });
+    const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", fetchFn: globalThis.fetch });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(false);
   });
 
   it("handles fetch rejection (network error)", async () => {
     globalThis.fetch = vi.fn().mockRejectedValue(new Error("fetch failed"));
-    const client = createGeminiClient({ apiKey: "sk-test", fetchFn: globalThis.fetch });
+    const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", fetchFn: globalThis.fetch });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(false);
   });

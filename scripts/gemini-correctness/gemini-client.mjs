@@ -23,7 +23,6 @@ import { validateFinding } from "./finding-schema.mjs";
 // ---------------------------------------------------------------------------
 // Defaults
 // ---------------------------------------------------------------------------
-const DEFAULT_MODEL = "gemini-2.0-flash";
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_RETRIES = 2;
 const DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -87,7 +86,12 @@ export function createGeminiClient(options = {}) {
     );
   }
 
-  const model = options.model ?? DEFAULT_MODEL;
+  const model = options.model;
+  if (!model || typeof model !== "string" || model.trim() === "") {
+    throw new Error(
+      "model is required (pass `model` option or `--model` CLI arg; see prompt-builder.mjs for DEFAULT_MODEL)"
+    );
+  }
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES;
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
