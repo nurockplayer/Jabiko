@@ -397,8 +397,8 @@ export const th: Copy = {
   grammarSourceOther: "อื่นๆ",
   // ---- Blog / 文章 (#483) ----
   blog: "บทความ",
-  blogBackToHome: "← หน้าแรก",
-  blogBackToList: "← บทความทั้งหมด",
+  blogBackToHome: "หน้าแรก",
+  blogBackToList: "บทความทั้งหมด",
   blogHeroEyebrow: "บทความ JABIKO",
   blogIndexTitle: "ภาษาญี่ปุ่นที่ตำราไม่สอน",
   blogIndexIntro: "โน้ตภาษาญี่ปุ่นร่วมสมัยต้นฉบับ — คำสแลง วัฒนธรรมโอชิคัตสึ บทพูดจากละครและอนิเมะ เรียนจากเนื้อเพลง และอื่น ๆ ที่ตำราไม่มีแต่เจอบ่อยในชีวิตจริง",

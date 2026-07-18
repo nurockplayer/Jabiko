@@ -396,8 +396,8 @@ export const en: Copy = {
   grammarSourceOther: "Other",
   // ---- Blog / 文章 (#483) ----
   blog: "Articles",
-  blogBackToHome: "← Home",
-  blogBackToList: "← All articles",
+  blogBackToHome: "Home",
+  blogBackToList: "All articles",
   blogHeroEyebrow: "JABIKO ARTICLES",
   blogIndexTitle: "The Japanese textbooks skip",
   blogIndexIntro: "Original notes on the Japanese you actually run into — slang, idol-fan culture, drama and anime lines, learning from song lyrics, and more that textbooks leave out.",

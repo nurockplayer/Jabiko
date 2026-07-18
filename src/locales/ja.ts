@@ -404,8 +404,8 @@ export const ja: Copy = {
   grammarSourceOther: "その他",
   // ---- Blog / 文章 (#483) ----
   blog: "記事",
-  blogBackToHome: "← ホームへ",
-  blogBackToList: "← 記事一覧へ",
+  blogBackToHome: "ホームへ",
+  blogBackToList: "記事一覧へ",
   blogHeroEyebrow: "JABIKO 記事",
   blogIndexTitle: "教科書にない日本語をここで",
   blogIndexIntro: "オリジナルの「今の日本語」ノート——流行語、推し活、ドラマ・アニメのセリフ、歌詞で学ぶ日本語など、教科書には載らないけれど日常でよく出会う表現を集めています。",

@@ -112,3 +112,12 @@ describe("i18n locale key completeness (#299)", () => {
     });
   }
 });
+
+describe("blog back-button labels", () => {
+  for (const [language, localeCopy] of Object.entries(copy)) {
+    it(`${language} leaves the arrow to the icon instead of duplicating it in text`, () => {
+      expect(localeCopy.blogBackToHome).not.toContain("←");
+      expect(localeCopy.blogBackToList).not.toContain("←");
+    });
+  }
+});

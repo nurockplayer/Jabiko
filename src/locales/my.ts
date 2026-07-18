@@ -396,8 +396,8 @@ export const my: Copy = {
   grammarSourceOther: "အခြား",
   // ---- Blog / 文章 (#483) ----
   blog: "ဆောင်းပါးများ",
-  blogBackToHome: "← ပင်မသို့",
-  blogBackToList: "← ဆောင်းပါးအားလုံး",
+  blogBackToHome: "ပင်မသို့",
+  blogBackToList: "ဆောင်းပါးအားလုံး",
   blogHeroEyebrow: "JABIKO ဆောင်းပါး",
   blogIndexTitle: "ကျောင်းစာအုပ်မှာ မပါတဲ့ ဂျပန်စာ",
   blogIndexIntro: "ခေတ်စား ဂျပန်စာနဲ့ပတ်သက်တဲ့ မူရင်းမှတ်စုများ — ဆလန်စကား၊ oshikatsu ယဉ်ကျေးမှု၊ ဇာတ်လမ်းတွဲနဲ့ anime စကားများ၊ သီချင်းစာသားကနေ သင်ယူခြင်း စသဖြင့် ကျောင်းစာအုပ်မှာ မပါပေမဲ့ နေ့စဉ်တွေ့ရတဲ့ အသုံးအနှုန်းများ။",

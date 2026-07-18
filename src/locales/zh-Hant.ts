@@ -396,8 +396,8 @@ export const zhHant: Copy = {
   grammarSourceOther: "其他",
   // ---- Blog / 文章 (#483) ----
   blog: "文章",
-  blogBackToHome: "← 回首頁",
-  blogBackToList: "← 回文章列表",
+  blogBackToHome: "回首頁",
+  blogBackToList: "回文章列表",
   blogHeroEyebrow: "JABIKO 文章",
   blogIndexTitle: "課本不教的日文，這裡補",
   blogIndexIntro: "這一區收原創的時下日文筆記——流行語、推し活、日劇動漫台詞、從歌詞學日文⋯⋯補課本不教、但你天天會撞到的部分。",
