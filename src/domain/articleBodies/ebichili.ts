@@ -4,7 +4,7 @@ export const ebichiliBody: ReadonlyArray<ArticleBlock> = [
   {
     kind: "lead",
     text:
-      "第一次看到「私立恵比寿中学」和〈えびチリ、はじめました〉放在一起，中文讀者大概會先問：為什麼學校突然開始賣蝦？先講答案。團名常簡稱「エビ中（えびちゅう）」，取的是「恵比寿」的エビ和「中学」的中；只是 えび 剛好又是蝦，所以華語圈很自然地叫她們「蝦中」。這首歌乾脆把這個老梗炒成一大盤えびチリ。"
+      "第一次看到「私立恵比寿中学」和〈えびチリ、はじめました〉放在一起，中文讀者大概會先問：為什麼學校突然開始賣蝦？其實校名先來自地名。STARDUST 的據點就在東京澀谷區惠比壽南，團名因此用了「恵比寿中学」。日語圈長年把團名簡稱為「エビ中」，華語圈的「蝦中」就是對應這個叫法。目前官方 Profile 把通稱寫成平假名「えびちゅう」，不過官方內容裡兩種表記仍會一起出現，並不是換了一個新團名。偏偏 えび 在日文又是蝦，連團體主 logo 也直接畫成一隻蝦；這首歌乾脆把這個用了很多年的梗炒成一大盤えびチリ。"
   },
   {
     kind: "paragraph",
@@ -31,7 +31,7 @@ export const ebichiliBody: ReadonlyArray<ArticleBlock> = [
   {
     kind: "paragraph",
     text:
-      "歌一開始用中文數到八，後面又冒出 ピーチュー 和 ハオチー。ピーチュー 接在瓶啤酒後面，明顯是在模仿中文「啤酒（píjiǔ）」；ハオチー 則是「好吃（hǎochī）」。它們不是日本人平常會用的標準外來語，而是把中文聲音片假名化，再拿來跟日文節奏玩。ハオチー 後面又接可愛念法 おいちー，整段的重點本來就不是學標準中文。"
+      "歌一開始用中文數到八，後面又冒出 ピーチュー 和 ハオチー。ピーチュー 接在瓶啤酒後面，明顯是在模仿中文「啤酒（píjiǔ）」；反覆的 チュー 也呼應 えびちゅう，聽起來像在玩中文時又順便叫了一次團名。ハオチー 則是「好吃（hǎochī）」。它們不是日本人平常會用的標準外來語，而是把中文聲音片假名化，再拿來跟日文節奏玩。ハオチー 後面又接可愛念法 おいちー，整段的重點本來就不是學標準中文。"
   },
   {
     kind: "paragraph",
@@ -115,6 +115,14 @@ export const ebichiliBody: ReadonlyArray<ArticleBlock> = [
         url: "https://www.shiritsuebichu.jp/news/16038/"
       },
       {
+        label: "私立恵比寿中学官方 Profile",
+        url: "https://www.shiritsuebichu.jp/profile/"
+      },
+      {
+        label: "STARDUST PROMOTION 公司資料",
+        url: "https://www.stardust.co.jp/company/"
+      },
+      {
         label: "歌詞與成員演唱分配（Ameba Blog）",
         url: "https://ameblo.jp/yasuwagiripo/entry-12972054416.html"
       },
@@ -181,7 +189,7 @@ export const ebichiliBody: ReadonlyArray<ArticleBlock> = [
         reading: "ぴーちゅー",
         meaning: "模仿中文「啤酒」的片假名音",
         note:
-          "接在 瓶ビール 後才容易聽懂。不是已固定進入日語的中文借詞，也不是中文標準拼音；歌曲主要拿聲音做節奏。"
+          "接在 瓶ビール 後才容易聽懂。不是已固定進入日語的中文借詞，也不是中文標準拼音；歌曲主要拿聲音做節奏，反覆出現的 チュー 也會讓人想到團名 えびちゅう。"
       },
       {
         word: "ハオチー",
