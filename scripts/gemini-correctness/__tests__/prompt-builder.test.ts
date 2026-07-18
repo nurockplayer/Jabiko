@@ -9,7 +9,6 @@ describe("buildDiscoveryPrompt", () => {
       commitSha: "abc123",
       rules: "",
       scannedFiles: [{ path: "src/domain/a.ts", content: "const x = 1;\n", lineCount: 2, byteSize: 15, truncated: false }],
-      manifest: ["src/domain/a.ts"],
       stats: { totalFiles: 1, totalBytes: 15, protectedExcluded: 0 }
     });
     expect(result.prompt).toContain("abc123");
@@ -20,7 +19,6 @@ describe("buildDiscoveryPrompt", () => {
       commitSha: "abc",
       rules: "",
       scannedFiles: [{ path: "src/domain/a.ts", content: "const x = 1;\nconst y = 2;\n", lineCount: 2, byteSize: 24, truncated: false }],
-      manifest: ["src/domain/a.ts"],
       stats: { totalFiles: 1, totalBytes: 24, protectedExcluded: 0 }
     });
     expect(result.prompt).toContain("src/domain/a.ts");
@@ -33,7 +31,6 @@ describe("buildDiscoveryPrompt", () => {
       commitSha: "abc",
       rules: "",
       scannedFiles: [],
-      manifest: [],
       stats: { totalFiles: 0, totalBytes: 0, protectedExcluded: 3 }
     });
     expect(result.prompt).toContain("protected");
@@ -44,7 +41,6 @@ describe("buildDiscoveryPrompt", () => {
       commitSha: "abc",
       rules: "## Important\nDo not modify tests.",
       scannedFiles: [],
-      manifest: [],
       stats: { totalFiles: 0, totalBytes: 0, protectedExcluded: 0 }
     });
     expect(result.prompt).toContain("Do not modify tests");
@@ -55,7 +51,6 @@ describe("buildDiscoveryPrompt", () => {
       commitSha: "abc",
       rules: "",
       scannedFiles: [],
-      manifest: [],
       stats: { totalFiles: 0, totalBytes: 0, protectedExcluded: 0 }
     });
     expect(result.prompt).toMatch(/schemaVersion|json|strict/i);
@@ -66,7 +61,6 @@ describe("buildDiscoveryPrompt", () => {
       commitSha: "abc",
       rules: "",
       scannedFiles: [{ path: "src/domain/a.ts", content: "", lineCount: 0, byteSize: 0, truncated: false }],
-      manifest: ["src/domain/a.ts"],
       stats: { totalFiles: 1, totalBytes: 0, protectedExcluded: 0 }
     });
     expect(result.manifest).toEqual(["src/domain/a.ts"]);
@@ -84,7 +78,6 @@ describe("buildDiscoveryPrompt", () => {
       commitSha: "abc",
       rules: "",
       scannedFiles: [bigFile],
-      manifest: ["src/domain/big.ts"],
       stats: { totalFiles: 1, totalBytes: MAX_TOTAL_CHARS + 1000, protectedExcluded: 0 }
     });
     expect(result.prompt.length).toBeLessThanOrEqual(MAX_TOTAL_CHARS);
@@ -102,7 +95,6 @@ describe("buildDiscoveryPrompt", () => {
       commitSha: "abc",
       rules: "",
       scannedFiles: [bigFile],
-      manifest: ["src/domain/big.ts"],
       stats: { totalFiles: 1, totalBytes: MAX_TOTAL_CHARS + 1000, protectedExcluded: 0 }
     });
     expect(result.truncated).toBe(true);
@@ -124,7 +116,6 @@ describe("buildDiscoveryPrompt", () => {
       commitSha: "abc",
       rules: "",
       scannedFiles: [],
-      manifest: [],
       stats: { totalFiles: 0, totalBytes: 0, protectedExcluded: 0 }
     });
     expect(result.prompt).toContain("no-finding");

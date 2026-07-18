@@ -169,7 +169,7 @@ export function validateFinding(input, options = {}) {
     if (typeof ev.file !== "string" || ev.file.trim() === "") {
       return { valid: false, error: `evidence[${i}].file must be a non-empty string` };
     }
-    if (!isPathSafe(ev.file, [])) {
+    if (!isPathSafe(ev.file)) {
       return { valid: false, error: `evidence[${i}].file "${ev.file}" is not a safe relative path` };
     }
     if (isProtected(ev.file, protectedPaths)) {
@@ -214,7 +214,7 @@ export function validateFinding(input, options = {}) {
     if (typeof pf !== "string" || pf.trim() === "") {
       return { valid: false, error: `productionFiles[${i}] must be a non-empty string` };
     }
-    if (!isPathSafe(pf, [])) {
+    if (!isPathSafe(pf)) {
       return { valid: false, error: `productionFiles[${i}] "${pf}" is not a safe relative path` };
     }
     if (isProtected(pf, protectedPaths)) {
@@ -243,7 +243,7 @@ export function validateFinding(input, options = {}) {
   if (typeof rep.testFile !== "string" || rep.testFile.trim() === "") {
     return { valid: false, error: "reproduction.testFile must be a non-empty string" };
   }
-  if (!isPathSafe(rep.testFile, [])) {
+  if (!isPathSafe(rep.testFile)) {
     return { valid: false, error: `reproduction.testFile "${rep.testFile}" is not a safe relative path` };
   }
   if (isProtected(rep.testFile, protectedPaths)) {

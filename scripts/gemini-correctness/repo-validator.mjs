@@ -11,12 +11,13 @@
 //   - evidence files appear in the scanned manifest (Gemini only saw what we gave it)
 //   - reproduction.testFile parent directory exists and matches production file dir
 //
-// All checks fail-closed on any fs error.
+// Path security rules (isProtected, isAllowlisted) are imported from policy.mjs.
+// Do NOT duplicate path-matching logic here.
 // =============================================================================
 
 import fs from "node:fs";
 import path from "node:path";
-import { getDefaultAllowlist, getDefaultProtectedPaths } from "./policy.mjs";
+import { isAllowlisted, isProtected } from "./policy.mjs";
 
 // ---------------------------------------------------------------------------
 // resolveFile
@@ -26,7 +27,7 @@ function resolveFile(filePath, repoRoot) {
     const repoResolved = fs.realpathSync(repoRoot);
     const candidate = path.resolve(repoRoot, filePath);
 
-    // Resolve symlinks for the candidate too (handles /tmp -> /private/tmp)
+    // Resolve symlinks for the candidate
     const real = fs.realpathSync(candidate);
 
     // Must be inside resolved repo root or equal to it
@@ -108,43 +109,14 @@ export function validateProductionFileExists(filePath, repoRoot, allowlist, prot
     return { valid: false, error: `cannot stat production file: ${filePath}` };
   }
 
-  // Check allowlist
-  const allowlistCheck = getDefaultAllowlist();
-  const paths = allowlist ?? allowlistCheck;
-  const normalized = filePath.replace(/\\/g, "/");
-
-  let isAllowed = false;
-  for (const pattern of paths) {
-    if (pattern.endsWith("/**")) {
-      const dir = pattern.slice(0, -3);
-      if (normalized === dir || normalized.startsWith(dir + "/")) { isAllowed = true; break; }
-    } else if (pattern.endsWith("/*")) {
-      const dir = pattern.slice(0, -2);
-      if (normalized.startsWith(dir + "/") && !normalized.slice(dir.length + 1).includes("/")) { isAllowed = true; break; }
-    } else {
-      if (normalized === pattern) { isAllowed = true; break; }
-    }
-  }
-  if (!isAllowed) {
+  // Check allowlist (uses canonical isAllowlisted from policy.mjs)
+  if (!isAllowlisted(filePath, allowlist)) {
     return { valid: false, error: `production file is outside allowlist: ${filePath}` };
   }
 
-  // Check protected
-  const protectCheck = getDefaultProtectedPaths();
-  const protPaths = protectedPaths ?? protectCheck;
-  for (const pp of protPaths) {
-    const cleanDir = pp.replace(/\/+$/, "");
-    if (pp.endsWith("/")) {
-      if (normalized.startsWith(pp)) return { valid: false, error: `production file is protected: ${filePath}` };
-      if (normalized === cleanDir) return { valid: false, error: `production file is protected: ${filePath}` };
-      if (normalized.startsWith(cleanDir + "/")) return { valid: false, error: `production file is protected: ${filePath}` };
-    } else if (pp.startsWith(".")) {
-      if (normalized === pp) return { valid: false, error: `production file is protected: ${filePath}` };
-      if (normalized.startsWith(pp + ".")) return { valid: false, error: `production file is protected: ${filePath}` };
-      if (normalized.startsWith(pp + "/")) return { valid: false, error: `production file is protected: ${filePath}` };
-    } else {
-      if (normalized === pp) return { valid: false, error: `production file is protected: ${filePath}` };
-    }
+  // Check protected (uses canonical isProtected from policy.mjs)
+  if (isProtected(filePath, protectedPaths)) {
+    return { valid: false, error: `production file is protected: ${filePath}` };
   }
 
   return { valid: true };

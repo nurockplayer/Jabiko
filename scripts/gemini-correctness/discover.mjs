@@ -144,7 +144,6 @@ async function main() {
     commitSha: o.commitSha,
     rules: claudeMdRules,
     scannedFiles: scanResult.scannedFiles,
-    manifest: scanResult.manifest,
     stats: scanResult.stats
   });
 
@@ -159,7 +158,7 @@ async function main() {
       protectedExcluded: scanResult.stats.protectedExcluded,
       promptLength: promptResult.length,
       truncated: promptResult.truncated,
-      manifest: scanResult.manifest
+      manifest: promptResult.manifest
     }, null, 2));
     return;
   }
@@ -178,10 +177,11 @@ async function main() {
   });
 
   // ---- 6. Repository-aware validation ----
+  // Use the prompt's manifest (which only includes files Gemini actually saw)
   if (result.valid && result.result) {
     const repoCheck = validateFindingWithRepo(result.result, {
       repoRoot: REPO_ROOT,
-      manifest: scanResult.manifest,
+      manifest: promptResult.manifest,
       allowlist,
       protectedPaths
     });

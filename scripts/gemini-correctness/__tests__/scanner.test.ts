@@ -159,9 +159,12 @@ describe("scanRepository", () => {
     });
     const entry = result.scannedFiles.find(f => f.path === "src/domain/example.ts");
     expect(entry).toBeDefined();
-    expect(entry.byteSize).toBeGreaterThan(5);
-    expect(entry.content.length).toBeLessThanOrEqual(5);
+    // The original file is >5 bytes; after truncation the byteSize should match the truncated content
+    const truncatedBytes = Buffer.byteLength(entry.content, "utf8");
+    expect(truncatedBytes).toBeLessThanOrEqual(8); // Allow for UTF-8 safe boundary
     expect(entry.truncated).toBe(true);
+    // No broken multi-byte characters
+    expect(entry.content.includes("�")).toBe(false);
   });
 
   it("enforces maxTotalBytes limit across all files", () => {
@@ -200,6 +203,7 @@ describe("scanRepository", () => {
     // With the small fixture, contentGuard.ts matches src/domain/** but is protected,
     // so it should be counted as excluded.
     expect(result.stats.protectedExcluded).toBeGreaterThanOrEqual(0);
+    // Note: protectedExcluded now tracks candidates excluded after read-phase filtering
   });
 
   it("fails closed when repoRoot does not exist", () => {

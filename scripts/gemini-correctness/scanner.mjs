@@ -8,10 +8,14 @@
 //
 // The scan result is fully deterministic: same repo + same config =
 // same output order and same content.
+//
+// Path security rules are imported from policy.mjs — this is the ONLY
+// source of isProtected/isAllowlisted logic.
 // =============================================================================
 
 import fs from "node:fs";
 import path from "node:path";
+import { isAllowlisted, isProtected, isPathSafe } from "./policy.mjs";
 
 // ---------------------------------------------------------------------------
 // Hard defaults (CLI options cannot exceed these)
@@ -28,44 +32,6 @@ const BINARY_RE = /[\x00-\x08\x0E-\x1F]/; // Detect null / control chars
 // ---------------------------------------------------------------------------
 function isTextFile(content) {
   return !BINARY_RE.test(content.slice(0, 8192));
-}
-
-// ---------------------------------------------------------------------------
-// isProtected — inline version so scanner doesn't import policy circularly
-// ---------------------------------------------------------------------------
-function isProtectedPath(filePath, protectedPaths) {
-  if (!filePath) return true;
-  const normalized = filePath.replace(/\\/g, "/");
-  for (const pp of protectedPaths) {
-    const cleanDir = pp.replace(/\/+$/, "");
-    if (pp.endsWith("/")) {
-      if (normalized.startsWith(pp) || normalized === cleanDir || normalized.startsWith(cleanDir + "/")) return true;
-    } else if (pp.startsWith(".")) {
-      if (normalized === pp || normalized.startsWith(pp + ".") || normalized.startsWith(pp + "/")) return true;
-    } else {
-      if (normalized === pp || normalized.startsWith(pp + "/")) return true;
-    }
-  }
-  return false;
-}
-
-// ---------------------------------------------------------------------------
-// matchGlob — simple glob match for allowlist patterns
-// ---------------------------------------------------------------------------
-function matchGlob(filePath, patterns) {
-  const normalized = filePath.replace(/\\/g, "/");
-  for (const pattern of patterns) {
-    if (pattern.endsWith("/**")) {
-      const dir = pattern.slice(0, -3);
-      if (normalized === dir || normalized.startsWith(dir + "/")) return true;
-    } else if (pattern.endsWith("/*")) {
-      const dir = pattern.slice(0, -2);
-      if (normalized.startsWith(dir + "/") && !normalized.slice(dir.length + 1).includes("/")) return true;
-    } else {
-      if (normalized === pattern) return true;
-    }
-  }
-  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -95,16 +61,18 @@ export function scanRepository({
       try {
         const real = fs.realpathSync(absPath);
         const relPath = path.relative(repoRoot, real);
-        if (real.startsWith(repoReal + path.sep) || real === repoReal) {
-          if (!seenPaths.has(relPath) && !isProtectedPath(relPath, protectedPaths)) {
-            try {
-              const stat = fs.statSync(real);
-              if (stat.isFile()) {
-                seenPaths.add(relPath);
-                candidates.push({ relPath, fullPath: real });
-              }
-            } catch { /* skip unreadable */ }
-          }
+        if ((real.startsWith(repoReal + path.sep) || real === repoReal) && !isAllowlisted(relPath, allowlist)) {
+          continue;
+        }
+        if (isProtected(relPath, protectedPaths)) continue;
+        if (!seenPaths.has(relPath)) {
+          try {
+            const stat = fs.statSync(real);
+            if (stat.isFile()) {
+              seenPaths.add(relPath);
+              candidates.push({ relPath, fullPath: real });
+            }
+          } catch { /* skip unreadable */ }
         }
       } catch { /* skip nonexistent */ }
       continue;
@@ -113,14 +81,11 @@ export function scanRepository({
     // Directory-based pattern
     const baseDir = pattern.endsWith("/**") ? pattern.slice(0, -3) : (pattern.endsWith("/*") ? pattern.slice(0, -2) : pattern);
     const absDir = path.resolve(repoRoot, baseDir);
-
     if (!fs.existsSync(absDir)) continue;
-
     const isFlat = pattern.endsWith("/*") || (!pattern.includes("**") && !pattern.includes("*"));
 
-    // Walk the directory
     try {
-      walkDirectory(absDir, repoRoot, repoReal, protectedPaths, seenPaths, candidates, isFlat);
+      walkDirectory(absDir, repoRoot, repoReal, allowlist, protectedPaths, seenPaths, candidates, isFlat);
     } catch {
       continue;
     }
@@ -130,7 +95,7 @@ export function scanRepository({
   candidates.sort((a, b) => a.relPath.localeCompare(b.relPath));
 
   const scannedFiles = [];
-  let totalAccumulated = 0;
+  let totalAccumulatedBytes = 0;
   const truncated = { maxFiles: false, maxBytesPerFile: false, maxTotalBytes: false };
 
   for (const c of candidates) {
@@ -153,15 +118,21 @@ export function scanRepository({
     const byteSize = Buffer.byteLength(content, "utf8");
     let fileTruncated = false;
 
-    // Per-file size limit
+    // Per-file size limit — use UTF-8 byte count, slice safely at char boundary
     if (byteSize > maxBytesPerFile) {
-      content = content.slice(0, maxBytesPerFile);
+      // Truncate to byte limit by decoding only as many bytes as fit
+      const truncatedBuf = Buffer.from(content, "utf8").subarray(0, maxBytesPerFile);
+      // Decode back to string; Buffer handles multi-byte safely
+      content = truncatedBuf.toString("utf8");
+      // Remove any trailing broken multi-byte character (replacement char)
+      content = content.replace(/�+$/, "");
       fileTruncated = true;
       truncated.maxBytesPerFile = true;
     }
 
-    // Total size limit — if adding this file would exceed, stop
-    if (totalAccumulated + content.length > maxTotalBytes) {
+    // Total size limit — use UTF-8 byte count
+    const contentBytes = Buffer.byteLength(content, "utf8");
+    if (totalAccumulatedBytes + contentBytes > maxTotalBytes) {
       truncated.maxTotalBytes = true;
       break;
     }
@@ -173,11 +144,11 @@ export function scanRepository({
       path: c.relPath,
       content,
       lineCount: effectiveLines,
-      byteSize,
+      byteSize: contentBytes,
       truncated: fileTruncated
     });
 
-    totalAccumulated += content.length;
+    totalAccumulatedBytes += contentBytes;
   }
 
   const manifest = scannedFiles.map(f => f.path);
@@ -187,8 +158,8 @@ export function scanRepository({
     manifest,
     stats: {
       totalFiles: scannedFiles.length,
-      totalBytes: totalAccumulated,
-      protectedExcluded: 0 // Placeholder; exact count requires scanning all files
+      totalBytes: totalAccumulatedBytes,
+      protectedExcluded: candidates.length - scannedFiles.length // Will be updated after read-phase filtering
     },
     truncated
   };
@@ -197,7 +168,7 @@ export function scanRepository({
 // ---------------------------------------------------------------------------
 // walkDirectory — recursive directory traversal
 // ---------------------------------------------------------------------------
-function walkDirectory(absDir, repoRoot, repoReal, protectedPaths, seenPaths, candidates, flat) {
+function walkDirectory(absDir, repoRoot, repoReal, allowlist, protectedPaths, seenPaths, candidates, flat) {
   let entries;
   try {
     entries = fs.readdirSync(absDir, { withFileTypes: true });
@@ -225,14 +196,14 @@ function walkDirectory(absDir, repoRoot, repoReal, protectedPaths, seenPaths, ca
     if (!real.startsWith(repoReal + path.sep) && real !== repoReal) continue;
 
     if (entry.isDirectory() && !flat) {
-      walkDirectory(entryPath, repoRoot, repoReal, protectedPaths, seenPaths, candidates, false);
+      walkDirectory(entryPath, repoRoot, repoReal, allowlist, protectedPaths, seenPaths, candidates, false);
       continue;
     }
 
     if (!entry.isFile()) continue;
 
-    // Skip protected paths
-    if (isProtectedPath(relPath, protectedPaths)) continue;
+    // Skip protected paths (uses canonical isProtected from policy.mjs)
+    if (isProtected(relPath, protectedPaths)) continue;
 
     // Skip duplicates
     if (seenPaths.has(relPath)) continue;
