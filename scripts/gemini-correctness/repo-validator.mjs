@@ -62,7 +62,7 @@ export function validateEvidenceExists(filePath, repoRoot) {
 // ---------------------------------------------------------------------------
 // validateEvidenceLines
 // ---------------------------------------------------------------------------
-export function validateEvidenceLines(filePath, startLine, endLine, repoRoot) {
+export function validateEvidenceLines(filePath, startLine, endLine, repoRoot, { visibleLineCount } = {}) {
   const real = resolveFile(filePath, repoRoot);
   if (!real) return { valid: false, error: `evidence file not found for line check: ${filePath}` };
 
@@ -73,9 +73,14 @@ export function validateEvidenceLines(filePath, startLine, endLine, repoRoot) {
     return { valid: false, error: `cannot read evidence file: ${filePath}` };
   }
 
-  const lineCount = content.split("\n").length;
-  // Remove trailing empty line if file ends with newline
-  const effectiveLines = content.endsWith("\n") ? lineCount - 1 : lineCount;
+  // Use visibleLineCount when provided (file was truncated in scanner)
+  // Otherwise compute from actual file content.
+  const effectiveLines = visibleLineCount != null
+    ? visibleLineCount
+    : (() => {
+        const lineCount = content.split("\n").length;
+        return content.endsWith("\n") ? lineCount - 1 : lineCount;
+      })();
 
   if (startLine < 1) {
     return { valid: false, error: `startLine ${startLine} < 1` };
@@ -84,10 +89,10 @@ export function validateEvidenceLines(filePath, startLine, endLine, repoRoot) {
     return { valid: false, error: `endLine ${endLine} < startLine ${startLine}` };
   }
   if (endLine > effectiveLines) {
-    return { valid: false, error: `endLine ${endLine} exceeds file line count ${effectiveLines} in ${filePath}` };
+    return { valid: false, error: `endLine ${endLine} exceeds visible line count ${effectiveLines} in ${filePath} (file was truncated; Gemini only saw ${effectiveLines} lines)` };
   }
   if (startLine > effectiveLines) {
-    return { valid: false, error: `startLine ${startLine} exceeds file line count ${effectiveLines} in ${filePath}` };
+    return { valid: false, error: `startLine ${startLine} exceeds visible line count ${effectiveLines} in ${filePath} (file was truncated; Gemini only saw ${effectiveLines} lines)` };
   }
 
   return { valid: true };
@@ -178,7 +183,7 @@ export function validateFindingWithRepo(finding, { repoRoot, manifest, allowlist
     const exists = validateEvidenceExists(ev.file, repoRoot);
     if (!exists.valid) return exists;
 
-    const lines = validateEvidenceLines(ev.file, ev.startLine, ev.endLine, repoRoot);
+    const lines = validateEvidenceLines(ev.file, ev.startLine, ev.endLine, repoRoot, { visibleLineCount: ev.visibleLineCount });
     if (!lines.valid) return lines;
   }
 

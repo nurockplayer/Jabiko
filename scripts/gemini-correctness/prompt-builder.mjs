@@ -2,37 +2,13 @@
 // prompt-builder.mjs — Builds the Gemini discovery prompt from scanned files
 // =============================================================================
 //
-// Separates prompt construction from scanning and Gemini invocation so each
-// piece is independently testable.
-//
-// The prompt includes:
-//   - Project rules (from CLAUDE.md)
-//   - File manifest (list of paths actually in the prompt)
-//   - Scanned file contents with path headers and line numbers
-//   - Strict JSON output schema instructions
-//   - Hard MAX_TOTAL_CHARS cap to prevent oversized prompts
-//
-// IMPORTANT: The returned `manifest` only includes files that were actually
-// placed in the prompt.  Files excluded by the size cap are NOT in the
-// manifest, so repo validation correctly rejects evidence referencing them.
+// IMPORTANT: Never uses prompt.slice().  Only complete file blocks are added.
+// Manifest always matches the blocks actually placed in the prompt.
 // =============================================================================
 
-import fs from "node:fs";
-import path from "node:path";
-
-// ---------------------------------------------------------------------------
-// Hard limit
-// ---------------------------------------------------------------------------
-export const MAX_TOTAL_CHARS = 500_000; // hard cap for total prompt length
-
-// ---------------------------------------------------------------------------
-// Default model (single source of truth — no other module defines a default)
-// ---------------------------------------------------------------------------
+export const MAX_TOTAL_CHARS = 500_000;
 export const DEFAULT_MODEL = "gemini-2.0-flash";
 
-// ---------------------------------------------------------------------------
-// Prompt template parts
-// ---------------------------------------------------------------------------
 const PROMPT_TEMPLATE = `You are a correctness reviewer for a JLPT study application written in TypeScript.
 Your task is to find ONE high-confidence correctness bug in the scanned code below.
 
@@ -100,24 +76,17 @@ Commit SHA: {{commitSha}}
 
 ## File contents
 
-{{fileContentsSection}}
-`;
+{{fileContentsSection}}`;
 
-// ---------------------------------------------------------------------------
-// buildDiscoveryPrompt
-// ---------------------------------------------------------------------------
 export function buildDiscoveryPrompt({
   commitSha,
   rules,
   scannedFiles,
   stats
 } = {}) {
-  // Build rules section
-  const rulesSection = rules
-    ? `\n## Project rules\n\n${rules}`
-    : "";
+  const rulesSection = rules ? `\n## Project rules\n\n${rules}` : "";
 
-  // Build file contents section — only include files that fit within the cap
+  // Build file contents — only whole blocks, never partial
   const fileContents = [];
   const filePaths = [];
   let truncated = false;
@@ -125,20 +94,19 @@ export function buildDiscoveryPrompt({
   for (const f of scannedFiles) {
     const header = `### ${f.path} (${f.lineCount} lines${f.truncated ? ", TRUNCATED" : ""})`;
     const lines = f.content.split("\n");
-    const numbered = lines
-      .map((line, idx) => `${idx + 1}|${line}`)
-      .join("\n");
+    const numbered = lines.map((line, idx) => `${idx + 1}|${line}`).join("\n");
     const block = `${header}\n\`\`\`\n${numbered}\n\`\`\``;
 
-    // Estimate template overhead
-    const currentManifestPreview = filePaths.join("\n");
-    const estimatedTotal = PROMPT_TEMPLATE.length
+    // Estimate total — using already-computed lengths
+    const manifestStr = filePaths.join("\n");
+    const contentsStr = fileContents.join("\n\n");
+    const estimated = PROMPT_TEMPLATE.length
       + rulesSection.length
-      + currentManifestPreview.length
-      + fileContents.reduce((s, p) => s + p.length, 0)
+      + manifestStr.length
+      + contentsStr.length
       + block.length;
 
-    if (estimatedTotal > MAX_TOTAL_CHARS) {
+    if (estimated > MAX_TOTAL_CHARS) {
       truncated = true;
       break;
     }
@@ -147,12 +115,13 @@ export function buildDiscoveryPrompt({
     filePaths.push(f.path);
   }
 
-  // Build manifest section — ONLY from files actually in the prompt
+  // Build final prompt — only complete blocks, NEVER prompt.slice()
   const manifestSection = filePaths.join("\n");
   const fileContentsSection = fileContents.join("\n\n");
 
-  // Build the full prompt
-  const templateReplaced = PROMPT_TEMPLATE
+  // Replace placeholders.  If total exceeds cap, the prompt won't be sliced;
+  // instead the caller should reduce scannedFiles.
+  const prompt = PROMPT_TEMPLATE
     .replace("{{commitSha}}", commitSha || "unknown")
     .replace("{{rulesSection}}", rulesSection)
     .replace("{{fileCount}}", String(filePaths.length))
@@ -161,22 +130,9 @@ export function buildDiscoveryPrompt({
     .replace("{{manifestSection}}", manifestSection)
     .replace("{{fileContentsSection}}", fileContentsSection);
 
-  // Final length enforcement — trim if still over (safety net).
-  // If trimmed, the last file's content is partial — remove it from manifest.
-  let prompt = templateReplaced;
-  let finalManifest = filePaths;
-  if (prompt.length > MAX_TOTAL_CHARS) {
-    prompt = prompt.slice(0, MAX_TOTAL_CHARS);
-    truncated = true;
-    // Remove last file from manifest since its content was truncated
-    if (finalManifest.length > 0) {
-      finalManifest = finalManifest.slice(0, -1);
-    }
-  }
-
   return {
     prompt,
-    manifest: finalManifest,
+    manifest: filePaths,
     truncated,
     length: prompt.length
   };
