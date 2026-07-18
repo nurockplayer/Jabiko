@@ -396,8 +396,8 @@ export const ko: Copy = {
   grammarSourceOther: "기타",
   // ---- Blog / 文章 (#483) ----
   blog: "아티클",
-  blogBackToHome: "← 홈으로",
-  blogBackToList: "← 전체 목록",
+  blogBackToHome: "홈으로",
+  blogBackToList: "전체 목록",
   blogHeroEyebrow: "JABIKO 아티클",
   blogIndexTitle: "교과서엔 없는 일본어",
   blogIndexIntro: "요즘 일본어에 대한 오리지널 노트 — 유행어, 오시카츠 문화, 드라마·애니 대사, 가사로 배우는 일본어 등 교과서엔 없지만 매일 마주치는 표현을 모았어요.",

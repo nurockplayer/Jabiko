@@ -396,8 +396,8 @@ export const vi: Copy = {
   grammarSourceOther: "Khác",
   // ---- Blog / 文章 (#483) ----
   blog: "Bài viết",
-  blogBackToHome: "← Trang chủ",
-  blogBackToList: "← Tất cả bài viết",
+  blogBackToHome: "Trang chủ",
+  blogBackToList: "Tất cả bài viết",
   blogHeroEyebrow: "BÀI VIẾT JABIKO",
   blogIndexTitle: "Tiếng Nhật sách giáo khoa bỏ qua",
   blogIndexIntro: "Những ghi chú gốc về tiếng Nhật đời thường — tiếng lóng, văn hóa oshikatsu, lời thoại phim và anime, học qua lời bài hát, và nhiều thứ sách giáo khoa không dạy nhưng bạn gặp mỗi ngày.",

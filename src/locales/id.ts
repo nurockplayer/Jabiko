@@ -396,8 +396,8 @@ export const id: Copy = {
   grammarSourceOther: "Lainnya",
   // ---- Blog / 文章 (#483) ----
   blog: "Artikel",
-  blogBackToHome: "← Beranda",
-  blogBackToList: "← Semua artikel",
+  blogBackToHome: "Beranda",
+  blogBackToList: "Semua artikel",
   blogHeroEyebrow: "ARTIKEL JABIKO",
   blogIndexTitle: "Bahasa Jepang yang tak diajarkan buku",
   blogIndexIntro: "Catatan orisinal tentang bahasa Jepang masa kini — slang, budaya oshikatsu, dialog drama dan anime, belajar dari lirik lagu, dan hal lain yang tak ada di buku tapi sering kamu temui.",
