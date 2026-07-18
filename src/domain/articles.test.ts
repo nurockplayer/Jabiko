@@ -43,6 +43,13 @@ describe("blog articles data guard", () => {
   it("serves the rewritten ebichili essay and its practical lyric notes", () => {
     const article = articleBySlug("shiritsu-ebisu-chugaku-ebichili-hajimemashita");
     const lead = article?.body[0];
+    const linksIndex = article?.body.findIndex((block) => block.kind === "links") ?? -1;
+    const longEssayParagraphs = article?.body
+      .slice(0, linksIndex < 0 ? undefined : linksIndex)
+      .filter(
+        (block): block is Extract<ArticleBlock, { kind: "lead" | "paragraph" }> =>
+          (block.kind === "lead" || block.kind === "paragraph") && block.text.length > 160
+      );
     const links = article?.body.flatMap((block) =>
       block.kind === "links" ? block.items.map((item) => item.url) : []
     );
@@ -62,15 +69,16 @@ describe("blog articles data guard", () => {
       "私立恵比寿中学在 2009 年成立，是 STARDUST 在ももいろクローバー之後推出的第一個妹分團體，2012 年主流出道，明年迎來主流出道 15 週年。"
     );
     expect(lead && "text" in lead ? lead.text : "").not.toContain("？");
+    expect(longEssayParagraphs).toEqual([]);
     expect(article?.title).not.toContain("現在的我們，還好吃嗎");
     expect(article?.description).not.toContain("最後一句");
     expect(bodyText).toContain("恵比寿中学");
     expect(bodyText).not.toContain("先把「蝦中」講清楚");
-    expect(bodyText).toContain("她們和ももいろクローバー同屬 STARDUST");
-    expect(bodyText).toContain("現在很紅的超ときめき♡宣伝部（超心宣）也是同門");
+    expect(bodyText).toContain("STARDUST 在ももいろクローバー之後推出的第一個妹分團體");
+    expect(bodyText).toContain("同門還有現在很紅的超ときめき♡宣伝部（超心宣）");
     expect(bodyText).toContain("事務所位在東京澀谷區惠比壽南");
     expect(bodyText).toContain("日語圈長年把團名簡稱為「エビ中」");
-    expect(bodyText).toContain("華語圈的「蝦中」就是對應這個叫法");
+    expect(bodyText).toContain("華語圈也就叫「蝦中」");
     expect(bodyText).toContain("目前官方 Profile 把通稱寫成平假名「えびちゅう」");
     expect(bodyText).toContain("兩種表記仍會一起出現");
     expect(bodyText).toContain("澀谷區惠比壽南");
@@ -80,13 +88,13 @@ describe("blog articles data guard", () => {
     expect(bodyText).toContain("反覆的 チュー 也呼應 えびちゅう");
     expect(bodyText).toContain("2012 年主流出道");
     expect(bodyText).toContain("明年迎來主流出道 15 週年");
-    expect(bodyText).toContain("2026 年的方式");
-    expect(bodyText).toContain("十年前那種電波搞怪");
+    expect(bodyText).toContain("2026 年的 MV 和短影音規格");
+    expect(bodyText).toContain("全員認真胡鬧的電波歌");
     expect(bodyText).toContain("普通ってなんなのよ");
     expect(bodyText).toContain("在熱到不行的夏天偏要吃熱的");
     expect(bodyText).toContain("照著「普通」走，反而不是蝦中");
     expect(bodyText).toContain("流行甜點一直換，這段其實也在講蝦中自己");
-    expect(bodyText).toContain("偶像界也一樣");
+    expect(bodyText).toContain("偶像界也不停換新的團體、曲風和爆紅方式");
     expect(bodyText).toContain("不是她們真的不想紅");
     expect(bodyText).toContain("不用每次都把自己改成當季甜點");
     expect(bodyText).toContain("秘密結社★ブラックタイガー");
