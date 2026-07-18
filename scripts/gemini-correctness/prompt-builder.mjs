@@ -4,6 +4,8 @@
 //
 // IMPORTANT: Never uses prompt.slice().  Only complete file blocks are added.
 // Manifest always matches the blocks actually placed in the prompt.
+// MAX_TOTAL_CHARS is a TRUE hard cap: the final prompt after ALL replacements
+// must never exceed it.
 // =============================================================================
 
 export const MAX_TOTAL_CHARS = 500_000;
@@ -86,7 +88,16 @@ export function buildDiscoveryPrompt({
 } = {}) {
   const rulesSection = rules ? `\n## Project rules\n\n${rules}` : "";
 
-  // Build file contents — only whole blocks, never partial
+  // Build a "partial prompt" with placeholders for the dynamic sections
+  const beforeBlocks = PROMPT_TEMPLATE
+    .replace("{{commitSha}}", commitSha || "unknown")
+    .replace("{{rulesSection}}", rulesSection)
+    .replace("{{fileCount}}", "{{_COUNT}}")
+    .replace("{{totalBytes}}", "{{_BYTES}}")
+    .replace("{{protectedExcluded}}", String(stats?.protectedExcluded ?? 0))
+    .replace("{{manifestSection}}", "{{_MANIFEST}}")
+    .replace("{{fileContentsSection}}", "{{_CONTENTS}}");
+
   const fileContents = [];
   const filePaths = [];
   let truncated = false;
@@ -97,16 +108,20 @@ export function buildDiscoveryPrompt({
     const numbered = lines.map((line, idx) => `${idx + 1}|${line}`).join("\n");
     const block = `${header}\n\`\`\`\n${numbered}\n\`\`\``;
 
-    // Estimate total — using already-computed lengths
-    const manifestStr = filePaths.join("\n");
-    const contentsStr = fileContents.join("\n\n");
-    const estimated = PROMPT_TEMPLATE.length
-      + rulesSection.length
-      + manifestStr.length
-      + contentsStr.length
-      + block.length;
+    // Compute what the FULL prompt would look like if we add this file
+    const newPaths = [...filePaths, f.path];
+    const newContents = [...fileContents, block];
+    const manifestStr = newPaths.join("\n");
+    const contentsStr = newContents.join("\n\n");
+    const totalBytes = newContents.reduce((s, b) => s + Buffer.byteLength(b, "utf8"), 0);
 
-    if (estimated > MAX_TOTAL_CHARS) {
+    const fullCandidate = beforeBlocks
+      .replace("{{_COUNT}}", String(newPaths.length))
+      .replace("{{_BYTES}}", String(totalBytes))
+      .replace("{{_MANIFEST}}", manifestStr)
+      .replace("{{_CONTENTS}}", contentsStr);
+
+    if (fullCandidate.length > MAX_TOTAL_CHARS) {
       truncated = true;
       break;
     }
@@ -115,12 +130,9 @@ export function buildDiscoveryPrompt({
     filePaths.push(f.path);
   }
 
-  // Build final prompt — only complete blocks, NEVER prompt.slice()
   const manifestSection = filePaths.join("\n");
   const fileContentsSection = fileContents.join("\n\n");
 
-  // Replace placeholders.  If total exceeds cap, the prompt won't be sliced;
-  // instead the caller should reduce scannedFiles.
   const prompt = PROMPT_TEMPLATE
     .replace("{{commitSha}}", commitSha || "unknown")
     .replace("{{rulesSection}}", rulesSection)
