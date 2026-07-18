@@ -164,11 +164,23 @@ export function isFileInManifest(filePath, manifest) {
 
 // ---------------------------------------------------------------------------
 // validateFindingWithRepo — runs all repo-aware checks on a parsed finding
-// ---------------------------------------------------------------------------
-export function validateFindingWithRepo(finding, { repoRoot, manifest, allowlist, protectedPaths } = {}) {
+//
+// visibleLineCount comes from scannedFiles metadata, NOT from the finding.
+// Each evidence file's visible line count is looked up by matching the
+// evidence file path against the scannedFile entries provided by the scanner.
+// =============================================================================
+export function validateFindingWithRepo(finding, { repoRoot, manifest, allowlist, protectedPaths, scannedFiles } = {}) {
   // For no-finding, no file validation needed
   if (finding.status === "no-finding") {
     return { valid: true };
+  }
+
+  // Build a lookup from scanned file path → metadata
+  const fileMeta = new Map();
+  if (scannedFiles) {
+    for (const sf of scannedFiles) {
+      fileMeta.set(String(sf.path).replace(/\\/g, "/"), sf);
+    }
   }
 
   // Check evidence files
@@ -183,25 +195,28 @@ export function validateFindingWithRepo(finding, { repoRoot, manifest, allowlist
     const exists = validateEvidenceExists(ev.file, repoRoot);
     if (!exists.valid) return exists;
 
-    const lines = validateEvidenceLines(ev.file, ev.startLine, ev.endLine, repoRoot, { visibleLineCount: ev.visibleLineCount });
+    // visibleLineCount comes from scanner metadata, NOT from ev.visibleLineCount
+    const meta = fileMeta.get(String(ev.file).replace(/\\/g, "/"));
+    const vl = meta ? meta.lineCount : undefined;
+
+    const lines = validateEvidenceLines(ev.file, ev.startLine, ev.endLine, repoRoot, { visibleLineCount: vl });
     if (!lines.valid) return lines;
   }
 
   // Check production files
-  for (let i = 0; i < finding.productionFiles.length; i++) {
+  for (let i = 0; i < (finding.productionFiles || []).length; i++) {
     const pf = finding.productionFiles[i];
-
     if (!isFileInManifest(pf, manifest)) {
       return { valid: false, error: `productionFiles[${i}] "${pf}" was not in the scanned manifest` };
     }
-
     const exists = validateProductionFileExists(pf, repoRoot, allowlist, protectedPaths);
     if (!exists.valid) return exists;
   }
 
   // Check reproduction test parent dir
-  if (finding.productionFiles.length > 0) {
+  if (finding.productionFiles && finding.productionFiles.length > 0) {
     const rep = finding.reproduction;
+    if (!rep) return { valid: false, error: "reproduction is required" };
     const parentCheck = validateReproductionParentDir(rep.testFile, finding.productionFiles[0], repoRoot);
     if (!parentCheck.valid) return parentCheck;
   }
