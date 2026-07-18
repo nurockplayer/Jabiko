@@ -25,8 +25,12 @@ const baseQuestion: PracticeQuestion = {
   promptText: "この仕事は面倒だ。"
 };
 
+// 2026-07 report-format rework: the reviewer reads (1) which question,
+// (2) what the learner picked and why they reported, (3) the learner's own
+// words -- so those lead the message. Everything derivable from the question
+// id is compressed into a context block below a `---` separator.
 describe("buildQuestionReportMessage", () => {
-  it("packs every metadata field into a human-readable message", () => {
+  it("leads with the id, the essentials line, then the learner's detail", () => {
     const message = buildQuestionReportMessage({
       question: baseQuestion,
       reason: "wrongAnswer",
@@ -34,90 +38,96 @@ describe("buildQuestionReportMessage", () => {
       language: "zh-Hant",
       selectedAnswer: "めいわく"
     });
+    const lines = message.split("\n");
 
-    // A clear header marking this as a question report.
-    expect(message).toContain("題目回報");
-    expect(message).toContain("question report");
-    // Reason key.
-    expect(message).toContain("wrongAnswer");
-    // Question identity + type + level.
-    expect(message).toContain("q-demo-001");
-    // promptLabel AND targetForm are emitted separately, not collapsed into one.
-    expect(message).toContain("漢字読み"); // promptLabel
-    expect(message).toContain("reading"); // targetForm (kept even when promptLabel exists)
-    expect(message).toContain("N2");
-    expect(message).toContain("面倒"); // surface
-    // Extra vocabulary identity: id + reading.
-    expect(message).toContain("v-demo"); // vocabulary id
-    expect(message).toContain("めんどう"); // vocabulary reading
-    expect(message).toContain("この仕事は面倒だ。"); // promptText
-    // Both expected answers joined.
-    expect(message).toContain("めんどう");
-    expect(message).toContain("めんどうな");
-    // The learner's pick.
-    expect(message).toContain("めいわく");
-    // UI language.
-    expect(message).toContain("zh-Hant");
-    // Free-text detail.
-    expect(message).toContain("正解が二つあるはず");
+    expect(lines[0]).toBe("[題目回報 / question report] q-demo-001");
+    expect(lines[1]).toBe("reason: wrongAnswer · selected: めいわく · ui: zh-Hant");
+    expect(lines[2]).toBe("detail: 正解が二つあるはず");
+    // The learner's words sit ABOVE the derived context.
+    expect(message.indexOf("detail:")).toBeLessThan(message.indexOf("---"));
   });
 
-  it("emits promptLabel and targetForm on separate labelled lines", () => {
+  it("compresses the derived question data into the context block", () => {
     const message = buildQuestionReportMessage({
       question: baseQuestion,
       reason: "wrongAnswer",
       language: "zh-Hant"
     });
     const lines = message.split("\n");
-    expect(lines).toContain("promptLabel: 漢字読み");
-    expect(lines).toContain("targetForm: reading");
-    // Vocabulary identity is its own structured pair, not folded into surface.
-    expect(lines).toContain("vocabId: v-demo");
-    expect(lines).toContain("reading: めんどう");
+
+    expect(lines).toContain("---");
+    expect(lines).toContain("context: 漢字読み · reading · N2 · 面倒");
+    expect(lines).toContain("expected: めんどう / めんどうな");
+    expect(lines).toContain("prompt: この仕事は面倒だ。");
+    // The old one-line-per-field block is gone (all derivable from the id).
+    expect(message).not.toContain("vocabId:");
+    expect(message).not.toContain("promptLabel:");
+    expect(message).not.toContain("targetForm:");
+    expect(message).not.toContain("surface:");
   });
 
-  it("shows a dash for an absent promptLabel but still emits targetForm", () => {
+  it("renders dashes for missing values and never the word undefined", () => {
     const { promptLabel, ...rest } = baseQuestion;
     void promptLabel;
-    const message = buildQuestionReportMessage({
-      question: rest as PracticeQuestion,
-      reason: "typo",
-      language: "zh-Hant"
-    });
-    const lines = message.split("\n");
-    expect(lines).toContain("promptLabel: -"); // missing -> dash, never "undefined"
-    expect(lines).toContain("targetForm: reading"); // targetForm always present
-    expect(message).not.toContain("undefined");
-  });
-
-  it("renders placeholders for missing optional promptText / level / selectedAnswer", () => {
     const question: PracticeQuestion = {
-      ...baseQuestion,
+      ...(rest as PracticeQuestion),
       promptText: undefined,
       vocabulary: { ...baseQuestion.vocabulary, level: undefined }
     };
     const message = buildQuestionReportMessage({
       question,
-      reason: "other",
+      reason: "typo",
       language: "zh-Hant",
       selectedAnswer: null
     });
-    // Should not blow up and should still mention the surface + id.
-    expect(message).toContain("q-demo-001");
-    expect(message).toContain("面倒");
-    // Missing fields rendered as a dash placeholder, never "undefined".
+    const lines = message.split("\n");
+
+    expect(lines[1]).toBe("reason: typo · selected: - · ui: zh-Hant");
+    expect(lines).toContain("context: - · reading · - · 面倒");
+    // No promptText -> the prompt line is omitted entirely.
+    expect(message).not.toContain("prompt:");
     expect(message).not.toContain("undefined");
-    expect(message).toContain("-");
   });
 
-  it("omits the detail section gracefully when no detail is given", () => {
+  it("omits the detail line when the learner wrote nothing", () => {
     const message = buildQuestionReportMessage({
       question: baseQuestion,
       reason: "awkwardMeaning",
       language: "zh-Hant"
     });
-    expect(message).not.toContain("undefined");
+    expect(message).not.toContain("detail:");
     expect(message).toContain("awkwardMeaning");
+  });
+
+  it("trims an over-long prompt inside the context block", () => {
+    const question: PracticeQuestion = {
+      ...baseQuestion,
+      promptText: "あ".repeat(500)
+    };
+    const message = buildQuestionReportMessage({
+      question,
+      reason: "other",
+      language: "zh-Hant"
+    });
+    const promptLine = message.split("\n").find((line) => line.startsWith("prompt:"));
+    expect(promptLine).toBeDefined();
+    expect(promptLine!.length).toBeLessThanOrEqual("prompt: ".length + 161);
+    expect(promptLine).toContain("…");
+  });
+
+  it("caps at FEEDBACK_MAX with the essentials AND context surviving a huge detail", () => {
+    const message = buildQuestionReportMessage({
+      question: baseQuestion,
+      reason: "other",
+      detail: "あ".repeat(FEEDBACK_MAX * 2),
+      language: "zh-Hant"
+    });
+    expect(message.length).toBeLessThanOrEqual(FEEDBACK_MAX);
+    // Essentials + context are reserved first; only the detail is trimmed.
+    expect(message).toContain("q-demo-001");
+    expect(message).toContain("context: 漢字読み · reading · N2 · 面倒");
+    expect(message).toContain("expected: めんどう / めんどうな");
+    expect(message).toContain("detail: ");
   });
 
   it("is deterministic for identical input", () => {
@@ -129,21 +139,5 @@ describe("buildQuestionReportMessage", () => {
       selectedAnswer: "めんどう"
     };
     expect(buildQuestionReportMessage(input)).toBe(buildQuestionReportMessage(input));
-  });
-
-  it("caps the message at FEEDBACK_MAX even with an over-long detail", () => {
-    const message = buildQuestionReportMessage({
-      question: baseQuestion,
-      reason: "other",
-      detail: "あ".repeat(FEEDBACK_MAX * 2),
-      language: "zh-Hant"
-    });
-    expect(message.length).toBeLessThanOrEqual(FEEDBACK_MAX);
-    // The full structured metadata block survives the cap (only detail trims).
-    expect(message).toContain("q-demo-001");
-    expect(message).toContain("v-demo"); // vocab id
-    expect(message).toContain("めんどう"); // vocab reading
-    expect(message).toContain("漢字読み"); // promptLabel
-    expect(message).toContain("reading"); // targetForm
   });
 });

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Send, X } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { getSupabase } from "../lib/supabase";
-import { submitFeedback, FEEDBACK_MAX, type FeedbackInput } from "../domain/feedbackRemote";
+import { submitFeedback, FEEDBACK_MAX, CONTACT_MAX, type FeedbackInput } from "../domain/feedbackRemote";
 import { buildQuestionReportMessage, type ReportReason } from "../domain/questionReport";
 import type { PracticeQuestion } from "../domain/types";
 
@@ -50,6 +50,7 @@ export function QuestionReportForm({
   const [reason, setReason] = useState<ReportReason>("wrongAnswer");
   const [detail, setDetail] = useState("");
   const [wantsReply, setWantsReply] = useState(false);
+  const [contact, setContact] = useState("");
   const [status, setStatus] = useState<Status>("idle");
 
   // buildQuestionReportMessage prepends the structured question block (plus a
@@ -99,7 +100,14 @@ export function QuestionReportForm({
         language,
         selectedAnswer
       });
-      await submit({ category: "bug", message, wantsReply });
+      // Contact rides the dedicated feedback column (never the message text),
+      // and only when a reply was actually requested.
+      await submit({
+        category: "bug",
+        message,
+        wantsReply,
+        contact: wantsReply ? contact.trim() || undefined : undefined
+      });
       setStatus("done");
     } catch {
       setStatus("error");
@@ -182,7 +190,22 @@ export function QuestionReportForm({
           />
           {t.feedbackWantsReply}
         </label>
-        {wantsReply ? <p className="feedback-reply-hint">{t.feedbackWantsReplyHint}</p> : null}
+        {wantsReply ? (
+          <>
+            <p className="feedback-reply-hint">{t.feedbackWantsReplyHint}</p>
+            {/* 2026-07 fix: the hint told anonymous users to leave a contact
+                "below", but this form never had the field -- only the general
+                FeedbackForm did. Same input, same dedicated column. */}
+            <input
+              className="feedback-contact"
+              type="text"
+              value={contact}
+              onChange={(event) => setContact(event.target.value)}
+              placeholder={t.feedbackContact}
+              maxLength={CONTACT_MAX}
+            />
+          </>
+        ) : null}
         <p className="feedback-anon">{t.feedbackAnon}</p>
 
         {status === "error" ? (

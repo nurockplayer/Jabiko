@@ -63,6 +63,35 @@ describe("QuestionReportForm", () => {
     expect(arg.message).toContain("題目回報");
   });
 
+  // 2026-07 report-UX fix: the reply checkbox used to point anonymous users at
+  // a contact field that only existed on the general feedback form. Ticking
+  // 希望收到回信 now reveals the same optional contact input here.
+  it("reveals a contact input when the reply checkbox is ticked, and submits it", async () => {
+    const submit = vi.fn().mockResolvedValue(undefined);
+    renderForm({ submit });
+
+    expect(screen.queryByPlaceholderText(/聯絡方式/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("checkbox", { name: "希望收到回信" }));
+    const contact = screen.getByPlaceholderText(/聯絡方式/);
+    fireEvent.change(contact, { target: { value: "hana@example.com" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "送出回報" }));
+    await waitFor(() => expect(submit).toHaveBeenCalled());
+    const arg = submit.mock.calls[0][0];
+    expect(arg.wantsReply).toBe(true);
+    expect(arg.contact).toBe("hana@example.com");
+    // Contact rides the dedicated column, never the message text.
+    expect(arg.message).not.toContain("hana@example.com");
+  });
+
+  it("omits contact when the reply checkbox stays unticked", async () => {
+    const submit = vi.fn().mockResolvedValue(undefined);
+    renderForm({ submit });
+    fireEvent.click(screen.getByRole("button", { name: "送出回報" }));
+    await waitFor(() => expect(submit).toHaveBeenCalled());
+    expect(submit.mock.calls[0][0].contact).toBeUndefined();
+  });
+
   it("sends wantsReply=true when the reply checkbox is ticked (#468)", async () => {
     const submit = vi.fn().mockResolvedValue(undefined);
     renderForm({ submit });
