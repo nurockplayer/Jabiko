@@ -125,7 +125,7 @@ describe("isProtected", () => {
   });
 
   it("protects generated files (examBlocks and furigana)", () => {
-    expect(isProtected("src/domain/exam/examBlocks.ts")).toBe(true);
+    expect(isProtected("src/domain/examBlocks.ts")).toBe(true);
     expect(isProtected("src/domain/furiganaExplanationData.ts")).toBe(true);
     expect(isProtected("src/domain/furiganaLearningData.ts")).toBe(true);
   });

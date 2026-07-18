@@ -15,7 +15,7 @@ export function getDefaultProtectedPaths() {
     "src/domain/exam/items/", "scripts/exam-batches/",
     "src/domain/furiganaData.ts", "supabase/", "functions/",
     "src/domain/furiganaExplanationData.ts", "src/domain/furiganaLearningData.ts",
-    "src/domain/furigana", "src/domain/exam/examBlocks.ts",
+    "src/domain/furigana", "src/domain/examBlocks.ts",
     "public/", "vite.config.ts", "tsconfig.json", "tsconfig.node.json"
   ];
 }
