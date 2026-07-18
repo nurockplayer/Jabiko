@@ -183,7 +183,8 @@ async function main() {
       repoRoot: REPO_ROOT,
       manifest: promptResult.manifest,
       allowlist,
-      protectedPaths
+      protectedPaths,
+      scannedFiles: scanResult.scannedFiles
     });
 
     if (!repoCheck.valid) {

@@ -106,6 +106,7 @@ export function isPathWithinRepo(filePath, repoRoot) {
 // safeWritePath — restricts output paths to a temp/artifact directory.
 // If allowedDir doesn't exist, creates it.
 // Rejects symlink escapes (including allowedDir itself being a symlink outside).
+// Does NOT realpathSync the final file since it may not exist yet (clean checkout).
 // ---------------------------------------------------------------------------
 export function safeWritePath(targetPath, allowedDir) {
   if (!targetPath) return null;
@@ -115,7 +116,7 @@ export function safeWritePath(targetPath, allowedDir) {
       fs.mkdirSync(allowedDir, { recursive: true });
     }
 
-    // Resolve allowedDir — reject if it's a symlink pointing outside
+    // Resolve allowedDir — reject if symlink outside
     let allowedReal;
     try { allowedReal = fs.realpathSync(allowedDir); }
     catch { return null; }
@@ -124,10 +125,12 @@ export function safeWritePath(targetPath, allowedDir) {
     const relative = path.relative(allowedReal, candidate);
     if (!relative || relative.startsWith("..")) return null;
 
-    // Walk each segment; existing symlinks must stay within allowedReal
+    // Walk each segment; existing symlinks must stay within allowedReal.
+    // Skip the final segment (the target file itself) which may not exist.
     const segments = relative.split(path.sep);
+    const dirSegments = segments.slice(0, -1);
     let current = allowedReal;
-    for (const seg of segments) {
+    for (const seg of dirSegments) {
       current = path.join(current, seg);
       if (fs.existsSync(current)) {
         let real;
@@ -136,9 +139,12 @@ export function safeWritePath(targetPath, allowedDir) {
       }
     }
 
-    // Final containment check: candidate must start with allowedReal
-    const finalReal = fs.realpathSync(candidate);
-    if (!finalReal.startsWith(allowedReal + path.sep) && finalReal !== allowedReal) return null;
+    // Only check final file if it already exists
+    if (fs.existsSync(candidate)) {
+      let finalReal;
+      try { finalReal = fs.realpathSync(candidate); } catch { return null; }
+      if (!finalReal.startsWith(allowedReal + path.sep) && finalReal !== allowedReal) return null;
+    }
 
     return candidate;
   } catch { return null; }
