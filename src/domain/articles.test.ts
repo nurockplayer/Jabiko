@@ -42,6 +42,7 @@ describe("blog articles data guard", () => {
 
   it("serves the rewritten ebichili essay and its practical lyric notes", () => {
     const article = articleBySlug("shiritsu-ebisu-chugaku-ebichili-hajimemashita");
+    const lead = article?.body[0];
     const links = article?.body.flatMap((block) =>
       block.kind === "links" ? block.items.map((item) => item.url) : []
     );
@@ -56,9 +57,12 @@ describe("blog articles data guard", () => {
       .join("\n");
 
     expect(article?.title).toBe("蝦中是什麼？〈えびチリ、はじめました〉日文筆記");
+    expect(lead?.kind).toBe("lead");
+    expect(lead && "text" in lead ? lead.text.length : Number.POSITIVE_INFINITY).toBeLessThan(70);
     expect(article?.title).not.toContain("現在的我們，還好吃嗎");
     expect(article?.description).not.toContain("最後一句");
     expect(bodyText).toContain("恵比寿中学");
+    expect(bodyText).toContain("先把「蝦中」講清楚");
     expect(bodyText).toContain("日語圈長年把團名簡稱為「エビ中」");
     expect(bodyText).toContain("華語圈的「蝦中」就是對應這個叫法");
     expect(bodyText).toContain("目前官方 Profile 把通稱寫成平假名「えびちゅう」");
@@ -70,6 +74,13 @@ describe("blog articles data guard", () => {
     expect(bodyText).toContain("明年迎來主流出道 15 週年");
     expect(bodyText).toContain("2026 年的方式");
     expect(bodyText).toContain("十年前那種電波搞怪");
+    expect(bodyText).toContain("普通ってなんなのよ");
+    expect(bodyText).toContain("在熱到不行的夏天偏要吃熱的");
+    expect(bodyText).toContain("照著「普通」走，反而不是蝦中");
+    expect(bodyText).toContain("流行甜點一直換，這段其實也在講蝦中自己");
+    expect(bodyText).toContain("偶像界也一樣");
+    expect(bodyText).toContain("不是她們真的不想紅");
+    expect(bodyText).toContain("不用每次都把自己改成當季甜點");
     expect(bodyText).toContain("秘密結社★ブラックタイガー");
     expect(bodyText).toContain("草蝦（虎蝦）");
     expect(bodyText).toContain("Argentine");
