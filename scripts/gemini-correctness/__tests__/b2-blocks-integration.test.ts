@@ -38,7 +38,7 @@ describe("BLOCKER 1 — safeWritePath on clean checkout", () => {
     const tmpDir = path.join(REPO, ".tmp");
     if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true });
 
-    const result = safeWritePath("report.json", tmpDir);
+    const result = safeWritePath("report.json", tmpDir, REPO);
     expect(result).not.toBeNull();
     // On macOS /tmp -> /private/tmp, path.resolve will use realpath
     // The result exists and points inside allowedDir — that's what matters
@@ -51,7 +51,7 @@ describe("BLOCKER 1 — safeWritePath on clean checkout", () => {
     if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
     fs.symlinkSync(OUTSIDE, tmpDir);
 
-    const result = safeWritePath("report.json", tmpDir);
+    const result = safeWritePath("report.json", tmpDir, REPO);
     expect(result).toBeNull();
   });
 
@@ -59,10 +59,9 @@ describe("BLOCKER 1 — safeWritePath on clean checkout", () => {
     const tmpDir = path.join(REPO, ".tmp");
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
     const subDir = path.join(tmpDir, "sub");
-    // sub -> outside
     fs.symlinkSync(OUTSIDE, subDir);
 
-    const result = safeWritePath(path.join("sub", "deep", "out.json"), tmpDir);
+    const result = safeWritePath(path.join("sub", "deep", "out.json"), tmpDir, REPO);
     expect(result).toBeNull();
   });
 });

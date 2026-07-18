@@ -77,7 +77,20 @@ export function scanRepository({
         // Symlink containment: real path must be inside repo
         if (!real.startsWith(repoReal + path.sep) && real !== repoReal) continue;
 
-        const relPath = path.relative(repoRoot, real);
+        // Compute repoRoot-relative path from the symlink-resolved realpath.
+        // On macOS /tmp → /private/tmp, path.relative(repoRoot, real) produces
+        // a traversal path like "../../../private/tmp/...".  To normalize,
+        // we compare against repoReal (the resolved repo root).
+        const relPath = path.relative(repoReal, real);
+        if (!relPath || relPath.startsWith("..")) continue;
+
+        // The resolved path should still pass the allowlist (catches repo-internal
+        // symlinks redirecting to non-allowlisted targets).
+        if (!isAllowlisted(relPath, allowlist)) continue;
+
+        // Protected check — patterns are written relative to repoRoot but
+        // match against relPath (repoReal-relative).  The key invariant is
+        // that both are consistent because walkDirectory also uses repoReal.
         if (isProtected(relPath, protectedPaths)) { protectedExcludedCount++; continue; }
         if (!seenPaths.has(relPath)) {
           try {
@@ -168,6 +181,11 @@ function walkDirectory(absDir, repoRoot, repoReal, protectedPaths, seenPaths, ca
     if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
 
     const entryPath = path.join(absDir, entry.name);
+    // Relative path for pattern matching — compare against repoRoot
+    // (the argument the caller passed, which is also what allowlist/protected
+    // patterns are written relative to).  On macOS /tmp→/private/tmp this
+    // differs from repoReal, but pattern matching must use the caller's
+    // perspective.  Use repoRoot-relative for matching.
     const relPath = path.relative(repoRoot, entryPath);
     if (!relPath || relPath.startsWith("..")) continue;
 

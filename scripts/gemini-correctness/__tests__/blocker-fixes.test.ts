@@ -37,7 +37,7 @@ describe("safeWritePath — .tmp symlink containment", () => {
   afterEach(() => cleanupFixture());
 
   it("rejects when .tmp is a symlink to outside the repo", () => {
-    const result = safeWritePath("report.json", TMP_SYMLINK);
+    const result = safeWritePath("report.json", TMP_SYMLINK, REPO_DIR);
     expect(result).toBeNull();
   });
 
@@ -45,7 +45,7 @@ describe("safeWritePath — .tmp symlink containment", () => {
     const deepDir = path.join(REPO_DIR, ".tmp", "sub");
     if (!fs.existsSync(deepDir)) fs.mkdirSync(deepDir, { recursive: true });
     // .tmp -> outside, so anything under it should be rejected
-    const result = safeWritePath("sub/out.json", TMP_SYMLINK);
+    const result = safeWritePath("sub/out.json", TMP_SYMLINK, REPO_DIR);
     expect(result).toBeNull();
   });
 });

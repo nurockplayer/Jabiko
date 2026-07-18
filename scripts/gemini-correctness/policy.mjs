@@ -2,16 +2,12 @@
 // policy.mjs — Path safety, allowlist, protected-path, and regression-test rules
 // =============================================================================
 //
-// CANONICAL implementation of all path security rules.  scanner.mjs and
-// repo-validator.mjs import from here — do NOT duplicate these checks.
+// CANONICAL implementation of all path security rules.
 // =============================================================================
 
 import fs from "node:fs";
 import path from "node:path";
 
-// ---------------------------------------------------------------------------
-// Default protected paths
-// ---------------------------------------------------------------------------
 export function getDefaultProtectedPaths() {
   return [
     ".github/", ".env", ".env.", "pnpm-lock.yaml", "package.json",
@@ -74,8 +70,7 @@ export function isPathSafe(filePath) {
   if (normalized.startsWith("/")) return false;
   if (/^[A-Za-z]:[/\\]/i.test(normalized)) return false;
   if (normalized.startsWith("//")) return false;
-  const segments = normalized.split("/");
-  for (const seg of segments) { if (seg === "..") return false; }
+  for (const seg of normalized.split("/")) { if (seg === "..") return false; }
   if (normalized.includes("->") || normalized.includes("→")) return false;
   return true;
 }
@@ -104,11 +99,11 @@ export function isPathWithinRepo(filePath, repoRoot) {
 
 // ---------------------------------------------------------------------------
 // safeWritePath — restricts output paths to a temp/artifact directory.
-// If allowedDir doesn't exist, creates it.
-// Rejects symlink escapes (including allowedDir itself being a symlink outside).
-// Does NOT realpathSync the final file since it may not exist yet (clean checkout).
+// Accepts repoRoot.  After resolving allowedDir, verifies its realpath
+// is still inside the repoRoot realpath (rejects symlink escape at the
+// allowedDir level).  Does NOT realpathSync on a non-existent output file.
 // ---------------------------------------------------------------------------
-export function safeWritePath(targetPath, allowedDir) {
+export function safeWritePath(targetPath, allowedDir, repoRoot) {
   if (!targetPath) return null;
   try {
     // Ensure allowedDir exists first
@@ -116,17 +111,24 @@ export function safeWritePath(targetPath, allowedDir) {
       fs.mkdirSync(allowedDir, { recursive: true });
     }
 
-    // Resolve allowedDir — reject if symlink outside
+    // Resolve allowedDir
     let allowedReal;
     try { allowedReal = fs.realpathSync(allowedDir); }
     catch { return null; }
+
+    // Verify allowedReal is inside repoRoot (if provided)
+    if (repoRoot) {
+      const repoReal = fs.realpathSync(repoRoot);
+      if (!allowedReal.startsWith(repoReal + path.sep) && allowedReal !== repoReal) {
+        return null; // allowedDir symlink escaped outside repo
+      }
+    }
 
     const candidate = path.resolve(allowedReal, String(targetPath));
     const relative = path.relative(allowedReal, candidate);
     if (!relative || relative.startsWith("..")) return null;
 
-    // Walk each segment; existing symlinks must stay within allowedReal.
-    // Skip the final segment (the target file itself) which may not exist.
+    // Walk existing parent dirs (skip final file which may not exist)
     const segments = relative.split(path.sep);
     const dirSegments = segments.slice(0, -1);
     let current = allowedReal;
@@ -139,7 +141,7 @@ export function safeWritePath(targetPath, allowedDir) {
       }
     }
 
-    // Only check final file if it already exists
+    // Only check final file if it exists
     if (fs.existsSync(candidate)) {
       let finalReal;
       try { finalReal = fs.realpathSync(candidate); } catch { return null; }
@@ -159,8 +161,7 @@ export function resolveProductionDir(filePath) {
 
 export function isValidRegressionTest(testFile, productionFile) {
   if (!testFile || !productionFile) return false;
-  const REGRESSION_RE = /\.regression\.test\.tsx?$/;
-  if (!REGRESSION_RE.test(testFile)) return false;
+  if (!/\.regression\.test\.tsx?$/.test(testFile)) return false;
   try {
     const testDir = path.posix.dirname(testFile.replace(/\\/g, "/"));
     const prodDir = path.posix.dirname(productionFile.replace(/\\/g, "/"));
