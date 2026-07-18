@@ -46,9 +46,9 @@ const rawArticleMetas: ReadonlyArray<ArticleMeta> = [
   },
   {
     slug: "shiritsu-ebisu-chugaku-ebichili-hajimemashita",
-    title: "從歌詞學日文系列 私立恵比寿中学 - えびチリ、はじめました：現在的我們，還好吃嗎？",
+    title: "蝦中是什麼？〈えびチリ、はじめました〉日文筆記",
     description:
-      "從私立恵比寿中学〈えびチリ、はじめました〉讀懂町中華、原點回歸、變與不變，以及最後一句「まだ美味しい」為什麼讓人想哭。",
+      "從私立恵比寿中学簡稱「エビ中」的由來開始，拆解〈えびチリ、はじめました〉裡的町中華、中文、麻將、南美國名、流行甜點與實用口語。",
     tag: "歌詞學日文",
     publishedAt: "2026-07-12"
   },
