@@ -63,6 +63,7 @@ export const id: Copy = {
   feedbackWantsReply: "Ingin dibalas",
   feedbackWantsReplyHint: "Jika kamu masuk, kami balas ke akunmu; jika tidak, isi kontak di bawah.",
   feedbackAnon: "Dikirim anonim, tanpa perlu login.",
+  feedbackDiagNote: "Agar kami bisa mereproduksi masalah, lingkungan teknis (halaman, perangkat, browser, ukuran layar) ikut dikirim — tanpa isi yang kamu ketik.",
   feedbackSend: "Kirim",
   feedbackSending: "Mengirim…",
   feedbackThanks: "Sudah diterima, terima kasih atas masukanmu!",

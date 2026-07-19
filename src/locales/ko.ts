@@ -63,6 +63,7 @@ export const ko: Copy = {
   feedbackWantsReply: "답장을 받고 싶어요",
   feedbackWantsReplyHint: "로그인 상태면 계정으로 답장드립니다. 아니면 아래에 연락처를 남겨 주세요.",
   feedbackAnon: "익명으로 전송되며 로그인이 필요 없습니다.",
+  feedbackDiagNote: "문제를 재현할 수 있도록 기술 환경(페이지·기기·브라우저·화면 크기 등)을 함께 보냅니다. 입력하신 내용은 포함되지 않습니다.",
   feedbackSend: "보내기",
   feedbackSending: "전송 중…",
   feedbackThanks: "잘 받았어요 — 의견 감사합니다!",

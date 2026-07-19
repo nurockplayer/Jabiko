@@ -61,6 +61,7 @@ export type Copy = {
   feedbackWantsReply: string;
   feedbackWantsReplyHint: string;
   feedbackAnon: string;
+  feedbackDiagNote: string;
   feedbackSend: string;
   feedbackSending: string;
   feedbackThanks: string;

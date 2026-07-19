@@ -3,6 +3,11 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  // Build id so an anonymous feedback report (#654) maps to a deploy.
+  // Cloudflare Pages sets CF_PAGES_COMMIT_SHA at build; "dev" locally / in tests.
+  define: {
+    __APP_BUILD__: JSON.stringify((process.env.CF_PAGES_COMMIT_SHA ?? "dev").slice(0, 8))
+  },
   plugins: [
     react(),
     // PWA: installable + offline (issue #131). registerType "prompt" (#327):
@@ -84,7 +89,8 @@ export default defineConfig({
           exclude: [
             "src/domain/bookmarks.test.ts",
             "src/domain/levelPreference.test.ts",
-            "src/domain/originMigration.test.ts"
+            "src/domain/originMigration.test.ts",
+            "src/domain/diagnostics.test.ts"
           ]
         }
       },
@@ -102,7 +108,8 @@ export default defineConfig({
             "src/lib/**/*.test.{ts,tsx}",
             "src/domain/bookmarks.test.ts",
             "src/domain/levelPreference.test.ts",
-            "src/domain/originMigration.test.ts"
+            "src/domain/originMigration.test.ts",
+            "src/domain/diagnostics.test.ts"
           ]
         }
       }

@@ -63,6 +63,7 @@ export const zhHant: Copy = {
   feedbackWantsReply: "希望收到回信",
   feedbackWantsReplyHint: "已登入會用你的帳號回覆；未登入請在下方留聯絡方式。",
   feedbackAnon: "匿名送出，不需登入。",
+  feedbackDiagNote: "送出時會附上你的技術環境（頁面、裝置、瀏覽器、螢幕尺寸等），不含你輸入的內容，方便我們重現問題。",
   feedbackSend: "送出",
   feedbackSending: "送出中…",
   feedbackThanks: "收到了，謝謝你的回饋！",

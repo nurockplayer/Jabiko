@@ -63,6 +63,7 @@ export const en: Copy = {
   feedbackWantsReply: "I'd like a reply",
   feedbackWantsReplyHint: "If you're signed in we'll reply to your account; otherwise leave a contact below.",
   feedbackAnon: "Sent anonymously, no sign-in needed.",
+  feedbackDiagNote: "We attach your technical environment (page, device, browser, screen size) — not what you typed — so we can reproduce the issue.",
   feedbackSend: "Send",
   feedbackSending: "Sending…",
   feedbackThanks: "Got it — thanks for the feedback!",

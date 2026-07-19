@@ -1,7 +1,9 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useContext, useEffect, useState, type FormEvent } from "react";
 import { Send, X } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { getSupabase } from "../lib/supabase";
+import { collectDiagnostics, type FeedbackDiagnostics } from "../domain/diagnostics";
+import { FuriganaContext } from "./furiganaContext";
 import {
   submitFeedback,
   CONTACT_MAX,
@@ -17,11 +19,26 @@ import {
 // issue. `submit` is injectable so the UI can be tested without Supabase.
 
 const ISSUE_NEW = "https://github.com/nurockplayer/Jabiko/issues/new";
-const GH_FALLBACK: Record<FeedbackCategory, string> = {
-  wish: `${ISSUE_NEW}?labels=enhancement&title=${encodeURIComponent("[許願] ")}`,
-  bug: `${ISSUE_NEW}?labels=bug&title=${encodeURIComponent("[Bug] ")}`,
-  other: ISSUE_NEW
-};
+
+// GitHub fallback when the Supabase submit fails. The user's message and the
+// (content-free) diagnostics are pre-filled into the issue BODY so nothing is
+// lost and the user SEES exactly what will be sent before submitting (#654).
+function githubFallbackUrl(kind: FeedbackCategory, message: string, diagnostics: FeedbackDiagnostics | null): string {
+  const params = new URLSearchParams();
+  if (kind === "wish") {
+    params.set("labels", "enhancement");
+    params.set("title", "[許願] ");
+  } else if (kind === "bug") {
+    params.set("labels", "bug");
+    params.set("title", "[Bug] ");
+  }
+  const body = diagnostics
+    ? `${message}\n\n---\ndiagnostics:\n${JSON.stringify(diagnostics, null, 2)}`
+    : message;
+  if (body.trim()) params.set("body", body);
+  const qs = params.toString();
+  return qs ? `${ISSUE_NEW}?${qs}` : ISSUE_NEW;
+}
 
 async function defaultSubmit(input: FeedbackInput): Promise<void> {
   const client = await getSupabase();
@@ -36,19 +53,27 @@ export function FeedbackForm({
   language,
   category,
   onClose,
-  submit = defaultSubmit
+  submit = defaultSubmit,
+  context
 }: {
   language: Language;
   category: FeedbackCategory;
   onClose: () => void;
   submit?: (input: FeedbackInput) => Promise<void>;
+  /** Practice-flow context (#654): the current question id + type, so a report
+   *  sent mid-drill is locatable. Omitted outside the practice flow -- the
+   *  diagnostics route still records which flow it was. */
+  context?: { questionId?: string; promptLabel?: string };
 }) {
   const t = copy[language];
+  const { enabled: furiganaOn } = useContext(FuriganaContext);
   const [kind, setKind] = useState<FeedbackCategory>(category);
   const [message, setMessage] = useState("");
   const [contact, setContact] = useState("");
   const [wantsReply, setWantsReply] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
+  // Captured at submit time so the GitHub fallback can show what was attached.
+  const [lastDiagnostics, setLastDiagnostics] = useState<FeedbackDiagnostics | null>(null);
 
   const trimmed = message.trim();
 
@@ -74,8 +99,22 @@ export function FeedbackForm({
     event.preventDefault();
     if (!trimmed || status === "sending") return;
     setStatus("sending");
+    // Reproducibility diagnostics (#654) -- content-free by construction.
+    const diagnostics = collectDiagnostics({
+      locale: language,
+      furigana: furiganaOn,
+      questionId: context?.questionId,
+      promptLabel: context?.promptLabel
+    });
+    setLastDiagnostics(diagnostics);
     try {
-      await submit({ category: kind, message: trimmed, contact: contact.trim() || undefined, wantsReply });
+      await submit({
+        category: kind,
+        message: trimmed,
+        contact: contact.trim() || undefined,
+        wantsReply,
+        diagnostics
+      });
       setStatus("done");
     } catch {
       setStatus("error");
@@ -159,11 +198,16 @@ export function FeedbackForm({
         maxLength={CONTACT_MAX}
       />
       <p className="feedback-anon">{t.feedbackAnon}</p>
+      <p className="feedback-anon feedback-diag-note">{t.feedbackDiagNote}</p>
 
       {status === "error" ? (
         <p className="feedback-error" role="alert">
           {t.feedbackError}{" "}
-          <a href={GH_FALLBACK[kind]} target="_blank" rel="noopener noreferrer">
+          <a
+            href={githubFallbackUrl(kind, trimmed, lastDiagnostics)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {t.feedbackFallback}
           </a>
         </p>
