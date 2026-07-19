@@ -63,6 +63,7 @@ export const vi: Copy = {
   feedbackWantsReply: "Muốn nhận phản hồi",
   feedbackWantsReplyHint: "Nếu bạn đã đăng nhập, chúng tôi sẽ trả lời qua tài khoản; nếu không, hãy để lại liên hệ bên dưới.",
   feedbackAnon: "Gửi ẩn danh, không cần đăng nhập.",
+  feedbackDiagNote: "Để tái hiện lỗi, chúng tôi đính kèm môi trường kỹ thuật (trang, thiết bị, trình duyệt, kích thước màn hình) — không kèm nội dung bạn nhập.",
   feedbackSend: "Gửi",
   feedbackSending: "Đang gửi…",
   feedbackThanks: "Đã nhận — cảm ơn phản hồi của bạn!",

@@ -62,6 +62,47 @@ describe("submitFeedback", () => {
     expect(captured.contact).toBeNull();
   });
 
+  it("attaches the diagnostics blob in its own column when supplied (#654)", async () => {
+    let captured: any;
+    const client = fakeClient((row) => {
+      captured = row;
+      return { error: null };
+    });
+    const diagnostics = { route: "/challenge", browser: "Chrome", os: "Windows", furigana: true } as never;
+    await submitFeedback(client, { category: "bug", message: "排版亂掉", diagnostics });
+    expect(captured.diagnostics).toEqual(diagnostics);
+  });
+
+  it("omits the diagnostics key entirely when none is supplied (back-compat with old rows)", async () => {
+    let captured: any;
+    const client = fakeClient((row) => {
+      captured = row;
+      return { error: null };
+    });
+    await submitFeedback(client, { category: "wish", message: "想要夜間模式" });
+    expect(captured).not.toHaveProperty("diagnostics");
+  });
+
+  it("retries WITHOUT diagnostics if the column isn't migrated yet, so feedback never breaks (#654)", async () => {
+    const rows: any[] = [];
+    let call = 0;
+    const client = fakeClient((row) => {
+      rows.push({ ...(row as object) });
+      call += 1;
+      // First insert (with diagnostics) fails as if the column is missing;
+      // the retry without diagnostics succeeds.
+      return { error: call === 1 ? new Error("column \"diagnostics\" does not exist") : null };
+    });
+    await submitFeedback(client, {
+      category: "bug",
+      message: "壞了",
+      diagnostics: { route: "/challenge" } as never
+    });
+    expect(call).toBe(2);
+    expect(rows[0]).toHaveProperty("diagnostics");
+    expect(rows[1]).not.toHaveProperty("diagnostics");
+  });
+
   it("throws 'empty' on a blank message without touching the client", async () => {
     const insert = vi.fn();
     const client = fakeClient(insert as never);

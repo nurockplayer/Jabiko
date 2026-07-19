@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { FeedbackForm } from "./FeedbackForm";
+import { FuriganaContext } from "./furiganaContext";
 
 describe("FeedbackForm", () => {
   it("preselects the given category", () => {
@@ -22,12 +23,39 @@ describe("FeedbackForm", () => {
     fireEvent.change(screen.getByPlaceholderText(/想許什麼願/), { target: { value: "  想要夜間模式  " } });
     fireEvent.click(screen.getByRole("button", { name: /送出/ }));
     await waitFor(() => expect(screen.getByText(/謝謝你的回饋/)).toBeInTheDocument());
-    expect(submit).toHaveBeenCalledWith({
-      category: "wish",
-      message: "想要夜間模式",
-      contact: undefined,
-      wantsReply: false
-    });
+    expect(submit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        category: "wish",
+        message: "想要夜間模式",
+        contact: undefined,
+        wantsReply: false
+      })
+    );
+  });
+
+  it("attaches a content-free diagnostics blob to general feedback (#654)", async () => {
+    const submit = vi.fn().mockResolvedValue(undefined);
+    render(
+      <FuriganaContext.Provider value={{ enabled: true }}>
+        <FeedbackForm language="zh-Hant" category="bug" onClose={() => {}} submit={submit} />
+      </FuriganaContext.Provider>
+    );
+    fireEvent.change(screen.getByPlaceholderText(/想許什麼願/), { target: { value: "排版亂掉" } });
+    fireEvent.click(screen.getByRole("button", { name: /送出/ }));
+    await waitFor(() => expect(submit).toHaveBeenCalled());
+    const diag = submit.mock.calls[0][0].diagnostics;
+    expect(diag).toBeTruthy();
+    expect(diag.uiLocale).toBe("zh-Hant");
+    expect(diag.furigana).toBe(true);
+    expect(typeof diag.route).toBe("string");
+    expect(typeof diag.browser).toBe("string");
+    // per the privacy boundary, no message/contact content leaks into diagnostics
+    expect(JSON.stringify(diag)).not.toContain("排版亂掉");
+  });
+
+  it("tells the user a technical environment is attached", () => {
+    render(<FeedbackForm language="zh-Hant" category="bug" onClose={() => {}} submit={vi.fn()} />);
+    expect(screen.getByText(/技術環境|裝置|環境/)).toBeInTheDocument();
   });
 
   it("sends wantsReply=true when the reply checkbox is ticked (#468)", async () => {

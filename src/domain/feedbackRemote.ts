@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { FeedbackDiagnostics } from "./diagnostics";
 
 // Anonymous feedback submit (#218 follow-up). Thin wrapper over the Supabase
 // `feedback` table -- a write-only suggestion box (anon may INSERT, nobody may
@@ -22,6 +23,13 @@ export interface FeedbackInput {
   contact?: string;
   /** The user ticked "I'd like a reply" (#468). Defaults to false. */
   wantsReply?: boolean;
+  /**
+   * Anonymous reproducibility environment (#654). Content-free by
+   * construction (see collectDiagnostics). Stored in its own `diagnostics`
+   * column, never mixed into the message. Omitted for per-question reports
+   * (they already carry the question id in the message).
+   */
+  diagnostics?: FeedbackDiagnostics;
 }
 
 export const FEEDBACK_MAX = 4000;
@@ -43,14 +51,29 @@ export async function submitFeedback(
   }
 
   const contact = input.contact?.trim();
-  const { error } = await client.from("feedback").insert({
+  const row: Record<string, unknown> = {
     category: input.category,
     message: message.slice(0, FEEDBACK_MAX),
     contact: contact ? contact.slice(0, CONTACT_MAX) : null,
     wants_reply: input.wantsReply ?? false
     // NB: auth_user_id / account_email / account_provider are intentionally
     // NOT set here -- the DB DEFAULTs fill them from the JWT (migration 0003).
-  });
+  };
+  // Only attach diagnostics when present, so per-question reports and older
+  // callers keep the exact legacy row shape (and rows predate the column).
+  if (input.diagnostics) {
+    row.diagnostics = input.diagnostics;
+  }
+
+  let { error } = await client.from("feedback").insert(row);
+  // Deploy-safety: the `diagnostics` column (migration 0004) may not be applied
+  // yet. If the insert failed AND we sent diagnostics, retry once without it so
+  // feedback never breaks during a migration lag (#654). A genuine error (bad
+  // policy, network, etc.) recurs on the retry and is surfaced as before.
+  if (error && input.diagnostics) {
+    delete row.diagnostics;
+    ({ error } = await client.from("feedback").insert(row));
+  }
 
   if (error) {
     throw error;

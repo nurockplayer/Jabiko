@@ -64,6 +64,7 @@ export const ja: Copy = {
   feedbackWantsReply: "返信を希望する",
   feedbackWantsReplyHint: "ログイン時はアカウント宛に返信します。未ログインの場合は下に連絡先をご記入ください。",
   feedbackAnon: "匿名で送信、ログイン不要です。",
+  feedbackDiagNote: "問題を再現できるよう、技術的な環境（ページ・端末・ブラウザ・画面サイズなど）を一緒に送信します。入力内容は含みません。",
   feedbackSend: "送信",
   feedbackSending: "送信中…",
   feedbackThanks: "受け取りました。ご意見ありがとうございます！",
