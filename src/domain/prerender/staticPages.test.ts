@@ -76,6 +76,26 @@ describe("applyHead", () => {
     const html = applyHead(TEMPLATE, { ...page, title: 'A"B<C>' });
     expect(html).toContain("<title>A&quot;B&lt;C&gt;</title>");
   });
+
+  it("keeps the default WebApplication JSON-LD when the page has none", () => {
+    const html = applyHead(TEMPLATE, page);
+    expect(html).toContain('"@type": "WebApplication"');
+  });
+
+  it("swaps in the page's JSON-LD, replacing the default WebApplication block", () => {
+    const jsonLd = '{"@context":"https://schema.org","@type":"BlogPosting","headline":"x"}';
+    const html = applyHead(TEMPLATE, { ...page, jsonLd });
+    expect(html).toContain(jsonLd);
+    expect(html).not.toContain("WebApplication");
+    // exactly one ld+json script remains
+    expect(html.match(/type="application\/ld\+json"/g)?.length).toBe(1);
+  });
+
+  it("sets og:type=article when the page declares it", () => {
+    const html = applyHead(TEMPLATE, { ...page, ogType: "article" });
+    expect(html).toContain('property="og:type" content="article"');
+    expect(html).not.toContain('property="og:type" content="website"');
+  });
 });
 
 describe("buildStaticPages", () => {
@@ -169,6 +189,30 @@ describe("buildStaticPages", () => {
       expect(page.canonical.startsWith("https://jabiko.app"), page.path).toBe(true);
       expect(page.bodyHtml.includes('<a href="/">'), page.path).toBe(true);
       expect(page.bodyHtml.includes("<h1>"), page.path).toBe(true);
+    }
+  });
+
+  it("gives every published article a BlogPosting JSON-LD and og:type=article", () => {
+    for (const meta of publishedArticleMetas) {
+      const article = byPath.get(`/blog/${meta.slug}`)!;
+      expect(article.jsonLd, meta.slug).toBeDefined();
+      const parsed = JSON.parse(article.jsonLd!);
+      expect(parsed["@type"]).toBe("BlogPosting");
+      expect(parsed.headline).toBe(meta.title);
+      expect(parsed.datePublished).toBe(meta.publishedAt);
+      expect(article.ogType).toBe("article");
+    }
+  });
+
+  it("gives /about a Person JSON-LD", () => {
+    const about = byPath.get("/about")!;
+    expect(about.jsonLd).toBeDefined();
+    expect(JSON.parse(about.jsonLd!)["@type"]).toBe("Person");
+  });
+
+  it("leaves app views without page-specific JSON-LD (keeps WebApplication)", () => {
+    for (const route of ["/", "/learn", "/challenge", "/kana"]) {
+      expect(byPath.get(route)!.jsonLd, route).toBeUndefined();
     }
   });
 

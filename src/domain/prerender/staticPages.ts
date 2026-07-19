@@ -19,6 +19,7 @@ import { publishedArticles, type ArticleBlock } from "../articles";
 import { KANA_TABLE, type KanaGroup, type KanaScript } from "../kana";
 import type { JlptLevel } from "../types";
 import { legalDocumentFor, type LegalPageKind } from "../legalContent";
+import { articleJsonLd, personJsonLd } from "./structuredData";
 
 export interface StaticPage {
   /** Decoded URL path, e.g. "/grammar/〜てもいい". */
@@ -29,6 +30,16 @@ export interface StaticPage {
   canonical: string;
   /** Static HTML injected into <div id="root"> for non-JS crawlers. */
   bodyHtml: string;
+  /**
+   * Per-page JSON-LD. When set, applyHead swaps the template's default
+   * WebApplication schema for this. Undefined -> the app views keep the
+   * generic WebApplication schema.
+   */
+  jsonLd?: string;
+  /** og:type override; defaults to the template's "website". */
+  ogType?: string;
+  /** article:published_time (ISO date) for article pages. */
+  publishedTime?: string;
 }
 
 export function escapeHtml(value: string): string {
@@ -79,6 +90,23 @@ export function applyHead(template: string, page: StaticPage): string {
   html = replaceMetaContent(html, "property", "og:description", page.description);
   html = replaceMetaContent(html, "name", "twitter:title", page.title);
   html = replaceMetaContent(html, "name", "twitter:description", page.description);
+  if (page.ogType) {
+    html = replaceMetaContent(html, "property", "og:type", page.ogType);
+  }
+  if (page.publishedTime) {
+    const meta = `    <meta property="article:published_time" content="${escapeHtml(page.publishedTime)}" />\n  </head>`;
+    html = html.replace("</head>", meta);
+  }
+  if (page.jsonLd) {
+    // Swap the template's default WebApplication schema for this page's. A
+    // function replacer keeps `$` inside the JSON from being read as a
+    // replacement pattern.
+    const jsonLd = page.jsonLd;
+    html = html.replace(
+      /(<script type="application\/ld\+json">)[\s\S]*?(<\/script>)/,
+      (_match, open: string, close: string) => `${open}${jsonLd}${close}`
+    );
+  }
   html = html.replace('<div id="root"></div>', `<div id="root">${page.bodyHtml}</div>`);
   return html;
 }
@@ -295,15 +323,21 @@ export function buildStaticPages(): StaticPage[] {
   const pages: StaticPage[] = [];
   const byId = new Map(grammarPatterns.map((pattern) => [pattern.id, pattern]));
 
-  const push = (view: AppView, path: string, bodyHtml: string, surface?: string, slug?: string) => {
+  const push = (view: AppView, path: string, bodyHtml: string, surface?: string, slug?: string): StaticPage => {
     const seo = seoForView(view, surface ?? null, slug ?? null);
-    pages.push({ path, title: seo.title, description: seo.description, canonical: seo.canonical, bodyHtml });
+    const page: StaticPage = { path, title: seo.title, description: seo.description, canonical: seo.canonical, bodyHtml };
+    pages.push(page);
+    return page;
   };
 
   push("home", "/", homeBody());
-  for (const view of ["learn", "rules", "kanji", "challenge", "mock", "about"] as const) {
+  for (const view of ["learn", "rules", "kanji", "challenge", "mock"] as const) {
     push(view, VIEW_SEO[view].path, simpleViewBody(view));
   }
+  // /about carries a Person entity so every article's author resolves to a
+  // real person (E-E-A-T / author authority).
+  const aboutPage = push("about", VIEW_SEO.about.path, simpleViewBody("about"));
+  aboutPage.jsonLd = personJsonLd();
   for (const view of ["privacy", "terms"] as const) {
     push(view, VIEW_SEO[view].path, legalPageBody(view));
   }
@@ -325,7 +359,15 @@ export function buildStaticPages(): StaticPage[] {
   for (const article of publishedArticles) {
     const inner = article.body.map(articleText).join("");
     const bodyHtml = wrap(article.title, `${paragraph(article.description)}${inner}<p><a href="/blog">更多文章</a></p>`);
-    push("blog", `/blog/${article.slug}`, bodyHtml, undefined, article.slug);
+    const page = push("blog", `/blog/${article.slug}`, bodyHtml, undefined, article.slug);
+    page.jsonLd = articleJsonLd({
+      title: article.title,
+      description: article.description,
+      canonical: page.canonical,
+      datePublished: article.publishedAt
+    });
+    page.ogType = "article";
+    page.publishedTime = article.publishedAt;
   }
 
   return pages;
