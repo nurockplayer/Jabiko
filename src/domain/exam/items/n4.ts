@@ -4861,5 +4861,35 @@ export const n4Items: PracticeQuestion[] = [
     exampleJapanese: "信号が青に変わると、あの人の背中がどんどん遠くなっていく。",
     exampleMeaningZh: "綠燈一亮,那個人的背影就漸漸地越來越遠了。",
     exampleMeaningI18n: { "ja": "信号が青に変わると、あの人のうしろ姿がだんだん遠ざかっていきます。", "en": "When the light turns green, that person's back grows farther and farther away." },
+  }),
+  examQuestion({
+    id: "n4-vocab-atatameru",
+    level: "N4",
+    surface: "温める",
+    reading: "あたためる",
+    meaningZh: "加熱、加溫",
+    promptLabel: "詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "コンビニで、 お弁当を レンジで ___ もらった。",
+    promptContextZh: "在便利商店，請店員用微波爐把便當加熱了。",
+    hintZh: "店員把便當放進微波爐時所做的動作。",
+    expectedAnswer: "温めて",
+    options: ["温めて", "冷やして", "凍らせて", "焼いて"],
+    explanation: "「温める」是「把食物加熱」的意思，本句在便利商店用微波爐把便當「温めてもらった」（請人加熱）。「冷やす」是「冰鎮、使變涼」，方向相反；「凍らせる」是「冷凍、使結凍」；「焼く」是「用火烤、煎」，雖同樣使食物變熱，但微波爐（レンジ）無法「焼く」（要用烤箱或烤網），不合此句。用微波爐加熱便當只有「温める」成立。"
+  }),
+  examQuestion({
+    id: "n4-vocab-betsubetsu",
+    level: "N4",
+    surface: "別々",
+    reading: "べつべつ",
+    meaningZh: "各自、分開",
+    promptLabel: "詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "二人分を 一つに まとめないで、 ___ に 払っても いいですか。",
+    promptContextZh: "兩人份不要合成一筆，可以分開付嗎？",
+    hintZh: "兩人的帳款要不要合在一起結。",
+    expectedAnswer: "別々",
+    options: ["別々", "一緒", "特別", "一度"],
+    explanation: "「別々」是「各自、分開」，本句「兩人份不合成一筆、分開付」。「一緒」是「一起、合在一起」，與「一つにまとめないで」矛盾，方向相反；「特別」是「特別、特殊」，語意空泛；「一度」是「一度に 払う」（一次付清）的意思，與「一つに まとめないで」相反。在「まとめないで…に払う」的語境下只有「別々」成立。"
   })
 ];
