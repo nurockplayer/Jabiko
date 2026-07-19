@@ -290,6 +290,13 @@
   min-height: 3.6rem;
   overflow-wrap: anywhere;
   padding: 0.7rem;
+  /* Options inherit the global button's `display: inline-flex`. With furigana
+     on, <Ruby> emits several <ruby>/text nodes that each become a flex item;
+     without wrapping, a long 用法 sentence option can't break across them and
+     overflows / squishes into a thin column (#652). flex-wrap lets the
+     word-level segments flow onto the next line -- single-word options (one
+     item) are unaffected and stay centred. */
+  flex-wrap: wrap;
 }
 
 .choice-option:hover:not(:disabled) {

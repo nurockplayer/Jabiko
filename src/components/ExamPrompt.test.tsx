@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ExamPrompt } from "./ExamPrompt";
 import type { PracticeQuestion } from "../domain/types";
 import { FuriganaContext } from "./furiganaContext";
@@ -78,6 +78,47 @@ describe("ExamPrompt answer-leak guard", () => {
     const vocabRow = container.querySelector("p.reading");
     expect(vocabRow).not.toBeNull();
     expect(vocabRow?.textContent).toContain(cloze.vocabulary.surface);
+  });
+});
+
+describe("ExamPrompt TTS gate on non-Japanese prompts (#653)", () => {
+  // jsdom ships no SpeechSynthesis, so SpeakButton would null-render regardless.
+  // Stub a minimal engine so the button CAN appear -- then the only thing that
+  // suppresses it is our hasJapanese gate.
+  beforeEach(() => {
+    vi.stubGlobal("speechSynthesis", {
+      getVoices: () => [],
+      speak: () => {},
+      cancel: () => {},
+      speaking: false,
+      pending: false
+    });
+    vi.stubGlobal(
+      "SpeechSynthesisUtterance",
+      class {
+        constructor(public text: string) {}
+        addEventListener() {}
+      }
+    );
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  const base = examStyleQuestions[0];
+
+  it("shows the speak button on a Japanese prompt", () => {
+    const { container } = render(
+      <ExamPrompt question={{ ...base, promptText: "ここは学校だ。" }} language="zh-Hant" />
+    );
+    expect(container.querySelector(".speak-button")).not.toBeNull();
+  });
+
+  it("suppresses the speak button on a romaji prompt (kana pick), so ASCII never reaches a JA voice", () => {
+    const { container } = render(
+      <ExamPrompt question={{ ...base, promptText: "ne" }} language="zh-Hant" />
+    );
+    expect(container.querySelector(".speak-button")).toBeNull();
+    // the romaji prompt itself still renders as visible text
+    expect(container.querySelector(".exam-prompt")?.textContent).toContain("ne");
   });
 });
 

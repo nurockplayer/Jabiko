@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   kataToHira,
   hasKanji,
+  hasJapanese,
   alignToken,
   tokensToSegments,
   applyReadingOverrides,
@@ -12,6 +13,24 @@ import {
   splitQuotedTextForRuby,
   collectQuotedRubySources
 } from "./furigana";
+
+describe("hasJapanese", () => {
+  it("is true for hiragana, katakana and kanji", () => {
+    expect(hasJapanese("ね")).toBe(true);
+    expect(hasJapanese("ネ")).toBe(true);
+    expect(hasJapanese("学校")).toBe(true);
+    expect(hasJapanese("ここは学校だ。")).toBe(true);
+  });
+
+  it("is false for ASCII romaji / non-Japanese text (never send this to a JA voice)", () => {
+    // The kana "pick" question's promptText is Hepburn romaji ("ne"); a JA
+    // TTS voice mangles ASCII, so the speak button must be suppressed (#653).
+    expect(hasJapanese("ne")).toBe(false);
+    expect(hasJapanese("sha")).toBe(false);
+    expect(hasJapanese("")).toBe(false);
+    expect(hasJapanese("123 !?")).toBe(false);
+  });
+});
 
 describe("isReadingPrompt", () => {
   it("flags the 漢字読み prompt label (a reading question)", () => {
