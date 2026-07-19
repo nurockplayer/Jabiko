@@ -7996,5 +7996,35 @@ export const n3Items: PracticeQuestion[] = [
     options: ["珍しがって", "珍しいらしくて", "珍しっぽくて", "珍しくして"],
     explanation: "正解是「珍しがって」，「珍しい」語幹＋がる，表示第三人稱（祖母）把『覺得稀奇』的感受外顯為『一再觸碰螢幕』的具體言行；他動用法的『珍しがる』管轄受詞「を」，「スマートフォンを珍しがる」自然成立，是唯一解。干擾「珍しいらしくて」表推測『好像很稀奇』，但「珍しい」是接「が」的形容詞（これが珍しい），不能接「を」（×スマートフォンを珍しい），助詞不合；且祖母正當場反覆觸碰、是直接可見的行為，用推測也不對。干擾「珍しっぽくて」不是自然日語，「珍し」不與「っぽい」結合。干擾「珍しくして」是『使…變得稀奇（くする 使役變化）』，語意是去改造某物的狀態，與『祖母自己流露出覺得稀奇』不符。",
     explanationI18n: { "ja": "正解は「珍しがって」で、「珍しい」の語幹＋がるにより、第三者（祖母）が『珍しい』という気持ちを『何度も画面に触れる』という具体的な言動として外に表すことを表します。他動詞的に使う「珍しがる」が目的語「を」を支配し、「スマートフォンを珍しがる」は自然に成り立ち、唯一の正解です。誤答「珍しいらしくて」は『珍しいようだ』という推量を表しますが、「珍しい」は「が」を取る形容詞（これが珍しい）で「を」を取れず（×スマートフォンを珍しい）、助詞が合いません。また祖母はまさにその場でくり返し触れていて、目に見える直接の行為なので、推量を使うのも適切ではありません。誤答「珍しっぽくて」は自然な日本語ではなく、「珍し」は「っぽい」と結び付きません。誤答「珍しくして」は『…を珍しくする（くする、使役的な変化）』で、何かの状態を作り変える意になり、『祖母自身が珍しがる気持ちを表す』とは合いません。", "en": "The answer is 「珍しがって」, the stem of 「珍しい」 + がる, which shows a third person (the grandmother) outwardly expressing the feeling of 'finding it novel' through the concrete action of 'touching the screen over and over'; the transitive use of 『珍しがる』 governs the object 「を」, so 「スマートフォンを珍しがる」 is natural, making it the only answer. Distractor 「珍しいらしくて」 expresses the conjecture 'seems novel', but 「珍しい」 is an adjective that takes 「が」 (これが珍しい) and cannot take 「を」 (×スマートフォンを珍しい), so the particle is wrong; and the grandmother is repeatedly touching it right there — a directly visible action — so conjecture is also inappropriate. Distractor 「珍しっぽくて」 is not natural Japanese; 「珍し」 does not combine with 「っぽい」. Distractor 「珍しくして」 means 'to make something novel (くする causative change)', which means altering the state of something, and doesn't match 'the grandmother herself showing that she finds it novel'." },
+  }),
+  examQuestion({
+    id: "n3-vocab-yuuryou",
+    level: "N3",
+    surface: "有料",
+    reading: "ゆうりょう",
+    meaningZh: "收費、要付錢",
+    promptLabel: "詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "この お店の レジ袋は ___ で、 一枚 5円 かかります。",
+    promptContextZh: "這家店的購物袋要收費，一個 5 日圓。",
+    hintZh: "在便利商店結帳時，店員對這個購物袋的說明。",
+    expectedAnswer: "有料",
+    options: ["有料", "無料", "有名", "有効"],
+    explanation: "「有料」是「需要付費、非免費」，本句「購物袋要收費，一個 5 日圓」。「無料」是「免費」，與「5円かかる」（要花錢）矛盾，方向相反；「有名」是「著名、有名氣」；「有効」是「有效」。既然袋子「5円かかる」，只有「有料」成立。"
+  }),
+  examQuestion({
+    id: "n3-vocab-kaikei",
+    level: "N3",
+    surface: "会計",
+    reading: "かいけい",
+    meaningZh: "結帳、買單",
+    promptLabel: "詞彙填空",
+    instructionZh: "句中填空：選最自然的詞語。",
+    promptText: "食事を 終えて、 支払いを する ために、 店員に 「お___を お願いします」と 言った。",
+    promptContextZh: "用完餐後，為了付錢，向店員說：「麻煩結帳。」",
+    hintZh: "用完餐後叫住店員想辦的事。",
+    expectedAnswer: "会計",
+    options: ["会計", "予約", "案内", "注文"],
+    explanation: "「会計」是「結帳、買單」，本句用完餐、為了付錢而請店員「お会計をお願いします」。「予約」是「預約」，用餐後才要預約不合理；「案内」是「帶位、引導」，是進店時才做；「注文」是「點餐」，用餐前或用餐中才做，飯後付錢時不會點餐。因場景在「食事のあと」、要付錢，只有「会計」成立。"
   })
 ];
