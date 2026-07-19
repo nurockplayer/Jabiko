@@ -104,7 +104,8 @@ try {
     正義: "せいぎ",
     微笑み: "ほほえみ",
     彷徨う: "さまよう",
-    瞬く: "またたく"
+    瞬く: "またたく",
+    脂っこい: "あぶらっこい"
   };
 
   // Collect base (pre-answer / always visible) and explanation (post-answer
