@@ -4,7 +4,7 @@ import { copy, type Language } from "../i18n";
 import type { PracticeQuestion } from "../domain/types";
 import { pickLocalized, pickLocalizedOptional } from "../domain/localizedContent";
 import { shuffleOrderFragments } from "../domain/wordOrder";
-import { isReadingPrompt } from "../domain/furigana";
+import { isReadingPrompt, hasJapanese } from "../domain/furigana";
 import { Ruby } from "./Ruby";
 import { SpeakButton } from "./SpeakButton";
 
@@ -81,7 +81,10 @@ export function ExamPrompt({ question, language }: { question: PracticeQuestion;
         {promptText ? (
           <>
             <Ruby text={promptText} plain={isReadingPrompt(question.promptLabel, question.targetForm)} />
-            <SpeakButton text={promptText} language={language} />
+            {/* A JA voice mangles ASCII, so don't offer TTS on a romaji prompt
+                (the kana "pick" question's prompt IS romaji). Speaking the kana
+                instead would leak the answer, so suppression is the only fix. */}
+            {hasJapanese(promptText) ? <SpeakButton text={promptText} language={language} /> : null}
           </>
         ) : null}
       </p>

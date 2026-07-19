@@ -39,6 +39,14 @@ function hasKana(value: string): boolean {
   return KANA_ONLY_RE.test(value);
 }
 
+// True when the text carries any Japanese script (kana or kanji). Used to
+// gate the TTS button: a JA voice mangles ASCII, so a romaji prompt (the kana
+// "pick" question's promptText IS Hepburn romaji, e.g. "ne") must not be sent
+// to speech synthesis (#653).
+export function hasJapanese(value: string): boolean {
+  return hasKanji(value) || hasKana(value);
+}
+
 // Hiragana / katakana / long-vowel mark / combining marks count as "kana"
 // for run-splitting. 々 is deliberately excluded (it repeats the preceding
 // kanji, so it groups WITH the kanji run).
