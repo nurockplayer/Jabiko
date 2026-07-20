@@ -12,6 +12,7 @@
 // carries a `[歌詞片段]` placeholder the author fills in by hand; the
 // surrounding commentary + example sentences are original.
 import { articleMetas, articleMetaBySlug, type ArticleMeta } from "./articlesMeta";
+import { countryNamesBody } from "./articleBodies/countryNames";
 import { ebichiliBody } from "./articleBodies/ebichili";
 import { restaurantOrderingBody } from "./articleBodies/restaurantOrdering";
 import { sweetStepBody } from "./articleBodies/sweetStep";
@@ -311,6 +312,7 @@ const BODIES: Record<string, ReadonlyArray<ArticleBlock>> = {
 };
 
 const BODY_OVERRIDES: Partial<Record<string, ReadonlyArray<ArticleBlock>>> = {
+  "japanese-country-names": countryNamesBody,
   "shiritsu-ebisu-chugaku-ebichili-hajimemashita": ebichiliBody,
   "sweet-steady-sweet-step": sweetStepBody,
   "japanese-taste-texture-expressions": tasteExpressionsBody,
