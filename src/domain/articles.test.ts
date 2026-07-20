@@ -154,6 +154,18 @@ describe("blog articles data guard", () => {
     expect(bodyText).toContain("お会計お願いします");
   });
 
+  it("collapses every vocab table in the two vocab-heavy tool articles", () => {
+    for (const slug of [
+      "japanese-restaurant-ordering-phrases",
+      "japanese-taste-texture-expressions"
+    ]) {
+      const article = articleBySlug(slug);
+      const vocab = (article?.body ?? []).filter((block) => block.kind === "vocab");
+      expect(vocab.length).toBeGreaterThan(0);
+      expect(vocab.every((block) => block.collapsed === true)).toBe(true);
+    }
+  });
+
   it("serves the country-names etymology article with honest hedges and fact anchors", () => {
     const article = articleBySlug("japanese-country-names");
     expect(article?.tag).toBe("日文冷知識");

@@ -20,6 +20,7 @@ export const tasteExpressionsBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "先別急著換掉「おいしい」" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "おいしい",
@@ -54,6 +55,7 @@ export const tasteExpressionsBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "甜、辣、鹹不難，容易搞混的是這幾個" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "甘い",
@@ -102,6 +104,7 @@ export const tasteExpressionsBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "清淡、濃郁與油脂感" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "味が濃い・味が薄い",
@@ -157,6 +160,7 @@ export const tasteExpressionsBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "很多口感，光聽聲音就有畫面" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "サクサク",
@@ -219,6 +223,7 @@ export const tasteExpressionsBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "想把感想再說得像一點" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "優しい味",
@@ -291,6 +296,7 @@ export const tasteExpressionsBody: ReadonlyArray<ArticleBlock> = [
   },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "ごちそうさまでした",

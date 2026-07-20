@@ -32,8 +32,15 @@ export type ArticleBlock =
   | { kind: "paragraph"; text: string }
   | { kind: "callout"; text: string }
   // A vocab table: word + reading + gloss + a usage note (may embed an
-  // original example sentence).
-  | { kind: "vocab"; items: ReadonlyArray<{ word: string; reading: string; meaning: string; note?: string }> }
+  // original example sentence). `collapsed: true` renders the table as a
+  // closed <details>; the heading directly before it (if any) becomes the
+  // summary title -- used by vocab-heavy tool articles so the teaching half
+  // doesn't dominate the scroll length.
+  | {
+      kind: "vocab";
+      collapsed?: boolean;
+      items: ReadonlyArray<{ word: string; reading: string; meaning: string; note?: string }>;
+    }
   // External resource links (opened in a new tab): the official YouTube MV,
   // a legal full-lyrics site (歌ネット / Uta-Net …), etc. We link OUT to full
   // lyrics rather than reproduce them.
