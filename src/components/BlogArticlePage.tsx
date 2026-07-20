@@ -66,13 +66,48 @@ export function BlogArticlePage({
         <h1 className="blog-article-title">{article.title}</h1>
       </header>
 
-      <div className="blog-article-body">
-        {article.body.map((block, index) => (
-          <ArticleBlockView key={index} block={block} language={language} onCta={onCta} />
-        ))}
-      </div>
+      <div className="blog-article-body">{renderArticleBody(article.body, language, onCta)}</div>
     </section>
   );
+}
+
+// Render the body blocks, folding each `collapsed` vocab table into a closed
+// <details> with a word-count summary. A heading directly before the table
+// becomes the summary title; a table separated from its heading by prose
+// falls back to a generic 單字表 label (the blog view is zh-Hant-gated, so
+// the literal is safe). The table content stays in the DOM, so prerendered
+// SEO text and find-in-page are unaffected; only the scroll length shrinks.
+function renderArticleBody(
+  body: ReadonlyArray<ArticleBlock>,
+  language: Language,
+  onCta: (cta: ArticleCta) => void
+) {
+  const collapsedVocab = (title: string, block: ArticleBlock & { kind: "vocab" }, key: number) => (
+    <details key={key} className="blog-vocab-details">
+      <summary className="blog-vocab-summary">
+        <span className="blog-vocab-summary-title">{title}</span>
+        <span className="blog-vocab-summary-count">{block.items.length} 個詞</span>
+      </summary>
+      <ArticleBlockView block={block} language={language} onCta={onCta} />
+    </details>
+  );
+
+  const nodes = [];
+  for (let index = 0; index < body.length; index++) {
+    const block = body[index];
+    const next = body[index + 1];
+    if (block.kind === "heading" && next?.kind === "vocab" && next.collapsed) {
+      nodes.push(collapsedVocab(block.text, next, index));
+      index++;
+      continue;
+    }
+    if (block.kind === "vocab" && block.collapsed) {
+      nodes.push(collapsedVocab("單字表", block, index));
+      continue;
+    }
+    nodes.push(<ArticleBlockView key={index} block={block} language={language} onCta={onCta} />);
+  }
+  return nodes;
 }
 
 function ArticleBlockView({

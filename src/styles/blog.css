@@ -253,8 +253,17 @@
   margin: 0;
 }
 
+/* Compact rows: word + reading + meaning share one baseline-aligned line and
+   the note wraps to its own tighter line below (the gloss <dd> contributes its
+   children directly via display: contents, which also drops the UA dd margin).
+   Long meanings simply wrap -- nothing is hidden. */
 .blog-vocab-item {
-  padding: 0.85rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.55rem;
+  row-gap: 0.15rem;
+  padding: 0.6rem 0;
   border-bottom: 1px solid var(--rule);
 }
 
@@ -266,7 +275,6 @@
   display: flex;
   align-items: baseline;
   gap: 0.3rem;
-  margin-bottom: 0.3rem;
 }
 
 .blog-vocab-word {
@@ -284,21 +292,72 @@
 
 .blog-vocab-gloss {
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  display: contents;
 }
 
 .blog-vocab-meaning {
   color: var(--ink);
   font-size: 0.93rem;
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
 .blog-vocab-note {
+  flex-basis: 100%;
   color: var(--muted);
   font-size: 0.85rem;
-  line-height: 1.75;
+  line-height: 1.6;
+}
+
+/* Collapsed vocab tables (vocab-heavy tool articles): the section heading is
+   folded into a closed <details> summary with a word count, so the teaching
+   half stops dominating the scroll length. Content stays in the DOM. */
+.blog-vocab-details {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+}
+
+.blog-vocab-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.85rem 1.1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.blog-vocab-summary::-webkit-details-marker {
+  display: none;
+}
+
+.blog-vocab-summary-title {
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: var(--ink);
+}
+
+.blog-vocab-summary-count {
+  color: var(--muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.blog-vocab-summary-count::after {
+  content: "▸";
+  display: inline-block;
+  margin-left: 0.4rem;
+  transition: transform 0.15s ease;
+}
+
+.blog-vocab-details[open] .blog-vocab-summary-count::after {
+  transform: rotate(90deg);
+}
+
+.blog-vocab-details > .blog-vocab {
+  border: none;
+  background: transparent;
+  padding-top: 0;
 }
 
 /* Lyric commentary */

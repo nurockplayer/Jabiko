@@ -163,6 +163,72 @@ describe("BlogArticlePage", () => {
     ).toBeTruthy();
   });
 
+  it("renders collapsed vocab tables as <details> with the heading + word count as summary", () => {
+    const { container } = render(
+      <BlogArticlePage
+        slug="japanese-restaurant-ordering-phrases"
+        language="zh-Hant"
+        onBack={vi.fn()}
+        onCta={vi.fn()}
+      />
+    );
+
+    const details = container.querySelectorAll("details.blog-vocab-details");
+    expect(details.length).toBeGreaterThan(0);
+    // Every vocab table in this tool article is collapsed (lives inside a details).
+    expect(container.querySelectorAll(".blog-vocab").length).toBe(details.length);
+
+    const first = details[0]!;
+    const summary = first.querySelector("summary.blog-vocab-summary");
+    expect(summary).not.toBeNull();
+    // Summary carries the section heading text plus the word count.
+    expect(summary!.textContent).toMatch(/個詞/);
+    expect(summary!.textContent!.length).toBeGreaterThan(3);
+    // The heading is consumed into the summary -- not duplicated as an <h2>.
+    expect(first.querySelector("h2")).toBeNull();
+    // Collapsed content still exists in the DOM (prerender/SEO + find-in-page).
+    expect(first.querySelector(".blog-vocab")).not.toBeNull();
+    expect(first.querySelectorAll(".blog-vocab-item").length).toBeGreaterThan(0);
+  });
+
+  it("falls back to a generic 單字表 summary when the table is separated from its heading", () => {
+    const { container } = render(
+      <BlogArticlePage
+        slug="japanese-taste-texture-expressions"
+        language="zh-Hant"
+        onBack={vi.fn()}
+        onCta={vi.fn()}
+      />
+    );
+
+    const details = container.querySelectorAll("details.blog-vocab-details");
+    // All six tables collapse; the last one follows prose, not a heading.
+    expect(details.length).toBe(6);
+    expect(container.querySelectorAll(".blog-vocab").length).toBe(6);
+    const titles = [...container.querySelectorAll(".blog-vocab-summary-title")].map(
+      (el) => el.textContent
+    );
+    expect(titles).toContain("單字表");
+    // Its section heading survives as a real <h2> above the prose.
+    expect(
+      [...container.querySelectorAll("h2")].some((el) => el.textContent?.includes("吃完"))
+    ).toBe(true);
+  });
+
+  it("keeps non-collapsed vocab tables as plain blocks", () => {
+    const { container } = render(
+      <BlogArticlePage
+        slug="sweet-steady-sweet-step"
+        language="zh-Hant"
+        onBack={vi.fn()}
+        onCta={vi.fn()}
+      />
+    );
+
+    expect(container.querySelectorAll("details.blog-vocab-details").length).toBe(0);
+    expect(container.querySelectorAll(".blog-vocab").length).toBeGreaterThan(0);
+  });
+
   it("passes the article CTA payload to the app-level handler", async () => {
     const user = userEvent.setup();
     const onCta = vi.fn();

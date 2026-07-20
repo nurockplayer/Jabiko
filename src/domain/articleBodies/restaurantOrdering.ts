@@ -25,6 +25,7 @@ export const restaurantOrderingBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "剛進店，先處理人數、內用與座位" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "何名様ですか",
@@ -59,6 +60,7 @@ export const restaurantOrderingBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "還沒決定也沒關係，先讓店員知道" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "ご注文はお決まりですか",
@@ -107,6 +109,7 @@ export const restaurantOrderingBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "尺寸、套餐和拉麵硬度，都用「〜でお願いします」" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "サイズはどうしますか",
@@ -155,6 +158,7 @@ export const restaurantOrderingBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "店員問「要不要」，先別只丟一句大丈夫です" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "はい、お願いします",
@@ -196,6 +200,7 @@ export const restaurantOrderingBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "便利商店和咖啡店，最常多問這幾句" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "温めますか",
@@ -237,6 +242,7 @@ export const restaurantOrderingBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "沒聽懂時，讓對話停一下比亂猜安全" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "すみません、もう一度お願いします",
@@ -278,6 +284,7 @@ export const restaurantOrderingBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "去配料、餐點沒來或送錯時" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "ねぎ抜きにできますか",
@@ -319,6 +326,7 @@ export const restaurantOrderingBody: ReadonlyArray<ArticleBlock> = [
   { kind: "heading", text: "結帳方式不是每間店都一樣" },
   {
     kind: "vocab",
+    collapsed: true,
     items: [
       {
         word: "お会計お願いします",
