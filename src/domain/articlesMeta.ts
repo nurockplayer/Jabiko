@@ -29,6 +29,14 @@ const BLOG_SLUG_ALIASES: Record<string, string> = {
 
 const rawArticleMetas: ReadonlyArray<ArticleMeta> = [
   {
+    slug: "japanese-country-names",
+    title: "ドイツ、イギリス、アルゼンチン…日文的國家名，為什麼跟英文對不上？",
+    description:
+      "為什麼德國叫ドイツ、英國叫イギリス？日文國家名很多不是從英文來的：葡萄牙語、荷蘭語、法語都留過一筆。還有米国與美國的分岔、改過名的ジョージア、以及アルゼンチン的音譯之謎，附國名單字表與例句。",
+    tag: "日文冷知識",
+    publishedAt: "2026-07-20"
+  },
+  {
     slug: "japanese-restaurant-ordering-phrases",
     title: "日本店員到底在問什麼？從點餐、加購到結帳的實用回答",
     description:
