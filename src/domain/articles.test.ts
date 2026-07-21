@@ -166,15 +166,20 @@ describe("blog articles data guard", () => {
     }
   });
 
-  it("serves a concise country-name guide with sources, abbreviations, and reading rules", () => {
+  it("serves a grouped country-name reference without narrative filler", () => {
     const article = articleBySlug("japanese-country-names");
     expect(article?.tag).toBe("日文冷知識");
-    expect(article?.title).toContain("ドイツ");
+    expect(article?.title).toBe("日文國名整理");
 
     const body = article?.body ?? [];
     expect(body.length).toBeGreaterThan(0);
-    expect(body[body.length - 1]?.kind).toBe("cta");
     expect(body.some((block) => block.kind === "divider")).toBe(false);
+    expect(body[body.length - 1]?.kind).toBe("cta");
+    expect(
+      body.filter(
+        (block) => block.kind === "lead" || block.kind === "paragraph" || block.kind === "callout"
+      )
+    ).toHaveLength(3);
 
     const bodyText = body
       .flatMap((block) => {
@@ -191,13 +196,14 @@ describe("blog articles data guard", () => {
 
     expect(bodyText).not.toContain("昨天世界盃");
     expect(bodyText).not.toContain("我翻了");
+    expect(bodyText).not.toContain("？");
     for (const term of ["Duitsch", "Inglês", "Olanda", "Grécia", "Suisse", "Argentine"]) {
       expect(bodyText).toContain(term);
     }
     for (const term of ["米（べい）", "英（えい）", "独（どく）", "仏（ふつ）", "日中", "日韓"]) {
       expect(bodyText).toContain(term);
     }
-    for (const term of ["韓国（かんこく）", "中国（ちゅうごく）", "全国", "戦国"]) {
+    for (const term of ["韓国", "かんこく", "中国", "ちゅうごく", "全国", "戦国"]) {
       expect(bodyText).toContain(term);
     }
     expect(bodyText).toContain("前面有ん");
@@ -206,7 +212,12 @@ describe("blog articles data guard", () => {
     expect(bodyText).toContain("〜産（さん）");
 
     const tables = body.filter((block) => block.kind === "table");
-    expect(tables).toHaveLength(3);
+    expect(tables.map((table) => table.caption)).toEqual([
+      "英文以外來源的國名",
+      "新聞常見的一字縮寫",
+      "「国」的讀法",
+      "國名後面的常用說法"
+    ]);
     for (const table of tables) {
       expect(table.caption).not.toBe("");
       expect(table.columns.length).toBeGreaterThan(1);
@@ -216,7 +227,7 @@ describe("blog articles data guard", () => {
     }
 
     const links = body.flatMap((block) => (block.kind === "links" ? block.items.map((item) => item.url) : []));
-    expect(links).toContain("https://kotoba.ninjal.ac.jp/qa/yokuaru/qa-225/");
+    expect(links).toContain("https://kotobank.jp/word/%E7%8B%AC%E9%80%B8-337657");
     expect(links).toContain(
       "https://www.bunka.go.jp/seisaku/bunkashingikai/kokugo/kokugo_kadai/iinkai_29/pdf/r1419861_06.pdf"
     );

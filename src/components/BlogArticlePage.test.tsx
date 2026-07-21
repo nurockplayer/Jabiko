@@ -238,14 +238,15 @@ describe("BlogArticlePage", () => {
         onCta={vi.fn()}
       />
     );
-    const origins = screen.getByRole("table", { name: "來源不同的日文國名" });
+    const origins = screen.getByRole("table", { name: "英文以外來源的國名" });
     expect(within(origins).getByRole("columnheader", { name: "日文" })).toBeInTheDocument();
     expect(within(origins).getByRole("rowheader", { name: "ドイツ" })).toHaveAttribute(
       "lang",
       "ja"
     );
-    expect(screen.getByRole("table", { name: "新聞常見的一字國名" })).toBeInTheDocument();
-    expect(screen.getByRole("table", { name: "「国」的常見讀法" })).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "新聞常見的一字縮寫" })).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "「国」的讀法" })).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "國名後面的常用說法" })).toBeInTheDocument();
   });
 
   it("passes the article CTA payload to the app-level handler", async () => {
