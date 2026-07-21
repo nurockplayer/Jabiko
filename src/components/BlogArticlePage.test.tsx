@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StrictMode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -179,13 +179,13 @@ describe("BlogArticlePage", () => {
     expect(container.querySelectorAll(".blog-vocab").length).toBe(details.length);
 
     const first = details[0]!;
-    const summary = first.querySelector("summary.blog-vocab-summary");
+    const summary = first.querySelector<HTMLElement>("summary.blog-vocab-summary");
     expect(summary).not.toBeNull();
     // Summary carries the section heading text plus the word count.
     expect(summary!.textContent).toMatch(/個詞/);
     expect(summary!.textContent!.length).toBeGreaterThan(3);
-    // The heading is consumed into the summary -- not duplicated as an <h2>.
-    expect(first.querySelector("h2")).toBeNull();
+    // Keep heading navigation even when the visual section is collapsed.
+    expect(within(summary!).getByRole("heading", { level: 2 })).toHaveTextContent("剛進店");
     // Collapsed content still exists in the DOM (prerender/SEO + find-in-page).
     expect(first.querySelector(".blog-vocab")).not.toBeNull();
     expect(first.querySelectorAll(".blog-vocab-item").length).toBeGreaterThan(0);
@@ -227,6 +227,25 @@ describe("BlogArticlePage", () => {
 
     expect(container.querySelectorAll("details.blog-vocab-details").length).toBe(0);
     expect(container.querySelectorAll(".blog-vocab").length).toBeGreaterThan(0);
+  });
+
+  it("renders country-name facts as accessible comparison tables", () => {
+    render(
+      <BlogArticlePage
+        slug="japanese-country-names"
+        language="zh-Hant"
+        onBack={vi.fn()}
+        onCta={vi.fn()}
+      />
+    );
+    const origins = screen.getByRole("table", { name: "來源不同的日文國名" });
+    expect(within(origins).getByRole("columnheader", { name: "日文" })).toBeInTheDocument();
+    expect(within(origins).getByRole("rowheader", { name: "ドイツ" })).toHaveAttribute(
+      "lang",
+      "ja"
+    );
+    expect(screen.getByRole("table", { name: "新聞常見的一字國名" })).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "「国」的常見讀法" })).toBeInTheDocument();
   });
 
   it("passes the article CTA payload to the app-level handler", async () => {

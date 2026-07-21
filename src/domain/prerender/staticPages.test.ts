@@ -184,6 +184,15 @@ describe("buildStaticPages", () => {
     }
   });
 
+  it("prerenders the country-name comparison tables as semantic HTML", () => {
+    const article = byPath.get("/blog/japanese-country-names");
+    expect(article).toBeDefined();
+    expect(article!.bodyHtml).toContain("<table>");
+    expect(article!.bodyHtml).toContain("<caption>來源不同的日文國名</caption>");
+    expect(article!.bodyHtml).toContain('<th scope="row" lang="ja">ドイツ</th>');
+    expect(article!.bodyHtml).toContain("中国（ちゅうごく）");
+  });
+
   it("gives every page a nav, an h1 and an absolute canonical", () => {
     for (const page of pages) {
       expect(page.canonical.startsWith("https://jabiko.app"), page.path).toBe(true);
