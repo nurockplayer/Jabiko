@@ -188,9 +188,9 @@ describe("buildStaticPages", () => {
     const article = byPath.get("/blog/japanese-country-names");
     expect(article).toBeDefined();
     expect(article!.bodyHtml).toContain("<table>");
-    expect(article!.bodyHtml).toContain("<caption>來源不同的日文國名</caption>");
+    expect(article!.bodyHtml).toContain("<caption>英文以外來源的國名</caption>");
     expect(article!.bodyHtml).toContain('<th scope="row" lang="ja">ドイツ</th>');
-    expect(article!.bodyHtml).toContain("中国（ちゅうごく）");
+    expect(article!.bodyHtml).toContain("ちゅうごく");
   });
 
   it("gives every page a nav, an h1 and an absolute canonical", () => {

@@ -30,9 +30,9 @@ const BLOG_SLUG_ALIASES: Record<string, string> = {
 const rawArticleMetas: ReadonlyArray<ArticleMeta> = [
   {
     slug: "japanese-country-names",
-    title: "為什麼德國叫ドイツ、英國叫イギリス？日文國名的來源與讀法",
+    title: "日文國名整理",
     description:
-      "整理ドイツ、イギリス、オランダ、アルゼンチン等日文國名的來源，並一次看懂米・英・独等新聞縮寫、中国／韓国的国讀音，以及〜人・〜語・〜製・〜産的用法。",
+      "整理ドイツ、イギリス、オランダ等日文國名的來源，以及米・英・独・仏等縮寫、「国」的讀法和常見後綴。",
     tag: "日文冷知識",
     publishedAt: "2026-07-20"
   },
