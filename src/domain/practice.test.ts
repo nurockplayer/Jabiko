@@ -487,6 +487,23 @@ describe("buildChoiceOptions", () => {
     expect(options.every((option) => option.startsWith("食べ"))).toBe(true);
   });
 
+  it("generates wrong-rule distractors for conditional form", () => {
+    const questions = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "godan",
+      targetForms: ["conditional"]
+    });
+    const target = questions.find((question) => question.vocabulary.surface === "書く");
+
+    expect(target).toBeDefined();
+    expect(target!.expectedAnswers).toContain("書けば");
+
+    const options = buildChoiceOptions(target!, questions, 0);
+
+    expect(options).toContain("書けば");
+    expect(options.every((option) => option.startsWith("書"))).toBe(true);
+  });
+
   it("generates wrong-rule distractors for volitional form", () => {
     const questions = buildQuestionPool(vocabulary, {
       partOfSpeech: "verb",

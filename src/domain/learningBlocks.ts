@@ -1217,6 +1217,44 @@ export const learningBlocks: LearningBlock[] = [
     requiredForms: ["volitional"]
   },
   {
+    id: "conditional",
+    group: "basic",
+    category: "動詞變化",
+    kicker: "如果・一…就",
+    title: "假定形・ば形 (V えば)",
+    subtitle: "書く → 書けば / 食べる → 食べれば",
+    explanation:
+      "「如果…就…」的ば。動詞：一類最後一字換え段＋ば；二類去る＋れば；三類：する → すれば、来る → 来れば。否定從ない形變：ない去い＋ければ（行かない → 行かなければ）。い形容詞去い＋ければ（高ければ）。な形容詞和名詞不用變化，直接接なら（静かなら、学生なら）。",
+    examples: [
+      { formula: "書く → 書けば", note: "一類：く換け＋ば" },
+      { formula: "飲む → 飲めば", note: "一類：む換め＋ば" },
+      { formula: "食べる → 食べれば", note: "二類：去る＋れば" },
+      { formula: "する → すれば / 来る → 来れば", note: "三類（来れば讀こ→くれば）" },
+      { formula: "行かない → 行かなければ", note: "否定：ない去い＋ければ" },
+      { formula: "高い → 高ければ", note: "い形容詞：去い＋ければ" },
+      { formula: "静かなら / 学生なら", note: "な形容詞・名詞：直接＋なら" }
+    ],
+    pitfalls: [
+      "な形容詞・名詞不能直接接「なければ」——肯定條件就是直接接なら（×静かなければ、○静かなら）；否定條件先變ではない再變でなければ（静かでなければ）",
+      "「いい」要走「よ」：よければ（×いければ）",
+      "上面變出來的都是肯定條件；「如果不…」一律先變否定再變ば形：動詞・い形 ない → なければ（高くない → 高くなければ）、な形・名詞 ではない → でなければ",
+      "ば／たら／なら／と 四種「如果」怎麼選，見「ば / たら / なら / と（四種條件）」章"
+    ],
+    drills: [
+      {
+        labelKey: "drillConditional",
+        preset: {
+          partOfSpeech: "verb",
+          verbGroup: "all",
+          practiceFocus: "single",
+          targetForm: "conditional"
+        }
+      }
+    ],
+    recommendedAfter: ["masu"],
+    requiredForms: ["conditional"]
+  },
+  {
     id: "passive",
     group: "basic",
     category: "動詞變化",
@@ -1621,7 +1659,8 @@ export const learningBlocks: LearningBlock[] = [
       "「と」後句不能接意志・命令・請求・邀約（×春になると、花を植えよう）→ 改用たら／ば",
       "不確定用哪個時「たら」多半最安全，它涵蓋面最廣、最口語",
       "「なら」是「就你說的那件事」給前提，常呼應對方的話；なら 前句可比後句晚發生（日本へ行くなら、ガイドブックを先に買う）",
-      "前項是動作動詞、後句又接意志／命令時，「ば」會不自然，改用「たら」（東京へ行ったら、連絡して）"
+      "前項是動作動詞、後句又接意志／命令時，「ば」會不自然，改用「たら」（東京へ行ったら、連絡して）",
+      "ば形本身怎麼變（え段＋ば；い形 ければ；な形/名詞 なら）見「假定形・ば形」章與規則表的轉換表"
     ],
     completionMode: "reference",
     examDrill: { labelKey: "drillN3Grammar", level: "N3", promptLabel: "文法形式選擇" },

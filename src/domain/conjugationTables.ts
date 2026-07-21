@@ -172,6 +172,29 @@ const advancedForms: ConjugationTable = {
   ]
 };
 
+const conditionalBa: ConjugationTable = {
+  id: "conditional-ba",
+  title: "假定形（ば形）完整轉換",
+  caption:
+    "「如果…就…」的ば形，動詞、否定、形容詞、名詞一張表看完。最容易被教錯的是な形容詞和名詞：它們直接接「なら」，不是「なければ」。",
+  columns: ["詞類", "規則", "例"],
+  rows: [
+    ["一類動詞", "最後一字う段 → え段 + ば", "書く → 書けば／飲む → 飲めば／買う → 買えば"],
+    ["二類動詞", "去る + れば", "食べる → 食べれば／見る → 見れば"],
+    ["三類動詞", "不規則", "する → すれば／来る → 来れば（くれば）"],
+    ["動詞否定", "ない形去い + ければ", "行かない → 行かなければ"],
+    ["い形容詞", "去い + ければ", "高い → 高ければ／いい → よければ"],
+    ["な形容詞", "直接 + なら", "静か → 静かなら"],
+    ["名詞", "直接 + なら", "学生 → 学生なら"]
+  ],
+  pitfalls: [
+    "な形容詞・名詞不能直接接「なければ」：肯定條件直接接「なら」（×静かなければ、○静かなら）；否定條件先變「ではない」再變「でなければ」（静かでなければ）。",
+    "「いい」要走「よ」：よければ（×いければ）。",
+    "上表變出來的都是肯定條件；「如果不…」一律先變否定再變ば形：動詞・い形 ない → なければ（高くなければ）、な形・名詞 ではない → でなければ。",
+    "ば／たら／なら／と 四種「如果」的用法分工，見學習頁「ば / たら / なら / と（四種條件）」章。"
+  ]
+};
+
 const adjectiveNounVariation: ConjugationTable = {
   id: "adjective-noun-variation",
   title: "形容詞・名詞 變化四格",
@@ -259,6 +282,7 @@ export const CONJUGATION_TABLES: ConjugationTable[] = [
   teTaForm,
   exceptionGodan,
   advancedForms,
+  conditionalBa,
   adjectiveNounVariation,
   obligationPast,
   sentencePatterns

@@ -43,6 +43,26 @@ describe("isLearningBlockComplete", () => {
     ).toBe(false);
   });
 
+  it("the ば-form chapter is a drillable conjugation chapter with なら pitfalls", () => {
+    const block = byId("conditional");
+    expect(block.category).toBe("動詞變化");
+    expect(block.requiredForms).toEqual(["conditional"]);
+    expect(block.drills?.[0]?.preset?.targetForm).toBe("conditional");
+    // The mistake that motivated this chapter (a viral mis-teaching): な形容詞
+    // and nouns take なら -- the chapter must call it out explicitly.
+    const text = [block.explanation, ...(block.pitfalls ?? [])].join("\n");
+    expect(text).toContain("なら");
+    expect(text).toContain("なければ");
+    expect(isLearningBlockComplete([], block)).toBe(false);
+    expect(isLearningBlockComplete([{ isCorrect: true, targetForm: "conditional" }], block)).toBe(true);
+  });
+
+  it("the N3 conditions chapter points learners at the ば-form conversion material", () => {
+    const block = byId("n3-jouken");
+    const text = [block.explanation, ...(block.pitfalls ?? []), block.drillNote ?? ""].join("\n");
+    expect(text).toContain("規則表");
+  });
+
   it("the N3 grammar lesson chapters are reference and launch the N3 文法 exam drill", () => {
     for (const id of ["n3-jouken", "n3-suiryou"]) {
       const block = byId(id);
@@ -59,9 +79,9 @@ describe("isLearningBlockComplete", () => {
     const trackable = learningBlocks.filter(
       (b) => b.group === "basic" && b.completionMode !== "reference"
     );
-    // 2 kana + 1 starter-vocab (#533) + 2 Lesson-0 grammar (#534) + 13 N5 grammar (#543-#548) + 11 N4 grammar (#549-#553) + 11
-    // conjugation + 7 sentence-pattern; only verb-types stays reference.
-    expect(trackable.length).toBe(47);
+    // 2 kana + 1 starter-vocab (#533) + 2 Lesson-0 grammar (#534) + 13 N5 grammar (#543-#548) + 11 N4 grammar (#549-#553) + 12
+    // conjugation (incl. the ば-form chapter) + 7 sentence-pattern; only verb-types stays reference.
+    expect(trackable.length).toBe(48);
     expect(trackable.some((b) => b.id === "te-kudasai")).toBe(true);
     expect(byId("verb-types").completionMode).toBe("reference");
   });
