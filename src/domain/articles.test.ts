@@ -166,18 +166,15 @@ describe("blog articles data guard", () => {
     }
   });
 
-  it("serves the country-names etymology article with honest hedges and fact anchors", () => {
+  it("serves a concise country-name guide with sources, abbreviations, and reading rules", () => {
     const article = articleBySlug("japanese-country-names");
     expect(article?.tag).toBe("日文冷知識");
-    expect(article?.title).toContain("國家名");
+    expect(article?.title).toContain("ドイツ");
 
     const body = article?.body ?? [];
     expect(body.length).toBeGreaterThan(0);
-    // Essay half on top, exactly one teaching divider, no vocab above it, cta last.
-    const dividerIndexes = body.flatMap((block, i) => (block.kind === "divider" ? [i] : []));
-    expect(dividerIndexes).toHaveLength(1);
-    expect(body.slice(0, dividerIndexes[0]).some((block) => block.kind === "vocab")).toBe(false);
     expect(body[body.length - 1]?.kind).toBe("cta");
+    expect(body.some((block) => block.kind === "divider")).toBe(false);
 
     const bodyText = body
       .flatMap((block) => {
@@ -185,25 +182,44 @@ describe("blog articles data guard", () => {
         if (block.kind === "vocab") {
           return block.items.flatMap((item) => [item.word, item.reading, item.meaning, item.note ?? ""]);
         }
+        if (block.kind === "table") {
+          return [block.caption, ...block.columns.map((column) => column.label), ...block.rows.flat()];
+        }
         return [];
       })
       .join("\n");
 
-    // The "doesn't match English" group came in via Portuguese/Dutch (南蛮貿易/蘭学 era).
-    expect(bodyText).toContain("エゲレス");
-    expect(bodyText).toContain("Holanda");
-    expect(bodyText).toContain("南蛮貿易");
-    // 米国 vs 美國 fork, renamed countries, and the Argentina deep-dive.
-    expect(bodyText).toContain("亜米利加");
-    expect(bodyText).toContain("ジョージア");
-    expect(bodyText).toContain("ミャンマー");
-    expect(bodyText).toContain("亜爾然丁");
-    expect(bodyText).toContain("ゼリー");
-    // The honest ending: no settled derivation for アルゼンチン.
-    expect(bodyText).toContain("查不到定論");
+    expect(bodyText).not.toContain("昨天世界盃");
+    expect(bodyText).not.toContain("我翻了");
+    for (const term of ["Duitsch", "Inglês", "Olanda", "Grécia", "Suisse", "Argentine"]) {
+      expect(bodyText).toContain(term);
+    }
+    for (const term of ["米（べい）", "英（えい）", "独（どく）", "仏（ふつ）", "日中", "日韓"]) {
+      expect(bodyText).toContain(term);
+    }
+    for (const term of ["韓国（かんこく）", "中国（ちゅうごく）", "全国", "戦国"]) {
+      expect(bodyText).toContain(term);
+    }
+    expect(bodyText).toContain("前面有ん");
+    expect(bodyText).toContain("〜人（じん）");
+    expect(bodyText).toContain("不是にん");
+    expect(bodyText).toContain("〜産（さん）");
+
+    const tables = body.filter((block) => block.kind === "table");
+    expect(tables).toHaveLength(3);
+    for (const table of tables) {
+      expect(table.caption).not.toBe("");
+      expect(table.columns.length).toBeGreaterThan(1);
+      expect(table.rows.length).toBeGreaterThan(0);
+      expect(table.rows.every((row) => row.length === table.columns.length)).toBe(true);
+      expect(table.columns.filter((column) => column.rowHeader)).toHaveLength(1);
+    }
 
     const links = body.flatMap((block) => (block.kind === "links" ? block.items.map((item) => item.url) : []));
-    expect(links).toContain("https://www.mofa.go.jp/mofaj/press/release/press4_002048.html");
+    expect(links).toContain("https://kotoba.ninjal.ac.jp/qa/yokuaru/qa-225/");
+    expect(links).toContain(
+      "https://www.bunka.go.jp/seisaku/bunkashingikai/kokugo/kokugo_kadai/iinkai_29/pdf/r1419861_06.pdf"
+    );
   });
 
   it("serves the restaurant ordering guide with real-world usage cautions", () => {
@@ -278,12 +294,16 @@ describe("blog articles data guard", () => {
     }
   });
 
-  it("keeps the essay on top and all teaching below a single 日文教學 divider", () => {
+  it("keeps vocab teaching below a single divider when an article uses an essay/teaching split", () => {
     for (const a of publishedArticles) {
       const dividerIndexes = a.body
         .map((block, index) => (block.kind === "divider" ? index : -1))
         .filter((index) => index >= 0);
-      // Exactly one divider splits 文章 (essay, top) from 日文教學 (teaching, bottom).
+      if (dividerIndexes.length === 0) {
+        expect(a.body.some((block) => block.kind === "vocab"), a.slug).toBe(false);
+        continue;
+      }
+
       expect(dividerIndexes, a.slug).toHaveLength(1);
       const divider = dividerIndexes[0];
       a.body.forEach((block, index) => {

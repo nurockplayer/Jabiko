@@ -85,7 +85,7 @@ function renderArticleBody(
   const collapsedVocab = (title: string, block: ArticleBlock & { kind: "vocab" }, key: number) => (
     <details key={key} className="blog-vocab-details">
       <summary className="blog-vocab-summary">
-        <span className="blog-vocab-summary-title">{title}</span>
+        <h2 className="blog-vocab-summary-title">{title}</h2>
         <span className="blog-vocab-summary-count">{block.items.length} 個詞</span>
       </summary>
       <ArticleBlockView block={block} language={language} onCta={onCta} />
@@ -151,6 +151,50 @@ function ArticleBlockView({
               </div>
             ))}
           </dl>
+        </div>
+      );
+    case "table":
+      return (
+        <div className="blog-table-wrap">
+          <table className="blog-table">
+            <caption>{block.caption}</caption>
+            <thead>
+              <tr>
+                {block.columns.map((column) => (
+                  <th key={column.label} scope="col">
+                    {column.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {block.rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {block.columns.map((column, columnIndex) => {
+                    const cell = row[columnIndex] ?? "";
+                    return column.rowHeader ? (
+                      <th
+                        key={column.label}
+                        scope="row"
+                        data-label={column.label}
+                        lang={column.lang}
+                      >
+                        {cell}
+                      </th>
+                    ) : (
+                      <td
+                        key={column.label}
+                        data-label={column.label}
+                        lang={column.lang}
+                      >
+                        {cell}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       );
     case "links":

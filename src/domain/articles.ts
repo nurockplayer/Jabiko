@@ -20,6 +20,12 @@ import { tasteExpressionsBody } from "./articleBodies/tasteExpressions";
 
 export type { ArticleMeta } from "./articlesMeta";
 
+export interface ArticleTableColumn {
+  label: string;
+  lang?: "ja";
+  rowHeader?: boolean;
+}
+
 // A challenge deep-link target (maps to openChallenge in App) or a grammar
 // point page. Keeps article CTAs pointed at real practice, not dead ends.
 export type ArticleCta =
@@ -40,6 +46,14 @@ export type ArticleBlock =
       kind: "vocab";
       collapsed?: boolean;
       items: ReadonlyArray<{ word: string; reading: string; meaning: string; note?: string }>;
+    }
+  // Compact factual comparisons. A rowHeader column becomes the semantic
+  // heading for each row; lang marks columns whose cell content is Japanese.
+  | {
+      kind: "table";
+      caption: string;
+      columns: ReadonlyArray<ArticleTableColumn>;
+      rows: ReadonlyArray<ReadonlyArray<string>>;
     }
   // External resource links (opened in a new tab): the official YouTube MV,
   // a legal full-lyrics site (歌ネット / Uta-Net …), etc. We link OUT to full

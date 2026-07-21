@@ -219,6 +219,25 @@ function articleText(block: ArticleBlock): string {
         .join("");
       return `<ul>${items}</ul>`;
     }
+    case "table": {
+      const header = block.columns
+        .map((column) => `<th scope="col">${escapeHtml(column.label)}</th>`)
+        .join("");
+      const rows = block.rows
+        .map((row) => {
+          const cells = block.columns
+            .map((column, columnIndex) => {
+              const tag = column.rowHeader ? "th" : "td";
+              const scope = column.rowHeader ? ' scope="row"' : "";
+              const lang = column.lang ? ` lang="${escapeHtml(column.lang)}"` : "";
+              return `<${tag}${scope}${lang}>${escapeHtml(row[columnIndex] ?? "")}</${tag}>`;
+            })
+            .join("");
+          return `<tr>${cells}</tr>`;
+        })
+        .join("");
+      return `<table><caption>${escapeHtml(block.caption)}</caption><thead><tr>${header}</tr></thead><tbody>${rows}</tbody></table>`;
+    }
     case "links": {
       const items = block.items
         .map((item) => `<li><a href="${escapeHtml(item.url)}" rel="noopener">${escapeHtml(item.label)}</a></li>`)
