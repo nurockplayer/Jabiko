@@ -187,6 +187,48 @@ export const conjugationTableI18n: ConjugationTableOverlays = {
       ]
     }
   },
+  "conditional-ba": {
+    en: {
+      title: "Conditional (ば form): the full conversion",
+      caption: "The \"if ... then ...\" ば form — verbs, negatives, adjectives and nouns in one table. The part most often mis-taught: な adjectives and nouns simply take 「なら」, never 「なければ」.",
+      columns: ["Word class", "Rule", "Examples"],
+      rows: [
+        ["Group I (godan)", "Change the final う-row kana to its え row + ば", "書く → 書けば／飲む → 飲めば／買う → 買えば"],
+        ["Group II (ichidan)", "Drop る + れば", "食べる → 食べれば／見る → 見れば"],
+        ["Group III (irregular)", "Irregular", "する → すれば／来る → 来れば（くれば）"],
+        ["Verb negative", "ない form: drop い + ければ", "行かない → 行かなければ"],
+        ["い adjective", "Drop い + ければ", "高い → 高ければ／いい → よければ"],
+        ["な adjective", "Attach なら directly", "静か → 静かなら"],
+        ["Noun", "Attach なら directly", "学生 → 学生なら"]
+      ],
+      pitfalls: [
+        "な adjectives and nouns never take 「なければ」 directly: the affirmative condition is simply 「なら」 (×静かなければ, ○静かなら); for a negative condition, make 「ではない」 first, then 「でなければ」 (静かでなければ).",
+        "「いい」 conjugates on the よ stem: よければ (×いければ).",
+        "Everything in the table is an affirmative condition; for \"if not ...\", always negate first, then make the ば form: verbs / い adjectives ない → なければ (高くなければ), な adjectives / nouns ではない → でなければ.",
+        "For when to use ば vs たら / なら / と, see the study chapter on the four conditionals."
+      ]
+    },
+    ja: {
+      title: "仮定形（ば形）の作り方まとめ",
+      caption: "「〜すれば」のば形を、動詞・否定・形容詞・名詞まで一つの表にまとめました。いちばん間違えやすいのは な形容詞と名詞：そのまま「なら」を付けます。「なければ」にはなりません。",
+      columns: ["品詞", "ルール", "例"],
+      rows: [
+        ["五段動詞（グループ1）", "最後の仮名をう段 → え段に変えて + ば", "書く → 書けば／飲む → 飲めば／買う → 買えば"],
+        ["一段動詞（グループ2）", "る を取って + れば", "食べる → 食べれば／見る → 見れば"],
+        ["不規則動詞（グループ3）", "不規則", "する → すれば／来る → 来れば（くれば）"],
+        ["動詞の否定", "ない形の い を取って + ければ", "行かない → 行かなければ"],
+        ["い形容詞", "い を取って + ければ", "高い → 高ければ／いい → よければ"],
+        ["な形容詞", "そのまま + なら", "静か → 静かなら"],
+        ["名詞", "そのまま + なら", "学生 → 学生なら"]
+      ],
+      pitfalls: [
+        "な形容詞・名詞は直接「なければ」にはなりません。肯定の条件はそのまま「なら」（×静かなければ、○静かなら）。否定の条件はまず「ではない」にしてから「でなければ」（静かでなければ）にします。",
+        "「いい」は「よ」で活用します：よければ（×いければ）。",
+        "表の形はすべて肯定の条件です。「〜なければ」はまず否定形を作ってから：動詞・い形容詞は ない → なければ（高くなければ）、な形容詞・名詞は ではない → でなければ。",
+        "ば／たら／なら／と の使い分けは、学習ページの「四つの条件」の章をご覧ください。"
+      ]
+    }
+  },
   "adjective-noun-variation": {
     en: {
       title: "Adjectives and nouns: the four-cell conjugation grid",

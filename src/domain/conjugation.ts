@@ -85,6 +85,18 @@ const GODAN_VOLITIONAL_ENDINGS: Record<string, string> = {
   む: "もう"
 };
 
+const GODAN_CONDITIONAL_ENDINGS: Record<string, string> = {
+  る: "れば",
+  う: "えば",
+  く: "けば",
+  ぐ: "げば",
+  す: "せば",
+  つ: "てば",
+  ぬ: "ねば",
+  ぶ: "べば",
+  む: "めば"
+};
+
 const GODAN_CAUSATIVE_ENDINGS: Record<string, string> = {
   る: "らせる",
   う: "わせる",
@@ -133,6 +145,7 @@ export const TARGET_FORM_LABELS: Record<TargetForm, string> = {
   ta: "た形",
   potential: "可能形",
   volitional: "意向形",
+  conditional: "假定形・ば",
   causative: "使役形",
   passive: "受身形",
   desiderative: "願望・たい形",
@@ -160,6 +173,7 @@ export const TARGET_FORM_LABELS_I18N: Record<TargetForm, Record<ContentLocale, s
   ta: { en: "た form", ja: "た形" },
   potential: { en: "potential form", ja: "可能形" },
   volitional: { en: "volitional form", ja: "意向形" },
+  conditional: { en: "conditional (ば form)", ja: "仮定形・ば形" },
   causative: { en: "causative form", ja: "使役形" },
   passive: { en: "passive form", ja: "受身形" },
   desiderative: { en: "desiderative (たい form)", ja: "願望・たい形" },
@@ -202,6 +216,7 @@ export const VERB_FORMS: TargetForm[] = [
   "ta",
   "potential",
   "volitional",
+  "conditional",
   "causative",
   "passive",
   "desiderative",
@@ -219,6 +234,7 @@ export const ADJECTIVE_FORMS: TargetForm[] = [
   "plainPastAffirmative",
   "plainPastNegative",
   "adverbial",
+  "conditional",
   "obligationPast"
 ];
 
@@ -257,6 +273,8 @@ export function generateVerbRuleCandidates(surface: string, targetForm: TargetFo
     pushRuleCandidates(candidates, stem, GODAN_POTENTIAL_ENDINGS, "られる");
   } else if (targetForm === "volitional") {
     pushRuleCandidates(candidates, stem, GODAN_VOLITIONAL_ENDINGS, "よう");
+  } else if (targetForm === "conditional") {
+    pushRuleCandidates(candidates, stem, GODAN_CONDITIONAL_ENDINGS, "れば");
   } else if (targetForm === "causative") {
     pushRuleCandidates(candidates, stem, GODAN_CAUSATIVE_ENDINGS, "させる");
   } else if (targetForm === "passive") {
@@ -327,6 +345,12 @@ function pushIAdjectiveLikeCandidates(out: string[], base: string, targetForm: T
     case "obligationPast":
       out.push(`${base}くならなければならなかった`);
       break;
+    case "conditional":
+      // The viral mis-teaching this drill inoculates against: applying the
+      // i-adjective ければ (or the ない-form なければ) to a nominal, when
+      // な形容詞/名詞 conditionals are simply 〜なら.
+      out.push(`${base}ければ`, `${base}なければ`);
+      break;
   }
 }
 
@@ -353,8 +377,28 @@ function pushNominalLikeCandidates(out: string[], base: string, targetForm: Targ
     case "obligationPast":
       out.push(`${base}にならなければならなかった`);
       break;
+    case "conditional":
+      // Nominal-rule-on-an-adjective mistake: 高なら instead of 高ければ.
+      out.push(`${base}なら`, `${base}だなら`);
+      break;
   }
 }
+
+// Adjectives whose surface ends in kana いい/よい from 良い and therefore
+// conjugate on the よ stem (いい -> よければ). Deliberately a closed list: an
+// ending match would wrongly catch かわいい-type words that merely end in
+// いい. Kanji 良い is NOT here on purpose — its regular stem 良 already
+// yields the correct 良ければ.
+const YOI_DERIVED_ADJECTIVES = new Set([
+  "いい",
+  "よい",
+  "かっこいい",
+  "格好いい",
+  "気持ちいい",
+  "心地いい",
+  "仲がいい",
+  "頭がいい"
+]);
 
 export const VOCAB_FORMS: TargetForm[] = ["reading", "meaning"];
 
@@ -467,6 +511,8 @@ function ichidanEnding(targetForm: TargetForm): string {
       return "られる";
     case "volitional":
       return "よう";
+    case "conditional":
+      return "れば";
     case "causative":
       return "させる";
     case "passive":
@@ -487,6 +533,7 @@ function irregularAnswer(surface: string, targetForm: TargetForm): string {
       ta: "来た",
       potential: "来られる",
       volitional: "来よう",
+      conditional: "来れば",
       causative: "来させる",
       passive: "来られる",
       desiderative: "来たい"
@@ -503,6 +550,7 @@ function irregularAnswer(surface: string, targetForm: TargetForm): string {
       ta: `${stem}した`,
       potential: `${stem}できる`,
       volitional: `${stem}しよう`,
+      conditional: `${stem}すれば`,
       causative: `${stem}させる`,
       passive: `${stem}される`,
       desiderative: `${stem}したい`
@@ -532,6 +580,7 @@ function godanAnswer(surface: string, targetForm: TargetForm): string {
     ta: GODAN_TA_ENDINGS,
     potential: GODAN_POTENTIAL_ENDINGS,
     volitional: GODAN_VOLITIONAL_ENDINGS,
+    conditional: GODAN_CONDITIONAL_ENDINGS,
     causative: GODAN_CAUSATIVE_ENDINGS,
     passive: GODAN_PASSIVE_ENDINGS,
     desiderative: GODAN_DESIDERATIVE_ENDINGS
@@ -548,6 +597,13 @@ function godanAnswer(surface: string, targetForm: TargetForm): string {
 
 function conjugateIAdjective(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
   const stem = item.surface.replace(/い$/, "");
+  // 良い-derived adjectives conjugate on the よ stem: よければ, never いければ.
+  // A controlled whitelist, NOT an ending match — かわいい ends in いい but is
+  // its own word (かわいければ). The bank has no 良い word today; this guards
+  // the rule for when one lands.
+  const conditionalStem = YOI_DERIVED_ADJECTIVES.has(item.surface)
+    ? item.surface.replace(/(いい|よい)$/, "よ")
+    : stem;
   const answersByForm: Partial<Record<TargetForm, string[]>> = {
     dictionary: [item.surface],
     plainPresentAffirmative: [item.surface],
@@ -556,7 +612,8 @@ function conjugateIAdjective(item: VocabularyItem, targetForm: TargetForm): Conj
     adverbial: [`${stem}く`],
     obligationPast: [`${stem}くならなければならなかった`],
     plainPastAffirmative: [`${stem}かった`],
-    plainPastNegative: [`${stem}くなかった`]
+    plainPastNegative: [`${stem}くなかった`],
+    conditional: [`${conditionalStem}ければ`]
   };
 
   return explained(targetForm, answersByForm[targetForm] ?? [item.surface], explainIAdjective(targetForm));
@@ -571,7 +628,8 @@ function conjugateNominal(item: VocabularyItem, targetForm: TargetForm): Conjuga
     adverbial: [`${item.surface}に`],
     obligationPast: [`${item.surface}にならなければならなかった`],
     plainPastAffirmative: [`${item.surface}だった`],
-    plainPastNegative: [`${item.surface}ではなかった`, `${item.surface}じゃなかった`]
+    plainPastNegative: [`${item.surface}ではなかった`, `${item.surface}じゃなかった`],
+    conditional: [`${item.surface}なら`]
   };
 
   return explained(targetForm, answersByForm[targetForm] ?? [item.surface], explainNominal(item, targetForm));
@@ -666,6 +724,13 @@ function explainVerb(item: VocabularyItem, targetForm: TargetForm): LocalizedExp
         ja: "「する」の意向形は「しよう」、「来る」は「来よう」になります。"
       };
     }
+    if (targetForm === "conditional") {
+      return {
+        zh: "「する」的假定形是「すれば」；「来る」變成「来れば」（讀作くれば）。",
+        en: "The conditional of 「する」 is 「すれば」; 「来る」 becomes 「来れば」 (read くれば).",
+        ja: "「する」の仮定形は「すれば」、「来る」は「来れば」（くれば）になります。"
+      };
+    }
     if (targetForm === "causative") {
       return {
         zh: "「する」的使役形是「させる」；「来る」變成「来させる」。注意「させる」與受身的「される」不同。",
@@ -716,6 +781,14 @@ function explainVerb(item: VocabularyItem, targetForm: TargetForm): LocalizedExp
       zh: "一類動詞意向形把最後一個假名換成お段後接「う」，例如「書く -> 書こう」、「読む -> 読もう」。",
       en: "For the volitional form of group I (godan) verbs, change the final kana to its お row and attach 「う」, e.g. 「書く -> 書こう」, 「読む -> 読もう」.",
       ja: "五段動詞の意向形は最後の仮名をお段に変えて「う」を付けます。例：「書く → 書こう」「読む → 読もう」。"
+    };
+  }
+
+  if (targetForm === "conditional") {
+    return {
+      zh: "一類動詞假定形（ば形）把最後一個假名換成え段後接「ば」，例如「書く -> 書けば」、「読む -> 読めば」。",
+      en: "For the conditional (ば form) of group I (godan) verbs, change the final kana to its え row and attach 「ば」, e.g. 「書く -> 書けば」, 「読む -> 読めば」.",
+      ja: "五段動詞の仮定形（ば形）は最後の仮名をえ段に変えて「ば」を付けます。例：「書く → 書けば」「読む → 読めば」。"
     };
   }
 
@@ -799,6 +872,14 @@ function explainIAdjective(targetForm: TargetForm): LocalizedExplanation {
     };
   }
 
+  if (targetForm === "conditional") {
+    return {
+      zh: "い形容詞假定形：去掉最後的「い」，接「ければ」（高い -> 高ければ）。「いい」要走「よ」：よければ。",
+      en: "い adjective conditional: drop the final 「い」 and attach 「ければ」 (高い -> 高ければ). 「いい」 uses the よ stem: よければ.",
+      ja: "い形容詞の仮定形は最後の「い」を取って「ければ」を付けます（高い → 高ければ）。「いい」は「よ」で活用します：よければ。"
+    };
+  }
+
   return {
     zh: "い形容詞現在肯定直接使用原形。",
     en: "The plain present affirmative of an い adjective is just its dictionary form.",
@@ -856,6 +937,14 @@ function explainNominal(item: VocabularyItem, targetForm: TargetForm): Localized
       zh: `${label}否定過去接「ではなかった」，口語也常用「じゃなかった」。`,
       en: `The negative past of ${labelEn} is 「ではなかった」; 「じゃなかった」 is common in speech.`,
       ja: `${label}の否定過去は「ではなかった」です。話し言葉では「じゃなかった」もよく使います。`
+    };
+  }
+
+  if (targetForm === "conditional") {
+    return {
+      zh: `${label}的肯定條件直接接「なら」（静か -> 静かなら、学生 -> 学生なら），不能直接接「なければ」。要說否定條件時先變「ではない」再變「でなければ」（静かでなければ）。`,
+      en: `The affirmative conditional of ${labelEn} simply attaches 「なら」 (静か -> 静かなら, 学生 -> 学生なら) — never 「なければ」 directly. For a negative condition, make 「ではない」 first, then 「でなければ」 (静かでなければ).`,
+      ja: `${label}の肯定の条件はそのまま「なら」を付けます（静か → 静かなら、学生 → 学生なら）。直接「なければ」にはなりません。否定の条件はまず「ではない」にしてから「でなければ」（静かでなければ）にします。`
     };
   }
 

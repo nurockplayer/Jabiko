@@ -61,6 +61,7 @@ export type TargetForm =
   | "ta"
   | "potential"
   | "volitional"
+  | "conditional"
   | "causative"
   | "passive"
   | "desiderative"

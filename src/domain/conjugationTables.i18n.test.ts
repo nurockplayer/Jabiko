@@ -33,6 +33,20 @@ describe("conjugationTables i18n (#427)", () => {
     expect(localizeConjugationTable(base, "zh-Hant", conjugationTableI18n)).toBe(base);
   });
 
+  it("includes a full ば-form conversion table (verbs, negative, adjectives, nouns)", () => {
+    const table = CONJUGATION_TABLES.find((t) => t.id === "conditional-ba");
+    expect(table).toBeTruthy();
+    const flat = [table!.title, ...table!.rows.flat(), ...(table!.pitfalls ?? [])].join("\n");
+    // The full 大家的日本語-35 coverage a partial listicle gets wrong:
+    expect(flat).toContain("書けば");
+    expect(flat).toContain("食べれば");
+    expect(flat).toContain("すれば");
+    expect(flat).toContain("なければ");
+    expect(flat).toContain("ければ");
+    expect(flat).toContain("なら");
+    expect(flat).toContain("よければ");
+  });
+
   it("has no dangling overlay ids", () => {
     const ids = new Set(CONJUGATION_TABLES.map((table) => table.id));
     for (const id of Object.keys(conjugationTableI18n)) {

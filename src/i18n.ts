@@ -224,6 +224,7 @@ export type Copy = {
   drillPlain: string;
   drillPotential: string;
   drillVolitional: string;
+  drillConditional: string;
   drillPassive: string;
   drillCausative: string;
   drillDesiderative: string;

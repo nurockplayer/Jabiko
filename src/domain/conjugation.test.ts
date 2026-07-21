@@ -310,3 +310,78 @@ describe("explanation localization (#427)", () => {
     }
   });
 });
+
+describe("conditional ば form", () => {
+  it("conjugates the conditional across every godan ending", () => {
+    const cases = [
+      ["書く", "かく", "寫", "書けば"],
+      ["泳ぐ", "およぐ", "游泳", "泳げば"],
+      ["話す", "はなす", "說", "話せば"],
+      ["待つ", "まつ", "等", "待てば"],
+      ["死ぬ", "しぬ", "死", "死ねば"],
+      ["遊ぶ", "あそぶ", "玩", "遊べば"],
+      ["飲む", "のむ", "喝", "飲めば"],
+      ["帰る", "かえる", "回去", "帰れば"],
+      ["買う", "かう", "買", "買えば"]
+    ] as const;
+
+    for (const [surface, reading, meaningZh, conditional] of cases) {
+      const item = word({ surface, reading, meaningZh, partOfSpeech: "verb", group: "godan" });
+      expect(conjugate(item, "conditional")).toEqual(expect.objectContaining({ answers: [conditional] }));
+    }
+  });
+
+  it("conjugates ichidan and irregular conditionals", () => {
+    const taberu = word({ surface: "食べる", reading: "たべる", meaningZh: "吃", partOfSpeech: "verb", group: "ichidan" });
+    const miru = word({ surface: "見る", reading: "みる", meaningZh: "看", partOfSpeech: "verb", group: "ichidan" });
+    const suru = word({ surface: "する", reading: "する", meaningZh: "做", partOfSpeech: "verb", group: "irregular" });
+    const kuru = word({ surface: "来る", reading: "くる", meaningZh: "來", partOfSpeech: "verb", group: "irregular" });
+    const benkyou = word({ surface: "勉強する", reading: "べんきょうする", meaningZh: "學習", partOfSpeech: "verb", group: "irregular" });
+
+    expect(conjugate(taberu, "conditional")).toEqual(expect.objectContaining({ answers: ["食べれば"] }));
+    expect(conjugate(miru, "conditional")).toEqual(expect.objectContaining({ answers: ["見れば"] }));
+    expect(conjugate(suru, "conditional")).toEqual(expect.objectContaining({ answers: ["すれば"] }));
+    expect(conjugate(kuru, "conditional")).toEqual(expect.objectContaining({ answers: ["来れば"] }));
+    expect(conjugate(benkyou, "conditional")).toEqual(expect.objectContaining({ answers: ["勉強すれば"] }));
+  });
+
+  it("uses ければ for i-adjectives and なら for na-adjectives and nouns", () => {
+    const takai = word({ surface: "高い", reading: "たかい", meaningZh: "貴", partOfSpeech: "i_adjective" });
+    const shizuka = word({ surface: "静か", reading: "しずか", meaningZh: "安靜", partOfSpeech: "na_adjective" });
+    const gakusei = word({ surface: "学生", reading: "がくせい", meaningZh: "學生", partOfSpeech: "noun" });
+
+    expect(conjugate(takai, "conditional")).toEqual(expect.objectContaining({ answers: ["高ければ"] }));
+    // The classic mistake this feature guards against: な形容詞/名詞 never take
+    // なければ directly -- their affirmative conditional is なら. (Their
+    // negative conditional goes ではない -> でなければ, taught in the prose.)
+    expect(conjugate(shizuka, "conditional")).toEqual(expect.objectContaining({ answers: ["静かなら"] }));
+    expect(conjugate(gakusei, "conditional")).toEqual(expect.objectContaining({ answers: ["学生なら"] }));
+  });
+
+  it("conjugates いい-type adjectives on the よ stem (よければ, never いければ)", () => {
+    const ii = word({ surface: "いい", reading: "いい", meaningZh: "好", partOfSpeech: "i_adjective" });
+    const kakkoii = word({ surface: "かっこいい", reading: "かっこいい", meaningZh: "帥", partOfSpeech: "i_adjective" });
+    const yoi = word({ surface: "よい", reading: "よい", meaningZh: "好", partOfSpeech: "i_adjective" });
+
+    expect(conjugate(ii, "conditional")).toEqual(expect.objectContaining({ answers: ["よければ"] }));
+    expect(conjugate(kakkoii, "conditional")).toEqual(expect.objectContaining({ answers: ["かっこよければ"] }));
+    expect(conjugate(yoi, "conditional")).toEqual(expect.objectContaining({ answers: ["よければ"] }));
+  });
+
+  it("does NOT treat every いい-sounding ending as 良い: かわいい stays かわいければ", () => {
+    const kawaii = word({ surface: "かわいい", reading: "かわいい", meaningZh: "可愛", partOfSpeech: "i_adjective" });
+    const osoi = word({ surface: "遅い", reading: "おそい", meaningZh: "慢", partOfSpeech: "i_adjective" });
+    // Kanji 良い needs NO whitelist: the regular stem 良 already gives 良ければ.
+    const kanjiYoi = word({ surface: "良い", reading: "よい", meaningZh: "好", partOfSpeech: "i_adjective" });
+
+    expect(conjugate(kawaii, "conditional")).toEqual(expect.objectContaining({ answers: ["かわいければ"] }));
+    expect(conjugate(osoi, "conditional")).toEqual(expect.objectContaining({ answers: ["遅ければ"] }));
+    expect(conjugate(kanjiYoi, "conditional")).toEqual(expect.objectContaining({ answers: ["良ければ"] }));
+  });
+
+  it("is drillable: conditional sits in the verb and adjective form lists", () => {
+    expect(VERB_FORMS).toContain("conditional");
+    expect(ADJECTIVE_FORMS).toContain("conditional");
+    expect(TARGET_FORM_LABELS.conditional).toContain("ば");
+  });
+});

@@ -1518,6 +1518,50 @@ export const learningBlockI18n: LearningBlockOverlays = {
       ]
     }
   },
+  "conditional": {
+    "en": {
+      "category": "Verb Conjugation",
+      "title": "Conditional (ば form)",
+      "explanation": "The \"if ... then ...\" ば. Verbs: Group 1 changes the last kana to the え-row and adds ば; Group 2 drops る and adds れば; Group 3: する → すれば, 来る → 来れば. The negative comes from the ない form: drop い, add ければ (行かない → 行かなければ). い adjectives drop い and add ければ (高ければ). な adjectives and nouns don't conjugate at all — just attach なら (静かなら, 学生なら).",
+      "kicker": "If / Once",
+      "notes": [
+        "Group 1: く becomes け + ば.",
+        "Group 1: む becomes め + ば.",
+        "Group 2: drop る + れば.",
+        "Group 3 (来れば is read くれば).",
+        "Negative: ない form, drop い + ければ.",
+        "い adjective: drop い + ければ.",
+        "な adjectives / nouns: attach なら directly."
+      ],
+      "pitfalls": [
+        "な adjectives and nouns never take なければ directly — the affirmative condition is simply なら (×静かなければ, ○静かなら); a negative condition goes ではない first, then でなければ (静かでなければ).",
+        "いい conjugates on よ: よければ (×いければ).",
+        "The forms above are all affirmative conditions; for \"if not ...\", negate first, then make the ば form: verbs / い adjectives ない → なければ (高くなければ), な adjectives / nouns ではない → でなければ.",
+        "For choosing between ば / たら / なら / と, see the four-conditionals chapter."
+      ]
+    },
+    "ja": {
+      "category": "動詞の活用",
+      "title": "仮定形・ば形 (V えば)",
+      "explanation": "「〜すれば」の ば。動詞：一類は語尾をえ段に変えて＋ば。二類は る を取って＋れば。三類：する → すれば、来る → 来れば。否定はない形から：い を取って＋ければ（行かない → 行かなければ）。い形容詞は い を取って＋ければ（高ければ）。な形容詞と名詞は活用せず、そのまま なら を付けます（静かなら、学生なら）。",
+      "kicker": "もし・〜すれば",
+      "notes": [
+        "一類：く を け に換えて＋ば",
+        "一類：む を め に換えて＋ば",
+        "二類：る を取って＋れば",
+        "三類（来れば は くれば と読む）",
+        "否定：ない形の い を取って＋ければ",
+        "い形容詞：い を取って＋ければ",
+        "な形容詞・名詞：そのまま＋なら"
+      ],
+      "pitfalls": [
+        "な形容詞・名詞は直接「なければ」になりません。肯定の条件はそのまま「なら」（×静かなければ、○静かなら）。否定の条件は「ではない」→「でなければ」（静かでなければ）",
+        "「いい」は「よ」で活用：よければ（×いければ）",
+        "上の形はすべて肯定の条件。「〜なければ」はまず否定形から：動詞・い形は ない → なければ（高くなければ）、な形・名詞は ではない → でなければ",
+        "ば／たら／なら／と の使い分けは「四つの条件」の章へ"
+      ]
+    }
+  },
   "volitional": {
     "en": {
       "category": "Verb Conjugation",
