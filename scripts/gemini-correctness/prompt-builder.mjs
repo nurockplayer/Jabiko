@@ -88,8 +88,8 @@ export function buildDiscoveryPrompt({
 } = {}) {
   const rulesSection = rules ? `\n## Project rules\n\n${rules}` : "";
 
-  // Build a "partial prompt" with placeholders for the dynamic sections
-  const beforeBlocks = PROMPT_TEMPLATE
+  // Build prompt with placeholders for dynamic sections (manifest and contents)
+  const basePrompt = PROMPT_TEMPLATE
     .replace("{{commitSha}}", commitSha || "unknown")
     .replace("{{rulesSection}}", rulesSection)
     .replace("{{fileCount}}", "{{_COUNT}}")
@@ -97,6 +97,23 @@ export function buildDiscoveryPrompt({
     .replace("{{protectedExcluded}}", String(stats?.protectedExcluded ?? 0))
     .replace("{{manifestSection}}", "{{_MANIFEST}}")
     .replace("{{fileContentsSection}}", "{{_CONTENTS}}");
+
+  // Check if base prompt (template + rules) already exceeds MAX_TOTAL_CHARS.
+  // Even with 0 files and 0 bytes for the dynamic sections, the minimum
+  // manifest and contents sections are empty strings, so base length = actual.
+  const baseLengthAtMinimum = basePrompt
+    .replace("{{_COUNT}}", "0")
+    .replace("{{_BYTES}}", "0")
+    .replace("{{_MANIFEST}}", "")
+    .replace("{{_CONTENTS}}", "")
+    .length;
+
+  if (baseLengthAtMinimum > MAX_TOTAL_CHARS) {
+    throw new Error(
+      `Prompt template + rulesSection (${baseLengthAtMinimum} chars) exceeds MAX_TOTAL_CHARS (${MAX_TOTAL_CHARS}). ` +
+      `Reduce CLAUDE.md rules size.`
+    );
+  }
 
   const fileContents = [];
   const filePaths = [];
@@ -115,7 +132,7 @@ export function buildDiscoveryPrompt({
     const contentsStr = newContents.join("\n\n");
     const totalBytes = newContents.reduce((s, b) => s + Buffer.byteLength(b, "utf8"), 0);
 
-    const fullCandidate = beforeBlocks
+    const fullCandidate = basePrompt
       .replace("{{_COUNT}}", String(newPaths.length))
       .replace("{{_BYTES}}", String(totalBytes))
       .replace("{{_MANIFEST}}", manifestStr)
@@ -141,6 +158,15 @@ export function buildDiscoveryPrompt({
     .replace("{{protectedExcluded}}", String(stats?.protectedExcluded ?? 0))
     .replace("{{manifestSection}}", manifestSection)
     .replace("{{fileContentsSection}}", fileContentsSection);
+
+  // Post-condition assertion — ensures prompt never exceeds the cap even if
+  // template replacements produce a slightly larger length than estimated.
+  if (prompt.length > MAX_TOTAL_CHARS) {
+    throw new Error(
+      `Internal error: final prompt (${prompt.length} chars) exceeds MAX_TOTAL_CHARS (${MAX_TOTAL_CHARS}). ` +
+      `This is a bug in the truncation logic.`
+    );
+  }
 
   return {
     prompt,
