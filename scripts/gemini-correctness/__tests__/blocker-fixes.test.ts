@@ -50,6 +50,27 @@ describe("safeWritePath — .tmp symlink containment", () => {
   });
 });
 
+describe("isPathWithinRepo — dangling symlink containment", () => {
+  const TEST_DIR = "/tmp/jabiko-pathwithin-test-" + Date.now();
+  const REPO_DIR = path.join(TEST_DIR, "repo");
+  const OUTSIDE_TARGET = path.join(TEST_DIR, "outside", "missing.ts");
+
+  beforeEach(() => {
+    fs.mkdirSync(path.join(REPO_DIR, "src", "domain"), { recursive: true });
+    fs.mkdirSync(path.dirname(OUTSIDE_TARGET), { recursive: true });
+    fs.symlinkSync(
+      OUTSIDE_TARGET,
+      path.join(REPO_DIR, "src", "domain", "dangling.ts")
+    );
+  });
+  afterEach(() => fs.rmSync(TEST_DIR, { recursive: true, force: true }));
+
+  it("rejects a dangling symlink instead of treating it as a missing lexical path", () => {
+    const canonicalRepo = fs.realpathSync(REPO_DIR);
+    expect(isPathWithinRepo("src/domain/dangling.ts", canonicalRepo)).toBe(false);
+  });
+});
+
 // =============================================================================
 // 2. prompt-builder must not use prompt.slice() — only complete file blocks
 // =============================================================================
@@ -190,6 +211,31 @@ describe("scanRepository — exact-file allowlist symlink escape", () => {
     });
     const paths = result.scannedFiles.map(f => f.path);
     expect(paths).not.toContain("src/domain/linked.ts");
+  });
+});
+
+describe("scanRepository — glob root canonical policy enforcement", () => {
+  const TEST_DIR = "/tmp/jabiko-globroot-test-" + Date.now();
+  const REPO_DIR = path.join(TEST_DIR, "repo");
+
+  beforeEach(() => {
+    fs.mkdirSync(path.join(REPO_DIR, "src"), { recursive: true });
+    fs.mkdirSync(path.join(REPO_DIR, "supabase"), { recursive: true });
+    fs.writeFileSync(path.join(REPO_DIR, "CLAUDE.md"), "# repo");
+    fs.writeFileSync(path.join(REPO_DIR, "supabase", "migration.sql"), "protected migration\n");
+    fs.symlinkSync(path.join(REPO_DIR, "supabase"), path.join(REPO_DIR, "src", "domain"));
+  });
+  afterEach(() => fs.rmSync(TEST_DIR, { recursive: true, force: true }));
+
+  it("does not alias an internal protected directory through an allowlisted glob root", () => {
+    const result = scanRepository({
+      repoRoot: REPO_DIR,
+      allowlist: ["src/domain/**"],
+      protectedPaths: ["supabase/"]
+    });
+
+    expect(result.scannedFiles).toEqual([]);
+    expect(result.manifest).toEqual([]);
   });
 });
 

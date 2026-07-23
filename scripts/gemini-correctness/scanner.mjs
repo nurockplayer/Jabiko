@@ -18,6 +18,10 @@ function isTextFile(content) {
   return !BINARY_RE.test(content.slice(0, 8192));
 }
 
+export function normalizeRepositoryPath(filePath) {
+  return String(filePath).replace(/\\/g, "/");
+}
+
 // ---------------------------------------------------------------------------
 // validateScanOptions — rejects invalid or over-limit parameters
 // ---------------------------------------------------------------------------
@@ -81,7 +85,7 @@ export function scanRepository({
         // On macOS /tmp → /private/tmp, path.relative(repoRoot, real) produces
         // a traversal path like "../../../private/tmp/...".  To normalize,
         // we compare against repoReal (the resolved repo root).
-        const relPath = path.relative(repoReal, real);
+        const relPath = normalizeRepositoryPath(path.relative(repoReal, real));
         if (!relPath || relPath.startsWith("..")) continue;
 
         // The resolved path should still pass the allowlist (catches repo-internal
@@ -109,7 +113,28 @@ export function scanRepository({
     if (!fs.existsSync(absDir)) continue;
     const isFlat = pattern.endsWith("/*") || (!pattern.includes("**") && !pattern.includes("*"));
     try {
-      walkDirectory(absDir, repoRoot, repoReal, protectedPaths, seenPaths, candidates, isFlat, () => { protectedExcludedCount++; });
+      const realDir = fs.realpathSync(absDir);
+      if (!realDir.startsWith(repoReal + path.sep) && realDir !== repoReal) continue;
+
+      const realBasePath = normalizeRepositoryPath(path.relative(repoReal, realDir));
+      if (!realBasePath || realBasePath.startsWith("..")) continue;
+      const requestedBasePath = normalizeRepositoryPath(baseDir);
+      if (realBasePath !== requestedBasePath) continue;
+      if (isProtected(realBasePath, protectedPaths)) {
+        protectedExcludedCount++;
+        continue;
+      }
+
+      walkDirectory(
+        realDir,
+        repoReal,
+        allowlist,
+        protectedPaths,
+        seenPaths,
+        candidates,
+        isFlat,
+        () => { protectedExcludedCount++; }
+      );
     } catch { continue; }
   }
 
@@ -173,7 +198,7 @@ export function scanRepository({
   };
 }
 
-function walkDirectory(absDir, repoRoot, repoReal, protectedPaths, seenPaths, candidates, flat, onProtected) {
+function walkDirectory(absDir, repoReal, allowlist, protectedPaths, seenPaths, candidates, flat, onProtected) {
   let entries;
   try { entries = fs.readdirSync(absDir, { withFileTypes: true }); } catch { return; }
 
@@ -181,20 +206,20 @@ function walkDirectory(absDir, repoRoot, repoReal, protectedPaths, seenPaths, ca
     if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
 
     const entryPath = path.join(absDir, entry.name);
-    // Relative path for pattern matching — compare against repoRoot
-    // (the argument the caller passed, which is also what allowlist/protected
-    // patterns are written relative to).  On macOS /tmp→/private/tmp this
-    // differs from repoReal, but pattern matching must use the caller's
-    // perspective.  Use repoRoot-relative for matching.
-    const relPath = path.relative(repoRoot, entryPath);
-    if (!relPath || relPath.startsWith("..")) continue;
 
     let real;
     try { real = fs.realpathSync(entryPath); } catch { continue; }
     if (!real.startsWith(repoReal + path.sep) && real !== repoReal) continue;
 
+    // Policy checks and manifest paths always use the canonical target path.
+    // This prevents an allowlisted directory symlink from aliasing protected
+    // or otherwise non-allowlisted content elsewhere inside the repository.
+    const relPath = normalizeRepositoryPath(path.relative(repoReal, real));
+    if (!relPath || relPath.startsWith("..")) continue;
+    if (!isAllowlisted(relPath, allowlist)) continue;
+
     if (entry.isDirectory() && !flat) {
-      walkDirectory(entryPath, repoRoot, repoReal, protectedPaths, seenPaths, candidates, false, onProtected);
+      walkDirectory(real, repoReal, allowlist, protectedPaths, seenPaths, candidates, false, onProtected);
       continue;
     }
 

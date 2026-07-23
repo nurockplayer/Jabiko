@@ -9,7 +9,13 @@
 // =============================================================================
 
 export const MAX_TOTAL_CHARS = 500_000;
+export const MAX_PROJECT_RULES_CHARS = 100_000;
 export const DEFAULT_MODEL = "gemini-2.5-flash";
+export const PROJECT_RULES_TRUNCATION_MARKER =
+  "[Project rules omitted because they exceed the 100000-character limit]";
+
+const MAX_COMMIT_SHA_CHARS = 128;
+const COMMIT_SHA_TRUNCATION_MARKER = "[truncated]";
 
 const PROMPT_TEMPLATE = `You are a correctness reviewer for a JLPT study application written in TypeScript.
 Your task is to find ONE high-confidence correctness bug in the scanned code below.
@@ -80,84 +86,119 @@ Commit SHA: {{commitSha}}
 
 {{fileContentsSection}}`;
 
+const TEMPLATE_VALUES_RE =
+  /\{\{(commitSha|rulesSection|fileCount|totalBytes|protectedExcluded|manifestSection|fileContentsSection)\}\}/g;
+
+function truncateUtf16Safely(value, maxChars, marker) {
+  const text = String(value);
+  if (text.length <= maxChars) {
+    return { value: text, truncated: false };
+  }
+
+  const prefixBudget = Math.max(0, maxChars - marker.length);
+  let end = prefixBudget;
+  if (end > 0) {
+    const finalCodeUnit = text.charCodeAt(end - 1);
+    if (finalCodeUnit >= 0xD800 && finalCodeUnit <= 0xDBFF) {
+      end -= 1;
+    }
+  }
+
+  return {
+    value: text.slice(0, end) + marker,
+    truncated: true
+  };
+}
+
+function renderPrompt(values) {
+  return PROMPT_TEMPLATE.replace(
+    TEMPLATE_VALUES_RE,
+    (_placeholder, key) => String(values[key] ?? "")
+  );
+}
+
 export function buildDiscoveryPrompt({
   commitSha,
   rules,
   scannedFiles,
   stats
 } = {}) {
-  const rulesSection = rules ? `\n## Project rules\n\n${rules}` : "";
+  const rawCommitSha = commitSha ? String(commitSha).replace(/[\r\n]+/g, " ") : "unknown";
+  const boundedCommitSha = truncateUtf16Safely(
+    rawCommitSha,
+    MAX_COMMIT_SHA_CHARS,
+    COMMIT_SHA_TRUNCATION_MARKER
+  );
 
-  // Build prompt with placeholders for dynamic sections (manifest and contents)
-  const basePrompt = PROMPT_TEMPLATE
-    .replace("{{commitSha}}", commitSha || "unknown")
-    .replace("{{rulesSection}}", rulesSection)
-    .replace("{{fileCount}}", "{{_COUNT}}")
-    .replace("{{totalBytes}}", "{{_BYTES}}")
-    .replace("{{protectedExcluded}}", String(stats?.protectedExcluded ?? 0))
-    .replace("{{manifestSection}}", "{{_MANIFEST}}")
-    .replace("{{fileContentsSection}}", "{{_CONTENTS}}");
+  const rawRules = rules ? String(rules) : "";
+  // Project rules are Markdown and may contain fenced code blocks. If an
+  // oversized rules document were prefix-truncated, an open fence could absorb
+  // the manifest and file sections that follow. Omit the whole document instead
+  // and insert one complete marker so the prompt structure remains intact.
+  const rulesTruncated = rawRules.length > MAX_PROJECT_RULES_CHARS;
+  const rulesValue = rulesTruncated
+    ? PROJECT_RULES_TRUNCATION_MARKER
+    : rawRules;
+  const rulesSection = rawRules
+    ? `\n## Project rules\n\n${rulesValue}\n\n## End project rules`
+    : "";
 
-  // Check if base prompt (template + rules) already exceeds MAX_TOTAL_CHARS.
-  // Even with 0 files and 0 bytes for the dynamic sections, the minimum
-  // manifest and contents sections are empty strings, so base length = actual.
-  const baseLengthAtMinimum = basePrompt
-    .replace("{{_COUNT}}", "0")
-    .replace("{{_BYTES}}", "0")
-    .replace("{{_MANIFEST}}", "")
-    .replace("{{_CONTENTS}}", "")
-    .length;
-
-  if (baseLengthAtMinimum > MAX_TOTAL_CHARS) {
-    throw new Error(
-      `Prompt template + rulesSection (${baseLengthAtMinimum} chars) exceeds MAX_TOTAL_CHARS (${MAX_TOTAL_CHARS}). ` +
-      `Reduce CLAUDE.md rules size.`
-    );
-  }
+  const protectedExcluded =
+    Number.isSafeInteger(stats?.protectedExcluded) && stats.protectedExcluded >= 0
+      ? stats.protectedExcluded
+      : 0;
+  const files = Array.isArray(scannedFiles) ? scannedFiles : [];
 
   const fileContents = [];
   const filePaths = [];
-  let truncated = false;
+  let filesTruncated = false;
 
-  for (const f of scannedFiles) {
-    const header = `### ${f.path} (${f.lineCount} lines${f.truncated ? ", TRUNCATED" : ""})`;
-    const lines = f.content.split("\n");
+  for (const f of files) {
+    const filePath = String(f.path ?? "");
+    const content = String(f.content ?? "");
+    const header = `### ${filePath} (${String(f.lineCount ?? 0)} lines${f.truncated ? ", TRUNCATED" : ""})`;
+    const lines = content.split("\n");
     const numbered = lines.map((line, idx) => `${idx + 1}|${line}`).join("\n");
     const block = `${header}\n\`\`\`\n${numbered}\n\`\`\``;
 
     // Compute what the FULL prompt would look like if we add this file
-    const newPaths = [...filePaths, f.path];
+    const newPaths = [...filePaths, filePath];
     const newContents = [...fileContents, block];
     const manifestStr = newPaths.join("\n");
     const contentsStr = newContents.join("\n\n");
     const totalBytes = newContents.reduce((s, b) => s + Buffer.byteLength(b, "utf8"), 0);
 
-    const fullCandidate = basePrompt
-      .replace("{{_COUNT}}", String(newPaths.length))
-      .replace("{{_BYTES}}", String(totalBytes))
-      .replace("{{_MANIFEST}}", manifestStr)
-      .replace("{{_CONTENTS}}", contentsStr);
+    const fullCandidate = renderPrompt({
+      commitSha: boundedCommitSha.value,
+      rulesSection,
+      fileCount: newPaths.length,
+      totalBytes,
+      protectedExcluded,
+      manifestSection: manifestStr,
+      fileContentsSection: contentsStr
+    });
 
     if (fullCandidate.length > MAX_TOTAL_CHARS) {
-      truncated = true;
+      filesTruncated = true;
       break;
     }
 
     fileContents.push(block);
-    filePaths.push(f.path);
+    filePaths.push(filePath);
   }
 
   const manifestSection = filePaths.join("\n");
   const fileContentsSection = fileContents.join("\n\n");
 
-  const prompt = PROMPT_TEMPLATE
-    .replace("{{commitSha}}", commitSha || "unknown")
-    .replace("{{rulesSection}}", rulesSection)
-    .replace("{{fileCount}}", String(filePaths.length))
-    .replace("{{totalBytes}}", String(fileContents.reduce((s, f) => s + Buffer.byteLength(f, "utf8"), 0)))
-    .replace("{{protectedExcluded}}", String(stats?.protectedExcluded ?? 0))
-    .replace("{{manifestSection}}", manifestSection)
-    .replace("{{fileContentsSection}}", fileContentsSection);
+  const prompt = renderPrompt({
+    commitSha: boundedCommitSha.value,
+    rulesSection,
+    fileCount: filePaths.length,
+    totalBytes: fileContents.reduce((s, f) => s + Buffer.byteLength(f, "utf8"), 0),
+    protectedExcluded,
+    manifestSection,
+    fileContentsSection
+  });
 
   // Post-condition assertion — ensures prompt never exceeds the cap even if
   // template replacements produce a slightly larger length than estimated.
@@ -171,7 +212,10 @@ export function buildDiscoveryPrompt({
   return {
     prompt,
     manifest: filePaths,
-    truncated,
+    truncated: rulesTruncated || boundedCommitSha.truncated || filesTruncated,
+    rulesTruncated,
+    commitShaTruncated: boundedCommitSha.truncated,
+    filesTruncated,
     length: prompt.length
   };
 }

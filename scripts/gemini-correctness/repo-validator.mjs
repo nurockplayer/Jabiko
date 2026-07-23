@@ -17,7 +17,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { isAllowlisted, isProtected } from "./policy.mjs";
+import { isAllowlisted, isProductionFilePath, isProtected } from "./policy.mjs";
 
 // ---------------------------------------------------------------------------
 // resolveFile
@@ -30,11 +30,15 @@ function resolveFile(filePath, repoRoot) {
     // Resolve symlinks for the candidate
     const real = fs.realpathSync(candidate);
 
-    // Must be inside resolved repo root or equal to it
-    if (real === repoResolved) return real;
-    if (real.startsWith(repoResolved + path.sep)) return real;
+    // Must be inside resolved repo root and must resolve to the same canonical
+    // repository path that the scanner placed in the manifest. This rejects
+    // repo-internal symlink aliases and symlink swaps after scanning.
+    if (!real.startsWith(repoResolved + path.sep)) return null;
+    const repoPath = path.relative(repoResolved, real).replace(/\\/g, "/");
+    const requestedPath = String(filePath).replace(/\\/g, "/");
+    if (!repoPath || repoPath.startsWith("..") || repoPath !== requestedPath) return null;
 
-    return null;
+    return { real, repoPath };
   } catch {
     return null;
   }
@@ -44,11 +48,11 @@ function resolveFile(filePath, repoRoot) {
 // validateEvidenceExists
 // ---------------------------------------------------------------------------
 export function validateEvidenceExists(filePath, repoRoot) {
-  const real = resolveFile(filePath, repoRoot);
-  if (!real) return { valid: false, error: `evidence file does not exist or is outside repo: ${filePath}` };
+  const resolved = resolveFile(filePath, repoRoot);
+  if (!resolved) return { valid: false, error: `evidence file does not exist or is outside repo: ${filePath}` };
 
   try {
-    const stat = fs.statSync(real);
+    const stat = fs.statSync(resolved.real);
     if (!stat.isFile()) {
       return { valid: false, error: `evidence file is not a regular file: ${filePath}` };
     }
@@ -63,12 +67,12 @@ export function validateEvidenceExists(filePath, repoRoot) {
 // validateEvidenceLines
 // ---------------------------------------------------------------------------
 export function validateEvidenceLines(filePath, startLine, endLine, repoRoot, { visibleLineCount } = {}) {
-  const real = resolveFile(filePath, repoRoot);
-  if (!real) return { valid: false, error: `evidence file not found for line check: ${filePath}` };
+  const resolved = resolveFile(filePath, repoRoot);
+  if (!resolved) return { valid: false, error: `evidence file not found for line check: ${filePath}` };
 
   let content;
   try {
-    content = fs.readFileSync(real, "utf8");
+    content = fs.readFileSync(resolved.real, "utf8");
   } catch {
     return { valid: false, error: `cannot read evidence file: ${filePath}` };
   }
@@ -102,11 +106,15 @@ export function validateEvidenceLines(filePath, startLine, endLine, repoRoot, { 
 // validateProductionFileExists
 // ---------------------------------------------------------------------------
 export function validateProductionFileExists(filePath, repoRoot, allowlist, protectedPaths) {
-  const real = resolveFile(filePath, repoRoot);
-  if (!real) return { valid: false, error: `production file does not exist or is outside repo: ${filePath}` };
+  if (!isProductionFilePath(filePath)) {
+    return { valid: false, error: `production file is a test file: ${filePath}` };
+  }
+
+  const resolved = resolveFile(filePath, repoRoot);
+  if (!resolved) return { valid: false, error: `production file does not exist or is outside repo: ${filePath}` };
 
   try {
-    const stat = fs.statSync(real);
+    const stat = fs.statSync(resolved.real);
     if (!stat.isFile()) {
       return { valid: false, error: `production file is not a regular file: ${filePath}` };
     }
@@ -115,12 +123,12 @@ export function validateProductionFileExists(filePath, repoRoot, allowlist, prot
   }
 
   // Check allowlist (uses canonical isAllowlisted from policy.mjs)
-  if (!isAllowlisted(filePath, allowlist)) {
+  if (!isAllowlisted(resolved.repoPath, allowlist)) {
     return { valid: false, error: `production file is outside allowlist: ${filePath}` };
   }
 
   // Check protected (uses canonical isProtected from policy.mjs)
-  if (isProtected(filePath, protectedPaths)) {
+  if (isProtected(resolved.repoPath, protectedPaths)) {
     return { valid: false, error: `production file is protected: ${filePath}` };
   }
 
@@ -177,7 +185,8 @@ export function validateFindingWithRepo(finding, { repoRoot, manifest, allowlist
 
   // Build a lookup from scanned file path → metadata
   const fileMeta = new Map();
-  if (scannedFiles) {
+  const hasScannerMetadata = Array.isArray(scannedFiles);
+  if (hasScannerMetadata) {
     for (const sf of scannedFiles) {
       fileMeta.set(String(sf.path).replace(/\\/g, "/"), sf);
     }
@@ -197,6 +206,12 @@ export function validateFindingWithRepo(finding, { repoRoot, manifest, allowlist
 
     // visibleLineCount comes from scanner metadata, NOT from ev.visibleLineCount
     const meta = fileMeta.get(String(ev.file).replace(/\\/g, "/"));
+    if (hasScannerMetadata && !meta) {
+      return {
+        valid: false,
+        error: `evidence[${i}].file "${ev.file}" is missing scanner metadata for visible line validation`
+      };
+    }
     const vl = meta ? meta.lineCount : undefined;
 
     const lines = validateEvidenceLines(ev.file, ev.startLine, ev.endLine, repoRoot, { visibleLineCount: vl });

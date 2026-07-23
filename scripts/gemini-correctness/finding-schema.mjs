@@ -11,7 +11,7 @@
 // that doesn't match the "one finding per response" rule.
 // =============================================================================
 
-import { isPathSafe, isProtected, isAllowlisted, isValidRegressionTest, resolveProductionDir, getDefaultAllowlist, getDefaultProtectedPaths } from "./policy.mjs";
+import { isPathSafe, isProtected, isAllowlisted, isProductionFilePath, resolveProductionDir, getDefaultAllowlist, getDefaultProtectedPaths } from "./policy.mjs";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -192,7 +192,7 @@ export function validateFinding(input, options = {}) {
 
   // --- 4b-viii.  Single-root-cause check ------------------------------------
   // If evidence items reference different files, it's likely multiple bugs.
-  const evidenceFiles = new Set(obj.evidence.map(ev => ev.file));
+  const evidenceFiles = new Set(obj.evidence.map(ev => ev.file.replace(/\\/g, "/")));
   if (evidenceFiles.size > 1) {
     return { valid: false, error: `evidence references multiple files: [${[...evidenceFiles].join(", ")}]; must be a single root cause` };
   }
@@ -222,6 +222,19 @@ export function validateFinding(input, options = {}) {
     }
     if (!isAllowlisted(pf, allowlist)) {
       return { valid: false, error: `productionFiles[${i}] "${pf}" is outside the allowlist` };
+    }
+    if (!isProductionFilePath(pf)) {
+      return { valid: false, error: `productionFiles[${i}] "${pf}" is a test file, not a production repair target` };
+    }
+  }
+
+  const productionFileSet = new Set(obj.productionFiles.map(pf => pf.replace(/\\/g, "/")));
+  for (const evidenceFile of evidenceFiles) {
+    if (!productionFileSet.has(evidenceFile)) {
+      return {
+        valid: false,
+        error: `evidence file "${evidenceFile}" is not included in productionFiles`
+      };
     }
   }
 

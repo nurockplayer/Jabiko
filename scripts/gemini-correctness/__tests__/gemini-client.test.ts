@@ -140,7 +140,6 @@ describe("createGeminiClient", () => {
   it("returns invalid result for low-confidence finding", async () => {
     globalThis.fetch = mockFetchSuccess({
       schemaVersion: 1,
-      schemaVersion: 1,
       status: "finding",
       title: "maybe bug",
       confidence: 0.3,
@@ -181,6 +180,38 @@ describe("createGeminiClient", () => {
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(false);
     expect(result.error).toMatch(/500|server/i);
+  });
+
+  it("redacts the API key from HTTP error bodies", async () => {
+    const apiKey = `AIza${"A".repeat(35)}`;
+    globalThis.fetch = mockFetchError(400, "Bad Request", `request key=${apiKey} was rejected`);
+    const client = createGeminiClient({
+      apiKey,
+      model: "gemini-2.0-flash",
+      maxRetries: 0,
+      fetchFn: globalThis.fetch
+    });
+
+    const result = await client.discover({ prompt: "test" });
+    expect(result.valid).toBe(false);
+    expect(result.error).not.toContain(apiKey);
+    expect(result.error).toContain("REDACTED");
+  });
+
+  it("redacts the API key from network error messages", async () => {
+    const apiKey = `AIza${"B".repeat(35)}`;
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error(`failed URL ?key=${apiKey}`));
+    const client = createGeminiClient({
+      apiKey,
+      model: "gemini-2.0-flash",
+      maxRetries: 0,
+      fetchFn: globalThis.fetch
+    });
+
+    const result = await client.discover({ prompt: "test" });
+    expect(result.valid).toBe(false);
+    expect(result.error).not.toContain(apiKey);
+    expect(result.error).toContain("REDACTED");
   });
 
   it("returns error result for HTTP 429 (quota)", async () => {
@@ -261,6 +292,24 @@ describe("createGeminiClient", () => {
     const client = createGeminiClient({ apiKey: "sk-test", model: "gemini-2.0-flash", fetchFn: globalThis.fetch });
     const result = await client.discover({ prompt: "test" });
     expect(result.valid).toBe(false);
+  });
+
+  it("classifies response JSON decoding failures as invalid-response", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.reject(new SyntaxError("invalid response JSON"))
+    });
+    const client = createGeminiClient({
+      apiKey: "sk-test",
+      model: "gemini-2.0-flash",
+      maxRetries: 0,
+      fetchFn: globalThis.fetch
+    });
+
+    const result = await client.discover({ prompt: "test" });
+    expect(result.valid).toBe(false);
+    expect(result.status).toBe("invalid-response");
   });
 
   it("handles empty candidates array", async () => {

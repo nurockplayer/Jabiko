@@ -135,7 +135,16 @@ export function createGeminiClient(options = {}) {
         };
       }
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        return {
+          ok: false,
+          status: "invalid-response",
+          error: "Gemini returned a response body that was not valid JSON"
+        };
+      }
       const text =
         data?.candidates?.[0]?.content?.parts
           ?.map((p) => p.text)

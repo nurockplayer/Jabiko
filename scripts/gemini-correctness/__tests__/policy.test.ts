@@ -114,6 +114,7 @@ describe("isProtected", () => {
     expect(isProtected(".env")).toBe(true);
     expect(isProtected(".env.local")).toBe(true);
     expect(isProtected(".env.example")).toBe(true);
+    expect(isProtected(".envrc")).toBe(true);
   });
 
   it("protects pnpm-lock.yaml", () => {
@@ -128,6 +129,36 @@ describe("isProtected", () => {
     expect(isProtected("src/domain/examBlocks.ts")).toBe(true);
     expect(isProtected("src/domain/furiganaExplanationData.ts")).toBe(true);
     expect(isProtected("src/domain/furiganaLearningData.ts")).toBe(true);
+  });
+
+  it("protects auth, remote persistence, and origin migration code plus tests", () => {
+    expect(isProtected("src/hooks/useAuth.ts")).toBe(true);
+    expect(isProtected("src/hooks/useProgressAttempts.test.tsx")).toBe(true);
+    expect(isProtected("src/hooks/useOriginMigration.ts")).toBe(true);
+    expect(isProtected("src/domain/attemptRemote.test.ts")).toBe(true);
+    expect(isProtected("src/domain/feedbackRemote.ts")).toBe(true);
+    expect(isProtected("src/domain/originMigration.test.ts")).toBe(true);
+  });
+
+  it("protects translation overlay files", () => {
+    expect(isProtected("src/domain/vocabulary.i18n.ts")).toBe(true);
+    expect(isProtected("src/domain/conjugationTables.i18n.test.ts")).toBe(true);
+  });
+
+  it("protects authored learning content and legal copy from repair targeting", () => {
+    expect(isProtected("src/domain/articleBodies/restaurantOrdering.ts")).toBe(true);
+    expect(isProtected("src/domain/articles.ts")).toBe(true);
+    expect(isProtected("src/domain/cloze-data.ts")).toBe(true);
+    expect(isProtected("src/domain/grammarDatabase.ts")).toBe(true);
+    expect(isProtected("src/domain/legalContent.ts")).toBe(true);
+    expect(isProtected("src/domain/legalLabels.ts")).toBe(true);
+  });
+
+  it("protects deployment and generated-site behavior", () => {
+    expect(isProtected("src/domain/prerender/staticPages.ts")).toBe(true);
+    expect(isProtected("src/domain/seo.ts")).toBe(true);
+    expect(isProtected("src/domain/sitemap.test.ts")).toBe(true);
+    expect(isProtected("src/hooks/usePwaUpdate.ts")).toBe(true);
   });
 });
 

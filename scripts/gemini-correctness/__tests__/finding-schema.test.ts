@@ -214,6 +214,19 @@ describe("validateFinding – path safety", () => {
     f.productionFiles = ["src/components/SomeButton.tsx"];
     expect(validateFinding(f).valid).toBe(false);
   });
+
+  it("rejects test files as production repair targets", () => {
+    const f = validFinding();
+    f.productionFiles = ["src/domain/example.test.ts"];
+    expect(validateFinding(f).valid).toBe(false);
+  });
+
+  it("requires the evidence file to be one of the production repair targets", () => {
+    const f = validFinding();
+    f.productionFiles = ["src/domain/other.ts"];
+    f.reproduction.testFile = "src/domain/other.regression.test.ts";
+    expect(validateFinding(f).valid).toBe(false);
+  });
 });
 
 describe("validateFinding – reproduction", () => {

@@ -7,7 +7,7 @@
 // @ts-expect-error -- plain .mjs module
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 // @ts-expect-error -- plain .mjs module
-import { safeWritePath, isPathWithinRepo } from "../policy.mjs";
+import { safeWritePath } from "../policy.mjs";
 // @ts-expect-error -- plain .mjs module
 import { scanRepository } from "../scanner.mjs";
 // @ts-expect-error -- plain .mjs module
@@ -63,6 +63,27 @@ describe("BLOCKER 1 — safeWritePath on clean checkout", () => {
 
     const result = safeWritePath(path.join("sub", "deep", "out.json"), tmpDir, REPO);
     expect(result).toBeNull();
+  });
+
+  it("rejects when .tmp is a symlink into a production directory", () => {
+    const tmpDir = path.join(REPO, ".tmp");
+    const productionDir = path.join(REPO, "src", "domain");
+    fs.mkdirSync(productionDir, { recursive: true });
+    fs.symlinkSync(productionDir, tmpDir);
+
+    const result = safeWritePath("report.json", tmpDir, REPO);
+    expect(result).toBeNull();
+  });
+
+  it("rejects a dangling final symlink whose target is outside the repo", () => {
+    const tmpDir = path.join(REPO, ".tmp");
+    fs.mkdirSync(tmpDir, { recursive: true });
+    const outsideTarget = path.join(OUTSIDE, "not-created-yet.json");
+    fs.symlinkSync(outsideTarget, path.join(tmpDir, "report.json"));
+
+    const result = safeWritePath("report.json", tmpDir, REPO);
+    expect(result).toBeNull();
+    expect(fs.existsSync(outsideTarget)).toBe(false);
   });
 });
 

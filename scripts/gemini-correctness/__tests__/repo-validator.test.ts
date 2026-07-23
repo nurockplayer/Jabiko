@@ -19,6 +19,7 @@ const TEST_DIR = "/tmp/jabiko-repovalid-test-" + Date.now();
 
 const SRC_FILE = path.join(TEST_DIR, "src", "domain", "example.ts");
 const ANOTHER_SRC = path.join(TEST_DIR, "src", "domain", "other.ts");
+const TEST_SOURCE = path.join(TEST_DIR, "src", "domain", "example.test.ts");
 const NONEXISTENT = path.join(TEST_DIR, "src", "domain", "missing.ts");
 const PROTECTED_FILE = path.join(TEST_DIR, "src", "domain", "contentGuard.ts");
 const OUTSIDE_SYMLINK = path.join(TEST_DIR, "src", "domain", "link_outside");
@@ -28,6 +29,7 @@ function createFixture() {
   fs.mkdirSync(path.join(TEST_DIR, "src", "hooks"), { recursive: true });
   fs.writeFileSync(SRC_FILE, "line1\nline2\nline3\nline4\nline5\n");
   fs.writeFileSync(ANOTHER_SRC, "a\nb\nc\n");
+  fs.writeFileSync(TEST_SOURCE, "test content\n");
   fs.writeFileSync(PROTECTED_FILE, "protected content\n");
 }
 
@@ -123,6 +125,11 @@ describe("validateProductionFileExists", () => {
     const r = validateProductionFileExists("src/domain/contentGuard.ts", TEST_DIR, ["src/domain/**"]);
     expect(r.valid).toBe(false);
   });
+
+  it("fails for a test file used as a production repair target", () => {
+    const r = validateProductionFileExists("src/domain/example.test.ts", TEST_DIR, ["src/domain/**"]);
+    expect(r.valid).toBe(false);
+  });
 });
 
 describe("validateReproductionParentDir", () => {
@@ -197,6 +204,19 @@ describe("validateFindingWithRepo", () => {
     const manifest = ["src/domain/example.ts"];
     const r = validateFindingWithRepo(finding, { repoRoot: TEST_DIR, manifest, allowlist: ["src/domain/**"] });
     expect(r.valid).toBe(false);
+  });
+
+  it("fails closed when scanner metadata is supplied but missing the evidence file", () => {
+    const finding = makeFinding();
+    const manifest = ["src/domain/example.ts"];
+    const r = validateFindingWithRepo(finding, {
+      repoRoot: TEST_DIR,
+      manifest,
+      allowlist: ["src/domain/**"],
+      scannedFiles: []
+    });
+    expect(r.valid).toBe(false);
+    expect(r.error).toMatch(/scanner metadata|visible/i);
   });
 
   it("fails when production file is not in manifest", () => {

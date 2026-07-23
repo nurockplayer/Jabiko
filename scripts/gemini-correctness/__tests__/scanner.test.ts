@@ -3,6 +3,7 @@ import { describe, expect, it, beforeEach, afterEach } from "vitest";
 // @ts-expect-error -- plain .mjs module, no types
 import {
   scanRepository,
+  normalizeRepositoryPath,
   DEFAULT_MAX_FILES,
   DEFAULT_MAX_BYTES_PER_FILE,
   DEFAULT_MAX_TOTAL_BYTES
@@ -66,6 +67,20 @@ describe("scanRepository", () => {
     });
     const paths = result.scannedFiles.map(f => f.path);
     expect(paths).toContain("src/domain/example.test.ts");
+  });
+
+  it("supports a flat glob allowlist without recursing", () => {
+    fs.mkdirSync(path.join(TEST_DIR, "src", "domain", "nested"), { recursive: true });
+    fs.writeFileSync(path.join(TEST_DIR, "src", "domain", "nested", "deep.ts"), "deep\n");
+
+    const result = scanRepository({
+      repoRoot: TEST_DIR,
+      allowlist: ["src/domain/*"],
+      protectedPaths: []
+    });
+    const paths = result.scannedFiles.map(f => f.path);
+    expect(paths).toContain("src/domain/example.ts");
+    expect(paths).not.toContain("src/domain/nested/deep.ts");
   });
 
   it("excludes protected paths from result", () => {
@@ -221,6 +236,12 @@ describe("scanRepository", () => {
     for (const f of result.scannedFiles) {
       expect(f.content).not.toMatch(/GEMINI_API_KEY|SECRET|PASSWORD|TOKEN/i);
     }
+  });
+});
+
+describe("normalizeRepositoryPath", () => {
+  it("normalizes Windows separators before paths enter the manifest", () => {
+    expect(normalizeRepositoryPath("src\\domain\\example.ts")).toBe("src/domain/example.ts");
   });
 });
 

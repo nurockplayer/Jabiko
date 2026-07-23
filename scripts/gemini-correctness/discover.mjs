@@ -22,7 +22,7 @@ import { createGeminiClient } from "./gemini-client.mjs";
 import { scanRepository } from "./scanner.mjs";
 import { buildDiscoveryPrompt, DEFAULT_MODEL } from "./prompt-builder.mjs";
 import { validateFindingWithRepo } from "./repo-validator.mjs";
-import { getDefaultAllowlist, getDefaultProtectedPaths, isPathWithinRepo, isPathSafe, safeWritePath } from "./policy.mjs";
+import { getDefaultAllowlist, getDefaultProtectedPaths, safeWritePath } from "./policy.mjs";
 
 const REPO_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -78,6 +78,34 @@ function resolveOutputPath(cliPath) {
     process.exit(2);
   }
   return safe;
+}
+
+export function redactForOutput(value, secrets = []) {
+  const clone = JSON.parse(JSON.stringify(value));
+  const exactSecrets = secrets.filter(
+    secret => typeof secret === "string" && secret.length > 0
+  );
+
+  function redact(valueToRedact) {
+    if (typeof valueToRedact === "string") {
+      let redacted = valueToRedact.replace(
+        /AIza[0-9A-Za-z_-]{35}/g,
+        "REDACTED_KEY"
+      );
+      for (const secret of exactSecrets) {
+        redacted = redacted.split(secret).join("REDACTED_KEY");
+      }
+      return redacted;
+    }
+    if (valueToRedact && typeof valueToRedact === "object") {
+      for (const key of Object.keys(valueToRedact)) {
+        valueToRedact[key] = redact(valueToRedact[key]);
+      }
+    }
+    return valueToRedact;
+  }
+
+  return redact(clone);
 }
 
 // ---------------------------------------------------------------------------
@@ -147,6 +175,7 @@ async function main() {
       protectedExcluded: scanResult.stats.protectedExcluded,
       promptLength: promptResult.length,
       truncated: promptResult.truncated,
+      rulesTruncated: promptResult.rulesTruncated,
       manifest: promptResult.manifest
     }, null, 2));
     return;
@@ -184,22 +213,12 @@ async function main() {
     }
   }
 
-  // ---- 8. Redact any residual API key before writing output ----
-  const resultForOutput = JSON.parse(JSON.stringify(result));
-  // Recursively redact any string containing the API key pattern
-  function deepRedact(obj) {
-    if (typeof obj === "string") {
-      // Redact anything that looks like an API key in values
-      return obj.replace(/AIza[0-9A-Za-z_-]{35}/g, "REDACTED_KEY");
-    }
-    if (obj && typeof obj === "object") {
-      for (const key of Object.keys(obj)) {
-        obj[key] = deepRedact(obj[key]);
-      }
-    }
-    return obj;
-  }
-  const safeResult = deepRedact(resultForOutput);
+  // ---- 7. Redact any residual API key before writing output ----
+  const safeResult = redactForOutput(result, [apiKey]);
+  const safeMetadata = redactForOutput(
+    { commitSha: o.commitSha, model },
+    [apiKey]
+  );
 
   const report = JSON.stringify(safeResult, null, 2);
 
@@ -219,17 +238,18 @@ async function main() {
     const summaryLines = [
       `## Gemini Correctness Discovery`,
       ``,
-      `- commit: \`${o.commitSha}\``,
-      `- model: \`${model}\``,
+      `- commit: \`${safeMetadata.commitSha}\``,
+      `- model: \`${safeMetadata.model}\``,
       `- scanned files: ${scanResult.stats.totalFiles} (${scanResult.stats.totalBytes} bytes)`,
       `- protected excluded: ${scanResult.stats.protectedExcluded}`,
       `- prompt length: ${promptResult.length} chars`,
       `- truncated: ${JSON.stringify(promptResult.truncated)}`,
+      `- project rules truncated: ${JSON.stringify(promptResult.rulesTruncated)}`,
       `- status: ${result.valid ? "valid" : "invalid"}`,
-      result.result?.status === "finding"
-        ? `- finding: ${result.result.title}`
+      safeResult.result?.status === "finding"
+        ? `- finding: ${safeResult.result.title}`
         : "",
-      result.error ? `- error: ${result.error}` : "",
+      safeResult.error ? `- error: ${safeResult.error}` : "",
       ``
     ];
     const dir = path.dirname(safeSummary);
