@@ -283,6 +283,7 @@ const BANNED_CONSTRUCTORS = new Set([
   "Worker"
 ]);
 const BANNED_GLOBAL_IDENTIFIERS = new Set([
+  ...BANNED_CALLS,
   "Bun",
   "Date",
   "Deno",
@@ -455,22 +456,42 @@ function inspectSource(
     return current;
   }
 
-  function isDirectRepositoryObservation(node) {
+  function isRepositoryReference(node) {
     const current = unwrapExpression(node);
     if (ts.isIdentifier(current)) {
       return repositoryBindings.has(current.text);
     }
     if (ts.isPropertyAccessExpression(current)) {
-      return isDirectRepositoryObservation(current.expression);
+      return isRepositoryReference(current.expression);
+    }
+    return false;
+  }
+
+  function isExecutedRepositoryObservation(node) {
+    const current = unwrapExpression(node);
+    if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
+      let observed = false;
+      function visitCallback(child) {
+        if (observed) return;
+        if (
+          ts.isCallExpression(unwrapExpression(child)) &&
+          isExecutedRepositoryObservation(child)
+        ) {
+          observed = true;
+          return;
+        }
+        ts.forEachChild(child, visitCallback);
+      }
+      visitCallback(current.body);
+      return observed;
+    }
+    if (ts.isPropertyAccessExpression(current)) {
+      return isExecutedRepositoryObservation(current.expression);
     }
     if (ts.isCallExpression(current)) {
       const callee = unwrapExpression(current.expression);
-      if (ts.isIdentifier(callee)) {
-        return repositoryBindings.has(callee.text);
-      }
-      if (ts.isPropertyAccessExpression(callee)) {
-        return isDirectRepositoryObservation(callee.expression);
-      }
+      return isRepositoryReference(callee) ||
+        isExecutedRepositoryObservation(callee);
     }
     return false;
   }
@@ -662,14 +683,17 @@ function inspectSource(
     ) {
       errors.push("expect() must assert observed behavior, not a literal value");
     }
-    if (!isDirectRepositoryObservation(received)) {
-      errors.push("expect() must directly observe a prompt-visible repository import");
-    }
     if (
       matcherCalls.length !== 1 ||
       matcherCalls[0].expression.expression !== expectCalls[0]
     ) {
       errors.push("the labeled expect() must have exactly one direct matcher");
+    } else {
+      if (!isExecutedRepositoryObservation(received)) {
+        errors.push(
+          "expect() must execute or call a prompt-visible repository import"
+        );
+      }
     }
   }
 

@@ -248,7 +248,8 @@ describe("validateRegressionCandidate", () => {
     ['void navigator.sendBeacon("/collect", "x");', "sendBeacon"],
     ['void process["env"]["GEMINI_API_KEY"];', "bracket environment"],
     ['const { env } = process; void env;', "destructured environment"],
-    ['void globalThis["eval"]("1");', "bracket eval"]
+    ['void globalThis["eval"]("1");', "bracket eval"],
+    ['const run = eval; void run("1 + 1");', "aliased eval"]
   ])("rejects syntactically valid %s bypass", (statement, _label) => {
     const source = validSource.replace(
       '  expect(\n',
@@ -419,6 +420,58 @@ describe("validateRegressionCandidate", () => {
     );
 
     expect(result.valid).toBe(false);
+  });
+
+  it("rejects asserting on an imported function without executing it", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "readEmptyQueue")
+      .replace('.toBe("safe")', ".toBeUndefined()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call/i);
+  });
+
+  it("requires toThrow assertions to contain an explicit repository call", () => {
+    const bareReference = validSource
+      .replace("readEmptyQueue()", "readEmptyQueue")
+      .replace('.toBe("safe")', ".toThrow()");
+    const explicitCall = validSource
+      .replace("readEmptyQueue()", "() => readEmptyQueue()")
+      .replace('.toBe("safe")', ".toThrow()");
+
+    const bareResult = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source: bareReference
+      },
+      { finding, sensitiveValues: [] }
+    );
+    const explicitResult = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source: explicitCall
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(bareResult.valid).toBe(false);
+    expect(explicitResult.valid).toBe(true);
   });
 
   it("rejects a Vitest namespace assertion bypass", () => {

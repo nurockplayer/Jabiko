@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   replayRedArtifacts,
   resetRedWorktree,
+  runGuardedTargetedVitest,
   runRedStage
 } from "./red-stage.mjs";
 import { execFileSync } from "node:child_process";
@@ -143,6 +144,40 @@ function initializeFixture() {
   git(["commit", "-qm", "fixture baseline"]);
   fs.symlinkSync(path.join(projectRoot, "node_modules"), path.join(fixtureRoot, "node_modules"));
 }
+
+describe("runGuardedTargetedVitest", () => {
+  it("fails closed without restoring when the post-run snapshot cannot be captured", () => {
+    const before = {
+      entries: new Map(),
+      repoRoot: "/unused",
+      testFile,
+      reportPath: "/unused/report.json",
+      restorable: true
+    };
+    const snapshot = vi.fn()
+      .mockReturnValueOnce(before)
+      .mockImplementationOnce(() => {
+        throw new Error("fixture post-run snapshot failure");
+      });
+    const restoreSnapshot = vi.fn(() => ({ valid: true, mutated: false }));
+
+    const result = runGuardedTargetedVitest(
+      {},
+      {
+        snapshot,
+        targetedRunner: vi.fn(() => ({ exitCode: 1 })),
+        restoreSnapshot
+      }
+    );
+
+    expect(result).toEqual({
+      valid: false,
+      error: "failed to capture repository state after targeted Vitest"
+    });
+    expect(snapshot).toHaveBeenCalledTimes(2);
+    expect(restoreSnapshot).not.toHaveBeenCalled();
+  });
+});
 
 describe("runRedStage integration", () => {
   beforeEach(() => initializeFixture());

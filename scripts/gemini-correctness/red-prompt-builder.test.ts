@@ -103,6 +103,41 @@ describe("buildRedPrompt", () => {
     expect(result.prompt).toMatch(/directly observe[\s\S]*repository/i);
   });
 
+  it("keeps directly related tests while omitting a large unrelated colocated test set", () => {
+    const unrelatedTests = Array.from({ length: 14 }, (_, index) => ({
+      path: `src/domain/unrelated-${index}.test.ts`,
+      content: `import { expect, it } from "vitest";\n// ${"x".repeat(25_000)}\nit("unrelated ${index}", () => expect(true).toBe(true));\n`,
+      lineCount: 3,
+      byteSize: 25_100,
+      truncated: false
+    }));
+    const directlyReferencingTest = {
+      path: "src/domain/queue-behavior.test.ts",
+      content: 'import { expect, it } from "vitest";\nimport { value } from "./example";\nit("uses example", () => expect(value).toBe("safe"));\n',
+      lineCount: 3,
+      byteSize: 130,
+      truncated: false
+    };
+
+    const result = buildRedPrompt({
+      baselineSha: "d".repeat(40),
+      finding,
+      scannedFiles: [...scannedFiles, directlyReferencingTest, ...unrelatedTests]
+    });
+
+    expect(result.length).toBeLessThanOrEqual(300_000);
+    expect(result.manifest).toContain("src/domain/example.test.ts");
+    expect(result.manifest).toContain("src/domain/queue-behavior.test.ts");
+    expect(result.manifest).not.toContain("src/domain/unrelated-0.test.ts");
+    expect(result.fileCount).toBe(result.manifest.length);
+    expect(result.prompt).toContain(`Visible repository file count: ${result.fileCount}`);
+
+    const renderedPaths = [...result.prompt.matchAll(/^### (.+)$/gm)]
+      .map(match => match[1])
+      .sort();
+    expect(renderedPaths).toEqual([...result.manifest].sort());
+  });
+
   it("fails closed if a required production file is absent or truncated", () => {
     expect(() => buildRedPrompt({
       baselineSha: "c".repeat(40),

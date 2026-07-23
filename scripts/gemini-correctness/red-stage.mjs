@@ -426,10 +426,14 @@ function restoreExecutionSnapshot(before, after) {
   }
 }
 
-function runGuardedTargetedVitest(options) {
+export function runGuardedTargetedVitest(options, {
+  snapshot = executionSnapshot,
+  targetedRunner = runTargetedVitest,
+  restoreSnapshot = restoreExecutionSnapshot
+} = {}) {
   let before;
   try {
-    before = executionSnapshot(options);
+    before = snapshot(options);
   } catch {
     return invalid("failed to capture repository state before targeted Vitest");
   }
@@ -437,18 +441,14 @@ function runGuardedTargetedVitest(options) {
     return invalid("repository state is not safely snapshot-restorable");
   }
 
-  const execution = runTargetedVitest(options);
+  const execution = targetedRunner(options);
   let after;
   try {
-    after = executionSnapshot(options);
+    after = snapshot(options);
   } catch {
-    after = {
-      ...before,
-      entries: new Map(),
-      restorable: false
-    };
+    return invalid("failed to capture repository state after targeted Vitest");
   }
-  const restoration = restoreExecutionSnapshot(before, after);
+  const restoration = restoreSnapshot(before, after);
   if (!restoration.valid) return restoration;
   if (restoration.mutated) {
     return invalid("targeted Vitest modified repository paths outside its test/report");
