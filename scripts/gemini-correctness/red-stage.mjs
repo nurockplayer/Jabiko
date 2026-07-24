@@ -191,6 +191,29 @@ function sanitize(value, sensitiveValues) {
   return redactForOutput(value, sensitiveValues);
 }
 
+const RED_RESULT_CONTRACT_KEYS = new Set([
+  "schemaVersion",
+  "status",
+  "baselineSha",
+  "testFile",
+  "testName",
+  "failureKind",
+  "patchSha256",
+  "replayConfirmed"
+]);
+
+function sanitizeRedResult(result, sensitiveValues) {
+  const preserved = {};
+  for (const key of RED_RESULT_CONTRACT_KEYS) {
+    preserved[key] = result[key];
+  }
+  const safe = sanitize(result, sensitiveValues);
+  for (const key of RED_RESULT_CONTRACT_KEYS) {
+    safe[key] = preserved[key];
+  }
+  return safe;
+}
+
 function reportFailureMessages(report) {
   if (!Array.isArray(report?.testResults)) return "";
   return report.testResults
@@ -890,7 +913,8 @@ export async function runRedStage({
       patchSha256: patchHash,
       replayConfirmed: false
     };
-    writeJson(paths.result, sanitize(provisionalResult, outputSecrets));
+    const safeProvisional = sanitizeRedResult(provisionalResult, outputSecrets);
+    writeJson(paths.result, safeProvisional);
 
     const reset = resetRedWorktree({
       repoRoot,
@@ -915,7 +939,7 @@ export async function runRedStage({
       ...provisionalResult,
       replayConfirmed: true
     };
-    const safeResult = sanitize(finalResult, outputSecrets);
+    const safeResult = sanitizeRedResult(finalResult, outputSecrets);
     const safeLog = boundedLog(sanitize(
       `${executionLog("initial", initialExecution)}\n\n` +
       executionLog("replay", replay.execution),

@@ -568,4 +568,29 @@ describe("validateRegressionCandidate", () => {
 
     expect(result.valid).toBe(false);
   });
+
+  it.each([
+    ["valueOf", "readEmptyQueue.valueOf()"],
+    ["bind", "readEmptyQueue.bind(null)()"],
+    ["toString", "readEmptyQueue.toString()"],
+    ["call", "readEmptyQueue.call(null)"],
+    ["apply", "readEmptyQueue.apply(null, [])"]
+  ])("rejects expect() with a non-executing %s trap on an imported function", (_label, trapCall) => {
+    const source = validSource
+      .replace("readEmptyQueue()", trapCall)
+      .replace('.toBe("safe")', ".toBeUndefined()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call/i);
+  });
 });

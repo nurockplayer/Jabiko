@@ -323,6 +323,14 @@ const BANNED_GLOBAL_PROPERTIES = new Set([
   "sendBeacon",
   "unreachable"
 ]);
+
+const NON_EXECUTING_METHODS = new Set([
+  "bind",
+  "call",
+  "apply",
+  "toString",
+  "valueOf"
+]);
 const ALLOWED_VITEST_IMPORTS = new Set([
   "describe",
   "expect",
@@ -490,6 +498,12 @@ function inspectSource(
     }
     if (ts.isCallExpression(current)) {
       const callee = unwrapExpression(current.expression);
+      if (
+        ts.isPropertyAccessExpression(callee) &&
+        NON_EXECUTING_METHODS.has(callee.name.text)
+      ) {
+        return false;
+      }
       return isRepositoryReference(callee) ||
         isExecutedRepositoryObservation(callee);
     }

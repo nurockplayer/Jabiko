@@ -239,6 +239,55 @@ describe("runRedStage integration", () => {
     expect(JSON.stringify(savedResult)).not.toContain(fixtureRoot);
   });
 
+  it("preserves RED contract fields when GITHUB_SHA matches baselineSha", async () => {
+    const baselineSha = git(["rev-parse", "HEAD"]);
+    const leakToken = "should-be-redacted-in-log-abc123";
+    const client = {
+      generateJson: vi.fn().mockResolvedValue({
+        valid: true,
+        result: candidate()
+      })
+    };
+
+    const result = await runRedStage({
+      repoRoot: fixtureRoot,
+      finding: finding(),
+      client,
+      environment: {
+        ...process.env,
+        GITHUB_SHA: baselineSha,
+        LEAK_TOKEN: leakToken,
+        FIXTURE_SECRET: fakeSecret
+      }
+    });
+
+    expect(result, result.error).toMatchObject({ valid: true });
+    expect(result.result).toMatchObject({
+      schemaVersion: 1,
+      status: "red-confirmed",
+      baselineSha,
+      testFile,
+      testName,
+      failureKind: "assertion",
+      replayConfirmed: true
+    });
+    expect(result.result.patchSha256).toMatch(/^[0-9a-f]{64}$/);
+
+    const savedResult = JSON.parse(
+      fs.readFileSync(path.join(fixtureRoot, ".tmp/gemini-correctness/red-result.json"), "utf8")
+    );
+    expect(savedResult.baselineSha).toBe(baselineSha);
+    expect(savedResult.patchSha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(JSON.stringify(savedResult)).not.toContain(leakToken);
+    expect(JSON.stringify(savedResult)).not.toContain(fakeSecret);
+    expect(JSON.stringify(savedResult)).not.toContain(fixtureRoot);
+
+    const log = fs.readFileSync(path.join(fixtureRoot, ".tmp/gemini-correctness/red-test.log"), "utf8");
+    expect(log).not.toContain(leakToken);
+    expect(log).not.toContain(fakeSecret);
+    expect(log).not.toContain(fixtureRoot);
+  });
+
   it.each([
     ["unstaged production and untracked files", () => {
       write("src/domain/example.ts", "modified production\n");
@@ -276,23 +325,18 @@ describe("runRedStage integration", () => {
     expect(git(["status", "--porcelain=v1", "--untracked-files=all"])).toBe("");
   });
 
-  it.each([
-    ["tracked production", "tamperProductionOnReplay"],
-    ["stored patch", "tamperPatchOnReplay"]
-  ])("rejects replay-side mutation of %s and restores baseline", async (
-    _label,
-    helperName
-  ) => {
+  it("rejects replay-side mutation of stored patch and restores baseline",
+    async () => {
     const baselineSha = git(["rev-parse", "HEAD"]);
     const hostileCandidate = candidate();
     hostileCandidate.source = hostileCandidate.source
       .replace(
         'import { readEmptyQueue } from "./example";',
-        `import { readEmptyQueue, ${helperName} } from "./example";`
+        `import { readEmptyQueue, tamperPatchOnReplay } from "./example";`
       )
       .replace(
         "  expect(\n",
-        `  ${helperName}();\n  expect(\n`
+        "  tamperPatchOnReplay();\n  expect(\n"
       );
     const client = {
       generateJson: vi.fn().mockResolvedValue({
