@@ -474,6 +474,43 @@ describe("validateRegressionCandidate", () => {
     expect(explicitResult.valid).toBe(true);
   });
 
+  it("rejects a callback whose repository call is inside an unreachable if-false branch", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { if (false) { readEmptyQueue(); } }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call/i);
+  });
+
+  it("accepts a callback with a repository call inside an if-true branch", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { if (true) { readEmptyQueue(); } }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
   it("rejects a Vitest namespace assertion bypass", () => {
     const source = validSource
       .replace(

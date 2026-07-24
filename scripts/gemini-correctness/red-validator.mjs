@@ -481,6 +481,19 @@ function inspectSource(
       let observed = false;
       function visitCallback(child) {
         if (observed) return;
+        if (ts.isIfStatement(child)) {
+          const condition = unwrapExpression(child.expression);
+          if (condition.kind === ts.SyntaxKind.TrueKeyword) {
+            ts.forEachChild(child.thenStatement, visitCallback);
+            return;
+          }
+          if (condition.kind === ts.SyntaxKind.FalseKeyword) {
+            if (child.elseStatement) {
+              ts.forEachChild(child.elseStatement, visitCallback);
+            }
+            return;
+          }
+        }
         if (
           ts.isCallExpression(unwrapExpression(child)) &&
           isExecutedRepositoryObservation(child)
