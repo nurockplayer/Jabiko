@@ -169,6 +169,7 @@ export const ko: Copy = {
   kanjiExamplesLabel: "예시 단어",
   kanjiNoExamples: "(아직 예시 단어가 없어요)",
   kanjiSearchEmpty: "일치하는 한자를 찾을 수 없어요.",
+  kanjiArrowHint: "팁: 키보드 ← / → 로 카드를 연달아 넘길 수 있어요.",
   kanjiLoadMore: (count: number) => `더 보기 (${count}자 남음)`,
   kanaPageTitle: "오십음도",
   kanaPageIntro: "히라가나·가타카나 대조표. 셀을 누르면 발음이 재생됩니다.",

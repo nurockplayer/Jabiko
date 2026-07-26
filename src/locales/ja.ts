@@ -171,6 +171,7 @@ export const ja: Copy = {
   kanjiExamplesLabel: "例語",
   kanjiNoExamples: "（収録された例語はまだありません）",
   kanjiSearchEmpty: "該当する漢字が見つかりません。",
+  kanjiArrowHint: "ヒント：キーボードの ← / → でカードを次々に切り替えられます。",
   kanjiLoadMore: (count: number) => `もっと見る（あと${count}字）`,
   kanaPageTitle: "五十音表",
   kanaPageIntro: "ひらがな・カタカナの対照表。タップで発音を再生。清音・濁音・半濁音・拗音で区分。",

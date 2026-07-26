@@ -169,6 +169,7 @@ export type Copy = {
   kanjiExamplesLabel: string;
   kanjiNoExamples: string;
   kanjiSearchEmpty: string;
+  kanjiArrowHint: string;
   // #608 batched kanji table: "load more (N left)" button label.
   kanjiLoadMore: (count: number) => string;
   // #619 standalone /kana reference page.

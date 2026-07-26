@@ -170,6 +170,7 @@ export const th: Copy = {
   kanjiExamplesLabel: "คำตัวอย่าง",
   kanjiNoExamples: "(ยังไม่มีคำตัวอย่าง)",
   kanjiSearchEmpty: "ไม่พบคันจิที่ตรงกัน",
+  kanjiArrowHint: "เคล็ดลับ: ใช้ปุ่ม ← / → บนคีย์บอร์ดเพื่อเลื่อนดูการ์ดต่อเนื่อง",
   kanjiLoadMore: (count: number) => `โหลดเพิ่ม (เหลืออีก ${count} ตัว)`,
   kanaPageTitle: "ตารางคานะ",
   kanaPageIntro: "ฮิรางานะและคาตากานะเทียบกัน แตะเพื่อฟังเสียง",

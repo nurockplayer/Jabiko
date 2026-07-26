@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { copy, type Language } from "../i18n";
 import type { JlptLevel } from "../domain/types";
 import { kanjiOnyomi, kanjiExamples, type KanjiOnyomiEntry } from "../domain/kanjiOnyomi";
@@ -86,6 +86,71 @@ export function KanjiOnyomiPanel({
   const totalEntries = families.reduce((sum, [, entries]) => sum + entries.length, 0);
   const remainingEntries = totalEntries - shownEntries;
 
+  // Every matched entry in display order (families first, then within a
+  // family) -- the sequence the arrow keys walk. Includes entries still behind
+  // the load-more boundary so stepping past it can reveal them.
+  const orderedEntries = useMemo(() => families.flatMap(([, entries]) => entries), [families]);
+  const cellRefs = useRef(new Map<string, HTMLButtonElement>());
+  const pendingFocus = useRef<string | null>(null);
+
+  // Desktop shortcut (user request 2026-07): ← / → walk the grid so browsing a
+  // level or a search result doesn't mean clicking every card. A GLOBAL
+  // document listener, like the drill's 1-9 shortcut: cards are not focused
+  // until one is picked, so a section-scoped handler would miss the first
+  // press. Skipped while a text field is focused (never hijack search typing)
+  // and whenever a modifier is held -- Alt+← is browser history.
+  useEffect(() => {
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") {
+        return;
+      }
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target?.isContentEditable) {
+        return;
+      }
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+      if (orderedEntries.length === 0) {
+        return;
+      }
+      const currentIndex = selected
+        ? orderedEntries.findIndex((entry) => entry.kanji === selected)
+        : -1;
+      // Nothing picked yet: the first press opens the first card.
+      const nextIndex = currentIndex < 0 ? 0 : currentIndex + (event.key === "ArrowRight" ? 1 : -1);
+      // Stop at both ends rather than wrapping -- silently jumping from the
+      // last of 671 back to the first would lose the learner's place.
+      if (nextIndex < 0 || nextIndex >= orderedEntries.length) {
+        return;
+      }
+      event.preventDefault();
+      // Stepping past the load-more boundary pulls the next batch in instead
+      // of dead-ending (one bump always covers the next whole family).
+      if (nextIndex >= shownEntries) {
+        setEntryBudget((budget) => budget + FAMILY_ENTRY_BUDGET);
+      }
+      pendingFocus.current = orderedEntries[nextIndex].kanji;
+      setSelected(orderedEntries[nextIndex].kanji);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [orderedEntries, selected, shownEntries]);
+
+  // Keyboard-driven selection follows the card: focus keeps the grid coherent
+  // for keyboard and screen-reader users, and `block: "nearest"` only scrolls
+  // when the card actually sits outside the viewport (so clicking never jumps).
+  useEffect(() => {
+    const kanji = pendingFocus.current;
+    if (!kanji) return;
+    const node = cellRefs.current.get(kanji);
+    if (!node) return; // just revealed; the next pass catches it
+    pendingFocus.current = null;
+    node.focus({ preventScroll: true });
+    node.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
+  }, [selected, entryBudget]);
+
   const detail = selected ? kanjiOnyomi.find((entry) => entry.kanji === selected) ?? null : null;
   const examples = detail ? kanjiExamples(detail.kanji) : [];
   const detailSpeak = detail ? detail.onyomi[0] ?? detail.kunyomi[0] : "";
@@ -134,6 +199,9 @@ export function KanjiOnyomiPanel({
           ))}
         </div>
       </div>
+
+      {/* Hidden on touch devices (no keyboard to hint at) via CSS. */}
+      <p className="kanji-key-hint">{t.kanjiArrowHint}</p>
 
       {detail ? (
         <div className="kanji-card" aria-live="polite">
@@ -204,6 +272,10 @@ export function KanjiOnyomiPanel({
                   <div className="kanji-cell-wrap" key={entry.kanji}>
                     <button
                       type="button"
+                      ref={(node) => {
+                        if (node) cellRefs.current.set(entry.kanji, node);
+                        else cellRefs.current.delete(entry.kanji);
+                      }}
                       className={`kanji-cell${isSelected ? " selected" : ""}`}
                       aria-pressed={isSelected}
                       onClick={() => setSelected(entry.kanji)}
