@@ -18,6 +18,20 @@ import { validateFindingWithRepo } from "../repo-validator.mjs";
 import fs from "node:fs";
 import path from "node:path";
 
+import { canCreateSymlinks, SYMLINK_SKIP_REASON } from "./symlink-support.js";
+
+// Building a symlink-escape fixture needs fs.symlinkSync, which Windows only
+// grants under Developer Mode / Administrator. Gate just the tests that create
+// one so they skip there rather than dying with EPERM before asserting
+// anything; every assertion is unchanged and still runs where symlinks work,
+// including CI. See symlink-support.ts.
+const symlinkFixturesSupported = canCreateSymlinks();
+if (!symlinkFixturesSupported) {
+  console.warn(
+    `[b2-blocks-integration] skipping symlink-escape tests: ${SYMLINK_SKIP_REASON}`
+  );
+}
+
 // =============================================================================
 // BLOCKER 1: safeWritePath must work on clean checkout (file doesn't exist)
 //            and must reject .tmp symlink to outside
@@ -46,7 +60,7 @@ describe("BLOCKER 1 — safeWritePath on clean checkout", () => {
     expect(fs.existsSync(tmpDir)).toBe(true);
   });
 
-  it("rejects when .tmp is a symlink outside the repo", () => {
+  it.skipIf(!symlinkFixturesSupported)("rejects when .tmp is a symlink outside the repo", () => {
     const tmpDir = path.join(REPO, ".tmp");
     if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
     fs.symlinkSync(OUTSIDE, tmpDir);
@@ -55,7 +69,7 @@ describe("BLOCKER 1 — safeWritePath on clean checkout", () => {
     expect(result).toBeNull();
   });
 
-  it("rejects when intermediate dir on output path is a symlink outside", () => {
+  it.skipIf(!symlinkFixturesSupported)("rejects when intermediate dir on output path is a symlink outside", () => {
     const tmpDir = path.join(REPO, ".tmp");
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
     const subDir = path.join(tmpDir, "sub");
@@ -65,7 +79,7 @@ describe("BLOCKER 1 — safeWritePath on clean checkout", () => {
     expect(result).toBeNull();
   });
 
-  it("rejects when .tmp is a symlink into a production directory", () => {
+  it.skipIf(!symlinkFixturesSupported)("rejects when .tmp is a symlink into a production directory", () => {
     const tmpDir = path.join(REPO, ".tmp");
     const productionDir = path.join(REPO, "src", "domain");
     fs.mkdirSync(productionDir, { recursive: true });
@@ -75,7 +89,7 @@ describe("BLOCKER 1 — safeWritePath on clean checkout", () => {
     expect(result).toBeNull();
   });
 
-  it("rejects a dangling final symlink whose target is outside the repo", () => {
+  it.skipIf(!symlinkFixturesSupported)("rejects a dangling final symlink whose target is outside the repo", () => {
     const tmpDir = path.join(REPO, ".tmp");
     fs.mkdirSync(tmpDir, { recursive: true });
     const outsideTarget = path.join(OUTSIDE, "not-created-yet.json");
@@ -254,7 +268,8 @@ describe("BLOCKER 3 — MAX_TOTAL_CHARS true hard cap", () => {
 // =============================================================================
 // BLOCKER 4: exact-file allowlist must re-verify after realpath resolution
 // =============================================================================
-describe("BLOCKER 4 — exact-file allowlist realpath re-verification", () => {
+// Whole suite: the symlink lives in beforeEach, so both tests depend on it.
+describe.skipIf(!symlinkFixturesSupported)("BLOCKER 4 — exact-file allowlist realpath re-verification", () => {
   const TMP = "/tmp/jabiko-b4-" + Date.now();
   const REPO = path.join(TMP, "repo");
 
