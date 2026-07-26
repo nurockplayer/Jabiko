@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { FuriganaContext } from "./furiganaContext";
 import { buildQuestionPool } from "../domain/practice";
@@ -706,5 +706,54 @@ describe("FeedbackPanel your-answer line (#456)", () => {
       />
     );
     expect(container.querySelector(".your-answer")).toBeNull();
+  });
+});
+
+// User report 2026-07 (n1-read-hedataru): TTS on a 漢字読み PROMPT is now
+// suppressed (it either hands over or mis-reads the answer). The listening
+// loop moves here instead -- post-answer, and on the KANA answer, which no
+// voice can mis-read.
+describe("FeedbackPanel answer-key TTS on reading questions", () => {
+  beforeEach(() => {
+    vi.stubGlobal("speechSynthesis", {
+      getVoices: () => [],
+      speak: () => {},
+      cancel: () => {},
+      speaking: false,
+      pending: false
+    });
+    vi.stubGlobal(
+      "SpeechSynthesisUtterance",
+      class {
+        constructor(public text: string) {}
+        addEventListener() {}
+      }
+    );
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("offers TTS for the correct reading once the question is answered", () => {
+    const question = readingPool[0];
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "incorrect", question, submittedAnswer: "まちがい" }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    const speak = container.querySelector(".answer-key .speak-button");
+    expect(speak).not.toBeNull();
+  });
+
+  it("does not add a speak button to non-reading questions (no UI bloat)", () => {
+    const grammar = examStyleQuestions.find((q) => q.promptLabel === "文法形式選擇")!;
+    const { container } = render(
+      <FeedbackPanel
+        feedback={{ status: "correct", question: grammar, submittedAnswer: grammar.expectedAnswers[0] }}
+        language="zh-Hant"
+        options={[]}
+      />
+    );
+    expect(container.querySelector(".answer-key .speak-button")).toBeNull();
   });
 });

@@ -448,7 +448,7 @@ export const n2Items: PracticeQuestion[] = [
     promptContextI18n: { "ja": "地球の平均気温は徐々に上昇しつつあります。", "en": "The earth's average temperature is gradually rising." },
     expectedAnswer: "つつある",
     options: ["つつある", "かけている", "ながら", "ばかりだ"],
-    explanation: "「Vます形 + つつある」表示「正在持續/逐步 V」，書面正式。「かけている」是「做到一半」；「ばかりだ」是「越來越」；「ながら」是「同時」。",
+    explanation: "「Vます形 + つつある」表示「正在持續/逐步 V」，書面正式。「かけている」是「做到一半」；「ながら」是「同時」。「ばかりだ」意思上雖然也能講「越來越…」，但它接**辭書形**（「上昇するばかりだ」），接不上這裡的ます形語幹「上昇し」——所以先被接續刷掉。",
     explanationI18n: { "ja": "「Vます形＋つつある」は「〜し続けている／少しずつVしている」ことを表す、改まった書き言葉です。「かけている」は「〜し途中だ」、「ばかりだ」は「ますます〜だ」、「ながら」は「〜と同時に」という意味です。", "en": "「Vます-stem + つつある」means \"is continuously / progressively V-ing\" and is formal and written. 「かけている」means \"half-done\"; 「ばかりだ」means \"only getting more and more\"; 「ながら」means \"while doing at the same time.\"" },
   }),
   examQuestion({
@@ -2093,7 +2093,7 @@ export const n2Items: PracticeQuestion[] = [
     hintI18n: { "ja": "紙の申請とオンライン申請という方式の移り変わりです。", "en": "The shift from paper to online applications." },
     expectedAnswer: "つつある",
     options: ["つつある","ているところだ","一方だ","ばかりだ"],
-    explanation: "「Vます形 + つつある」表示變化正在逐步進行。「ているところだ」偏「正在做某動作」；「一方だ」多表示單方向加劇；「ばかりだ」多接惡化。本句有「徐々に」的漸進變化，選「つつある」。",
+    explanation: "「Vます形 + つつある」表示變化正在逐步進行。「ているところだ」偏「正在做某動作」；「一方だ」多表示單方向加劇。「ばかりだ」除了語感上多接惡化，接續也不合——它要接**辭書形**（「置き換えられるばかりだ」），接不上這裡的ます形語幹「置き換えられ」。本句有「徐々に」的漸進變化，選「つつある」。",
     explanationI18n: { "ja": "「Vます形＋つつある」は、変化が段階的に進行していることを表します。「ているところだ」は「まさにある動作をしている」ことに重点があり、「一方だ」は一方向に増していく様子、「ばかりだ」は多く悪化に用います。この文は「徐々に」という漸進的な変化があるので、「つつある」を選びます。", "en": "「Vます-stem + つつある」indicates that a change is progressing step by step. 「ているところだ」leans toward \"in the middle of doing an action\"; 「一方だ」usually expresses a one-directional intensification; 「ばかりだ」usually attaches to worsening trends. With the gradual change signaled by 「徐々に」, the answer is 「つつある」." },
   }),
   examQuestion({

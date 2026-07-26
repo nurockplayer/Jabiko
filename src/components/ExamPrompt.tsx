@@ -71,6 +71,12 @@ export function ExamPrompt({ question, language }: { question: PracticeQuestion;
     question.promptLabel === "語順組合" && question.promptText
       ? shuffleOrderFragments(question.promptText, question.id)
       : question.promptText;
+  // On a reading item the reading IS the answer, so the prompt must not be
+  // spoken: read correctly the voice hands the answer over, and read wrongly
+  // it misleads (a learner reported the JA voice saying 「隔たった」 as
+  // かくたった and answering that). Same predicate that suppresses ruby one
+  // line down. The correct reading is offered post-answer in FeedbackPanel.
+  const isReading = isReadingPrompt(question.promptLabel, question.targetForm);
   return (
     <>
       <p className="word-kind">
@@ -80,11 +86,13 @@ export function ExamPrompt({ question, language }: { question: PracticeQuestion;
       <p className="exam-prompt">
         {promptText ? (
           <>
-            <Ruby text={promptText} plain={isReadingPrompt(question.promptLabel, question.targetForm)} />
+            <Ruby text={promptText} plain={isReading} />
             {/* A JA voice mangles ASCII, so don't offer TTS on a romaji prompt
                 (the kana "pick" question's prompt IS romaji). Speaking the kana
                 instead would leak the answer, so suppression is the only fix. */}
-            {hasJapanese(promptText) ? <SpeakButton text={promptText} language={language} /> : null}
+            {hasJapanese(promptText) && !isReading ? (
+              <SpeakButton text={promptText} language={language} />
+            ) : null}
           </>
         ) : null}
       </p>
