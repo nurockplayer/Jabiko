@@ -12,10 +12,25 @@ import { validateEvidenceLines, validateFindingWithRepo } from "../repo-validato
 import fs from "node:fs";
 import path from "node:path";
 
+import { canCreateSymlinks, SYMLINK_SKIP_REASON } from "./symlink-support.js";
+
+// The containment suites below prove that a symlink cannot be used to escape
+// the repo. Building those fixtures needs fs.symlinkSync, which Windows only
+// grants under Developer Mode / Administrator — without it the *fixture* dies
+// with EPERM before any assertion runs. Gate the suites on an actual probe so
+// they skip there instead of failing. The assertions are unchanged and still
+// run wherever symlinks work, including CI.
+const symlinkFixturesSupported = canCreateSymlinks();
+if (!symlinkFixturesSupported) {
+  console.warn(
+    `[blocker-fixes] skipping symlink-containment suites: ${SYMLINK_SKIP_REASON}`
+  );
+}
+
 // =============================================================================
 // 1. safeWritePath — .tmp symlink outside repo must be rejected
 // =============================================================================
-describe("safeWritePath — .tmp symlink containment", () => {
+describe.skipIf(!symlinkFixturesSupported)("safeWritePath — .tmp symlink containment", () => {
   const TEST_DIR = "/tmp/jabiko-safewrite-test-" + Date.now();
   const REPO_DIR = path.join(TEST_DIR, "repo");
   const OUTSIDE_DIR = path.join(TEST_DIR, "outside");
@@ -50,7 +65,7 @@ describe("safeWritePath — .tmp symlink containment", () => {
   });
 });
 
-describe("isPathWithinRepo — dangling symlink containment", () => {
+describe.skipIf(!symlinkFixturesSupported)("isPathWithinRepo — dangling symlink containment", () => {
   const TEST_DIR = "/tmp/jabiko-pathwithin-test-" + Date.now();
   const REPO_DIR = path.join(TEST_DIR, "repo");
   const OUTSIDE_TARGET = path.join(TEST_DIR, "outside", "missing.ts");
@@ -183,7 +198,7 @@ describe("scanRepository — protectedExcluded accuracy", () => {
 // =============================================================================
 // 5. scanner exact-file allowlist — symlink outside repo must be rejected
 // =============================================================================
-describe("scanRepository — exact-file allowlist symlink escape", () => {
+describe.skipIf(!symlinkFixturesSupported)("scanRepository — exact-file allowlist symlink escape", () => {
   const TEST_DIR = "/tmp/jabiko-exactfile-test-" + Date.now();
   const REPO_DIR = path.join(TEST_DIR, "repo");
   const OUTSIDE_FILE = path.join(TEST_DIR, "outside.ts");
@@ -214,7 +229,7 @@ describe("scanRepository — exact-file allowlist symlink escape", () => {
   });
 });
 
-describe("scanRepository — glob root canonical policy enforcement", () => {
+describe.skipIf(!symlinkFixturesSupported)("scanRepository — glob root canonical policy enforcement", () => {
   const TEST_DIR = "/tmp/jabiko-globroot-test-" + Date.now();
   const REPO_DIR = path.join(TEST_DIR, "repo");
 
