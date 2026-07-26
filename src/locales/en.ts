@@ -169,6 +169,7 @@ export const en: Copy = {
   kanjiExamplesLabel: "Example words",
   kanjiNoExamples: "(No example words yet)",
   kanjiSearchEmpty: "No matching kanji found.",
+  kanjiArrowHint: "Tip: use ← / → on your keyboard to step through the cards.",
   kanjiLoadMore: (count: number) => `Load more (${count} more)`,
   kanaPageTitle: "Kana chart",
   kanaPageIntro: "Hiragana and katakana side by side - tap any cell to hear it. Grouped into seion, dakuon/handakuon, and yoon.",

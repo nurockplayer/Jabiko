@@ -169,6 +169,7 @@ export const id: Copy = {
   kanjiExamplesLabel: "Contoh kata",
   kanjiNoExamples: "（belum ada contoh kata）",
   kanjiSearchEmpty: "Tidak ditemukan kanji yang cocok.",
+  kanjiArrowHint: "Tips: gunakan ← / → pada keyboard untuk berpindah kartu.",
   kanjiLoadMore: (count: number) => `Muat lebih banyak (${count} lagi)`,
   kanaPageTitle: "Tabel kana",
   kanaPageIntro: "Hiragana dan katakana berdampingan - ketuk untuk mendengar pelafalan.",

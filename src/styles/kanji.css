@@ -30,6 +30,21 @@
   color: var(--ink);
 }
 
+/* Arrow-key shortcut hint: only shown where a keyboard is likely (a mouse /
+   trackpad pointer). Touch devices get no dead advice. */
+.kanji-key-hint {
+  display: none;
+  margin: -0.4rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .kanji-key-hint {
+    display: block;
+  }
+}
+
 .kanji-card {
   border: 1px solid color-mix(in srgb, var(--matcha) 45%, var(--panel-border));
   background: color-mix(in srgb, var(--matcha) 10%, var(--paper));

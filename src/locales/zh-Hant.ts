@@ -169,6 +169,7 @@ export const zhHant: Copy = {
   kanjiExamplesLabel: "例詞",
   kanjiNoExamples: "（暫無收錄例詞）",
   kanjiSearchEmpty: "找不到符合的漢字。",
+  kanjiArrowHint: "小技巧：用鍵盤 ← / → 可以連續切換卡片。",
   kanjiLoadMore: (count: number) => `載入更多（還有 ${count} 字）`,
   kanaPageTitle: "五十音表",
   kanaPageIntro: "平假名・片假名對照，每格可點發音；清音、濁音・半濁音、拗音分區。",

@@ -65,6 +65,85 @@ describe("KanjiOnyomiPanel (#195)", () => {
   });
 });
 
+// User request (2026-07): browsing a level or a search result meant clicking
+// every card. Desktop arrow keys now walk the grid in display order.
+describe("KanjiOnyomiPanel arrow-key browsing", () => {
+  const cells = () => Array.from(document.querySelectorAll<HTMLButtonElement>("button.kanji-cell"));
+  const selectedChar = () =>
+    document.querySelector(".kanji-cell.selected .kanji-cell-char")?.textContent ?? null;
+  const arrow = (key: "ArrowRight" | "ArrowLeft", init: KeyboardEventInit = {}) =>
+    fireEvent.keyDown(document, { key, ...init });
+
+  it("selects the first card on the first ArrowRight, then walks forward and back", () => {
+    renderNarrowed("高");
+    const chars = cells().map((cell) => cell.querySelector(".kanji-cell-char")?.textContent);
+    expect(chars.length).toBeGreaterThan(1);
+    expect(selectedChar()).toBeNull();
+
+    arrow("ArrowRight");
+    expect(selectedChar()).toBe(chars[0]);
+
+    arrow("ArrowRight");
+    expect(selectedChar()).toBe(chars[1]);
+
+    arrow("ArrowLeft");
+    expect(selectedChar()).toBe(chars[0]);
+  });
+
+  it("stops at both ends instead of wrapping around", () => {
+    renderNarrowed("高");
+    const chars = cells().map((cell) => cell.querySelector(".kanji-cell-char")?.textContent);
+
+    arrow("ArrowRight");
+    arrow("ArrowLeft");
+    expect(selectedChar()).toBe(chars[0]);
+
+    for (let i = 0; i < chars.length + 3; i++) arrow("ArrowRight");
+    expect(selectedChar()).toBe(chars[chars.length - 1]);
+  });
+
+  it("moves focus to the selected card so the grid stays keyboard-coherent", () => {
+    renderNarrowed("高");
+    arrow("ArrowRight");
+    expect(document.activeElement).toBe(cells()[0]);
+  });
+
+  it("never hijacks typing in the search box", () => {
+    renderNarrowed("高");
+    const search = screen.getByRole("searchbox");
+    search.focus();
+    fireEvent.keyDown(search, { key: "ArrowRight" });
+    expect(selectedChar()).toBeNull();
+  });
+
+  it("leaves browser and OS chords alone (Alt+Arrow is history navigation)", () => {
+    renderNarrowed("高");
+    arrow("ArrowRight", { altKey: true });
+    arrow("ArrowRight", { ctrlKey: true });
+    arrow("ArrowRight", { metaKey: true });
+    expect(selectedChar()).toBeNull();
+  });
+
+  it("reveals the next batch when arrowing past the load-more boundary (#608)", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const before = cells().length;
+    expect(screen.getByRole("button", { name: /載入更多/ })).toBeInTheDocument();
+
+    // Walk one step beyond the last rendered card.
+    for (let i = 0; i < before + 1; i++) arrow("ArrowRight");
+
+    expect(cells().length).toBeGreaterThan(before);
+    // The selection landed on the freshly revealed card, not stuck on the last.
+    const chars = cells().map((cell) => cell.querySelector(".kanji-cell-char")?.textContent);
+    expect(selectedChar()).toBe(chars[before]);
+  });
+
+  it("tells desktop learners the shortcut exists", () => {
+    renderNarrowed("高");
+    expect(screen.getByText(/← \/ →/)).toBeInTheDocument();
+  });
+});
+
 // Feedback 2026-07: hearing a kanji's reading used to require selecting the
 // cell, scrolling up to the detail card's TTS button, then scrolling back down
 // to pick the next kanji. The selected cell now grows an in-place speak button

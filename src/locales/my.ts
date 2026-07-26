@@ -169,6 +169,7 @@ export const my: Copy = {
   kanjiExamplesLabel: "နမူနာ စကားလုံးများ",
   kanjiNoExamples: "(နမူနာစကားလုံး မရှိသေးပါ)",
   kanjiSearchEmpty: "ကိုက်ညီသော ခန်းဂျိ မတွေ့ပါ။",
+  kanjiArrowHint: "အကြံပြုချက် - ကီးဘုတ်ရှိ ← / → ဖြင့် ကတ်များကို ဆက်တိုက် ပြောင်းနိုင်သည်။",
   kanjiLoadMore: (count: number) => `နောက်ထပ်ကြည့်ရန် (ကျန် ${count} လုံး)`,
   kanaPageTitle: "ကနာဇယား",
   kanaPageIntro: "ဟီရာဂနနှင့် ခတခန နှိုင်းယှဉ်ဇယား၊ အသံနားထောင်ရန် နှိပ်ပါ။",

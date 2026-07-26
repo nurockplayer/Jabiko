@@ -169,6 +169,7 @@ export const vi: Copy = {
   kanjiExamplesLabel: "Từ ví dụ",
   kanjiNoExamples: "(Chưa có từ ví dụ)",
   kanjiSearchEmpty: "Không tìm thấy kanji phù hợp.",
+  kanjiArrowHint: "Mẹo: dùng phím ← / → trên bàn phím để chuyển thẻ liên tục.",
   kanjiLoadMore: (count: number) => `Tải thêm (còn ${count} chữ)`,
   kanaPageTitle: "Bảng kana",
   kanaPageIntro: "Bảng đối chiếu hiragana - katakana, chạm để nghe phát âm.",
