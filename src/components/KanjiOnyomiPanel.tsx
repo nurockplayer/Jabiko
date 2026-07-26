@@ -2,6 +2,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { copy, type Language } from "../i18n";
 import type { JlptLevel } from "../domain/types";
 import { kanjiOnyomi, kanjiExamples, type KanjiOnyomiEntry } from "../domain/kanjiOnyomi";
+import {
+  readKanjiLevel,
+  readLastReadKanji,
+  writeKanjiLevel,
+  writeLastReadKanji
+} from "../domain/kanjiPreferences";
 import { kanjiMeaning } from "../domain/kanjiOnyomi.i18n";
 import { pickLocalized } from "../domain/localizedContent";
 import { SpeakButton } from "./SpeakButton";
@@ -33,9 +39,23 @@ export function KanjiOnyomiPanel({
 }) {
   const t = copy[language];
   const [query, setQuery] = useState("");
-  const [level, setLevel] = useState<JlptLevel | "all">(defaultLevel);
+  // A level picked ON THIS PAGE outlives the visit, but only within the band
+  // the learner's target level puts them in (see kanjiPreferences) -- so
+  // browsing sticks, while changing your target level still moves the page.
+  const [level, setLevel] = useState<JlptLevel | "all">(
+    () => readKanjiLevel(defaultLevel) ?? defaultLevel
+  );
   const [readingType, setReadingType] = useState<ReadingType>("on");
   const [selected, setSelected] = useState<string | null>(null);
+  // Where the learner stopped last time. Read once on mount: it marks that
+  // card and gives the arrow keys a starting point, but nothing scrolls or
+  // opens on load -- returning to the page should look exactly as before.
+  const [lastRead] = useState<string | null>(() => readLastReadKanji());
+
+  const selectKanji = (kanji: string) => {
+    setSelected(kanji);
+    writeLastReadKanji(kanji);
+  };
   const [entryBudget, setEntryBudget] = useState(FAMILY_ENTRY_BUDGET);
   useEffect(() => {
     // Any filter change starts a fresh batched view.
@@ -115,10 +135,12 @@ export function KanjiOnyomiPanel({
       if (orderedEntries.length === 0) {
         return;
       }
-      const currentIndex = selected
-        ? orderedEntries.findIndex((entry) => entry.kanji === selected)
+      // Nothing picked yet: carry on from the card the learner last read (so a
+      // return visit resumes rather than restarting), else from the top.
+      const position = selected ?? lastRead;
+      const currentIndex = position
+        ? orderedEntries.findIndex((entry) => entry.kanji === position)
         : -1;
-      // Nothing picked yet: the first press opens the first card.
       const nextIndex = currentIndex < 0 ? 0 : currentIndex + (event.key === "ArrowRight" ? 1 : -1);
       // Stop at both ends rather than wrapping -- silently jumping from the
       // last of 671 back to the first would lose the learner's place.
@@ -126,17 +148,19 @@ export function KanjiOnyomiPanel({
         return;
       }
       event.preventDefault();
-      // Stepping past the load-more boundary pulls the next batch in instead
-      // of dead-ending (one bump always covers the next whole family).
+      // Reveal the target when it sits behind the load-more boundary. Budget
+      // is family-granular, so asking for index+1 entries always pulls in the
+      // whole family holding it -- covers both a single step past the edge and
+      // a resume that lands deep in the list.
       if (nextIndex >= shownEntries) {
-        setEntryBudget((budget) => budget + FAMILY_ENTRY_BUDGET);
+        setEntryBudget((budget) => Math.max(budget, nextIndex + 1));
       }
       pendingFocus.current = orderedEntries[nextIndex].kanji;
-      setSelected(orderedEntries[nextIndex].kanji);
+      selectKanji(orderedEntries[nextIndex].kanji);
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [orderedEntries, selected, shownEntries]);
+  }, [orderedEntries, selected, lastRead, shownEntries]);
 
   // Keyboard-driven selection follows the card: focus keeps the grid coherent
   // for keyboard and screen-reader users, and `block: "nearest"` only scrolls
@@ -192,7 +216,10 @@ export function KanjiOnyomiPanel({
               type="button"
               className={level === option ? "selected" : ""}
               aria-pressed={level === option}
-              onClick={() => setLevel(option)}
+              onClick={() => {
+                setLevel(option);
+                writeKanjiLevel(defaultLevel, option);
+              }}
             >
               {option === "all" ? t.kanjiLevelAll : option}
             </button>
@@ -259,6 +286,10 @@ export function KanjiOnyomiPanel({
             <div className="kanji-grid">
               {entries.map((entry) => {
                 const isSelected = selected === entry.kanji;
+                // Where the learner stopped last time, shown only until they
+                // pick something this session -- after that the selection is
+                // the position and a second marker would just be noise.
+                const isLastRead = selected === null && lastRead === entry.kanji;
                 // Feedback 2026-07: listening used to mean scrolling back up to
                 // the detail card's TTS button after every selection. The
                 // selected cell grows an in-place speak button instead; it reads
@@ -276,9 +307,9 @@ export function KanjiOnyomiPanel({
                         if (node) cellRefs.current.set(entry.kanji, node);
                         else cellRefs.current.delete(entry.kanji);
                       }}
-                      className={`kanji-cell${isSelected ? " selected" : ""}`}
+                      className={`kanji-cell${isSelected ? " selected" : ""}${isLastRead ? " last-read" : ""}`}
                       aria-pressed={isSelected}
-                      onClick={() => setSelected(entry.kanji)}
+                      onClick={() => selectKanji(entry.kanji)}
                     >
                       <span className="kanji-cell-char">{entry.kanji}</span>
                       <span className="kanji-cell-read">

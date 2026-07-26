@@ -1,6 +1,17 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KanjiOnyomiPanel } from "./KanjiOnyomiPanel";
+import {
+  readKanjiLevel,
+  readLastReadKanji,
+  writeKanjiLevel,
+  writeLastReadKanji
+} from "../domain/kanjiPreferences";
+
+// The panel persists the level filter and the last card opened
+// (kanjiPreferences), so every test must start from an empty store -- without
+// this, one test's selection becomes the next test's resume point.
+afterEach(() => window.localStorage.clear());
 
 // The default view renders the whole table (~hundreds of cells), which makes
 // testing-library's accessible-name scans slow in jsdom (not in a real
@@ -141,6 +152,96 @@ describe("KanjiOnyomiPanel arrow-key browsing", () => {
   it("tells desktop learners the shortcut exists", () => {
     renderNarrowed("高");
     expect(screen.getByText(/← \/ →/)).toBeInTheDocument();
+  });
+});
+
+// User request (2026-07, scsnake): the page forgot both the level you were
+// filtering on and the card you were reading, so every visit restarted the
+// browse from the top of your band.
+describe("KanjiOnyomiPanel remembers where you were", () => {
+  const cells = () => Array.from(document.querySelectorAll<HTMLButtonElement>("button.kanji-cell"));
+  const selectedChar = () =>
+    document.querySelector(".kanji-cell.selected .kanji-cell-char")?.textContent ?? null;
+  const charOf = (cell: Element) => cell.querySelector(".kanji-cell-char")?.textContent ?? "";
+
+  it("restores the level picked last time under the same band", () => {
+    writeKanjiLevel("N2", "N5");
+    render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N2" />);
+    expect(screen.getByRole("button", { name: "N5" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "N2" })).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("persists a level pick so the next visit opens on it", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N2" />);
+    fireEvent.click(screen.getByRole("button", { name: "N4" }));
+    expect(readKanjiLevel("N2")).toBe("N4");
+  });
+
+  it("goes back to the band default when the learner's target level changed", () => {
+    writeKanjiLevel("N2", "N5");
+    render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N1" />);
+    expect(screen.getByRole("button", { name: "N1" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("stores the card you open as the last one read", () => {
+    renderNarrowed("高");
+    const first = cells()[0];
+    fireEvent.click(first);
+    expect(readLastReadKanji()).toBe(charOf(first));
+  });
+
+  it("marks the last-read card on return, without opening or scrolling to it", () => {
+    // Learn which card sits second in this view, then come back to it.
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const target = charOf(cells()[1]);
+    cleanup();
+
+    writeLastReadKanji(target);
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const marked = document.querySelectorAll(".kanji-cell.last-read");
+    expect(marked).toHaveLength(1);
+    expect(charOf(marked[0])).toBe(target);
+    // Marked, not selected: no detail card pops open on load.
+    expect(selectedChar()).toBeNull();
+    expect(document.querySelector(".kanji-card")).toBeNull();
+  });
+
+  it("drops the mark once the learner picks a card this session", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const target = charOf(cells()[1]);
+    cleanup();
+
+    writeLastReadKanji(target);
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    fireEvent.click(cells()[0]);
+    expect(document.querySelectorAll(".kanji-cell.last-read")).toHaveLength(0);
+  });
+
+  it("resumes arrow browsing from the last-read card", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const chars = cells().map(charOf);
+    cleanup();
+
+    writeLastReadKanji(chars[1]);
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    // Continues past the card you already read, rather than restarting at 0.
+    expect(selectedChar()).toBe(chars[2]);
+
+    fireEvent.keyDown(document, { key: "ArrowLeft" });
+    expect(selectedChar()).toBe(chars[1]);
+  });
+
+  it("ignores a last-read card that the current filter hides", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N5" />);
+    const n5Chars = cells().map(charOf);
+    cleanup();
+
+    writeLastReadKanji("鬱"); // not in the N5 view
+    render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N5" />);
+    expect(document.querySelectorAll(".kanji-cell.last-read")).toHaveLength(0);
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    expect(selectedChar()).toBe(n5Chars[0]);
   });
 });
 

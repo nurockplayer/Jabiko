@@ -231,6 +231,14 @@
   background: color-mix(in srgb, var(--matcha) 12%, var(--paper));
 }
 
+/* Where the learner stopped last visit: a dashed rim only, no fill -- it must
+   read as a bookmark, not as the current selection (which owns the filled
+   style above). Cleared as soon as a card is picked this session. */
+.kanji-cell.last-read {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--matcha) 60%, var(--rule));
+}
+
 .kanji-cell-char {
   font-size: 1.6rem;
   line-height: 1;
