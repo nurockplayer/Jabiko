@@ -6,7 +6,9 @@ import { lookupPatternMeaning } from "../domain/patternMeaning";
 import { lookupGrammarNote } from "../domain/grammarNotes";
 import { hasGrammarPoint } from "../domain/grammarPoints";
 import { pickLocalized } from "../domain/localizedContent";
+import { isReadingPrompt } from "../domain/furigana";
 import { GrammarNoteCard } from "./GrammarNoteCard";
+import { SpeakButton } from "./SpeakButton";
 import { QuestionReportForm } from "./QuestionReportForm";
 import { Ruby } from "./Ruby";
 import { RubyText } from "./RubyText";
@@ -36,6 +38,11 @@ export function FeedbackPanel({
   const [showReport, setShowReport] = useState(false);
   const isCorrect = feedback.status === "correct";
   const isRevealed = feedback.status === "revealed";
+  const isReadingAnswer = isReadingPrompt(
+    feedback.question.promptLabel,
+    feedback.question.targetForm
+  );
+  const spokenAnswer = feedback.question.expectedAnswers[0];
   const title = isCorrect ? t.correct : isRevealed ? t.revealed : t.incorrect;
   const Icon = isCorrect ? CheckCircle2 : XCircle;
   const explanation = pickLocalized(
@@ -111,7 +118,17 @@ export function FeedbackPanel({
           {t.feedbackYourAnswer}：<span lang="ja">{feedback.submittedAnswer}</span>
         </p>
       ) : null}
-      <p className="answer-key">{t.answerKey}：{feedback.question.expectedAnswers.join(" / ")}</p>
+      {/* Reading items carry their audio HERE, not on the prompt: before
+          answering the spoken reading would be the answer, and a JA voice
+          mis-reads bare kanji anyway (「隔たった」 came out かくたった for one
+          learner). The kana answer key is unambiguous, so this is the one
+          place the reading can be heard correctly. */}
+      <p className="answer-key">
+        {t.answerKey}：{feedback.question.expectedAnswers.join(" / ")}
+        {isReadingAnswer && spokenAnswer ? (
+          <SpeakButton text={spokenAnswer} language={language} />
+        ) : null}
+      </p>
       <p><ExplanationFuriganaBoundary><RubyText text={explanation} /></ExplanationFuriganaBoundary></p>
       {distractorGlosses.length > 0 ? (
         <div className="distractor-gloss">

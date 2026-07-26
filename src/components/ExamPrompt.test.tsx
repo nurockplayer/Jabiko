@@ -120,6 +120,56 @@ describe("ExamPrompt TTS gate on non-Japanese prompts (#653)", () => {
     // the romaji prompt itself still renders as visible text
     expect(container.querySelector(".exam-prompt")?.textContent).toContain("ne");
   });
+
+  // User report 2026-07 (n1-read-hedataru): the JA voice read 「隔たった」 as
+  // かくたった, so the learner trusted it and answered the on-reading. Both
+  // outcomes are wrong on a 漢字読み item: read correctly it HANDS OVER the
+  // answer, read wrongly it actively misleads. Same call as #653 -- suppress.
+  it("suppresses the speak button on a 漢字読み prompt (the reading IS the answer)", () => {
+    const { container } = render(
+      <ExamPrompt
+        question={{
+          ...base,
+          promptText: "故郷から遠く「隔たった」場所で暮らしている。",
+          promptLabel: "漢字読み",
+          targetForm: "reading" as const
+        }}
+        language="zh-Hant"
+      />
+    );
+    expect(container.querySelector(".speak-button")).toBeNull();
+    expect(container.querySelector(".exam-prompt")?.textContent).toContain("隔たった");
+  });
+
+  it("suppresses the speak button on an unlabelled reading drill too", () => {
+    const { container } = render(
+      <ExamPrompt
+        question={{
+          ...base,
+          promptText: "協力",
+          promptLabel: undefined,
+          targetForm: "reading" as const
+        }}
+        language="zh-Hant"
+      />
+    );
+    expect(container.querySelector(".speak-button")).toBeNull();
+  });
+
+  it("keeps the speak button on a grammar stem, which only defaults to targetForm reading", () => {
+    const { container } = render(
+      <ExamPrompt
+        question={{
+          ...base,
+          promptText: "ここは学校だ。",
+          promptLabel: "文法形式選擇",
+          targetForm: "reading" as const
+        }}
+        language="zh-Hant"
+      />
+    );
+    expect(container.querySelector(".speak-button")).not.toBeNull();
+  });
 });
 
 describe("ExamPrompt furigana (#134)", () => {

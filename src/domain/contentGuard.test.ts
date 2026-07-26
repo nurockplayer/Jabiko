@@ -307,6 +307,71 @@ describe("exam content guard", () => {
   });
 });
 
+// ---- unmarked speaker change (user report 2026-07) -------------------------
+// n3-grammar-ndesu-2 read as ONE person talking ("どうして電気を消したんですか。
+// もう ___"), so 「もう寝ますか」 looked fine and the learner picked it; only the
+// Chinese translation revealed it was a two-turn dialogue. A prompt that
+// answers its own question must SAY it changed speaker (「」 quotes).
+// Heuristic with zero false positives on the current bank: a question ending
+// followed by more text is a speaker change UNLESS the remainder is itself a
+// question (one person offering a choice -- the それとも items).
+const QUESTION_ENDING = /(?:ですか|ますか|ましたか|ませんか)。/g;
+
+function hasUnmarkedSpeakerChange(prompt: string | null | undefined): boolean {
+  if (!prompt || prompt.includes("「")) return false;
+  let afterLastQuestion = -1;
+  for (const match of prompt.matchAll(QUESTION_ENDING)) {
+    afterLastQuestion = (match.index ?? 0) + match[0].length;
+  }
+  if (afterLastQuestion < 0) return false;
+  const remainder = prompt.slice(afterLastQuestion).trim();
+  if (!remainder) return false;
+  if (/(?:ですか|ますか|ましたか|ませんか)。?$/.test(remainder)) return false;
+  return true;
+}
+
+describe("dialogue prompts name their speakers", () => {
+  it("never answers its own question without 「」 speaker marks", () => {
+    const offenders = [
+      ...examStyleQuestions.map((q) => [q.id, q.promptText] as const),
+      ...sentencePatternItems.map((item) => [item.id, item.promptText] as const)
+    ]
+      .filter(([, prompt]) => hasUnmarkedSpeakerChange(prompt))
+      .map(([id, prompt]) => `${id}: ${prompt}`);
+
+    expect(
+      offenders,
+      `two-speaker prompts missing 「」 marks (the learner cannot tell it is a dialogue): ${offenders.join(" | ")}`
+    ).toEqual([]);
+  });
+});
+
+describe("distractors blocked by connection, not meaning, say so", () => {
+  // User report 2026-07 (n2-grammar-tsutsuaru): for 「気温が徐々に上昇し ___」
+  // the learner picked 「ばかりだ」 and asked why it was wrong, since the
+  // meaning fits. It is the CONNECTION that rules it out -- ばかりだ takes
+  // 辭書形 (上昇するばかりだ), so it cannot sit on a ます-stem. An explanation
+  // that only contrasts MEANING leaves the learner believing there are two
+  // answers. つつある items are exactly the ます-stem case (elsewhere in the
+  // bank ばかりだ attaches fine and is ruled out on meaning, which those
+  // explanations already handle).
+  it("explains the 辭書形 connection for ばかりだ on ます-stem (つつある) items", () => {
+    const offenders = examStyleQuestions
+      .filter(
+        (q) =>
+          q.expectedAnswers.includes("つつある") &&
+          (q.options ?? []).includes("ばかりだ") &&
+          !/辭書形|辞書形/.test(q.explanation ?? "")
+      )
+      .map((q) => q.id);
+
+    expect(
+      offenders,
+      `ばかりだ distractors whose explanation never mentions the 辭書形 connection: ${offenders.join(" | ")}`
+    ).toEqual([]);
+  });
+});
+
 // Per-pattern banlist: phrases that would tip off the answer if they
 // appeared in the pre-answer hintZh (a 1-of-N pattern pick becomes a
 // 1-of-1 "match the Chinese label"). From the Codex review of PR #31.
