@@ -5,8 +5,7 @@ import { pickLocalized } from "../domain/localizedContent";
 import { GrammarNoteCard } from "./GrammarNoteCard";
 import { grammarPatterns } from "../domain/grammarDatabase";
 import { findPatternBySurface, getAdjacentPatterns, patternSurface } from "../domain/grammarIndex";
-import type { GrammarPattern, MediaLineExample } from "../domain/grammarDatabase";
-import type { JlptLevel } from "../domain/types";
+import type { MediaLineExample } from "../domain/grammarDatabase";
 
 // Strip a leading "正解是「…」，" answer-explanation lead-in (#339): the exam
 // bank's explanations are written for a quiz ("the correct answer is X,

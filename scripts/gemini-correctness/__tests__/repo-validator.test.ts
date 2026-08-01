@@ -20,9 +20,7 @@ const TEST_DIR = "/tmp/jabiko-repovalid-test-" + Date.now();
 const SRC_FILE = path.join(TEST_DIR, "src", "domain", "example.ts");
 const ANOTHER_SRC = path.join(TEST_DIR, "src", "domain", "other.ts");
 const TEST_SOURCE = path.join(TEST_DIR, "src", "domain", "example.test.ts");
-const NONEXISTENT = path.join(TEST_DIR, "src", "domain", "missing.ts");
 const PROTECTED_FILE = path.join(TEST_DIR, "src", "domain", "contentGuard.ts");
-const OUTSIDE_SYMLINK = path.join(TEST_DIR, "src", "domain", "link_outside");
 
 function createFixture() {
   fs.mkdirSync(path.join(TEST_DIR, "src", "domain"), { recursive: true });

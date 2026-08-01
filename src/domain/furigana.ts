@@ -34,6 +34,11 @@ export function hasKanji(value: string): boolean {
   return KANJI_RE.test(value);
 }
 
+// Kana ranges deliberately span the combining dakuten/handakuten marks
+// (゙ U+3099 – ゜ U+309C) so a voiced kana (e.g. が) matches as a single
+// kana run. The rule flags the combined character inside the class; the
+// range is intentional and rewriting it changes which codepoints match.
+// eslint-disable-next-line no-misleading-character-class
 const KANA_ONLY_RE = /[ぁ-ゖ゙-゜ァ-ヺー]/;
 function hasKana(value: string): boolean {
   return KANA_ONLY_RE.test(value);
@@ -50,11 +55,13 @@ export function hasJapanese(value: string): boolean {
 // Hiragana / katakana / long-vowel mark / combining marks count as "kana"
 // for run-splitting. 々 is deliberately excluded (it repeats the preceding
 // kanji, so it groups WITH the kanji run).
+// eslint-disable-next-line no-misleading-character-class -- dakuten range ゙–゜ is intentional
 const KANA_RE = /[ぁ-ゖ゙-゜ァ-ヺー]/;
 function isKana(ch: string): boolean {
   return KANA_RE.test(ch);
 }
 
+// eslint-disable-next-line no-misleading-character-class -- dakuten range ゙–゜ is intentional
 const INLINE_JAPANESE_TOKEN_RE = /[A-Za-zＡ-Ｚａ-ｚ0-9０-９ぁ-ゖ゙-゜ァ-ヺー一-鿿々・＋-]+/g;
 
 function mergePlainSegments(segments: InlineRubySegment[]): InlineRubySegment[] {
@@ -171,7 +178,7 @@ export function collectJapaneseRubySources(text: string | null | undefined): str
   const isBakeable = (value: string): boolean => {
     if (!hasKana(value)) return false;
     if (value.length === 1 && !hasKanji(value)) return false;
-    if (hasKanji(value)) return /[ぁ-ゖ゙-゜ァ-ヺー]$/.test(value);
+    if (hasKanji(value)) return /[ぁ-ゖ゙-゜ァ-ヺー]$/.test(value); // eslint-disable-line no-misleading-character-class -- dakuten range ゙–゜ is intentional
     return true;
   };
 

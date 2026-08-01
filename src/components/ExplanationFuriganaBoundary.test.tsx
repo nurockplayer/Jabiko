@@ -71,7 +71,7 @@ describe("ExplanationFuriganaBoundary (#599)", () => {
     // but the module-level cache in the loader is verified by
     // furiganaExplanationLoader.test.ts (same-promise dedup).
     // This test verifies the boundary doesn't crash on remount.
-    const { container, unmount } = render(
+    const { unmount } = render(
       <FuriganaContext.Provider value={{ enabled: true }}>
         <ExplanationFuriganaBoundary>
           <RubyText text="正解「学校」：這裡記住讀音。" />

@@ -94,7 +94,7 @@ export function splitItemBlocks(text) {
       cur = { start: i, lines: [line] };
     } else if (cur) {
       cur.lines.push(line);
-      if (/^  \}\),?$/.test(line)) {
+      if (/^ {2}\}\),?$/.test(line)) {
         cur.end = i;
         blocks.push(cur);
         cur = null;

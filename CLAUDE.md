@@ -16,6 +16,8 @@
 
 ## Build 與測試
 
+Repo-wide 基礎驗證（#663 統一合約）：`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build`，任何 PR 必全數通過；path-aware gate 另加（見下）。
+
 - TypeScript 改動後跑 `pnpm build` 確保編譯通過
 - 領域邏輯改動後跑 `pnpm test` 確保回歸
 - 只改 React 元件時可以只跑 `pnpm build`

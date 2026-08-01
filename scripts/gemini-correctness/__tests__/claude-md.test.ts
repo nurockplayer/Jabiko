@@ -28,8 +28,6 @@ describe("discover.mjs — hardcoded CLAUDE.md (no --claude-md arg)", () => {
 
   it("does NOT reference .env, protected paths, or arbitrary files", () => {
     const source = fs.readFileSync(SCRIPT_PATH, "utf8");
-    // The rules-reading section must not mention .env or contentGuard
-    const afterImports = source.split("import")[2] || source;
     // The main function does reference these via getDefaultProtectedPaths()
     // but the --claude-md path must not allow them
     expect(source).not.toMatch(/claude-md/);

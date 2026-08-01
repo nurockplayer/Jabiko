@@ -1,13 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, BookOpen, Search, Clapperboard, BarChart3 } from "lucide-react";
+import { ArrowLeft, BookOpen, Search, Clapperboard } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import {
   getPatternsGroupedByLevel,
   getLevelSummary,
-  getPatternsWithMediaExamples,
-  getPatternsByImportance,
   searchPatterns,
-  getRelatedPatterns,
 } from "../domain/grammarIndex";
 import type { GrammarPattern } from "../domain/grammarDatabase";
 import type { JlptLevel } from "../domain/types";
@@ -51,13 +48,18 @@ export function GrammarIndexPage({
     reference: t.grammarImportanceReference,
   };
 
-  const matchedFieldLabels: Record<string, string> = {
-    pattern: t.grammarMatchPattern,
-    meaningZh: t.grammarMatchZh,
-    meaningJa: t.grammarMatchJa,
-    tag: t.grammarMatchTag,
-    id: t.grammarMatchId,
-  };
+  // Stable labels map so globalSearchResults' useMemo doesn't re-run every
+  // render (t only changes on locale switch).
+  const matchedFieldLabels: Record<string, string> = useMemo(
+    () => ({
+      pattern: t.grammarMatchPattern,
+      meaningZh: t.grammarMatchZh,
+      meaningJa: t.grammarMatchJa,
+      tag: t.grammarMatchTag,
+      id: t.grammarMatchId
+    }),
+    [t]
+  );
 
   /** 篩選單一等級的列表 */
   const filterPatterns = (patterns: GrammarPattern[]): GrammarPattern[] => {
@@ -90,7 +92,7 @@ export function GrammarIndexPage({
       else if (p.id.includes(q)) field = "id";
       return { pattern: p, matchedField: matchedFieldLabels[field] };
     });
-  }, [searchQuery, grouped, matchedFieldLabels]);
+  }, [searchQuery, matchedFieldLabels]);
 
   /** 在 overview 隱藏等級篩選器時同步重設，避免 filter 隱形滲漏 */
   useEffect(() => {

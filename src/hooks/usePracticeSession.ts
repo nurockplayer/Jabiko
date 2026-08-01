@@ -233,11 +233,21 @@ export function usePracticeSession({
   // stored ids -- keeping the mode-card count and the 收藏 pool reactive to
   // the learner's own stars without a live storage listener.
   const [bookmarkVersion, setBookmarkVersion] = useState(0);
-  const bookmarkedIds = useMemo(() => new Set(getBookmarkedIds()), [bookmarkVersion]);
+  // bookmarkVersion is the reactivity trigger: localStorage fires no change
+  // events, so the counter (bumped by onToggleBookmark) is what re-reads the
+  // stored ids. `void bookmarkVersion` inside each memo marks it as a read
+  // dep so the linter keeps it instead of treating it as unused.
+  const bookmarkedIds = useMemo(() => {
+    void bookmarkVersion;
+    return new Set(getBookmarkedIds());
+  }, [bookmarkVersion]);
   // Preserve bookmark add-order (getBookmarkedIds order), not allKnownQuestions
   // order -- a plain filter would replay the pass in bank order (#470 review).
   const bookmarkedQuestions = useMemo(
-    () => resolveBookmarkedQuestions(getBookmarkedIds(), allKnownQuestions),
+    () => {
+      void bookmarkVersion;
+      return resolveBookmarkedQuestions(getBookmarkedIds(), allKnownQuestions);
+    },
     [allKnownQuestions, bookmarkVersion]
   );
   const isQuestionBookmarked = (questionId: string) => bookmarkedIds.has(questionId);
@@ -378,6 +388,10 @@ export function usePracticeSession({
       });
     }
     prevExhaustedRef.current = sessionExhausted;
+    // practiceFilter.examSection covers every field read above (its .level is a
+    // child); the rule wants the optional-chain leaf, but re-running on that
+    // same ref would re-track the event on every section-object identity change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionExhausted, practiceMode, sessionTotal, attempts.length, correctCount, language]);
 
   useEffect(() => {
@@ -429,6 +443,12 @@ export function usePracticeSession({
     resetSession();
   };
 
+  // handleChoiceSubmit closes over currentQuestion/feedback/practiceMode/etc.,
+  // so it can never be a stable callback without mirroring all of them as
+  // useCallback deps (and the keydown effect below re-subscribes whenever they
+  // change anyway). Wrapping it would add a stale-closure risk for no behavior
+  // gain; the effect re-binds on every render as-is, which is correct.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleChoiceSubmit = (choice: string) => {
     if (!currentQuestion || feedback) {
       return;
