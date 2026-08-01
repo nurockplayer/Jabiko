@@ -3,11 +3,11 @@ import { describe, expect, it, beforeEach, afterEach } from "vitest";
 // @ts-expect-error -- plain .mjs module, no types
 import { safeWritePath, isPathWithinRepo } from "../policy.mjs";
 // @ts-expect-error -- plain .mjs module, no types
-import { scanRepository, validateScanOptions } from "../scanner.mjs";
+import { scanRepository } from "../scanner.mjs";
 // @ts-expect-error -- plain .mjs module, no types
-import { buildDiscoveryPrompt, MAX_TOTAL_CHARS } from "../prompt-builder.mjs";
+import { buildDiscoveryPrompt } from "../prompt-builder.mjs";
 // @ts-expect-error -- plain .mjs module, no types
-import { validateEvidenceLines, validateFindingWithRepo } from "../repo-validator.mjs";
+import { validateEvidenceLines } from "../repo-validator.mjs";
 
 import fs from "node:fs";
 import path from "node:path";
@@ -109,8 +109,6 @@ describe("buildDiscoveryPrompt — no partial blocks", () => {
     });
 
     // Verify: every file in the prompt must be COMPLETE (end with the closing ```)
-    const blocks = result.prompt.split("```");
-    // Odd-indexed blocks are code blocks
     for (let i = 0; i < result.manifest.length; i++) {
       expect(result.prompt).toContain("### " + result.manifest[i]);
     }
@@ -146,10 +144,6 @@ describe("validateEvidenceLines — truncated file visible lines", () => {
   afterEach(() => cleanupFixture());
 
   it("rejects line number beyond what Gemini actually saw (truncated file)", () => {
-    // File has 100 lines but truncated content only has 20
-    const fullContent = fs.readFileSync(path.join(TEST_DIR, "src/domain/long.ts"), "utf8");
-    const truncatedContent = fullContent.split("\n").slice(0, 20).join("\n");
-
     // Validate with scannedFile entry showing visibleLineCount
     const result = validateEvidenceLines(
       "src/domain/long.ts",

@@ -178,7 +178,9 @@ export default function App() {
   // so neither re-fires page_view.
   useEffect(() => {
     trackEvent("page_view", { view: appView, locale: language });
-  }, [appView]); // language intentionally omitted: locale change fires locale_changed, not page_view
+    // language intentionally omitted: locale change fires locale_changed, not page_view
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appView]);
 
   // Phase 1 analytics (#404): fire study_page_viewed when a concrete grammar
   // point's study page opens — covers in-app openGrammar AND direct

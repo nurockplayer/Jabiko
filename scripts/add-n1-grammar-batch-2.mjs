@@ -442,7 +442,7 @@ let text = readFileSync(target, "utf8");
 const eol = text.includes("\r\n") ? "\r\n" : "\n";
 const newBlocks = ITEMS.map(block).join("," + eol);
 const ANCHOR_REGEX =
-  /「培」訓讀「つちか-う」→ つちかう。「ばいかう」是把訓讀換成音讀「ばい」的陷阱；「つちこう」是次音節母音錯誤；「つくろう」是「繕う」（修補，不同字）。"\r?\n  \}\)\r?\n\];/;
+  /「培」訓讀「つちか-う」→ つちかう。「ばいかう」是把訓讀換成音讀「ばい」的陷阱；「つちこう」是次音節母音錯誤；「つくろう」是「繕う」（修補，不同字）。"\r?\n {2}\}\)\r?\n\];/;
 
 if (!ANCHOR_REGEX.test(text)) {
   console.error(

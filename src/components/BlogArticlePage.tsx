@@ -33,6 +33,10 @@ export function BlogArticlePage({
     if (publishedSlug === null) {
       lastViewedSlugRef.current = null;
     }
+    // article?.draft / article?.slug already cover every field read above; the
+    // rule wants the whole `article` object, which would re-fire on unrelated
+    // article changes (same slug/draft) and double-count the view.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article?.draft, article?.slug]);
 
   const backButton = (

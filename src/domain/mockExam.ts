@@ -11,7 +11,7 @@
 // (An earlier version composed and ran a full timed paper here; that was
 // dropped for the lighter section picker. See git history if a timed
 // full-paper mode is ever wanted again.)
-import type { JlptLevel, LocaleCode } from "./types";
+import type { JlptLevel } from "./types";
 
 export type MockExamLevel = Extract<JlptLevel, "N1" | "N2" | "N3">;
 

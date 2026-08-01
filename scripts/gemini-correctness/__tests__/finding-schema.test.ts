@@ -121,7 +121,8 @@ describe("validateFinding – finding", () => {
   });
 
   it("rejects missing required fields", () => {
-    const { title, ...rest } = validFinding();
+    const rest = { ...validFinding() };
+    delete rest.title;
     const r = validateFinding(rest);
     expect(r.valid).toBe(false);
   });
@@ -249,7 +250,8 @@ describe("validateFinding – reproduction", () => {
   });
 
   it("requires reproduction object", () => {
-    const { reproduction, ...rest } = validFinding();
+    const rest = { ...validFinding() };
+    delete rest.reproduction;
     expect(validateFinding(rest).valid).toBe(false);
   });
 

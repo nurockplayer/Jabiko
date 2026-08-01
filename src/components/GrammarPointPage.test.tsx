@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { cleanExplanation, GrammarPointPage } from "./GrammarPointPage";
 import { allGrammarSurfaces, buildGrammarPoint } from "../domain/grammarPoints";
-import { findPatternBySurface, getPatternsByLevel, patternSurface } from "../domain/grammarIndex";
+import { getPatternsByLevel, patternSurface } from "../domain/grammarIndex";
 import { grammarNotes } from "../domain/grammarNotes";
 import { grammarPatterns } from "../domain/grammarDatabase";
 import { copy } from "../i18n";

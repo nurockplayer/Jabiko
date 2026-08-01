@@ -12,6 +12,10 @@ const HARD_MAX_FILES = 1000;
 const HARD_MAX_BYTES_PER_FILE = 10 * 1024 * 1024;
 const HARD_MAX_TOTAL_BYTES = 50 * 1024 * 1024;
 
+// Control chars (except tab/LF/CR, which are legal in text) mark a file as
+// binary. The class is intentionally explicit — it must match exactly these
+// byte values, no \s shortcuts.
+// eslint-disable-next-line no-control-regex
 const BINARY_RE = /[\x00-\x08\x0E-\x1F]/;
 
 function isTextFile(content) {

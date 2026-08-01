@@ -11,7 +11,7 @@
 //
 // Pure data -> strings; no fs, no DOM. The I/O lives in scripts/prerender.mjs.
 // NOT imported by the app (build-time only), so it adds zero bundle weight.
-import { SITE_ORIGIN, VIEW_SEO, seoForView } from "../seo";
+import { VIEW_SEO, seoForView } from "../seo";
 import type { AppView } from "../routes";
 import { grammarPatterns, type GrammarPattern } from "../grammarDatabase";
 import { publishedArticleMetas } from "../articlesMeta";
@@ -368,7 +368,6 @@ export function buildStaticPages(): StaticPage[] {
   for (const pattern of grammarPatterns) {
     const surface = navigableSurface(pattern.pattern);
     if (!isSafePathSegment(surface)) {
-      // eslint-disable-next-line no-console
       console.warn(`[prerender] skip unsafe surface: ${surface}`);
       continue;
     }

@@ -1,9 +1,7 @@
 // @ts-expect-error -- plain .mjs module, no types
-import { describe, expect, it, beforeEach, afterEach } from "vitest";
+import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain .mjs module, no types
 import { buildDiscoveryPrompt, MAX_TOTAL_CHARS } from "../prompt-builder.mjs";
-import fs from "node:fs";
-import path from "node:path";
 
 describe("buildDiscoveryPrompt — manifest integrity", () => {
   it("manifest only includes files actually in prompt content (not excluded by size cap)", () => {

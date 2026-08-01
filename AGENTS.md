@@ -21,7 +21,7 @@ Jabiko（jabiko.app）是免費、免註冊的 **JLPT N5–N1 日檢自習室**�
 直接執行指令即可（**沒有 `rtk` 這個工具**——舊規範遺留，勿再等待或宣稱缺它而跳過驗證）。
 
 - Node／frontend tooling 一律 `pnpm`；不得使用 npm/yarn/bun（也不得產生其 lockfile）
-- 驗證三閘：`pnpm test`、`pnpm build` 每個 PR 必跑；`pnpm check:exam` 在改動題庫（`src/domain/exam/`）時必跑，其他改動可省
+- 基礎驗證四閘（#663 統一合約）：`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build` 每個 PR 必跑；`pnpm check:exam` 在改動題庫（`src/domain/exam/`）時必跑，其他改動可省
 - 新增／修改**文章**後必跑 `pnpm build:sitemap`（sitemap drift guard 會擋 CI——這是 Codex 歷史上最常漏的一步）
 - 新增 exam 例句／題幹後跑 `pnpm build:furigana`
 

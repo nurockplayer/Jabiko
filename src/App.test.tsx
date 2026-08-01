@@ -21,24 +21,6 @@ vi.mock("./components/BlogArticlePage", () => ({
   }
 }));
 
-function seedProgress(targetForms: string[]) {
-  localStorage.setItem(
-    "jabiko:attempts",
-    JSON.stringify(
-      targetForms.map((targetForm, index) => ({
-        vocabularyId: `seed-${targetForm}`,
-        targetForm,
-        prompt: "seed",
-        expectedAnswers: ["seed"],
-        submittedAnswer: "seed",
-        isCorrect: true,
-        timestamp: index + 1,
-        responseTimeMs: 100
-      }))
-    )
-  );
-}
-
 // Default landing changed from "learn" to "home" so the first-time UX
 // is a dashboard with four entry cards instead of dropping the learner
 // straight into the chapter list. Every test that depends on Learn
