@@ -511,6 +511,47 @@ describe("validateRegressionCandidate", () => {
     expect(result.valid).toBe(true);
   });
 
+  it.each([
+    "() => { const unused = () => readEmptyQueue(); }",
+    "() => { const unused = function () { readEmptyQueue(); }; }",
+    "() => { function unused() { readEmptyQueue(); } }"
+  ])("rejects a callback whose repository call is inside an uninvoked nested function: %s", callback => {
+    const source = validSource
+      .replace("readEmptyQueue()", callback)
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call/i);
+  });
+
+  it("accepts a callback that executes the repository call inside an immediately-invoked function expression", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => (() => readEmptyQueue())()")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
   it("rejects a Vitest namespace assertion bypass", () => {
     const source = validSource
       .replace(

@@ -4,7 +4,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { spawnSync as nodeSpawnSync } from "node:child_process";
+import { spawn as nodeSpawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 export const TARGETED_TEST_TIMEOUT_MS = 60_000;
@@ -88,12 +88,53 @@ function buildChildEnvironment(environment) {
   return safe;
 }
 
-export function runTargetedVitest({
+function runProcessGroup({
+  spawnFn,
+  command,
+  args,
+  options
+}) {
+  const child = spawnFn(command, args, options);
+  const result = {
+    pid: child.pid,
+    exited: new Promise(resolve => {
+      child.on("close", (code, signal) => resolve({ code, signal }));
+      child.on("error", error => resolve({ code: null, signal: null, error }));
+    }),
+    stdout: "",
+    stderr: "",
+    error: undefined
+  };
+  child.stdout?.on("data", chunk => {
+    result.stdout += String(chunk);
+    if (result.stdout.length > MAX_REPORT_BYTES) {
+      result.stdout = result.stdout.slice(0, MAX_REPORT_BYTES);
+    }
+  });
+  child.stderr?.on("data", chunk => {
+    result.stderr += String(chunk);
+    if (result.stderr.length > MAX_REPORT_BYTES) {
+      result.stderr = result.stderr.slice(0, MAX_REPORT_BYTES);
+    }
+  });
+  return result;
+}
+
+function terminateProcessGroup(childPid) {
+  if (!Number.isInteger(childPid) || childPid <= 0) return;
+  try {
+    process.kill(-childPid, "SIGKILL");
+  } catch {
+    // The group may already be gone.
+  }
+}
+
+export async function runTargetedVitest({
   repoRoot,
   testFile,
   testName,
   reportPath,
-  spawnSyncFn = nodeSpawnSync,
+  spawnFn = nodeSpawn,
   environment = process.env,
   timeoutMs = TARGETED_TEST_TIMEOUT_MS
 } = {}) {
@@ -120,29 +161,49 @@ export function runTargetedVitest({
     testName,
     reportPath
   });
-  const execution = spawnSyncFn(invocation.command, invocation.args, {
-    cwd: repoRoot,
-    encoding: "utf8",
-    env: buildChildEnvironment(environment),
-    killSignal: "SIGKILL",
-    maxBuffer: 2 * 1024 * 1024,
-    shell: false,
-    stdio: ["ignore", "pipe", "pipe"],
-    timeout: timeoutMs
+  const child = runProcessGroup({
+    spawnFn,
+    command: invocation.command,
+    args: invocation.args,
+    options: {
+      cwd: repoRoot,
+      env: buildChildEnvironment(environment),
+      detached: true,
+      shell: false,
+      stdio: ["ignore", "pipe", "pipe"]
+    }
   });
 
-  const stdout = typeof execution.stdout === "string" ? execution.stdout : "";
-  const stderr = typeof execution.stderr === "string" ? execution.stderr : "";
-  if (execution.error) {
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    terminateProcessGroup(child.pid);
+  }, timeoutMs);
+
+  const { code, signal, error } = await child.exited;
+  clearTimeout(timer);
+
+  if (timedOut) {
+    // The group was SIGKILLed; `child.exited` only settles once the process
+    // and its descendants have closed their stdio, so no survivor can keep
+    // writing after snapshot/reset begins.
     return {
       valid: false,
-      error: execution.error.code === "ETIMEDOUT"
-        ? "targeted Vitest process timed out"
-        : "targeted Vitest process failed to start",
-      exitCode: execution.status,
-      signal: execution.signal,
-      stdout,
-      stderr
+      error: "targeted Vitest process timed out",
+      exitCode: code,
+      signal: signal ?? "SIGKILL",
+      stdout: child.stdout,
+      stderr: child.stderr
+    };
+  }
+  if (error) {
+    return {
+      valid: false,
+      error: "targeted Vitest process failed to start",
+      exitCode: code,
+      signal,
+      stdout: child.stdout,
+      stderr: child.stderr
     };
   }
 
@@ -152,29 +213,29 @@ export function runTargetedVitest({
       return {
         valid: false,
         error: "Vitest JSON report is missing, unsafe, or too large",
-        exitCode: execution.status,
-        signal: execution.signal,
-        stdout,
-        stderr
+        exitCode: code,
+        signal,
+        stdout: child.stdout,
+        stderr: child.stderr
       };
     }
     const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
     return {
       valid: true,
-      exitCode: execution.status,
-      signal: execution.signal,
-      stdout,
-      stderr,
+      exitCode: code,
+      signal,
+      stdout: child.stdout,
+      stderr: child.stderr,
       report
     };
   } catch {
     return {
       valid: false,
       error: "Vitest JSON report was not produced or was invalid",
-      exitCode: execution.status,
-      signal: execution.signal,
-      stdout,
-      stderr
+      exitCode: code,
+      signal,
+      stdout: child.stdout,
+      stderr: child.stderr
     };
   }
 }

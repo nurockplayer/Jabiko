@@ -481,6 +481,16 @@ function inspectSource(
       let observed = false;
       function visitCallback(child) {
         if (observed) return;
+        // A nested function only executes when it is immediately invoked;
+        // an uninvoked declaration does not execute its repository calls.
+        const childNode = unwrapExpression(child);
+        if (
+          ts.isArrowFunction(childNode) ||
+          ts.isFunctionExpression(childNode) ||
+          ts.isFunctionDeclaration(childNode)
+        ) {
+          return;
+        }
         if (ts.isIfStatement(child)) {
           const condition = unwrapExpression(child.expression);
           if (condition.kind === ts.SyntaxKind.TrueKeyword) {

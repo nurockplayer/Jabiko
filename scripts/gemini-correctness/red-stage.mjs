@@ -449,7 +449,7 @@ function restoreExecutionSnapshot(before, after) {
   }
 }
 
-export function runGuardedTargetedVitest(options, {
+export async function runGuardedTargetedVitest(options, {
   snapshot = executionSnapshot,
   targetedRunner = runTargetedVitest,
   restoreSnapshot = restoreExecutionSnapshot
@@ -464,7 +464,7 @@ export function runGuardedTargetedVitest(options, {
     return invalid("repository state is not safely snapshot-restorable");
   }
 
-  const execution = targetedRunner(options);
+  const execution = await targetedRunner(options);
   let after;
   try {
     after = snapshot(options);
@@ -615,11 +615,11 @@ function validatePatchShape(repoRoot, patch, testFile) {
   }
 }
 
-export function replayRedArtifacts({
+export async function replayRedArtifacts({
   repoRoot,
   finding,
   environment = process.env,
-  spawnSyncFn,
+  spawnFn,
   timeoutMs,
   expectedBaselineSha,
   expectedPatchSha256,
@@ -710,12 +710,12 @@ export function replayRedArtifacts({
     if (!candidate.valid) throw new Error(candidate.error);
 
     fs.rmSync(paths.replayReport, { force: true });
-    const execution = runGuardedTargetedVitest({
+    const execution = await runGuardedTargetedVitest({
       repoRoot,
       testFile: storedResult.testFile,
       testName: storedResult.testName,
       reportPath: paths.replayReport,
-      spawnSyncFn,
+      spawnFn,
       environment,
       timeoutMs
     });
@@ -794,7 +794,7 @@ export async function runRedStage({
   allowlist = getDefaultAllowlist(),
   protectedPaths = getDefaultProtectedPaths(),
   environment = process.env,
-  spawnSyncFn,
+  spawnFn,
   testTimeoutMs
 } = {}) {
   let baselineSha = "";
@@ -872,12 +872,12 @@ export async function runRedStage({
 
     paths = artifactPaths(repoRoot);
     removeReporterFiles(paths);
-    const initialExecution = runGuardedTargetedVitest({
+    const initialExecution = await runGuardedTargetedVitest({
       repoRoot,
       testFile: candidate.result.testFile,
       testName: candidate.result.testName,
       reportPath: paths.initialReport,
-      spawnSyncFn,
+      spawnFn,
       environment,
       timeoutMs: testTimeoutMs
     });
@@ -923,11 +923,11 @@ export async function runRedStage({
     });
     if (!reset.valid) throw new Error(reset.error);
 
-    const replay = replayRedArtifacts({
+    const replay = await replayRedArtifacts({
       repoRoot,
       finding: schema.result,
       environment,
-      spawnSyncFn,
+      spawnFn,
       timeoutMs: testTimeoutMs,
       expectedBaselineSha: baselineSha,
       expectedPatchSha256: patchHash,

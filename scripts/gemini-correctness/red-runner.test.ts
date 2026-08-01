@@ -255,56 +255,105 @@ describe("classifyVitestRed", () => {
 });
 
 describe("runTargetedVitest", () => {
-  it("uses spawnSync with shell disabled and the fixed invocation", () => {
-    const spawnSyncFn = vi.fn().mockReturnValue({
-      status: 1,
-      signal: null,
-      stdout: "",
-      stderr: "",
-      error: undefined
-    });
+  function spawnStub() {
+    const listeners = {};
+    const stdout = { on: vi.fn((event, cb) => { listeners.stdout = cb; }) };
+    const stderr = { on: vi.fn((event, cb) => { listeners.stderr = cb; }) };
+    const child = {
+      pid: 4242,
+      stdout,
+      stderr,
+      on: vi.fn((event, cb) => { listeners[event] = cb; })
+    };
+    const emit = (event, ...args) => {
+      if (listeners[event]) listeners[event](...args);
+    };
+    return { child, emit, listeners };
+  }
 
-    const result = runTargetedVitest({
+  it("uses spawn with shell disabled, a detached process group, and the fixed invocation", async () => {
+    const stub = spawnStub();
+    const spawnFn = vi.fn(() => stub.child);
+    const resultPromise = runTargetedVitest({
       repoRoot,
       testFile,
       testName,
       reportPath: "/tmp/missing-report.json",
-      spawnSyncFn
+      spawnFn
     });
-
-    expect(result.valid).toBe(false);
-    expect(spawnSyncFn).toHaveBeenCalledTimes(1);
-    const [command, args, options] = spawnSyncFn.mock.calls[0];
-    expect(command).toBe("pnpm");
-    expect(args.slice(0, 4)).toEqual(["exec", "vitest", "run", testFile]);
+    const [, , options] = spawnFn.mock.calls[0];
+    expect(spawnFn.mock.calls[0][0]).toBe("pnpm");
+    expect(spawnFn.mock.calls[0][1].slice(0, 4)).toEqual(["exec", "vitest", "run", testFile]);
     expect(options.shell).toBe(false);
     expect(options.cwd).toBe(repoRoot);
-    expect(options.timeout).toBeGreaterThan(0);
+    expect(options.detached).toBe(true);
+    stub.emit("close", 1, null);
+    const result = await resultPromise;
+
+    expect(result.valid).toBe(false);
   });
 
-  it("rejects a stale JSON report before spawning Vitest", () => {
+  it("kills the whole process group and fails closed when the run times out", async () => {
+    const stub = spawnStub();
+    const spawnFn = vi.fn(() => stub.child);
+    const killSpy = vi.spyOn(process, "kill").mockImplementation(() => true);
+
+    try {
+      const resultPromise = runTargetedVitest({
+        repoRoot,
+        testFile,
+        testName,
+        reportPath: "/tmp/missing-report.json",
+        spawnFn,
+        timeoutMs: 50
+      });
+      // Let the internal timeout timer fire (killing the group), then simulate
+      // the group's exit so the run resolves as a timed-out failure.
+      setTimeout(() => stub.emit("close", null, "SIGKILL"), 100);
+      const result = await resultPromise;
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe("targeted Vitest process timed out");
+      expect(killSpy).toHaveBeenCalledWith(-4242, "SIGKILL");
+    } finally {
+      killSpy.mockRestore();
+    }
+  });
+
+  it("fails closed when the spawned process cannot start", async () => {
+    const stub = spawnStub();
+    const spawnFn = vi.fn(() => stub.child);
+    const resultPromise = runTargetedVitest({
+      repoRoot,
+      testFile,
+      testName,
+      reportPath: "/tmp/missing-report.json",
+      spawnFn
+    });
+    stub.emit("error", new Error("ENOENT"));
+    const result = await resultPromise;
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toBe("targeted Vitest process failed to start");
+  });
+
+  it("rejects a stale JSON report before spawning Vitest", async () => {
     const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "jabiko-red-report-"));
     const reportPath = path.join(fixtureRoot, "stale.json");
     fs.writeFileSync(reportPath, JSON.stringify(assertionReport()));
-    const spawnSyncFn = vi.fn().mockReturnValue({
-      status: 1,
-      signal: null,
-      stdout: "",
-      stderr: "",
-      error: undefined
-    });
+    const spawnFn = vi.fn();
 
     try {
-      const result = runTargetedVitest({
+      const result = await runTargetedVitest({
         repoRoot,
         testFile,
         testName,
         reportPath,
-        spawnSyncFn
+        spawnFn
       });
 
       expect(result.valid).toBe(false);
-      expect(spawnSyncFn).not.toHaveBeenCalled();
+      expect(spawnFn).not.toHaveBeenCalled();
     } finally {
       fs.rmSync(fixtureRoot, { recursive: true, force: true });
     }

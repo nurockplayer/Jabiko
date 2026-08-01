@@ -128,6 +128,11 @@ function initializeFixture() {
     "export function tamperPatchOnReplay() {\n" +
     '  const patch = path.join(process.cwd(), ".tmp/gemini-correctness/red-test.patch");\n' +
     '  if (fs.existsSync(patch)) fs.appendFileSync(patch, "\\n# replay tamper\\n");\n' +
+    "}\n" +
+    "export function delayedWriteOnInitial() {\n" +
+    "  setTimeout(() => {\n" +
+    '    fs.writeFileSync(path.join(process.cwd(), "leaked-trace.txt"), "grandchild wrote");\n' +
+    "  }, 800);\n" +
     "}\n"
   );
   write(
@@ -146,7 +151,7 @@ function initializeFixture() {
 }
 
 describe("runGuardedTargetedVitest", () => {
-  it("fails closed without restoring when the post-run snapshot cannot be captured", () => {
+  it("fails closed without restoring when the post-run snapshot cannot be captured", async () => {
     const before = {
       entries: new Map(),
       repoRoot: "/unused",
@@ -161,11 +166,11 @@ describe("runGuardedTargetedVitest", () => {
       });
     const restoreSnapshot = vi.fn(() => ({ valid: true, mutated: false }));
 
-    const result = runGuardedTargetedVitest(
+    const result = await runGuardedTargetedVitest(
       {},
       {
         snapshot,
-        targetedRunner: vi.fn(() => ({ exitCode: 1 })),
+        targetedRunner: vi.fn(async () => ({ exitCode: 1 })),
         restoreSnapshot
       }
     );
@@ -544,6 +549,46 @@ describe("runRedStage integration", () => {
     expect(git(["status", "--porcelain=v1", "--untracked-files=all"])).toBe("");
   });
 
+  it("kills the full process tree on timeout so a delayed grandchild cannot pollute the repository", async () => {
+    const baselineSha = git(["rev-parse", "HEAD"]);
+    const client = {
+      generateJson: vi.fn().mockResolvedValue({
+        valid: true,
+        result: {
+          ...candidate(),
+          source: candidate().source
+            .replace(
+              'import { readEmptyQueue } from "./example";',
+              'import { delayedWriteOnInitial, readEmptyQueue } from "./example";'
+            )
+            .replace(
+              `it("${testName}", () => {`,
+              `it("${testName}", async () => {\n  delayedWriteOnInitial();\n  await new Promise(() => {});`
+            )
+        }
+      })
+    };
+
+    const result = await runRedStage({
+      repoRoot: fixtureRoot,
+      finding: finding(),
+      client,
+      environment: process.env,
+      testTimeoutMs: 500
+    });
+
+    expect(result.valid).toBe(false);
+    expect(git(["rev-parse", "HEAD"])).toBe(baselineSha);
+
+    // Allow any surviving grandchild enough time to attempt its delayed write.
+    await new Promise(resolve => setTimeout(resolve, 1_500));
+
+    expect(git(["status", "--porcelain=v1", "--untracked-files=all"])).toBe("");
+    expect(
+      fs.existsSync(path.join(fixtureRoot, "leaked-trace.txt"))
+    ).toBe(false);
+  });
+
   it("rejects tampered baseline, hash, or coordinated replay content", async () => {
     const baselineSha = git(["rev-parse", "HEAD"]);
     const client = {
@@ -578,24 +623,24 @@ describe("runRedStage integration", () => {
       ...originalResult,
       baselineSha: "0".repeat(40)
     }));
-    expect(replayRedArtifacts({
+    expect((await replayRedArtifacts({
       repoRoot: fixtureRoot,
       finding: finding(),
       environment: process.env,
       ...expectations
-    }).valid).toBe(false);
+    })).valid).toBe(false);
     expect(git(["status", "--porcelain=v1", "--untracked-files=all"])).toBe("");
 
     fs.writeFileSync(resultPath, JSON.stringify({
       ...originalResult,
       patchSha256: "f".repeat(64)
     }));
-    expect(replayRedArtifacts({
+    expect((await replayRedArtifacts({
       repoRoot: fixtureRoot,
       finding: finding(),
       environment: process.env,
       ...expectations
-    }).valid).toBe(false);
+    })).valid).toBe(false);
     expect(git(["status", "--porcelain=v1", "--untracked-files=all"])).toBe("");
 
     const tamperedPatch = originalPatch.replace('.toBe("safe")', '.toBe("tampered")');
@@ -604,12 +649,12 @@ describe("runRedStage integration", () => {
       ...originalResult,
       patchSha256: createHash("sha256").update(tamperedPatch).digest("hex")
     }));
-    expect(replayRedArtifacts({
+    expect((await replayRedArtifacts({
       repoRoot: fixtureRoot,
       finding: finding(),
       environment: process.env,
       ...expectations
-    }).valid).toBe(false);
+    })).valid).toBe(false);
     expect(git(["status", "--porcelain=v1", "--untracked-files=all"])).toBe("");
   });
 
