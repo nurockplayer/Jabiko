@@ -52,6 +52,27 @@ describe("createGeminiClient", () => {
     expect(typeof client.discover).toBe("function");
   });
 
+  it("returns strict parsed JSON through the shared transport for RED candidate validation", async () => {
+    const candidate = {
+      schemaVersion: 1,
+      status: "regression-test",
+      testFile: "src/domain/example.regression.test.ts",
+      testName: "demonstrates the bug",
+      source: "test source"
+    };
+    const fetch = mockFetchSuccess(candidate);
+    const client = createGeminiClient({
+      apiKey: "test-key",
+      model: "gemini-2.0-flash",
+      fetchFn: fetch,
+      maxRetries: 0
+    });
+
+    const result = await client.generateJson({ prompt: "RED prompt" });
+
+    expect(result).toEqual({ valid: true, result: candidate });
+  });
+
   it("throws if apiKey is missing or empty", () => {
     // These should throw regardless of env var
     expect(() => createGeminiClient({ apiKey: "", fetchFn: originalFetch })).toThrow();
