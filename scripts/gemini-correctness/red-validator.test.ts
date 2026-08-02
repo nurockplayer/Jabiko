@@ -933,6 +933,37 @@ describe("validateRegressionCandidate", () => {
     expect(result.valid).toBe(false);
   });
 
+  it("rejects a bare reference to an aliased production function import", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import { readEmptyQueue as renamed } from "./example";'
+      )
+      .replace("readEmptyQueue()", "renamed")
+      .replace('.toBe("safe")', ".toBeUndefined()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      {
+        finding,
+        sensitiveValues: [],
+        productionSources: new Map([
+          [
+            "src/domain/example.ts",
+            "export function readEmptyQueue() { return \"safe\"; }\n"
+          ]
+        ])
+      }
+    );
+
+    expect(result.valid).toBe(false);
+  });
+
   it("rejects a callback whose repository call is behind a statically-false && operand", () => {
     const source = validSource
       .replace("readEmptyQueue()", "() => { false && readEmptyQueue(); }")
@@ -1140,6 +1171,43 @@ describe("validateRegressionCandidate", () => {
   it("accepts a callback whose repository call is inside a non-determinable loop", () => {
     const source = validSource
       .replace("readEmptyQueue()", "() => { while (readEmptyQueue()) { readEmptyQueue(); } }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects a callback whose repository call is unreachable after a break statement", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { while (true) { break; readEmptyQueue(); } }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe/i);
+  });
+
+  it("accepts a callback whose repository call executes before a break statement", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { while (true) { readEmptyQueue(); break; } }")
       .replace('.toBe("safe")', ".toThrow()");
     const result = validateRegressionCandidate(
       {

@@ -486,6 +486,7 @@ function inspectSource(
   const matcherCalls = [];
   const repositoryBindings = new Set();
   const shadowedBindings = new Set();
+  const productionFunctionLocals = new Set();
   let hasBehaviorAssertionMessage = false;
 
   function recordRepositoryBindings(importClause) {
@@ -498,6 +499,17 @@ function inspectSource(
     } else if (ts.isNamedImports(bindings)) {
       for (const element of bindings.elements) {
         repositoryBindings.add(element.name.text);
+      }
+    }
+  }
+
+  function recordProductionFunctionLocals(importClause) {
+    if (!importClause || !importClause.namedBindings) return;
+    if (!ts.isNamedImports(importClause.namedBindings)) return;
+    for (const element of importClause.namedBindings.elements) {
+      const importedName = element.propertyName?.text ?? element.name.text;
+      if (productionFunctionBindings.has(importedName)) {
+        productionFunctionLocals.add(element.name.text);
       }
     }
   }
@@ -609,7 +621,7 @@ function inspectSource(
     const current = unwrapExpression(node);
     if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
       let observed = false;
-      function visitCallback(child) {
+      function visitCallback(child, loopDepth = 0) {
         if (observed) return;
         // A nested function only executes when it is immediately invoked;
         // an uninvoked declaration does not execute its repository calls.
@@ -625,19 +637,22 @@ function inspectSource(
           for (const statement of child.statements) {
             if (
               ts.isReturnStatement(statement) ||
-              ts.isThrowStatement(statement)
+              ts.isThrowStatement(statement) ||
+              (loopDepth > 0 &&
+                (ts.isBreakStatement(statement) || ts.isContinueStatement(statement)))
             ) {
-              // Statements after an unconditional return/throw never execute.
+              // Statements after an unconditional return/throw/break/continue
+              // never execute.
               return;
             }
-            visitCallback(statement);
+            visitCallback(statement, loopDepth);
           }
           return;
         }
         if (ts.isWhileStatement(child)) {
           const loopCondition = unwrapExpression(child.expression);
           if (staticTruthiness(loopCondition) === false) return;
-          ts.forEachChild(child.statement, visitCallback);
+          visitCallback(child.statement, loopDepth + 1);
           return;
         }
         if (ts.isForStatement(child)) {
@@ -647,7 +662,7 @@ function inspectSource(
           ) {
             return;
           }
-          ts.forEachChild(child.statement, visitCallback);
+          visitCallback(child.statement, loopDepth + 1);
           return;
         }
         if (ts.isIfStatement(child)) {
@@ -668,9 +683,9 @@ function inspectSource(
           childNode.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
         ) {
           const leftTruth = staticTruthiness(childNode.left);
-          visitCallback(childNode.left);
+          visitCallback(childNode.left, loopDepth);
           if (leftTruth === false) return;
-          visitCallback(childNode.right);
+          visitCallback(childNode.right, loopDepth);
           return;
         }
         if (
@@ -678,9 +693,9 @@ function inspectSource(
           childNode.operatorToken.kind === ts.SyntaxKind.BarBarToken
         ) {
           const leftTruth = staticTruthiness(childNode.left);
-          visitCallback(childNode.left);
+          visitCallback(childNode.left, loopDepth);
           if (leftTruth === true) return;
-          visitCallback(childNode.right);
+          visitCallback(childNode.right, loopDepth);
           return;
         }
         if (
@@ -688,24 +703,24 @@ function inspectSource(
           childNode.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken
         ) {
           const leftIsNull = staticIsNullOrUndefined(childNode.left);
-          visitCallback(childNode.left);
+          visitCallback(childNode.left, loopDepth);
           if (leftIsNull === false) return;
-          visitCallback(childNode.right);
+          visitCallback(childNode.right, loopDepth);
           return;
         }
         if (ts.isConditionalExpression(childNode)) {
           const conditionTruth = staticTruthiness(childNode.condition);
-          visitCallback(childNode.condition);
+          visitCallback(childNode.condition, loopDepth);
           if (conditionTruth === true) {
-            visitCallback(childNode.whenTrue);
+            visitCallback(childNode.whenTrue, loopDepth);
             return;
           }
           if (conditionTruth === false) {
-            visitCallback(childNode.whenFalse);
+            visitCallback(childNode.whenFalse, loopDepth);
             return;
           }
-          visitCallback(childNode.whenTrue);
-          visitCallback(childNode.whenFalse);
+          visitCallback(childNode.whenTrue, loopDepth);
+          visitCallback(childNode.whenFalse, loopDepth);
           return;
         }
         if (
@@ -727,10 +742,10 @@ function inspectSource(
       // Reading a directly-observed production value (an exported constant or
       // stable object property) is a valid RED observation even without a call,
       // but only when the production source lets us distinguish a value from an
-      // exported function. A bare reference to an exported function is not an
-      // observation, and without production source info a bare reference is not
-      // provably a value observation.
-      if (productionFunctionBindings.has(current.text)) return false;
+      // exported function. A bare reference to an exported function (including
+      // through an import alias) is not an observation, and without production
+      // source info a bare reference is not provably a value observation.
+      if (productionFunctionLocals.has(current.text)) return false;
       if (productionFunctionBindings.size === 0) return false;
       return isRepositoryReference(current);
     }
@@ -775,6 +790,7 @@ function inspectSource(
         validateVitestImports(node.importClause);
       } else if (resolvesToProductionFile(specifier, testFile, productionFiles)) {
         recordRepositoryBindings(node.importClause);
+        recordProductionFunctionLocals(node.importClause);
       }
     }
 
