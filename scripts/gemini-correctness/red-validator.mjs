@@ -617,37 +617,20 @@ function inspectSource(
     return false;
   }
 
-  // A try/catch whose catch block never rethrows swallows any synchronous
-  // error from the try block, so a toThrow() assertion on a callback wrapping
-  // it can never see the target error and is guaranteed to fail.
-  function hasErrorSwallowingTryCatch(node) {
-    let found = false;
-    function scan(current) {
-      if (found) return;
-      if (ts.isTryStatement(current) && current.catchClause) {
-        const catchBlock = current.catchClause.block;
-        const rethrows = catchBlock.statements.some(
-          statement => ts.isThrowStatement(statement)
-        );
-        if (!rethrows) {
-          found = true;
-          return;
-        }
-      }
-      ts.forEachChild(current, scan);
-    }
-    scan(node);
-    return found;
-  }
-
   function isExecutedRepositoryObservation(node) {
     const current = unwrapExpression(node);
     if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
-      if (hasErrorSwallowingTryCatch(current.body)) {
-        return false;
-      }
       let observed = false;
-      function visitCallback(child, loopDepth = 0) {
+      function tryBlockSwallows(tryStatement) {
+        if (!tryStatement.catchClause) return false;
+        const catchBlock = tryStatement.catchClause.block;
+        return !catchBlock.statements.some(
+          statement => ts.isThrowStatement(statement)
+        );
+      }
+      // visitCallback tracks whether the current path is inside a swallowing
+      // try's try-block; an observation found there cannot satisfy toThrow().
+      function visitCallback(child, loopDepth = 0, swallowed = false) {
         if (observed) return;
         // A nested function only executes when it is immediately invoked;
         // an uninvoked declaration does not execute its repository calls.
@@ -657,6 +640,17 @@ function inspectSource(
           ts.isFunctionExpression(childNode) ||
           ts.isFunctionDeclaration(childNode)
         ) {
+          return;
+        }
+        if (ts.isTryStatement(child)) {
+          // A catch that does not rethrow swallows the try block's error, so
+          // observations inside it cannot satisfy toThrow(); a finally block
+          // does not swallow. Only the try block inherits the swallowed flag.
+          visitCallback(
+            child.tryBlock,
+            loopDepth,
+            tryBlockSwallows(child)
+          );
           return;
         }
         if (ts.isBlock(child)) {
@@ -671,14 +665,14 @@ function inspectSource(
               // never execute.
               return;
             }
-            visitCallback(statement, loopDepth);
+            visitCallback(statement, loopDepth, swallowed);
           }
           return;
         }
         if (ts.isWhileStatement(child)) {
           const loopCondition = unwrapExpression(child.expression);
           if (staticTruthiness(loopCondition) === false) return;
-          visitCallback(child.statement, loopDepth + 1);
+          visitCallback(child.statement, loopDepth + 1, swallowed);
           return;
         }
         if (ts.isForStatement(child)) {
@@ -688,18 +682,18 @@ function inspectSource(
           ) {
             return;
           }
-          visitCallback(child.statement, loopDepth + 1);
+          visitCallback(child.statement, loopDepth + 1, swallowed);
           return;
         }
         if (ts.isIfStatement(child)) {
           const condition = unwrapExpression(child.expression);
           if (condition.kind === ts.SyntaxKind.TrueKeyword) {
-            ts.forEachChild(child.thenStatement, visitCallback);
+            visitCallback(child.thenStatement, loopDepth, swallowed);
             return;
           }
           if (condition.kind === ts.SyntaxKind.FalseKeyword) {
             if (child.elseStatement) {
-              ts.forEachChild(child.elseStatement, visitCallback);
+              visitCallback(child.elseStatement, loopDepth, swallowed);
             }
             return;
           }
@@ -709,9 +703,9 @@ function inspectSource(
           childNode.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
         ) {
           const leftTruth = staticTruthiness(childNode.left);
-          visitCallback(childNode.left, loopDepth);
+          visitCallback(childNode.left, loopDepth, swallowed);
           if (leftTruth === false) return;
-          visitCallback(childNode.right, loopDepth);
+          visitCallback(childNode.right, loopDepth, swallowed);
           return;
         }
         if (
@@ -719,9 +713,9 @@ function inspectSource(
           childNode.operatorToken.kind === ts.SyntaxKind.BarBarToken
         ) {
           const leftTruth = staticTruthiness(childNode.left);
-          visitCallback(childNode.left, loopDepth);
+          visitCallback(childNode.left, loopDepth, swallowed);
           if (leftTruth === true) return;
-          visitCallback(childNode.right, loopDepth);
+          visitCallback(childNode.right, loopDepth, swallowed);
           return;
         }
         if (
@@ -729,34 +723,36 @@ function inspectSource(
           childNode.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken
         ) {
           const leftIsNull = staticIsNullOrUndefined(childNode.left);
-          visitCallback(childNode.left, loopDepth);
+          visitCallback(childNode.left, loopDepth, swallowed);
           if (leftIsNull === false) return;
-          visitCallback(childNode.right, loopDepth);
+          visitCallback(childNode.right, loopDepth, swallowed);
           return;
         }
         if (ts.isConditionalExpression(childNode)) {
           const conditionTruth = staticTruthiness(childNode.condition);
-          visitCallback(childNode.condition, loopDepth);
+          visitCallback(childNode.condition, loopDepth, swallowed);
           if (conditionTruth === true) {
-            visitCallback(childNode.whenTrue, loopDepth);
+            visitCallback(childNode.whenTrue, loopDepth, swallowed);
             return;
           }
           if (conditionTruth === false) {
-            visitCallback(childNode.whenFalse, loopDepth);
+            visitCallback(childNode.whenFalse, loopDepth, swallowed);
             return;
           }
-          visitCallback(childNode.whenTrue, loopDepth);
-          visitCallback(childNode.whenFalse, loopDepth);
+          visitCallback(childNode.whenTrue, loopDepth, swallowed);
+          visitCallback(childNode.whenFalse, loopDepth, swallowed);
           return;
         }
         if (
           ts.isCallExpression(unwrapExpression(child)) &&
           isExecutedRepositoryObservation(child)
         ) {
-          observed = true;
+          if (!swallowed) {
+            observed = true;
+          }
           return;
         }
-        ts.forEachChild(child, visitCallback);
+        ts.forEachChild(child, c => visitCallback(c, loopDepth, swallowed));
       }
       visitCallback(current.body);
       return observed;
@@ -1013,7 +1009,10 @@ function inspectSource(
       }
       const matcherName = matcherCalls[0].expression.name.text;
       const operand = matcherCalls[0].arguments[0];
-      const isIdentityMatcher = matcherName === "toBe" || matcherName === "toEqual";
+      const isIdentityMatcher =
+        matcherName === "toBe" ||
+        matcherName === "toEqual" ||
+        matcherName === "toContain";
       if (isIdentityMatcher && operand) {
         const unwrapped = unwrapExpression(operand);
         if (

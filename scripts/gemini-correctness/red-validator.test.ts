@@ -511,6 +511,27 @@ describe("validateRegressionCandidate", () => {
     expect(result.valid).toBe(true);
   });
 
+  it("accepts a toThrow callback whose target call is outside an unrelated error-swallowing try/catch", () => {
+    const source = validSource
+      .replace(
+        "readEmptyQueue()",
+        "() => { readEmptyQueue(); try { optionalCleanup(); } catch {} }"
+      )
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
   it("rejects a callback whose repository call is inside an unreachable if-false branch", () => {
     const source = validSource
       .replace("readEmptyQueue()", "() => { if (false) { readEmptyQueue(); } }")
@@ -898,6 +919,41 @@ describe("validateRegressionCandidate", () => {
   it("accepts a toEqual assertion with a stable primitive operand", () => {
     const source = validSource
       .replace('.toBe("safe")', ".toEqual(3)");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects a toContain assertion with a fresh-identity operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', ".toContain({})");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/matcher|identity|operand/i);
+  });
+
+  it("accepts a toContain assertion with a stable primitive operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', ".toContain(\"safe\")");
     const result = validateRegressionCandidate(
       {
         schemaVersion: 1,
