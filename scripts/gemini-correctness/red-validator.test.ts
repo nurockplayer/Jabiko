@@ -654,6 +654,249 @@ describe("validateRegressionCandidate", () => {
     expect(result.valid).toBe(true);
   });
 
+  it("rejects a candidate that shadows a production import via an arrow function parameter", () => {
+    const source = validSource
+      .replace(
+        "expect(\n    readEmptyQueue(),",
+        "expect(\n    ((readEmptyQueue) => readEmptyQueue())(() => \"unrelated\"),"
+      );
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/shadow|observe|production/i);
+  });
+
+  it("rejects a candidate that shadows a production import via a destructured parameter", () => {
+    const source = validSource
+      .replace(
+        "expect(\n    readEmptyQueue(),",
+        "expect(\n    (({ readEmptyQueue }) => readEmptyQueue())({ readEmptyQueue: () => \"unrelated\" }),"
+      );
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/shadow|observe|production/i);
+  });
+
+  it("rejects a candidate that shadows a production import via a catch clause binding", () => {
+    const source = validSource
+      .replace(
+        "expect(\n    readEmptyQueue(),",
+        "(() => { try { readEmptyQueue(); } catch (readEmptyQueue) { readEmptyQueue(); } })(),\n    expect(\n    readEmptyQueue(),"
+      );
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/shadow|observe|production/i);
+  });
+
+  it("rejects a toBe assertion whose expected operand always produces a fresh identity", () => {
+    const source = validSource
+      .replace('.toBe("safe")', ".toBe({})");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/matcher|identity|operand/i);
+  });
+
+  it("rejects a toBe assertion with a fresh-identity array operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', ".toBe([])");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/matcher|identity|operand/i);
+  });
+
+  it("rejects a toBe assertion with a fresh-identity function operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', ".toBe(() => {})");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/matcher|identity|operand/i);
+  });
+
+  it("still accepts a toBe assertion with a stable primitive operand", () => {
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source: validSource
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects a callback whose repository call is behind a statically-false && operand", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { false && readEmptyQueue(); }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe/i);
+  });
+
+  it("rejects a callback whose repository call is behind a statically-true || operand", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { true || readEmptyQueue(); }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe/i);
+  });
+
+  it("accepts a callback whose repository call is on the statically-executed && branch", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { true && readEmptyQueue(); }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects a callback whose repository call is in the statically-unselected conditional branch", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { false ? readEmptyQueue() : undefined; }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe/i);
+  });
+
+  it("accepts a callback whose repository call is in the statically-selected conditional branch", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { true ? readEmptyQueue() : undefined; }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("accepts a callback whose repository call is on a non-statically-determinable && branch", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { readEmptyQueue() && readEmptyQueue(); }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
   it("rejects a Vitest namespace assertion bypass", () => {
     const source = validSource
       .replace(

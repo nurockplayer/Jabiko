@@ -440,6 +440,26 @@ function inspectSource(
     }
   }
 
+  function recordShadowedBinding(nameNode, kindLabel) {
+    if (ts.isIdentifier(nameNode)) {
+      const name = nameNode.text;
+      if (repositoryBindings.has(name) && !shadowedBindings.has(name)) {
+        shadowedBindings.add(name);
+        errors.push(
+          `local ${kindLabel} shadows the production import: ${name}`
+        );
+      }
+      return;
+    }
+    if (ts.isObjectBindingPattern(nameNode) || ts.isArrayBindingPattern(nameNode)) {
+      for (const element of nameNode.elements) {
+        if (ts.isBindingElement(element) && element.name) {
+          recordShadowedBinding(element.name, kindLabel);
+        }
+      }
+    }
+  }
+
   function validateVitestImports(importClause) {
     if (
       !importClause ||
@@ -472,6 +492,41 @@ function inspectSource(
       current = current.expression;
     }
     return current;
+  }
+
+  function staticTruthiness(node) {
+    const current = unwrapExpression(node);
+    if (
+      current.kind === ts.SyntaxKind.TrueKeyword ||
+      ts.isNumericLiteral(current) && Number(current.text) !== 0 ||
+      ts.isStringLiteralLike(current) && current.text.length > 0 ||
+      ts.isNoSubstitutionTemplateLiteral(current) && current.text.length > 0
+    ) {
+      return true;
+    }
+    if (
+      current.kind === ts.SyntaxKind.FalseKeyword ||
+      current.kind === ts.SyntaxKind.NullKeyword ||
+      ts.isNumericLiteral(current) && Number(current.text) === 0 ||
+      ts.isStringLiteralLike(current) && current.text.length === 0 ||
+      ts.isNoSubstitutionTemplateLiteral(current) && current.text.length === 0
+    ) {
+      return false;
+    }
+    return null;
+  }
+
+  function staticIsNullOrUndefined(node) {
+    const current = unwrapExpression(node);
+    if (current.kind === ts.SyntaxKind.NullKeyword) return true;
+    if (
+      ts.isIdentifier(current) &&
+      current.text === "undefined" &&
+      !repositoryBindings.has("undefined")
+    ) {
+      return true;
+    }
+    return false;
   }
 
   function isRepositoryReference(node) {
@@ -516,6 +571,51 @@ function inspectSource(
             }
             return;
           }
+        }
+        if (
+          ts.isBinaryExpression(childNode) &&
+          childNode.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
+        ) {
+          const leftTruth = staticTruthiness(childNode.left);
+          visitCallback(childNode.left);
+          if (leftTruth === false) return;
+          visitCallback(childNode.right);
+          return;
+        }
+        if (
+          ts.isBinaryExpression(childNode) &&
+          childNode.operatorToken.kind === ts.SyntaxKind.BarBarToken
+        ) {
+          const leftTruth = staticTruthiness(childNode.left);
+          visitCallback(childNode.left);
+          if (leftTruth === true) return;
+          visitCallback(childNode.right);
+          return;
+        }
+        if (
+          ts.isBinaryExpression(childNode) &&
+          childNode.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken
+        ) {
+          const leftIsNull = staticIsNullOrUndefined(childNode.left);
+          visitCallback(childNode.left);
+          if (leftIsNull === false) return;
+          visitCallback(childNode.right);
+          return;
+        }
+        if (ts.isConditionalExpression(childNode)) {
+          const conditionTruth = staticTruthiness(childNode.condition);
+          visitCallback(childNode.condition);
+          if (conditionTruth === true) {
+            visitCallback(childNode.whenTrue);
+            return;
+          }
+          if (conditionTruth === false) {
+            visitCallback(childNode.whenFalse);
+            return;
+          }
+          visitCallback(childNode.whenTrue);
+          visitCallback(childNode.whenFalse);
+          return;
         }
         if (
           ts.isCallExpression(unwrapExpression(child)) &&
@@ -698,29 +798,24 @@ function inspectSource(
         errors.push(
           `local declaration shadows the production import: ${declaredName.text}`
         );
+      } else if (
+        ts.isObjectBindingPattern(declaredName) ||
+        ts.isArrayBindingPattern(declaredName)
+      ) {
+        recordShadowedBinding(declaredName, "declaration");
       }
     }
     if (ts.isFunctionDeclaration(node) && node.name) {
-      if (
-        repositoryBindings.has(node.name.text) &&
-        !shadowedBindings.has(node.name.text)
-      ) {
-        shadowedBindings.add(node.name.text);
-        errors.push(
-          `local function shadows the production import: ${node.name.text}`
-        );
-      }
+      recordShadowedBinding(node.name, "function");
     }
     if (ts.isClassDeclaration(node) && node.name) {
-      if (
-        repositoryBindings.has(node.name.text) &&
-        !shadowedBindings.has(node.name.text)
-      ) {
-        shadowedBindings.add(node.name.text);
-        errors.push(
-          `local class shadows the production import: ${node.name.text}`
-        );
-      }
+      recordShadowedBinding(node.name, "class");
+    }
+    if (ts.isParameter(node) && node.name) {
+      recordShadowedBinding(node.name, "parameter");
+    }
+    if (ts.isCatchClause(node) && node.variableDeclaration?.name) {
+      recordShadowedBinding(node.variableDeclaration.name, "catch binding");
     }
     ts.forEachChild(node, visit);
   }
@@ -771,6 +866,23 @@ function inspectSource(
         errors.push(
           "expect() must execute or call a prompt-visible repository import"
         );
+      }
+      const matcherName = matcherCalls[0].expression.name.text;
+      const operand = matcherCalls[0].arguments[0];
+      if (matcherName === "toBe" && operand) {
+        const unwrapped = unwrapExpression(operand);
+        if (
+          ts.isObjectLiteralExpression(unwrapped) ||
+          ts.isArrayLiteralExpression(unwrapped) ||
+          ts.isArrowFunction(unwrapped) ||
+          ts.isFunctionExpression(unwrapped) ||
+          ts.isClassExpression(unwrapped) ||
+          ts.isRegularExpressionLiteral(unwrapped)
+        ) {
+          errors.push(
+            "toBe() must not assert against a fresh-identity literal operand"
+          );
+        }
       }
     }
   }
