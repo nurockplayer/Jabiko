@@ -822,6 +822,24 @@ describe("validateRegressionCandidate", () => {
     expect(result.error).toMatch(/matcher|identity|operand/i);
   });
 
+  it("rejects a toBe assertion with a fresh-identity property-access factory operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', ".toBe(Promise.resolve())");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/matcher|identity|operand/i);
+  });
+
   it("rejects a callback whose repository call is behind a statically-false && operand", () => {
     const source = validSource
       .replace("readEmptyQueue()", "() => { false && readEmptyQueue(); }")
@@ -955,6 +973,80 @@ describe("validateRegressionCandidate", () => {
   it("accepts a callback whose repository call executes before a return statement", () => {
     const source = validSource
       .replace("readEmptyQueue()", "() => { readEmptyQueue(); return; }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects a callback whose repository call is inside a statically-false while loop", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { while (false) { readEmptyQueue(); } }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe/i);
+  });
+
+  it("rejects a callback whose repository call is inside a statically-false for loop", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { for (; false;) { readEmptyQueue(); } }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe/i);
+  });
+
+  it("accepts a callback whose repository call is inside a statically-true while loop", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { while (true) { readEmptyQueue(); } }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("accepts a callback whose repository call is inside a non-determinable loop", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { while (readEmptyQueue()) { readEmptyQueue(); } }")
       .replace('.toBe("safe")', ".toThrow()");
     const result = validateRegressionCandidate(
       {

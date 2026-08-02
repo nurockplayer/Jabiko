@@ -312,17 +312,28 @@ export function classifyVitestRed({
   const failureEvidence = normalizeEvidence(
     `${assertion.failureMessages.join("\n")}\n${String(fileResult.message ?? "")}`
   );
-  if (
-    !/\bAssertionError\b/.test(failureEvidence) ||
-    INFRASTRUCTURE_FAILURE_RE.test(failureEvidence)
-  ) {
-    return invalid("the designated test failed for a non-assertion reason");
-  }
 
   const expectedBehavior = normalizeEvidence(finding?.expectedBehavior);
   const actualBehavior = normalizeEvidence(finding?.actualBehavior);
   const expectedMarker = `Expected behavior: ${expectedBehavior}`;
   const actualMarker = `Actual behavior: ${actualBehavior}`;
+
+  // The finding's own expected/actual prose may legitimately contain
+  // infrastructure-like wording (e.g. "throws SyntaxError: invalid input").
+  // Remove the verified markers before applying the infrastructure pattern so
+  // such finding text is not mistaken for a real infrastructure failure.
+  const diagnosticEvidence = failureEvidence
+    .split(expectedMarker)
+    .join("")
+    .split(actualMarker)
+    .join("");
+  if (
+    !/\bAssertionError\b/.test(failureEvidence) ||
+    INFRASTRUCTURE_FAILURE_RE.test(diagnosticEvidence)
+  ) {
+    return invalid("the designated test failed for a non-assertion reason");
+  }
+
   if (
     !expectedBehavior ||
     !actualBehavior ||

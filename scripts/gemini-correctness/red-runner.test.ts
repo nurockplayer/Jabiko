@@ -254,6 +254,45 @@ describe("classifyVitestRed", () => {
   });
 });
 
+describe("classifyVitestRed with infrastructure-like finding text", () => {
+  const infraLikeFinding = {
+    expectedBehavior: "throws SyntaxError: invalid input",
+    actualBehavior: "request timed out in 5000ms"
+  };
+
+  function infraLikeReport() {
+    return assertionReport().testResults[0].assertionResults[0];
+  }
+
+  it("accepts a valid assertion whose evidence contains the finding's own infrastructure-like text", () => {
+    const assertion = infraLikeReport();
+    const failureMessages = [
+      `AssertionError: Expected behavior: ${infraLikeFinding.expectedBehavior} | ` +
+        `Actual behavior: ${infraLikeFinding.actualBehavior}\n` +
+        "expected 'input' to be 'invalid'"
+    ];
+    const report = {
+      ...assertionReport(),
+      testResults: [{
+        ...assertionReport().testResults[0],
+        assertionResults: [{ ...assertion, failureMessages }]
+      }]
+    };
+    const result = classifyVitestRed({
+      exitCode: 1,
+      report,
+      stdout: "",
+      stderr: "",
+      repoRoot,
+      testFile,
+      testName,
+      finding: infraLikeFinding
+    });
+
+    expect(result.valid).toBe(true);
+  });
+});
+
 describe("runTargetedVitest", () => {
   function spawnStub() {
     const listeners = {};

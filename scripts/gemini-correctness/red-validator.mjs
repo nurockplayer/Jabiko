@@ -572,6 +572,22 @@ function inspectSource(
           }
           return;
         }
+        if (ts.isWhileStatement(child)) {
+          const loopCondition = unwrapExpression(child.expression);
+          if (staticTruthiness(loopCondition) === false) return;
+          ts.forEachChild(child.statement, visitCallback);
+          return;
+        }
+        if (ts.isForStatement(child)) {
+          if (
+            child.condition &&
+            staticTruthiness(unwrapExpression(child.condition)) === false
+          ) {
+            return;
+          }
+          ts.forEachChild(child.statement, visitCallback);
+          return;
+        }
         if (ts.isIfStatement(child)) {
           const condition = unwrapExpression(child.expression);
           if (condition.kind === ts.SyntaxKind.TrueKeyword) {
@@ -897,15 +913,16 @@ function inspectSource(
             "toBe() must not assert against a fresh-identity literal operand"
           );
         }
-        if (
-          ts.isCallExpression(unwrapped) &&
-          ts.isIdentifier(unwrapExpression(unwrapped.expression))
-        ) {
-          const calleeName = unwrapExpression(unwrapped.expression).text;
+        if (ts.isCallExpression(unwrapped)) {
+          const callee = unwrapExpression(unwrapped.expression);
+          const calleeText = callee?.getText(sourceFile) ?? "";
           if (
-            calleeName === "Symbol" ||
-            calleeName === "Object" ||
-            calleeName === "BigInt"
+            calleeText === "Symbol" ||
+            calleeText === "Object" ||
+            calleeText === "BigInt" ||
+            calleeText === "Promise.resolve" ||
+            calleeText === "Object.create" ||
+            calleeText === "Array.from"
           ) {
             errors.push(
               "toBe() must not assert against a fresh-identity factory call operand"
