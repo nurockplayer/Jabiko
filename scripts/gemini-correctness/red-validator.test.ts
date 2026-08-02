@@ -474,6 +474,43 @@ describe("validateRegressionCandidate", () => {
     expect(explicitResult.valid).toBe(true);
   });
 
+  it("rejects a toThrow callback that swallows the target error in a try/catch", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { try { readEmptyQueue(); } catch {} }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe|swallow/i);
+  });
+
+  it("accepts a toThrow callback whose error is not swallowed by a finally block", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { try { readEmptyQueue(); } finally {} }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
   it("rejects a callback whose repository call is inside an unreachable if-false branch", () => {
     const source = validSource
       .replace("readEmptyQueue()", "() => { if (false) { readEmptyQueue(); } }")

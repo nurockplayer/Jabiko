@@ -617,9 +617,35 @@ function inspectSource(
     return false;
   }
 
+  // A try/catch whose catch block never rethrows swallows any synchronous
+  // error from the try block, so a toThrow() assertion on a callback wrapping
+  // it can never see the target error and is guaranteed to fail.
+  function hasErrorSwallowingTryCatch(node) {
+    let found = false;
+    function scan(current) {
+      if (found) return;
+      if (ts.isTryStatement(current) && current.catchClause) {
+        const catchBlock = current.catchClause.block;
+        const rethrows = catchBlock.statements.some(
+          statement => ts.isThrowStatement(statement)
+        );
+        if (!rethrows) {
+          found = true;
+          return;
+        }
+      }
+      ts.forEachChild(current, scan);
+    }
+    scan(node);
+    return found;
+  }
+
   function isExecutedRepositoryObservation(node) {
     const current = unwrapExpression(node);
     if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
+      if (hasErrorSwallowingTryCatch(current.body)) {
+        return false;
+      }
       let observed = false;
       function visitCallback(child, loopDepth = 0) {
         if (observed) return;
