@@ -933,6 +933,23 @@ describe("validateRegressionCandidate", () => {
     expect(result.valid).toBe(true);
   });
 
+  it("accepts a toEqual assertion with a structural object literal operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', '.toEqual({ status: "ready" })');
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
   it("rejects a toContain assertion with a fresh-identity operand", () => {
     const source = validSource
       .replace('.toBe("safe")', ".toContain({})");
@@ -1024,6 +1041,62 @@ describe("validateRegressionCandidate", () => {
     );
 
     expect(result.valid).toBe(false);
+  });
+
+  it("accepts observing a value from a production file that exports only constants", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import { MASTERY_BOX } from "./example";'
+      )
+      .replace("expect(\n    readEmptyQueue(),", "expect(\n    MASTERY_BOX,")
+      .replace('.toBe("safe")', ".toBe(3)");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      {
+        finding,
+        sensitiveValues: [],
+        productionSources: new Map([
+          [
+            "src/domain/example.ts",
+            "export const MASTERY_BOX = 3;\nexport const LEARNING_DAYS = 7;\n"
+          ]
+        ])
+      }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("accepts observing a hook through renderHook's callback argument", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import { renderHook } from "@testing-library/react";\nimport { useTargetHook } from "./example";'
+      )
+      .replace(
+        "expect(\n    readEmptyQueue(),",
+        "expect(\n    renderHook(() => useTargetHook()).result.current,"
+      )
+      .replace('.toBe("safe")', '.toBe("ready")');
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
   });
 
   it("rejects a bare reference to an aliased production function import", () => {

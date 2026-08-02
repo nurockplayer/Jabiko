@@ -414,6 +414,7 @@ function resolvesToProductionFile(specifier, testFile, productionFiles) {
 // is not treated as a directly-observable value.
 function collectProductionFunctionBindings(productionSources) {
   const bindings = new Set();
+  let hasParsedSources = false;
   for (const source of productionSources?.values() ?? []) {
     if (typeof source !== "string") continue;
     let sourceFile;
@@ -429,6 +430,7 @@ function collectProductionFunctionBindings(productionSources) {
       continue;
     }
     if (sourceFile.parseDiagnostics.length > 0) continue;
+    hasParsedSources = true;
     function collect(node) {
       if (
         (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) &&
@@ -467,7 +469,7 @@ function collectProductionFunctionBindings(productionSources) {
     }
     collect(sourceFile);
   }
-  return bindings;
+  return { bindings, hasParsedSources };
 }
 
 function inspectSource(
@@ -478,7 +480,8 @@ function inspectSource(
   requiredAssertionMessage,
   allowedRepositoryFiles,
   productionFiles,
-  productionFunctionBindings = new Set()
+  productionFunctionBindings = new Set(),
+  hasParsedSources = false
 ) {
   const errors = [];
   const tests = [];
@@ -763,12 +766,13 @@ function inspectSource(
     if (ts.isIdentifier(current)) {
       // Reading a directly-observed production value (an exported constant or
       // stable object property) is a valid RED observation even without a call,
-      // but only when the production source lets us distinguish a value from an
-      // exported function. A bare reference to an exported function (including
-      // through an import alias) is not an observation, and without production
-      // source info a bare reference is not provably a value observation.
+      // but only when the production source was parsed so a value can be
+      // distinguished from an exported function. A bare reference to an
+      // exported function (including through an import alias) is not an
+      // observation, and without a parsed production source a bare reference is
+      // not provably a value observation.
       if (productionFunctionLocals.has(current.text)) return false;
-      if (productionFunctionBindings.size === 0) return false;
+      if (!hasParsedSources) return false;
       return isRepositoryReference(current);
     }
     if (ts.isCallExpression(current)) {
@@ -778,6 +782,16 @@ function inspectSource(
         NON_EXECUTING_METHODS.has(callee.name.text)
       ) {
         return false;
+      }
+      if (
+        ts.isIdentifier(callee) &&
+        callee.text === "renderHook" &&
+        current.arguments.length > 0
+      ) {
+        // renderHook(() => useTargetHook()) executes its callback synchronously
+        // to run the hook, so a repository observation inside the callback
+        // argument is an executed observation of the hook.
+        return isExecutedRepositoryObservation(current.arguments[0]);
       }
       return isRepositoryReference(callee) ||
         isExecutedRepositoryObservation(callee);
@@ -1009,24 +1023,34 @@ function inspectSource(
       }
       const matcherName = matcherCalls[0].expression.name.text;
       const operand = matcherCalls[0].arguments[0];
-      const isIdentityMatcher =
-        matcherName === "toBe" ||
-        matcherName === "toEqual" ||
-        matcherName === "toContain";
-      if (isIdentityMatcher && operand) {
+      // toBe and toContain compare by identity; toEqual uses deep equality for
+      // objects/arrays but still compares primitive values like Symbol by
+      // identity. Structural literals are therefore valid toEqual operands but
+      // a fresh identity/primitive factory operand is guaranteed to fail.
+      const isStrictIdentityMatcher =
+        matcherName === "toBe" || matcherName === "toContain";
+      if (operand) {
         const unwrapped = unwrapExpression(operand);
-        if (
-          ts.isObjectLiteralExpression(unwrapped) ||
-          ts.isArrayLiteralExpression(unwrapped) ||
-          ts.isArrowFunction(unwrapped) ||
-          ts.isFunctionExpression(unwrapped) ||
-          ts.isClassExpression(unwrapped) ||
-          ts.isRegularExpressionLiteral(unwrapped) ||
-          ts.isNewExpression(unwrapped)
+        if (isStrictIdentityMatcher) {
+          if (
+            ts.isObjectLiteralExpression(unwrapped) ||
+            ts.isArrayLiteralExpression(unwrapped) ||
+            ts.isArrowFunction(unwrapped) ||
+            ts.isFunctionExpression(unwrapped) ||
+            ts.isClassExpression(unwrapped) ||
+            ts.isRegularExpressionLiteral(unwrapped) ||
+            ts.isNewExpression(unwrapped)
+          ) {
+            errors.push(
+              `${matcherName}() must not assert against a fresh-identity literal operand`
+            );
+          }
+        } else if (
+          matcherName === "toEqual" &&
+          (ts.isObjectLiteralExpression(unwrapped) ||
+            ts.isArrayLiteralExpression(unwrapped))
         ) {
-          errors.push(
-            `${matcherName}() must not assert against a fresh-identity literal operand`
-          );
+          // Structural operands are valid for toEqual's deep equality.
         }
         if (ts.isCallExpression(unwrapped)) {
           const callee = unwrapExpression(unwrapped.expression);
@@ -1118,6 +1142,7 @@ export function validateRegressionCandidate(candidate, {
   const requiredAssertionMessage =
     `Expected behavior: ${finding.expectedBehavior} | ` +
     `Actual behavior: ${finding.actualBehavior}`;
+  const productionFunctionInfo = collectProductionFunctionBindings(productionSources);
   const sourceErrors = inspectSource(
     sourceFile,
     candidate.source,
@@ -1126,7 +1151,8 @@ export function validateRegressionCandidate(candidate, {
     requiredAssertionMessage,
     new Set(allowedRepositoryFiles.map(filePath => String(filePath).replace(/\\/g, "/"))),
     new Set((finding.productionFiles ?? []).map(filePath => String(filePath).replace(/\\/g, "/"))),
-    collectProductionFunctionBindings(productionSources)
+    productionFunctionInfo.bindings,
+    productionFunctionInfo.hasParsedSources
   );
   if (sourceErrors.length > 0) {
     return invalid(sourceErrors[0]);
