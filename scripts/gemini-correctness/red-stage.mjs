@@ -191,6 +191,20 @@ function sanitize(value, sensitiveValues) {
   return redactForOutput(value, sensitiveValues);
 }
 
+function productionSourcesFromScan(scannedFiles, finding) {
+  const productionSet = new Set(
+    (finding?.productionFiles ?? []).map(filePath => String(filePath).replace(/\\/g, "/"))
+  );
+  const sources = new Map();
+  for (const file of scannedFiles ?? []) {
+    const normalized = String(file?.path ?? "").replace(/\\/g, "/");
+    if (productionSet.has(normalized) && typeof file?.content === "string") {
+      sources.set(normalized, file.content);
+    }
+  }
+  return sources;
+}
+
 const RED_RESULT_CONTRACT_KEYS = new Set([
   "schemaVersion",
   "status",
@@ -717,7 +731,8 @@ export async function replayRedArtifacts({
       {
         finding,
         sensitiveValues: collectSensitiveValues(environment, repoRoot, { output: false }),
-        allowedRepositoryFiles: replayPrompt.manifest
+        allowedRepositoryFiles: replayPrompt.manifest,
+        productionSources: productionSourcesFromScan(replayScan.scannedFiles, finding)
       }
     );
     if (!candidate.valid) throw new Error(candidate.error);
@@ -858,7 +873,8 @@ export async function runRedStage({
     const candidate = validateRegressionCandidate(generated.result, {
       finding: schema.result,
       sensitiveValues: collectSensitiveValues(environment, repoRoot, { output: false }),
-      allowedRepositoryFiles: prompt.manifest
+      allowedRepositoryFiles: prompt.manifest,
+      productionSources: productionSourcesFromScan(scan.scannedFiles, schema.result)
     });
     if (!candidate.valid) throw new Error(candidate.error);
 

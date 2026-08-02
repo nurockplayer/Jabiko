@@ -409,6 +409,67 @@ function resolvesToProductionFile(specifier, testFile, productionFiles) {
   return candidates?.some(candidate => productionFiles.has(candidate)) ?? false;
 }
 
+// Collect exported binding names that are functions or classes (not plain
+// values) from the given production source files, so a bare reference to them
+// is not treated as a directly-observable value.
+function collectProductionFunctionBindings(productionSources) {
+  const bindings = new Set();
+  for (const source of productionSources?.values() ?? []) {
+    if (typeof source !== "string") continue;
+    let sourceFile;
+    try {
+      sourceFile = ts.createSourceFile(
+        "production.ts",
+        source,
+        ts.ScriptTarget.Latest,
+        true,
+        ts.ScriptKind.TS
+      );
+    } catch {
+      continue;
+    }
+    if (sourceFile.parseDiagnostics.length > 0) continue;
+    function collect(node) {
+      if (
+        (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) &&
+        node.name
+      ) {
+        bindings.add(node.name.text);
+      }
+      if (
+        ts.isVariableStatement(node) &&
+        node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword)
+      ) {
+        for (const declaration of node.declarationList.declarations) {
+          if (ts.isIdentifier(declaration.name)) {
+            const initializer = declaration.initializer;
+            const unwrappedInitializer = initializer
+              ? (() => {
+                  let current = initializer;
+                  while (ts.isParenthesizedExpression(current)) {
+                    current = current.expression;
+                  }
+                  return current;
+                })()
+              : undefined;
+            if (
+              unwrappedInitializer &&
+              (ts.isArrowFunction(unwrappedInitializer) ||
+                ts.isFunctionExpression(unwrappedInitializer) ||
+                ts.isClassExpression(unwrappedInitializer))
+            ) {
+              bindings.add(declaration.name.text);
+            }
+          }
+        }
+      }
+      ts.forEachChild(node, collect);
+    }
+    collect(sourceFile);
+  }
+  return bindings;
+}
+
 function inspectSource(
   sourceFile,
   source,
@@ -416,7 +477,8 @@ function inspectSource(
   testName,
   requiredAssertionMessage,
   allowedRepositoryFiles,
-  productionFiles
+  productionFiles,
+  productionFunctionBindings = new Set()
 ) {
   const errors = [];
   const tests = [];
@@ -661,6 +723,17 @@ function inspectSource(
     if (ts.isPropertyAccessExpression(current)) {
       return isExecutedRepositoryObservation(current.expression);
     }
+    if (ts.isIdentifier(current)) {
+      // Reading a directly-observed production value (an exported constant or
+      // stable object property) is a valid RED observation even without a call,
+      // but only when the production source lets us distinguish a value from an
+      // exported function. A bare reference to an exported function is not an
+      // observation, and without production source info a bare reference is not
+      // provably a value observation.
+      if (productionFunctionBindings.has(current.text)) return false;
+      if (productionFunctionBindings.size === 0) return false;
+      return isRepositoryReference(current);
+    }
     if (ts.isCallExpression(current)) {
       const callee = unwrapExpression(current.expression);
       if (
@@ -898,7 +971,8 @@ function inspectSource(
       }
       const matcherName = matcherCalls[0].expression.name.text;
       const operand = matcherCalls[0].arguments[0];
-      if (matcherName === "toBe" && operand) {
+      const isIdentityMatcher = matcherName === "toBe" || matcherName === "toEqual";
+      if (isIdentityMatcher && operand) {
         const unwrapped = unwrapExpression(operand);
         if (
           ts.isObjectLiteralExpression(unwrapped) ||
@@ -910,7 +984,7 @@ function inspectSource(
           ts.isNewExpression(unwrapped)
         ) {
           errors.push(
-            "toBe() must not assert against a fresh-identity literal operand"
+            `${matcherName}() must not assert against a fresh-identity literal operand`
           );
         }
         if (ts.isCallExpression(unwrapped)) {
@@ -925,7 +999,7 @@ function inspectSource(
             calleeText === "Array.from"
           ) {
             errors.push(
-              "toBe() must not assert against a fresh-identity factory call operand"
+              `${matcherName}() must not assert against a fresh-identity factory call operand`
             );
           }
         }
@@ -939,7 +1013,8 @@ function inspectSource(
 export function validateRegressionCandidate(candidate, {
   finding,
   sensitiveValues = [],
-  allowedRepositoryFiles = finding?.productionFiles ?? []
+  allowedRepositoryFiles = finding?.productionFiles ?? [],
+  productionSources = new Map()
 } = {}) {
   if (!finding || finding.status !== "finding") {
     return invalid("a validated finding is required");
@@ -1009,7 +1084,8 @@ export function validateRegressionCandidate(candidate, {
     candidate.testName,
     requiredAssertionMessage,
     new Set(allowedRepositoryFiles.map(filePath => String(filePath).replace(/\\/g, "/"))),
-    new Set((finding.productionFiles ?? []).map(filePath => String(filePath).replace(/\\/g, "/")))
+    new Set((finding.productionFiles ?? []).map(filePath => String(filePath).replace(/\\/g, "/"))),
+    collectProductionFunctionBindings(productionSources)
   );
   if (sourceErrors.length > 0) {
     return invalid(sourceErrors[0]);

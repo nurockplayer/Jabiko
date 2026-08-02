@@ -840,6 +840,99 @@ describe("validateRegressionCandidate", () => {
     expect(result.error).toMatch(/matcher|identity|operand/i);
   });
 
+  it("rejects a toEqual assertion with a fresh-identity operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', ".toEqual(Symbol())");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/matcher|identity|operand/i);
+  });
+
+  it("accepts a toEqual assertion with a stable primitive operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', ".toEqual(3)");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("accepts directly observing an imported production constant value", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import { readEmptyQueue, MASTERY_BOX } from "./example";'
+      )
+      .replace("expect(\n    readEmptyQueue(),", "expect(\n    MASTERY_BOX,")
+      .replace('.toBe("safe")', ".toBe(3)");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      {
+        finding,
+        sensitiveValues: [],
+        productionSources: new Map([
+          [
+            "src/domain/example.ts",
+            "export function readEmptyQueue() { return \"safe\"; }\nexport const MASTERY_BOX = 3;\n"
+          ]
+        ])
+      }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("still rejects a bare reference to an imported production function", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "readEmptyQueue")
+      .replace('.toBe("safe")', ".toBeUndefined()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      {
+        finding,
+        sensitiveValues: [],
+        productionSources: new Map([
+          [
+            "src/domain/example.ts",
+            "export function readEmptyQueue() { return \"safe\"; }\n"
+          ]
+        ])
+      }
+    );
+
+    expect(result.valid).toBe(false);
+  });
+
   it("rejects a callback whose repository call is behind a statically-false && operand", () => {
     const source = validSource
       .replace("readEmptyQueue()", "() => { false && readEmptyQueue(); }")
