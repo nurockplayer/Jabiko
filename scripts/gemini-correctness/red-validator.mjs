@@ -559,6 +559,19 @@ function inspectSource(
         ) {
           return;
         }
+        if (ts.isBlock(child)) {
+          for (const statement of child.statements) {
+            if (
+              ts.isReturnStatement(statement) ||
+              ts.isThrowStatement(statement)
+            ) {
+              // Statements after an unconditional return/throw never execute.
+              return;
+            }
+            visitCallback(statement);
+          }
+          return;
+        }
         if (ts.isIfStatement(child)) {
           const condition = unwrapExpression(child.expression);
           if (condition.kind === ts.SyntaxKind.TrueKeyword) {
@@ -877,11 +890,27 @@ function inspectSource(
           ts.isArrowFunction(unwrapped) ||
           ts.isFunctionExpression(unwrapped) ||
           ts.isClassExpression(unwrapped) ||
-          ts.isRegularExpressionLiteral(unwrapped)
+          ts.isRegularExpressionLiteral(unwrapped) ||
+          ts.isNewExpression(unwrapped)
         ) {
           errors.push(
             "toBe() must not assert against a fresh-identity literal operand"
           );
+        }
+        if (
+          ts.isCallExpression(unwrapped) &&
+          ts.isIdentifier(unwrapExpression(unwrapped.expression))
+        ) {
+          const calleeName = unwrapExpression(unwrapped.expression).text;
+          if (
+            calleeName === "Symbol" ||
+            calleeName === "Object" ||
+            calleeName === "BigInt"
+          ) {
+            errors.push(
+              "toBe() must not assert against a fresh-identity factory call operand"
+            );
+          }
         }
       }
     }

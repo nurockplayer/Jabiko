@@ -786,6 +786,42 @@ describe("validateRegressionCandidate", () => {
     expect(result.valid).toBe(true);
   });
 
+  it("rejects a toBe assertion with a fresh-identity NewExpression operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', ".toBe(new Map())");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/matcher|identity|operand/i);
+  });
+
+  it("rejects a toBe assertion with a fresh-identity factory call operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', ".toBe(Symbol())");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/matcher|identity|operand/i);
+  });
+
   it("rejects a callback whose repository call is behind a statically-false && operand", () => {
     const source = validSource
       .replace("readEmptyQueue()", "() => { false && readEmptyQueue(); }")
@@ -882,6 +918,43 @@ describe("validateRegressionCandidate", () => {
   it("accepts a callback whose repository call is on a non-statically-determinable && branch", () => {
     const source = validSource
       .replace("readEmptyQueue()", "() => { readEmptyQueue() && readEmptyQueue(); }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects a callback whose repository call is unreachable after a return statement", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { return; readEmptyQueue(); }")
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe/i);
+  });
+
+  it("accepts a callback whose repository call executes before a return statement", () => {
+    const source = validSource
+      .replace("readEmptyQueue()", "() => { readEmptyQueue(); return; }")
       .replace('.toBe("safe")', ".toThrow()");
     const result = validateRegressionCandidate(
       {
