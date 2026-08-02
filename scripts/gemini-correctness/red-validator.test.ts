@@ -552,6 +552,72 @@ describe("validateRegressionCandidate", () => {
     expect(result.valid).toBe(true);
   });
 
+  describe("RED must observe the target production interface, not any visible helper", () => {
+    const helperInManifest = [
+      "src/domain/example.ts",
+      "src/domain/example-helper.ts"
+    ];
+
+    function evaluate(source, allowedFiles = helperInManifest) {
+      return validateRegressionCandidate(
+        {
+          schemaVersion: 1,
+          status: "regression-test",
+          testFile: finding.reproduction.testFile,
+          testName: finding.reproduction.testName,
+          source
+        },
+        {
+          finding,
+          sensitiveValues: [],
+          allowedRepositoryFiles: allowedFiles
+        }
+      );
+    }
+
+    it("rejects a candidate that only calls a non-production helper in the manifest", () => {
+      const source = validSource
+        .replace(
+          'import { readEmptyQueue } from "./example";',
+          'import { helperThatFails } from "./example-helper";'
+        )
+        .replace("readEmptyQueue()", "helperThatFails()");
+      const result = evaluate(source);
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toMatch(/execute|call|production/i);
+    });
+
+    it("accepts a candidate that calls the target production interface directly", () => {
+      const result = evaluate(validSource);
+
+      expect(result.valid).toBe(true);
+    });
+
+    it("rejects a candidate that imports both helper and target but only calls the helper", () => {
+      const source = validSource
+        .replace(
+          'import { readEmptyQueue } from "./example";',
+          'import { helperThatFails } from "./example-helper";\nimport { readEmptyQueue } from "./example";'
+        )
+        .replace("readEmptyQueue()", "helperThatFails()");
+      const result = evaluate(source);
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toMatch(/execute|call|production/i);
+    });
+
+    it("accepts a candidate that reaches an internal helper through the target interface", () => {
+      // readEmptyQueue is the target production export; helperUse is a helper
+      // reached *through* that interface, not imported directly.
+      const source = validSource
+        .replace("readEmptyQueue()", "readEmptyQueue().helperUse()");
+      const result = evaluate(source);
+
+      expect(result.valid).toBe(true);
+    });
+  });
+
   it("rejects a Vitest namespace assertion bypass", () => {
     const source = validSource
       .replace(

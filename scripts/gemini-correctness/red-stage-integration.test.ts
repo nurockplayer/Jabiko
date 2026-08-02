@@ -293,6 +293,120 @@ describe("runRedStage integration", () => {
     expect(log).not.toContain(fixtureRoot);
   });
 
+  it("replays successfully when the summary contains a long general environment value", async () => {
+    const baselineSha = git(["rev-parse", "HEAD"]);
+    const envValue = "production-value-abc"; // length >= 8, not a KEY/TOKEN/SECRET name
+    const envTestName = `returns the ${envValue} safe fallback for an empty queue`;
+    const longEnvFinding = {
+      ...finding(),
+      reproduction: { testFile, testName: envTestName },
+      expectedBehavior: `an empty queue returns the ${envValue} fallback`,
+      actualBehavior: `an empty queue returns a stale ${envValue} value`
+    };
+    const longEnvCandidate = {
+      ...candidate(),
+      testName: envTestName,
+      source: candidate().source
+        .replace(testName, envTestName)
+        .replace(
+          `Expected behavior: ${finding().expectedBehavior} | Actual behavior: ${finding().actualBehavior}`,
+          `Expected behavior: ${longEnvFinding.expectedBehavior} | Actual behavior: ${longEnvFinding.actualBehavior}`
+        )
+    };
+    const client = {
+      generateJson: vi.fn().mockResolvedValue({
+        valid: true,
+        result: longEnvCandidate
+      })
+    };
+
+    const result = await runRedStage({
+      repoRoot: fixtureRoot,
+      finding: longEnvFinding,
+      client,
+      environment: {
+        ...process.env,
+        NODE_ENV: envValue,
+        SOME_LONG_VAR: envValue
+      }
+    });
+
+    expect(result, result.error).toMatchObject({ valid: true });
+    expect(result.result).toMatchObject({
+      schemaVersion: 1,
+      status: "red-confirmed",
+      baselineSha,
+      testName: envTestName,
+      replayConfirmed: true
+    });
+
+    // The env value is not a KEY/TOKEN/SECRET-named secret, so the candidate
+    // is accepted, but the output-side redaction (output: true) still treats
+    // long env values as sensitive, so the summary and log must be redacted.
+    // testName is a preserved RED contract field (needed for exact replay
+    // matching), so it intentionally keeps the raw value.
+    const savedResult = JSON.parse(
+      fs.readFileSync(path.join(fixtureRoot, ".tmp/gemini-correctness/red-result.json"), "utf8")
+    );
+    expect(savedResult.testName).toBe(envTestName);
+    expect(savedResult.sanitizedSummary).not.toContain(envValue);
+    expect(savedResult.sanitizedSummary).toContain("REDACTED_KEY");
+    const log = fs.readFileSync(path.join(fixtureRoot, ".tmp/gemini-correctness/red-test.log"), "utf8");
+    expect(log).not.toContain(envValue);
+  });
+
+  it("rejects a genuinely tampered replay summary even after sanitization", async () => {
+    const baselineSha = git(["rev-parse", "HEAD"]);
+    const envValue = "production-value-abc";
+    const longEnvFinding = {
+      ...finding(),
+      expectedBehavior: `an empty queue returns the ${envValue} fallback`,
+      actualBehavior: `an empty queue returns a stale ${envValue} value`
+    };
+    const longEnvCandidate = {
+      ...candidate(),
+      source: candidate().source
+        .replace(
+          `Expected behavior: ${finding().expectedBehavior} | Actual behavior: ${finding().actualBehavior}`,
+          `Expected behavior: ${longEnvFinding.expectedBehavior} | Actual behavior: ${longEnvFinding.actualBehavior}`
+        )
+    };
+    const client = {
+      generateJson: vi.fn().mockResolvedValue({
+        valid: true,
+        result: longEnvCandidate
+      })
+    };
+
+    const stage = await runRedStage({
+      repoRoot: fixtureRoot,
+      finding: longEnvFinding,
+      client,
+      environment: { ...process.env, NODE_ENV: envValue, SOME_LONG_VAR: envValue }
+    });
+    expect(stage, stage.error).toMatchObject({ valid: true });
+
+    const artifactDir = path.join(fixtureRoot, ".tmp", "gemini-correctness");
+    const resultPath = path.join(artifactDir, "red-result.json");
+    const originalResult = JSON.parse(fs.readFileSync(resultPath, "utf8"));
+    const reset = resetRedWorktree({ repoRoot: fixtureRoot, baselineSha, testFile });
+    expect(reset.valid).toBe(true);
+
+    fs.writeFileSync(resultPath, JSON.stringify({
+      ...originalResult,
+      sanitizedSummary: "tampered-summary"
+    }));
+    expect((await replayRedArtifacts({
+      repoRoot: fixtureRoot,
+      finding: longEnvFinding,
+      environment: { ...process.env, NODE_ENV: envValue, SOME_LONG_VAR: envValue },
+      expectedBaselineSha: baselineSha,
+      expectedPatchSha256: originalResult.patchSha256,
+      expectedSummary: stage.result.sanitizedSummary
+    })).valid).toBe(false);
+    expect(git(["status", "--porcelain=v1", "--untracked-files=all"])).toBe("");
+  });
+
   it.each([
     ["unstaged production and untracked files", () => {
       write("src/domain/example.ts", "modified production\n");

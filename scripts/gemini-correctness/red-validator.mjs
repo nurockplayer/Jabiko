@@ -367,6 +367,30 @@ const ALLOWED_TEST_PACKAGES = new Set([
   "vitest"
 ]);
 
+function resolveVisibleCandidates(specifier, testFile) {
+  if (!specifier.startsWith(".")) return null;
+  const base = path.posix.normalize(
+    path.posix.join(path.posix.dirname(testFile), specifier)
+  );
+  if (!base || base === ".." || base.startsWith("../") || base.startsWith("/")) {
+    return null;
+  }
+  const extension = path.posix.extname(base);
+  if (extension === ".js" || extension === ".jsx") {
+    const withoutJs = base.slice(0, -extension.length);
+    return [`${withoutJs}.ts`, `${withoutJs}.tsx`];
+  }
+  if (extension) return [base];
+  return [
+    `${base}.ts`,
+    `${base}.tsx`,
+    `${base}.mjs`,
+    `${base}/index.ts`,
+    `${base}/index.tsx`,
+    `${base}/index.mjs`
+  ];
+}
+
 function resolvesToVisibleRepositoryFile(
   specifier,
   testFile,
@@ -375,30 +399,14 @@ function resolvesToVisibleRepositoryFile(
   if (!specifier.startsWith(".")) {
     return ALLOWED_TEST_PACKAGES.has(specifier);
   }
-  const base = path.posix.normalize(
-    path.posix.join(path.posix.dirname(testFile), specifier)
-  );
-  if (!base || base === ".." || base.startsWith("../") || base.startsWith("/")) {
-    return false;
-  }
-  const extension = path.posix.extname(base);
-  const candidates = [];
-  if (extension === ".js" || extension === ".jsx") {
-    const withoutJs = base.slice(0, -extension.length);
-    candidates.push(`${withoutJs}.ts`, `${withoutJs}.tsx`);
-  } else if (extension) {
-    candidates.push(base);
-  } else {
-    candidates.push(
-      `${base}.ts`,
-      `${base}.tsx`,
-      `${base}.mjs`,
-      `${base}/index.ts`,
-      `${base}/index.tsx`,
-      `${base}/index.mjs`
-    );
-  }
-  return candidates.some(candidate => allowedRepositoryFiles.has(candidate));
+  const candidates = resolveVisibleCandidates(specifier, testFile);
+  return candidates?.some(candidate => allowedRepositoryFiles.has(candidate)) ?? false;
+}
+
+function resolvesToProductionFile(specifier, testFile, productionFiles) {
+  if (!specifier.startsWith(".")) return false;
+  const candidates = resolveVisibleCandidates(specifier, testFile);
+  return candidates?.some(candidate => productionFiles.has(candidate)) ?? false;
 }
 
 function inspectSource(
@@ -407,7 +415,8 @@ function inspectSource(
   testFile,
   testName,
   requiredAssertionMessage,
-  allowedRepositoryFiles
+  allowedRepositoryFiles,
+  productionFiles
 ) {
   const errors = [];
   const tests = [];
@@ -539,13 +548,6 @@ function inspectSource(
       ts.isStringLiteral(node.moduleSpecifier)
     ) {
       const specifier = node.moduleSpecifier.text;
-      const visibleRepositoryImport =
-        specifier.startsWith(".") &&
-        resolvesToVisibleRepositoryFile(
-          specifier,
-          testFile,
-          allowedRepositoryFiles
-        );
       if (
         BANNED_IMPORTS.has(specifier) ||
         specifier.startsWith("@supabase/") ||
@@ -565,7 +567,7 @@ function inspectSource(
       }
       if (specifier === "vitest") {
         validateVitestImports(node.importClause);
-      } else if (visibleRepositoryImport) {
+      } else if (resolvesToProductionFile(specifier, testFile, productionFiles)) {
         recordRepositoryBindings(node.importClause);
       }
     }
@@ -809,7 +811,8 @@ export function validateRegressionCandidate(candidate, {
     candidate.testFile,
     candidate.testName,
     requiredAssertionMessage,
-    new Set(allowedRepositoryFiles.map(filePath => String(filePath).replace(/\\/g, "/")))
+    new Set(allowedRepositoryFiles.map(filePath => String(filePath).replace(/\\/g, "/"))),
+    new Set((finding.productionFiles ?? []).map(filePath => String(filePath).replace(/\\/g, "/")))
   );
   if (sourceErrors.length > 0) {
     return invalid(sourceErrors[0]);

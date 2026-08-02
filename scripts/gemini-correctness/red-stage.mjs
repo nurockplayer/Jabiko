@@ -645,10 +645,21 @@ export async function replayRedArtifacts({
     const storedResult = JSON.parse(fs.readFileSync(paths.result, "utf8"));
     const storedValidation = validateStoredResult(storedResult, finding);
     if (!storedValidation.valid) return storedValidation;
+    // The provisional artifact's summary is written through
+    // sanitizeRedResult(..., outputSecrets) with output: true, which also
+    // treats any env value of length >= 8 as sensitive. Sanitize the trusted
+    // in-memory expectation with the same output: true set so both sides use
+    // identical normalization before comparing.
+    const expectedOutputSecrets = collectSensitiveValues(
+      environment,
+      repoRoot,
+      { output: true }
+    );
+    const expectedSanitizedSummary = sanitize(expectedSummary, expectedOutputSecrets);
     if (
       storedResult.baselineSha !== expectedBaselineSha ||
       storedResult.patchSha256 !== expectedPatchSha256 ||
-      storedResult.sanitizedSummary !== expectedSummary
+      storedResult.sanitizedSummary !== expectedSanitizedSummary
     ) {
       return invalid("stored RED result does not match trusted replay expectations");
     }
@@ -730,7 +741,8 @@ export async function replayRedArtifacts({
     if (
       !classification.valid ||
       classification.failureKind !== storedResult.failureKind ||
-      classification.sanitizedSummary !== storedResult.sanitizedSummary
+      sanitize(classification.sanitizedSummary, expectedOutputSecrets) !==
+        storedResult.sanitizedSummary
     ) {
       throw new Error(classification.error || "replay RED classification changed");
     }
