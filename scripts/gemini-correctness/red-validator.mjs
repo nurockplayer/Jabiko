@@ -423,6 +423,7 @@ function inspectSource(
   const expectCalls = [];
   const matcherCalls = [];
   const repositoryBindings = new Set();
+  const shadowedBindings = new Set();
   let hasBehaviorAssertionMessage = false;
 
   function recordRepositoryBindings(importClause) {
@@ -476,7 +477,10 @@ function inspectSource(
   function isRepositoryReference(node) {
     const current = unwrapExpression(node);
     if (ts.isIdentifier(current)) {
-      return repositoryBindings.has(current.text);
+      return (
+        repositoryBindings.has(current.text) &&
+        !shadowedBindings.has(current.text)
+      );
     }
     if (ts.isPropertyAccessExpression(current)) {
       return isRepositoryReference(current.expression);
@@ -682,6 +686,41 @@ function inspectSource(
       BANNED_GLOBAL_IDENTIFIERS.has(node.text)
     ) {
       errors.push(`forbidden global: ${node.text}`);
+    }
+    if (ts.isVariableDeclaration(node)) {
+      const declaredName = node.name;
+      if (
+        ts.isIdentifier(declaredName) &&
+        repositoryBindings.has(declaredName.text) &&
+        !shadowedBindings.has(declaredName.text)
+      ) {
+        shadowedBindings.add(declaredName.text);
+        errors.push(
+          `local declaration shadows the production import: ${declaredName.text}`
+        );
+      }
+    }
+    if (ts.isFunctionDeclaration(node) && node.name) {
+      if (
+        repositoryBindings.has(node.name.text) &&
+        !shadowedBindings.has(node.name.text)
+      ) {
+        shadowedBindings.add(node.name.text);
+        errors.push(
+          `local function shadows the production import: ${node.name.text}`
+        );
+      }
+    }
+    if (ts.isClassDeclaration(node) && node.name) {
+      if (
+        repositoryBindings.has(node.name.text) &&
+        !shadowedBindings.has(node.name.text)
+      ) {
+        shadowedBindings.add(node.name.text);
+        errors.push(
+          `local class shadows the production import: ${node.name.text}`
+        );
+      }
     }
     ts.forEachChild(node, visit);
   }

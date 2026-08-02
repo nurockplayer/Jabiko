@@ -618,6 +618,42 @@ describe("validateRegressionCandidate", () => {
     });
   });
 
+  it("rejects a candidate that shadows a production import with a local function", () => {
+    const source = validSource
+      .replace(
+        "expect(\n    readEmptyQueue(),",
+        "const readEmptyQueue = () => \"unrelated\";\n    expect(\n    readEmptyQueue(),"
+      );
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/shadow|observe|production/i);
+  });
+
+  it("accepts a candidate that calls the imported production binding without local shadowing", () => {
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source: validSource
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
   it("rejects a Vitest namespace assertion bypass", () => {
     const source = validSource
       .replace(

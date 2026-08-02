@@ -619,6 +619,8 @@ export async function replayRedArtifacts({
   repoRoot,
   finding,
   environment = process.env,
+  allowlist = getDefaultAllowlist(),
+  protectedPaths = getDefaultProtectedPaths(),
   spawnFn,
   timeoutMs,
   expectedBaselineSha,
@@ -674,8 +676,8 @@ export async function replayRedArtifacts({
     }
     const replayScan = scanRepository({
       repoRoot,
-      allowlist: getDefaultAllowlist(),
-      protectedPaths: getDefaultProtectedPaths()
+      allowlist,
+      protectedPaths
     });
     const replayPrompt = buildRedPrompt({
       baselineSha: trustedBaseline,
@@ -939,6 +941,8 @@ export async function runRedStage({
       repoRoot,
       finding: schema.result,
       environment,
+      allowlist,
+      protectedPaths,
       spawnFn,
       timeoutMs: testTimeoutMs,
       expectedBaselineSha: baselineSha,

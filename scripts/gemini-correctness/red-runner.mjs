@@ -88,6 +88,13 @@ function buildChildEnvironment(environment) {
   return safe;
 }
 
+function keepTail(value, chunk) {
+  const joined = value + String(chunk);
+  return joined.length > MAX_REPORT_BYTES
+    ? joined.slice(joined.length - MAX_REPORT_BYTES)
+    : joined;
+}
+
 function runProcessGroup({
   spawnFn,
   command,
@@ -106,16 +113,10 @@ function runProcessGroup({
     error: undefined
   };
   child.stdout?.on("data", chunk => {
-    result.stdout += String(chunk);
-    if (result.stdout.length > MAX_REPORT_BYTES) {
-      result.stdout = result.stdout.slice(0, MAX_REPORT_BYTES);
-    }
+    result.stdout = keepTail(result.stdout, chunk);
   });
   child.stderr?.on("data", chunk => {
-    result.stderr += String(chunk);
-    if (result.stderr.length > MAX_REPORT_BYTES) {
-      result.stderr = result.stderr.slice(0, MAX_REPORT_BYTES);
-    }
+    result.stderr = keepTail(result.stderr, chunk);
   });
   return result;
 }

@@ -293,6 +293,27 @@ describe("runTargetedVitest", () => {
     expect(result.valid).toBe(false);
   });
 
+  it("keeps the bounded tail of child stderr so trailing failure markers survive a flood", async () => {
+    const stub = spawnStub();
+    const spawnFn = vi.fn(() => stub.child);
+    const resultPromise = runTargetedVitest({
+      repoRoot,
+      testFile,
+      testName,
+      reportPath: "/tmp/missing-report.json",
+      spawnFn
+    });
+    const flood = "x".repeat(3_000_000);
+    stub.emit("stderr", flood);
+    stub.emit("stderr", "\nJABIKO_RED_UNHANDLED_REJECTION\n");
+    stub.emit("close", 1, null);
+    const result = await resultPromise;
+
+    expect(result.valid).toBe(false);
+    expect(result.stderr).toContain("JABIKO_RED_UNHANDLED_REJECTION");
+    expect(result.stderr.length).toBeLessThanOrEqual(2 * 1024 * 1024);
+  });
+
   it("kills the whole process group and fails closed when the run times out", async () => {
     const stub = spawnStub();
     const spawnFn = vi.fn(() => stub.child);

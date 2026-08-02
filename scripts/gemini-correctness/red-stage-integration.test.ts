@@ -833,4 +833,72 @@ describe("runRedStage integration", () => {
     expect(fs.existsSync(outsideLog)).toBe(false);
     expect(git(["status", "--porcelain=v1", "--untracked-files=all"])).toBe("");
   });
+
+  it("replays with the caller's allowlist/protectedPaths instead of reverting to defaults", async () => {
+    const policyTestFile = "src/domain/types.regression.test.ts";
+    const policyTestName = "replays with the caller path policy";
+    const policyFinding = {
+      schemaVersion: 1,
+      status: "finding",
+      title: "replays with the caller path policy",
+      confidence: 0.95,
+      category: "boundary-condition",
+      evidence: [
+        { file: "src/domain/types.ts", startLine: 1, endLine: 1, reason: "r" }
+      ],
+      expectedBehavior: "types returns the safe fallback",
+      actualBehavior: "types returns the stale value",
+      reproduction: { testFile: policyTestFile, testName: policyTestName },
+      productionFiles: ["src/domain/types.ts"],
+      risk: "low"
+    };
+    write(
+      "src/domain/types.ts",
+      "export function readTypes() { return \"types\"; }\n"
+    );
+    git(["add", "src/domain/types.ts"]);
+    git(["commit", "-qm", "add protected-by-default production file"]);
+    const baselineSha = git(["rev-parse", "HEAD"]);
+
+    const policyCandidate = {
+      schemaVersion: 1,
+      status: "regression-test",
+      testFile: policyTestFile,
+      testName: policyTestName,
+      source: `import { expect, it } from "vitest";
+import { readTypes } from "./types";
+
+it("${policyTestName}", () => {
+  expect(
+    readTypes(),
+    "Expected behavior: ${policyFinding.expectedBehavior} | Actual behavior: ${policyFinding.actualBehavior}",
+  ).toBe("safe");
+});
+`
+    };
+    const client = {
+      generateJson: vi.fn().mockResolvedValue({
+        valid: true,
+        result: policyCandidate
+      })
+    };
+
+    const result = await runRedStage({
+      repoRoot: fixtureRoot,
+      finding: policyFinding,
+      client,
+      environment: process.env,
+      allowlist: ["src/domain/**"],
+      protectedPaths: []
+    });
+
+    expect(result, result.error).toMatchObject({
+      valid: true,
+      result: { status: "red-confirmed", baselineSha, replayConfirmed: true }
+    });
+    // The regression test file is the stage's output and intentionally stays
+    // untracked, exactly like the "proves, preserves, resets, replays" case.
+    expect(git(["status", "--porcelain=v1", "--untracked-files=all"]))
+      .toBe(`?? ${policyTestFile}`);
+  });
 });
