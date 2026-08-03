@@ -435,10 +435,18 @@ function collectProductionFunctionBindings(productionSources) {
     function collect(node) {
       if (
         (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) &&
-        node.name
+        node.name &&
+        node.modifiers?.some(
+          modifier => modifier.kind === ts.SyntaxKind.ExportKeyword
+        )
       ) {
         bindings.add(node.name.text);
         allExports.add(node.name.text);
+      }
+      if (ts.isExportDeclaration(node) && node.exportClause) {
+        for (const element of node.exportClause.elements) {
+          allExports.add(element.name.text);
+        }
       }
       if (
         ts.isVariableStatement(node) &&

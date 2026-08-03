@@ -1294,6 +1294,38 @@ describe("validateRegressionCandidate", () => {
     expect(result.error).toMatch(/execute|call|observe|namespace|export|member/i);
   });
 
+  it("rejects observing an unexported local function through a namespace import", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import * as target from "./example";'
+      )
+      .replace("expect(\n    readEmptyQueue(),", "expect(\n    target.internalHelper,")
+      .replace('.toBe("safe")', ".toBeDefined()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      {
+        finding,
+        sensitiveValues: [],
+        productionSources: new Map([
+          [
+            "src/domain/example.ts",
+            "export function readEmptyQueue() { return \"safe\"; }\nfunction internalHelper() { return \"hidden\"; }\n"
+          ]
+        ])
+      }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe|namespace|export|member/i);
+  });
+
   it("still rejects a bare reference to an imported production function", () => {
     const source = validSource
       .replace("readEmptyQueue()", "readEmptyQueue")
