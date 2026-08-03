@@ -503,6 +503,7 @@ function inspectSource(
   const shadowedBindings = new Set();
   const productionFunctionLocals = new Set();
   const namespaceBindings = new Set();
+  const renderHookBindings = new Set();
   let hasBehaviorAssertionMessage = false;
 
   function recordRepositoryBindings(importClause) {
@@ -617,6 +618,7 @@ function inspectSource(
     if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
       let observed = false;
       const constValues = new Map();
+      const unsafeBindings = new Set();
       function tryBlockSwallows(tryStatement) {
         // A catch that never rethrows swallows the try block's error.
         if (tryStatement.catchClause) {
@@ -638,8 +640,21 @@ function inspectSource(
       }
       // Track local const declarations that can be safely evaluated to a
       // primitive (boolean/number/string), so conditions on them are statically
-      // resolved instead of being treated as unknown.
+      // resolved instead of being treated as unknown. Only `const` bindings are
+      // tracked; let/var and any reassignment fail closed.
       function recordConstValue(variableStatement) {
+        const isConst =
+          variableStatement.declarationList.flags & ts.NodeFlags.Const;
+        if (!isConst) {
+          // let/var bindings can be reassigned, so they fail closed: any
+          // condition on them is treated as unknown.
+          for (const declaration of variableStatement.declarationList.declarations) {
+            if (ts.isIdentifier(declaration.name)) {
+              unsafeBindings.add(declaration.name.text);
+            }
+          }
+          return;
+        }
         for (const declaration of variableStatement.declarationList.declarations) {
           if (
             ts.isIdentifier(declaration.name) &&
@@ -657,6 +672,15 @@ function inspectSource(
           }
         }
       }
+      // A reassignment (binary assignment or update expression) invalidates any
+      // tracked const value and marks the identifier unsafe.
+      function invalidateConstValue(assignmentNode) {
+        const target = unwrapExpression(assignmentNode.left);
+        if (ts.isIdentifier(target)) {
+          constValues.delete(target.text);
+          unsafeBindings.add(target.text);
+        }
+      }
       function resolveConstValue(valueNode) {
         const unwrapped = unwrapExpression(valueNode);
         if (ts.isIdentifier(unwrapped) && constValues.has(unwrapped.text)) {
@@ -666,6 +690,14 @@ function inspectSource(
       }
       function staticTruthiness(node) {
         const current = unwrapExpression(node);
+        if (
+          ts.isIdentifier(current) &&
+          unsafeBindings.has(current.text)
+        ) {
+          // A let/var or reassigned binding cannot be statically trusted;
+          // fail closed by treating the branch as not taken.
+          return false;
+        }
         const known = resolveConstValue(current);
         if (known !== undefined) {
           return known ? true : false;
@@ -705,6 +737,26 @@ function inspectSource(
         }
         if (ts.isVariableStatement(child)) {
           recordConstValue(child);
+          ts.forEachChild(child, c => visitCallback(c, loopDepth, swallowed));
+          return;
+        }
+        if (
+          ts.isBinaryExpression(childNode) &&
+          (childNode.operatorToken.kind === ts.SyntaxKind.EqualsToken ||
+            childNode.operatorToken.kind === ts.SyntaxKind.PlusEqualsToken ||
+            childNode.operatorToken.kind === ts.SyntaxKind.MinusEqualsToken)
+        ) {
+          invalidateConstValue(childNode);
+          ts.forEachChild(child, c => visitCallback(c, loopDepth, swallowed));
+          return;
+        }
+        if (
+          ts.isPrefixUnaryExpression(childNode) &&
+          (childNode.operator === ts.SyntaxKind.PlusPlusToken ||
+            childNode.operator === ts.SyntaxKind.MinusMinusToken)
+        ) {
+          const target = unwrapExpression(childNode.operand);
+          if (ts.isIdentifier(target)) constValues.delete(target.text);
           ts.forEachChild(child, c => visitCallback(c, loopDepth, swallowed));
           return;
         }
@@ -825,14 +877,17 @@ function inspectSource(
     }
     if (ts.isPropertyAccessExpression(current)) {
       // A namespace import member must resolve to a real export of the
-      // production source; an unknown member is not an observable value.
+      // production source. A function/class member is only observable through
+      // an invocation, not a bare reference; a value member is directly
+      // observable. An unknown member is not an observable value.
       const base = unwrapExpression(current.expression);
       if (
         hasParsedSources &&
         ts.isIdentifier(base) &&
         namespaceBindings.has(base.text)
       ) {
-        return productionAllExports.has(current.name.text);
+        if (!productionAllExports.has(current.name.text)) return false;
+        return !productionFunctionBindings.has(current.name.text);
       }
       return isExecutedRepositoryObservation(current.expression);
     }
@@ -858,12 +913,14 @@ function inspectSource(
       }
       if (
         ts.isIdentifier(callee) &&
-        callee.text === "renderHook" &&
+        renderHookBindings.has(callee.text) &&
+        !shadowedBindings.has(callee.text) &&
         current.arguments.length > 0
       ) {
         // renderHook(() => useTargetHook()) executes its callback synchronously
-        // to run the hook, so a repository observation inside the callback
-        // argument is an executed observation of the hook.
+        // to run the hook, but only when the callee is the real binding
+        // imported from @testing-library/react (not a local shadow or a
+        // same-named function from another package).
         return isExecutedRepositoryObservation(current.arguments[0]);
       }
       return isRepositoryReference(callee) ||
@@ -897,6 +954,17 @@ function inspectSource(
       }
       if (specifier === "vitest") {
         validateVitestImports(node.importClause);
+      } else if (specifier === "@testing-library/react") {
+        // Track the local binding for renderHook so its symbol identity (not
+        // the name string) determines whether a call executes its callback.
+        if (node.importClause?.namedBindings && ts.isNamedImports(node.importClause.namedBindings)) {
+          for (const element of node.importClause.namedBindings.elements) {
+            const importedName = element.propertyName?.text ?? element.name.text;
+            if (importedName === "renderHook") {
+              renderHookBindings.add(element.name.text);
+            }
+          }
+        }
       } else if (resolvesToProductionFile(specifier, testFile, productionFiles)) {
         recordRepositoryBindings(node.importClause);
         recordProductionFunctionLocals(node.importClause);
@@ -1031,9 +1099,13 @@ function inspectSource(
       ) {
         recordShadowedBinding(declaredName, "declaration");
       }
+      if (ts.isIdentifier(declaredName)) {
+        renderHookBindings.delete(declaredName.text);
+      }
     }
     if (ts.isFunctionDeclaration(node) && node.name) {
       recordShadowedBinding(node.name, "function");
+      renderHookBindings.delete(node.name.text);
     }
     if (ts.isClassDeclaration(node) && node.name) {
       recordShadowedBinding(node.name, "class");

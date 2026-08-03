@@ -712,6 +712,50 @@ describe("validateRegressionCandidate", () => {
     expect(result.valid).toBe(true);
   });
 
+  it("rejects a callback whose let binding is reassigned before the guarded call", () => {
+    const source = validSource
+      .replace(
+        "readEmptyQueue()",
+        "() => { let enabled = true; enabled = false; if (enabled) { readEmptyQueue(); } }"
+      )
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe/i);
+  });
+
+  it("rejects a callback whose var binding is reassigned before the guarded call", () => {
+    const source = validSource
+      .replace(
+        "readEmptyQueue()",
+        "() => { var enabled = true; enabled = false; if (enabled) { readEmptyQueue(); } }"
+      )
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe/i);
+  });
+
   it("rejects a callback whose repository call is inside an unreachable if-false branch", () => {
     const source = validSource
       .replace("readEmptyQueue()", "() => { if (false) { readEmptyQueue(); } }")
@@ -1237,8 +1281,8 @@ describe("validateRegressionCandidate", () => {
         'import { readEmptyQueue } from "./example";',
         'import * as target from "./example";'
       )
-      .replace("expect(\n    readEmptyQueue(),", "expect(\n    target.readEmptyQueue,")
-      .replace('.toBe("safe")', ".toBeDefined()");
+      .replace("expect(\n    readEmptyQueue(),", "expect(\n    target.MASTERY_BOX,")
+      .replace('.toBe("safe")', ".toBe(3)");
     const result = validateRegressionCandidate(
       {
         schemaVersion: 1,
@@ -1353,6 +1397,100 @@ describe("validateRegressionCandidate", () => {
     expect(result.valid).toBe(false);
   });
 
+  it("rejects a bare reference to an exported function member through a namespace import", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import * as target from "./example";'
+      )
+      .replace("expect(\n    readEmptyQueue(),", "expect(\n    target.readEmptyQueue,")
+      .replace('.toBe("safe")', ".toBeDefined()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      {
+        finding,
+        sensitiveValues: [],
+        productionSources: new Map([
+          [
+            "src/domain/example.ts",
+            "export function readEmptyQueue() { return \"safe\"; }\nexport const MASTERY_BOX = 3;\n"
+          ]
+        ])
+      }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe|namespace|export|member/i);
+  });
+
+  it("accepts calling an exported function member through a namespace import", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import * as target from "./example";'
+      )
+      .replace("expect(\n    readEmptyQueue(),", "expect(\n    target.readEmptyQueue(),")
+      .replace('.toBe("safe")', '.toBe("safe")');
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      {
+        finding,
+        sensitiveValues: [],
+        productionSources: new Map([
+          [
+            "src/domain/example.ts",
+            "export function readEmptyQueue() { return \"safe\"; }\nexport const MASTERY_BOX = 3;\n"
+          ]
+        ])
+      }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("accepts observing an exported constant member through a namespace import", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import * as target from "./example";'
+      )
+      .replace("expect(\n    readEmptyQueue(),", "expect(\n    target.MASTERY_BOX,")
+      .replace('.toBe("safe")', ".toBe(3)");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      {
+        finding,
+        sensitiveValues: [],
+        productionSources: new Map([
+          [
+            "src/domain/example.ts",
+            "export function readEmptyQueue() { return \"safe\"; }\nexport const MASTERY_BOX = 3;\n"
+          ]
+        ])
+      }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
   it("accepts observing a value from a production file that exports only constants", () => {
     const source = validSource
       .replace(
@@ -1407,6 +1545,58 @@ describe("validateRegressionCandidate", () => {
     );
 
     expect(result.valid).toBe(true);
+  });
+
+  it("rejects a locally shadowed renderHook pretending to execute a callback", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import { renderHook } from "@testing-library/react";\nimport { useTargetHook } from "./example";'
+      )
+      .replace(
+        "expect(\n    readEmptyQueue(),",
+        "const renderHook = () => ({ result: { current: \"fake\" } });\n    expect(\n    renderHook(() => useTargetHook()).result.current,"
+      )
+      .replace('.toBe("safe")', '.toBe("ready")');
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe/i);
+  });
+
+  it("rejects a same-named renderHook imported from another package", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import { renderHook } from "some-other-package";\nimport { useTargetHook } from "./example";'
+      )
+      .replace(
+        "expect(\n    readEmptyQueue(),",
+        "expect(\n    renderHook(() => useTargetHook()).result.current,"
+      )
+      .replace('.toBe("safe")', '.toBe("ready")');
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe|manifest|outside|package/i);
   });
 
   it("rejects a bare reference to an aliased production function import", () => {
