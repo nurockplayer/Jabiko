@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { registerSW } from "virtual:pwa-register";
 
 // Service-worker update lifecycle (#327). registerType is "prompt", so a new
@@ -35,12 +35,18 @@ export function usePwaUpdate(safeViewKey: string | null) {
   // Refs mirror the reactive values so the SW callbacks and the (single)
   // visibilitychange listener always read the current state.
   const needRefreshRef = useRef(false);
-  const safeKeyRef = useRef(safeViewKey);
-  safeKeyRef.current = safeViewKey;
+  // safeKeyRef is the latest-value bridge for the external SW callbacks and the
+  // visibilitychange listener. It must never be written during render (#678);
+  // the layout effect below syncs it from safeViewKey after every commit.
+  const safeKeyRef = useRef<string | null>(null);
 
   const updateApp = useCallback(() => {
     void updateRef.current?.(true);
   }, []);
+
+  useLayoutEffect(() => {
+    safeKeyRef.current = safeViewKey;
+  }, [safeViewKey]);
 
   useEffect(() => {
     updateRef.current = registerSW({

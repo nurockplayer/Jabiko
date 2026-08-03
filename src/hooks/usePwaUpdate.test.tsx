@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act, renderHook } from "@testing-library/react";
+// Raw import (typed via vite/client) lets the #678 regression test read the
+// hook source without pulling @types/node into the app build — same trick as
+// src/domain/prerender/staticPages.test.ts.
+import usePwaUpdateSource from "./usePwaUpdate.ts?raw";
 
 // Capture registerSW's options + hand back a spy updateSW, so tests can fire
 // onNeedRefresh / onRegisteredSW like the real virtual:pwa-register would.
@@ -113,5 +117,34 @@ describe("usePwaUpdate safe-window auto apply", () => {
     registration.update.mockClear();
     fireVisibilityChange(false);
     expect(registration.update).toHaveBeenCalled();
+  });
+});
+
+// #678: React Hooks v7 `refs` rule forbids writing a ref during render. The SW
+// callbacks and visibilitychange listener read safeKeyRef.current (the
+// latest-value bridge), so it must be synced from safeViewKey in a layout
+// effect after commit — never in the component body. This asserts that
+// structural contract directly; a stray render-phase write regresses the ESLint
+// `react-hooks/refs` gate even though the observable behaviour is unchanged.
+describe("usePwaUpdate ref-sync contract (#678)", () => {
+  it("never writes safeKeyRef.current in the component body", () => {
+    const fnIdx = usePwaUpdateSource.indexOf("function usePwaUpdate");
+    // The component body is everything up to the first effect; safeKeyRef must
+    // only be written inside the layout effect, never during render.
+    const layoutIdx = usePwaUpdateSource.indexOf("useLayoutEffect", fnIdx);
+    const body = usePwaUpdateSource.slice(
+      fnIdx,
+      layoutIdx === -1
+        ? usePwaUpdateSource.indexOf("useEffect(() => {", fnIdx)
+        : layoutIdx
+    );
+    expect(body).not.toContain("safeKeyRef.current =");
+  });
+
+  it("syncs safeKeyRef from safeViewKey in a layout effect after commit", () => {
+    const fnIdx = usePwaUpdateSource.indexOf("function usePwaUpdate");
+    expect(usePwaUpdateSource.slice(fnIdx)).toMatch(
+      /useLayoutEffect\(\(\) => \{\s*safeKeyRef\.current = safeViewKey;\s*\}, \[safeViewKey\]\)/
+    );
   });
 });
