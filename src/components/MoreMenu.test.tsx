@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { StrictMode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { MoreMenu, type MoreMenuNavItem, type MoreMenuTools } from "./MoreMenu";
 
@@ -39,7 +40,7 @@ function makeTools(overrides: Partial<MoreMenuTools> = {}): MoreMenuTools {
 }
 
 function renderMenu(items = makeItems(), tools = makeTools()) {
-  render(
+  const view = render(
     <MoreMenu
       triggerLabel="更多"
       triggerCurrentLabel={(page) => `更多（目前：${page}）`}
@@ -47,7 +48,7 @@ function renderMenu(items = makeItems(), tools = makeTools()) {
       tools={tools}
     />
   );
-  return { items, tools };
+  return { items, tools, view };
 }
 
 function menuItems(): HTMLButtonElement[] {
@@ -249,5 +250,151 @@ describe("MoreMenu (#608)", () => {
     expect(within(menu).queryByRole("menuitem", { name: "登入" })).not.toBeInTheDocument();
     expect(within(menu).getByText(/花雪/)).toBeInTheDocument();
     expect(within(menu).getByText("已同步")).toBeInTheDocument();
+  });
+
+  // #684: MoreMenu must not synchronously call setFocusKey() inside the open
+  // effect -- the React Hooks v7 `set-state-in-effect` rule flags any state
+  // write from an effect. Opening is an event-driven transition, so focusKey
+  // is seeded by the same event handlers that flip `open`. These tests pin the
+  // behaviour contract (first entry focused + roving tabindex, focus returned
+  // on close, outside-close without swallowing the press, action-before-close)
+  // so the refactor to event-sourced focus stays behaviour-neutral.
+
+  it("seeds the first entry as the roving key and focuses it on trigger click (#684)", async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    const items = menuItems();
+    expect(items[0].tabIndex).toBe(0);
+    expect(items.slice(1).every((item) => item.tabIndex === -1)).toBe(true);
+    expect(items[0]).toHaveFocus();
+  });
+
+  it("opens on ArrowDown from the closed trigger with the first entry focused (#684)", () => {
+    renderMenu();
+
+    const trigger = screen.getByRole("button", { name: "更多" });
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+    const items = menuItems();
+    expect(items[0].tabIndex).toBe(0);
+    expect(items[0]).toHaveFocus();
+  });
+
+  it("clears the focus key and returns focus to the trigger on close (#684)", async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    const trigger = screen.getByRole("button", { name: "更多" });
+    await user.click(trigger);
+    expect(screen.getByRole("menuitem", { name: "規則表" })).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "Escape" });
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+
+    // Re-opening must seed a fresh roving key, never a stale one.
+    await user.click(trigger);
+    const items = menuItems();
+    expect(items[0].tabIndex).toBe(0);
+    expect(items.slice(1).every((item) => item.tabIndex === -1)).toBe(true);
+  });
+
+  it("closes on Tab without preventing default traversal (#684)", () => {
+    renderMenu();
+
+    const trigger = screen.getByRole("button", { name: "更多" });
+    fireEvent.click(trigger);
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "Tab" });
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+
+  it("closes on an outside pointer press and does not swallow the press (#684)", async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+
+    fireEvent.pointerDown(document.body);
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+
+  it("runs the nav/tool action first, then closes (#684)", async () => {
+    const user = userEvent.setup();
+    const { items, tools } = renderMenu();
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    await user.click(screen.getByRole("menuitem", { name: "深色模式" }));
+    expect(tools.theme.onToggle).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    await user.click(screen.getByRole("menuitem", { name: "關於" }));
+    expect(items[2].onSelect).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+
+  it("keeps exactly one tabbable entry when items change while open and the current key disappears (#684)", async () => {
+    const user = userEvent.setup();
+    const { view } = renderMenu();
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    expect(screen.getByRole("menuitem", { name: "規則表" })).toHaveFocus();
+
+    // Remove the currently-focused first entry mid-open: the effective roving
+    // key falls back to the first still-legal key.
+    view.rerender(
+      <MoreMenu
+        triggerLabel="更多"
+        triggerCurrentLabel={(page) => `更多（目前：${page}）`}
+        items={makeItems().slice(1)}
+        tools={makeTools()}
+      />
+    );
+    const items = menuItems();
+    expect(items[0].tabIndex).toBe(0);
+    expect(items.filter((item) => item.tabIndex === 0)).toHaveLength(1);
+  });
+
+  it("wraps roving with ArrowDown/ArrowUp and honours Home/End (#684)", async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    const items = menuItems();
+    const last = items[items.length - 1];
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "ArrowUp" });
+    expect(last).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "ArrowDown" });
+    expect(items[0]).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "End" });
+    expect(last).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "Home" });
+    expect(items[0]).toHaveFocus();
+  });
+
+  it("does not double-focus or warn under StrictMode (#684)", async () => {
+    const user = userEvent.setup();
+    render(
+      <StrictMode>
+        <MoreMenu
+          triggerLabel="更多"
+          triggerCurrentLabel={(page) => `更多（目前：${page}）`}
+          items={makeItems()}
+          tools={makeTools()}
+        />
+      </StrictMode>
+    );
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    expect(screen.getByRole("menuitem", { name: "規則表" })).toHaveFocus();
   });
 });

@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useCallback, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronDown, Globe, Languages, LogIn, LogOut, MessageCircle, SunMoon } from "lucide-react";
 
 // #608: the mobile nav keeps five primary entries; the rest of the site lives
@@ -57,49 +57,81 @@ export function MoreMenu({
 
   const selectedItem = items.find((item) => item.selected) ?? null;
 
-  // Focus the first entry once the panel is in the DOM (menu-button pattern).
-  useEffect(() => {
-    if (!open) {
-      setFocusKey(null);
-      return;
-    }
-    const first = rootRef.current?.querySelector<HTMLButtonElement>("[role^='menuitem']");
-    if (first) {
-      setFocusKey(first.dataset.menuKey ?? null);
-      first.focus();
-    }
-  }, [open]);
+  // The menu's focusables in the exact order they are rendered (items first,
+  // then the tools block). Opening and roving both derive their keys from this
+  // so a key always resolves to the same DOM element.
+  const toolKeys: string[] = [
+    tools.language ? "tool-language" : null,
+    "tool-furigana",
+    "tool-theme",
+    "tool-feedback",
+    tools.auth ? "tool-auth" : null
+  ].filter((key): key is string => key !== null);
+
+  const allKeys = useCallback(() => [...items.map((item) => item.key), ...toolKeys], [items, toolKeys]);
+
+  // Opening is an event-driven transition: the event handler seeds the first
+  // key and flips `open` together, so the focus effect never has to write
+  // state (the Hooks v7 set-state-in-effect rule).
+  const openMenu = useCallback(
+    (options: { focus: boolean }) => {
+      const first = allKeys()[0] ?? null;
+      setFocusKey(first);
+      setOpen(true);
+      if (options.focus && first) {
+        requestAnimationFrame(() =>
+          document.querySelector<HTMLElement>(`[data-menu-key="${first}"]`)?.focus()
+        );
+      }
+    },
+    [allKeys]
+  );
+
+  // Every close path (click, Escape, Tab, outside press, action select) funnels
+  // through here so the focus key is always cleared with `open`.
+  const closeMenu = useCallback((options: { returnFocus: boolean }) => {
+    setOpen(false);
+    setFocusKey(null);
+    if (options.returnFocus) triggerRef.current?.focus();
+  }, []);
+
+  // Menu-button pattern: the open effect only moves focus once the panel has
+  // committed -- it never writes state.
+  useLayoutEffect(() => {
+    if (!open) return;
+    const focused = rootRef.current?.querySelector<HTMLButtonElement>(
+      `[data-menu-key="${focusKey}"]`
+    );
+    if (focused) focused.focus();
+  }, [open, focusKey]);
 
   // A press anywhere outside closes the menu without swallowing the press.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-        setOpen(false);
+        closeMenu({ returnFocus: false });
       }
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [open]);
+  }, [open, closeMenu]);
 
-  const close = () => setOpen(false);
   const closeAnd = (action: () => void) => () => {
     action();
-    close();
+    closeMenu({ returnFocus: false });
   };
 
   const onPanelKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Escape") {
       event.preventDefault();
-      close();
-      triggerRef.current?.focus();
+      closeMenu({ returnFocus: true });
       return;
     }
     if (event.key === "Tab") {
       // Menu pattern: Tab leaves the menu. Close and put focus back on the
       // trigger so the default Tab continues from there (no preventDefault).
-      close();
-      triggerRef.current?.focus();
+      closeMenu({ returnFocus: true });
       return;
     }
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp" && event.key !== "Home" && event.key !== "End") {
@@ -126,8 +158,14 @@ export function MoreMenu({
     }
   };
 
+  // Effective roving key for rendering: the tracked key while it still exists,
+  // otherwise the first legal key. Read from props/state only -- never written
+  // back to state from an effect, so a key that disappears mid-open falls back
+  // cleanly to the first legal key on the next render.
+  const effectiveFocusKey = focusKey && allKeys().includes(focusKey) ? focusKey : (allKeys()[0] ?? null);
+
   // Roving-tabindex helper: only the focused entry is tabbable.
-  const rove = (key: string) => (focusKey === key ? 0 : -1);
+  const rove = (key: string) => (effectiveFocusKey === key ? 0 : -1);
 
   return (
     <div className="nav-more" ref={rootRef}>
@@ -139,11 +177,17 @@ export function MoreMenu({
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
         aria-label={selectedItem ? triggerCurrentLabel(selectedItem.label) : undefined}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          if (open) {
+            closeMenu({ returnFocus: false });
+          } else {
+            openMenu({ focus: true });
+          }
+        }}
         onKeyDown={(event) => {
           if (event.key === "ArrowDown" && !open) {
             event.preventDefault();
-            setOpen(true);
+            openMenu({ focus: true });
           }
         }}
       >
