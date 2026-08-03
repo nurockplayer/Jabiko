@@ -414,6 +414,7 @@ function resolvesToProductionFile(specifier, testFile, productionFiles) {
 // is not treated as a directly-observable value.
 function collectProductionFunctionBindings(productionSources) {
   const bindings = new Set();
+  const allExports = new Set();
   let hasParsedSources = false;
   for (const source of productionSources?.values() ?? []) {
     if (typeof source !== "string") continue;
@@ -437,6 +438,7 @@ function collectProductionFunctionBindings(productionSources) {
         node.name
       ) {
         bindings.add(node.name.text);
+        allExports.add(node.name.text);
       }
       if (
         ts.isVariableStatement(node) &&
@@ -444,6 +446,7 @@ function collectProductionFunctionBindings(productionSources) {
       ) {
         for (const declaration of node.declarationList.declarations) {
           if (ts.isIdentifier(declaration.name)) {
+            allExports.add(declaration.name.text);
             const initializer = declaration.initializer;
             const unwrappedInitializer = initializer
               ? (() => {
@@ -469,7 +472,7 @@ function collectProductionFunctionBindings(productionSources) {
     }
     collect(sourceFile);
   }
-  return { bindings, hasParsedSources };
+  return { bindings, allExports, hasParsedSources };
 }
 
 function inspectSource(
@@ -481,7 +484,8 @@ function inspectSource(
   allowedRepositoryFiles,
   productionFiles,
   productionFunctionBindings = new Set(),
-  hasParsedSources = false
+  hasParsedSources = false,
+  productionAllExports = new Set()
 ) {
   const errors = [];
   const tests = [];
@@ -490,6 +494,7 @@ function inspectSource(
   const repositoryBindings = new Set();
   const shadowedBindings = new Set();
   const productionFunctionLocals = new Set();
+  const namespaceBindings = new Set();
   let hasBehaviorAssertionMessage = false;
 
   function recordRepositoryBindings(importClause) {
@@ -499,6 +504,7 @@ function inspectSource(
     if (!bindings) return;
     if (ts.isNamespaceImport(bindings)) {
       repositoryBindings.add(bindings.name.text);
+      namespaceBindings.add(bindings.name.text);
     } else if (ts.isNamedImports(bindings)) {
       for (const element of bindings.elements) {
         repositoryBindings.add(element.name.text);
@@ -571,28 +577,6 @@ function inspectSource(
     return current;
   }
 
-  function staticTruthiness(node) {
-    const current = unwrapExpression(node);
-    if (
-      current.kind === ts.SyntaxKind.TrueKeyword ||
-      ts.isNumericLiteral(current) && Number(current.text) !== 0 ||
-      ts.isStringLiteralLike(current) && current.text.length > 0 ||
-      ts.isNoSubstitutionTemplateLiteral(current) && current.text.length > 0
-    ) {
-      return true;
-    }
-    if (
-      current.kind === ts.SyntaxKind.FalseKeyword ||
-      current.kind === ts.SyntaxKind.NullKeyword ||
-      ts.isNumericLiteral(current) && Number(current.text) === 0 ||
-      ts.isStringLiteralLike(current) && current.text.length === 0 ||
-      ts.isNoSubstitutionTemplateLiteral(current) && current.text.length === 0
-    ) {
-      return false;
-    }
-    return null;
-  }
-
   function staticIsNullOrUndefined(node) {
     const current = unwrapExpression(node);
     if (current.kind === ts.SyntaxKind.NullKeyword) return true;
@@ -624,12 +608,66 @@ function inspectSource(
     const current = unwrapExpression(node);
     if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
       let observed = false;
+      const constValues = new Map();
       function tryBlockSwallows(tryStatement) {
         if (!tryStatement.catchClause) return false;
         const catchBlock = tryStatement.catchClause.block;
         return !catchBlock.statements.some(
           statement => ts.isThrowStatement(statement)
         );
+      }
+      // Track local const declarations that can be safely evaluated to a
+      // primitive (boolean/number/string), so conditions on them are statically
+      // resolved instead of being treated as unknown.
+      function recordConstValue(variableStatement) {
+        for (const declaration of variableStatement.declarationList.declarations) {
+          if (
+            ts.isIdentifier(declaration.name) &&
+            declaration.initializer
+          ) {
+            const init = unwrapExpression(declaration.initializer);
+            let value;
+            if (init.kind === ts.SyntaxKind.TrueKeyword) value = true;
+            else if (init.kind === ts.SyntaxKind.FalseKeyword) value = false;
+            else if (ts.isNumericLiteral(init)) value = Number(init.text);
+            else if (ts.isStringLiteralLike(init)) value = init.text;
+            if (value !== undefined) {
+              constValues.set(declaration.name.text, value);
+            }
+          }
+        }
+      }
+      function resolveConstValue(valueNode) {
+        const unwrapped = unwrapExpression(valueNode);
+        if (ts.isIdentifier(unwrapped) && constValues.has(unwrapped.text)) {
+          return constValues.get(unwrapped.text);
+        }
+        return undefined;
+      }
+      function staticTruthiness(node) {
+        const current = unwrapExpression(node);
+        const known = resolveConstValue(current);
+        if (known !== undefined) {
+          return known ? true : false;
+        }
+        if (
+          current.kind === ts.SyntaxKind.TrueKeyword ||
+          ts.isNumericLiteral(current) && Number(current.text) !== 0 ||
+          ts.isStringLiteralLike(current) && current.text.length > 0 ||
+          ts.isNoSubstitutionTemplateLiteral(current) && current.text.length > 0
+        ) {
+          return true;
+        }
+        if (
+          current.kind === ts.SyntaxKind.FalseKeyword ||
+          current.kind === ts.SyntaxKind.NullKeyword ||
+          ts.isNumericLiteral(current) && Number(current.text) === 0 ||
+          ts.isStringLiteralLike(current) && current.text.length === 0 ||
+          ts.isNoSubstitutionTemplateLiteral(current) && current.text.length === 0
+        ) {
+          return false;
+        }
+        return null;
       }
       // visitCallback tracks whether the current path is inside a swallowing
       // try's try-block; an observation found there cannot satisfy toThrow().
@@ -643,6 +681,11 @@ function inspectSource(
           ts.isFunctionExpression(childNode) ||
           ts.isFunctionDeclaration(childNode)
         ) {
+          return;
+        }
+        if (ts.isVariableStatement(child)) {
+          recordConstValue(child);
+          ts.forEachChild(child, c => visitCallback(c, loopDepth, swallowed));
           return;
         }
         if (ts.isTryStatement(child)) {
@@ -689,12 +732,12 @@ function inspectSource(
           return;
         }
         if (ts.isIfStatement(child)) {
-          const condition = unwrapExpression(child.expression);
-          if (condition.kind === ts.SyntaxKind.TrueKeyword) {
+          const conditionTruth = staticTruthiness(child.expression);
+          if (conditionTruth === true) {
             visitCallback(child.thenStatement, loopDepth, swallowed);
             return;
           }
-          if (condition.kind === ts.SyntaxKind.FalseKeyword) {
+          if (conditionTruth === false) {
             if (child.elseStatement) {
               visitCallback(child.elseStatement, loopDepth, swallowed);
             }
@@ -761,6 +804,16 @@ function inspectSource(
       return observed;
     }
     if (ts.isPropertyAccessExpression(current)) {
+      // A namespace import member must resolve to a real export of the
+      // production source; an unknown member is not an observable value.
+      const base = unwrapExpression(current.expression);
+      if (
+        hasParsedSources &&
+        ts.isIdentifier(base) &&
+        namespaceBindings.has(base.text)
+      ) {
+        return productionAllExports.has(current.name.text);
+      }
       return isExecutedRepositoryObservation(current.expression);
     }
     if (ts.isIdentifier(current)) {
@@ -1016,12 +1069,34 @@ function inspectSource(
     ) {
       errors.push("the labeled expect() must have exactly one direct matcher");
     } else {
-      if (!isExecutedRepositoryObservation(received)) {
+      const matcherName = matcherCalls[0].expression.name.text;
+      // Only matchers that actually execute the received callback (e.g.
+      // toThrow) can observe a callback body; a value matcher on an unexecuted
+      // callback is a guaranteed-fail shape.
+      const receivedUnwrapped = unwrapExpression(expectCalls[0].arguments[0]);
+      const callbackReceived =
+        ts.isArrowFunction(receivedUnwrapped) ||
+        ts.isFunctionExpression(receivedUnwrapped);
+      const isAsyncCallback =
+        callbackReceived &&
+        (receivedUnwrapped.modifiers?.some(
+          modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword
+        ) ?? false);
+      const isGeneratorCallback =
+        callbackReceived && receivedUnwrapped.asteriskToken != null;
+      if (matcherName === "toThrow" && isGeneratorCallback) {
+        errors.push("toThrow() must not be given a generator callback");
+      } else if (matcherName === "toThrow" && isAsyncCallback) {
+        errors.push("toThrow() must not be given an async callback");
+      } else if (callbackReceived && matcherName !== "toThrow") {
+        errors.push(
+          "expect() must only observe a callback body through an executing matcher"
+        );
+      } else if (!isExecutedRepositoryObservation(expectCalls[0].arguments[0])) {
         errors.push(
           "expect() must execute or call a prompt-visible repository import"
         );
       }
-      const matcherName = matcherCalls[0].expression.name.text;
       const operand = matcherCalls[0].arguments[0];
       // toBe and toContain compare by identity; toEqual uses deep equality for
       // objects/arrays but still compares primitive values like Symbol by
@@ -1152,7 +1227,8 @@ export function validateRegressionCandidate(candidate, {
     new Set(allowedRepositoryFiles.map(filePath => String(filePath).replace(/\\/g, "/"))),
     new Set((finding.productionFiles ?? []).map(filePath => String(filePath).replace(/\\/g, "/"))),
     productionFunctionInfo.bindings,
-    productionFunctionInfo.hasParsedSources
+    productionFunctionInfo.hasParsedSources,
+    productionFunctionInfo.allExports
   );
   if (sourceErrors.length > 0) {
     return invalid(sourceErrors[0]);
