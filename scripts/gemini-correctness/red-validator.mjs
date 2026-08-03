@@ -610,11 +610,23 @@ function inspectSource(
       let observed = false;
       const constValues = new Map();
       function tryBlockSwallows(tryStatement) {
-        if (!tryStatement.catchClause) return false;
-        const catchBlock = tryStatement.catchClause.block;
-        return !catchBlock.statements.some(
-          statement => ts.isThrowStatement(statement)
-        );
+        // A catch that never rethrows swallows the try block's error.
+        if (tryStatement.catchClause) {
+          const catchBlock = tryStatement.catchClause.block;
+          if (!catchBlock.statements.some(
+            statement => ts.isThrowStatement(statement)
+          )) {
+            return true;
+          }
+        }
+        // A finally block that returns overrides the try block's normal or
+        // thrown completion, so the error never reaches toThrow().
+        if (tryStatement.finallyBlock) {
+          return tryStatement.finallyBlock.statements.some(
+            statement => ts.isReturnStatement(statement)
+          );
+        }
+        return false;
       }
       // Track local const declarations that can be safely evaluated to a
       // primitive (boolean/number/string), so conditions on them are statically

@@ -568,6 +568,49 @@ describe("validateRegressionCandidate", () => {
     expect(result.error).toMatch(/generator|callback/i);
   });
 
+  it("rejects a toThrow callback whose finally block returns and swallows the target error", () => {
+    const source = validSource
+      .replace(
+        "readEmptyQueue()",
+        "() => { try { readEmptyQueue(); } finally { return; } }"
+      )
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe|finally/i);
+  });
+
+  it("accepts a toThrow callback whose finally block does not return", () => {
+    const source = validSource
+      .replace(
+        "readEmptyQueue()",
+        "() => { try { readEmptyQueue(); } finally { cleanup(); } }"
+      )
+      .replace('.toBe("safe")', ".toThrow()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
   it("rejects a toThrow callback that swallows the target error in a try/catch", () => {
     const source = validSource
       .replace("readEmptyQueue()", "() => { try { readEmptyQueue(); } catch {} }")
@@ -1073,6 +1116,41 @@ describe("validateRegressionCandidate", () => {
   it("accepts a toEqual assertion with a structural object literal operand", () => {
     const source = validSource
       .replace('.toBe("safe")', '.toEqual({ status: "ready" })');
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects a toStrictEqual assertion with a fresh-identity factory operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', ".toStrictEqual(Symbol())");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/matcher|identity|operand/i);
+  });
+
+  it("accepts a toStrictEqual assertion with a structural object literal operand", () => {
+    const source = validSource
+      .replace('.toBe("safe")', '.toStrictEqual({ status: "ready" })');
     const result = validateRegressionCandidate(
       {
         schemaVersion: 1,
