@@ -13,7 +13,7 @@
 // full-paper mode is ever wanted again.)
 import type { JlptLevel } from "./types";
 
-export type MockExamLevel = Extract<JlptLevel, "N1" | "N2" | "N3">;
+export type MockExamLevel = Extract<JlptLevel, "N1" | "N2" | "N3" | "N4" | "N5">;
 
 export interface MockExamSection {
   /** Stable id used internally (e.g. "kanji-yomi"). */
@@ -126,7 +126,63 @@ export const N3_BLUEPRINT: MockExamBlueprint = {
 };
 
 export function getMockExamBlueprint(level: MockExamLevel): MockExamBlueprint {
-  if (level === "N1") return N1_BLUEPRINT;
-  if (level === "N3") return N3_BLUEPRINT;
-  return N2_BLUEPRINT;
+  switch (level) {
+    case "N1":
+      return N1_BLUEPRINT;
+    case "N2":
+      return N2_BLUEPRINT;
+    case "N3":
+      return N3_BLUEPRINT;
+    case "N4":
+      return N4_BLUEPRINT;
+    case "N5":
+      return N5_BLUEPRINT;
+    default:
+      // No catch-all: an unknown/unsafe level must not silently fall back to
+      // a valid level's blueprint (#702).
+      throw new Error(`Unknown JLPT mock-exam level: ${level}`);
+  }
 }
+
+// N4 / N5 言語知識（文字・語彙）・文法・読解 blueprints (#702). Per the JLPT
+// official guide, the lowest two levels have no 語形成, no 統合理解 / 主張理解
+// (those are N1/N2 only), and no 内容理解（長文）(that is N3 only) -- N4/N5
+// reading ends at 内容理解（中文）. N4 keeps 語彙用法 (詞彙用法); N5 drops it.
+// Like N1–N3, these list the 言語知識・読解 paper only (聴解 is out of scope),
+// so totalMinutes is the combined 文字・語彙 + 文法・読解 duration, not the
+// full-paper time. Counts taken from the JLPT official guide; treat them as
+// the contract -- if 国際交流基金 ever revises, update here.
+export const N4_BLUEPRINT: MockExamBlueprint = {
+  level: "N4",
+  totalMinutes: 80,
+  sections: [
+    { id: "kanji-yomi", labelJa: "漢字読み", labelZh: "漢字讀音", labelEn: "Kanji reading", promptLabel: "漢字読み", targetCount: 7 },
+    { id: "hyoki", labelJa: "表記", labelZh: "漢字書寫", labelEn: "Orthography (kanji writing)", promptLabel: "表記", targetCount: 5 },
+    { id: "bunmyaku-kitei", labelJa: "文脈規定", labelZh: "詞彙填空", labelEn: "Vocabulary in context", promptLabel: "詞彙填空", targetCount: 8 },
+    { id: "iikae-ruigi", labelJa: "言い換え類義", labelZh: "類義替換", labelEn: "Paraphrase (synonyms)", promptLabel: "類義替換", targetCount: 4 },
+    { id: "yohou", labelJa: "用法", labelZh: "詞彙用法", labelEn: "Word usage", promptLabel: "詞彙用法", targetCount: 4 },
+    { id: "bun-bunpou-1", labelJa: "文の文法 1（文法形式の判断）", labelZh: "文法形式判斷", labelEn: "Grammar form selection", promptLabel: "文法形式選擇", targetCount: 13 },
+    { id: "bun-bunpou-2", labelJa: "文の文法 2（文の組み立て）", labelZh: "句子組合（★ 題）", labelEn: "Sentence assembly (★)", promptLabel: "語順組合", targetCount: 4 },
+    { id: "bunshou-bunpou", labelJa: "文章の文法", labelZh: "文章脈絡填空", labelEn: "Passage cloze", promptLabel: "文章脈絡", targetCount: 4 },
+    { id: "dokkai-short", labelJa: "内容理解（短文）", labelZh: "短文閱讀", labelEn: "Reading: short passages", promptLabel: "内容理解（短文）", targetCount: 3 },
+    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中文閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 3 },
+    { id: "joho-kensaku", labelJa: "情報検索", labelZh: "資訊檢索", labelEn: "Information retrieval", promptLabel: "情報検索", targetCount: 2 }
+  ]
+};
+
+export const N5_BLUEPRINT: MockExamBlueprint = {
+  level: "N5",
+  totalMinutes: 60,
+  sections: [
+    { id: "kanji-yomi", labelJa: "漢字読み", labelZh: "漢字讀音", labelEn: "Kanji reading", promptLabel: "漢字読み", targetCount: 7 },
+    { id: "hyoki", labelJa: "表記", labelZh: "漢字書寫", labelEn: "Orthography (kanji writing)", promptLabel: "表記", targetCount: 5 },
+    { id: "bunmyaku-kitei", labelJa: "文脈規定", labelZh: "詞彙填空", labelEn: "Vocabulary in context", promptLabel: "詞彙填空", targetCount: 6 },
+    { id: "iikae-ruigi", labelJa: "言い換え類義", labelZh: "類義替換", labelEn: "Paraphrase (synonyms)", promptLabel: "類義替換", targetCount: 3 },
+    { id: "bun-bunpou-1", labelJa: "文の文法 1（文法形式の判断）", labelZh: "文法形式判斷", labelEn: "Grammar form selection", promptLabel: "文法形式選擇", targetCount: 9 },
+    { id: "bun-bunpou-2", labelJa: "文の文法 2（文の組み立て）", labelZh: "句子組合（★ 題）", labelEn: "Sentence assembly (★)", promptLabel: "語順組合", targetCount: 4 },
+    { id: "bunshou-bunpou", labelJa: "文章の文法", labelZh: "文章脈絡填空", labelEn: "Passage cloze", promptLabel: "文章脈絡", targetCount: 4 },
+    { id: "dokkai-short", labelJa: "内容理解（短文）", labelZh: "短文閱讀", labelEn: "Reading: short passages", promptLabel: "内容理解（短文）", targetCount: 2 },
+    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中文閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 2 },
+    { id: "joho-kensaku", labelJa: "情報検索", labelZh: "資訊檢索", labelEn: "Information retrieval", promptLabel: "情報検索", targetCount: 1 }
+  ]
+};
