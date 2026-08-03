@@ -167,9 +167,9 @@ export function createGeminiClient(options = {}) {
   }
 
   // ---------------------------------------------------------------------------
-  // discover — retry loop + schema validation
+  // generateJson — shared retry loop + strict JSON transport
   // ---------------------------------------------------------------------------
-  async function discover({ prompt, validationOptions } = {}) {
+  async function generateJson({ prompt } = {}) {
     if (!prompt || typeof prompt !== "string") {
       return { valid: false, error: "prompt is required" };
     }
@@ -212,21 +212,7 @@ export function createGeminiClient(options = {}) {
         continue; // retry on parse failure (transient formatting issue)
       }
 
-      // Run through schema validator
-      let validation;
-      try {
-        validation = validateFinding(parsed, validationOptions ?? {});
-      } catch {
-        lastError = { ok: false, status: "invalid-response", error: "Schema validator threw unexpectedly" };
-        break;
-      }
-      if (validation.valid) {
-        return validation;
-      }
-
-      // If validation failed — redact the error before persisting
-      lastError = { ok: false, status: "invalid-response", error: `Schema validation failed: ${redactApiKey(validation.error || "", apiKey)}` };
-      break;
+      return { valid: true, result: parsed };
     }
 
     // All attempts exhausted or non-retryable error
@@ -236,5 +222,30 @@ export function createGeminiClient(options = {}) {
     return { valid: false, error, status };
   }
 
-  return { discover };
+  // ---------------------------------------------------------------------------
+  // discover — discovery-specific schema validation over the shared transport
+  // ---------------------------------------------------------------------------
+  async function discover({ prompt, validationOptions } = {}) {
+    const generated = await generateJson({ prompt });
+    if (!generated.valid) return generated;
+
+    let validation;
+    try {
+      validation = validateFinding(generated.result, validationOptions ?? {});
+    } catch {
+      return {
+        valid: false,
+        status: "invalid-response",
+        error: "Schema validator threw unexpectedly"
+      };
+    }
+    if (validation.valid) return validation;
+    return {
+      valid: false,
+      status: "invalid-response",
+      error: `Schema validation failed: ${redactApiKey(validation.error || "", apiKey)}`
+    };
+  }
+
+  return { discover, generateJson };
 }
