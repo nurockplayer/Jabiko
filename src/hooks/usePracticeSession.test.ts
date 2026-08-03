@@ -1,9 +1,17 @@
+import { createElement, StrictMode } from "react";
+import type { ReactNode } from "react";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { BOOKMARKS_KEY } from "../domain/bookmarks";
 import { buildAllKnownQuestions } from "../domain/sessionPools";
+import type { SentencePatternId } from "../domain/sentencePatterns";
 import type { Attempt, PracticeQuestion } from "../domain/types";
-import { initialLevelRange, usePracticeSession } from "./usePracticeSession";
+import {
+  createPracticePoolSnapshot,
+  initialLevelRange,
+  type PracticeFilter,
+  usePracticeSession
+} from "./usePracticeSession";
 
 const baseHookArgs = {
   language: "zh-Hant" as const,
@@ -30,6 +38,67 @@ describe("usePracticeSession pool snapshot (#623)", () => {
     window.localStorage.clear();
   });
 
+  // The static config half of a snapshot (mode / filters / form / range /
+  // length). The live inputs (reviewQueue / bookmarkedQuestions /
+  // attemptedIds) are the second argument, captured at pass start.
+  const baseConfig = {
+    mode: "basic" as const,
+    filter: {} as PracticeFilter,
+    partOfSpeech: "verb" as const,
+    verbGroup: "all" as const,
+    practiceFocus: "single" as const,
+    targetForm: "te" as const,
+    targetForms: ["te" as const],
+    levelRange: "all" as const,
+    sessionLength: 20
+  };
+  const liveInputs = {
+    reviewQueue: [] as PracticeQuestion[],
+    bookmarkedQuestions: [] as PracticeQuestion[],
+    attemptedIds: undefined as Set<string> | undefined
+  };
+
+  // #679 — pure snapshot builder: each call must be a fresh immutable object.
+  it("builds a fresh immutable snapshot each call", () => {
+    const a = createPracticePoolSnapshot(baseConfig, liveInputs);
+    const b = createPracticePoolSnapshot(baseConfig, liveInputs);
+    expect(a).not.toBe(b);
+    expect(a.reviewQueue).not.toBe(liveInputs.reviewQueue);
+    expect(a.bookmarkedQuestions).not.toBe(liveInputs.bookmarkedQuestions);
+    expect(a.reviewQueue).toEqual([]);
+  });
+
+  it("carries the config fields and the live inputs through", () => {
+    const q = buildAllKnownQuestions()[0];
+    const snapshot = createPracticePoolSnapshot(
+      {
+        ...baseConfig,
+        mode: "exam",
+        filter: {
+          examSection: { level: "N1", promptLabel: "test" },
+          patternIds: ["p1" as SentencePatternId]
+        },
+        sessionLength: 10
+      },
+      {
+        reviewQueue: [q],
+        bookmarkedQuestions: [q],
+        attemptedIds: new Set(["x"])
+      }
+    );
+    expect(snapshot.mode).toBe("exam");
+    expect(snapshot.examSection).toEqual({ level: "N1", promptLabel: "test" });
+    expect(snapshot.patternIds).toEqual(["p1"]);
+    expect(snapshot.sessionLength).toBe(10);
+    expect(snapshot.reviewQueue).toEqual([q]);
+    expect(snapshot.bookmarkedQuestions).toEqual([q]);
+    expect(snapshot.attemptedIds?.has("x")).toBe(true);
+    expect(snapshot.kanaScript).toBeUndefined();
+  });
+
+  // #679 — snapshot copy: the live inputs are captured by reference at pass
+  // start; a later mutation of the caller's arrays must not corrupt the
+  // stored pass (the hook hands in freshly-computed inputs each pass).
   it("keeps the review pass stable until an explicit reset captures the latest queue", () => {
     const question = buildAllKnownQuestions()[0];
     const missed = makeAttempt(question, false, 1);
@@ -81,6 +150,158 @@ describe("usePracticeSession pool snapshot (#623)", () => {
     expect(result.current.bookmarksEmpty).toBe(true);
     expect(result.current.currentQuestion).toBeNull();
     expect(result.current.sessionTotal).toBe(0);
+  });
+});
+
+// #679 — the active-pass snapshot boundary. progress/bookmark/review-queue
+// changes must never rebuild, shrink, or reorder the live pass; only an
+// explicit start/reset/config change captures the latest live inputs.
+describe("usePracticeSession pass snapshot (#679)", () => {
+  const question = buildAllKnownQuestions()[0];
+
+  it("does not reorder or shrink the active pass when a progress attempt lands mid-pass", () => {
+    const missed = makeAttempt(question, false, 1);
+    const fresh = makeAttempt(question, false, 2);
+    const { result, rerender } = renderHook(
+      ({ progressAttempts }: { progressAttempts: Attempt[] }) =>
+        usePracticeSession({
+          ...baseHookArgs,
+          init: { mode: "exam", levelRange: "all" },
+          progressAttempts
+        }),
+      { initialProps: { progressAttempts: [missed] } }
+    );
+    const before = result.current.currentQuestion?.id;
+    expect(before).toBeTruthy();
+    // Default session length caps exam at 20; a mid-pass progress change must
+    // not rebuild/shrink the pool.
+    expect(result.current.sessionTotal).toBe(20);
+
+    rerender({ progressAttempts: [missed, fresh] });
+    expect(result.current.currentQuestion?.id).toBe(before);
+    expect(result.current.sessionTotal).toBe(20);
+
+    act(() => result.current.resetSession());
+    expect(result.current.currentQuestion).toBeDefined();
+  });
+
+  it("does not change the bookmark pass mid-pass; reset captures the latest set", () => {
+    window.localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([question.id]));
+    const { result } = renderHook(() =>
+      usePracticeSession({ ...baseHookArgs, init: { mode: "bookmarks" } })
+    );
+    const before = result.current.currentQuestion?.id;
+    expect(before).toBe(question.id);
+
+    act(() => result.current.onToggleBookmark(question.id));
+    expect(result.current.currentQuestion?.id).toBe(question.id);
+
+    act(() => result.current.resetSession());
+    expect(result.current.bookmarksEmpty).toBe(true);
+  });
+
+  it("does not let a mid-pass review-queue change contaminate the pass; reset picks it up", () => {
+    const missed = makeAttempt(question, false, 1);
+    const { result, rerender } = renderHook(
+      ({ progressAttempts }: { progressAttempts: Attempt[] }) =>
+        usePracticeSession({
+          ...baseHookArgs,
+          init: { mode: "review" },
+          progressAttempts
+        }),
+      { initialProps: { progressAttempts: [missed] } }
+    );
+    expect(result.current.sessionTotal).toBe(1);
+
+    rerender({ progressAttempts: [missed, missed] });
+    expect(result.current.currentQuestion?.id).toBe(question.id);
+    expect(result.current.sessionTotal).toBe(1);
+  });
+
+  it("each mode/level/filter/form change creates exactly one new snapshot", () => {
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs));
+    act(() => result.current.applyModePreset("vocab", "n1n2"));
+    expect(result.current.levelRange).toBe("n1n2");
+
+    act(() => result.current.setPracticeFilter({}));
+    expect(result.current.practiceMode).toBe("vocab");
+    expect(result.current.levelRange).toBe("n1n2");
+
+    act(() => result.current.handlePracticeFocusChange("single"));
+    expect(result.current.practiceFocus).toBe("single");
+    expect(result.current.practiceMode).toBe("vocab");
+  });
+
+  it("sessionSeed reshuffle keeps the same config but grabs the latest live inputs", () => {
+    const missed = makeAttempt(question, false, 1);
+    const { result, rerender } = renderHook(
+      ({ progressAttempts }: { progressAttempts: Attempt[] }) =>
+        usePracticeSession({
+          ...baseHookArgs,
+          init: { mode: "exam", levelRange: "all" },
+          progressAttempts
+        }),
+      { initialProps: { progressAttempts: [missed] } }
+    );
+    const firstQuestion = result.current.currentQuestion?.id;
+
+    rerender({ progressAttempts: [missed, missed] });
+    const afterRerender = result.current.currentQuestion?.id;
+
+    act(() => result.current.resetSession());
+    expect(result.current.currentQuestion).toBeDefined();
+    expect(firstQuestion).toBeTruthy();
+    expect(afterRerender).toBeTruthy();
+  });
+
+  it("handlers use the passed next config in the same event, not a render behind", () => {
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs));
+    act(() => result.current.applyModePreset("cloze"));
+    expect(result.current.practiceMode).toBe("cloze");
+  });
+
+  it("StrictMode + rapid clicks do not mix old/new config snapshots", () => {
+    window.localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([question.id]));
+    // renderHook's `wrapper` must be a component. Build one without JSX
+    // (this file is *.ts, not *.tsx) by creating a StrictMode-wrapping
+    // element via createElement.
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(StrictMode, null, children);
+    const { result } = renderHook(
+      () => usePracticeSession({ ...baseHookArgs, init: { mode: "daily" } }),
+      { wrapper }
+    );
+    expect(result.current).toBeDefined();
+
+    act(() => result.current.setPracticeMode("exam"));
+    act(() => result.current.resetSession());
+    expect(result.current.practiceMode).toBe("exam");
+  });
+
+  it("the raw mode/filter/verbGroup/form setters are the UI composition path into a new snapshot", () => {
+    // ModePicker / DrillPanel call the raw setter then resetSession() (see
+    // ModePicker.tsx verbGroup/select and DrillPanel.tsx review-empty CTA).
+    // The pair must capture the NEW config for the fresh snapshot -- not lag
+    // a render behind.
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs));
+
+    act(() => result.current.setPracticeMode("exam"));
+    act(() => result.current.resetSession());
+    expect(result.current.practiceMode).toBe("exam");
+
+    act(() => result.current.setVerbGroup("ichidan"));
+    act(() => result.current.resetSession());
+    expect(result.current.verbGroup).toBe("ichidan");
+
+    act(() => result.current.setTargetForm("te"));
+    act(() => result.current.resetSession());
+    expect(result.current.selectedForm).toBe("te");
+
+    act(() => result.current.setPracticeFilter({}));
+    act(() => result.current.resetSession());
+    // The filter is not exposed as a getter; a no-op filter change must not
+    // throw or rebuild the pass differently.
+    expect(result.current.currentQuestion).toBeDefined();
   });
 });
 

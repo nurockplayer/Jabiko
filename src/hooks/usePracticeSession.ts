@@ -85,6 +85,23 @@ type LivePracticePoolInputs = Pick<
 // mode/config change or explicit reset starts a new pass.
 type PracticePoolSnapshot = Readonly<PracticePoolOptions>;
 
+// The static half of a pass snapshot: every knob that defines the pool
+// (mode / filters / word type / form / range / length) plus the resolved
+// targetForms. Stored as ONE immutable object so a new pass can be started
+// from the config that is current AT THE EVENT -- never a render behind
+// (#679). This replaces the old render-phase `latestPoolInputsRef` write.
+export type PracticeSessionConfig = {
+  mode: PracticeMode;
+  filter: PracticeFilter;
+  partOfSpeech: PartOfSpeech | "mixed";
+  verbGroup: VerbGroup | "all";
+  practiceFocus: PracticeFocus;
+  targetForm: TargetForm;
+  levelRange: LevelRange;
+  sessionLength: number | null;
+  targetForms: TargetForm[];
+};
+
 // The level range a session starts in (#199). An explicit launch request
 // (init.levelRange) always wins; otherwise it inherits the learner's global
 // target preference. 単字 has no n4n5 jlpt vocab, so an n4n5 preference is
@@ -127,6 +144,89 @@ const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; ver
   }
 ];
 
+// The curated (non-basic) modes build their pool from the mode + range alone;
+// targetForms are irrelevant to their pool construction, so they resolve to [].
+function isCuratedMode(mode: PracticeMode): boolean {
+  return (
+    mode === "exam" ||
+    mode === "cloze" ||
+    mode === "pattern" ||
+    mode === "review" ||
+    mode === "vocab" ||
+    mode === "daily" ||
+    mode === "kana" ||
+    mode === "starter" ||
+    mode === "bookmarks"
+  );
+}
+
+// Pure (#679): the target forms the basic pool builds for a config. Curated
+// modes return []; "single" focus uses the selected form; multi-form focuses
+// use their fixed list. Extracted from the hook so a fresh pass can resolve
+// targetForms for the NEW config (not the render-behind one). Always returns
+// a fresh array -- never the shared focusOptions lists by reference.
+export function resolveTargetForms(config: {
+  partOfSpeech: PartOfSpeech | "mixed";
+  targetForm: TargetForm;
+  practiceFocus: PracticeFocus;
+  mode: PracticeMode;
+}): TargetForm[] {
+  if (isCuratedMode(config.mode)) return [];
+  const baseCompatibleForms =
+    config.partOfSpeech === "mixed"
+      ? uniqueForms([...VERB_FORMS, ...ADJECTIVE_FORMS])
+      : config.partOfSpeech === "verb"
+        ? VERB_FORMS
+        : ADJECTIVE_FORMS;
+  const compatibleForms = uniqueForms([...baseCompatibleForms, "reading", "meaning"]);
+  const selectedForm = compatibleForms.includes(config.targetForm)
+    ? config.targetForm
+    : compatibleForms[0];
+  if (config.practiceFocus === "single") return [selectedForm];
+  return [...(focusOptions.find((option) => option.value === config.practiceFocus)?.targetForms ?? [selectedForm])];
+}
+
+function makeInitialConfig(
+  init: SessionInit | undefined,
+  targetLevel: LevelRange | null
+): PracticeSessionConfig {
+  const config = {
+    mode: init?.mode ?? "daily",
+    filter: init?.filter ?? {},
+    partOfSpeech: init?.partOfSpeech ?? "verb",
+    verbGroup: init?.verbGroup ?? "godan",
+    practiceFocus: init?.practiceFocus ?? "single",
+    targetForm: init?.targetForm ?? "te",
+    levelRange: initialLevelRange(init, targetLevel),
+    sessionLength: readSessionLength()
+  };
+  return { ...config, targetForms: resolveTargetForms(config) };
+}
+
+// Pure snapshot builder (#679): merges the static config with the live
+// progress/bookmark inputs captured at pass start into one immutable
+// PracticePoolOptions. Copies the arrays/Set so a later change to the live
+// inputs (or the shared focusOptions lists) can never mutate the stored pass.
+export function createPracticePoolSnapshot(
+  config: PracticeSessionConfig,
+  liveInputs: LivePracticePoolInputs
+): PracticePoolSnapshot {
+  return {
+    mode: config.mode,
+    examSection: config.filter.examSection,
+    patternIds: config.filter.patternIds,
+    kanaScript: config.filter.kanaScript,
+    partOfSpeech: config.partOfSpeech,
+    verbGroup: config.verbGroup,
+    targetForms: [...config.targetForms],
+    levelRange: config.levelRange,
+    sessionLength: config.sessionLength,
+    reviewQueue: [...liveInputs.reviewQueue],
+    bookmarkedQuestions: [...liveInputs.bookmarkedQuestions],
+    attemptedIds: liveInputs.attemptedIds ? new Set(liveInputs.attemptedIds) : undefined
+  };
+}
+
 // The stateful core of the practice experience: owns all in-session
 // state (mode / filters / current question / feedback / score), derives
 // the active question pool, and exposes the handlers the challenge view
@@ -154,18 +254,27 @@ export function usePracticeSession({
   // pin one; a per-session picker change still overrides it.
   targetLevel?: LevelRange | null;
 }) {
-  const [partOfSpeech, setPartOfSpeech] = useState<PartOfSpeech | "mixed">(init?.partOfSpeech ?? "verb");
-  const [verbGroup, setVerbGroup] = useState<VerbGroup | "all">(init?.verbGroup ?? "godan");
-  const [targetForm, setTargetForm] = useState<TargetForm>(init?.targetForm ?? "te");
-  const [practiceFocus, setPracticeFocus] = useState<PracticeFocus>(init?.practiceFocus ?? "single");
-  // Default landing is 今日練習 (#340): no challenge entry should drop the
-  // learner into the raw 基礎變化 cascade. Every no-mode entry (nav 挑戰, home
-  // card, grammar CTA, learn 開始挑戰) starts in the guided mixed session;
-  // explicit seeds (incl. {mode:"basic"} drills) and ?mode= deep links win.
-  const [practiceMode, setPracticeMode] = useState<PracticeMode>(init?.mode ?? "daily");
-  const [practiceFilter, setPracticeFilter] = useState<PracticeFilter>(init?.filter ?? {});
-  const [levelRange, setLevelRange] = useState<LevelRange>(() => initialLevelRange(init, targetLevel));
-  const [sessionLength, setSessionLength] = useState<number | null>(() => readSessionLength());
+  // Config is ONE immutable object holding every static knob that defines a
+  // pass. A new pass is started only by startNewPass, which builds a fresh
+  // snapshot from the event-time config + the live inputs captured right
+  // then -- so progress/bookmark/review-queue changes mid-pass never rebuild
+  // or reorder the active set (#679). configRef mirrors the config so the
+  // setter + resetSession pair (the ModePicker / DrillPanel composition)
+  // reads the NEW config in the SAME event, never a render behind.
+  const [config, setConfig] = useState<PracticeSessionConfig>(() => makeInitialConfig(init, targetLevel));
+  const configRef = useRef<PracticeSessionConfig>(config);
+  const {
+    mode: practiceMode,
+    filter: practiceFilter,
+    partOfSpeech,
+    verbGroup,
+    practiceFocus,
+    targetForm,
+    levelRange,
+    sessionLength,
+    targetForms
+  } = config;
+
   const [questionIndex, setQuestionIndex] = useState(0);
   const [sessionSeed, setSessionSeed] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
@@ -273,15 +382,6 @@ export function usePracticeSession({
     if (option.value === "adverbial" && partOfSpeech === "verb") return false;
     return true;
   });
-  const targetForms = useMemo(
-    () =>
-      isCuratedFocus
-        ? []
-        : practiceFocus === "single"
-        ? [selectedForm]
-        : focusOptions.find((option) => option.value === practiceFocus)?.targetForms ?? [selectedForm],
-    [practiceFocus, isCuratedFocus, selectedForm]
-  );
   const activeFocusForms = targetForms.filter((form) => compatibleForms.includes(form));
   // Exam mode is one PracticeMode but several picker presets (綜合 / 備考
   // bands). Map the active mode+range to the matching copy key (via the
@@ -295,49 +395,13 @@ export function usePracticeSession({
     ? t.targetForms[selectedForm]
     : activeFocusForms.map((form) => t.targetForms[form]).join(" / ") || t.focusSummaryEmpty;
 
-  // Keep the latest dynamic inputs available for the next snapshot without
-  // making them recapture (and reshuffle/shrink) the active pass. Updating a
-  // ref during render is safe here: it is only read while constructing a new
-  // snapshot, never used directly to render the current pass.
-  const latestPoolInputsRef = useRef<LivePracticePoolInputs>({
-    reviewQueue,
-    bookmarkedQuestions,
-    attemptedIds
-  });
-  latestPoolInputsRef.current = { reviewQueue, bookmarkedQuestions, attemptedIds };
-
-  const poolSnapshot = useMemo<PracticePoolSnapshot>(
-    () => {
-      // sessionSeed is the explicit "start a fresh pass" signal.
-      void sessionSeed;
-      const liveInputs = latestPoolInputsRef.current;
-      return {
-        mode: practiceMode,
-        examSection: practiceFilter.examSection,
-        patternIds: practiceFilter.patternIds,
-        kanaScript: practiceFilter.kanaScript,
-        partOfSpeech,
-        verbGroup,
-        targetForms,
-        levelRange,
-        reviewQueue: liveInputs.reviewQueue,
-        bookmarkedQuestions: liveInputs.bookmarkedQuestions,
-        sessionLength,
-        attemptedIds: liveInputs.attemptedIds
-      };
-    },
-    [
-      practiceMode,
-      practiceFilter.patternIds,
-      practiceFilter.examSection,
-      practiceFilter.kanaScript,
-      partOfSpeech,
-      targetForms,
-      verbGroup,
-      levelRange,
-      sessionLength,
-      sessionSeed
-    ]
+  // The active pass's fixed inputs. STATE, not a memo over latest refs: a new
+  // snapshot is created ONLY by startNewPass (mode/config change or explicit
+  // reset), so live progress / bookmark / review-queue changes never rebuild
+  // or reorder the current set (#679). Initialized once from the launch
+  // config + the first render's live inputs.
+  const [poolSnapshot, setPoolSnapshot] = useState<PracticePoolSnapshot>(() =>
+    createPracticePoolSnapshot(config, { reviewQueue, bookmarkedQuestions, attemptedIds })
   );
 
   const questions = useMemo(() => buildPracticeQuestions(poolSnapshot), [poolSnapshot]);
@@ -400,16 +464,62 @@ export function usePracticeSession({
     }
   }, [feedback]);
 
+  // ---- #679: the single entry that starts a new pass. Every mode / filter /
+  // part-of-speech / focus / form / level-range / session-length change and
+  // "再來一組" goes through startNewPass; nothing else may build a snapshot.
+  // The live inputs (reviewQueue / bookmarkedQuestions / attemptedIds) are
+  // captured from THIS event's closure, so later progress/bookmark changes
+  // won't touch the stored pass until the next explicit start/reset.
+  const updateConfig = (nextConfig: PracticeSessionConfig) => {
+    // Resolve targetForms for the NEW config so a mode/focus/form change can
+    // never carry a stale form set into the fresh pass (e.g. daily -> exam).
+    const next = { ...nextConfig, targetForms: resolveTargetForms(nextConfig) };
+    configRef.current = next;
+    setConfig(next);
+    return next;
+  };
+
+  const startNewPass = (nextConfig: PracticeSessionConfig) => {
+    const next = updateConfig(nextConfig);
+    setPoolSnapshot(
+      createPracticePoolSnapshot(next, { reviewQueue, bookmarkedQuestions, attemptedIds })
+    );
+    setAttempts([]);
+    setQuestionIndex(0);
+    setSessionSeed((seed) => seed + 1);
+    setSelectedChoice(null);
+    setFeedback(null);
+    startedAtRef.current = Date.now();
+  };
+
+  // Raw setters (ModePicker / DrillPanel call these then resetSession): they
+  // update the config immediately so the same-event resetSession captures the
+  // NEW config via configRef -- not a render behind. The snapshot is only
+  // rebuilt by the resetSession -> startNewPass call, exactly like before.
+  const setPartOfSpeech = (next: PartOfSpeech | "mixed") =>
+    updateConfig({ ...configRef.current, partOfSpeech: next });
+  const setVerbGroup = (next: VerbGroup | "all") =>
+    updateConfig({ ...configRef.current, verbGroup: next });
+  const setTargetForm = (next: TargetForm) =>
+    updateConfig({ ...configRef.current, targetForm: next });
+  const setPracticeFocus = (next: PracticeFocus) =>
+    updateConfig({ ...configRef.current, practiceFocus: next });
+  const setPracticeMode = (next: PracticeMode) =>
+    updateConfig({ ...configRef.current, mode: next });
+  const setPracticeFilter = (next: PracticeFilter) =>
+    updateConfig({ ...configRef.current, filter: next });
+
   const handlePartOfSpeechChange = (nextPartOfSpeech: PartOfSpeech | "mixed") => {
-    setPartOfSpeech(nextPartOfSpeech);
-    setPracticeFocus("single");
-    setTargetForm(nextPartOfSpeech === "verb" || nextPartOfSpeech === "mixed" ? "te" : "plainPresentNegative");
-    resetSession();
+    startNewPass({
+      ...configRef.current,
+      partOfSpeech: nextPartOfSpeech,
+      practiceFocus: "single",
+      targetForm: nextPartOfSpeech === "verb" || nextPartOfSpeech === "mixed" ? "te" : "plainPresentNegative"
+    });
   };
 
   const handlePracticeFocusChange = (nextFocus: PracticeFocus) => {
-    setPracticeFocus(nextFocus);
-    resetSession();
+    startNewPass({ ...configRef.current, practiceFocus: nextFocus });
   };
 
   // The mode picker lists the exam pool as three side-by-side presets
@@ -423,24 +533,19 @@ export function usePracticeSession({
     // re-picked from the in-session picker -- not only on first mount (#199).
     const resolvedRange = nextRange ?? initialLevelRange({ mode: nextMode }, targetLevel);
     if (nextMode === practiceMode && resolvedRange === levelRange) return;
-    setPracticeMode(nextMode);
-    setLevelRange(resolvedRange);
-    setPracticeFilter({});
-    resetSession();
+    startNewPass({ ...configRef.current, mode: nextMode, levelRange: resolvedRange, filter: {} });
   };
 
   const handleLevelRangeChange = (nextRange: LevelRange) => {
     if (nextRange === levelRange) return;
-    setLevelRange(nextRange);
     trackEvent("level_changed", { scope: "session", levelRange: nextRange, locale: language });
-    resetSession();
+    startNewPass({ ...configRef.current, levelRange: nextRange });
   };
 
   const handleSessionLengthChange = (nextLength: number | null) => {
     if (nextLength === sessionLength) return;
-    setSessionLength(nextLength);
     writeStored(SESSION_LENGTH_KEY, nextLength === null ? "all" : String(nextLength));
-    resetSession();
+    startNewPass({ ...configRef.current, sessionLength: nextLength });
   };
 
   // handleChoiceSubmit closes over currentQuestion/feedback/practiceMode/etc.,
@@ -484,13 +589,11 @@ export function usePracticeSession({
     startedAtRef.current = Date.now();
   };
 
+  // "再來一組" (completion CTA) and the ghost "重設本次" button both land
+  // here: start a fresh pass with the CURRENT config, re-shuffling the pool
+  // and capturing the latest live inputs (see startNewPass).
   const resetSession = () => {
-    setAttempts([]);
-    setQuestionIndex(0);
-    setSessionSeed((seed) => seed + 1);
-    setSelectedChoice(null);
-    setFeedback(null);
-    startedAtRef.current = Date.now();
+    startNewPass(configRef.current);
   };
 
   const revealAnswer = () => {
