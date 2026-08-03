@@ -1464,6 +1464,38 @@ describe("validateRegressionCandidate", () => {
     expect(result.valid).toBe(true);
   });
 
+  it("rejects observing a same-named local value that shadows an external re-exported function", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import * as target from "./example";'
+      )
+      .replace("expect(\n    readEmptyQueue(),", "expect(\n    target.targetFn,")
+      .replace('.toBe("safe")', ".toBeUndefined()");
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      {
+        finding,
+        sensitiveValues: [],
+        productionSources: new Map([
+          [
+            "src/domain/example.ts",
+            "const targetFn = 1;\nexport { targetFn } from \"./other\";\n"
+          ]
+        ])
+      }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe|namespace|export|member/i);
+  });
+
   it("still rejects a bare reference to an imported production function", () => {
     const source = validSource
       .replace("readEmptyQueue()", "readEmptyQueue")
@@ -1717,6 +1749,58 @@ describe("validateRegressionCandidate", () => {
 
     expect(result.valid).toBe(false);
     expect(result.error).toMatch(/execute|call|observe/i);
+  });
+
+  it("rejects a renderHook shadowed by an object-destructured parameter", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import { renderHook } from "@testing-library/react";\nimport { useTargetHook } from "./example";'
+      )
+      .replace(
+        "expect(\n    readEmptyQueue(),",
+        "expect(\n    (({ renderHook }) => renderHook(() => useTargetHook()).result.current)({ renderHook: () => ({ result: { current: \"fake\" } }) }),"
+      )
+      .replace('.toBe("safe")', '.toBe("ready")');
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe|destructuring/i);
+  });
+
+  it("rejects a renderHook shadowed by an array-destructured parameter", () => {
+    const source = validSource
+      .replace(
+        'import { readEmptyQueue } from "./example";',
+        'import { renderHook } from "@testing-library/react";\nimport { useTargetHook } from "./example";'
+      )
+      .replace(
+        "expect(\n    readEmptyQueue(),",
+        "expect(\n    (([renderHook]) => renderHook(() => useTargetHook()).result.current)([() => ({ result: { current: \"fake\" } })]),"
+      )
+      .replace('.toBe("safe")', '.toBe("ready")');
+    const result = validateRegressionCandidate(
+      {
+        schemaVersion: 1,
+        status: "regression-test",
+        testFile: finding.reproduction.testFile,
+        testName: finding.reproduction.testName,
+        source
+      },
+      { finding, sensitiveValues: [] }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(/execute|call|observe|destructuring/i);
   });
 
   it("rejects a same-named renderHook imported from another package", () => {

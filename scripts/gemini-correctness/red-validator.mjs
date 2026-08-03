@@ -487,6 +487,10 @@ function collectProductionFunctionBindings(productionSources) {
     // Phase 2: resolve export declarations against the collected local kinds.
     function collectExports(node) {
       if (ts.isExportDeclaration(node) && node.exportClause) {
+        // Only a local `export { x }` (no module specifier) may resolve through
+        // localKinds; `export { x } from "./other"` re-exports from another
+        // module whose kind we cannot resolve here, so it fails closed.
+        if (node.moduleSpecifier) return;
         for (const element of node.exportClause.elements) {
           const localName = element.propertyName?.text ?? element.name.text;
           const exportedName = element.name.text;
@@ -497,7 +501,7 @@ function collectProductionFunctionBindings(productionSources) {
           } else if (kind === "value") {
             allExports.add(exportedName);
           }
-          // Unresolved re-export fails closed (not added to allExports).
+          // Unresolved local re-export fails closed (not added to allExports).
         }
       }
       ts.forEachChild(node, collectExports);
@@ -571,6 +575,23 @@ function inspectSource(
       for (const element of nameNode.elements) {
         if (ts.isBindingElement(element) && element.name) {
           recordShadowedBinding(element.name, kindLabel);
+        }
+      }
+    }
+  }
+
+  // Remove any identifier bound by a lexical binding (including nested object/
+  // array destructuring) from the trusted renderHook set, so a spoofed binding
+  // cannot satisfy the callback-execution check.
+  function invalidateRenderHookBinding(nameNode) {
+    if (ts.isIdentifier(nameNode)) {
+      renderHookBindings.delete(nameNode.text);
+      return;
+    }
+    if (ts.isObjectBindingPattern(nameNode) || ts.isArrayBindingPattern(nameNode)) {
+      for (const element of nameNode.elements) {
+        if (ts.isBindingElement(element) && element.name) {
+          invalidateRenderHookBinding(element.name);
         }
       }
     }
@@ -1123,29 +1144,23 @@ function inspectSource(
       ) {
         recordShadowedBinding(declaredName, "declaration");
       }
-      if (ts.isIdentifier(declaredName)) {
-        renderHookBindings.delete(declaredName.text);
-      }
+      invalidateRenderHookBinding(declaredName);
     }
     if (ts.isFunctionDeclaration(node) && node.name) {
       recordShadowedBinding(node.name, "function");
-      renderHookBindings.delete(node.name.text);
+      invalidateRenderHookBinding(node.name);
     }
     if (ts.isClassDeclaration(node) && node.name) {
       recordShadowedBinding(node.name, "class");
-      renderHookBindings.delete(node.name.text);
+      invalidateRenderHookBinding(node.name);
     }
     if (ts.isParameter(node) && node.name) {
       recordShadowedBinding(node.name, "parameter");
-      if (ts.isIdentifier(node.name)) {
-        renderHookBindings.delete(node.name.text);
-      }
+      invalidateRenderHookBinding(node.name);
     }
     if (ts.isCatchClause(node) && node.variableDeclaration?.name) {
       recordShadowedBinding(node.variableDeclaration.name, "catch binding");
-      if (ts.isIdentifier(node.variableDeclaration.name)) {
-        renderHookBindings.delete(node.variableDeclaration.name.text);
-      }
+      invalidateRenderHookBinding(node.variableDeclaration.name);
     }
     ts.forEachChild(node, visit);
   }
