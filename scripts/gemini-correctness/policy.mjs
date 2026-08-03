@@ -218,3 +218,119 @@ export function isValidRegressionTest(testFile, productionFile) {
     return testDir === prodDir;
   } catch { return false; }
 }
+
+// ---------------------------------------------------------------------------
+// GREEN hard constants (#637) — budgets that a Gemini repair diff must satisfy
+// ---------------------------------------------------------------------------
+export const MAX_GREEN_PRODUCTION_FILES = 3;
+export const MAX_GREEN_DIFF_LINES = 250;
+
+// ---------------------------------------------------------------------------
+// parseUnifiedDiff — parse a Gemini-authored unified production diff into
+// per-file add/delete counts.  Pure function (no filesystem access): rejects
+// empty/non-string input, missing file headers, rename/binary markers, and any
+// referenced path that is not a safe repo-relative path.
+// ---------------------------------------------------------------------------
+export function parseUnifiedDiff(diff) {
+  if (typeof diff !== "string") {
+    return { valid: false, error: "unified diff must be a string" };
+  }
+  if (/\r/.test(diff)) {
+    return { valid: false, error: "unified diff contains carriage returns (EOL churn)" };
+  }
+  if (diff.trim() === "") {
+    return { valid: false, error: "unified diff is empty" };
+  }
+
+  const files = [];
+  let current = null;
+  let inHunk = false;
+
+  const lines = diff.split("\n");
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/[ \t]+$/, "");
+    if (line.startsWith("@@ ")) {
+      inHunk = true;
+      continue;
+    }
+    if (inHunk) {
+      // A hunk body is only context (' '), added ('+'), removed ('-'), or a
+      // trailing '\ No newline' marker. Any other line ends the hunk and is
+      // processed below as a header/marker.
+      const isHunkBody =
+        line.startsWith(" ") ||
+        line.startsWith("+") ||
+        line.startsWith("-") ||
+        line.startsWith("\\");
+      if (!isHunkBody) inHunk = false;
+      else {
+        // A hunk body without a preceding `+++ b/` attribution cannot be
+        // attributed to a file.  A well-formed git diff always pairs a hunk
+        // with a `+++ b/` header, so reaching this branch means the input is
+        // malformed or hostile: fail closed instead of silently dropping the
+        // lines (which would let an attacker bypass line budgets and
+        // escape-hatch scanning).
+        if (!current) return { valid: false, error: "hunk body has no file attribution" };
+        if (line.startsWith("+")) {
+          current.additions += 1;
+          current.addedLines.push(line.slice(1));
+        } else if (line.startsWith("-")) {
+          current.deletions += 1;
+          current.removedLines.push(line.slice(1));
+        }
+        continue;
+      }
+    }
+    if (
+      /^new\s+file\s+mode\s/.test(line) ||
+      /^deleted\s+file\s+mode\s/.test(line) ||
+      /^old\s+mode\s/.test(line) ||
+      /^new\s+mode\s/.test(line) ||
+      /^Subproject\s+commit\s/.test(line)
+    ) {
+      return { valid: false, error: "add/delete/mode/submodule diffs are forbidden" };
+    }
+    if (line.startsWith("diff --git ")) {
+      current = null;
+      inHunk = false;
+      continue;
+    }
+    if (/^similarity index\s/.test(line) || /^rename (?:from|to)\s/.test(line)) {
+      return { valid: false, error: "rename/similarity diffs are forbidden" };
+    }
+    if (/^Binary files\s/.test(line) || /^GIT binary patch\b/.test(line)) {
+      return { valid: false, error: "binary diffs are forbidden" };
+    }
+    if (line.startsWith("+++ b/")) {
+      const candidatePath = line.slice(6);
+      if (!isPathSafe(candidatePath)) {
+        return { valid: false, error: `diff references an unsafe path: ${candidatePath}` };
+      }
+      current = files.find(file => file.path === candidatePath);
+      if (!current) {
+        current = { path: candidatePath, additions: 0, deletions: 0, addedLines: [], removedLines: [] };
+        files.push(current);
+      }
+      continue;
+    }
+  }
+
+  if (files.length === 0) {
+    return { valid: false, error: "unified diff has no file header" };
+  }
+  for (const file of files) {
+    if (file.additions === 0 && file.deletions === 0) {
+      return { valid: false, error: `diff for ${file.path} has no hunks` };
+    }
+  }
+
+  const totalAdditions = files.reduce((sum, file) => sum + file.additions, 0);
+  const totalDeletions = files.reduce((sum, file) => sum + file.deletions, 0);
+  return {
+    valid: true,
+    files,
+    totalAdditions,
+    totalDeletions,
+    changedFiles: files.length
+  };
+}

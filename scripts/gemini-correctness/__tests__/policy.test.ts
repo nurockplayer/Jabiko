@@ -8,7 +8,10 @@ import {
   isValidRegressionTest,
   resolveProductionDir,
   getDefaultAllowlist,
-  getDefaultProtectedPaths
+  getDefaultProtectedPaths,
+  MAX_GREEN_PRODUCTION_FILES,
+  MAX_GREEN_DIFF_LINES,
+  parseUnifiedDiff
 } from "../policy.mjs";
 
 describe("getDefaultAllowlist", () => {
@@ -227,5 +230,145 @@ describe("resolveProductionDir", () => {
 
   it("throws for null path", () => {
     expect(() => resolveProductionDir(null)).toThrow();
+  });
+});
+
+describe("GREEN hard constants", () => {
+  it("caps production files and diff lines at the Issue #637 budgets", () => {
+    expect(MAX_GREEN_PRODUCTION_FILES).toBe(3);
+    expect(MAX_GREEN_DIFF_LINES).toBe(250);
+  });
+});
+
+describe("parseUnifiedDiff", () => {
+  it("parses a single-file unified diff with per-file add/delete counts", () => {
+    const diff =
+      "diff --git a/src/domain/example.ts b/src/domain/example.ts\n" +
+      "--- a/src/domain/example.ts\n" +
+      "+++ b/src/domain/example.ts\n" +
+      "@@ -1,3 +1,4 @@\n" +
+      " export function read() {\n" +
+      "-  return \"stale\";\n" +
+      "+  return \"safe\";\n" +
+      "+  // added line\n" +
+      " }\n";
+    const result = parseUnifiedDiff(diff);
+
+    expect(result.valid).toBe(true);
+    expect(result.files).toHaveLength(1);
+    expect(result.files[0]).toEqual({
+      path: "src/domain/example.ts",
+      additions: 2,
+      deletions: 1,
+      addedLines: ['  return "safe";', "  // added line"],
+      removedLines: ['  return "stale";']
+    });
+    expect(result.totalAdditions).toBe(2);
+    expect(result.totalDeletions).toBe(1);
+  });
+
+  it("parses a multi-file unified diff and rejects paths outside the repo", () => {
+    const diff =
+      "diff --git a/src/domain/a.ts b/src/domain/a.ts\n" +
+      "--- a/src/domain/a.ts\n" +
+      "+++ b/src/domain/a.ts\n" +
+      "@@ -1 +1 @@\n" +
+      "-old\n" +
+      "+new\n" +
+      "diff --git a/src/domain/b.ts b/src/domain/b.ts\n" +
+      "--- a/src/domain/b.ts\n" +
+      "+++ b/src/domain/b.ts\n" +
+      "@@ -1 +1 @@\n" +
+      "-x\n" +
+      "+y\n";
+    const result = parseUnifiedDiff(diff);
+
+    expect(result.valid).toBe(true);
+    expect(result.files.map(file => file.path))
+      .toEqual(["src/domain/a.ts", "src/domain/b.ts"]);
+    expect(result.totalAdditions).toBe(2);
+    expect(result.totalDeletions).toBe(2);
+  });
+
+  it.each([
+    ["an empty string", "", /empty/i],
+    ["a non-string input", 42, /string/i],
+    ["a null input", null, /string/i]
+  ])("rejects %s", (_label, input, pattern) => {
+    const result = parseUnifiedDiff(input);
+    expect(result.valid).toBe(false);
+    expect(result.error).toMatch(pattern);
+  });
+
+  it("rejects a diff that references a path outside the repository", () => {
+    const diff =
+      "diff --git a/../../etc/passwd b/../../etc/passwd\n" +
+      "--- a/../../etc/passwd\n" +
+      "+++ b/../../etc/passwd\n" +
+      "@@ -1 +1 @@\n" +
+      "-root\n" +
+      "+hacked\n";
+    const result = parseUnifiedDiff(diff);
+    expect(result.valid).toBe(false);
+  });
+
+  it("rejects a diff with an absolute path", () => {
+    const diff =
+      "diff --git a//etc/passwd b//etc/passwd\n" +
+      "--- a//etc/passwd\n" +
+      "+++ b//etc/passwd\n" +
+      "@@ -1 +1 @@\n" +
+      "-root\n" +
+      "+hacked\n";
+    const result = parseUnifiedDiff(diff);
+    expect(result.valid).toBe(false);
+  });
+
+  it("rejects a diff with an index/similarity header or no file header", () => {
+    const bare =
+      "@@ -1 +1 @@\n- old\n+ new\n";
+    expect(parseUnifiedDiff(bare).valid).toBe(false);
+
+    const similarity =
+      "similarity index 100%\n" +
+      "rename from a.ts\n" +
+      "rename to b.ts\n";
+    expect(parseUnifiedDiff(similarity).valid).toBe(false);
+  });
+
+  it("rejects a hunk body that has no file attribution", () => {
+    const diff =
+      "diff --git a/src/domain/example.ts b/src/domain/example.ts\n" +
+      "--- a/src/domain/example.ts\n" +
+      "+++ b/src/domain/example.ts\n" +
+      "@@ -1,3 +1,3 @@\n" +
+      " export function readEmptyQueue() {\n" +
+      '-  return "stale";\n' +
+      '+  return "safe";\n' +
+      " }\n" +
+      "diff --git a/src/domain/example.ts b/src/domain/example.ts\n" +
+      "@@ -2,1 +2,1 @@\n" +
+      " }\n" +
+      "+// smuggled line\n";
+    const result = parseUnifiedDiff(diff);
+    expect(result.valid).toBe(false);
+  });
+
+  it("counts hunk header context lines without counting them as additions", () => {
+    const diff =
+      "diff --git a/src/domain/example.ts b/src/domain/example.ts\n" +
+      "--- a/src/domain/example.ts\n" +
+      "+++ b/src/domain/example.ts\n" +
+      "@@ -1,5 +1,5 @@\n" +
+      " export function read() {\n" +
+      "+  return \"safe\";\n" +
+      "   const value = 1;\n" +
+      " }\n";
+    const result = parseUnifiedDiff(diff);
+    expect(result.valid).toBe(true);
+    expect(result.files[0].additions).toBe(1);
+    expect(result.files[0].deletions).toBe(0);
+    expect(result.totalAdditions).toBe(1);
+    expect(result.totalDeletions).toBe(0);
   });
 });
