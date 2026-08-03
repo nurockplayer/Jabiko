@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import { StrictMode } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -327,5 +328,94 @@ describe("ExamPrompt content localization (#400)", () => {
     expect(container.querySelector(".hint-toggle")).toBeNull();
     expect(screen.queryByText("English context")).not.toBeInTheDocument();
     expect(screen.queryByText("情境中文")).not.toBeInTheDocument();
+  });
+
+  it("keeps the hint expanded and re-localizes its text when only the language changes", async () => {
+    // Same question.id across the rerender: the keyed hint subtree must NOT
+    // remount, so the expanded state survives and only the shown copy updates.
+    const user = userEvent.setup();
+    const { container, rerender } = render(
+      <ExamPrompt question={makeQuestion()} language="zh-Hant" />
+    );
+    await user.click(container.querySelector(".hint-toggle") as HTMLElement);
+    expect(screen.getByText("提示中文")).toBeInTheDocument();
+
+    rerender(<ExamPrompt question={makeQuestion()} language="en" />);
+    expect(container.querySelector(".hint-toggle")).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText("English hint")).toBeInTheDocument();
+    expect(screen.queryByText("提示中文")).not.toBeInTheDocument();
+  });
+
+  it("renders no toggle when neither a hint nor a context exists", () => {
+    const { container } = render(
+      <ExamPrompt
+        question={makeQuestion({
+          hintZh: undefined,
+          hintI18n: undefined,
+          promptContextZh: undefined,
+          promptContextI18n: undefined
+        })}
+        language="zh-Hant"
+      />
+    );
+    expect(container.querySelector(".hint-toggle")).toBeNull();
+  });
+});
+
+describe("ExamPrompt keyed hint state (#685)", () => {
+  const first = () =>
+    examStyleQuestions.find((question) => question.id === "n3-grammar-tahougaii");
+  const second = () =>
+    examStyleQuestions.find(
+      (question) => question.id !== first()!.id && (question.hintZh ?? question.promptContextZh)
+    );
+
+  it("keeps the hint expanded across a same-question re-render", async () => {
+    const user = userEvent.setup();
+    const item = first();
+    const { rerender } = render(<ExamPrompt question={item!} language="zh-Hant" />);
+    await user.click(screen.getByRole("button", { name: "提示" }));
+    expect(screen.getByText("發燒時對就醫安排的判斷。")).toBeInTheDocument();
+
+    rerender(<ExamPrompt question={item!} language="zh-Hant" />);
+    expect(screen.getByRole("button", { name: "隱藏提示" })).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText("發燒時對就醫安排的判斷。")).toBeInTheDocument();
+  });
+
+  it("starts collapsed when returning to a previously-expanded question (fresh mount)", async () => {
+    // The new mount for A after A->B->A must NOT restore the old expanded
+    // state: only the question id keys the hint, never the prior interaction.
+    const user = userEvent.setup();
+    const a = first();
+    const b = second();
+    expect(b).toBeDefined();
+    const { rerender } = render(<ExamPrompt question={a!} language="zh-Hant" />);
+    await user.click(screen.getByRole("button", { name: "提示" }));
+    expect(screen.getByText("發燒時對就醫安排的判斷。")).toBeInTheDocument();
+
+    rerender(<ExamPrompt question={b!} language="zh-Hant" />);
+    rerender(<ExamPrompt question={a!} language="zh-Hant" />);
+    expect(screen.getByRole("button", { name: "提示" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("發燒時對就醫安排的判斷。")).not.toBeInTheDocument();
+  });
+
+  it("toggles and resets under StrictMode without effect-driven state updates", async () => {
+    const user = userEvent.setup();
+    const a = first();
+    const b = second();
+    const { rerender } = render(
+      <StrictMode>
+        <ExamPrompt question={a!} language="zh-Hant" />
+      </StrictMode>
+    );
+    await user.click(screen.getByRole("button", { name: "提示" }));
+    expect(screen.getByRole("button", { name: "隱藏提示" })).toHaveAttribute("aria-expanded", "true");
+
+    rerender(
+      <StrictMode>
+        <ExamPrompt question={b!} language="zh-Hant" />
+      </StrictMode>
+    );
+    expect(screen.getByRole("button", { name: "提示" })).toHaveAttribute("aria-expanded", "false");
   });
 });
