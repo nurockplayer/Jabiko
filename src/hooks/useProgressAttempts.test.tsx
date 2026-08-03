@@ -1,3 +1,4 @@
+import { StrictMode } from "react";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { User } from "@supabase/supabase-js";
@@ -111,6 +112,35 @@ describe("useProgressAttempts -- anon (no user)", () => {
     const first = result.current.recordAttempt;
     rerender();
     expect(result.current.recordAttempt).toBe(first);
+  });
+
+  it("anon -> logout-idle is DERIVED: no sync setState in the login effect, no supabase call", async () => {
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+
+    expect(result.current.syncStatus).toBe("idle");
+    expect(getSupabase).not.toHaveBeenCalled();
+
+    // A user who logs in and back out (logout) leaves syncStatus DERIVED idle
+    // -- no effect-time setState("idle") required, and the local store survives.
+    rerender({ user: makeUser("user-1") });
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+    const storeAtLogin = readStore();
+
+    rerender({ user: null });
+    expect(result.current.syncStatus).toBe("idle");
+    expect(readStore()).toEqual(storeAtLogin);
+  });
+
+  it("already-logged-in first render exposes syncing immediately (no effect-time setState)", async () => {
+    // Login is already the INITIAL render (the effect runs AFTER the first
+    // paint), so the very first exposed syncStatus is the derived "syncing" --
+    // the hook must not synchronously setState("syncing") inside the effect.
+    const { result } = renderHook(() => useProgressAttempts(makeUser("user-1")));
+    expect(result.current.syncStatus).toBe("syncing");
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
   });
 });
 
@@ -412,5 +442,115 @@ describe("useProgressAttempts -- login sync commit safety (codex review)", () =>
       remoteOnly,
       recordedDuringSync
     ]);
+  });
+
+  // Derived-status semantics: while A's sync is still in flight, B must read
+  // "syncing" (A's terminal result must not leak into B's status), and once B
+  // completes, A's late terminal write must stay inert.
+  it("A->B switch mid-sync: B reads syncing until its own merge completes", async () => {
+    const aFetch = deferred<Attempt[]>();
+    const bFetch = deferred<Attempt[]>();
+    fetchRemoteAttempts
+      .mockReturnValueOnce(aFetch.promise) // user A
+      .mockReturnValueOnce(bFetch.promise); // user B
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: makeUser("user-A") as User | null } }
+    );
+    await waitFor(() => expect(fetchRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-A"));
+
+    // Switch to B while A is still parked on its fetch.
+    rerender({ user: makeUser("user-B") });
+    expect(result.current.syncStatus).toBe("syncing");
+    await waitFor(() => expect(fetchRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-B"));
+    // Still syncing -- B has not completed yet.
+    expect(result.current.syncStatus).toBe("syncing");
+
+    // Resolve A's stale fetch. A's terminal result must NOT surface on B.
+    await act(async () => {
+      aFetch.resolve([makeAttempt({ timestamp: 30, submittedAnswer: "A-late" })]);
+      await aFetch.promise;
+    });
+    expect(result.current.syncStatus).toBe("syncing");
+
+    // B completes -> synced.
+    await act(async () => {
+      bFetch.resolve([]);
+      await bFetch.promise;
+    });
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+  });
+
+  // Derived-status semantics: A's late success must not flip B's status, and
+  // the (stale, resolved) A generation must not mutate the store.
+  it("A late success after B completed -> B stays synced, store unchanged", async () => {
+    const aRemote = makeAttempt({ timestamp: 40, submittedAnswer: "A-remote" });
+    const bRemote = makeAttempt({ timestamp: 41, submittedAnswer: "B-remote" });
+
+    const aFetch = deferred<Attempt[]>();
+    const bFetch = deferred<Attempt[]>();
+    fetchRemoteAttempts
+      .mockReturnValueOnce(aFetch.promise) // user A
+      .mockReturnValueOnce(bFetch.promise); // user B
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: makeUser("user-A") as User | null } }
+    );
+    await waitFor(() => expect(fetchRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-A"));
+
+    rerender({ user: makeUser("user-B") });
+    await waitFor(() => expect(fetchRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-B"));
+
+    // B completes first (its merge lands).
+    await act(async () => {
+      bFetch.resolve([bRemote]);
+      await bFetch.promise;
+    });
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+    expect(readStore() ?? []).toContainEqual(bRemote);
+
+    // Now A's stale run resolves: its terminal write must be a no-op.
+    await act(async () => {
+      aFetch.resolve([aRemote]);
+      await aFetch.promise;
+    });
+    expect(result.current.syncStatus).toBe("synced");
+    expect(readStore() ?? []).not.toContainEqual(aRemote);
+    expect(result.current.progressAttempts).not.toContainEqual(aRemote);
+  });
+
+  // StrictMode: the effect runs -> unmounts -> re-runs (double-invoke). The
+  // second (replay) run must be the only one that mutates remote/local: no
+  // duplicate fetch/push of the same delta, no duplicate local replace.
+  it("StrictMode replay -> second generation is the only one that commits (no dup push / replace)", async () => {
+    const localOnly = makeAttempt({ timestamp: 50, submittedAnswer: "local" });
+
+    // Seed the local store while anon, under a StrictMode wrapper.
+    const { result: anon } = renderHook(() => useProgressAttempts(null), {
+      wrapper: StrictMode
+    });
+    act(() => {
+      anon.current.recordAttempt(localOnly);
+    });
+
+    fetchRemoteAttempts.mockResolvedValue([]);
+
+    // Login is the INITIAL render under StrictMode: the effect double-invokes
+    // (run -> teardown -> replay), and the replay generation is the one that
+    // may commit.
+    const { result } = renderHook(() => useProgressAttempts(makeUser("user-1")), {
+      wrapper: StrictMode
+    });
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+
+    // The replay's effect teardown must have invalidated the first run, so
+    // only the replay generation pushed (exactly one push of the delta).
+    const user1Pushes = pushAttempts.mock.calls.filter(([, id]) => id === "user-1");
+    expect(user1Pushes).toHaveLength(1);
+    expect(user1Pushes[0][2]).toEqual([localOnly]);
+    expect(fetchRemoteAttempts.mock.calls.filter(([, id]) => id === "user-1")).toHaveLength(1);
+    expect(readStore()).toEqual([localOnly]);
   });
 });

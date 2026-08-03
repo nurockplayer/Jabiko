@@ -16,6 +16,16 @@ const attemptStore = createAttemptStore();
 //   error   -- the last login merge failed; local was left untouched
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 
+// The terminal outcome of a single login-sync generation, keyed to the user
+// whose merge it belongs to. React state stores ONLY the latest completed
+// result; `syncStatus` is derived from it (never set synchronously in the
+// login effect -- see below), so an expired result for a previous user can
+// never surface on the current one.
+type SyncResult = {
+  userId: string;
+  status: "synced" | "error";
+};
+
 // Owns the lifetime attempt history (loaded from storage on mount,
 // appended on every answer). Lifted OUT of usePracticeSession so it can
 // live in the always-mounted App shell: the home/learn dashboards read
@@ -30,9 +40,25 @@ export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 // local only, never cleared, and the Supabase SDK stays in its lazy chunk.
 export function useProgressAttempts(user: User | null) {
   const [progressAttempts, setProgressAttempts] = useState<Attempt[]>(() => attemptStore.list());
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
+  // Only the last COMPLETED sync result is held in state; "in flight" and
+  // "logged out" are derived, so the login effect never needs to set state
+  // synchronously (it just starts the async flow, which writes the terminal
+  // result once a generation finishes).
+  const [lastSyncResult, setLastSyncResult] = useState<SyncResult | null>(null);
 
   const userId = user?.id ?? null;
+
+  // Derived syncStatus (pure function of {lastSyncResult, current userId}):
+  //   no user        -> idle            (logout needs no setState; local kept)
+  //   result missing -> syncing         (login effect is starting a merge)
+  //   result for the CURRENT user -> its terminal status (synced | error)
+  //   result for a PREVIOUS user -> syncing (A's outcome must not leak to B)
+  const syncStatus: SyncStatus =
+    userId === null
+      ? "idle"
+      : lastSyncResult === null || lastSyncResult.userId !== userId
+        ? "syncing"
+        : lastSyncResult.status;
 
   // Keep the latest userId for recordAttempt's best-effort push without
   // making the callback's identity depend on it (identity must stay stable
@@ -43,16 +69,18 @@ export function useProgressAttempts(user: User | null) {
   }, [userId]);
 
   // Login sync: runs when the user id transitions to a non-null value.
+  // NOTE: no synchronous setState in the effect body (react-hooks v7
+  // `set-state-in-effect`). "syncing" is DERIVED while the merge is in flight;
+  // only the async terminal outcome writes state, and only while this
+  // generation is still active.
   useEffect(() => {
     if (!userId) {
-      // Logout / anon: behaviour exactly as before -- local untouched,
-      // status back to idle.
-      setSyncStatus("idle");
+      // Logout / anon: behaviour exactly as before -- local untouched.
+      // No setState("idle") needed: derived syncStatus is naturally idle.
       return;
     }
 
     let active = true;
-    setSyncStatus("syncing");
 
     (async () => {
       // Re-check `active` after EVERY await: if the effect went stale
@@ -89,14 +117,14 @@ export function useProgressAttempts(user: User | null) {
       const merged = mergeAttempts(attemptStore.list(), remote);
       attemptStore.replace(merged);
       setProgressAttempts(merged);
-      setSyncStatus("synced");
+      setLastSyncResult({ userId, status: "synced" });
     })().catch(() => {
       // Any failure (offline, RLS, push conflict, etc.): the local store is
       // left untouched because mutation only happens after fetch + push both
       // succeed and the effect is still active. Nothing is lost; the next
       // login retries.
       if (active) {
-        setSyncStatus("error");
+        setLastSyncResult({ userId, status: "error" });
       }
     });
 
