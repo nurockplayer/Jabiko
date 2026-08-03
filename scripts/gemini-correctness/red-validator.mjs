@@ -432,29 +432,33 @@ function collectProductionFunctionBindings(productionSources) {
     }
     if (sourceFile.parseDiagnostics.length > 0) continue;
     hasParsedSources = true;
-    function collect(node) {
+    // Maps local declaration names to their kind so `export { local as alias }`
+    // can preserve the function/class/value kind of the original declaration.
+    const localKinds = new Map();
+    // Phase 1: collect every local declaration kind and every direct export.
+    function collectDeclarations(node) {
       if (
         (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) &&
-        node.name &&
-        node.modifiers?.some(
-          modifier => modifier.kind === ts.SyntaxKind.ExportKeyword
-        )
+        node.name
       ) {
-        bindings.add(node.name.text);
-        allExports.add(node.name.text);
-      }
-      if (ts.isExportDeclaration(node) && node.exportClause) {
-        for (const element of node.exportClause.elements) {
-          allExports.add(element.name.text);
+        localKinds.set(node.name.text, "callable");
+        if (
+          node.modifiers?.some(
+            modifier => modifier.kind === ts.SyntaxKind.ExportKeyword
+          )
+        ) {
+          bindings.add(node.name.text);
+          allExports.add(node.name.text);
         }
       }
-      if (
-        ts.isVariableStatement(node) &&
-        node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword)
-      ) {
+      if (ts.isVariableStatement(node)) {
+        const isExported = node.modifiers?.some(
+          modifier => modifier.kind === ts.SyntaxKind.ExportKeyword
+        );
         for (const declaration of node.declarationList.declarations) {
           if (ts.isIdentifier(declaration.name)) {
-            allExports.add(declaration.name.text);
+            localKinds.set(declaration.name.text, "value");
+            if (isExported) allExports.add(declaration.name.text);
             const initializer = declaration.initializer;
             const unwrappedInitializer = initializer
               ? (() => {
@@ -471,14 +475,34 @@ function collectProductionFunctionBindings(productionSources) {
                 ts.isFunctionExpression(unwrappedInitializer) ||
                 ts.isClassExpression(unwrappedInitializer))
             ) {
-              bindings.add(declaration.name.text);
+              localKinds.set(declaration.name.text, "callable");
+              if (isExported) bindings.add(declaration.name.text);
             }
           }
         }
       }
-      ts.forEachChild(node, collect);
+      ts.forEachChild(node, collectDeclarations);
     }
-    collect(sourceFile);
+    collectDeclarations(sourceFile);
+    // Phase 2: resolve export declarations against the collected local kinds.
+    function collectExports(node) {
+      if (ts.isExportDeclaration(node) && node.exportClause) {
+        for (const element of node.exportClause.elements) {
+          const localName = element.propertyName?.text ?? element.name.text;
+          const exportedName = element.name.text;
+          const kind = localKinds.get(localName);
+          if (kind === "callable") {
+            bindings.add(exportedName);
+            allExports.add(exportedName);
+          } else if (kind === "value") {
+            allExports.add(exportedName);
+          }
+          // Unresolved re-export fails closed (not added to allExports).
+        }
+      }
+      ts.forEachChild(node, collectExports);
+    }
+    collectExports(sourceFile);
   }
   return { bindings, allExports, hasParsedSources };
 }
@@ -1109,12 +1133,19 @@ function inspectSource(
     }
     if (ts.isClassDeclaration(node) && node.name) {
       recordShadowedBinding(node.name, "class");
+      renderHookBindings.delete(node.name.text);
     }
     if (ts.isParameter(node) && node.name) {
       recordShadowedBinding(node.name, "parameter");
+      if (ts.isIdentifier(node.name)) {
+        renderHookBindings.delete(node.name.text);
+      }
     }
     if (ts.isCatchClause(node) && node.variableDeclaration?.name) {
       recordShadowedBinding(node.variableDeclaration.name, "catch binding");
+      if (ts.isIdentifier(node.variableDeclaration.name)) {
+        renderHookBindings.delete(node.variableDeclaration.name.text);
+      }
     }
     ts.forEachChild(node, visit);
   }
