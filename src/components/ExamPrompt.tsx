@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { GraduationCap } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { PracticeQuestion } from "../domain/types";
@@ -8,19 +8,42 @@ import { isReadingPrompt, hasJapanese } from "../domain/furigana";
 import { Ruby } from "./Ruby";
 import { SpeakButton } from "./SpeakButton";
 
+// The pre-answer hint toggle. It owns the only mutable piece of the prompt --
+// whether the hint is expanded -- and is keyed by question id in ExamPrompt so
+// a question change unmounts/remounts it and naturally resets to hidden,
+// without an effect-driven setState. It reads nothing but the hint copy and
+// the two toggle labels; all question/answer/vocabulary logic stays in the
+// parent.
+function ExamHint({
+  hint,
+  showLabel,
+  hideLabel
+}: {
+  hint: string;
+  showLabel: string;
+  hideLabel: string;
+}) {
+  const [showHint, setShowHint] = useState(false);
+  return (
+    <div className="hint-block">
+      <button
+        type="button"
+        className="hint-toggle"
+        aria-expanded={showHint}
+        onClick={() => setShowHint((shown) => !shown)}
+      >
+        {showHint ? hideLabel : showLabel}
+      </button>
+      {showHint ? <p className="meaning">{hint}</p> : null}
+    </div>
+  );
+}
+
 // Renders an exam/cloze/pattern question's prompt: instruction, the
 // sentence with the blank, a neutral pre-answer hint, and (when safe) a
 // surface・reading・meaning vocab row.
 export function ExamPrompt({ question, language }: { question: PracticeQuestion; language: Language }) {
   const t = copy[language];
-  // The pre-answer hint sits behind a toggle so the learner attempts the
-  // question first and reveals the hint only when stuck. Reset to hidden
-  // on every question change (keyed by id) so each new question starts
-  // collapsed.
-  const [showHint, setShowHint] = useState(false);
-  useEffect(() => {
-    setShowHint(false);
-  }, [question.id]);
 
   // Sentence-pattern items use placeholder surface/reading (the pattern
   // id) which would render as a meaningless "te-kudasai・te-kudasai・..."
@@ -97,17 +120,7 @@ export function ExamPrompt({ question, language }: { question: PracticeQuestion;
         ) : null}
       </p>
       {preAnswerHint ? (
-        <div className="hint-block">
-          <button
-            type="button"
-            className="hint-toggle"
-            aria-expanded={showHint}
-            onClick={() => setShowHint((shown) => !shown)}
-          >
-            {showHint ? t.hideHint : t.showHint}
-          </button>
-          {showHint ? <p className="meaning">{preAnswerHint}</p> : null}
-        </div>
+        <ExamHint key={question.id} hint={preAnswerHint} showLabel={t.showHint} hideLabel={t.hideHint} />
       ) : null}
       {showVocabRow ? (
         <p className="reading">
