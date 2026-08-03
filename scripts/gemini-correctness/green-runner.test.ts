@@ -357,6 +357,67 @@ describe("runGreenStage — success path (injected runners)", () => {
     expect(result.error).not.toContain(fakeSecret);
     expect(result.error).not.toContain(fixtureRoot);
   });
+
+  it("sanitizes RED replay evidence before sending it to Gemini", async () => {
+    const red = prepareRedArtifacts();
+    const fakeApiKey = "AIzaSyFakeApiKey0123456789abcdefghijklmno";
+    const fakeToken = "fake-token-value-abcdef-1234567890";
+    const runnerModulePath = path.join(__dirname, "green-runner.mjs");
+    const guardedRunner = vi.fn()
+      .mockResolvedValueOnce({
+        valid: true,
+        exitCode: 1,
+        report: redReport(),
+        stdout: `red replay leaked key ${fakeApiKey}`,
+        stderr:
+          `red replay leaked token ${fakeToken} at ${fixtureRoot} ` +
+          `${process.cwd()} ${process.execPath} ${runnerModulePath}`
+      })
+      .mockResolvedValueOnce({ valid: true, exitCode: 0, report: greenReport() });
+    const client = fakeClient({ valid: true, result: candidate() });
+
+    const result = await runGreenStage({
+      repoRoot: fixtureRoot,
+      finding: finding(),
+      redResult: {
+        schemaVersion: 1,
+        status: "red-confirmed",
+        baselineSha: git(["rev-parse", "HEAD"]),
+        testFile: TEST_FILE,
+        testName: TEST_NAME,
+        failureKind: "assertion",
+        sanitizedSummary:
+          `${TEST_NAME}: Expected behavior: ${EXPECTED_BEHAVIOR} | ` +
+          `Actual behavior: ${ACTUAL_BEHAVIOR}`,
+        patchSha256: red.patchSha256,
+        replayConfirmed: true
+      },
+      client,
+      environment: {
+        ...process.env,
+        FIXTURE_SECRET: fakeSecret,
+        FAKE_GEMINI_API_KEY: fakeApiKey,
+        FAKE_TOKEN: fakeToken
+      },
+      guardedRunner,
+      runCommand: passingRunCommand()
+    });
+
+    expect(result, result.error).toMatchObject({ valid: true });
+    const prompt = client.generateJson.mock.calls[0][0].prompt;
+    expect(prompt).not.toContain(fakeApiKey);
+    expect(prompt).not.toContain(fakeToken);
+    expect(prompt).not.toContain(fakeSecret);
+    expect(prompt).not.toContain(fixtureRoot);
+    expect(prompt).not.toContain(process.cwd());
+    expect(prompt).not.toContain(process.execPath);
+    expect(prompt).not.toContain(runnerModulePath);
+    // The sanitized RED assertion evidence still reaches the model.
+    expect(prompt).toContain(EXPECTED_BEHAVIOR);
+    expect(prompt).toContain(ACTUAL_BEHAVIOR);
+    // Sanitization never collapses the prompt to empty.
+    expect(prompt.length).toBeGreaterThan(200);
+  });
 });
 
 describe("runGreenStage — failure statuses (injected runners)", () => {

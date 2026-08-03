@@ -461,15 +461,19 @@ export async function runGreenStage({
       allowlist,
       protectedPaths
     });
+    // The RED replay's raw stdout/stderr can contain API keys, tokens, env
+    // values, repository absolute paths, home paths, or the Node executable
+    // path. Sanitize at the runner boundary before anything reaches the prompt.
+    const sanitizedReplayFailure = {
+      stdout: sanitize(replay.stdout ?? "", outputSecrets),
+      stderr: sanitize(replay.stderr ?? "", outputSecrets)
+    };
     const greenPrompt = buildGreenPrompt({
       finding,
       redResult,
       regressionTestSource: testSource,
       scannedFiles: greenScan.scannedFiles,
-      redTestFailure: {
-        stdout: replay.stdout ?? "",
-        stderr: replay.stderr ?? ""
-      }
+      redTestFailure: sanitizedReplayFailure
     });
 
     const generated = await client.generateJson({
