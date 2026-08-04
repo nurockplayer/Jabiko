@@ -1,3 +1,4 @@
+import { Profiler, StrictMode } from "react";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KanjiOnyomiPanel } from "./KanjiOnyomiPanel";
@@ -62,6 +63,203 @@ describe("KanjiOnyomiPanel (#195)", () => {
     render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N2" />);
     expect(screen.getByRole("button", { name: "N2" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "全部" })).toHaveAttribute("aria-pressed", "false");
+  });
+});
+
+// #683: the budget used to be a plain number reset by a `useEffect` that watched
+// query/level/readingType. React 19 hooks v7's `set-state-in-effect` rule makes
+// that pattern a violation. The budget is now keyed by a pure filterKey
+// (query + level + readingType) so a filter change drops the effective budget
+// back to the initial batch WITHOUT a setState call -- old-key state is just
+// ignored on the next render, and the first load-more overwrites it.
+//
+// A filtered view shows whole families until the entry budget (FAMILY_ENTRY_BUDGET
+// = 40) is crossed; the family that crosses it is included whole, so the exact
+// visible count per filter is data-derived and asserted against the known
+// kanjiOnyomi bank (matched counts below computed from src/domain/kanjiOnyomi.ts):
+//   query う / all / on: 46 visible at budget 40, 82 after one load-more (220 matched)
+//   query き / all / on: 43 visible at budget 40, 80 after one load-more (84 matched)
+//   query う / N1  / on: 40 visible at budget 40, 42 after one load-more (42 matched)
+//   query う / all / kun: 40 visible at budget 40 (164 matched)
+// A budget reset is therefore observable as the visible count snapping back to
+// the fresh-filter value instead of carrying the pre-change load-more position.
+describe("KanjiOnyomiPanel filter-keyed budget (#683)", () => {
+  const cells = () => document.querySelectorAll("button.kanji-cell");
+  const visibleCount = () => cells().length;
+  const query = "う"; // high-match query: 220 on-view entries (has a load-more boundary)
+  const renderWithQuery = (q = query) => {
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: q } });
+  };
+  const typeInSearch = (value: string) => {
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value } });
+  };
+  const clickLevel = (label: string) => {
+    fireEvent.click(screen.getByRole("button", { name: label }));
+  };
+  const clickReadingType = (label: string) => {
+    fireEvent.click(screen.getByRole("button", { name: label }));
+  };
+  const clickLoadMore = () => {
+    fireEvent.click(screen.getByRole("button", { name: /載入更多/ }));
+  };
+
+  it("resets the effective budget when the query changes after a load-more (#683)", () => {
+    renderWithQuery(query);
+    expect(visibleCount()).toBe(46); // う at budget 40
+    clickLoadMore();
+    expect(visibleCount()).toBe(82); // budget 80
+
+    // う → き is a genuine query change; the き view must restart at its own
+    // budget-40 position (43), not carry the う load-more position (82).
+    typeInSearch("き");
+
+    expect(visibleCount()).toBe(43);
+    // 84 matched > 43 shown, so the load-more button is back -- the budget was
+    // recomputed, not silently carried over.
+    expect(screen.getByRole("button", { name: /載入更多/ })).toBeInTheDocument();
+  });
+
+  it("resets the effective budget when the level filter changes (#683)", () => {
+    renderWithQuery(query);
+    expect(visibleCount()).toBe(46);
+    clickLoadMore();
+    expect(visibleCount()).toBe(82);
+
+    // う is spread across all levels; narrowing to N1 is a level change.
+    clickLevel("N1");
+
+    expect(visibleCount()).toBe(40); // う/N1 at budget 40
+    expect(screen.getByRole("button", { name: /載入更多/ })).toBeInTheDocument();
+  });
+
+  it("resets the effective budget when the reading type changes (#683)", () => {
+    renderWithQuery(query);
+    expect(visibleCount()).toBe(46);
+    clickLoadMore();
+    expect(visibleCount()).toBe(82);
+
+    // 訓讀 view of う restarts at its own budget-40 position (40).
+    clickReadingType("訓讀");
+
+    expect(visibleCount()).toBe(40);
+    expect(screen.getByRole("button", { name: /載入更多/ })).toBeInTheDocument();
+  });
+
+  it("does not reset the budget on a language switch (#683)", () => {
+    const { rerender } = render(<KanjiOnyomiPanel language="zh-Hant" />);
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: query } });
+    expect(visibleCount()).toBe(46);
+    clickLoadMore();
+    const afterLoadMore = visibleCount();
+    expect(afterLoadMore).toBe(82);
+
+    // language is deliberately NOT part of the filterKey, so a switch keeps the
+    // already-loaded batch (no budget reset).
+    rerender(<KanjiOnyomiPanel language="ja" />);
+
+    expect(visibleCount()).toBe(afterLoadMore);
+  });
+
+  it("loads the next batch from the initial budget on a fresh filter, not the old value (#683)", () => {
+    renderWithQuery(query);
+    clickLoadMore();
+    expect(visibleCount()).toBe(82); // budget 80 under う
+
+    // き is a fresh filter: it must restart at budget 40 (43 visible)...
+    typeInSearch("き");
+    expect(visibleCount()).toBe(43);
+
+    // ...and its first load-more is one 40 bump on top of the initial budget,
+    // landing at budget 80 (80 visible) -- NOT the stale う budget (which would
+    // carry ~120+ from う's position and show everything).
+    clickLoadMore();
+    expect(visibleCount()).toBe(80);
+  });
+
+  it("switching back to a previous filter starts fresh from the initial budget (#683)", () => {
+    renderWithQuery(query);
+    clickLoadMore();
+    expect(visibleCount()).toBe(82);
+
+    // Move to き and load it twice so its state holds an 80 budget too.
+    typeInSearch("き");
+    clickLoadMore();
+    expect(visibleCount()).toBe(80);
+
+    // Back to う: must restart at 46 (budget 40), NOT restore the earlier
+    // う load-more position of 82.
+    typeInSearch(query);
+
+    expect(visibleCount()).toBe(46);
+    expect(screen.getByRole("button", { name: /載入更多/ })).toBeInTheDocument();
+  });
+
+  it("arrowing across the boundary still pulls the next batch in and focuses the revealed kanji (#683)", () => {
+    const localArrow = (key: "ArrowRight" | "ArrowLeft") => fireEvent.keyDown(document, { key });
+    const localSelectedChar = () =>
+      document.querySelector(".kanji-cell.selected .kanji-cell-char")?.textContent ?? null;
+    renderWithQuery(query);
+    const before = visibleCount(); // 46
+    const chars = Array.from(document.querySelectorAll("button.kanji-cell .kanji-cell-char")).map(
+      (node) => node.textContent
+    );
+    // Walk one step beyond the last rendered cell so the handler must bump the budget.
+    for (let i = 0; i < before; i++) localArrow("ArrowRight");
+    expect(localSelectedChar()).toBe(chars[before - 1]);
+
+    localArrow("ArrowRight");
+
+    expect(visibleCount()).toBeGreaterThan(before);
+    const allChars = Array.from(document.querySelectorAll("button.kanji-cell .kanji-cell-char")).map(
+      (node) => node.textContent
+    );
+    expect(localSelectedChar()).toBe(allChars[before]);
+    // The freshly-revealed cell is actually focused (focus passes after the
+    // budget bump re-renders it into the DOM).
+    expect(document.activeElement?.textContent?.trim()).toContain(allChars[before] ?? "");
+  });
+
+  // The behaviour tests above pass under BOTH the old effect-reset and the new
+  // keyed-budget implementations (the old one also reset to 40 -- the visible
+  // snap is identical). What actually distinguishes them is THAT a filter change
+  // produces no effect-driven second render: the old code set state inside a
+  // query/level/readingType effect, so a filter change cost TWO renders (query
+  // state + effect state); the keyed version drops the effect and commits the
+  // filter change in exactly ONE render. Profiler counts committed renders, so
+  // this is the test that would fail on a regression back to set-state-in-effect.
+  it("changes a filter in exactly one render (no effect-set state) (#683)", () => {
+    let commits = 0;
+    render(
+      <Profiler id="budget" onRender={() => commits++}>
+        <KanjiOnyomiPanel language="zh-Hant" />
+      </Profiler>
+    );
+    commits = 0; // ignore the mount render
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: query } });
+    expect(commits).toBe(1);
+
+    fireEvent.click(screen.getByRole("button", { name: /載入更多/ }));
+    const afterLoadMore = commits;
+    expect(afterLoadMore).toBeGreaterThan(commits - 1); // load-more commits
+
+    // The query change from う → き must be a single committed render.
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "き" } });
+    expect(commits).toBe(afterLoadMore + 1);
+  });
+
+  it("renders under StrictMode without extra state updates (#683)", () => {
+    const { container } = render(
+      <StrictMode>
+        <KanjiOnyomiPanel language="zh-Hant" />
+      </StrictMode>
+    );
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: query } });
+    // Renderer stays coherent: the grid is present and batched.
+    expect(container.querySelectorAll("button.kanji-cell").length).toBe(46);
+    fireEvent.click(screen.getByRole("button", { name: /載入更多/ }));
+    expect(container.querySelectorAll("button.kanji-cell").length).toBe(82);
   });
 });
 

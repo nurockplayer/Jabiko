@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { copy, type Language } from "../i18n";
 import type { JlptLevel } from "../domain/types";
 import { kanjiOnyomi, kanjiExamples, type KanjiOnyomiEntry } from "../domain/kanjiOnyomi";
@@ -9,6 +9,13 @@ import { InkstoneSpot, MagnifierKanjiSpot } from "../illustrations";
 
 const LEVELS: Array<JlptLevel | "all"> = ["all", "N5", "N4", "N3", "N2", "N1"];
 type ReadingType = "on" | "kun";
+
+// #683: budget state is keyed by the active filter (query + level + readingType)
+// so a filter change needs no effect to reset it -- see usage below.
+type EntryBudgetState = {
+  filterKey: string;
+  value: number;
+};
 
 // #608 P1: whole reading-families render in batches of roughly this many
 // entries (the family that crosses the budget is included whole, so a batch
@@ -36,13 +43,36 @@ export function KanjiOnyomiPanel({
   const [level, setLevel] = useState<JlptLevel | "all">(defaultLevel);
   const [readingType, setReadingType] = useState<ReadingType>("on");
   const [selected, setSelected] = useState<string | null>(null);
-  const [entryBudget, setEntryBudget] = useState(FAMILY_ENTRY_BUDGET);
-  useEffect(() => {
-    // Any filter change starts a fresh batched view.
-    setEntryBudget(FAMILY_ENTRY_BUDGET);
-  }, [query, level, readingType]);
+  // #683: the load-more budget is keyed by the active filter instead of being a
+  // plain number reset by a query/level/readingType effect (React hooks v7
+  // flags `set-state-in-effect`). A filter change is NOT a setState -- the
+  // stale-key state is simply ignored on the next render, and the effective
+  // budget falls back to FAMILY_ENTRY_BUDGET until the first load-more.
+  // language is deliberately NOT part of the key, so switching UI language
+  // never resets the already-loaded batch.
+  const [entryBudgetState, setEntryBudgetState] = useState<EntryBudgetState>(() => ({
+    filterKey: "",
+    value: FAMILY_ENTRY_BUDGET
+  }));
 
   const activeLabel = readingType === "on" ? t.kanjiOnyomiLabel : t.kanjiKunyomiLabel;
+
+  // Pure, stable filter key: query + level + readingType. `language` is left
+  // out on purpose (language switches must not reset the loaded count).
+  // The :: separator can never collide with the search box or the level /
+  // reading-type labels, so distinct filters always map to distinct keys.
+  const filterKey = `${query}::${level}::${readingType}`;
+  const entryBudget =
+    entryBudgetState.filterKey === filterKey ? entryBudgetState.value : FAMILY_ENTRY_BUDGET;
+  const increaseEntryBudget = useCallback(() => {
+    setEntryBudgetState((prev) => {
+      // The stored key may be stale (a filter changed in between). Always bump
+      // on top of the CURRENT filter's effective budget so the batch keeps
+      // growing from the initial value, never from a previous filter's count.
+      const base = prev.filterKey === filterKey ? prev.value : FAMILY_ENTRY_BUDGET;
+      return { filterKey, value: base + FAMILY_ENTRY_BUDGET };
+    });
+  }, [filterKey]);
 
   const families = useMemo(() => {
     const q = query.trim();
@@ -129,14 +159,14 @@ export function KanjiOnyomiPanel({
       // Stepping past the load-more boundary pulls the next batch in instead
       // of dead-ending (one bump always covers the next whole family).
       if (nextIndex >= shownEntries) {
-        setEntryBudget((budget) => budget + FAMILY_ENTRY_BUDGET);
+        increaseEntryBudget();
       }
       pendingFocus.current = orderedEntries[nextIndex].kanji;
       setSelected(orderedEntries[nextIndex].kanji);
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [orderedEntries, selected, shownEntries]);
+  }, [orderedEntries, selected, shownEntries, increaseEntryBudget]);
 
   // Keyboard-driven selection follows the card: focus keeps the grid coherent
   // for keyboard and screen-reader users, and `block: "nearest"` only scrolls
@@ -313,7 +343,7 @@ export function KanjiOnyomiPanel({
         <button
           type="button"
           className="kanji-load-more"
-          onClick={() => setEntryBudget((budget) => budget + FAMILY_ENTRY_BUDGET)}
+          onClick={increaseEntryBudget}
         >
           {t.kanjiLoadMore(remainingEntries)}
         </button>
