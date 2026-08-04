@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowLeft, BookOpen, Search, Clapperboard } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import {
@@ -26,8 +26,6 @@ export function GrammarIndexPage({
 }) {
   const t = copy[language];
   const [searchQuery, setSearchQuery] = useState("");
-  const [showMediaOnly, setShowMediaOnly] = useState(false);
-  const [showImportanceFilter, setShowImportanceFilter] = useState<string | null>(null);
   const [expandedLevel, setExpandedLevel] = useState<JlptLevel | null>(level);
 
   const grouped = useMemo(() => getPatternsGroupedByLevel(), []);
@@ -61,23 +59,6 @@ export function GrammarIndexPage({
     [t]
   );
 
-  /** 篩選單一等級的列表 */
-  const filterPatterns = (patterns: GrammarPattern[]): GrammarPattern[] => {
-    let result = patterns;
-    if (searchQuery.trim()) {
-      result = searchPatterns(searchQuery).filter((p) =>
-        patterns.some((sp) => sp.id === p.id)
-      );
-    }
-    if (showMediaOnly) {
-      result = result.filter((p) => p.mediaExamples.length > 0);
-    }
-    if (showImportanceFilter) {
-      result = result.filter((p) => p.importance === showImportanceFilter);
-    }
-    return result;
-  };
-
   /** 跨等級搜尋結果 */
   const globalSearchResults = useMemo(() => {
     if (!searchQuery.trim()) return null;
@@ -93,14 +74,6 @@ export function GrammarIndexPage({
       return { pattern: p, matchedField: matchedFieldLabels[field] };
     });
   }, [searchQuery, matchedFieldLabels]);
-
-  /** 在 overview 隱藏等級篩選器時同步重設，避免 filter 隱形滲漏 */
-  useEffect(() => {
-    if (level === null) {
-      setShowMediaOnly(false);
-      setShowImportanceFilter(null);
-    }
-  }, [level]);
 
   /** 共用搜尋列 — 在三個分支外層統一只渲染一份，避免查詢時 IME 因 remount 被中斷 */
   const renderSearchBar = (
@@ -120,7 +93,6 @@ export function GrammarIndexPage({
   const showGlobalSearch = !level && globalSearchResults !== null;
   const showLevel = level !== null;
   const showOverview = !showGlobalSearch && !showLevel;
-  const levelPatterns = level ? filterPatterns(grouped[level]) : [];
 
   return (
     <section className="grammar-index" aria-label={t.grammarIndexTitle}>
@@ -142,32 +114,6 @@ export function GrammarIndexPage({
       )}
 
       {renderSearchBar}
-
-      {showLevel && (
-        <div className="gi-filters">
-          <button
-            type="button"
-            className={`gi-filter-btn${showMediaOnly ? " active" : ""}`}
-            onClick={() => setShowMediaOnly(!showMediaOnly)}
-          >
-            <Clapperboard aria-hidden="true" size={16} />
-            {t.grammarFilterMediaOnly}
-          </button>
-          <select
-            className="gi-filter-select"
-            value={showImportanceFilter ?? ""}
-            onChange={(e) => setShowImportanceFilter(e.target.value || null)}
-            aria-label={t.grammarFilterImportance}
-          >
-            <option value="">{t.grammarFilterAllImportance}</option>
-            {Object.entries(importanceLabels).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
 
       {showGlobalSearch ? (
         <div className="gi-section">
@@ -192,26 +138,25 @@ export function GrammarIndexPage({
             </ul>
           )}
         </div>
-      ) : showLevel && levelPatterns.length === 0 ? (
-        <p className="gi-empty">{t.grammarNoPatterns}</p>
       ) : showLevel ? (
-        <ul className="gi-pattern-list">
-          {levelPatterns.map((p) => (
-            <PatternCard
-              key={p.id}
-              pattern={p}
-              importanceLabels={importanceLabels}
-              matchedField={null}
-              onOpen={onOpenPattern}
-              grammarHasMedia={t.grammarHasMedia}
-              grammarMatchFieldLabel={t.grammarMatchFieldLabel}
-            />
-          ))}
-          </ul>
-        ) : (
+        // Level-local filters live in GrammarLevelResults, mounted with
+        // key={level} so a level switch (or overview round-trip) unmounts them
+        // and the next level starts from the default filters again — no
+        // effect-driven reset needed (#682).
+        <GrammarLevelResults
+          key={level}
+          language={language}
+          searchQuery={searchQuery}
+          patterns={grouped[level]}
+          importanceLabels={importanceLabels}
+          onOpenPattern={onOpenPattern}
+          onBack={onBack}
+          onBackToOverview={onBackToOverview}
+        />
+      ) : (
         (["N5", "N4", "N3", "N2", "N1"] as JlptLevel[]).map((lvl) => {
           const stats = summary[lvl];
-          const overviewPatterns = filterPatterns(grouped[lvl]);
+          const overviewPatterns = filterBySearch(grouped[lvl], searchQuery);
           const isExpanded = expandedLevel === lvl;
           return (
             <details
@@ -278,16 +223,118 @@ export function GrammarIndexPage({
           );
         })
       )}
-
-      {showLevel && (
-        <div className="gi-cta">
-          <button type="button" className="ghost-button" onClick={onBackToOverview ?? onBack}>
-            <ArrowLeft aria-hidden="true" />
-            {t.grammarBackToIndex}
-          </button>
-        </div>
-      )}
     </section>
+  );
+}
+
+/** 只依搜尋字串縮減列表（overview 用）— 不套用任何 level-local filter。 */
+function filterBySearch(
+  patterns: GrammarPattern[],
+  searchQuery: string
+): GrammarPattern[] {
+  if (!searchQuery.trim()) return patterns;
+  return searchPatterns(searchQuery).filter((p) =>
+    patterns.some((sp) => sp.id === p.id)
+  );
+}
+
+/**
+ * 單一等級的文型列表，持有 level-local 的 showMediaOnly / showImportanceFilter
+ * state。以 key={level} 掛載於 GrammarIndexPage，因此離開等級 route（回 overview
+ * 或直接切等級）即 unmount，下次進入任何等級都從預設 filter 重新開始 —
+ * 不需要在父層用 effect 同步重設（#682）。
+ */
+function GrammarLevelResults({
+  language,
+  searchQuery,
+  patterns,
+  importanceLabels,
+  onOpenPattern,
+  onBack,
+  onBackToOverview,
+}: {
+  language: Language;
+  searchQuery: string;
+  patterns: GrammarPattern[];
+  importanceLabels: Record<string, string>;
+  onOpenPattern: (surface: string) => void;
+  onBack: () => void;
+  onBackToOverview?: () => void;
+}) {
+  const t = copy[language];
+  const [showMediaOnly, setShowMediaOnly] = useState(false);
+  const [showImportanceFilter, setShowImportanceFilter] = useState<string | null>(null);
+
+  /** 篩選單一等級的列表：search + level-local filters */
+  const filterPatterns = (patterns: GrammarPattern[]): GrammarPattern[] => {
+    let result = patterns;
+    if (searchQuery.trim()) {
+      result = searchPatterns(searchQuery).filter((p) =>
+        patterns.some((sp) => sp.id === p.id)
+      );
+    }
+    if (showMediaOnly) {
+      result = result.filter((p) => p.mediaExamples.length > 0);
+    }
+    if (showImportanceFilter) {
+      result = result.filter((p) => p.importance === showImportanceFilter);
+    }
+    return result;
+  };
+
+  const levelPatterns = filterPatterns(patterns);
+
+  return (
+    <>
+      <div className="gi-filters">
+        <button
+          type="button"
+          className={`gi-filter-btn${showMediaOnly ? " active" : ""}`}
+          onClick={() => setShowMediaOnly(!showMediaOnly)}
+        >
+          <Clapperboard aria-hidden="true" size={16} />
+          {t.grammarFilterMediaOnly}
+        </button>
+        <select
+          className="gi-filter-select"
+          value={showImportanceFilter ?? ""}
+          onChange={(e) => setShowImportanceFilter(e.target.value || null)}
+          aria-label={t.grammarFilterImportance}
+        >
+          <option value="">{t.grammarFilterAllImportance}</option>
+          {Object.entries(importanceLabels).map(([key, label]) => (
+            <option key={key} value={key}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {levelPatterns.length === 0 ? (
+        <p className="gi-empty">{t.grammarNoPatterns}</p>
+      ) : (
+        <ul className="gi-pattern-list">
+          {levelPatterns.map((p) => (
+            <PatternCard
+              key={p.id}
+              pattern={p}
+              importanceLabels={importanceLabels}
+              matchedField={null}
+              onOpen={onOpenPattern}
+              grammarHasMedia={t.grammarHasMedia}
+              grammarMatchFieldLabel={t.grammarMatchFieldLabel}
+            />
+          ))}
+        </ul>
+      )}
+
+      <div className="gi-cta">
+        <button type="button" className="ghost-button" onClick={onBackToOverview ?? onBack}>
+          <ArrowLeft aria-hidden="true" />
+          {t.grammarBackToIndex}
+        </button>
+      </div>
+    </>
   );
 }
 
