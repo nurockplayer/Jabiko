@@ -1173,6 +1173,140 @@ describe("App", () => {
     window.history.replaceState({}, "", "/");
   });
 
+  it("normalizes a ja direct /blog/<slug> load to home — no intermediate blog commit (#686)", async () => {
+    // Same 0-frame gate as the #483 test above, but for the initializer path:
+    // a ja direct hit must commit the home view on FIRST render (no redirect
+    // effect), so the (warmed, mocked) blog chunk is never committed and the
+    // URL is rewritten by the URL-sync effect's first run.
+    localStorage.setItem("jabiko.lang", "ja");
+    blogRenders.index = 0;
+    blogRenders.article = 0;
+
+    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
+    render(<App />);
+    // Route normalization happens in the initializer, before the first paint,
+    // so no waitFor should be needed to observe the home shell (ja: ホーム).
+    expect(screen.getByRole("button", { name: "ホーム" })).toBeInTheDocument();
+    expect(blogRenders.article).toBe(0);
+    await waitFor(() => expect(window.location.pathname).toBe("/"));
+
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("normalizes a ja direct /blog load to home — blog module never mounts (#686)", async () => {
+    localStorage.setItem("jabiko.lang", "ja");
+    blogRenders.index = 0;
+    blogRenders.article = 0;
+
+    window.history.replaceState({}, "", "/blog");
+    render(<App />);
+    expect(screen.getByRole("button", { name: "ホーム" })).toBeInTheDocument();
+    expect(blogRenders.index).toBe(0);
+    expect(screen.queryByRole("button", { name: "記事" })).not.toBeInTheDocument();
+    await waitFor(() => expect(window.location.pathname).toBe("/"));
+
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("renders the zh-Hant blog index and article routes (#686)", async () => {
+    localStorage.setItem("jabiko.lang", "zh-Hant");
+    blogRenders.index = 0;
+
+    window.history.replaceState({}, "", "/blog");
+    const { unmount: unmountIndex } = render(<App />);
+    await waitFor(() => expect(blogRenders.index).toBeGreaterThan(0));
+    expect(window.location.pathname).toBe("/blog");
+    unmountIndex();
+
+    blogRenders.article = 0;
+    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
+    const { unmount: unmountArticle } = render(<App />);
+    await waitFor(() => expect(blogRenders.article).toBeGreaterThan(0));
+    expect(window.location.pathname).toBe("/blog/oshikatsu-slang-nyumon");
+    unmountArticle();
+
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("switching to ja while ON the zh-Hant blog lands home in one event (#686)", async () => {
+    localStorage.setItem("jabiko.lang", "zh-Hant");
+    window.history.replaceState({}, "", "/blog");
+    render(<App />);
+    await waitFor(() => expect(blogRenders.index).toBeGreaterThan(0));
+    expect(window.location.pathname).toBe("/blog");
+    // Open the header language picker (still zh-Hant UI).
+    await userEvent.click(screen.getByRole("button", { name: "切換語言" }));
+    // Zero the counter now (opening the picker just re-rendered the zh-Hant
+    // blog) so we can prove the language SWITCH itself never re-commits it.
+    blogRenders.index = 0;
+    await userEvent.click(screen.getByRole("button", { name: "日本語" }));
+
+    // Synchronous: a single user event takes the home route, clears the slug,
+    // saves the preference, and rewrites the URL — no intermediate blog commit.
+    expect(window.location.pathname).toBe("/");
+    expect(localStorage.getItem("jabiko.lang")).toBe("ja");
+    expect(screen.getByRole("button", { name: "ホーム" })).toHaveAttribute("aria-current", "page");
+    expect(blogRenders.index).toBe(0);
+    expect(screen.queryByRole("button", { name: "記事" })).not.toBeInTheDocument();
+
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("switching to zh-Hant from a non-blog view keeps the route (#686)", async () => {
+    localStorage.setItem("jabiko.lang", "en");
+    window.history.replaceState({}, "", "/about");
+    render(<App />);
+
+    // English UI: the switch button and the About nav carry English labels.
+    await userEvent.click(screen.getByRole("button", { name: "Change language" }));
+    await userEvent.click(screen.getByRole("button", { name: "繁體中文" }));
+
+    expect(window.location.pathname).toBe("/about");
+    expect(localStorage.getItem("jabiko.lang")).toBe("zh-Hant");
+    expect(screen.getByRole("button", { name: "關於" })).toHaveAttribute("aria-current", "page");
+
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("back/forward to a blog route in ja normalizes to home (#686)", async () => {
+    localStorage.setItem("jabiko.lang", "zh-Hant");
+    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
+    const zhRender = render(<App />);
+    await waitFor(() => expect(blogRenders.article).toBeGreaterThan(0));
+    expect(window.location.pathname).toBe("/blog/oshikatsu-slang-nyumon");
+    zhRender.unmount();
+
+    // Now in ja, back/forward to that blog URL must normalize to home without
+    // ever committing the blog article (the old popstate handler would have
+    // committed a blog frame before the effect redirected).
+    localStorage.setItem("jabiko.lang", "ja");
+    blogRenders.article = 0;
+    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
+    render(<App />);
+    expect(screen.getByRole("button", { name: "ホーム" })).toBeInTheDocument();
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    expect(screen.getByRole("button", { name: "ホーム" })).toBeInTheDocument();
+    expect(blogRenders.article).toBe(0);
+    await waitFor(() => expect(window.location.pathname).toBe("/"));
+
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("back/forward to a blog route in zh-Hant works normally (#686)", async () => {
+    localStorage.setItem("jabiko.lang", "zh-Hant");
+    window.history.replaceState({}, "", "/blog");
+    render(<App />);
+    await waitFor(() => expect(blogRenders.index).toBeGreaterThan(0));
+
+    // zh-Hant: a popstate to the article route keeps the blog view.
+    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    await waitFor(() => expect(blogRenders.article).toBeGreaterThan(0));
+    expect(window.location.pathname).toBe("/blog/oshikatsu-slang-nyumon");
+
+    window.history.replaceState({}, "", "/");
+  });
+
   it("navigates to secondary views through the nav's 更多 menu (#608)", async () => {
     const user = userEvent.setup();
     render(<App />);

@@ -45,7 +45,7 @@ import { challengeInitFromQuery } from "./domain/challengeDeepLink";
 import { readLevelPreference, writeLevelPreference } from "./domain/levelPreference";
 import { kanjiDefaultLevel, type LevelRange } from "./domain/levelRange";
 import { trackEvent } from "./lib/analytics";
-import { parseRoute, serializeRoute, type AppView } from "./domain/routes";
+import { parseRoute, serializeRoute, type AppRoute, type AppView } from "./domain/routes";
 import packageJson from "../package.json";
 import "./styles.css";
 
@@ -112,21 +112,45 @@ const LANGUAGE_OPTIONS: readonly Language[] = LAUNCHED_LANGUAGES;
 // the nine call sites identical.
 const navIconStyle = { verticalAlign: "middle", marginRight: "0.2rem" } as const;
 
-export default function App() {
-  const [appView, setAppView] = useState<AppView>(() => parseRoute(window.location.pathname).view);
-  // The grammar-point surface for the active /grammar/<surface> route (#281).
-  const [grammarSurface, setGrammarSurface] = useState<string | null>(
-    () => parseRoute(window.location.pathname).grammarSurface
-  );
-  // The article slug for the active /blog/<slug> route (#483); null = index.
-  const [blogSlug, setBlogSlug] = useState<string | null>(
-    () => parseRoute(window.location.pathname).blogSlug
-  );
+// #686: the 文章 blog is zh-Hant-only original content, so any route that
+// resolves to the blog view is normalized to home when the active language
+// can't serve it. Every route ingress (initial load / refresh, popstate, and
+// language switches) funnels through here so the blog view is never committed
+// for a non-zh-Hant language -- the old effect-based redirect (which would
+// briefly render the blog before kicking the user home) is gone. The blog
+// slug is cleared alongside so a later switch back to zh-Hant opens the blog
+// index, not a stale article.
+function normalizeRouteForLanguage(route: AppRoute, language: Language): AppRoute {
+  if (route.view === "blog" && language !== "zh-Hant") {
+    return { view: "home", grammarSurface: null, blogSlug: null };
+  }
+  return route;
+}
 
-  // UI language is pulled up here so the analytics effects (page_view /
-  // study_page_viewed) below can read `language` without a TDZ violation.
+export default function App() {
+  // The active language is resolved before the route state initializers below
+  // so a direct /blog hit in a non-zh-Hant language is normalized to home on
+  // the very first render -- no redirect effect, no intermediate blog commit.
   const { language, setLanguage } = useLanguage();
   const t = copy[language];
+
+  // #686: the initial route is normalized once for the initial language. All
+  // three route-state initializers share this single normalized route so they
+  // can never disagree (e.g. appView=home but blogSlug still set).
+  const initialRoute = useMemo(
+    () => normalizeRouteForLanguage(parseRoute(window.location.pathname), language),
+    // Computed once on mount; `language` is the initial language because the
+    // initializer reads it before any user interaction.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+  const [appView, setAppView] = useState<AppView>(() => initialRoute.view);
+  // The grammar-point surface for the active /grammar/<surface> route (#281).
+  const [grammarSurface, setGrammarSurface] = useState<string | null>(
+    () => initialRoute.grammarSurface
+  );
+  // The article slug for the active /blog/<slug> route (#483); null = index.
+  const [blogSlug, setBlogSlug] = useState<string | null>(() => initialRoute.blogSlug);
 
   // Open a grammar point's study page (#282): from the post-answer feedback's
   // "深入學習這個文法 →" link, and deep-linkable directly via the URL.
@@ -152,10 +176,16 @@ export default function App() {
     }
   }, [appView, grammarSurface, blogSlug]);
 
-  // Back/forward: read the view (and grammar surface) back off the URL.
+  // Back/forward: read the view (and grammar surface) back off the URL. The
+  // parsed route is normalized for the CURRENT language first, so a non-zh-Hant
+  // user navigating back/forward into a /blog URL lands on home without ever
+  // committing the blog view (#686).
   useEffect(() => {
     const onPopState = () => {
-      const route = parseRoute(window.location.pathname);
+      const route = normalizeRouteForLanguage(
+        parseRoute(window.location.pathname),
+        language
+      );
       setAppView(route.view);
       setGrammarSurface(route.grammarSurface);
       setBlogSlug(route.blogSlug);
@@ -166,7 +196,7 @@ export default function App() {
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
-  }, []);
+  }, [language]);
 
   // Per-view <title>/description/canonical/og so each route surfaces its own
   // metadata to crawlers (SPA otherwise shares one static shell). See seo.ts.
@@ -221,14 +251,24 @@ export default function App() {
   // #483: the 文章 blog is zh-Hant-only original content (流行語 / 推し活 /
   // 歌詞解說…), so both the nav entry and the view are gated to zh-Hant like
   // the grammar index. A non-zh visitor who deep-links /blog or /blog/<slug>
-  // gets sent home rather than an empty shell.
+  // is sent home rather than an empty shell. The gating itself is enforced at
+  // every route ingress (initial load / popstate / language switch) via
+  // normalizeRouteForLanguage, so the blog view is never committed for a
+  // non-zh-Hant language (#686) -- no redirect effect is needed here.
   const blogAvailable = language === "zh-Hant";
-  useEffect(() => {
-    if (appView === "blog" && !blogAvailable) {
+
+  // #686: the single language-change entry point. All language picker options
+  // route through here so that leaving the zh-Hant-only blog for a language
+  // that can't serve it clears the blog slug and returns home IN THE SAME
+  // event (no intermediate blog render, no redirect effect) before the new
+  // language's preference is saved.
+  const changeLanguage = (nextLanguage: Language) => {
+    if (appView === "blog" && nextLanguage !== "zh-Hant") {
       setBlogSlug(null);
       setAppView("home");
     }
-  }, [appView, blogAvailable]);
+    setLanguage(nextLanguage);
+  };
 
   // Language picker, opened from the header Globe button (#326).
   const [langPickerOpen, setLangPickerOpen] = useState(false);
@@ -266,7 +306,7 @@ export default function App() {
   // (#264), so a shared or bookmarked drill restores; a bare /challenge or any
   // other route stays undefined (default landing).
   const [launch, setLaunch] = useState<SessionInit | undefined>(() =>
-    parseRoute(window.location.pathname).view === "challenge"
+    initialRoute.view === "challenge"
       ? challengeInitFromQuery(window.location.search)
       : undefined
   );
@@ -432,7 +472,7 @@ export default function App() {
           options={LANGUAGE_OPTIONS}
           onChoose={(code) => {
             trackEvent("locale_changed", { from: language, to: code });
-            setLanguage(code);
+            changeLanguage(code);
             setLangPickerOpen(false);
           }}
           onClose={() => setLangPickerOpen(false)}
