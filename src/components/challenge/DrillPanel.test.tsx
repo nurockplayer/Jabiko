@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
@@ -159,6 +160,180 @@ describe("DrillPanel", () => {
     it("omits the feedback entry when no handler is wired", () => {
       renderDone({ total: 5, correct: 4, accuracy: 80 });
       expect(screen.queryByRole("button", { name: "意見回饋" })).not.toBeInTheDocument();
+    });
+  });
+
+  // #473: after answering, FeedbackPanel must sit immediately AFTER the word
+  // block and BEFORE the choice grid (prompt header → word block → feedback
+  // → choice grid → action row), so a phone learner can compare the answer
+  // and explanation without scrolling back up. The pre-answer DOM is
+  // unchanged (no feedback at all), and the same order is used on every
+  // viewport -- only CSS may tune spacing.
+  describe("post-answer feedback ordering (#473)", () => {
+    const questionWithExample: PracticeQuestion = {
+      ...question,
+      vocabulary: {
+        ...question.vocabulary,
+        examples: [{ japanese: "毎朝、パンを食べます。", meaningZh: "每天早上吃麵包。" }]
+      }
+    };
+
+    const answeredCorrect = {
+      selectedChoice: "書いて",
+      feedback: { status: "correct", question: questionWithExample, submittedAnswer: "書いて" }
+    } as const;
+    const answeredIncorrect = {
+      selectedChoice: "書いた",
+      feedback: { status: "incorrect", question: questionWithExample, submittedAnswer: "書いた" }
+    } as const;
+    const revealed = {
+      selectedChoice: null,
+      feedback: { status: "revealed", question: questionWithExample, submittedAnswer: null }
+    } as const;
+
+    function renderAnswered(overrides: Partial<ComponentProps<typeof DrillPanel>> = {}) {
+      return render(<DrillPanel {...baseProps} language="zh-Hant" {...overrides} />);
+    }
+
+    // Direct child classes of .drill-panel in document order. FeedbackPanel's
+    // root section is `.feedback <status>`, so its first class is "feedback".
+    function childBlocks(container: HTMLElement): string[] {
+      return Array.from(container.querySelectorAll(".drill-panel > *")).map((el) =>
+        (el as HTMLElement).className.split(" ")[0]
+      );
+    }
+
+    it("keeps word-block directly above choice-grid with no feedback before answering", () => {
+      const { container } = renderAnswered();
+      expect(container.querySelector(".drill-panel .feedback")).toBeNull();
+      const blocks = childBlocks(container);
+      expect(blocks.indexOf("choice-grid")).toBe(blocks.indexOf("word-block") + 1);
+      // Bookmark / report entries live on the feedback panel only -- nothing
+      // post-answer leaks into the pre-answer view.
+      expect(screen.queryByRole("button", { name: "收藏此題" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "回報此題" })).not.toBeInTheDocument();
+    });
+
+    it.each([
+      ["correct", answeredCorrect, "正解"],
+      ["incorrect", answeredIncorrect, "再想一下"],
+      ["revealed", revealed, "先記這題"]
+    ] as const)(
+      "orders word-block → feedback → choice-grid → action-row when %s",
+      (_label, { selectedChoice, feedback }, title) => {
+        const { container } = renderAnswered({ selectedChoice, feedback });
+        const blocks = childBlocks(container);
+        const word = blocks.indexOf("word-block");
+        const fb = blocks.indexOf("feedback");
+        const grid = blocks.indexOf("choice-grid");
+        const action = blocks.indexOf("action-row");
+        expect(word).toBeGreaterThanOrEqual(0);
+        expect(fb).toBe(word + 1);
+        expect(grid).toBe(fb + 1);
+        expect(action).toBe(grid + 1);
+        expect(screen.getByRole("heading", { name: title })).toBeInTheDocument();
+      }
+    );
+
+    it("still shows the answer, reading, example, explanation, bookmark and report entries", () => {
+      const { container } = renderAnswered(answeredIncorrect);
+      // Learner's pick, correct answer, and explanation all visible.
+      expect(container.querySelector(".your-answer")?.textContent).toContain("你選的");
+      expect(container.querySelector(".your-answer")?.textContent).toContain("書いた");
+      expect(screen.getByText("正解：書いて")).toBeInTheDocument();
+      expect(screen.getByText("一類動詞的て形會產生音便。")).toBeInTheDocument();
+      // Example sentence + translation.
+      expect(screen.getByText("毎朝、パンを食べます。")).toBeInTheDocument();
+      expect(screen.getByText("每天早上吃麵包。")).toBeInTheDocument();
+      // Bookmark + report entry points (in-app feedback #456 / #470).
+      expect(screen.getByRole("button", { name: "收藏此題" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "回報此題" })).toBeInTheDocument();
+    });
+
+    it("disables the choices and keeps selected/result data attributes after answering", () => {
+      const { container } = renderAnswered(answeredIncorrect);
+      const grid = container.querySelector(".choice-grid")!;
+      const options = Array.from(grid.querySelectorAll("button"));
+      options.forEach((button) => expect(button).toBeDisabled());
+      // The picked (wrong) option carries data-selected + data-result="wrong".
+      const wrong = grid.querySelectorAll('button[data-result="wrong"]');
+      expect(wrong).toHaveLength(1);
+      expect(wrong[0].textContent).toBe("書いた");
+      expect(wrong[0]).toHaveAttribute("data-selected", "true");
+      // The correct answer is flagged as the target.
+      const target = grid.querySelectorAll('button[data-result="target"]');
+      expect(target).toHaveLength(1);
+      expect(target[0].textContent).toBe("書いて");
+    });
+
+    it("flags only the correct answer (as target) on a reveal, with no selection", () => {
+      const { container } = renderAnswered(revealed);
+      const grid = container.querySelector(".choice-grid")!;
+      const target = grid.querySelectorAll('button[data-result="target"]');
+      expect(target).toHaveLength(1);
+      expect(target[0].textContent).toBe("書いて");
+      expect(grid.querySelector('button[data-selected="true"]')).toBeNull();
+    });
+
+    it("drops the feedback and re-enables the new question's choices on the next question", () => {
+      const { container, rerender } = renderAnswered(answeredCorrect);
+      expect(container.querySelector(".feedback")).not.toBeNull();
+      rerender(
+        <DrillPanel
+          {...baseProps}
+          language="zh-Hant"
+          selectedChoice={null}
+          feedback={null}
+          currentQuestion={{
+            ...question,
+            id: "kiku:te",
+            vocabulary: { ...question.vocabulary, id: "kiku", surface: "聞く", reading: "きく", meaningZh: "聽" }
+          }}
+          choiceOptions={["聞いて", "聞いた", "聞かない", "聞きます"]}
+        />
+      );
+      expect(container.querySelector(".feedback")).toBeNull();
+      const grid = container.querySelector(".choice-grid")!;
+      Array.from(grid.querySelectorAll("button")).forEach((button) =>
+        expect(button).not.toBeDisabled()
+      );
+    });
+
+    it("uses the same DOM order at mobile and desktop widths (CSS-only spacing)", () => {
+      const original = window.innerWidth;
+      try {
+        window.innerWidth = 390;
+        const mobile = renderAnswered(answeredCorrect);
+        const mobileBlocks = childBlocks(mobile.container);
+        expect(mobileBlocks).toEqual(["prompt-header", "word-block", "feedback", "choice-grid", "action-row"]);
+        mobile.unmount();
+
+        window.innerWidth = 1280;
+        const desktop = renderAnswered(answeredCorrect);
+        expect(childBlocks(desktop.container)).toEqual(mobileBlocks);
+      } finally {
+        window.innerWidth = original;
+      }
+    });
+
+    it("never calls scrollIntoView or HTMLElement.focus when showing feedback", () => {
+      const scrollSpy = vi.fn();
+      const proto = window.HTMLElement.prototype as unknown as Record<string, unknown>;
+      if (!("scrollIntoView" in proto)) {
+        Object.defineProperty(proto, "scrollIntoView", {
+          configurable: true,
+          writable: true,
+          value: scrollSpy
+        });
+      }
+      const focusSpy = vi.spyOn(window.HTMLElement.prototype, "focus");
+      try {
+        renderAnswered(answeredCorrect);
+        expect(scrollSpy).not.toHaveBeenCalled();
+        expect(focusSpy).not.toHaveBeenCalled();
+      } finally {
+        focusSpy.mockRestore();
+      }
     });
   });
 });

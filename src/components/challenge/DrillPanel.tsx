@@ -219,6 +219,20 @@ export function DrillPanel({
             )}
           </div>
 
+          {/* Post-answer feedback sits right under the prompt (and above the
+              choice grid), so a phone learner can compare the answer /
+              explanation without scrolling back up (#473). Rendered only
+              after answering -- the pre-answer DOM is unchanged. */}
+          {feedback ? (
+            <FeedbackPanel
+              feedback={feedback}
+              language={language}
+              options={choiceOptions}
+              bookmarked={isQuestionBookmarked(feedback.question.id)}
+              onToggleBookmark={() => onToggleBookmark(feedback.question.id)}
+            />
+          ) : null}
+
           <div className="choice-grid" aria-label={t.answerOptions}>
             {choiceOptions.map((choice) => {
               // Expose selection + result as DOM data attributes for AI /
@@ -272,16 +286,6 @@ export function DrillPanel({
               {t.nextQuestion}
             </button>
           </div>
-
-          {feedback ? (
-            <FeedbackPanel
-              feedback={feedback}
-              language={language}
-              options={choiceOptions}
-              bookmarked={isQuestionBookmarked(feedback.question.id)}
-              onToggleBookmark={() => onToggleBookmark(feedback.question.id)}
-            />
-          ) : null}
         </>
       ) : sessionExhausted ? (
         <div className="empty-state review-done session-done">
