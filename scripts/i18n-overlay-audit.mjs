@@ -421,3 +421,263 @@ function getLine(sourceFile, node) {
   const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
   return line + 1;
 }
+
+// ---------------------------------------------------------------------------
+// Exam overlay adapter (#696)
+// ---------------------------------------------------------------------------
+//
+// Audits the six source/overlay field pairs of every `examQuestion({ ... })`
+// literal call in the five fixed exam item files, per item and per target
+// locale. It deliberately knows ONLY the exam shape: any other function or
+// object form is ignored, and any shape that cannot be statically resolved
+// (computed key, spread, dynamic value, duplicate id / field / locale key)
+// throws a deterministic AuditParseError instead of guessing.
+//
+// Canonical key format: `<item-id>.<overlay-field>` (e.g. `n3-foo.hintI18n`).
+
+/** The only source -> overlay field pairs the exam adapter audits. */
+const EXAM_OVERLAY_PAIRS = [
+  ["meaningZh", "meaningI18n"],
+  ["instructionZh", "instructionI18n"],
+  ["promptContextZh", "promptContextI18n"],
+  ["hintZh", "hintI18n"],
+  ["exampleMeaningZh", "exampleMeaningI18n"],
+  ["explanation", "explanationI18n"]
+];
+
+/** Fixed scan set for the exam adapter (issue #696). */
+const EXAM_ITEM_FILES = ["n1.ts", "n2.ts", "n3.ts", "n4.ts", "n5.ts"];
+
+/**
+ * Collect the direct members of an object literal into a name -> member map,
+ * failing closed on spreads, computed names and duplicate member names.
+ * Getter/setter/method members keep their static names so the caller can
+ * reject them when a value is required to be plain text.
+ */
+function collectItemMembers(node, sourceFile) {
+  const sf = sourceFile ?? node.getSourceFile?.();
+  if (!ts.isObjectLiteralExpression(node)) {
+    throw new AuditParseError(
+      `expected an object literal for examQuestion arguments, got ${ts.SyntaxKind[node.kind]}`,
+      { file: sf?.fileName, line: getLine(sf, node), context: node.getText() }
+    );
+  }
+  const members = new Map();
+  for (const member of node.properties) {
+    if (ts.isSpreadAssignment(member)) {
+      throw new AuditParseError(
+        `object spread cannot be resolved statically: ${member.getText()}`,
+        { file: sf?.fileName, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    const name = readStaticPropertyName(member.name, sf);
+    if (members.has(name)) {
+      throw new AuditParseError(
+        `duplicate field "${name}" in examQuestion item`,
+        { file: sf?.fileName, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    members.set(name, member);
+  }
+  return members;
+}
+
+/** True when a value node is a plain static string (incl. no-substitution
+ *  template literals). Numeric literals are accepted for overlay content. */
+function isStaticString(node) {
+  return (
+    ts.isStringLiteral(node) ||
+    ts.isNoSubstitutionTemplateLiteral(node) ||
+    ts.isNumericLiteral(node)
+  );
+}
+
+/**
+ * Audit the exam item files under `repoRoot/src/domain/exam/items/` and return
+ * the overlay audit records (system "exam") for every `examQuestion({ ... })`
+ * literal call, per item and per target locale.
+ *
+ *   - A non-empty source field requires the overlay to carry every target
+ *     locale -> missing record otherwise.
+ *   - An absent or authored-empty source field requires nothing; any overlay
+ *     locale key that still exists is reported as dangling.
+ *   - Non-target locale keys are shape-checked but never reported.
+ *   - item ids must be non-empty static string literals; duplicates fail closed.
+ *   - Spreads, computed keys, dynamic values, duplicate fields and duplicate
+ *     locale keys fail closed with a deterministic AuditParseError.
+ *
+ * Returns records sorted by the canonical `sortAuditRecords` order. Performs
+ * zero filesystem writes, console output, network access and never calls
+ * process.exit.
+ */
+export function auditExamOverlays({ repoRoot, targetLocales }) {
+  if (typeof repoRoot !== "string" || repoRoot.length === 0) {
+    throw new Error("auditExamOverlays requires a non-empty repoRoot directory");
+  }
+  if (
+    !Array.isArray(targetLocales) ||
+    !targetLocales.every((l) => typeof l === "string" && l.length > 0)
+  ) {
+    throw new Error("auditExamOverlays requires targetLocales to be an array of locale strings");
+  }
+  const locales = [...new Set(targetLocales)];
+
+  const records = [];
+  const seenItemIds = new Set();
+
+  for (const fileName of EXAM_ITEM_FILES) {
+    const filePath = `${repoRoot}/src/domain/exam/items/${fileName}`;
+    const sourceFile = parseTypeScriptFile(filePath);
+
+    const visit = (node) => {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        node.expression.text === "examQuestion"
+      ) {
+        const itemObject = node.arguments[0];
+        if (!ts.isObjectLiteralExpression(itemObject)) {
+          throw new AuditParseError(
+            "examQuestion must be called with an object literal",
+            { file: filePath, line: getLine(sourceFile, node), context: node.getText() }
+          );
+        }
+        const members = collectItemMembers(itemObject, sourceFile);
+
+        // --- item id: non-empty static string literal ---------------------
+        const idMember = members.get("id");
+        if (!idMember || !ts.isPropertyAssignment(idMember)) {
+          throw new AuditParseError(
+            "exam item is missing a static string id",
+            { file: filePath, line: getLine(sourceFile, idMember ?? node) }
+          );
+        }
+        const idInit = idMember.initializer;
+        if (!ts.isStringLiteral(idInit) && !ts.isNoSubstitutionTemplateLiteral(idInit)) {
+          throw new AuditParseError(
+            `exam item id must be a static string literal: ${idInit.getText(sourceFile)}`,
+            { file: filePath, line: getLine(sourceFile, idMember), context: idInit.getText(sourceFile) }
+          );
+        }
+        const itemId = idInit.text;
+        if (itemId.trim().length === 0) {
+          throw new AuditParseError(
+            "exam item id must be a non-empty string literal",
+            { file: filePath, line: getLine(sourceFile, idMember) }
+          );
+        }
+        if (seenItemIds.has(itemId)) {
+          throw new AuditParseError(
+            `duplicate exam item id "${itemId}"`,
+            { file: filePath, line: getLine(sourceFile, idMember), context: itemId }
+          );
+        }
+        seenItemIds.add(itemId);
+
+        // --- six source/overlay pairs -------------------------------------
+        for (const [sourceField, overlayField] of EXAM_OVERLAY_PAIRS) {
+          const sourceMember = members.get(sourceField);
+          const overlayMember = members.get(overlayField);
+
+          // Source value: static string; absent stays null, "" means authored-empty.
+          let sourceText = null;
+          if (sourceMember) {
+            if (!ts.isPropertyAssignment(sourceMember)) {
+              throw new AuditParseError(
+                `${sourceField} must be a static string literal`,
+                { file: filePath, line: getLine(sourceFile, sourceMember) }
+              );
+            }
+            const sourceInit = sourceMember.initializer;
+            if (
+              !ts.isStringLiteral(sourceInit) &&
+              !ts.isNoSubstitutionTemplateLiteral(sourceInit)
+            ) {
+              throw new AuditParseError(
+                `${sourceField} must be a static string literal: ${sourceInit.getText(sourceFile)}`,
+                { file: filePath, line: getLine(sourceFile, sourceMember), context: sourceInit.getText(sourceFile) }
+              );
+            }
+            sourceText = sourceInit.text;
+          }
+
+          // Overlay value: an object literal of static locale -> static content.
+          let overlayLocales = null; // null = overlay field absent
+          if (overlayMember) {
+            if (!ts.isPropertyAssignment(overlayMember)) {
+              throw new AuditParseError(
+                `${overlayField} must be an object literal mapping locales to text`,
+                { file: filePath, line: getLine(sourceFile, overlayMember) }
+              );
+            }
+            const overlayInit = overlayMember.initializer;
+            if (!ts.isObjectLiteralExpression(overlayInit)) {
+              throw new AuditParseError(
+                `${overlayField} must be an object literal mapping locales to text`,
+                { file: filePath, line: getLine(sourceFile, overlayMember), context: overlayInit.getText(sourceFile) }
+              );
+            }
+            overlayLocales = new Map();
+            for (const localeMember of overlayInit.properties) {
+              if (ts.isSpreadAssignment(localeMember)) {
+                throw new AuditParseError(
+                  `object spread cannot be resolved statically in overlay: ${localeMember.getText(sourceFile)}`,
+                  { file: filePath, line: getLine(sourceFile, localeMember), context: localeMember.getText(sourceFile) }
+                );
+              }
+              if (!ts.isPropertyAssignment(localeMember)) {
+                throw new AuditParseError(
+                  `overlay locale entries must be static property assignments: ${localeMember.getText(sourceFile)}`,
+                  { file: filePath, line: getLine(sourceFile, localeMember), context: localeMember.getText(sourceFile) }
+                );
+              }
+              const locale = readStaticPropertyName(localeMember.name, sourceFile);
+              if (overlayLocales.has(locale)) {
+                throw new AuditParseError(
+                  `duplicate overlay locale key "${locale}" for ${itemId}.${overlayField}`,
+                  { file: filePath, line: getLine(sourceFile, localeMember), context: locale }
+                );
+              }
+              if (!isStaticString(localeMember.initializer)) {
+                throw new AuditParseError(
+                  `${overlayField}["${locale}"] must be a static string/content value`,
+                  { file: filePath, line: getLine(sourceFile, localeMember), context: localeMember.initializer.getText(sourceFile) }
+                );
+              }
+              overlayLocales.set(locale, localeMember);
+            }
+          }
+
+          const active = sourceText !== null && sourceText !== "";
+          if (active) {
+            for (const locale of locales) {
+              if (!overlayLocales || !overlayLocales.has(locale)) {
+                records.push({
+                  system: "exam",
+                  locale,
+                  sourceKey: `${itemId}.${overlayField}`,
+                  overlayKey: "",
+                  status: "missing"
+                });
+              }
+            }
+          } else if (overlayLocales) {
+            for (const locale of overlayLocales.keys()) {
+              records.push({
+                system: "exam",
+                locale,
+                sourceKey: "",
+                overlayKey: `${itemId}.${overlayField}`,
+                status: "dangling"
+              });
+            }
+          }
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+
+  return sortAuditRecords(records);
+}
