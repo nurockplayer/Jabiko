@@ -681,3 +681,303 @@ export function auditExamOverlays({ repoRoot, targetLocales }) {
 
   return sortAuditRecords(records);
 }
+
+// ---------------------------------------------------------------------------
+// Learning-block overlay adapter (#697)
+// ---------------------------------------------------------------------------
+//
+// Audits the "source stable block id <-> overlay first-level key" mapping for
+// the learning-blocks system.
+//
+//   source:  src/domain/learningBlocks.ts    (the `learningBlocks` array)
+//   overlay: src/domain/learningBlocks.i18n.ts (the `learningBlockI18n` record)
+//   key:     the stable id of a real learner-facing block
+//
+// The source side only admits actual learner-facing block elements of the
+// `learningBlocks` array literal; section/container/helper objects and stray
+// `id` fields elsewhere in the file are never counted. The overlay side only
+// admits first-level keys of the `learningBlockI18n` object literal; nested
+// field keys (category / title / explanation / notes / pitfalls / drillNote)
+// are never flattened.
+//
+// For each target locale (resolved by #695's launched-locale registry, never
+// hardcoded) the overlay is expected to carry a first-level key for EVERY
+// source block id. source-without-overlay = missing; overlay-without-source =
+// dangling. A block whose overlay entry omits one locale produces a missing
+// record for that locale only.
+//
+// Fails closed on duplicate source ids / duplicate overlay keys, spreads,
+// computed keys and any dynamic form whose runtime key mapping cannot be
+// confirmed. Performs zero filesystem writes, console output, network access
+// and never calls process.exit.
+
+/**
+ * Resolve the `learningBlocks` array literal from a SourceFile. Returns the
+ * array node when present (identifier `learningBlocks`), otherwise undefined.
+ */
+function findLearningBlocksArray(sourceFile) {
+  let found = undefined;
+  const visit = (node) => {
+    if (
+      found === undefined &&
+      ts.isVariableStatement(node) &&
+      ts.isVariableDeclarationList(node.declarationList)
+    ) {
+      for (const d of node.declarationList.declarations) {
+        if (!ts.isIdentifier(d.name) || d.name.text !== "learningBlocks") continue;
+        if (ts.isArrayLiteralExpression(d.initializer)) found = d.initializer;
+        break;
+      }
+    }
+    if (found === undefined) ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+/**
+ * Resolve the `learningBlockI18n` object literal from a SourceFile. Returns the
+ * object node when present (identifier `learningBlockI18n`), otherwise
+ * undefined.
+ */
+function findLearningBlockOverlay(sourceFile) {
+  let found = undefined;
+  const visit = (node) => {
+    if (
+      found === undefined &&
+      ts.isVariableStatement(node) &&
+      ts.isVariableDeclarationList(node.declarationList)
+    ) {
+      for (const d of node.declarationList.declarations) {
+        if (!ts.isIdentifier(d.name) || d.name.text !== "learningBlockI18n") continue;
+        if (ts.isObjectLiteralExpression(d.initializer)) found = d.initializer;
+        break;
+      }
+    }
+    if (found === undefined) ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+/**
+ * Read the static `id` from a learner-facing block object literal. The id must
+ * be a non-empty static string literal; anything else (computed / dynamic
+ * value) fails closed because the runtime key mapping cannot be confirmed.
+ */
+function readBlockId(blockNode, sourceFile, filePath) {
+  const sf = sourceFile ?? blockNode.getSourceFile?.();
+  const file = filePath ?? sf?.fileName;
+  if (!ts.isObjectLiteralExpression(blockNode)) {
+    throw new AuditParseError(
+      `learning block element must be an object literal, got ${ts.SyntaxKind[blockNode.kind]}`,
+      { file, line: getLine(sf, blockNode), context: blockNode.getText() }
+    );
+  }
+  let idMember = undefined;
+  for (const member of blockNode.properties) {
+    if (ts.isPropertyAssignment(member) && ts.isIdentifier(member.name) && member.name.text === "id") {
+      idMember = member;
+      break;
+    }
+  }
+  if (!idMember) {
+    throw new AuditParseError("learning block is missing a static string id", {
+      file,
+      line: getLine(sf, blockNode)
+    });
+  }
+  const init = idMember.initializer;
+  if (!ts.isStringLiteral(init) && !ts.isNoSubstitutionTemplateLiteral(init)) {
+    throw new AuditParseError(
+      `learning block id must be a static string literal: ${init.getText(sf)}`,
+      { file, line: getLine(sf, idMember), context: init.getText(sf) }
+    );
+  }
+  const id = init.text;
+  if (id.trim().length === 0) {
+    throw new AuditParseError("learning block id must be a non-empty string literal", {
+      file,
+      line: getLine(sf, idMember)
+    });
+  }
+  return id;
+}
+
+/**
+ * Collect the first-level overlay blocks of the `learningBlockI18n` object into
+ * a Map<blockId, localeKeys>, in declaration order. Each block entry must be an
+ * object literal mapping locales to text; its locale keys are read statically.
+ * Computed keys, spreads, non-property members and non-object entry values fail
+ * closed (their runtime key mapping cannot be confirmed).
+ */
+function collectOverlayBlockEntries(overlayNode, sourceFile, filePath) {
+  const sf = sourceFile ?? overlayNode.getSourceFile?.();
+  const file = filePath ?? sf?.fileName;
+  if (!ts.isObjectLiteralExpression(overlayNode)) {
+    throw new AuditParseError(
+      `learningBlockI18n must be an object literal, got ${ts.SyntaxKind[overlayNode.kind]}`,
+      { file, line: getLine(sf, overlayNode) }
+    );
+  }
+  const entries = new Map();
+  for (const member of overlayNode.properties) {
+    if (ts.isSpreadAssignment(member)) {
+      throw new AuditParseError(
+        `object spread cannot be resolved statically: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    if (!ts.isPropertyAssignment(member)) {
+      throw new AuditParseError(
+        `overlay block entries must be static property assignments: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    const blockId = readStaticPropertyName(member.name, sf);
+    if (entries.has(blockId)) {
+      throw new AuditParseError(`duplicate overlay block key "${blockId}"`, {
+        file,
+        line: getLine(sf, member),
+        context: blockId
+      });
+    }
+    const localeObject = member.initializer;
+    if (!ts.isObjectLiteralExpression(localeObject)) {
+      throw new AuditParseError(
+        `overlay entry "${blockId}" must be an object literal mapping locales to text`,
+        { file, line: getLine(sf, member), context: blockId }
+      );
+    }
+    const localeKeys = [];
+    const seenLocales = new Set();
+    for (const localeMember of localeObject.properties) {
+      if (ts.isSpreadAssignment(localeMember)) {
+        throw new AuditParseError(
+          `object spread cannot be resolved statically in overlay entry "${blockId}"`,
+          { file, line: getLine(sf, localeMember), context: localeMember.getText() }
+        );
+      }
+      if (!ts.isPropertyAssignment(localeMember)) {
+        throw new AuditParseError(
+          `overlay locale entries must be static property assignments: ${localeMember.getText()}`,
+          { file, line: getLine(sf, localeMember), context: localeMember.getText() }
+        );
+      }
+      const locale = readStaticPropertyName(localeMember.name, sf);
+      if (seenLocales.has(locale)) {
+        throw new AuditParseError(
+          `duplicate overlay locale key "${locale}" for block "${blockId}"`,
+          { file, line: getLine(sf, localeMember), context: locale }
+        );
+      }
+      seenLocales.add(locale);
+      localeKeys.push(locale);
+    }
+    entries.set(blockId, localeKeys);
+  }
+  return entries;
+}
+
+/**
+ * Audit the source/overlay first-level key mapping for the learning-blocks
+ * system and return the overlay audit records (system "learningBlocks") for
+ * every learner-facing block id and every target locale.
+ *
+ *   - The source set is the static `id` of every element of the `learningBlocks`
+ *     array literal. Non-object elements, missing / empty / dynamic ids fail
+ *     closed; duplicate ids fail closed.
+ *   - The overlay set is the first-level keys of the `learningBlockI18n` object
+ *     literal; nested field keys are never flattened. Spreads, computed keys
+ *     and non-object entry values fail closed.
+ *   - For each target locale, a source id with no overlay entry for that locale
+ *     is `missing`; an overlay key with no source id is `dangling` (per locale
+ *     the overlay entry carries). The common record shape, sorting and counts
+ *     come from #695; the system is fixed to "learningBlocks". Target locales
+ *     must come from the launched registry; this adapter never hardcodes one.
+ *
+ * Returns records sorted by the canonical `sortAuditRecords` order. Performs
+ * zero filesystem writes, console output, network access and never calls
+ * process.exit.
+ */
+export function auditLearningBlockOverlays({ repoRoot, targetLocales }) {
+  if (typeof repoRoot !== "string" || repoRoot.length === 0) {
+    throw new Error("auditLearningBlockOverlays requires a non-empty repoRoot directory");
+  }
+  if (
+    !Array.isArray(targetLocales) ||
+    !targetLocales.every((l) => typeof l === "string" && l.length > 0)
+  ) {
+    throw new Error(
+      "auditLearningBlockOverlays requires targetLocales to be an array of locale strings"
+    );
+  }
+  const locales = [...new Set(targetLocales)];
+
+  const sourcePath = `${repoRoot}/src/domain/learningBlocks.ts`;
+  const overlayPath = `${repoRoot}/src/domain/learningBlocks.i18n.ts`;
+
+  const sourceFile = parseTypeScriptFile(sourcePath);
+  const overlayFile = parseTypeScriptFile(overlayPath);
+
+  const blocksArray = findLearningBlocksArray(sourceFile);
+  const overlayObject = findLearningBlockOverlay(overlayFile);
+
+  if (!blocksArray) {
+    throw new AuditParseError("learningBlocks array literal not found", { file: sourcePath });
+  }
+  if (!overlayObject) {
+    throw new AuditParseError("learningBlockI18n object literal not found", { file: overlayPath });
+  }
+
+  // --- source: static block ids -------------------------------------------
+  const sourceKeys = [];
+  const seenIds = new Set();
+  for (const element of blocksArray.elements) {
+    const id = readBlockId(element, sourceFile, sourcePath);
+    if (seenIds.has(id)) {
+      throw new AuditParseError(`duplicate learning block id "${id}"`, {
+        file: sourcePath,
+        context: id
+      });
+    }
+    seenIds.add(id);
+    sourceKeys.push(id);
+  }
+
+  // --- overlay: first-level block keys + per-entry locales ------------------
+  const overlayEntries = collectOverlayBlockEntries(overlayObject, overlayFile, overlayPath);
+
+  // --- per-target-locale comparison ----------------------------------------
+  const records = [];
+  for (const locale of locales) {
+    // source-without-overlay-for-this-locale => missing
+    for (const sourceKey of sourceKeys) {
+      const entry = overlayEntries.get(sourceKey);
+      if (!entry || !entry.includes(locale)) {
+        records.push({
+          system: "learningBlocks",
+          locale,
+          sourceKey,
+          overlayKey: "",
+          status: "missing"
+        });
+      }
+    }
+  }
+  // overlay-without-source => dangling (per locale the overlay entry carries)
+  for (const [blockId, localeKeys] of overlayEntries) {
+    if (seenIds.has(blockId)) continue;
+    for (const locale of localeKeys) {
+      records.push({
+        system: "learningBlocks",
+        locale,
+        sourceKey: "",
+        overlayKey: blockId,
+        status: "dangling"
+      });
+    }
+  }
+
+  return sortAuditRecords(records);
+}
