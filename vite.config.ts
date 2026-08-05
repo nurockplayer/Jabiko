@@ -90,7 +90,8 @@ export default defineConfig({
             "src/domain/bookmarks.test.ts",
             "src/domain/levelPreference.test.ts",
             "src/domain/originMigration.test.ts",
-            "src/domain/diagnostics.test.ts"
+            "src/domain/diagnostics.test.ts",
+            "src/domain/practiceHistoryDeletion.test.ts"
           ]
         }
       },
@@ -109,7 +110,8 @@ export default defineConfig({
             "src/domain/bookmarks.test.ts",
             "src/domain/levelPreference.test.ts",
             "src/domain/originMigration.test.ts",
-            "src/domain/diagnostics.test.ts"
+            "src/domain/diagnostics.test.ts",
+            "src/domain/practiceHistoryDeletion.test.ts"
           ]
         }
       }

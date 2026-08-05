@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { fetchRemoteAttempts, planLoginSync, pushAttempts } from "./attemptRemote";
+import {
+  deleteRemoteAttempts,
+  fetchRemoteAttempts,
+  planLoginSync,
+  pushAttempts
+} from "./attemptRemote";
 import { attemptKey } from "./attemptSync";
 import type { Attempt } from "./types";
 
@@ -42,6 +47,12 @@ interface UpsertCall {
   options: { onConflict?: string; ignoreDuplicates?: boolean } | undefined;
 }
 
+interface DeleteCall {
+  table: string;
+  eqColumn: string;
+  eqValue: string;
+}
+
 interface QueryResult {
   data: Array<{ payload: Attempt }> | null;
   error: Error | null;
@@ -51,9 +62,11 @@ function makeFakeClient(opts: {
   rows?: Array<{ payload: Attempt }>;
   selectError?: Error;
   upsertError?: Error;
+  deleteError?: Error;
 }) {
   const selectCalls: SelectCall[] = [];
   const upsertCalls: UpsertCall[] = [];
+  const deleteCalls: DeleteCall[] = [];
 
   const client = {
     from(table: string) {
@@ -85,6 +98,16 @@ function makeFakeClient(opts: {
         ): Promise<{ error: Error | null }> {
           upsertCalls.push({ table, rows, options });
           return Promise.resolve({ error: opts.upsertError ?? null });
+        },
+        delete(): {
+          eq(eqColumn: string, eqValue: string): Promise<{ error: Error | null }>;
+        } {
+          return {
+            eq(eqColumn: string, eqValue: string): Promise<{ error: Error | null }> {
+              deleteCalls.push({ table, eqColumn, eqValue });
+              return Promise.resolve({ error: opts.deleteError ?? null });
+            }
+          };
         }
       };
     }
@@ -93,7 +116,8 @@ function makeFakeClient(opts: {
   return {
     client: client as unknown as SupabaseClient,
     selectCalls,
-    upsertCalls
+    upsertCalls,
+    deleteCalls
   };
 }
 
@@ -168,6 +192,32 @@ describe("pushAttempts", () => {
   it("throws when the upsert returns an error", async () => {
     const { client } = makeFakeClient({ upsertError: new Error("nope") });
     await expect(pushAttempts(client, "user-1", [makeAttempt()])).rejects.toThrow("nope");
+  });
+});
+
+// --- deleteRemoteAttempts ---------------------------------------------------
+
+describe("deleteRemoteAttempts", () => {
+  it("deletes attempts filtered by exactly the captured user id (no other filter)", async () => {
+    const { client, deleteCalls } = makeFakeClient({});
+    const result = await deleteRemoteAttempts(client, "user-42");
+    expect(result).toEqual({ ok: true });
+    expect(deleteCalls).toEqual([{ table: "attempts", eqColumn: "user_id", eqValue: "user-42" }]);
+  });
+
+  it("sanitizes a Supabase error: no raw message, SQL, env or token leakage", async () => {
+    const raw = "permission denied for table attempts (sql: DELETE FROM attempts WHERE user_id='$2'). env: SUPABASE_ANON_KEY=supersecret token=eyJhbGciOiJIUzI1NiJ9";
+    const { client } = makeFakeClient({ deleteError: new Error(raw) });
+    const result = await deleteRemoteAttempts(client, "user-1");
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+    expect(result.message).not.toContain("supersecret");
+    expect(result.message).not.toContain("eyJhbGciOiJIUzI1NiJ9");
+    expect(result.message).not.toContain("DELETE FROM");
+    expect(result.message).not.toContain("SUPABASE_ANON_KEY");
+    expect(result.message).not.toContain("$2");
   });
 });
 
