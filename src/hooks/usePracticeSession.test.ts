@@ -320,9 +320,17 @@ describe("usePracticeSession applyModePreset preference (#199)", () => {
     expect(result.current.levelRange).toBe("n4n5");
   });
 
-  it("clamps the preference for 単字 when re-selected (n4n5 has no jlpt vocab -> all)", () => {
+  it("keeps the n4n5 preference for 単字 when re-selected (real N4/N5 vocab, #668)", () => {
     const { result } = renderHook(() =>
       usePracticeSession({ ...baseHookArgs, init: { mode: "basic" }, targetLevel: "n4n5" })
+    );
+    act(() => result.current.applyModePreset("vocab"));
+    expect(result.current.levelRange).toBe("n4n5");
+  });
+
+  it("clamps the starter preference for 単字 when re-selected (完全新手 -> all)", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({ ...baseHookArgs, init: { mode: "basic" }, targetLevel: "starter" })
     );
     act(() => result.current.applyModePreset("vocab"));
     expect(result.current.levelRange).toBe("all");
@@ -389,12 +397,20 @@ describe("initialLevelRange (#199)", () => {
     expect(initialLevelRange({ mode: "daily" }, null)).toBe("all");
   });
 
-  it("clamps an n4n5 preference to 'all' for 単字 mode (no n4n5 jlpt vocab)", () => {
-    expect(initialLevelRange({ mode: "vocab" }, "n4n5")).toBe("all");
+  it("clamps a non-vocab-picker band to 'all' for 単字 mode (starter never meets 単字)", () => {
+    // The vocab picker offers all/n1n2/n2n3/n4n5 (#668). starter is the one
+    // band it cannot show (完全新手 drills 入門 content instead), so only that
+    // gets clamped.
+    expect(initialLevelRange({ mode: "vocab" }, "starter")).toBe("all");
+  });
+
+  it("keeps an n4n5 preference for 単字 mode (real N4/N5 jlpt vocab, #666/#667/#668)", () => {
+    expect(initialLevelRange({ mode: "vocab" }, "n4n5")).toBe("n4n5");
   });
 
   it("keeps a vocab-valid preference for 単字 mode", () => {
     expect(initialLevelRange({ mode: "vocab" }, "n2n3")).toBe("n2n3");
     expect(initialLevelRange({ mode: "vocab" }, "n1n2")).toBe("n1n2");
+    expect(initialLevelRange({ mode: "vocab" }, "all")).toBe("all");
   });
 });

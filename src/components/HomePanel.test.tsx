@@ -90,6 +90,13 @@ describe("HomePanel level-aware entry cards (funnel design)", () => {
     expect(screen.getByRole("heading", { name: "単字讀音" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "基礎詞彙" })).not.toBeInTheDocument();
   });
+
+  it("the 単字讀音 card copy spans the full N1–N5 reading pool (#668)", () => {
+    renderHome({ targetLevel: "n2n3", progressAttempts: [sampleAttempt] });
+    const card = screen.getByRole("button", { name: /単字讀音/ });
+    expect(card).toHaveTextContent("N1〜N5");
+    expect(card).not.toHaveTextContent("N1〜N3");
+  });
 });
 
 describe("HomePanel 你的下一步 banner (funnel design)", () => {

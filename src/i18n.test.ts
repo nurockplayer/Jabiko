@@ -62,9 +62,9 @@ describe("collectKeyPaths array recursion", () => {
 
 // Scope-copy guard (#94). The app spans N5 (basic conjugation) → N1, and the
 // 綜合考題庫 exam pool covers N1–N3 (N4/N5 live only in the examN4 preset, not
-// the default pool). vocab (単字讀音) is N1/N2 only (jlptVocabulary = n1+n2),
-// so its "N1/N2" labels stay correct. These assertions stop the old
-// "N1・N2 only" scope claims from drifting back into user-facing copy.
+// the default pool). vocab (単字讀音) covers N1–N5 since #666/#667 landed the
+// N4/N5 jlpt tiers (#668), so its labels read N1〜N5. These assertions stop the
+// old scope claims from drifting back into user-facing copy.
 describe("i18n scope copy (#94)", () => {
   const zh = copy["zh-Hant"];
 
@@ -76,6 +76,11 @@ describe("i18n scope copy (#94)", () => {
   it("exam mode subtitle reflects the N1–N3 default pool", () => {
     expect(zh.modeOptions.exam.subtitle).not.toContain("N1/N2 為主");
     expect(zh.modeOptions.exam.subtitle).toContain("N1〜N3");
+  });
+
+  it("vocab mode subtitle + home card span the full N1–N5 reading pool (#668)", () => {
+    expect(zh.modeOptions.vocab.subtitle).toContain("N1〜N5");
+    expect(zh.homeCardVocabSub).toContain("N1〜N5");
   });
 
   it("homeHeroIntro drops the stale 'N1 / N2' endpoint phrasing", () => {

@@ -14,11 +14,11 @@ export type LevelRange = "all" | "n1n2" | "n2n3" | "n3n4" | "n4n5" | "starter";
 // Order shown in the picker (全部 first, then the target bands high→low).
 export const LEVEL_RANGE_OPTIONS: LevelRange[] = ["all", "n1n2", "n2n3", "n3n4", "n4n5", "starter"];
 
-// Vocab (単字讀音) only has N1/N2 jlpt entries, so its segmented picker must
-// NOT offer the lower bands (they would filter jlptVocabulary down to an
-// empty pool). Exam reaches N3/N4/N5 via the examN3 / examN4 mode presets,
-// not this picker.
-export const VOCAB_LEVEL_RANGE_OPTIONS: LevelRange[] = ["all", "n1n2", "n2n3"];
+// Vocab (単字讀音) has jlpt entries from N5 up to N1 (#666/#667 added the
+// N4/N5 tiers), so its segmented picker offers every band that has real
+// reading data. The starter band stays out -- 完全新手 drills 入門 content
+// (kana + starter vocab), never the JLPT reading deck.
+export const VOCAB_LEVEL_RANGE_OPTIONS: LevelRange[] = ["all", "n1n2", "n2n3", "n4n5"];
 
 const RANGE_LEVELS: Record<Exclude<LevelRange, "all">, JlptLevel[]> = {
   n1n2: ["N1", "N2"],
