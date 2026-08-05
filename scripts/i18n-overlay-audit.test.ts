@@ -9,6 +9,7 @@ import ts from "typescript";
 // @ts-expect-error -- plain .mjs tooling module, no types
 import {
   AuditParseError,
+  auditExamOverlays,
   auditKeySets,
   collectStaticObjectKeys,
   parseLaunchedLocales,
@@ -404,6 +405,346 @@ describe("core side-effect discipline", () => {
       };
       runOverlayAdapters([adapter], {});
       parseLaunchedLocales(parseTypeScriptFile(localesFixture));
+      expect(writeSpy).not.toHaveBeenCalled();
+      expect(mkdirSpy).not.toHaveBeenCalled();
+      expect(logSpy).not.toHaveBeenCalled();
+      expect(errorSpy).not.toHaveBeenCalled();
+      expect(exitSpy).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      writeSpy.mockRestore();
+      mkdirSpy.mockRestore();
+      logSpy.mockRestore();
+      errorSpy.mockRestore();
+      exitSpy.mockRestore();
+      fetchSpy.mockRestore();
+    }
+  });
+});
+
+describe("auditExamOverlays (#696)", () => {
+  // Built inside beforeAll: the outer suite assigns tmpDir there, and the
+  // describe body is evaluated before that hook runs.
+  let OPTIONS: { repoRoot: string; targetLocales: string[] };
+
+  /** Write every exam item file. Files not present in `files` are reset to an
+   *  empty stub so leftover fixtures never leak across tests. */
+  function writeExamFixture(files: Record<string, string>): void {
+    const stubs: Record<string, string> = {
+      n1: "export const n1Items: unknown[] = [];",
+      n2: "export const n2Items: unknown[] = [];",
+      n3: "export const n3Items: unknown[] = [];",
+      n4: "export const n4Items: unknown[] = [];",
+      n5: "export const n5Items: unknown[] = [];"
+    };
+    for (const name of ["n1", "n2", "n3", "n4", "n5"]) {
+      fs.writeFileSync(
+        path.join(tmpDir, "src", "domain", "exam", "items", `${name}.ts`),
+        files[name] ?? stubs[name]
+      );
+    }
+  }
+
+  beforeAll(() => {
+    fs.mkdirSync(path.join(tmpDir, "src", "domain", "exam", "items"), {
+      recursive: true
+    });
+    OPTIONS = { repoRoot: tmpDir, targetLocales: ["ja", "en"] };
+    writeExamFixture({});
+  });
+
+  it("reports missing and dangling overlays for all six field pairs, per item and per locale", () => {
+    writeExamFixture({
+      n1: [
+        'import { examQuestion } from "../helpers";',
+        'export const n1Items = [',
+        "  examQuestion({",
+        '    id: "n1-foo",',
+        // meaning: en overlay missing
+        '    meaningZh: "吃",',
+        '    meaningI18n: { "ja": "食べる" },',
+        // instruction: overlay missing entirely (ja + en)
+        '    instructionZh: "選對的。",',
+        // promptContext: complete for ja + en; a non-target locale key (fr) is
+        // parsed for shape but never reported
+        '    promptContextZh: "每天吃。",',
+        '    promptContextI18n: { "ja": "毎日食べる。", "en": "Eat daily.", "fr": "Mange quotidien." },',
+        // hint: empty source but overlay present -> dangling (ja + en)
+        '    hintZh: "",',
+        '    hintI18n: { "ja": "ヒント", "en": "Hint." },',
+        // exampleMeaning: no source, overlay present -> dangling (ja + en)
+        '    exampleMeaningI18n: { "ja": "例文の意味", "en": "Example meaning." },',
+        // explanation: complete -> no records
+        '    explanation: "解說",',
+        '    explanationI18n: { "ja": "解説", "en": "Explanation." }',
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    expect(auditExamOverlays(OPTIONS)).toEqual([
+      { system: "exam", locale: "en", sourceKey: "", overlayKey: "n1-foo.exampleMeaningI18n", status: "dangling" },
+      { system: "exam", locale: "en", sourceKey: "", overlayKey: "n1-foo.hintI18n", status: "dangling" },
+      { system: "exam", locale: "en", sourceKey: "n1-foo.instructionI18n", overlayKey: "", status: "missing" },
+      { system: "exam", locale: "en", sourceKey: "n1-foo.meaningI18n", overlayKey: "", status: "missing" },
+      { system: "exam", locale: "ja", sourceKey: "", overlayKey: "n1-foo.exampleMeaningI18n", status: "dangling" },
+      { system: "exam", locale: "ja", sourceKey: "", overlayKey: "n1-foo.hintI18n", status: "dangling" },
+      { system: "exam", locale: "ja", sourceKey: "n1-foo.instructionI18n", overlayKey: "", status: "missing" }
+    ]);
+  });
+
+  it("keeps the canonical key format <item-id>.<overlay-field>", () => {
+    writeExamFixture({
+      n2: [
+        'import { examQuestion } from "../helpers";',
+        'export const n2Items = [',
+        "  examQuestion({",
+        '    id: "n2-item-x",',
+        '    meaningZh: "非空",',
+        '    hintZh: "提示",',
+        '    hintI18n: { "ja": "ヒント", "en": "Hint." }',
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    const records = auditExamOverlays(OPTIONS);
+    const meaningMissing = records.filter(
+      (r) => r.sourceKey.startsWith("n2-item-x.meaningI18n") && r.status === "missing"
+    );
+    expect(meaningMissing).toHaveLength(2); // ja + en
+    for (const r of meaningMissing) expect(r.sourceKey).toBe("n2-item-x.meaningI18n");
+  });
+
+  it("skips empty-string source fields but flags an existing overlay as dangling", () => {
+    writeExamFixture({
+      n3: [
+        'import { examQuestion } from "../helpers";',
+        'export const n3Items = [',
+        "  examQuestion({",
+        '    id: "n3-empty",',
+        '    meaningZh: "",',
+        '    meaningI18n: { "ja": "落ち穂", "en": "gleanings" },',
+        '    hintZh: ""',
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    const records = auditExamOverlays(OPTIONS);
+    const dangling = records.filter((r) => r.status === "dangling");
+    expect(dangling).toHaveLength(2); // ja + en for n3-empty.meaningI18n
+    expect(dangling.every((r) => r.overlayKey === "n3-empty.meaningI18n")).toBe(true);
+    // hintZh is empty with no overlay at all: no record
+    expect(records.some((r) => r.overlayKey === "n3-empty.hintI18n")).toBe(false);
+  });
+
+  it("requires a non-empty static string item id and fails closed otherwise", () => {
+    writeExamFixture({
+      n5: [
+        'import { examQuestion } from "../helpers";',
+        'export const n5Items = [',
+        "  examQuestion({",
+        '    id: "",',
+        '    meaningZh: "x",',
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    expect(() => auditExamOverlays(OPTIONS)).toThrow(AuditParseError);
+    expect(() => auditExamOverlays(OPTIONS)).toThrow(/id/);
+
+    writeExamFixture({
+      n5: [
+        'import { examQuestion } from "../helpers";',
+        'export const n5Items = [',
+        "  examQuestion({",
+        "    id: DYNAMIC_ID,",
+        '    meaningZh: "x",',
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    expect(() => auditExamOverlays(OPTIONS)).toThrow(/id/);
+  });
+
+  it("fails closed on overlay spreads, computed locale keys and dynamic values", () => {
+    writeExamFixture({
+      n4: [
+        'import { examQuestion } from "../helpers";',
+        'export const n4Items = [',
+        "  examQuestion({",
+        '    id: "n4-spread",',
+        '    meaningZh: "x",',
+        '    meaningI18n: { "ja": "ヒント", ...extra }',
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    expect(() => auditExamOverlays(OPTIONS)).toThrow(/spread/);
+
+    writeExamFixture({
+      n4: [
+        'import { examQuestion } from "../helpers";',
+        'export const n4Items = [',
+        "  examQuestion({",
+        '    id: "n4-computed",',
+        '    meaningZh: "x",',
+        "    meaningI18n: { [key]: \"v\" }",
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    expect(() => auditExamOverlays(OPTIONS)).toThrow(/computed/);
+
+    writeExamFixture({
+      n4: [
+        'import { examQuestion } from "../helpers";',
+        'export const n4Items = [',
+        "  examQuestion({",
+        '    id: "n4-dynamic",',
+        '    meaningZh: "x",',
+        '    meaningI18n: { "ja": translate("こんにちは") }',
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    expect(() => auditExamOverlays(OPTIONS)).toThrow(/static string|literal/i);
+  });
+
+  it("fails closed on duplicate item ids and duplicate locale keys", () => {
+    writeExamFixture({
+      n4: [
+        'import { examQuestion } from "../helpers";',
+        'export const n4Items = [',
+        "  examQuestion({",
+        '    id: "n4-dup",',
+        '    meaningZh: "a",',
+        "  }),",
+        "  examQuestion({",
+        '    id: "n4-dup",',
+        '    meaningZh: "b",',
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    expect(() => auditExamOverlays(OPTIONS)).toThrow(/duplicate|id/);
+
+    writeExamFixture({
+      n4: [
+        'import { examQuestion } from "../helpers";',
+        'export const n4Items = [',
+        "  examQuestion({",
+        '    id: "n4-duplocale",',
+        '    meaningZh: "a",',
+        '    meaningI18n: { "ja": "x", "ja": "y", "en": "z" }',
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    expect(() => auditExamOverlays(OPTIONS)).toThrow(/duplicate/);
+  });
+
+  it("fails closed on duplicate overlay field keys within one item", () => {
+    writeExamFixture({
+      n4: [
+        'import { examQuestion } from "../helpers";',
+        'export const n4Items = [',
+        "  examQuestion({",
+        '    id: "n4-dupfield",',
+        '    meaningZh: "a",',
+        '    meaningZh: "b",',
+        '    meaningI18n: { "ja": "x", "en": "y" }',
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    expect(() => auditExamOverlays(OPTIONS)).toThrow(/duplicate/);
+  });
+
+  it("does not misclassify other functions or object forms as exam items", () => {
+    writeExamFixture({
+      n1: [
+        'import { examQuestion } from "../helpers";',
+        'function examQuestionShim(x: unknown) { return x; }',
+        'const helper = examQuestionShim({',
+        '  id: "not-an-item",',
+        '  meaningZh: "untranslated",',
+        '});',
+        'export const n1Items = [',
+        "  examQuestion({",
+        '    id: "n1-real",',
+        '    meaningZh: "real",',
+        '    meaningI18n: { "ja": "本物", "en": "real" },',
+        '    instructionZh: "選對的。",',
+        '    promptContextZh: "每天吃。",',
+        '    hintZh: "提示",',
+        '    exampleMeaningZh: "例句",',
+        '    explanation: "解說"',
+        "  }),",
+        "];"
+      ].join("\n")
+    });
+    const records = auditExamOverlays(OPTIONS);
+    expect(records.some((r) => String(r.sourceKey).includes("not-an-item"))).toBe(false);
+    const realSourceKeys = records
+      .filter((r) => String(r.sourceKey).includes("n1-real"))
+      .map((r) => String(r.sourceKey));
+    // meaningI18n is complete; the other five zh fields are not overlaid -> 5 x 2 locales
+    expect(realSourceKeys).toHaveLength(10);
+    for (const field of [
+      "instructionI18n",
+      "promptContextI18n",
+      "hintI18n",
+      "exampleMeaningI18n",
+      "explanationI18n"
+    ]) {
+      expect(realSourceKeys).toContain(`n1-real.${field}`);
+    }
+  });
+
+  it("reports byte-equivalent sorted records regardless of locale order", () => {
+    writeExamFixture({
+      n1: [
+        'import { examQuestion } from "../helpers";',
+        'export const n1Items = [',
+        "  examQuestion({ id: \"n1-b\", meaningZh: \"b\", meaningI18n: { \"ja\": \"B\" } }),",
+        "  examQuestion({ id: \"n1-a\", meaningZh: \"a\", meaningI18n: { \"en\": \"A\" } }),",
+        "];"
+      ].join("\n"),
+      n2: [
+        'import { examQuestion } from "../helpers";',
+        'export const n2Items = [',
+        "  examQuestion({ id: \"n2-a\", hintZh: \"h\", hintI18n: { \"ja\": \"H\" } }),",
+        "];"
+      ].join("\n")
+    });
+    const a = JSON.stringify(auditExamOverlays(OPTIONS));
+    const b = JSON.stringify(auditExamOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] }));
+    expect(a).toBe(b);
+    const parsed = JSON.parse(a) as Array<{ sourceKey: string }>;
+    expect(parsed).toHaveLength(3);
+    expect(parsed.map((r) => r.sourceKey).sort()).toEqual([
+      "n1-a.meaningI18n",
+      "n1-b.meaningI18n",
+      "n2-a.hintI18n"
+    ]);
+  });
+
+  it("performs zero filesystem writes, console output, network and process.exit", () => {
+    writeExamFixture({
+      n5: [
+        'import { examQuestion } from "../helpers";',
+        'export const n5Items = [',
+        "  examQuestion({ id: \"n5-ok\", meaningZh: \"ok\", meaningI18n: { \"ja\": \"OK\", \"en\": \"OK\" } }),",
+        "];"
+      ].join("\n")
+    });
+    const writeSpy = vi.spyOn(fs, "writeFileSync");
+    const mkdirSpy = vi.spyOn(fs, "mkdirSync");
+    const logSpy = vi.spyOn(console, "log");
+    const errorSpy = vi.spyOn(console, "error");
+    const exitSpy = vi.spyOn(process, "exit");
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    try {
+      auditExamOverlays(OPTIONS);
       expect(writeSpy).not.toHaveBeenCalled();
       expect(mkdirSpy).not.toHaveBeenCalled();
       expect(logSpy).not.toHaveBeenCalled();
