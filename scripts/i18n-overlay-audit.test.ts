@@ -5,12 +5,14 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import ts from "typescript";
 // @ts-expect-error -- plain .mjs tooling module, no types
 import {
   AuditParseError,
   auditExamOverlays,
   auditKeySets,
+  auditLearningBlockOverlays,
   collectStaticObjectKeys,
   parseLaunchedLocales,
   parseTypeScriptFile,
@@ -758,6 +760,221 @@ describe("auditExamOverlays (#696)", () => {
       errorSpy.mockRestore();
       exitSpy.mockRestore();
       fetchSpy.mockRestore();
+    }
+  });
+});
+
+describe("auditLearningBlockOverlays (#697)", () => {
+  /** Repo-style fixture tree rooted at tmpDir/src/domain. */
+  function writeBlockFixtures(sourceText: string, overlayText: string): void {
+    fs.mkdirSync(path.join(tmpDir, "src", "domain"), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, "src", "domain", "learningBlocks.ts"), sourceText);
+    fs.writeFileSync(path.join(tmpDir, "src", "domain", "learningBlocks.i18n.ts"), overlayText);
+  }
+
+  const SOURCE = (blocks: string): string => `export const learningBlocks = [${blocks}];`;
+  const OVERLAY = (blocks: string): string => `export const learningBlockI18n = {${blocks}};`;
+  const BLOCK = (id: string, extra = ""): string => `{ id: "${id}"${extra ? `, ${extra}` : ""} }`;
+  const LOCALE = (body: string): string => `{ "en": { ${body} }, "ja": { ${body} } }`;
+
+  beforeAll(() => {
+    fs.mkdirSync(path.join(tmpDir, "src", "domain"), { recursive: true });
+  });
+
+  it("yields zero records when every source block id has an overlay entry", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("kana-hiragana"), BLOCK("adverbial", `title: "修飾"`), BLOCK("n3-jouken")]),
+      OVERLAY([`"kana-hiragana": ${LOCALE(`title: "Hiragana"`)}`, `"adverbial": ${LOCALE(`title: "Adverbial"`)}`, `"n3-jouken": ${LOCALE(`title: "Conditions"`)}`])
+    );
+    expect(auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })).toEqual([]);
+  });
+
+  it("reports a missing overlay for a single block and locale, and dangling for a deleted source block", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("kana-hiragana"), BLOCK("adverbial")]),
+      OVERLAY([
+        `"kana-hiragana": { "en": { title: "Hiragana" } }`,
+        `"adverbial": ${LOCALE(`title: "Adverbial"`)}`,
+        `"deleted-block": ${LOCALE(`title: "Orphan"`)}`
+      ])
+    );
+    expect(auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })).toEqual([
+      { system: "learningBlocks", locale: "en", sourceKey: "", overlayKey: "deleted-block", status: "dangling" },
+      { system: "learningBlocks", locale: "ja", sourceKey: "", overlayKey: "deleted-block", status: "dangling" },
+      { system: "learningBlocks", locale: "ja", sourceKey: "kana-hiragana", overlayKey: "", status: "missing" }
+    ]);
+  });
+
+  it("emits a missing record per target locale for a block with no overlay entry", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("starter-vocab"), BLOCK("starter-desu")]),
+      OVERLAY([`"starter-desu": ${LOCALE(`title: "Desu"`)}`])
+    );
+    const records = auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] });
+    expect(records).toEqual([
+      { system: "learningBlocks", locale: "en", sourceKey: "starter-vocab", overlayKey: "", status: "missing" },
+      { system: "learningBlocks", locale: "ja", sourceKey: "starter-vocab", overlayKey: "", status: "missing" }
+    ]);
+  });
+
+  it("only audits first-level overlay keys, never flattening nested field keys", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("kana-hiragana")]),
+      OVERLAY([
+        `"kana-hiragana": ${LOCALE(`title: "H", notes: ["a", "b"], pitfalls: ["p"]`)}`,
+        `"nested": ${LOCALE(`title: "Nested"`)}`
+      ])
+    );
+    // kana-hiragana is fully overlaid (en + ja) -> no record. "nested" exists
+    // only in the overlay -> a single dangling record per locale, and the
+    // overlay's own field keys (title/notes/pitfalls) must NOT be counted.
+    expect(auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })).toEqual([
+      { system: "learningBlocks", locale: "en", sourceKey: "", overlayKey: "nested", status: "dangling" },
+      { system: "learningBlocks", locale: "ja", sourceKey: "", overlayKey: "nested", status: "dangling" }
+    ]);
+  });
+
+  it("does not misclassify section/container/helper objects or unrelated ids", () => {
+    writeBlockFixtures(
+      SOURCE([
+        BLOCK("teTa", `drills: [{ labelKey: "drillGodanTeTa" }]`),
+        BLOCK("n5-sonzai", `patternDrills: [{ labelKey: "x", patternIds: ["n5-sonzai"] }]`),
+        BLOCK("verb-types", `completionMode: "reference"`)
+      ]),
+      OVERLAY([
+        `"teTa": ${LOCALE(`title: "Te-ta"`)}`,
+        `"n5-sonzai": ${LOCALE(`title: "Existence"`)}`,
+        `"verb-types": ${LOCALE(`title: "Groups"`)}`
+      ])
+    );
+    // "teTa" is a genuine block id (helper functions like
+    // isLearningBlockComplete or the IMPLICIT_HISTORY_THRESHOLD constant live in
+    // the same file but are not array elements, so no ids leak). All three
+    // blocks are fully overlaid for en + ja -> zero records.
+    expect(auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })).toEqual([]);
+  });
+
+  it("parses quoted and unquoted keys, multiline values and trailing commas", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("negative", `title: "否定"`), BLOCK("plain")]),
+      OVERLAY([
+        `"negative": {\n  "en": {\n    "title": "Negative",\n  },\n  'ja': {\n    title: "否定",\n  },\n},`,
+        `plain: {\n  "en": { "title": "Plain" },\n  "ja": { "title": "普通形" },\n},`
+      ])
+    );
+    expect(auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })).toEqual([]);
+  });
+
+  it("does not confuse an overlay value containing another block id with a real key", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("starter-desu", `title: "基本句"`)]),
+      OVERLAY([`"starter-desu": { "en": { "title": "AはBです, see n5-sonzai" }, "ja": { "title": "基本句" } }`])
+    );
+    // "n5-sonzai" appears inside the value text but is not an overlay key.
+    expect(auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })).toEqual([]);
+  });
+
+  it("fails closed on duplicate source block ids", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("dup-block"), BLOCK("dup-block")]),
+      OVERLAY([`"dup-block": ${LOCALE(`title: "Dup"`)}`])
+    );
+    expect(() => auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/duplicate/i);
+  });
+
+  it("fails closed on duplicate overlay first-level keys", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("kana-hiragana")]),
+      OVERLAY([`"kana-hiragana": ${LOCALE(`title: "A"`)}`, `"kana-hiragana": ${LOCALE(`title: "B"`)}`])
+    );
+    expect(() => auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/duplicate/i);
+  });
+
+  it("fails closed on overlay spreads", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("kana-hiragana")]),
+      OVERLAY([`"kana-hiragana": ${LOCALE(`title: "A"`)}, ...extra`])
+    );
+    expect(() => auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/spread/i);
+  });
+
+  it("fails closed on computed first-level overlay keys", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("kana-hiragana")]),
+      OVERLAY([`[getKey()]: ${LOCALE(`title: "A"`)}`])
+    );
+    expect(() => auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/computed/i);
+  });
+
+  it("fails closed on dynamic computed source ids", () => {
+    writeBlockFixtures(
+      SOURCE([`{ id: DYNAMIC_ID, title: "x" }`]),
+      OVERLAY([`"whatever": ${LOCALE(`title: "A"`)}`])
+    );
+    expect(() => auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/static|literal|id/i);
+  });
+
+  it("returns byte-equivalent records regardless of source or locale traversal order", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("n5-sonzai"), BLOCK("adverbial"), BLOCK("starter-vocab")]),
+      OVERLAY([
+        `"adverbial": ${LOCALE(`title: "A"`)}`,
+        `"starter-vocab": ${LOCALE(`title: "S"`)}`,
+        `"n5-sonzai": ${LOCALE(`title: "N"`)}`
+      ])
+    );
+    const a = JSON.stringify(
+      auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    );
+    const b = JSON.stringify(
+      auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["ja", "en"] })
+    );
+    expect(a).toBe(b);
+    expect(auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })).toEqual([]);
+  });
+
+  it("performs zero filesystem writes, console output, network and process.exit, and has no hardcoded locales", () => {
+    writeBlockFixtures(
+      SOURCE([BLOCK("kana-hiragana", `title: "平假名"`)]),
+      OVERLAY([`"kana-hiragana": ${LOCALE(`title: "Hiragana"`)}`])
+    );
+    const writeSpy = vi.spyOn(fs, "writeFileSync");
+    const mkdirSpy = vi.spyOn(fs, "mkdirSync");
+    const logSpy = vi.spyOn(console, "log");
+    const errorSpy = vi.spyOn(console, "error");
+    const exitSpy = vi.spyOn(process, "exit");
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    try {
+      const records = auditLearningBlockOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] });
+      expect(records).toEqual([]);
+      expect(writeSpy).not.toHaveBeenCalled();
+      expect(mkdirSpy).not.toHaveBeenCalled();
+      expect(logSpy).not.toHaveBeenCalled();
+      expect(errorSpy).not.toHaveBeenCalled();
+      expect(exitSpy).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      writeSpy.mockRestore();
+      mkdirSpy.mockRestore();
+      logSpy.mockRestore();
+      errorSpy.mockRestore();
+      exitSpy.mockRestore();
+      fetchSpy.mockRestore();
+    }
+  });
+
+  it("audits the real repo without producing records and without writing anything", () => {
+    const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+    const writeSpy = vi.spyOn(fs, "writeFileSync");
+    const mkdirSpy = vi.spyOn(fs, "mkdirSync");
+    try {
+      const records = auditLearningBlockOverlays({ repoRoot, targetLocales: ["en", "ja"] });
+      expect(records).toEqual([]);
+      expect(writeSpy).not.toHaveBeenCalled();
+      expect(mkdirSpy).not.toHaveBeenCalled();
+    } finally {
+      writeSpy.mockRestore();
+      mkdirSpy.mockRestore();
     }
   });
 });
