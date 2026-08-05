@@ -392,13 +392,15 @@ describe("composeDailySet", () => {
     expect(set.some((q) => !q.vocabulary.tags?.includes("exam_style"))).toBe(true);
   });
 
-  it("初級 n4n5: jlptVocabulary has no N4/N5, so the set fills entirely with N4/N5 exam (no vocab gap) (#199)", () => {
+  it("初級 n4n5: mixes N5 vocab reading items into the N4/N5 exam fill (#666)", () => {
+    // #666 added the N5 tier to jlptVocabulary, so the n4n5 daily band now has
+    // a real vocab source: the reserved reading slot fills with N5 items and
+    // the rest rolls into N4/N5 exam. Every item stays inside the band.
     const set = composeDailySet([], "n4n5");
     expect(set.length).toBeGreaterThan(0);
     expect(set.every((q) => q.vocabulary.level === "N4" || q.vocabulary.level === "N5")).toBe(true);
-    // The empty vocab slots roll into N4/N5 exam (which carry their own 4
-    // baked options), so EVERY item is exam_style -- no short-option 漢字読み.
-    expect(set.every((q) => q.vocabulary.tags?.includes("exam_style"))).toBe(true);
+    // The reserved vocab slot is a real 単字読音 item (N5 level, not exam).
+    expect(set.some((q) => !q.vocabulary.tags?.includes("exam_style"))).toBe(true);
   });
 
   it("完全新手 starter: the fresh portion is 入門 content only (kana + starter vocab), never exam (#532)", () => {
