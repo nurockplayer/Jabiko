@@ -104,11 +104,11 @@ export type PracticeSessionConfig = {
 
 // The level range a session starts in (#199). An explicit launch request
 // (init.levelRange) always wins; otherwise it inherits the learner's global
-// target preference. 単字 has no n4n5 jlpt vocab, so an n4n5 preference is
-// clamped to "all" for that mode -- its picker can't show n4n5 and the pool
-// would be empty (the composeDailySet / vocab-branch fallbacks cover the
-// data side; this keeps the picker selection valid). Pure so it can be
-// unit-tested without mounting the hook.
+// target preference. 単字's picker offers all/n1n2/n2n3/n4n5 (#668); the one
+// band it cannot show is starter (完全新手 drills 入門 content instead), so a
+// starter preference clamps to "all" for that mode -- its picker can't show
+// starter and the pool would be empty. Pure so it can be unit-tested without
+// mounting the hook.
 export function initialLevelRange(
   init: SessionInit | undefined,
   targetLevel: LevelRange | null

@@ -5,7 +5,7 @@ import { ADJECTIVE_FORMS } from "./conjugation";
 import { buildExamQuestionPool } from "./examBlocks";
 import { buildKanaQuestionPool } from "./kanaDrill";
 import { levelsForRange } from "./levelRange";
-import { buildQuestionPool } from "./practice";
+import { buildChoiceOptions, buildQuestionPool } from "./practice";
 import type { PracticeMode } from "./practiceMode";
 import { buildSentencePatternPool } from "./sentencePatterns";
 import {
@@ -293,12 +293,21 @@ describe("buildPracticeQuestions", () => {
     ).toBe(true);
   });
 
-  it("vocab mode (n4n5 has no JLPT vocab): falls back to a non-empty reading pool (#199)", () => {
-    // 単字 only has N1/N2 jlpt entries. A global n4n5 preference must not
-    // empty the 単字 pool -- it falls back to the full reading deck.
+  it("vocab mode (n4n5): uses ONLY the N4/N5 jlpt entries -- no N1-N3, no starter deck, no exam items (#668)", () => {
+    // #666/#667 landed N5/N4 jlptVocabulary entries, so the n4n5 band now has
+    // a REAL 単字読音 source: the narrowed pool must be exactly N4/N5.
     const questions = buildPracticeQuestions(poolParams({ mode: "vocab", levelRange: "n4n5" }));
+
     expect(questions.length).toBeGreaterThan(0);
     expect(questions.every((q) => q.targetForm === "reading")).toBe(true);
+    expect(
+      questions.every((q) => q.vocabulary.level === "N4" || q.vocabulary.level === "N5")
+    ).toBe(true);
+    // No starter deck, no exam items, and nothing above N4 in the session.
+    expect(questions.every((q) => q.id.startsWith("n4-") || q.id.startsWith("n5-"))).toBe(true);
+    expect(questions.every((q) => !q.vocabulary.tags?.includes("exam_style"))).toBe(true);
+    expect(questions.some((q) => q.vocabulary.level === "N4")).toBe(true);
+    expect(questions.some((q) => q.vocabulary.level === "N5")).toBe(true);
   });
 
   it("vocab mode (range all): keeps the whole JLPT vocab reading pool", () => {
@@ -397,10 +406,22 @@ describe("composeDailySet", () => {
     // a real vocab source: the reserved reading slot fills with N5 items and
     // the rest rolls into N4/N5 exam. Every item stays inside the band.
     const set = composeDailySet([], "n4n5");
-    expect(set.length).toBeGreaterThan(0);
+    expect(set.length).toBe(20);
     expect(set.every((q) => q.vocabulary.level === "N4" || q.vocabulary.level === "N5")).toBe(true);
     // The reserved vocab slot is a real 単字読音 item (N5 level, not exam).
     expect(set.some((q) => !q.vocabulary.tags?.includes("exam_style"))).toBe(true);
+    // DAILY_VOCAB_MIN reading-vocab floor applies to the low band too (#668):
+    // at least 5 distinct non-exam reading items.
+    const vocabItems = set.filter((q) => !q.vocabulary.tags?.includes("exam_style"));
+    expect(vocabItems.length).toBeGreaterThanOrEqual(5);
+    // Every question renders a full 4-distinct-option grid once resolved the
+    // way the render path does (buildChoiceOptions: exam items carry baked
+    // options, pool-based reading items generate theirs from the session).
+    set.forEach((question, index) => {
+      const options = buildChoiceOptions(question, set, index);
+      expect(options.length).toBeGreaterThanOrEqual(4);
+      expect(new Set(options).size).toBe(options.length);
+    });
   });
 
   it("完全新手 starter: the fresh portion is 入門 content only (kana + starter vocab), never exam (#532)", () => {

@@ -45,8 +45,12 @@ describe("levelsForRange", () => {
     expect(levelsForRange("starter")).toEqual(["N5"]);
   });
 
-  it("excludes n4n5 and starter from the vocab picker (no N4/N5 jlpt words)", () => {
-    expect(VOCAB_LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3"]);
+  it("offers n4n5 in the vocab picker (N4/N5 jlpt words landed, #666/#667), keeping prior option order", () => {
+    expect(VOCAB_LEVEL_RANGE_OPTIONS).toEqual(["all", "n1n2", "n2n3", "n4n5"]);
+  });
+
+  it("keeps the starter band out of the vocab picker (完全新手 drills 入門 content, never 単字)", () => {
+    expect(VOCAB_LEVEL_RANGE_OPTIONS.includes("starter")).toBe(false);
   });
 });
 

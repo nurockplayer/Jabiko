@@ -203,10 +203,11 @@ export function HomePanel({
   };
   const showHowItWorks = showLevelOnboarding && !howItWorksDismissed;
 
-  // Level-aware funnel: the 背 card's destination content. jlptVocabulary has
-  // no N4/N5 entries, so for the starter/n4n5 bands the 単字讀音 card was a
-  // dead end (it clamped to the N1/N2 reading deck). Those bands get the
-  // 基礎詞彙 deck instead -- swap back per-band once #535 lands N5 vocab.
+  // Level-aware funnel: the 背 card's destination content. 完全新手 (starter)
+  // drills the 入門 deck (kana + starter vocab), never JLPT 単字. The n4n5
+  // band keeps the same 基礎詞彙 home card for now -- its real N4/N5 単字讀音
+  // entry is the challenge mode picker (#668); flipping the home card itself
+  // back to 単字讀音 is a separate funnel decision.
   const vocabCardIsStarter = targetLevel === "starter" || targetLevel === "n4n5";
 
   // 你的下一步 (level-aware funnel): the third banner layer. Review and

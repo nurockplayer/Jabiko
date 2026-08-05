@@ -124,11 +124,11 @@ export function composeDailySet(
       targetForms: ["reading"]
     }).filter(isFresh)
   ).slice(0, Math.min(DAILY_VOCAB_MIN, freshSlots));
-  // 初級 (n4n5) hole: jlptVocabulary is N1/N2 only, so vocabSource is empty
-  // there -> vocabFresh is empty and its reserved slots roll into exam. Exam
-  // items each carry their own 4 baked options, so the band still fills a full
-  // set with no short-option 漢字読み. DAILY_VOCAB_MIN keeps its "reserve a
-  // vocab floor" meaning only where vocab actually exists.
+  // Every band now has real jlpt reading entries (n4n5 filled by #666/#667),
+  // so the reserved vocab floor always fills in-band. Exam items carry their
+  // own 4 baked options; pool-based vocab items resolve their 4-option grid
+  // from the session peers at render time. DAILY_VOCAB_MIN keeps its "reserve
+  // a vocab floor" meaning for every band.
   const examFresh = shuffleQuestions(buildExamQuestionPool(levels ?? "all").filter(isFresh)).slice(
     0,
     freshSlots - vocabFresh.length
@@ -342,7 +342,7 @@ export function buildPracticeQuestions(options: PracticePoolOptions): PracticeQu
       return reviewQueue;
 
     case "vocab": {
-      // 単字 mode: N1/N2 reading drill. Reading-only on purpose --
+      // 単字 mode: reading drill. Reading-only on purpose --
       // for a Chinese-speaking learner the kanji usually telegraphs
       // the meaning (影響 = 影響), so an isolated meaning question is
       // trivial and can't be rescued by stronger distractors. The
@@ -351,14 +351,12 @@ export function buildPracticeQuestions(options: PracticePoolOptions): PracticeQu
       // but in CONTEXT, via the exam pool's 詞彙填空 / 類義替換 /
       // 詞彙用法 sections -- which is the authentic way to test it.
       const levels = levelsForRange(levelRange);
-      const narrowed = levels
+      // Every picker band has real jlpt entries now (n4n5 filled by
+      // #666/#667), so the narrowed filter is the whole pool -- no empty-pool
+      // fallback. "all" keeps the full reading deck.
+      const vocabSource = levels
         ? jlptVocabulary.filter((item) => item.level != null && levels.includes(item.level))
         : jlptVocabulary;
-      // 単字 only has N1/N2 jlpt entries (VOCAB_LEVEL_RANGE_OPTIONS excludes
-      // n4n5 for this reason). A global n4n5 preference would narrow this to an
-      // empty pool, so fall back to the full reading deck rather than show an
-      // empty 単字 session (#199).
-      const vocabSource = narrowed.length > 0 ? narrowed : jlptVocabulary;
       const vocabPool = shuffleQuestions(
         buildQuestionPool(vocabSource, {
           partOfSpeech: "mixed",
