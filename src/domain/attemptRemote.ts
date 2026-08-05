@@ -86,6 +86,30 @@ export async function pushAttempts(
   }
 }
 
+// Delete this user's attempts from the Supabase `attempts` table (#692).
+// Remote-first delete protocol: the caller writes a pending marker BEFORE
+// invoking this, and only clears it after local cleanup also lands. The query
+// is pinned to the captured `userId` (the current authenticated user) and
+// relies on the existing RLS -- no service-role, RPC, migration or admin API.
+// A Supabase error is turned into a fixed, sanitized message that never
+// includes the raw response, SQL or any token/environment value, so it is
+// safe to surface in UI state.
+export async function deleteRemoteAttempts(
+  client: SupabaseClient,
+  userId: string
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const { error } = await client
+    .from("attempts")
+    .delete()
+    .eq("user_id", userId);
+
+  if (error) {
+    return { ok: false, message: "Failed to delete remote practice history." };
+  }
+
+  return { ok: true };
+}
+
 // Pure login-sync planner. Given the local attempt history and what the
 // remote already holds, produce:
 //   - `merged`:   the union to write into the local store (mergeAttempts:

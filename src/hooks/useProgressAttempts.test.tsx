@@ -13,6 +13,12 @@ const getSupabase = vi.fn<() => Promise<SupabaseClient | null>>();
 const fetchRemoteAttempts = vi.fn<(client: SupabaseClient | null, userId: string) => Promise<Attempt[]>>();
 const pushAttempts =
   vi.fn<(client: SupabaseClient | null, userId: string, attempts: Attempt[]) => Promise<void>>();
+const deleteRemoteAttempts = vi.fn<
+  (client: SupabaseClient, userId: string) => Promise<{ ok: true } | { ok: false; message: string }>
+>();
+const readDeletionMarker = vi.fn<(userId: string) => boolean>();
+const writeDeletionMarker = vi.fn<(userId: string) => boolean>();
+const removeDeletionMarker = vi.fn<(userId: string) => boolean>();
 
 vi.mock("../lib/supabase", () => ({
   getSupabase: () => getSupabase(),
@@ -29,9 +35,17 @@ vi.mock("../domain/attemptRemote", async () => {
     fetchRemoteAttempts: (client: SupabaseClient | null, userId: string) =>
       fetchRemoteAttempts(client, userId),
     pushAttempts: (client: SupabaseClient | null, userId: string, attempts: Attempt[]) =>
-      pushAttempts(client, userId, attempts)
+      pushAttempts(client, userId, attempts),
+    deleteRemoteAttempts: (client: SupabaseClient, userId: string) =>
+      deleteRemoteAttempts(client, userId)
   };
 });
+
+vi.mock("../domain/practiceHistoryDeletion", () => ({
+  readDeletionMarker: (userId: string) => readDeletionMarker(userId),
+  writeDeletionMarker: (userId: string) => writeDeletionMarker(userId),
+  removeDeletionMarker: (userId: string) => removeDeletionMarker(userId)
+}));
 
 // Imported AFTER the mocks are registered. The hook owns a module-singleton
 // attemptStore backed by window.localStorage (jsdom), so each test clears it.
@@ -83,6 +97,11 @@ beforeEach(() => {
   getSupabase.mockResolvedValue(fakeClient);
   fetchRemoteAttempts.mockResolvedValue([]);
   pushAttempts.mockResolvedValue(undefined);
+  deleteRemoteAttempts.mockResolvedValue({ ok: true });
+  // Default: no pending-deletion marker.
+  readDeletionMarker.mockReturnValue(false);
+  writeDeletionMarker.mockReturnValue(true);
+  removeDeletionMarker.mockReturnValue(true);
 });
 
 afterEach(() => {
@@ -552,5 +571,396 @@ describe("useProgressAttempts -- login sync commit safety (codex review)", () =>
     expect(user1Pushes[0][2]).toEqual([localOnly]);
     expect(fetchRemoteAttempts.mock.calls.filter(([, id]) => id === "user-1")).toHaveLength(1);
     expect(readStore()).toEqual([localOnly]);
+  });
+});
+
+// --- deleteSyncedPracticeHistory (#692) ------------------------------------
+
+type DeleteResult = { ok: true } | { ok: false; message: string };
+
+describe("useProgressAttempts -- deleteSyncedPracticeHistory", () => {
+  it("not logged in -> false, zero supabase/marker mutation", async () => {
+    const { result } = renderHook(() => useProgressAttempts(null));
+    let ok = true;
+    await act(async () => {
+      ok = await result.current.deleteSyncedPracticeHistory();
+    });
+    expect(ok).toBe(false);
+    expect(result.current.historyDeletionStatus).toBe("idle");
+    expect(getSupabase).not.toHaveBeenCalled();
+    expect(deleteRemoteAttempts).not.toHaveBeenCalled();
+    expect(writeDeletionMarker).not.toHaveBeenCalled();
+    expect(removeDeletionMarker).not.toHaveBeenCalled();
+  });
+
+  it("marker write fails -> false, no remote delete, no local mutation", async () => {
+    const localOnly = makeAttempt({ timestamp: 1, submittedAnswer: "local" });
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+    rerender({ user: makeUser("user-1") });
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+
+    writeDeletionMarker.mockReturnValue(false);
+
+    let ok = true;
+    await act(async () => {
+      ok = await result.current.deleteSyncedPracticeHistory();
+    });
+    expect(ok).toBe(false);
+    expect(deleteRemoteAttempts).not.toHaveBeenCalled();
+    expect(removeDeletionMarker).not.toHaveBeenCalled();
+    // Local store and React state are completely untouched.
+    expect(readStore()).toEqual([localOnly]);
+    expect(result.current.progressAttempts).toEqual([localOnly]);
+    expect(result.current.historyDeletionStatus).toBe("idle");
+  });
+
+  it("remote fail -> local untouched, marker removed, status error", async () => {
+    const localOnly = makeAttempt({ timestamp: 1, submittedAnswer: "local" });
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+    rerender({ user: makeUser("user-1") });
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+
+    deleteRemoteAttempts.mockResolvedValue({
+      ok: false,
+      message: "Failed to delete remote practice history."
+    });
+
+    let ok = true;
+    await act(async () => {
+      ok = await result.current.deleteSyncedPracticeHistory();
+    });
+    expect(ok).toBe(false);
+    expect(deleteRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-1");
+    expect(writeDeletionMarker).toHaveBeenCalledWith("user-1");
+    // Marker was dropped (nothing was deleted, so nothing to resume).
+    expect(removeDeletionMarker).toHaveBeenCalledWith("user-1");
+    // Local store/state untouched.
+    expect(readStore()).toEqual([localOnly]);
+    expect(result.current.progressAttempts).toEqual([localOnly]);
+    expect(result.current.historyDeletionStatus).toBe("error");
+  });
+
+  it("remote success -> store + React cleared, marker removed, status deleted", async () => {
+    const localOnly = makeAttempt({ timestamp: 1, submittedAnswer: "local" });
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+    rerender({ user: makeUser("user-1") });
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+
+    let ok = false;
+    await act(async () => {
+      ok = await result.current.deleteSyncedPracticeHistory();
+    });
+    expect(ok).toBe(true);
+    expect(deleteRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-1");
+    expect(removeDeletionMarker).toHaveBeenCalledWith("user-1");
+    // Persistent store cleared and React attempts cleared.
+    expect(readStore()).toBeNull();
+    expect(result.current.progressAttempts).toEqual([]);
+    expect(result.current.historyDeletionStatus).toBe("deleted");
+  });
+
+  it("historyDeletionStatus is deleting while a delete is in flight, then deleted", async () => {
+    const deleteGate = deferred<DeleteResult>();
+    deleteRemoteAttempts.mockReturnValue(deleteGate.promise);
+    const { result } = renderHook(() => useProgressAttempts(makeUser("user-1")));
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+
+    let pending!: Promise<boolean>;
+    act(() => {
+      pending = result.current.deleteSyncedPracticeHistory();
+    });
+    await waitFor(() => expect(result.current.historyDeletionStatus).toBe("deleting"));
+
+    await act(async () => {
+      deleteGate.resolve({ ok: true });
+      await pending;
+    });
+    expect(result.current.historyDeletionStatus).toBe("deleted");
+  });
+
+  it("double call -> one remote delete, same operation result shared", async () => {
+    const deleteGate = deferred<DeleteResult>();
+    deleteRemoteAttempts.mockReturnValue(deleteGate.promise);
+    const { result } = renderHook(() => useProgressAttempts(makeUser("user-1")));
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+
+    let p1!: Promise<boolean>;
+    let p2!: Promise<boolean>;
+    act(() => {
+      p1 = result.current.deleteSyncedPracticeHistory();
+      p2 = result.current.deleteSyncedPracticeHistory();
+    });
+    await waitFor(() => expect(deleteRemoteAttempts).toHaveBeenCalledTimes(1));
+    // Single-flight: no parallel deletes, and both callers share the op.
+    expect(p2).toBe(p1);
+
+    await act(async () => {
+      deleteGate.resolve({ ok: true });
+      await p1;
+    });
+    expect(result.current.historyDeletionStatus).toBe("deleted");
+  });
+
+  it("login with a pending marker -> resumes delete (remote + local) BEFORE fetch/merge", async () => {
+    const staleLocal = makeAttempt({ timestamp: 1, submittedAnswer: "stale-local" });
+    // Seed the persistent store with pre-delete history and the marker on.
+    window.localStorage.setItem(ATTEMPTS_KEY, JSON.stringify([staleLocal]));
+    readDeletionMarker.mockReturnValue(true);
+    // Removing the marker flips the read back to false (mirrors the real
+    // module removing the localStorage flag), so the resumed sync proceeds.
+    removeDeletionMarker.mockImplementation(() => {
+      readDeletionMarker.mockReturnValue(false);
+      return true;
+    });
+
+    const { result } = renderHook(() => useProgressAttempts(makeUser("user-1")));
+
+    // The resume runs the remote delete first.
+    await waitFor(() => expect(deleteRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-1"));
+    await waitFor(() => expect(result.current.historyDeletionStatus).toBe("deleted"));
+
+    // The stale local history was cleared and never merged/pushed back.
+    expect(result.current.progressAttempts).toEqual([]);
+    expect(readStore()).toEqual([]);
+    expect(pushAttempts).toHaveBeenCalledWith(fakeClient, "user-1", []);
+    // Normal fetch/merge resumed after the marker was cleared.
+    expect(fetchRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-1");
+  });
+
+  it("login with pending marker, remote fails -> keeps marker, no fetch/push of stale local", async () => {
+    const staleLocal = makeAttempt({ timestamp: 1, submittedAnswer: "stale-local" });
+    window.localStorage.setItem(ATTEMPTS_KEY, JSON.stringify([staleLocal]));
+    readDeletionMarker.mockReturnValue(true);
+    removeDeletionMarker.mockReturnValue(false); // marker stuck
+    deleteRemoteAttempts.mockResolvedValue({
+      ok: false,
+      message: "Failed to delete remote practice history."
+    });
+
+    const { result } = renderHook(() => useProgressAttempts(makeUser("user-1")));
+
+    await waitFor(() => expect(result.current.historyDeletionStatus).toBe("error"));
+    // The stale local must not be pushed back while the marker is on.
+    expect(pushAttempts).not.toHaveBeenCalled();
+    expect(fetchRemoteAttempts).not.toHaveBeenCalled();
+  });
+
+  it("recordAttempt while marker present -> no remote push; marker cleared -> push resumes", async () => {
+    const { result } = renderHook(() => useProgressAttempts(makeUser("user-1")));
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+    pushAttempts.mockClear(); // drop the login-sync's empty push
+
+    // Marker present: a new attempt stays local-only.
+    readDeletionMarker.mockReturnValue(true);
+    const duringMarker = makeAttempt({ timestamp: 5, submittedAnswer: "during-marker" });
+    act(() => {
+      result.current.recordAttempt(duringMarker);
+    });
+    expect(result.current.progressAttempts).toContainEqual(duringMarker);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(pushAttempts).not.toHaveBeenCalled();
+
+    // Marker cleared: live push resumes.
+    pushAttempts.mockClear();
+    readDeletionMarker.mockReturnValue(false);
+    const afterClear = makeAttempt({ timestamp: 6, submittedAnswer: "after-clear" });
+    act(() => {
+      result.current.recordAttempt(afterClear);
+    });
+    await waitFor(() =>
+      expect(pushAttempts).toHaveBeenCalledWith(fakeClient, "user-1", [afterClear])
+    );
+  });
+
+  it("A delete in flight, switch to B -> A's late success does NOT clear B or change B status", async () => {
+    const bAttempt = makeAttempt({ timestamp: 60, submittedAnswer: "B-data" });
+    const aDeleteGate = deferred<DeleteResult>();
+    deleteRemoteAttempts.mockReturnValue(aDeleteGate.promise);
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    rerender({ user: makeUser("user-A") });
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+
+    // A starts a delete; it parks on the remote delete gate.
+    let aDelete!: Promise<boolean>;
+    act(() => {
+      aDelete = result.current.deleteSyncedPracticeHistory();
+    });
+    await waitFor(() => expect(deleteRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-A"));
+
+    // Switch to B while A's delete is still in flight.
+    rerender({ user: makeUser("user-B") });
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+    act(() => {
+      result.current.recordAttempt(bAttempt);
+    });
+    expect(result.current.progressAttempts).toContainEqual(bAttempt);
+
+    // A's late delete completes (successfully) -- it must be inert on B.
+    await act(async () => {
+      aDeleteGate.resolve({ ok: true });
+      await aDelete;
+    });
+
+    expect(result.current.progressAttempts).toContainEqual(bAttempt);
+    expect(result.current.historyDeletionStatus).toBe("idle");
+    expect(result.current.syncStatus).toBe("synced");
+  });
+
+  it("A delete in flight, logout -> A's late success does NOT clear the anon store", async () => {
+    const anonAttempt = makeAttempt({ timestamp: 65, submittedAnswer: "anon-data" });
+    const aDeleteGate = deferred<DeleteResult>();
+    deleteRemoteAttempts.mockReturnValue(aDeleteGate.promise);
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(anonAttempt);
+    });
+    rerender({ user: makeUser("user-A") });
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+
+    let aDelete!: Promise<boolean>;
+    act(() => {
+      aDelete = result.current.deleteSyncedPracticeHistory();
+    });
+    await waitFor(() => expect(deleteRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-A"));
+
+    // Logout while A's delete is parked.
+    rerender({ user: null });
+    expect(result.current.syncStatus).toBe("idle");
+
+    await act(async () => {
+      aDeleteGate.resolve({ ok: true });
+      await aDelete;
+    });
+
+    // The anon store keeps its pre-delete data; A's delete is inert.
+    expect(result.current.progressAttempts).toContainEqual(anonAttempt);
+    expect(result.current.historyDeletionStatus).toBe("idle");
+    expect(result.current.syncStatus).toBe("idle");
+  });
+
+  it("delete during login-sync await -> stale sync does NOT commit old remote (no resurrection)", async () => {
+    const oldRemote = makeAttempt({ timestamp: 70, submittedAnswer: "old-remote" });
+    const fetchGate = deferred<Attempt[]>();
+    fetchRemoteAttempts.mockReturnValue(fetchGate.promise);
+
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    rerender({ user: makeUser("user-1") });
+    await waitFor(() => expect(fetchRemoteAttempts).toHaveBeenCalled());
+
+    // The delete completes while the sync is parked on the fetch await.
+    await act(async () => {
+      await result.current.deleteSyncedPracticeHistory();
+    });
+    expect(result.current.progressAttempts).toEqual([]);
+
+    // The stale sync's fetch now resolves with pre-delete remote data.
+    await act(async () => {
+      fetchGate.resolve([oldRemote]);
+      await fetchGate.promise;
+    });
+
+    // The old remote must NOT be merged back in.
+    expect(result.current.progressAttempts).not.toContainEqual(oldRemote);
+    expect(readStore() ?? []).not.toContainEqual(oldRemote);
+  });
+
+  it("StrictMode replay -> no duplicate delete or local replace", async () => {
+    const staleLocal = makeAttempt({ timestamp: 1, submittedAnswer: "stale-local" });
+    window.localStorage.setItem(ATTEMPTS_KEY, JSON.stringify([staleLocal]));
+    readDeletionMarker.mockReturnValue(true);
+    removeDeletionMarker.mockImplementation(() => {
+      readDeletionMarker.mockReturnValue(false);
+      return true;
+    });
+
+    const { result } = renderHook(() => useProgressAttempts(makeUser("user-1")), {
+      wrapper: StrictMode
+    });
+    await waitFor(() => expect(result.current.historyDeletionStatus).toBe("deleted"));
+
+    // Only the replay generation ran the delete (no duplicate remote delete).
+    expect(deleteRemoteAttempts).toHaveBeenCalledTimes(1);
+    expect(deleteRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-1");
+    // Cleared once and the empty merge committed once.
+    expect(result.current.progressAttempts).toEqual([]);
+    expect(readStore()).toEqual([]);
+  });
+
+  // LAST in this describe: the Storage.prototype.removeItem spy below flips
+  // the module-singleton attemptStore into memory mode (clear()'s fallback),
+  // which would corrupt the storage-backed assertions of any later test.
+  it("remote ok but persistent clear fails -> React cleared, marker kept, status error, old data not pushed", async () => {
+    const localOnly = makeAttempt({ timestamp: 1, submittedAnswer: "local" });
+    const { result, rerender } = renderHook(
+      ({ user }: { user: User | null }) => useProgressAttempts(user),
+      { initialProps: { user: null as User | null } }
+    );
+    act(() => {
+      result.current.recordAttempt(localOnly);
+    });
+    rerender({ user: makeUser("user-1") });
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+
+    // From here the marker is stuck present and unremovable.
+    readDeletionMarker.mockReturnValue(true);
+    removeDeletionMarker.mockReturnValue(false);
+
+    // Blocked persistent store: the attempts key survives while memory clears.
+    const removeSpy = vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    try {
+      let ok = true;
+      await act(async () => {
+        ok = await result.current.deleteSyncedPracticeHistory();
+      });
+      expect(ok).toBe(false);
+      // React state was still cleared.
+      expect(result.current.progressAttempts).toEqual([]);
+      expect(result.current.historyDeletionStatus).toBe("error");
+      // The persistent copy survived (clear failed) -- marker was kept.
+      expect(readStore()).toEqual([localOnly]);
+
+      // While the marker is present, a fresh live attempt is NOT pushed remote.
+      pushAttempts.mockClear();
+      const postDelete = makeAttempt({ timestamp: 9, submittedAnswer: "post-delete" });
+      act(() => {
+        result.current.recordAttempt(postDelete);
+      });
+      expect(result.current.progressAttempts).toContainEqual(postDelete);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(pushAttempts).not.toHaveBeenCalled();
+    } finally {
+      removeSpy.mockRestore();
+    }
   });
 });
