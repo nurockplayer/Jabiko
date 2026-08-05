@@ -22,11 +22,15 @@ describe("jlptVocabulary integrity", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("only contains N1 / N2 / N3 / N5 items", () => {
+  it("only contains N1 / N2 / N3 / N4 / N5 items", () => {
     const offenders = jlptVocabulary
       .filter(
         (item) =>
-          item.level !== "N1" && item.level !== "N2" && item.level !== "N3" && item.level !== "N5"
+          item.level !== "N1" &&
+          item.level !== "N2" &&
+          item.level !== "N3" &&
+          item.level !== "N4" &&
+          item.level !== "N5"
       )
       .map((item) => item.surface);
     expect(offenders).toEqual([]);
@@ -83,6 +87,68 @@ describe("jlptVocabulary integrity", () => {
     const n5 = jlptVocabulary.filter((item) => item.level === "N5");
     const readingPool = n5.map((item) => item.reading);
     for (const item of n5) {
+      const used = new Set([item.reading]);
+      const distractors = readingPool.filter((r) => !used.has(r));
+      expect(
+        distractors.length,
+        `${item.surface} cannot draw 3 distinct distractor readings`
+      ).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  // #667: the N4 tier fills the daily 単字読音 band together with N5, adding
+  // exactly 220 everyday N4 items. Same hygiene rules as the #666 N5 batch:
+  // exact count, id/surface uniqueness, no surface repeated against N1–N3/N5,
+  // hiragana-only readings, valid part of speech, kanji-bearing surfaces, and
+  // every item able to form a 4-option reading question.
+  it("includes exactly 220 N4 items (#667)", () => {
+    expect(jlptVocabulary.filter((item) => item.level === "N4").length).toBe(220);
+  });
+
+  it("gives every N4 item a unique id and surface", () => {
+    const n4 = jlptVocabulary.filter((item) => item.level === "N4");
+    const ids = n4.map((item) => item.id);
+    const surfaces = n4.map((item) => item.surface);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(new Set(surfaces).size).toBe(surfaces.length);
+  });
+
+  it("does not repeat any non-N4 surface inside the N4 batch", () => {
+    const otherSurfaces = new Set(
+      jlptVocabulary.filter((item) => item.level !== "N4").map((item) => item.surface)
+    );
+    const overlaps = jlptVocabulary
+      .filter((item) => item.level === "N4")
+      .filter((item) => otherSurfaces.has(item.surface))
+      .map((item) => item.surface);
+    expect(overlaps).toEqual([]);
+  });
+
+  it("gives every N4 item a hiragana reading and a valid part of speech", () => {
+    const n4 = jlptVocabulary.filter((item) => item.level === "N4");
+    const kanaOffenders = n4
+      .filter((item) => !/^[ぁ-ゟー]+$/.test(item.reading))
+      .map((item) => `${item.surface}=${item.reading}`);
+    expect(kanaOffenders).toEqual([]);
+    const pos = new Set(["noun", "na_adjective", "i_adjective", "adverb"]);
+    const posOffenders = n4
+      .filter((item) => !pos.has(item.partOfSpeech))
+      .map((item) => `${item.surface}=${item.partOfSpeech}`);
+    expect(posOffenders).toEqual([]);
+  });
+
+  it("has a non-kana surface for every N4 item (keeps 単字読音 meaningful)", () => {
+    const offenders = jlptVocabulary
+      .filter((item) => item.level === "N4")
+      .filter((item) => /^[ぁ-ゟァ-ヶー]+$/.test(item.surface))
+      .map((item) => item.surface);
+    expect(offenders).toEqual([]);
+  });
+
+  it("lets every N4 item form a 4-option reading question", () => {
+    const n4 = jlptVocabulary.filter((item) => item.level === "N4");
+    const readingPool = n4.map((item) => item.reading);
+    for (const item of n4) {
       const used = new Set([item.reading]);
       const distractors = readingPool.filter((r) => !used.has(r));
       expect(
