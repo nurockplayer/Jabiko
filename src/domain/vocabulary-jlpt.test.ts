@@ -22,11 +22,74 @@ describe("jlptVocabulary integrity", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("only contains N1 / N2 / N3 items", () => {
+  it("only contains N1 / N2 / N3 / N5 items", () => {
     const offenders = jlptVocabulary
-      .filter((item) => item.level !== "N1" && item.level !== "N2" && item.level !== "N3")
+      .filter(
+        (item) =>
+          item.level !== "N1" && item.level !== "N2" && item.level !== "N3" && item.level !== "N5"
+      )
       .map((item) => item.surface);
     expect(offenders).toEqual([]);
+  });
+
+  // #666: the N5 tier fills the daily 単字読音 band with everyday beginner
+  // vocabulary. Lock the exact count, id/surface uniqueness, and reading
+  // hygiene so hand-appending batches cannot drift.
+  it("includes exactly 180 N5 items (#666)", () => {
+    expect(jlptVocabulary.filter((item) => item.level === "N5").length).toBe(180);
+  });
+
+  it("gives every N5 item a unique id and surface", () => {
+    const n5 = jlptVocabulary.filter((item) => item.level === "N5");
+    const ids = n5.map((item) => item.id);
+    const surfaces = n5.map((item) => item.surface);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(new Set(surfaces).size).toBe(surfaces.length);
+  });
+
+  it("does not repeat any N1–N3 surface inside the N5 batch", () => {
+    const upperSurfaces = new Set(
+      jlptVocabulary.filter((item) => item.level !== "N5").map((item) => item.surface)
+    );
+    const overlaps = jlptVocabulary
+      .filter((item) => item.level === "N5")
+      .filter((item) => upperSurfaces.has(item.surface))
+      .map((item) => item.surface);
+    expect(overlaps).toEqual([]);
+  });
+
+  it("gives every N5 item a hiragana reading and a valid part of speech", () => {
+    const n5 = jlptVocabulary.filter((item) => item.level === "N5");
+    const kanaOffenders = n5
+      .filter((item) => !/^[ぁ-ゟー]+$/.test(item.reading))
+      .map((item) => `${item.surface}=${item.reading}`);
+    expect(kanaOffenders).toEqual([]);
+    const pos = new Set(["noun", "na_adjective", "i_adjective", "adverb"]);
+    const posOffenders = n5
+      .filter((item) => !pos.has(item.partOfSpeech))
+      .map((item) => `${item.surface}=${item.partOfSpeech}`);
+    expect(posOffenders).toEqual([]);
+  });
+
+  it("has a non-kana surface for every N5 item (keeps 単字読音 meaningful)", () => {
+    const offenders = jlptVocabulary
+      .filter((item) => item.level === "N5")
+      .filter((item) => /^[ぁ-ゟァ-ヶー]+$/.test(item.surface))
+      .map((item) => item.surface);
+    expect(offenders).toEqual([]);
+  });
+
+  it("lets every N5 item form a 4-option reading question", () => {
+    const n5 = jlptVocabulary.filter((item) => item.level === "N5");
+    const readingPool = n5.map((item) => item.reading);
+    for (const item of n5) {
+      const used = new Set([item.reading]);
+      const distractors = readingPool.filter((r) => !used.has(r));
+      expect(
+        distractors.length,
+        `${item.surface} cannot draw 3 distinct distractor readings`
+      ).toBeGreaterThanOrEqual(3);
+    }
   });
 
   // #583: the N3 tier fills the documented "初級 hole" (empty n2n3 band pool,
