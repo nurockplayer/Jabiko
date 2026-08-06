@@ -55,6 +55,49 @@ describe("legal content", () => {
     expect(en).toContain("if you request a reply, the contact detail you enter is stored as well");
   });
 
+  it("discloses self-service practice history deletion in every launched privacy locale", () => {
+    const disclosureText = (language: "zh-Hant" | "ja" | "en") =>
+      legalDocumentFor(language, "privacy").sections
+        .flatMap((section) => [...(section.paragraphs ?? []), ...(section.items ?? [])])
+        .join("\n");
+
+    // zh-Hant
+    const zh = disclosureText("zh-Hant");
+    expect(zh).toContain("自助刪除");
+    expect(zh).toContain("已同步的練習作答紀錄");
+    expect(zh).toContain("目前裝置的練習紀錄、弱點與複習進度");
+    expect(zh).toContain("帳號、收藏、語言與外觀設定");
+    expect(zh).toContain("不可復原");
+    expect(zh).toContain("請重試");
+    // Explicitly scoped: account is NOT deleted; no "all data" over-claim.
+    expect(zh).toContain("不會刪除登入帳號");
+    expect(zh).not.toContain("所有資料");
+
+    // ja
+    const ja = disclosureText("ja");
+    expect(ja).toContain("自分で削除");
+    expect(ja).toContain("同期した練習の回答記録");
+    expect(ja).toContain("この端末の練習記録・弱点・復習の進捗");
+    expect(ja).toContain("アカウント・お気に入り・言語・表示設定");
+    expect(ja).toContain("元に戻せません");
+    expect(ja).toContain("もう一度お試しください");
+    // Explicitly scoped: account is NOT deleted; no "all data" over-claim.
+    expect(ja).toContain("アカウント・お気に入り・言語・表示設定は削除されません");
+    expect(ja).not.toContain("すべての情報");
+
+    // en
+    const en = disclosureText("en");
+    expect(en).toContain("self-service");
+    expect(en).toContain("practice answers synced to this account");
+    expect(en).toContain("this device's practice records, weak points, and review progress");
+    expect(en).toContain("account, bookmarks, language, or appearance settings");
+    expect(en).toContain("cannot be undone");
+    expect(en).toContain("try again");
+    // Explicitly scoped: account is NOT deleted; no "all data" over-claim.
+    expect(en).toContain("does not delete your account");
+    expect(en).not.toContain("all data");
+  });
+
   it("does not claim that public source code is open source", () => {
     const terms = legalDocumentFor("zh-Hant", "terms");
     const text = terms.sections
