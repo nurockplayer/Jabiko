@@ -1653,3 +1653,353 @@ export function auditGrammarNoteOverlays({ repoRoot, targetLocales }) {
 
   return sortAuditRecords(records);
 }
+
+// ---------------------------------------------------------------------------
+// Kanji on'yomi overlay adapter (#701)
+// ---------------------------------------------------------------------------
+//
+// Audits the "source kanji key <-> overlay first-level kanji key" mapping for
+// the kanji-onyomi system.
+//
+//   source:  src/domain/kanjiOnyomi.ts       (the `kanjiOnyomi` array literal)
+//   overlay: src/domain/kanjiOnyomi.i18n.ts  (the `kanjiMeaningI18n` record)
+//   key:     the kanji character -- the stable entry key the runtime lookup
+//            uses (`kanjiMeaning` reads `overlays[entry.kanji]`), never an
+//            array index, traversal position or display text.
+//
+// The source side only admits elements of the `kanjiOnyomi` array literal, and
+// only those carrying learner-facing source content (a non-empty `meaningZh`
+// gloss -- the field the overlay translates). Helper objects and stray `kanji:`
+// members elsewhere in the file are never counted. Each entry's member names
+// are routed through `readStaticPropertyName`, so a computed member name fails
+// closed instead of being silently dropped (same contract as #698/#700).
+//
+// The overlay side only admits first-level keys of the `kanjiMeaningI18n`
+// object literal; nested per-locale keys (en / ja / ...) are never flattened.
+//
+// For each target locale (resolved by #695's launched-locale registry, never
+// hardcoded) the overlay is expected to carry a first-level key for EVERY
+// source kanji. source-without-overlay = missing; overlay-without-source =
+// dangling. A kanji whose overlay entry omits one locale produces a missing
+// record for that locale only.
+//
+// Fails closed on duplicate source keys / duplicate overlay keys, spreads,
+// computed keys and any dynamic form whose runtime key mapping cannot be
+// confirmed. Performs zero filesystem writes, console output, network access
+// and never calls process.exit.
+
+/**
+ * Resolve the `kanjiOnyomi` array literal from a SourceFile. Returns the array
+ * node when present (identifier `kanjiOnyomi`), otherwise undefined.
+ */
+function findKanjiOnyomiArray(sourceFile) {
+  let found = undefined;
+  const visit = (node) => {
+    if (
+      found === undefined &&
+      ts.isVariableStatement(node) &&
+      ts.isVariableDeclarationList(node.declarationList)
+    ) {
+      for (const d of node.declarationList.declarations) {
+        if (!ts.isIdentifier(d.name) || d.name.text !== "kanjiOnyomi") continue;
+        if (ts.isArrayLiteralExpression(d.initializer)) found = d.initializer;
+        break;
+      }
+    }
+    if (found === undefined) ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+/**
+ * Resolve the `kanjiMeaningI18n` object literal from a SourceFile. Returns the
+ * object node when present (identifier `kanjiMeaningI18n`), otherwise
+ * undefined.
+ */
+function findKanjiMeaningOverlay(sourceFile) {
+  let found = undefined;
+  const visit = (node) => {
+    if (
+      found === undefined &&
+      ts.isVariableStatement(node) &&
+      ts.isVariableDeclarationList(node.declarationList)
+    ) {
+      for (const d of node.declarationList.declarations) {
+        if (!ts.isIdentifier(d.name) || d.name.text !== "kanjiMeaningI18n") continue;
+        if (ts.isObjectLiteralExpression(d.initializer)) found = d.initializer;
+        break;
+      }
+    }
+    if (found === undefined) ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+/**
+ * Read the static `kanji` key of a kanjiOnyomi entry object literal and whether
+ * it is learner-facing (carries a non-empty static `meaningZh` gloss). The key
+ * must be a non-empty static string literal; anything else (computed / dynamic
+ * value) fails closed because the runtime key mapping cannot be confirmed.
+ * Member names are routed through `readStaticPropertyName` so a computed member
+ * name fails closed instead of being silently dropped (#698/#700 contract).
+ */
+function readKanjiKey(entryNode, sourceFile, filePath) {
+  const sf = sourceFile ?? entryNode.getSourceFile?.();
+  const file = filePath ?? sf?.fileName;
+  if (!ts.isObjectLiteralExpression(entryNode)) {
+    throw new AuditParseError(
+      `kanjiOnyomi entry must be an object literal, got ${ts.SyntaxKind[entryNode.kind]}`,
+      { file, line: getLine(sf, entryNode), context: entryNode.getText() }
+    );
+  }
+  let kanji = null;
+  let kanjiMember = null;
+  let meaningZh = null;
+  for (const member of entryNode.properties) {
+    if (ts.isSpreadAssignment(member)) {
+      throw new AuditParseError(
+        `object spread cannot be resolved statically in a kanjiOnyomi entry: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    if (!ts.isPropertyAssignment(member)) {
+      throw new AuditParseError(
+        `kanjiOnyomi entry members must be static property assignments: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    const name = readStaticPropertyName(member.name, sf);
+    if (name === "kanji") {
+      if (kanjiMember) {
+        throw new AuditParseError(
+          "duplicate \"kanji\" member in kanjiOnyomi entry",
+          { file, line: getLine(sf, member), context: member.getText() }
+        );
+      }
+      kanjiMember = member;
+      const init = member.initializer;
+      if (!ts.isStringLiteral(init) && !ts.isNoSubstitutionTemplateLiteral(init)) {
+        throw new AuditParseError(
+          `kanjiOnyomi key must be a static string literal: ${init.getText(sf)}`,
+          { file, line: getLine(sf, member), context: init.getText(sf) }
+        );
+      }
+      kanji = init.text;
+      if (kanji.trim().length === 0) {
+        throw new AuditParseError(
+          "kanjiOnyomi key must be a non-empty string literal",
+          { file, line: getLine(sf, member) }
+        );
+      }
+      continue;
+    }
+    if (name === "meaningZh") {
+      const init = member.initializer;
+      if (!ts.isStringLiteral(init) && !ts.isNoSubstitutionTemplateLiteral(init)) {
+        throw new AuditParseError(
+          `meaningZh must be a static string literal: ${init.getText(sf)}`,
+          { file, line: getLine(sf, member), context: init.getText(sf) }
+        );
+      }
+      meaningZh = init.text;
+      continue;
+    }
+  }
+  if (kanji === null) {
+    throw new AuditParseError("kanjiOnyomi entry is missing a static string kanji key", {
+      file,
+      line: getLine(sf, entryNode)
+    });
+  }
+  return { kanji, learnerFacing: meaningZh !== null && meaningZh.length > 0 };
+}
+
+/**
+ * Collect the first-level overlay kanji keys of the `kanjiMeaningI18n` object
+ * into a Map<kanjiKey, localeKeys>, in declaration order. Each entry must be an
+ * object literal mapping locales to text; its locale keys are read statically.
+ * Computed keys, spreads, non-property members and non-object entry values fail
+ * closed (their runtime key mapping cannot be confirmed).
+ */
+function collectOverlayKanjiEntries(overlayNode, sourceFile, filePath) {
+  const sf = sourceFile ?? overlayNode.getSourceFile?.();
+  const file = filePath ?? sf?.fileName;
+  if (!ts.isObjectLiteralExpression(overlayNode)) {
+    throw new AuditParseError(
+      `kanjiMeaningI18n must be an object literal, got ${ts.SyntaxKind[overlayNode.kind]}`,
+      { file, line: getLine(sf, overlayNode) }
+    );
+  }
+  const entries = new Map();
+  for (const member of overlayNode.properties) {
+    if (ts.isSpreadAssignment(member)) {
+      throw new AuditParseError(
+        `object spread cannot be resolved statically: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    if (!ts.isPropertyAssignment(member)) {
+      throw new AuditParseError(
+        `overlay kanji entries must be static property assignments: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    const kanjiKey = readStaticPropertyName(member.name, sf);
+    if (entries.has(kanjiKey)) {
+      throw new AuditParseError(`duplicate overlay kanji key "${kanjiKey}"`, {
+        file,
+        line: getLine(sf, member),
+        context: kanjiKey
+      });
+    }
+    const localeObject = member.initializer;
+    if (!ts.isObjectLiteralExpression(localeObject)) {
+      throw new AuditParseError(
+        `overlay entry "${kanjiKey}" must be an object literal mapping locales to text`,
+        { file, line: getLine(sf, member), context: kanjiKey }
+      );
+    }
+    const localeKeys = [];
+    const seenLocales = new Set();
+    for (const localeMember of localeObject.properties) {
+      if (ts.isSpreadAssignment(localeMember)) {
+        throw new AuditParseError(
+          `object spread cannot be resolved statically in overlay entry "${kanjiKey}"`,
+          { file, line: getLine(sf, localeMember), context: localeMember.getText() }
+        );
+      }
+      if (!ts.isPropertyAssignment(localeMember)) {
+        throw new AuditParseError(
+          `overlay locale entries must be static property assignments: ${localeMember.getText()}`,
+          { file, line: getLine(sf, localeMember), context: localeMember.getText() }
+        );
+      }
+      const locale = readStaticPropertyName(localeMember.name, sf);
+      if (seenLocales.has(locale)) {
+        throw new AuditParseError(
+          `duplicate overlay locale key "${locale}" for kanji "${kanjiKey}"`,
+          { file, line: getLine(sf, localeMember), context: locale }
+        );
+      }
+      seenLocales.add(locale);
+      localeKeys.push(locale);
+    }
+    entries.set(kanjiKey, localeKeys);
+  }
+  return entries;
+}
+
+/**
+ * Audit the source/overlay first-level kanji key mapping for the kanji-onyomi
+ * system and return the overlay audit records (system "kanjiOnyomi") for every
+ * learner-facing kanji key and every target locale.
+ *
+ *   - The source set is the static `kanji` of every learner-facing element of
+ *     the `kanjiOnyomi` array literal (non-empty `meaningZh` gloss). Non-object
+ *     elements, missing / empty / dynamic kanji keys, element spreads and
+ *     duplicate kanji keys fail closed.
+ *   - The overlay set is the first-level keys of the `kanjiMeaningI18n` object
+ *     literal; nested per-locale keys are never flattened. Spreads, computed
+ *     keys, duplicate keys and non-object entry values fail closed.
+ *   - For each target locale, a source key with no overlay entry for that
+ *     locale is `missing`; an overlay key with no source key is `dangling` (per
+ *     locale the overlay entry carries). The common record shape, sorting and
+ *     counts come from #695; the system is fixed to "kanjiOnyomi". Target
+ *     locales must come from the launched registry; this adapter never
+ *     hardcodes one.
+ *
+ * Returns records sorted by the canonical `sortAuditRecords` order. Performs
+ * zero filesystem writes, console output, network access and never calls
+ * process.exit.
+ */
+export function auditKanjiOnyomiOverlays({ repoRoot, targetLocales }) {
+  if (typeof repoRoot !== "string" || repoRoot.length === 0) {
+    throw new Error("auditKanjiOnyomiOverlays requires a non-empty repoRoot directory");
+  }
+  if (
+    !Array.isArray(targetLocales) ||
+    !targetLocales.every((l) => typeof l === "string" && l.length > 0)
+  ) {
+    throw new Error(
+      "auditKanjiOnyomiOverlays requires targetLocales to be an array of locale strings"
+    );
+  }
+  const locales = [...new Set(targetLocales)];
+
+  const sourcePath = `${repoRoot}/src/domain/kanjiOnyomi.ts`;
+  const overlayPath = `${repoRoot}/src/domain/kanjiOnyomi.i18n.ts`;
+
+  const sourceFile = parseTypeScriptFile(sourcePath);
+  const overlayFile = parseTypeScriptFile(overlayPath);
+
+  const entriesArray = findKanjiOnyomiArray(sourceFile);
+  const overlayObject = findKanjiMeaningOverlay(overlayFile);
+
+  if (!entriesArray) {
+    throw new AuditParseError("kanjiOnyomi array literal not found", { file: sourcePath });
+  }
+  if (!overlayObject) {
+    throw new AuditParseError("kanjiMeaningI18n object literal not found", { file: overlayPath });
+  }
+
+  // --- source: static learner-facing kanji keys -------------------------------
+  const sourceKeys = [];
+  const seenKanji = new Set();
+  for (const element of entriesArray.elements) {
+    if (ts.isSpreadElement(element)) {
+      throw new AuditParseError(
+        `spread element cannot be resolved statically in a kanjiOnyomi array: ${element.getText()}`,
+        { file: sourcePath, line: getLine(sourceFile, element), context: element.getText() }
+      );
+    }
+    const { kanji, learnerFacing } = readKanjiKey(element, sourceFile, sourcePath);
+    if (!learnerFacing) continue;
+    if (seenKanji.has(kanji)) {
+      throw new AuditParseError(`duplicate kanji key "${kanji}"`, {
+        file: sourcePath,
+        context: kanji
+      });
+    }
+    seenKanji.add(kanji);
+    sourceKeys.push(kanji);
+  }
+  const sourceSet = new Set(sourceKeys);
+
+  // --- overlay: first-level kanji keys + per-entry locales --------------------
+  const overlayEntries = collectOverlayKanjiEntries(overlayObject, overlayFile, overlayPath);
+
+  // --- per-target-locale comparison -------------------------------------------
+  const records = [];
+  for (const locale of locales) {
+    // source-without-overlay-for-this-locale => missing
+    for (const sourceKey of sourceKeys) {
+      const entry = overlayEntries.get(sourceKey);
+      if (!entry || !entry.includes(locale)) {
+        records.push({
+          system: "kanjiOnyomi",
+          locale,
+          sourceKey,
+          overlayKey: "",
+          status: "missing"
+        });
+      }
+    }
+  }
+  // overlay-without-source => dangling (per locale the overlay entry carries)
+  for (const [kanjiKey, localeKeys] of overlayEntries) {
+    if (sourceSet.has(kanjiKey)) continue;
+    for (const locale of localeKeys) {
+      records.push({
+        system: "kanjiOnyomi",
+        locale,
+        sourceKey: "",
+        overlayKey: kanjiKey,
+        status: "dangling"
+      });
+    }
+  }
+
+  return sortAuditRecords(records);
+}
