@@ -280,7 +280,7 @@ export function usePracticeSession({
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
-  const startedAtRef = useRef(Date.now());
+  const startedAtRef = useRef<number | null>(null);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
   const t = copy[language];
 
@@ -464,6 +464,24 @@ export function usePracticeSession({
     }
   }, [feedback]);
 
+  // ---- #680: the session response-timer clock. startedAtRef starts null and
+  // is only ever written by beginSessionClock(), which runs from event
+  // handlers / effects -- NEVER during render, so the hook stays pure for the
+  // React Compiler `purity` rule (no useRef(Date.now()) render-time call).
+  // The clock re-bases on an explicit new pass (startNewPass) or next question
+  // (nextQuestion); a plain re-render never restarts it.
+  const beginSessionClock = (): number => {
+    startedAtRef.current = Date.now();
+    return startedAtRef.current;
+  };
+
+  // The initial pass starts its clock on mount (an effect, after the pass is
+  // fully initialised). StrictMode double-invokes effects, but beginSessionClock
+  // is idempotent (it just rewrites the ref), so the clock is not doubled.
+  useEffect(() => {
+    beginSessionClock();
+  }, []);
+
   // ---- #679: the single entry that starts a new pass. Every mode / filter /
   // part-of-speech / focus / form / level-range / session-length change and
   // "再來一組" goes through startNewPass; nothing else may build a snapshot.
@@ -489,7 +507,7 @@ export function usePracticeSession({
     setSessionSeed((seed) => seed + 1);
     setSelectedChoice(null);
     setFeedback(null);
-    startedAtRef.current = Date.now();
+    beginSessionClock();
   };
 
   // Raw setters (ModePicker / DrillPanel call these then resetSession): they
@@ -561,7 +579,14 @@ export function usePracticeSession({
 
     setSelectedChoice(choice);
 
-    const attempt = scoreAttempt(currentQuestion, choice, startedAtRef.current);
+    const attempt = scoreAttempt(
+      currentQuestion,
+      choice,
+      // The clock was started on mount / startNewPass / nextQuestion. If the
+      // ref is somehow still null (an extreme path that skipped those), the
+      // event handler initialises it right here -- never a render fallback.
+      startedAtRef.current ?? beginSessionClock()
+    );
     setAttempts((current) => [...current, attempt]);
     recordAttempt(attempt);
     setFeedback({
@@ -586,7 +611,7 @@ export function usePracticeSession({
     setQuestionIndex((current) => current + 1);
     setSelectedChoice(null);
     setFeedback(null);
-    startedAtRef.current = Date.now();
+    beginSessionClock();
   };
 
   // "再來一組" (completion CTA) and the ghost "重設本次" button both land
@@ -601,7 +626,11 @@ export function usePracticeSession({
       return;
     }
 
-    const attempt = scoreAttempt(currentQuestion, "", startedAtRef.current);
+    const attempt = scoreAttempt(
+      currentQuestion,
+      "",
+      startedAtRef.current ?? beginSessionClock()
+    );
     const missedAttempt = { ...attempt, isCorrect: false, submittedAnswer: "(revealed)" };
     setAttempts((current) => [...current, missedAttempt]);
     recordAttempt(missedAttempt);
@@ -693,6 +722,10 @@ export function usePracticeSession({
     correctCount,
     accuracy,
     nextButtonRef,
+    // The response-timer base, exposed so the #680 tests can force the
+    // never-started (null) branch; production reads it only through the
+    // handlers below.
+    startedAtRef,
     handlePartOfSpeechChange,
     handlePracticeFocusChange,
     applyModePreset,
