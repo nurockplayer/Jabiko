@@ -76,11 +76,18 @@ const LEGAL_COPY = {
           title: "6. 保存、刪除與聯絡",
           paragraphs: [
             "本機資料會保留到你清除瀏覽器網站資料為止。遠端練習紀錄與回報會保留到完成其同步、維護、回覆或問題追蹤用途，或由你提出刪除要求為止。",
-            "目前尚未提供完整的自助匯出與刪除介面。若要詢問或刪除帳號相關資料，請先登入相同帳號，再使用網站的「回饋」功能並勾選希望回覆；請勿在公開 GitHub issue 張貼個人資料。Jabiko 不會出售個人資料。"
+            "目前尚未提供自助匯出介面。若要匯出或刪除其他與帳號相關的資料，請先登入相同帳號，再使用網站的「回饋」功能並勾選希望回覆；請勿在公開 GitHub issue 張貼個人資料。Jabiko 不會出售個人資料。"
           ]
         },
         {
-          title: "7. 政策變更",
+          title: "7. 刪除已同步的練習紀錄",
+          paragraphs: [
+            "已登入的使用者可以由帳號區自助刪除該帳號已同步的練習作答紀錄。刪除成功時，也會清除目前裝置的練習紀錄、弱點與複習進度。",
+            "此操作不會刪除登入帳號、收藏、語言與外觀設定。刪除不可復原；若刪除失敗，請重試，且不得宣稱資料已刪除。"
+          ]
+        },
+        {
+          title: "8. 政策變更",
           paragraphs: [
             "功能或資料處理方式有實質改變時，這份政策會同步更新日期與內容。若變更會明顯影響使用者權益，會以網站上的適當方式提醒。"
           ]
@@ -187,11 +194,18 @@ const LEGAL_COPY = {
           title: "6. 保存、削除、問い合わせ",
           paragraphs: [
             "ローカル情報はブラウザのサイトデータを削除するまで残ります。同期履歴とフィードバックは、同期・保守・返信・問題追跡に必要な期間、または削除依頼を受けるまで保持します。",
-            "現時点では完全な自己操作によるエクスポート・削除画面はありません。アカウント情報の確認や削除を希望する場合は、同じアカウントでログインし、サイトの「フィードバック」で返信希望を選んでください。公開 GitHub issue に個人情報を書かないでください。個人情報を販売することはありません。"
+            "現時点では自己操作によるエクスポート画面はありません。エクスポートを希望する場合や、その他のアカウント関連情報の削除を希望する場合は、同じアカウントでログインし、サイトの「フィードバック」で返信希望を選んでください。公開 GitHub issue に個人情報を書かないでください。個人情報を販売することはありません。"
           ]
         },
         {
-          title: "7. ポリシーの変更",
+          title: "7. 同期した練習履歴の削除",
+          paragraphs: [
+            "ログイン中の利用者は、アカウント領域からこのアカウントに同期した練習の回答記録を自分で削除できます。削除に成功すると、この端末の練習記録・弱点・復習の進捗も消去されます。",
+            "この操作では、アカウント・お気に入り・言語・表示設定は削除されません。削除は元に戻せません。削除に失敗した場合は、もう一度お試しください。データが削除されたと判断しないでください。"
+          ]
+        },
+        {
+          title: "8. ポリシーの変更",
           paragraphs: [
             "機能や情報の取扱いに実質的な変更がある場合、本ポリシーの内容と更新日を変更します。利用者への影響が大きい場合は、サイト上で適切にお知らせします。"
           ]
@@ -298,11 +312,18 @@ const LEGAL_COPY = {
           title: "6. Retention, deletion, and contact",
           paragraphs: [
             "Local data remains until you clear the browser's site data. Remote practice records and feedback are kept while needed for sync, maintenance, replies, or issue tracking, or until you request deletion.",
-            "A complete self-service export and deletion screen is not yet available. To ask about or request deletion of account-linked data, sign in with the same account and use the site's Feedback form with the reply option selected. Do not post personal data in a public GitHub issue. Jabiko does not sell personal data."
+            "A self-service export screen is not yet available. To request an export, or to ask about or request deletion of other account-linked data, sign in with the same account and use the site's Feedback form with the reply option selected. Do not post personal data in a public GitHub issue. Jabiko does not sell personal data."
           ]
         },
         {
-          title: "7. Changes to this policy",
+          title: "7. Deleting your synced practice history",
+          paragraphs: [
+            "Signed-in users can delete the practice answers synced to this account on their own from the account area. When the deletion succeeds, it also clears this device's practice records, weak points, and review progress.",
+            "This does not delete your account, bookmarks, language, or appearance settings. Deletion cannot be undone; if it fails, please try again and do not treat the data as deleted."
+          ]
+        },
+        {
+          title: "8. Changes to this policy",
           paragraphs: [
             "When features or data handling change materially, this policy and its update date will be revised. Changes with a significant effect on users will be highlighted through an appropriate notice on the site."
           ]
