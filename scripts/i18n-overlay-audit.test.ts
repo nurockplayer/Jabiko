@@ -11,6 +11,7 @@ import ts from "typescript";
 import {
   AuditParseError,
   auditExamOverlays,
+  auditGrammarNoteOverlays,
   auditKeySets,
   auditLearningBlockOverlays,
   auditSentencePatternOverlays,
@@ -1249,6 +1250,260 @@ describe("auditSentencePatternOverlays (#698)", () => {
     const mkdirSpy = vi.spyOn(fs, "mkdirSync");
     try {
       const records = auditSentencePatternOverlays({ repoRoot, targetLocales: ["en", "ja"] });
+      expect(records).toEqual([]);
+      expect(writeSpy).not.toHaveBeenCalled();
+      expect(mkdirSpy).not.toHaveBeenCalled();
+    } finally {
+      writeSpy.mockRestore();
+      mkdirSpy.mockRestore();
+    }
+  });
+});
+
+describe("auditGrammarNoteOverlays (#700)", () => {
+  /** Repo-style fixture tree rooted at tmpDir/src/domain. */
+  function writeGrammarNoteFixtures(sourceText: string, overlayText: string): void {
+    fs.mkdirSync(path.join(tmpDir, "src", "domain"), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, "src", "domain", "grammarNotes.ts"), sourceText);
+    fs.writeFileSync(path.join(tmpDir, "src", "domain", "grammarNotes.i18n.ts"), overlayText);
+  }
+
+  /** A learner-facing note entry with a non-empty static surface key. */
+  const NOTE = (surface: string): string =>
+    `  ${surface}: { surface: "${surface}", jlptLevel: "N2", meaningZh: "意思", formation: "接續", usageZh: "用法", examples: [], confusions: [] }`;
+  const OVERLAY = (entries: string): string =>
+    `export const grammarNoteI18n: GrammarNoteOverlays = {${entries}};`;
+  const ENTRY = (surface: string, locales: string): string =>
+    `  "${surface}": { ${locales} }`;
+  const PAIRS = `"en": { "meaningZh": "E", "usageZh": "U" }, "ja": { "meaningZh": "J", "usageZh": "U" }`;
+  const SRC = (notes: string): string =>
+    `type GrammarNote = { surface: string; jlptLevel: string | null; meaningZh: string; formation: string; usageZh: string; examples: unknown[]; confusions: string[]; };\n` +
+    `export const grammarNotes: Record<string, GrammarNote> = {\n${notes}\n};`;
+
+  beforeAll(() => {
+    fs.mkdirSync(path.join(tmpDir, "src", "domain"), { recursive: true });
+  });
+
+  it("yields zero records when every learner-facing source note has a first-level overlay key for every locale", () => {
+    writeGrammarNoteFixtures(
+      SRC([NOTE('"ばかりに"'), NOTE('"だけあって"'), NOTE("なり")].join(",\n")),
+      OVERLAY([ENTRY("ばかりに", PAIRS), ENTRY("だけあって", PAIRS), ENTRY("なり", PAIRS)].join(",\n"))
+    );
+    expect(
+      auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("reports a missing record per target locale for a single note with no overlay entry", () => {
+    writeGrammarNoteFixtures(
+      SRC([NOTE('"ばかりに"'), NOTE('"あげく"')].join(",\n")),
+      OVERLAY(ENTRY("ばかりに", PAIRS))
+    );
+    expect(
+      auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([
+      { system: "grammarNotes", locale: "en", sourceKey: "あげく", overlayKey: "", status: "missing" },
+      { system: "grammarNotes", locale: "ja", sourceKey: "あげく", overlayKey: "", status: "missing" }
+    ]);
+  });
+
+  it("reports a dangling record per overlay locale for a source note that has been deleted", () => {
+    writeGrammarNoteFixtures(
+      SRC(NOTE('"ばかりに"')),
+      OVERLAY([ENTRY("ばかりに", PAIRS), ENTRY("せいで", PAIRS)].join(",\n"))
+    );
+    expect(
+      auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([
+      { system: "grammarNotes", locale: "en", sourceKey: "", overlayKey: "せいで", status: "dangling" },
+      { system: "grammarNotes", locale: "ja", sourceKey: "", overlayKey: "せいで", status: "dangling" }
+    ]);
+  });
+
+  it("does not confuse an overlay value containing another source note key with a real first-level key", () => {
+    writeGrammarNoteFixtures(
+      SRC([NOTE('"ばかりに"'), NOTE('"だけあって"')].join(",\n")),
+      OVERLAY(
+        ENTRY("ばかりに", `"en": { "meaningZh": "E, see だけあって" }, "ja": { "meaningZh": "J, see だけあって" }`)
+      )
+    );
+    // "だけあって" appears inside the value text but is not an overlay first-level
+    // key; it must remain a missing record rather than being matched by text.
+    expect(
+      auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([
+      { system: "grammarNotes", locale: "en", sourceKey: "だけあって", overlayKey: "", status: "missing" },
+      { system: "grammarNotes", locale: "ja", sourceKey: "だけあって", overlayKey: "", status: "missing" }
+    ]);
+  });
+
+  it("never flattens nested locale field keys into first-level overlay keys", () => {
+    writeGrammarNoteFixtures(
+      SRC(NOTE('"ばかりに"')),
+      OVERLAY(
+        ENTRY(
+          "ばかりに",
+          `"en": { "meaningZh": "E", "formation": "F", "usageZh": "U", "examplesZh": ["X"], "confusions": ["C"] }`
+        )
+      )
+    );
+    // The nested field names (meaningZh / formation / usageZh / examplesZh /
+    // confusions) must never be read as note keys, even though "confusions" could
+    // be confused with a surface. ばかりに is fully overlaid for en -> zero records.
+    expect(
+      auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })
+    ).toEqual([]);
+  });
+
+  it("does not misclassify helper objects, template keys or unrelated surface fields", () => {
+    writeGrammarNoteFixtures(
+      [
+        SRC(NOTE('"ばかりに"')),
+        "export const GRAMMAR_HELPER = { surface: \"なり\" };",
+        'const TEMPLATE_NOTE: Record<string, GrammarNote> = { "せいで": { surface: "せいで", jlptLevel: null, meaningZh: "x", formation: "f", usageZh: "u", examples: [], confusions: [] } };',
+        '// The surface below lives inside a comment and must never count.',
+        "// あげく is not a real note here."
+      ].join("\n"),
+      OVERLAY(ENTRY("ばかりに", PAIRS))
+    );
+    // The helper/template/comment objects are not elements of the grammarNotes
+    // array-of-record literal, so なり / せいで / あげく must not become source
+    // keys. ばかりに is fully overlaid for en + ja -> zero records.
+    expect(
+      auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("parses quoted and unquoted keys, multiline values and trailing commas", () => {
+    writeGrammarNoteFixtures(
+      SRC([NOTE('"ばかりに"'), NOTE("なり")].join(",\n")),
+      OVERLAY([
+        `  "ばかりに": {\n    "en": { "meaningZh": "E" },\n    'ja': { meaningZh: "J" },\n  },`,
+        `  なり: {\n    "en": { "meaningZh": "E" },\n    "ja": { "meaningZh": "J" },\n  },`
+      ].join("\n"))
+    );
+    expect(
+      auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("fails closed on duplicate source note keys", () => {
+    writeGrammarNoteFixtures(
+      SRC([NOTE('"ばかりに"'), NOTE('"ばかりに"')].join(",\n")),
+      OVERLAY(ENTRY("ばかりに", PAIRS))
+    );
+    expect(() => auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/duplicate/i);
+  });
+
+  it("fails closed on duplicate overlay first-level keys", () => {
+    writeGrammarNoteFixtures(
+      SRC(NOTE('"ばかりに"')),
+      OVERLAY([ENTRY("ばかりに", PAIRS), ENTRY("ばかりに", PAIRS)].join(",\n"))
+    );
+    expect(() => auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/duplicate/i);
+  });
+
+  it("fails closed on overlay spreads at the first level", () => {
+    writeGrammarNoteFixtures(
+      SRC(NOTE('"ばかりに"')),
+      OVERLAY(`${ENTRY("ばかりに", PAIRS)}, ...extra`)
+    );
+    expect(() => auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/spread/i);
+  });
+
+  it("fails closed on computed first-level overlay keys", () => {
+    writeGrammarNoteFixtures(
+      SRC(NOTE('"ばかりに"')),
+      OVERLAY(`  [getKey()]: { ${PAIRS} }`)
+    );
+    expect(() => auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/computed/i);
+  });
+
+  it("fails closed on dynamic / missing source note keys", () => {
+    writeGrammarNoteFixtures(
+      "type GrammarNote = { surface: string; jlptLevel: string | null; meaningZh: string; formation: string; usageZh: string; examples: unknown[]; confusions: string[]; };\n" +
+        "export const grammarNotes: Record<string, GrammarNote> = { [DYNAMIC_KEY]: { surface: \"x\", jlptLevel: null, meaningZh: \"m\", formation: \"f\", usageZh: \"u\", examples: [], confusions: [] } };",
+      OVERLAY(ENTRY("whatever", PAIRS))
+    );
+    expect(() => auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/computed/i);
+
+    writeGrammarNoteFixtures(
+      "type GrammarNote = { surface: string; jlptLevel: string | null; meaningZh: string; formation: string; usageZh: string; examples: unknown[]; confusions: string[]; };\n" +
+        "export const grammarNotes: Record<string, GrammarNote> = { ばかりに: { surface: \"ばかりに\", jlptLevel: null, meaningZh: \"m\", formation: \"f\", usageZh: \"u\", examples: [], confusions: [] } };",
+      OVERLAY(ENTRY("ばかりに", PAIRS))
+    );
+    // The surface member inside a note entry is not the key of the record; the
+    // key of ばかりに is the static member name, which is present.
+    expect(() => auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).not.toThrow();
+  });
+
+  it("fails closed on computed member names in a note entry instead of silently dropping them", () => {
+    writeGrammarNoteFixtures(
+      SRC(`  "ばかりに": { surface: "ばかりに", ["meaningZh"]: "意思", jlptLevel: "N2", formation: "f", usageZh: "u", examples: [], confusions: [] }`),
+      OVERLAY(ENTRY("ばかりに", PAIRS))
+    );
+    // A computed non-key member must not be silently treated as absent: that
+    // would misclassify the note and fabricate a phantom missing/dangling pair.
+    expect(() => auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/computed/i);
+  });
+
+  it("returns byte-equivalent records regardless of source or locale traversal order", () => {
+    writeGrammarNoteFixtures(
+      SRC([NOTE('"ばかりに"'), NOTE('"だけあって"'), NOTE('"あげく"')].join(",\n")),
+      OVERLAY(
+        [
+          ENTRY("あげく", PAIRS),
+          ENTRY("ばかりに", PAIRS),
+          ENTRY("だけあって", PAIRS),
+          ENTRY("っぱなし", PAIRS)
+        ].join(",\n")
+      )
+    );
+    const a = JSON.stringify(
+      auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    );
+    const b = JSON.stringify(
+      auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["ja", "en"] })
+    );
+    expect(a).toBe(b);
+  });
+
+  it("has no hardcoded locales, no filesystem writes, no console output and no process.exit", () => {
+    writeGrammarNoteFixtures(
+      SRC(NOTE('"ばかりに"')),
+      OVERLAY(ENTRY("ばかりに", PAIRS))
+    );
+    const writeSpy = vi.spyOn(fs, "writeFileSync");
+    const mkdirSpy = vi.spyOn(fs, "mkdirSync");
+    const logSpy = vi.spyOn(console, "log");
+    const errorSpy = vi.spyOn(console, "error");
+    const exitSpy = vi.spyOn(process, "exit");
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    try {
+      const records = auditGrammarNoteOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] });
+      expect(records).toEqual([]);
+      expect(writeSpy).not.toHaveBeenCalled();
+      expect(mkdirSpy).not.toHaveBeenCalled();
+      expect(logSpy).not.toHaveBeenCalled();
+      expect(errorSpy).not.toHaveBeenCalled();
+      expect(exitSpy).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      writeSpy.mockRestore();
+      mkdirSpy.mockRestore();
+      logSpy.mockRestore();
+      errorSpy.mockRestore();
+      exitSpy.mockRestore();
+      fetchSpy.mockRestore();
+    }
+  });
+
+  it("audits the real repo with zero records and without writing anything", () => {
+    const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+    const writeSpy = vi.spyOn(fs, "writeFileSync");
+    const mkdirSpy = vi.spyOn(fs, "mkdirSync");
+    try {
+      const records = auditGrammarNoteOverlays({ repoRoot, targetLocales: ["en", "ja"] });
       expect(records).toEqual([]);
       expect(writeSpy).not.toHaveBeenCalled();
       expect(mkdirSpy).not.toHaveBeenCalled();

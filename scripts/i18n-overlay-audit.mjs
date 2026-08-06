@@ -1344,3 +1344,312 @@ export function auditSentencePatternOverlays({ repoRoot, targetLocales }) {
 
   return sortAuditRecords(records);
 }
+
+// ---------------------------------------------------------------------------
+// Grammar-note overlay adapter (#700)
+// ---------------------------------------------------------------------------
+//
+// Audits the "source stable note key <-> overlay first-level note key" mapping
+// for the grammar-notes system.
+//
+//   source:  src/domain/grammarNotes.ts       (the `grammarNotes` record)
+//   overlay: src/domain/grammarNotes.i18n.ts  (the `grammarNoteI18n` record)
+//   key:     the stable surface key of a real learner-facing grammar note
+//
+// The source side only admits actual learner-facing note keys of the
+// `grammarNotes` record literal; helper / template / container objects and
+// stray `surface:` members elsewhere in the file are never counted. Each
+// source entry must be an object literal (a GrammarNote) whose member names
+// are routed through `readStaticPropertyName`, so a computed member name fails
+// closed instead of being silently dropped (same contract as #698). The
+// overlay side only admits first-level keys of the `grammarNoteI18n` object
+// literal; nested per-locale field keys (meaningZh / formation / usageZh /
+// examplesZh / confusions) are never flattened.
+//
+// For each target locale (resolved by #695's launched-locale registry, never
+// hardcoded) the overlay is expected to carry a first-level key for EVERY
+// source note key. source-without-overlay = missing; overlay-without-source =
+// dangling. A note whose overlay entry omits one locale produces a missing
+// record for that locale only.
+//
+// Fails closed on duplicate source keys / duplicate overlay keys, spreads,
+// computed keys and any dynamic form whose runtime key mapping cannot be
+// confirmed. Performs zero filesystem writes, console output, network access
+// and never calls process.exit.
+
+/**
+ * Resolve the `grammarNotes` object literal from a SourceFile. Returns the
+ * object node when present (identifier `grammarNotes`), otherwise undefined.
+ */
+function findGrammarNotesRecord(sourceFile) {
+  let found = undefined;
+  const visit = (node) => {
+    if (
+      found === undefined &&
+      ts.isVariableStatement(node) &&
+      ts.isVariableDeclarationList(node.declarationList)
+    ) {
+      for (const d of node.declarationList.declarations) {
+        if (!ts.isIdentifier(d.name) || d.name.text !== "grammarNotes") continue;
+        if (ts.isObjectLiteralExpression(d.initializer)) found = d.initializer;
+        break;
+      }
+    }
+    if (found === undefined) ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+/**
+ * Resolve the `grammarNoteI18n` object literal from a SourceFile. Returns the
+ * object node when present (identifier `grammarNoteI18n`), otherwise
+ * undefined.
+ */
+function findGrammarNoteOverlay(sourceFile) {
+  let found = undefined;
+  const visit = (node) => {
+    if (
+      found === undefined &&
+      ts.isVariableStatement(node) &&
+      ts.isVariableDeclarationList(node.declarationList)
+    ) {
+      for (const d of node.declarationList.declarations) {
+        if (!ts.isIdentifier(d.name) || d.name.text !== "grammarNoteI18n") continue;
+        if (ts.isObjectLiteralExpression(d.initializer)) found = d.initializer;
+        break;
+      }
+    }
+    if (found === undefined) ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+/**
+ * Collect the static first-level note keys of the `grammarNotes` record literal
+ * into an array, in declaration order. Every entry must be an object literal (a
+ * learner-facing GrammarNote); its member names are routed through
+ * `readStaticPropertyName` so a computed member name fails closed instead of
+ * being silently dropped (#698 contract). Spreads, computed keys, non-property
+ * members, non-object entry values and duplicate keys fail closed.
+ */
+function collectGrammarNoteSourceKeys(recordNode, sourceFile, filePath) {
+  const sf = sourceFile ?? recordNode.getSourceFile?.();
+  const file = filePath ?? sf?.fileName;
+  if (!ts.isObjectLiteralExpression(recordNode)) {
+    throw new AuditParseError(
+      `grammarNotes must be an object literal, got ${ts.SyntaxKind[recordNode.kind]}`,
+      { file, line: getLine(sf, recordNode), context: recordNode.getText() }
+    );
+  }
+  const keys = [];
+  const seen = new Set();
+  for (const member of recordNode.properties) {
+    if (ts.isSpreadAssignment(member)) {
+      throw new AuditParseError(
+        `object spread cannot be resolved statically: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    if (!ts.isPropertyAssignment(member)) {
+      throw new AuditParseError(
+        `grammarNotes entries must be static property assignments: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    // Route through readStaticPropertyName so computed names fail closed
+    // instead of being silently dropped -- the same contract the overlay side
+    // and #698's item members enforce.
+    const key = readStaticPropertyName(member.name, sf);
+    if (seen.has(key)) {
+      throw new AuditParseError(`duplicate grammar note key "${key}"`, {
+        file,
+        line: getLine(sf, member),
+        context: key
+      });
+    }
+    seen.add(key);
+    const value = member.initializer;
+    if (!ts.isObjectLiteralExpression(value)) {
+      throw new AuditParseError(
+        `grammar note "${key}" must be an object literal (a GrammarNote)`,
+        { file, line: getLine(sf, member), context: key }
+      );
+    }
+    // Fail closed on computed / spread / unsupported members inside the note
+    // entry; the returned field keys are deliberately discarded (only the
+    // first-level note keys are collected, nested fields are never flattened).
+    collectStaticObjectKeys(value, undefined);
+    keys.push(key);
+  }
+  return keys;
+}
+
+/**
+ * Collect the first-level overlay note keys of the `grammarNoteI18n` object into
+ * a Map<noteKey, localeKeys>, in declaration order. Each entry must be an object
+ * literal mapping locales to text; its locale keys are read statically.
+ * Computed keys, spreads, non-property members and non-object entry values fail
+ * closed (their runtime key mapping cannot be confirmed).
+ */
+function collectOverlayNoteEntries(overlayNode, sourceFile, filePath) {
+  const sf = sourceFile ?? overlayNode.getSourceFile?.();
+  const file = filePath ?? sf?.fileName;
+  if (!ts.isObjectLiteralExpression(overlayNode)) {
+    throw new AuditParseError(
+      `grammarNoteI18n must be an object literal, got ${ts.SyntaxKind[overlayNode.kind]}`,
+      { file, line: getLine(sf, overlayNode) }
+    );
+  }
+  const entries = new Map();
+  for (const member of overlayNode.properties) {
+    if (ts.isSpreadAssignment(member)) {
+      throw new AuditParseError(
+        `object spread cannot be resolved statically: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    if (!ts.isPropertyAssignment(member)) {
+      throw new AuditParseError(
+        `overlay note entries must be static property assignments: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    const noteKey = readStaticPropertyName(member.name, sf);
+    if (entries.has(noteKey)) {
+      throw new AuditParseError(`duplicate overlay note key "${noteKey}"`, {
+        file,
+        line: getLine(sf, member),
+        context: noteKey
+      });
+    }
+    const localeObject = member.initializer;
+    if (!ts.isObjectLiteralExpression(localeObject)) {
+      throw new AuditParseError(
+        `overlay entry "${noteKey}" must be an object literal mapping locales to text`,
+        { file, line: getLine(sf, member), context: noteKey }
+      );
+    }
+    const localeKeys = [];
+    const seenLocales = new Set();
+    for (const localeMember of localeObject.properties) {
+      if (ts.isSpreadAssignment(localeMember)) {
+        throw new AuditParseError(
+          `object spread cannot be resolved statically in overlay entry "${noteKey}"`,
+          { file, line: getLine(sf, localeMember), context: localeMember.getText() }
+        );
+      }
+      if (!ts.isPropertyAssignment(localeMember)) {
+        throw new AuditParseError(
+          `overlay locale entries must be static property assignments: ${localeMember.getText()}`,
+          { file, line: getLine(sf, localeMember), context: localeMember.getText() }
+        );
+      }
+      const locale = readStaticPropertyName(localeMember.name, sf);
+      if (seenLocales.has(locale)) {
+        throw new AuditParseError(
+          `duplicate overlay locale key "${locale}" for note "${noteKey}"`,
+          { file, line: getLine(sf, localeMember), context: locale }
+        );
+      }
+      seenLocales.add(locale);
+      localeKeys.push(locale);
+    }
+    entries.set(noteKey, localeKeys);
+  }
+  return entries;
+}
+
+/**
+ * Audit the source/overlay first-level note key mapping for the grammar-notes
+ * system and return the overlay audit records (system "grammarNotes") for every
+ * learner-facing note key and every target locale.
+ *
+ *   - The source set is the static first-level key of every entry of the
+ *     `grammarNotes` record literal. Non-object entries, spreads, computed keys
+ *     and duplicate keys fail closed.
+ *   - The overlay set is the first-level keys of the `grammarNoteI18n` object
+ *     literal; nested per-locale field keys are never flattened. Spreads,
+ *     computed keys and non-object entry values fail closed.
+ *   - For each target locale, a source key with no overlay entry for that
+ *     locale is `missing`; an overlay key with no source key is `dangling` (per
+ *     locale the overlay entry carries). The common record shape, sorting and
+ *     counts come from #695; the system is fixed to "grammarNotes". Target
+ *     locales must come from the launched registry; this adapter never
+ *     hardcodes one.
+ *
+ * Returns records sorted by the canonical `sortAuditRecords` order. Performs
+ * zero filesystem writes, console output, network access and never calls
+ * process.exit.
+ */
+export function auditGrammarNoteOverlays({ repoRoot, targetLocales }) {
+  if (typeof repoRoot !== "string" || repoRoot.length === 0) {
+    throw new Error("auditGrammarNoteOverlays requires a non-empty repoRoot directory");
+  }
+  if (
+    !Array.isArray(targetLocales) ||
+    !targetLocales.every((l) => typeof l === "string" && l.length > 0)
+  ) {
+    throw new Error(
+      "auditGrammarNoteOverlays requires targetLocales to be an array of locale strings"
+    );
+  }
+  const locales = [...new Set(targetLocales)];
+
+  const sourcePath = `${repoRoot}/src/domain/grammarNotes.ts`;
+  const overlayPath = `${repoRoot}/src/domain/grammarNotes.i18n.ts`;
+
+  const sourceFile = parseTypeScriptFile(sourcePath);
+  const overlayFile = parseTypeScriptFile(overlayPath);
+
+  const recordObject = findGrammarNotesRecord(sourceFile);
+  const overlayObject = findGrammarNoteOverlay(overlayFile);
+
+  if (!recordObject) {
+    throw new AuditParseError("grammarNotes object literal not found", { file: sourcePath });
+  }
+  if (!overlayObject) {
+    throw new AuditParseError("grammarNoteI18n object literal not found", { file: overlayPath });
+  }
+
+  // --- source: static learner-facing note keys ------------------------------
+  const sourceKeys = collectGrammarNoteSourceKeys(recordObject, sourceFile, sourcePath);
+  const sourceSet = new Set(sourceKeys);
+
+  // --- overlay: first-level note keys + per-entry locales --------------------
+  const overlayEntries = collectOverlayNoteEntries(overlayObject, overlayFile, overlayPath);
+
+  // --- per-target-locale comparison -----------------------------------------
+  const records = [];
+  for (const locale of locales) {
+    // source-without-overlay-for-this-locale => missing
+    for (const sourceKey of sourceKeys) {
+      const entry = overlayEntries.get(sourceKey);
+      if (!entry || !entry.includes(locale)) {
+        records.push({
+          system: "grammarNotes",
+          locale,
+          sourceKey,
+          overlayKey: "",
+          status: "missing"
+        });
+      }
+    }
+  }
+  // overlay-without-source => dangling (per locale the overlay entry carries)
+  for (const [noteKey, localeKeys] of overlayEntries) {
+    if (sourceSet.has(noteKey)) continue;
+    for (const locale of localeKeys) {
+      records.push({
+        system: "grammarNotes",
+        locale,
+        sourceKey: "",
+        overlayKey: noteKey,
+        status: "dangling"
+      });
+    }
+  }
+
+  return sortAuditRecords(records);
+}
