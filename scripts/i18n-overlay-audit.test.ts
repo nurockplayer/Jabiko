@@ -12,6 +12,7 @@ import {
   AuditParseError,
   auditExamOverlays,
   auditGrammarNoteOverlays,
+  auditKanjiOnyomiOverlays,
   auditKeySets,
   auditLearningBlockOverlays,
   auditSentencePatternOverlays,
@@ -1504,6 +1505,254 @@ describe("auditGrammarNoteOverlays (#700)", () => {
     const mkdirSpy = vi.spyOn(fs, "mkdirSync");
     try {
       const records = auditGrammarNoteOverlays({ repoRoot, targetLocales: ["en", "ja"] });
+      expect(records).toEqual([]);
+      expect(writeSpy).not.toHaveBeenCalled();
+      expect(mkdirSpy).not.toHaveBeenCalled();
+    } finally {
+      writeSpy.mockRestore();
+      mkdirSpy.mockRestore();
+    }
+  });
+});
+
+describe("auditKanjiOnyomiOverlays (#701)", () => {
+  /** Repo-style fixture tree rooted at tmpDir/src/domain. */
+  function writeKanjiOnyomiFixtures(sourceText: string, overlayText: string): void {
+    fs.mkdirSync(path.join(tmpDir, "src", "domain"), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, "src", "domain", "kanjiOnyomi.ts"), sourceText);
+    fs.writeFileSync(path.join(tmpDir, "src", "domain", "kanjiOnyomi.i18n.ts"), overlayText);
+  }
+
+  /** A learner-facing kanji entry: non-empty static `kanji`, onyomi, meaningZh. */
+  const KANJI = (kanji: string): string =>
+    `  { kanji: "${kanji}", onyomi: ["あん"], kunyomi: ["やすい"], meaningZh: "安心", level: "N5" }`;
+  const OVERLAY = (entries: string): string =>
+    `export const kanjiMeaningI18n: Record<string, LocalizedText> = {${entries}};`;
+  const ENTRY = (kanji: string, locales: string): string =>
+    `  "${kanji}": { ${locales} }`;
+  const PAIRS = `"en": "cheap; at ease", "ja": "安い・安心"`;
+  const SRC = (entries: string): string =>
+    `type KanjiOnyomiEntry = { kanji: string; onyomi: string[]; kunyomi: string[]; meaningZh: string; level: string; };\n` +
+    `export const kanjiOnyomi: KanjiOnyomiEntry[] = [\n${entries}\n];`;
+
+  beforeAll(() => {
+    fs.mkdirSync(path.join(tmpDir, "src", "domain"), { recursive: true });
+  });
+
+  it("yields zero records when every source kanji has a first-level overlay key for every locale", () => {
+    writeKanjiOnyomiFixtures(
+      SRC([KANJI("安"), KANJI("医"), KANJI("員")].join(",\n")),
+      OVERLAY([ENTRY("安", PAIRS), ENTRY("医", PAIRS), ENTRY("員", PAIRS)].join(",\n"))
+    );
+    expect(
+      auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("reports a missing record per target locale for a single kanji with no overlay entry", () => {
+    writeKanjiOnyomiFixtures(
+      SRC([KANJI("安"), KANJI("医")].join(",\n")),
+      OVERLAY(ENTRY("安", PAIRS))
+    );
+    expect(
+      auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([
+      { system: "kanjiOnyomi", locale: "en", sourceKey: "医", overlayKey: "", status: "missing" },
+      { system: "kanjiOnyomi", locale: "ja", sourceKey: "医", overlayKey: "", status: "missing" }
+    ]);
+  });
+
+  it("reports a dangling record per overlay locale for a source kanji that has been deleted", () => {
+    writeKanjiOnyomiFixtures(
+      SRC(KANJI("安")),
+      OVERLAY([ENTRY("安", PAIRS), ENTRY("医", PAIRS)].join(",\n"))
+    );
+    expect(
+      auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([
+      { system: "kanjiOnyomi", locale: "en", sourceKey: "", overlayKey: "医", status: "dangling" },
+      { system: "kanjiOnyomi", locale: "ja", sourceKey: "", overlayKey: "医", status: "dangling" }
+    ]);
+  });
+
+  it("does not confuse an overlay value containing another source kanji with a real first-level key", () => {
+    writeKanjiOnyomiFixtures(
+      SRC([KANJI("安"), KANJI("医")].join(",\n")),
+      OVERLAY(
+        ENTRY("安", `"en": "cheap; see 医", "ja": "安い・安心"`)
+      )
+    );
+    // "医" appears inside the value text but is not an overlay first-level key;
+    // it must remain a missing record rather than being matched by text.
+    expect(
+      auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([
+      { system: "kanjiOnyomi", locale: "en", sourceKey: "医", overlayKey: "", status: "missing" },
+      { system: "kanjiOnyomi", locale: "ja", sourceKey: "医", overlayKey: "", status: "missing" }
+    ]);
+  });
+
+  it("never flattens nested locale field keys into first-level overlay keys", () => {
+    writeKanjiOnyomiFixtures(
+      SRC(KANJI("安")),
+      OVERLAY(
+        ENTRY(
+          "安",
+          `"en": "cheap; at ease", "ja": "安い・安心", "fr": "pas cher"`
+        )
+      )
+    );
+    // The locale keys (en / ja / fr) are nested values inside the entry; the
+    // adapter never reads them as first-level overlay keys.
+    expect(
+      auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("does not misclassify non-array content, unrelated surface fields or comments", () => {
+    writeKanjiOnyomiFixtures(
+      [
+        SRC(KANJI("安")),
+        'export const KANJI_HELPER = { kanji: "医" };',
+        '// 員 is not a real entry here.'
+      ].join("\n"),
+      OVERLAY(ENTRY("安", PAIRS))
+    );
+    // 医 / 員 live outside the kanjiOnyomi array literal and must never become
+    // source keys. 安 is fully overlaid for en + ja -> zero records.
+    expect(
+      auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("parses quoted and unquoted keys, multiline values and trailing commas", () => {
+    writeKanjiOnyomiFixtures(
+      SRC([KANJI("安"), KANJI("医")].join(",\n")),
+      OVERLAY([
+        `  "安": {\n    "en": "cheap",\n    'ja': "安い",\n  },`,
+        `  医: {\n    "en": "medicine",\n    "ja": "医",\n  },`
+      ].join("\n"))
+    );
+    expect(
+      auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("fails closed on duplicate source kanji keys", () => {
+    writeKanjiOnyomiFixtures(
+      SRC([KANJI("安"), KANJI("安")].join(",\n")),
+      OVERLAY(ENTRY("安", PAIRS))
+    );
+    expect(() => auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/duplicate/i);
+  });
+
+  it("fails closed on duplicate overlay first-level keys", () => {
+    writeKanjiOnyomiFixtures(
+      SRC(KANJI("安")),
+      OVERLAY([ENTRY("安", PAIRS), ENTRY("安", PAIRS)].join(",\n"))
+    );
+    expect(() => auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/duplicate/i);
+  });
+
+  it("fails closed on overlay spreads at the first level", () => {
+    writeKanjiOnyomiFixtures(
+      SRC(KANJI("安")),
+      OVERLAY(`${ENTRY("安", PAIRS)}, ...extra`)
+    );
+    expect(() => auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/spread/i);
+  });
+
+  it("fails closed on computed first-level overlay keys", () => {
+    writeKanjiOnyomiFixtures(
+      SRC(KANJI("安")),
+      OVERLAY(`  [getKey()]: { ${PAIRS} }`)
+    );
+    expect(() => auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/computed/i);
+  });
+
+  it("fails closed on dynamic / missing source kanji keys", () => {
+    writeKanjiOnyomiFixtures(
+      "type KanjiOnyomiEntry = { kanji: string; onyomi: string[]; kunyomi: string[]; meaningZh: string; level: string; };\n" +
+        "export const kanjiOnyomi: KanjiOnyomiEntry[] = [{ kanji: DYNAMIC_KANJI, onyomi: [\"あん\"], kunyomi: [], meaningZh: \"安心\", level: \"N5\" }];",
+      OVERLAY(ENTRY("安", PAIRS))
+    );
+    expect(() => auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/kanji|static|literal/i);
+
+    writeKanjiOnyomiFixtures(
+      "type KanjiOnyomiEntry = { kanji: string; onyomi: string[]; kunyomi: string[]; meaningZh: string; level: string; };\n" +
+        "export const kanjiOnyomi: KanjiOnyomiEntry[] = [{ onyomi: [\"あん\"], kunyomi: [], meaningZh: \"安心\", level: \"N5\" }];",
+      OVERLAY(ENTRY("安", PAIRS))
+    );
+    expect(() => auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/kanji/);
+  });
+
+  it("fails closed on computed member names in an entry instead of silently dropping them", () => {
+    writeKanjiOnyomiFixtures(
+      SRC(`  { kanji: "安", ["onyomi"]: ["あん"], kunyomi: [], meaningZh: "安心", level: "N5" }`),
+      OVERLAY(ENTRY("安", PAIRS))
+    );
+    // A computed non-key member must not be silently treated as absent: that
+    // would misclassify the entry and fabricate a phantom missing/dangling pair.
+    expect(() => auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/computed/i);
+  });
+
+  it("returns byte-equivalent records regardless of source or locale traversal order", () => {
+    writeKanjiOnyomiFixtures(
+      SRC([KANJI("安"), KANJI("医"), KANJI("員")].join(",\n")),
+      OVERLAY(
+        [
+          ENTRY("員", PAIRS),
+          ENTRY("安", PAIRS),
+          ENTRY("医", PAIRS),
+          ENTRY("雨", PAIRS)
+        ].join(",\n")
+      )
+    );
+    const a = JSON.stringify(
+      auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    );
+    const b = JSON.stringify(
+      auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["ja", "en"] })
+    );
+    expect(a).toBe(b);
+  });
+
+  it("has no hardcoded locales, no filesystem writes, no console output and no process.exit", () => {
+    writeKanjiOnyomiFixtures(
+      SRC(KANJI("安")),
+      OVERLAY(ENTRY("安", PAIRS))
+    );
+    const writeSpy = vi.spyOn(fs, "writeFileSync");
+    const mkdirSpy = vi.spyOn(fs, "mkdirSync");
+    const logSpy = vi.spyOn(console, "log");
+    const errorSpy = vi.spyOn(console, "error");
+    const exitSpy = vi.spyOn(process, "exit");
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    try {
+      const records = auditKanjiOnyomiOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] });
+      expect(records).toEqual([]);
+      expect(writeSpy).not.toHaveBeenCalled();
+      expect(mkdirSpy).not.toHaveBeenCalled();
+      expect(logSpy).not.toHaveBeenCalled();
+      expect(errorSpy).not.toHaveBeenCalled();
+      expect(exitSpy).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      writeSpy.mockRestore();
+      mkdirSpy.mockRestore();
+      logSpy.mockRestore();
+      errorSpy.mockRestore();
+      exitSpy.mockRestore();
+      fetchSpy.mockRestore();
+    }
+  });
+
+  it("audits the real repo with zero records and without writing anything", () => {
+    const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+    const writeSpy = vi.spyOn(fs, "writeFileSync");
+    const mkdirSpy = vi.spyOn(fs, "mkdirSync");
+    try {
+      const records = auditKanjiOnyomiOverlays({ repoRoot, targetLocales: ["en", "ja"] });
       expect(records).toEqual([]);
       expect(writeSpy).not.toHaveBeenCalled();
       expect(mkdirSpy).not.toHaveBeenCalled();
