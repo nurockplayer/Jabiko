@@ -133,7 +133,7 @@ export const en: Copy = {
   homeCardChallengeSub: "Three groups: the daily loop, N1–N4 exam-prep banks, and focused drills.",
   homeCardChallengeMeta: "Pick your JLPT level and question type",
   homeCardMockTitle: "JLPT Question Types",
-  homeCardMockSub: "JLPT N1〜N3 sections, working through each part by the official structure.",
+  homeCardMockSub: "JLPT N1〜N5 sections, working through each part by the official structure.",
   homeCardMockMeta: "Follows the official section structure",
   homeCardReviewTitle: "Weakness review",
   homeCardReviewSubActive: (count) => `${count} questions waiting for you to nail them.`,

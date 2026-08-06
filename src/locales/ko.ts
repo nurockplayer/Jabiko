@@ -133,7 +133,7 @@ export const ko: Copy = {
   homeCardChallengeSub: "세 그룹: 데일리 루프 · N1〜N4 시험 대비 · 집중 드릴.",
   homeCardChallengeMeta: "JLPT 레벨과 문제 유형 자유 선택",
   homeCardMockTitle: "JLPT 유형별 연습",
-  homeCardMockSub: "JLPT N1〜N3 섹션을 공식 구조에 따라 파트별로 풀어 나가요.",
+  homeCardMockSub: "JLPT N1〜N5 섹션을 공식 구조에 따라 파트별로 풀어 나가요.",
   homeCardMockMeta: "공식 섹션 구조를 따릅니다",
   homeCardReviewTitle: "약점 복습",
   homeCardReviewSubActive: (count) => `${count}문제가 당신이 맞히길 기다리고 있어요.`,

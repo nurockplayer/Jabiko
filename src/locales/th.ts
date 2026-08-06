@@ -134,7 +134,7 @@ export const th: Copy = {
   homeCardChallengeSub: "สามกลุ่มโหมด: ฝึกประจำวัน · คลังข้อสอบ N1〜N4 · ฝึกเฉพาะทาง",
   homeCardChallengeMeta: "เลือกระดับ JLPT และประเภทข้อสอบได้อิสระ",
   homeCardMockTitle: "ฝึกตามประเภทโจทย์ JLPT",
-  homeCardMockSub: "แบ่งโซนตามประเภทโจทย์ JLPT N1〜N3 ตะลุยทีละโซนตามโครงสร้างทางการ",
+  homeCardMockSub: "แบ่งโซนตามประเภทโจทย์ JLPT N1〜N5 ตะลุยทีละโซนตามโครงสร้างทางการ",
   homeCardMockMeta: "ตามโครงสร้างประเภทโจทย์ทางการ",
   homeCardReviewTitle: "ทบทวนจุดอ่อน",
   homeCardReviewSubActive: (count) => `${count} ข้อรอคุณฝึกซ้ำจนตอบถูก`,

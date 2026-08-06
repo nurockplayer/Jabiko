@@ -96,6 +96,29 @@ describe("usePracticeSession pool snapshot (#623)", () => {
     expect(snapshot.kanaScript).toBeUndefined();
   });
 
+  it("carries an N4/N5 mock-section filter through the snapshot (#703)", () => {
+    const snapshot = createPracticePoolSnapshot(
+      {
+        ...baseConfig,
+        mode: "exam",
+        filter: { examSection: { level: "N4", promptLabel: "文法形式選擇" } }
+      },
+      liveInputs
+    );
+    expect(snapshot.mode).toBe("exam");
+    expect(snapshot.examSection).toEqual({ level: "N4", promptLabel: "文法形式選擇" });
+
+    const n5Snapshot = createPracticePoolSnapshot(
+      {
+        ...baseConfig,
+        mode: "exam",
+        filter: { examSection: { level: "N5", promptLabel: "詞彙填空" } }
+      },
+      liveInputs
+    );
+    expect(n5Snapshot.examSection).toEqual({ level: "N5", promptLabel: "詞彙填空" });
+  });
+
   // #679 — snapshot copy: the live inputs are captured by reference at pass
   // start; a later mutation of the caller's arrays must not corrupt the
   // stored pass (the hook hands in freshly-computed inputs each pass).

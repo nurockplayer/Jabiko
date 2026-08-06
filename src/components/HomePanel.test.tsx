@@ -392,6 +392,22 @@ describe("HomePanel grid label", () => {
   });
 });
 
+describe("HomePanel mock card coverage (#703)", () => {
+  it("the 題型練習 card copy spans N1–N5 now that the N4/N5 picker is wired", () => {
+    renderHome();
+    const card = screen.getByRole("button", { name: /題型練習/ });
+    expect(card).toHaveTextContent("N1〜N5");
+    expect(card).not.toHaveTextContent("N1〜N3");
+  });
+
+  it("launched locales carry no stale N1–N3 mock coverage string", () => {
+    for (const locale of ["zh-Hant", "ja", "en"] as const) {
+      expect(copy[locale].homeCardMockSub).toContain("N1〜N5");
+      expect(copy[locale].homeCardMockSub).not.toContain("N1〜N3");
+    }
+  });
+});
+
 describe("HomePanel content total", () => {
   it("renders the grand total of exam + vocab + kanji-readings + patterns", () => {
     renderHome();

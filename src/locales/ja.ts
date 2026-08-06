@@ -134,7 +134,7 @@ export const ja: Copy = {
   homeCardChallengeSub: "3つのグループ：毎日の練習・N1〜N4試験対策・分野別ドリル。",
   homeCardChallengeMeta: "JLPTレベルと問題形式を自由に選択",
   homeCardMockTitle: "JLPT 問題形式別",
-  homeCardMockSub: "JLPT N1〜N3 の問題タイプ別。公式の構成に沿ってセクションごとに攻略。",
+  homeCardMockSub: "JLPT N1〜N5 の問題タイプ別。公式の構成に沿ってセクションごとに攻略。",
   homeCardMockMeta: "公式の問題構成に準拠",
   homeCardReviewTitle: "弱点復習",
   homeCardReviewSubActive: (count) => `${count} 問、正解できるまで再挑戦しましょう。`,

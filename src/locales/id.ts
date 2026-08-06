@@ -133,7 +133,7 @@ export const id: Copy = {
   homeCardChallengeSub: "Tiga grup mode: rutinitas harian · bank soal persiapan N1–N4 · latihan terfokus.",
   homeCardChallengeMeta: "Bebas pilih level JLPT dan tipe soal",
   homeCardMockTitle: "Latihan jenis soal JLPT",
-  homeCardMockSub: "Jenis soal JLPT N1〜N3 dibagi per bagian, taklukkan sesuai struktur resmi bagian demi bagian.",
+  homeCardMockSub: "Jenis soal JLPT N1〜N5 dibagi per bagian, taklukkan sesuai struktur resmi bagian demi bagian.",
   homeCardMockMeta: "Sesuai struktur jenis soal resmi",
   homeCardReviewTitle: "Ulang kelemahan",
   homeCardReviewSubActive: (count) => `${count} soal menunggu kamu latih ulang sampai benar.`,

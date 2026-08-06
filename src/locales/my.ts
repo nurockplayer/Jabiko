@@ -133,7 +133,7 @@ export const my: Copy = {
   homeCardChallengeSub: "မုဒ်သုံးစု— နေ့စဉ်လေ့ကျင့်ခန်း · N1〜N4 စာမေးပွဲပြင်ဆင်မှု · အထူးလေ့ကျင့်ခန်းများ။",
   homeCardChallengeMeta: "JLPT အဆင့်နှင့် မေးခွန်းအမျိုးအစား လွတ်လပ်စွာရွေးနိုင်",
   homeCardMockTitle: "JLPT ပုံစံအလိုက်လေ့ကျင့်",
-  homeCardMockSub: "JLPT N1〜N3 အပိုင်းများကို တရားဝင်ဖွဲ့စည်းပုံအတိုင်း တစ်ပိုင်းချင်း လေ့ကျင့်ပါ။",
+  homeCardMockSub: "JLPT N1〜N5 အပိုင်းများကို တရားဝင်ဖွဲ့စည်းပုံအတိုင်း တစ်ပိုင်းချင်း လေ့ကျင့်ပါ။",
   homeCardMockMeta: "တရားဝင် အပိုင်းဖွဲ့စည်းပုံကို လိုက်နာသည်",
   homeCardReviewTitle: "အားနည်းချက် ပြန်လေ့ကျင့်ခြင်း",
   homeCardReviewSubActive: (count) => `မေးခွန်း ${count} ခု သင် ကျွမ်းကျင်အောင် လုပ်ရန် စောင့်နေသည်။`,
