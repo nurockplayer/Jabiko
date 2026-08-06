@@ -483,6 +483,17 @@ export const vi: Copy = {
     authUnavailable: "Dịch vụ đăng nhập không khả dụng",
     signOutFailed: "Đăng xuất không thành công"
   },
+  deleteHistoryLabel: "Xóa lịch sử luyện tập",
+  deleteHistoryTitle: "Xóa lịch sử luyện tập",
+  deleteHistoryDescription:
+    "Thao tác này xóa các câu trả lời luyện tập đã đồng bộ với tài khoản này và xóa lịch sử luyện tập cùng tiến độ điểm yếu/ôn tập trên thiết bị này. Tài khoản, dấu trang, ngôn ngữ và cài đặt giao diện sẽ không bị xóa. Hành động này không thể hoàn tác.",
+  deleteHistoryConfirm: "Xóa",
+  deleteHistoryConfirming: "Đang xóa…",
+  deleteHistoryCancel: "Hủy",
+  deleteHistoryClose: "Đóng hộp thoại",
+  deleteHistoryCheckbox: "Tôi hiểu hành động này không thể hoàn tác",
+  deleteHistorySuccess: "Đã xóa lịch sử luyện tập",
+  deleteHistoryError: "Xóa không thành công. Vui lòng thử lại.",
   partOfSpeech: {
     verb: "Động từ",
     i_adjective: "Tính từ い",

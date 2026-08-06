@@ -33,7 +33,9 @@ function makeTools(overrides: Partial<MoreMenuTools> = {}): MoreMenuTools {
       signInLabel: "登入",
       signOutLabel: "登出",
       onSignIn: vi.fn(),
-      onSignOut: vi.fn()
+      onSignOut: vi.fn(),
+      deleteHistoryLabel: "刪除練習紀錄",
+      onDeleteHistory: vi.fn()
     },
     ...overrides
   };
@@ -239,7 +241,9 @@ describe("MoreMenu (#608)", () => {
           signInLabel: "登入",
           signOutLabel: "登出",
           onSignIn: vi.fn(),
-          onSignOut: vi.fn()
+          onSignOut: vi.fn(),
+          deleteHistoryLabel: "刪除練習紀錄",
+          onDeleteHistory: vi.fn()
         }
       })
     );
@@ -250,6 +254,52 @@ describe("MoreMenu (#608)", () => {
     expect(within(menu).queryByRole("menuitem", { name: "登入" })).not.toBeInTheDocument();
     expect(within(menu).getByText(/花雪/)).toBeInTheDocument();
     expect(within(menu).getByText("已同步")).toBeInTheDocument();
+  });
+
+  // #693: the delete-history action lives in the signed-in auth block only --
+  // signed out it is entirely absent (the account entries never offer it).
+  it("hides the delete-history action when signed out", async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    const menu = screen.getByRole("menu");
+    expect(
+      within(menu).queryByRole("menuitem", { name: "刪除練習紀錄" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("signed in: runs onDeleteHistory with the trigger and closes the menu", async () => {
+    const user = userEvent.setup();
+    const onDeleteHistory = vi.fn();
+    renderMenu(
+      makeItems(),
+      makeTools({
+        auth: {
+          signedInAs: "花雪",
+          hint: "已同步",
+          signInLabel: "登入",
+          signOutLabel: "登出",
+          onSignIn: vi.fn(),
+          onSignOut: vi.fn(),
+          deleteHistoryLabel: "刪除練習紀錄",
+          onDeleteHistory
+        }
+      })
+    );
+
+    const trigger = screen.getByRole("button", { name: "更多" });
+    await user.click(trigger);
+    await user.click(screen.getByRole("menuitem", { name: "刪除練習紀錄" }));
+
+    // The action receives the actual trigger button (return-focus target) and
+    // runs BEFORE the menu closes (closeAnd contract) -- the panel unmounts
+    // after, so App can then open the shared dialog from the trigger.
+    expect(onDeleteHistory).toHaveBeenCalledTimes(1);
+    const passed = onDeleteHistory.mock.calls[0][0] as HTMLButtonElement;
+    expect(passed).toBeInstanceOf(HTMLButtonElement);
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
   });
 
   // #684: MoreMenu must not synchronously call setFocusKey() inside the open

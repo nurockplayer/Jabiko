@@ -491,6 +491,17 @@ export const ja: Copy = {
     authUnavailable: "ログインサービスを利用できません",
     signOutFailed: "ログアウトに失敗しました"
   },
+  deleteHistoryLabel: "練習履歴を削除",
+  deleteHistoryTitle: "練習履歴を削除",
+  deleteHistoryDescription:
+    "このアカウントに同期した練習の回答記録を削除し、この端末の練習記録と弱点・復習の進捗も消去します。アカウント・お気に入り・言語・表示設定は削除されません。この操作は元に戻せません。",
+  deleteHistoryConfirm: "削除",
+  deleteHistoryConfirming: "削除中…",
+  deleteHistoryCancel: "キャンセル",
+  deleteHistoryClose: "ウィンドウを閉じる",
+  deleteHistoryCheckbox: "この操作は元に戻せないことを理解しています",
+  deleteHistorySuccess: "練習履歴を削除しました",
+  deleteHistoryError: "削除に失敗しました。もう一度お試しください。",
   partOfSpeech: {
     verb: "動詞",
     i_adjective: "い形容詞",

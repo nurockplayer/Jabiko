@@ -459,6 +459,21 @@ export type Copy = {
   authSyncedHint: string;
   authSyncErrorHint: string;
   authErrors: Record<AuthErrorCode, string>;
+  // ---- Delete synced practice history (#693) -------------------------------
+  /** Desktop heading-auth text action + mobile 更多 menu entry. */
+  deleteHistoryLabel: string;
+  deleteHistoryTitle: string;
+  deleteHistoryDescription: string;
+  deleteHistoryConfirm: string;
+  deleteHistoryConfirming: string;
+  deleteHistoryCancel: string;
+  /** Accessible name for the dialog's X close control. */
+  deleteHistoryClose: string;
+  deleteHistoryCheckbox: string;
+  /** aria-live success status rendered by App after a confirmed delete. */
+  deleteHistorySuccess: string;
+  /** Retryable error shown inside the dialog when a delete fails. */
+  deleteHistoryError: string;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
   focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast", string>;

@@ -23,3 +23,167 @@
 .drill-panel .feedback {
   margin-bottom: 1rem;
 }
+
+/* ---- Delete practice history (#693) ---------------------------------------
+   The double-confirm dialog opened from the desktop heading-auth action or the
+   mobile 更多 menu. Scoped to this feature only: a centered destructive
+   dialog, the danger text action, the confirmation checkbox and the localized
+   success status. Nothing here reflows the header/nav. */
+.delete-history-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--overlay-bg);
+}
+
+.delete-history-dialog {
+  width: 100%;
+  max-width: 32rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: var(--shadow-lg);
+  text-align: left;
+}
+
+.delete-history-dialog:focus {
+  outline: none;
+}
+
+.delete-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.delete-history-title {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.delete-history-close {
+  display: inline-flex;
+  padding: 0.25rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.delete-history-close svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.delete-history-body {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.delete-history-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.delete-history-error:focus {
+  outline: 2px solid var(--danger);
+  outline-offset: 2px;
+}
+
+.delete-history-error svg {
+  flex: 0 0 auto;
+  height: 1rem;
+  width: 1rem;
+  margin-top: 0.1rem;
+}
+
+.delete-history-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.delete-history-check input {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  cursor: pointer;
+}
+
+.delete-history-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.delete-history-confirm {
+  background: color-mix(in srgb, var(--danger) 14%, var(--paper));
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.delete-history-confirm:hover:not(:disabled) {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--selected-text);
+}
+
+/* Danger text action: the desktop heading-auth delete entry and the mobile
+   更多 menu entry share the look (muted text that turns danger on hover). */
+.delete-history-text-action {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--muted);
+  font-size: 0.75rem;
+  padding: 0;
+  min-height: 0;
+}
+
+.delete-history-text-action:hover:not(:disabled) {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--danger);
+  transform: none;
+}
+
+.nav-more-item.nav-more-danger {
+  color: var(--danger);
+}
+
+.nav-more-item.nav-more-danger:hover,
+.nav-more-item.nav-more-danger:focus-visible {
+  background: color-mix(in srgb, var(--danger) 10%, var(--paper));
+}
+
+/* Localized success status after a confirmed delete (aria-live; sits under
+   the header auth block on desktop). */
+.delete-history-status {
+  margin: 0.5rem 0 0;
+  color: var(--matcha-dark);
+  font-size: 0.8rem;
+  text-align: right;
+}

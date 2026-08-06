@@ -2,6 +2,8 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import App from "./App";
+import type { Attempt } from "./domain/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 // #483: render counters for the lazy blog pages. Stubbed to null (we only care
 // whether they were COMMITTED, not their output) so a language-gate regression
@@ -20,6 +22,73 @@ vi.mock("./components/BlogArticlePage", () => ({
     return null;
   }
 }));
+
+// #693: controlled auth + deletion-protocol seams for the account-entry
+// integration tests. Default OFF: every existing test keeps running the REAL
+// hooks with Supabase unconfigured (staying signed-out / local-only). Flipping
+// `deletionTest.active` drives a fake signed-in user AND the deletion-protocol
+// IO (through the same seams useProgressAttempts.test.tsx mocks), so the REAL
+// useProgressAttempts hook runs end-to-end: remote delete -> local clear ->
+// marker removal -> status. `isSupabaseConfigured` is a getter so inactive
+// tests keep seeing "unconfigured" exactly as the real env does.
+const deletionTest = vi.hoisted(() => ({
+  active: false,
+  user: null as {
+    id: string;
+    email: string;
+    user_metadata: { full_name: string };
+  } | null,
+  /** The deleteRemoteAttempts outcome. */
+  deleteRemoteResult: { ok: true } as { ok: true } | { ok: false; message: string },
+  /** How many times the remote delete ran (1 per confirmed delete). */
+  deleteRemoteCalls: 0
+}));
+
+vi.mock("./lib/supabase", () => ({
+  get isSupabaseConfigured() {
+    return deletionTest.active;
+  },
+  getSupabase: () => Promise.resolve({} as unknown as SupabaseClient)
+}));
+
+vi.mock("./domain/attemptRemote", async () => {
+  const actual = await vi.importActual<typeof import("./domain/attemptRemote")>(
+    "./domain/attemptRemote"
+  );
+  return {
+    ...actual,
+    fetchRemoteAttempts: async () => [] as Attempt[],
+    pushAttempts: async () => {},
+    deleteRemoteAttempts: async () => {
+      deletionTest.deleteRemoteCalls += 1;
+      return deletionTest.deleteRemoteResult;
+    }
+  };
+});
+
+vi.mock("./domain/practiceHistoryDeletion", () => ({
+  readDeletionMarker: () => false,
+  writeDeletionMarker: () => true,
+  removeDeletionMarker: () => true
+}));
+
+vi.mock("./hooks/useAuth", async () => {
+  const actual = await vi.importActual<typeof import("./hooks/useAuth")>("./hooks/useAuth");
+  return {
+    ...actual,
+    useAuth: () => {
+      if (deletionTest.active) {
+        return {
+          user: deletionTest.user,
+          error: null,
+          signInWithGoogle: () => Promise.resolve({ error: null }),
+          signOut: () => Promise.resolve()
+        };
+      }
+      return actual.useAuth();
+    }
+  };
+});
 
 // Default landing changed from "learn" to "home" so the first-time UX
 // is a dashboard with four entry cards instead of dropping the learner
@@ -63,6 +132,11 @@ describe("App", () => {
     localStorage.clear();
     document.documentElement.removeAttribute("data-theme");
     window.history.replaceState({}, "", "/");
+    // Reset the #693 deletion-test seam so no state leaks between tests.
+    deletionTest.active = false;
+    deletionTest.user = null;
+    deletionTest.deleteRemoteResult = { ok: true };
+    deletionTest.deleteRemoteCalls = 0;
   });
 
   it("renders the home dashboard with the four-tab nav by default", () => {
@@ -1364,6 +1438,230 @@ describe("App", () => {
     // homepage footer, so it's reachable from anywhere.
     await user.click(screen.getByRole("button", { name: "意見回饋" }));
     expect(await screen.findByRole("dialog", { name: "意見回饋" })).toBeInTheDocument();
+  });
+
+  // ---- Delete practice history (#693) --------------------------------------
+  // Wired into the signed-in account entries (desktop heading-auth action +
+  // mobile 更多 menu), both opening ONE shared dialog. The deletion protocol
+  // itself is covered by useProgressAttempts.test.tsx; these integration tests
+  // pin the UI contract: entries render only when signed in, the first click
+  // never fires the delete, the checkbox gates confirm, success closes with a
+  // readable status + focus return, failure keeps the dialog with a retryable
+  // error, and nothing outside the practice history is touched.
+  const signedInUser = {
+    id: "user-693",
+    email: "test@example.com",
+    user_metadata: { full_name: "花雪" }
+  };
+  // A wrong answer that seeds box-0 (the review pool) -- the same shape the
+  // real attempt store persists.
+  const mistakeAttempt: Attempt = {
+    questionId: "n1-grammar-yainaya",
+    vocabularyId: "n1-grammar-yainaya",
+    targetForm: "meaning",
+    prompt: "seed",
+    expectedAnswers: ["や否や"],
+    submittedAnswer: "x",
+    isCorrect: false,
+    timestamp: 1000,
+    responseTimeMs: 100
+  };
+
+  it("signed out: neither desktop nor mobile renders the delete entry (#693)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Desktop heading-auth block is absent entirely (Supabase unconfigured),
+    // so no delete action can exist.
+    expect(screen.queryByRole("button", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
+
+    // Mobile 更多 menu: auth section absent -> no delete entry either.
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    expect(
+      within(screen.getByRole("menu", { name: "更多" })).queryByRole("menuitem", {
+        name: "刪除練習紀錄"
+      })
+    ).not.toBeInTheDocument();
+  });
+
+  it("signed in: desktop entry opens the shared dialog; first click fires zero deletes (#693)", async () => {
+    deletionTest.active = true;
+    deletionTest.user = signedInUser;
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Desktop heading-auth action under the sign-out row.
+    const desktopEntry = screen.getByRole("button", { name: "刪除練習紀錄" });
+    await user.click(desktopEntry);
+
+    const dialog = screen.getByRole("dialog", { name: "刪除練習紀錄" });
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+    // Opening the dialog must NOT start the deletion protocol.
+    expect(deletionTest.deleteRemoteCalls).toBe(0);
+    // Double-confirm: confirm disabled until the checkbox is ticked.
+    expect(screen.getByRole("button", { name: "刪除" })).toBeDisabled();
+  });
+
+  it("signed in: confirm fires the protocol once, on success closes, shows status, clears review count, returns focus (#693)", async () => {
+    deletionTest.active = true;
+    deletionTest.user = signedInUser;
+    // Seed the persistent attempt store with a wrong answer (box-0 review item).
+    localStorage.setItem("jabiko:attempts", JSON.stringify([mistakeAttempt]));
+    const user = userEvent.setup();
+    render(<App />);
+
+    // A wrong answer in the store -> the home review banner shows a count.
+    expect(screen.getByRole("button", { name: /等待複習/ })).toBeInTheDocument();
+
+    const desktopEntry = screen.getByRole("button", { name: "刪除練習紀錄" });
+    await user.click(desktopEntry);
+    await user.click(screen.getByRole("checkbox", { name: "我了解此操作不可復原" }));
+    await user.click(screen.getByRole("button", { name: "刪除" }));
+
+    // Remote delete ran exactly once, then the dialog closed on success.
+    await waitFor(() => expect(deletionTest.deleteRemoteCalls).toBe(1));
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument()
+    );
+    // Honest success status is readable (aria-live), and the review count is
+    // gone (the protocol cleared attempts -> no more 等待複習 banner).
+    expect(screen.getByRole("status")).toHaveTextContent("練習紀錄已刪除");
+    expect(screen.queryByRole("button", { name: /等待複習/ })).not.toBeInTheDocument();
+    // Focus returned to the original desktop trigger.
+    expect(desktopEntry).toHaveFocus();
+  });
+
+  it("signed in: a failed delete keeps the dialog, shows a retryable error, clears nothing (#693)", async () => {
+    deletionTest.active = true;
+    deletionTest.user = signedInUser;
+    deletionTest.deleteRemoteResult = { ok: false, message: "remote fail" };
+    localStorage.setItem("jabiko:attempts", JSON.stringify([mistakeAttempt]));
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "刪除練習紀錄" }));
+    await user.click(screen.getByRole("checkbox", { name: "我了解此操作不可復原" }));
+    await user.click(screen.getByRole("button", { name: "刪除" }));
+
+    // Dialog stays open with a retryable error; no success status anywhere.
+    expect(screen.getByRole("dialog", { name: "刪除練習紀錄" })).toBeInTheDocument();
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("刪除失敗，請再試一次。");
+    expect(screen.queryByText("練習紀錄已刪除")).not.toBeInTheDocument();
+    // The UI attempts were NOT cleared (the review banner still shows a count).
+    expect(screen.getByRole("button", { name: /等待複習/ })).toBeInTheDocument();
+    // Retry is possible.
+    expect(screen.getByRole("button", { name: "刪除" })).toBeEnabled();
+  });
+
+  it("signed in: cancel closes without side effects and returns focus (#693)", async () => {
+    deletionTest.active = true;
+    deletionTest.user = signedInUser;
+    const user = userEvent.setup();
+    render(<App />);
+
+    const desktopEntry = screen.getByRole("button", { name: "刪除練習紀錄" });
+    await user.click(desktopEntry);
+    expect(deletionTest.deleteRemoteCalls).toBe(0);
+    await user.click(screen.getByRole("button", { name: "取消" }));
+
+    expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
+    expect(deletionTest.deleteRemoteCalls).toBe(0);
+    expect(screen.queryByText("練習紀錄已刪除")).not.toBeInTheDocument();
+    expect(desktopEntry).toHaveFocus();
+  });
+
+  it("signed in: the mobile 更多 entry opens the SAME dialog instance (#693)", async () => {
+    deletionTest.active = true;
+    deletionTest.user = signedInUser;
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    const menuEntry = screen.getByRole("menuitem", { name: "刪除練習紀錄" });
+    await user.click(menuEntry);
+
+    // Exactly one dialog (shared instance), and the menu has closed first.
+    expect(screen.getAllByRole("dialog", { name: "刪除練習紀錄" })).toHaveLength(1);
+    expect(screen.queryByRole("menu", { name: "更多" })).not.toBeInTheDocument();
+    expect(deletionTest.deleteRemoteCalls).toBe(0);
+  });
+
+  it("signed in: cancel from the mobile entry returns focus to the 更多 trigger (#693)", async () => {
+    deletionTest.active = true;
+    deletionTest.user = signedInUser;
+    const user = userEvent.setup();
+    render(<App />);
+
+    const moreTrigger = screen.getByRole("button", { name: "更多" });
+    await user.click(moreTrigger);
+    await user.click(screen.getByRole("menuitem", { name: "刪除練習紀錄" }));
+    await user.click(screen.getByRole("button", { name: "取消" }));
+
+    expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
+    expect(moreTrigger).toHaveFocus();
+  });
+
+  it("delete keeps bookmarks / language / theme / furigana / auth session intact (#693)", async () => {
+    deletionTest.active = true;
+    deletionTest.user = signedInUser;
+    // Distinct preferences that must survive the delete. The language is set
+    // to ja up front, so the whole UI (including the entry and dialog labels)
+    // is Japanese -- proving the preference was read AND survived.
+    localStorage.setItem("jabiko:attempts", JSON.stringify([mistakeAttempt]));
+    localStorage.setItem("jabiko:bookmarks", JSON.stringify(["q1", "q2"]));
+    localStorage.setItem("jabiko.lang", "ja");
+    localStorage.setItem("jabiko.theme", "dark");
+    localStorage.setItem("jabiko.furigana", "on");
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "練習履歴を削除" }));
+    await user.click(screen.getByRole("checkbox", { name: "この操作は元に戻せないことを理解しています" }));
+    await user.click(screen.getByRole("button", { name: "削除" }));
+    await waitFor(() => expect(deletionTest.deleteRemoteCalls).toBe(1));
+
+    // Attempts were cleared, but every other localStorage key survived.
+    expect(screen.getByRole("status")).toHaveTextContent("練習履歴を削除しました");
+    expect(localStorage.getItem("jabiko:bookmarks")).toBe(JSON.stringify(["q1", "q2"]));
+    expect(localStorage.getItem("jabiko.lang")).toBe("ja");
+    expect(localStorage.getItem("jabiko.theme")).toBe("dark");
+    expect(localStorage.getItem("jabiko.furigana")).toBe("on");
+    // The auth session is untouched: the signed-in entry is still rendered.
+    expect(screen.getByRole("button", { name: "練習履歴を削除" })).toBeInTheDocument();
+  });
+
+  it("Escape closes the dialog with zero side effects (#693)", async () => {
+    deletionTest.active = true;
+    deletionTest.user = signedInUser;
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "刪除練習紀錄" }));
+    expect(deletionTest.deleteRemoteCalls).toBe(0);
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
+    expect(deletionTest.deleteRemoteCalls).toBe(0);
+    expect(screen.queryByText("練習紀錄已刪除")).not.toBeInTheDocument();
+  });
+
+  it("StrictMode: confirm fires the protocol exactly once (#693)", async () => {
+    const { StrictMode } = await import("react");
+    deletionTest.active = true;
+    deletionTest.user = signedInUser;
+    const user = userEvent.setup();
+    render(
+      <StrictMode>
+        <App />
+      </StrictMode>
+    );
+
+    await user.click(screen.getByRole("button", { name: "刪除練習紀錄" }));
+    await user.click(screen.getByRole("checkbox", { name: "我了解此操作不可復原" }));
+    await user.click(screen.getByRole("button", { name: "刪除" }));
+
+    await waitFor(() => expect(deletionTest.deleteRemoteCalls).toBe(1));
+    expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
   });
 
 });

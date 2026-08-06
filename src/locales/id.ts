@@ -483,6 +483,17 @@ export const id: Copy = {
     authUnavailable: "Layanan masuk tidak tersedia",
     signOutFailed: "Gagal keluar"
   },
+  deleteHistoryLabel: "Hapus riwayat latihan",
+  deleteHistoryTitle: "Hapus riwayat latihan",
+  deleteHistoryDescription:
+    "Ini menghapus jawaban latihan yang tersinkron ke akun ini dan membersihkan catatan latihan serta kemajuan titik lemah/pengulangan di perangkat ini. Akun, bookmark, bahasa, dan pengaturan tampilan tidak dihapus. Tindakan ini tidak dapat dibatalkan.",
+  deleteHistoryConfirm: "Hapus",
+  deleteHistoryConfirming: "Menghapus…",
+  deleteHistoryCancel: "Batal",
+  deleteHistoryClose: "Tutup dialog",
+  deleteHistoryCheckbox: "Saya memahami tindakan ini tidak dapat dibatalkan",
+  deleteHistorySuccess: "Riwayat latihan dihapus",
+  deleteHistoryError: "Penghapusan gagal. Silakan coba lagi.",
   partOfSpeech: {
     verb: "Kata kerja",
     i_adjective: "Kata sifat-い",

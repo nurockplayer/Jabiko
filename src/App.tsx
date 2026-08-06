@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BookA,
   BookOpen,
@@ -31,6 +31,7 @@ import { RouteErrorBoundary } from "./components/RouteErrorBoundary";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { JabikoMark } from "./components/JabikoMark";
 import { MoreMenu, type MoreMenuNavItem } from "./components/MoreMenu";
+import { DeletePracticeHistoryDialog } from "./components/DeletePracticeHistoryDialog";
 import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
 import { useFurigana } from "./hooks/useFurigana";
@@ -293,11 +294,45 @@ export default function App() {
   // attempt history into the local store and pushes the local-only delta.
   // `syncStatus` feeds the honest auth hint below (never says "synced"
   // until a login merge has actually completed -- #151).
-  const { progressAttempts, recordAttempt, syncStatus } = useProgressAttempts(user);
+  const { progressAttempts, recordAttempt, syncStatus, historyDeletionStatus, deleteSyncedPracticeHistory } =
+    useProgressAttempts(user);
   // Lightweight, pool-free count for the home/learn review badge (see
   // countMistakes). The full review queue -- which needs the question pool to
   // resolve items -- is built inside the lazy challenge view.
   const reviewCount = useMemo(() => countMistakes(progressAttempts), [progressAttempts]);
+  // #693: ONE shared delete-history dialog instance, opened by both the
+  // desktop heading-auth action and the mobile 更多 menu entry. The entry
+  // clicks record the actual trigger as the return-focus target and flip
+  // `deletionOpen`; the dialog closes itself on success/cancel, and a failed
+  // delete stays open with a retryable error. `deletionSuccess` is a one-shot
+  // flag so the localized success status stays readable until the learner
+  // navigates or reopens the dialog.
+  const [deletionOpen, setDeletionOpen] = useState(false);
+  const [deletionSuccess, setDeletionSuccess] = useState(false);
+  const deleteHistoryReturnRef = useRef<HTMLButtonElement | null>(null);
+  const openDeleteHistory = useCallback((trigger: HTMLButtonElement) => {
+    deleteHistoryReturnRef.current = trigger;
+    setDeletionSuccess(false);
+    setDeletionOpen(true);
+  }, []);
+  const handleDeleteHistoryConfirm = useCallback(async (): Promise<boolean> => {
+    const ok = await deleteSyncedPracticeHistory();
+    if (ok) {
+      setDeletionSuccess(true);
+    }
+    return ok;
+  }, [deleteSyncedPracticeHistory]);
+  // If the user logs out / the account disappears mid-delete, collapse the
+  // dialog and clear the success status (the protocol is user-scoped; nothing
+  // left to confirm and the old account's "deleted" status must not linger).
+  // Note: a failed delete must NOT collapse the dialog -- the dialog stays
+  // open with its retryable error until the learner dismisses or retries.
+  useEffect(() => {
+    if (!user) {
+      setDeletionOpen(false);
+      setDeletionSuccess(false);
+    }
+  }, [user]);
   // The drill the challenge view starts with on its next mount. Set by
   // the "start X" actions just before navigating; undefined = the default
   // basic drill. Read once when ChallengePanel mounts (it owns the
@@ -486,6 +521,29 @@ export default function App() {
           onClose={() => setFeedbackKind(null)}
         />
       ) : null}
+      {deletionSuccess ? (
+        <p className="delete-history-status" role="status" aria-live="polite">
+          {t.deleteHistorySuccess}
+        </p>
+      ) : null}
+      <DeletePracticeHistoryDialog
+        open={deletionOpen}
+        status={historyDeletionStatus}
+        onConfirm={handleDeleteHistoryConfirm}
+        onClose={() => setDeletionOpen(false)}
+        returnFocusRef={deleteHistoryReturnRef}
+        copy={{
+          title: t.deleteHistoryTitle,
+          description: t.deleteHistoryDescription,
+          confirmLabel: t.deleteHistoryConfirm,
+          confirmDeleting: t.deleteHistoryConfirming,
+          cancelLabel: t.deleteHistoryCancel,
+          closeLabel: t.deleteHistoryClose,
+          checkboxLabel: t.deleteHistoryCheckbox,
+          success: t.deleteHistorySuccess,
+          error: t.deleteHistoryError
+        }}
+      />
       {/* #608: non-home views compress the heading to a one-line brand bar on
           phones (CSS-only; desktop and the home hero keep the full intro). */}
       <div
@@ -524,6 +582,15 @@ export default function App() {
                   {t.authSignIn}
                 </button>
               )}
+              {user ? (
+                <button
+                  type="button"
+                  className="delete-history-text-action"
+                  onClick={(event) => openDeleteHistory(event.currentTarget)}
+                >
+                  {t.deleteHistoryLabel}
+                </button>
+              ) : null}
               {authError ? (
                 <span className="heading-auth-error" role="alert">
                   {t.authErrors[authError]}
@@ -693,7 +760,9 @@ export default function App() {
                   signInLabel: t.authSignIn,
                   signOutLabel: t.authSignOut,
                   onSignIn: signInWithGoogle,
-                  onSignOut: signOut
+                  onSignOut: signOut,
+                  deleteHistoryLabel: t.deleteHistoryLabel,
+                  onDeleteHistory: openDeleteHistory
                 }
               : undefined
           }}
