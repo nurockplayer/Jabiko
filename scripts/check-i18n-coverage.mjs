@@ -46,6 +46,19 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+// Reusable TypeScript-AST overlay audit core (#422/#695). The CLI only consumes
+// the adapters' records / counts / diagnostics -- it never re-parses AST or maps
+// content-system keys itself.
+import {
+  auditExamOverlays,
+  auditGrammarNoteOverlays,
+  auditKanjiOnyomiOverlays,
+  auditLearningBlockOverlays,
+  auditSentencePatternOverlays,
+  parseLaunchedLocales,
+  parseTypeScriptFile,
+  runOverlayAdapters
+} from "./i18n-overlay-audit.mjs";
 
 // Inlined locale constants (formerly from ./_locales.mjs)
 const SOURCE_LOCALE = "zh-Hant";
@@ -53,7 +66,12 @@ const LOCALE_CODES = ["zh-Hant", "ja", "en", "th", "id", "ko", "vi", "my"];
 const HAN_LOCALES = new Set([SOURCE_LOCALE, "ja"]);
 const NON_HAN_LOCALES = new Set(LOCALE_CODES.filter((code) => !HAN_LOCALES.has(code)));
 
-const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// Repo root. JABIKO_I18N_REPO_ROOT lets a spawned CLI audit a temporary fixture
+// repository (tests); production always derives from this file's location so
+// cwd never matters.
+const REPO_ROOT = process.env.JABIKO_I18N_REPO_ROOT
+  ? path.resolve(process.env.JABIKO_I18N_REPO_ROOT)
+  : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const LOCALES_DIR = path.join(REPO_ROOT, "src", "locales");
 const EXAM_ITEMS_DIR = path.join(REPO_ROOT, "src", "domain", "exam", "items");
 // SOURCE_LOCALE + NON_HAN_LOCALES come from the single locale registry (#434):
@@ -178,6 +196,119 @@ function scanContentGap() {
   return { examItems: items, examChineseFields: totalChineseFields, byLevel };
 }
 
+// ---------------------------------------------------------------------------
+// Overlay audit (issue #422 / #699)
+// ---------------------------------------------------------------------------
+// Runs the five content-system overlay adapters from i18n-overlay-audit.mjs
+// against the real repo and returns the merged, sorted records plus per-system
+// and per-locale counts plus parse diagnostics. The CLI itself never touches
+// ASTs or content key mappings: it only consumes the adapters' report.
+//
+// Record shape (documented in i18n-overlay-audit.mjs):
+//   { system, locale, sourceKey, overlayKey, status: "missing" | "dangling" }
+//   - missing:  a source key with no overlay entry for that locale
+//   - dangling: an overlay key with no matching source key
+//
+// Overlay systems (fixed order, matches the core's OVERLAY_SYSTEMS). The CLI
+// uses this only to render a stable per-system summary (including 0-record
+// systems); the actual key sets come entirely from the adapters.
+const OVERLAY_SYSTEMS = [
+  "exam",
+  "learningBlocks",
+  "grammarNotes",
+  "sentencePatterns",
+  "kanjiOnyomi"
+];
+
+function runOverlayAudit() {
+  const i18nSourceFile = parseTypeScriptFile(path.join(REPO_ROOT, "src", "i18n.ts"));
+  const { sourceLocale, targetLocales } = parseLaunchedLocales(i18nSourceFile);
+
+  const adapters = [
+    ({ repoRoot, targetLocales: locales }) => auditExamOverlays({ repoRoot, targetLocales: locales }),
+    ({ repoRoot, targetLocales: locales }) => auditLearningBlockOverlays({ repoRoot, targetLocales: locales }),
+    ({ repoRoot, targetLocales: locales }) => auditGrammarNoteOverlays({ repoRoot, targetLocales: locales }),
+    ({ repoRoot, targetLocales: locales }) => auditSentencePatternOverlays({ repoRoot, targetLocales: locales }),
+    ({ repoRoot, targetLocales: locales }) => auditKanjiOnyomiOverlays({ repoRoot, targetLocales: locales })
+  ];
+
+  const report = runOverlayAdapters(adapters, {
+    repoRoot: REPO_ROOT,
+    targetLocales
+  });
+
+  const records = report.records; // already sorted by the core
+  const counts = {
+    total: records.length,
+    missing: records.filter((r) => r.status === "missing").length,
+    dangling: records.filter((r) => r.status === "dangling").length
+  };
+
+  // Fill every overlay system (including zero-record systems) so the summary
+  // always shows all five counts in a stable order.
+  const perSystem = {};
+  for (const system of OVERLAY_SYSTEMS) {
+    perSystem[system] = report.counts.bySystem[system] ?? { total: 0, missing: 0, dangling: 0 };
+  }
+
+  return {
+    sourceLocale,
+    targetLocales,
+    records,
+    counts,
+    hasMissing: counts.missing > 0,
+    hasDangling: counts.dangling > 0,
+    diagnostics: report.diagnostics,
+    perSystem,
+    perLocale: report.counts.byLocale
+  };
+}
+
+/** Render the human-facing overlay audit section. Never called for --json.
+ *  Output order is fixed: systems + counts first, then every record in the
+ *  canonical sort order (system -> locale -> sourceKey -> overlayKey -> status)
+ *  with a WARNING (missing) / ERROR (dangling) tag. Diagnostics are rendered
+ *  file-relative so a temp fixture repo never leaks absolute paths. */
+function printOverlayAudit(overlay) {
+  console.log(`\nOverlay audit (source = ${overlay.sourceLocale}):`);
+  console.log(`  target locales: ${overlay.targetLocales.join(", ")}`);
+  for (const system of OVERLAY_SYSTEMS) {
+    const c = overlay.perSystem[system];
+    console.log(
+      `  ${system}: ${c.total} record(s) (${c.missing} missing, ${c.dangling} dangling)`
+    );
+  }
+
+  // AST parse / unsafe-shape failures are audit FAILURES (exit 1), never
+  // missing warnings. Paths are rendered relative to the repo root.
+  if (overlay.diagnostics.length > 0) {
+    console.log(`\n  overlay audit failure -- ${overlay.diagnostics.length} parse error(s):`);
+    for (const d of overlay.diagnostics) {
+      const file = d.file ? path.relative(REPO_ROOT, d.file) : "";
+      const where = file ? ` at ${file}${d.line ? `:${d.line}` : ""}` : "";
+      console.log(`    ERROR${where}: ${d.message}`);
+      if (d.context) console.log(`      context: ${d.context}`);
+    }
+    return;
+  }
+
+  if (overlay.records.length === 0) {
+    console.log("\n  overlay audit passed");
+    return;
+  }
+
+  // Every record in canonical sort order; missing is a WARNING (exit 0 overall
+  // when no dangling exists), dangling is an ERROR (exit 1 overall).
+  console.log(`\n  ${overlay.counts.total} overlay audit record(s):`);
+  for (const r of overlay.records) {
+    if (r.status === "missing") {
+      console.log(`    WARNING [${r.locale}] ${r.system}.${r.sourceKey}  (overlay key missing)`);
+    } else {
+      console.log(`    ERROR [${r.locale}] ${r.system}.${r.overlayKey}  (no matching source)`);
+    }
+  }
+}
+
 function main() {
   let opts;
   try {
@@ -193,6 +324,7 @@ function main() {
 
   const ui = scanUiCopy();
   const content = scanContentGap();
+  const overlay = runOverlayAudit();
 
   const report = {
     generatedAtNote: "stamp added by caller; Date.* avoided for determinism",
@@ -205,6 +337,14 @@ function main() {
       residualReview: ui.residualReview, // Han in Latin/Thai locale: usually intentional Japanese, review only
     },
     content,
+    // Merged overlay audit (#422/#699): records + counts + flags. The CLI
+    // consumes these from the adapters -- it never derives them itself.
+    overlayAudit: {
+      records: overlay.records,
+      counts: overlay.counts,
+      hasMissing: overlay.hasMissing,
+      hasDangling: overlay.hasDangling
+    },
   };
 
   if (opts.output) {
@@ -214,6 +354,8 @@ function main() {
 
   if (opts.json) {
     console.log(JSON.stringify(report, null, 2));
+    // exit code still follows dangling / parse-failure semantics
+    if (overlay.counts.dangling > 0 || overlay.diagnostics.length > 0) process.exit(1);
     return;
   }
 
@@ -242,6 +384,15 @@ function main() {
     console.log(`    ${lvl}: ${c.items} items, ${c.chineseFields} Chinese fields`);
   }
   console.log(`  NOTE: localising content needs a per-locale translation schema (issue #378 section 6) -- design decision, not auto-translatable yet.`);
+
+  // overlay audit: systems/counts first, then records (fixed order)
+  printOverlayAudit(overlay);
+
+  // missing is a warning (exit 0 overall); dangling / parse failure is an
+  // error (exit 1 overall)
+  if (overlay.counts.dangling > 0 || overlay.diagnostics.length > 0) {
+    process.exit(1);
+  }
 }
 
 main();
