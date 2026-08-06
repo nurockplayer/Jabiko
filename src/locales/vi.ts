@@ -133,7 +133,7 @@ export const vi: Copy = {
   homeCardChallengeSub: "Ba nhóm chế độ: vòng luyện hằng ngày · ngân hàng đề N1–N4 · luyện chuyên sâu.",
   homeCardChallengeMeta: "Tự chọn cấp độ JLPT và dạng câu hỏi",
   homeCardMockTitle: "Luyện theo dạng đề JLPT",
-  homeCardMockSub: "Các phần JLPT N1〜N3, đi qua từng phần theo cấu trúc chính thức.",
+  homeCardMockSub: "Các phần JLPT N1〜N5, đi qua từng phần theo cấu trúc chính thức.",
   homeCardMockMeta: "Theo cấu trúc phần thi chính thức",
   homeCardReviewTitle: "Ôn điểm yếu",
   homeCardReviewSubActive: (count) => `${count} câu đang chờ bạn làm cho đúng.`,

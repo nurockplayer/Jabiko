@@ -133,7 +133,7 @@ export const zhHant: Copy = {
   homeCardChallengeSub: "三組模式：每日循環 · 備考題庫 · 專項練習。",
   homeCardChallengeMeta: "自由選 JLPT 等級與題型",
   homeCardMockTitle: "JLPT 題型練習",
-  homeCardMockSub: "JLPT N1〜N3 題型分區，照官方結構逐區攻略。",
+  homeCardMockSub: "JLPT N1〜N5 題型分區，照官方結構逐區攻略。",
   homeCardMockMeta: "依官方題型結構",
   homeCardReviewTitle: "弱點複習",
   homeCardReviewSubActive: (count) => `${count} 題等你重練到對。`,

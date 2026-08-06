@@ -240,6 +240,36 @@ describe("buildPracticeQuestions", () => {
     expect(questions.every((q) => q.promptLabel === promptLabel)).toBe(true);
   });
 
+  it("exam mode (N4 mock section): filters to the N4 level + promptLabel (#703)", () => {
+    const n4 = buildExamQuestionPool("N4");
+    const sample = n4.find((q) => q.promptLabel);
+    expect(sample).toBeDefined();
+    const promptLabel = sample!.promptLabel!;
+
+    const questions = buildPracticeQuestions(
+      poolParams({ mode: "exam", examSection: { level: "N4", promptLabel } })
+    );
+
+    expect(questions.length).toBeGreaterThan(0);
+    expect(questions.every((q) => q.vocabulary.level === "N4")).toBe(true);
+    expect(questions.every((q) => q.promptLabel === promptLabel)).toBe(true);
+  });
+
+  it("exam mode (N5 mock section): filters to the N5 level + promptLabel (#703)", () => {
+    const n5 = buildExamQuestionPool("N5");
+    const sample = n5.find((q) => q.promptLabel);
+    expect(sample).toBeDefined();
+    const promptLabel = sample!.promptLabel!;
+
+    const questions = buildPracticeQuestions(
+      poolParams({ mode: "exam", examSection: { level: "N5", promptLabel } })
+    );
+
+    expect(questions.length).toBeGreaterThan(0);
+    expect(questions.every((q) => q.vocabulary.level === "N5")).toBe(true);
+    expect(questions.every((q) => q.promptLabel === promptLabel)).toBe(true);
+  });
+
   it("cloze mode: returns the cloze pool (same membership)", () => {
     const questions = buildPracticeQuestions(poolParams({ mode: "cloze" }));
     const expected = buildClozeQuestionPool(clozeSentences, vocabulary);
