@@ -484,6 +484,17 @@ export const th: Copy = {
     authUnavailable: "บริการเข้าสู่ระบบไม่พร้อมใช้งาน",
     signOutFailed: "ออกจากระบบไม่สำเร็จ"
   },
+  deleteHistoryLabel: "ลบประวัติการฝึก",
+  deleteHistoryTitle: "ลบประวัติการฝึก",
+  deleteHistoryDescription:
+    "การดำเนินการนี้จะลบบันทึกคำตอบที่ซิงก์กับบัญชีนี้ และล้างบันทึกการฝึกและความคืบหน้าจุดอ่อน/ทบทวนบนอุปกรณ์นี้ บัญชี รายการโปรด ภาษา และการตั้งค่ารูปลักษณ์จะไม่ถูกลบ การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+  deleteHistoryConfirm: "ลบ",
+  deleteHistoryConfirming: "กำลังลบ…",
+  deleteHistoryCancel: "ยกเลิก",
+  deleteHistoryClose: "ปิดหน้าต่าง",
+  deleteHistoryCheckbox: "ฉันเข้าใจว่าการดำเนินการนี้ไม่สามารถย้อนกลับได้",
+  deleteHistorySuccess: "ลบประวัติการฝึกแล้ว",
+  deleteHistoryError: "การลบล้มเหลว กรุณาลองอีกครั้ง",
   partOfSpeech: {
     verb: "คำกริยา",
     i_adjective: "คำคุณศัพท์ い",

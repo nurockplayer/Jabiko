@@ -483,6 +483,17 @@ export const en: Copy = {
     authUnavailable: "Sign-in service unavailable",
     signOutFailed: "Sign-out failed"
   },
+  deleteHistoryLabel: "Delete practice history",
+  deleteHistoryTitle: "Delete practice history",
+  deleteHistoryDescription:
+    "This deletes the practice answers synced to this account and clears this device's practice records and weak-point/review progress. Your account, bookmarks, language and appearance settings are not deleted. This action cannot be undone.",
+  deleteHistoryConfirm: "Delete",
+  deleteHistoryConfirming: "Deleting…",
+  deleteHistoryCancel: "Cancel",
+  deleteHistoryClose: "Close dialog",
+  deleteHistoryCheckbox: "I understand this action cannot be undone",
+  deleteHistorySuccess: "Practice history deleted",
+  deleteHistoryError: "Deletion failed. Please try again.",
   partOfSpeech: {
     verb: "Verb",
     i_adjective: "い-adjective",

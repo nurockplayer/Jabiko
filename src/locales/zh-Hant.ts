@@ -483,6 +483,17 @@ export const zhHant: Copy = {
     authUnavailable: "登入服務不可用",
     signOutFailed: "登出失敗"
   },
+  deleteHistoryLabel: "刪除練習紀錄",
+  deleteHistoryTitle: "刪除練習紀錄",
+  deleteHistoryDescription:
+    "這會刪除此帳號已同步的練習作答紀錄，並清除此裝置的練習紀錄與弱點／複習進度。帳號、收藏、語言與外觀設定不會刪除，此操作不可復原。",
+  deleteHistoryConfirm: "刪除",
+  deleteHistoryConfirming: "刪除中…",
+  deleteHistoryCancel: "取消",
+  deleteHistoryClose: "關閉視窗",
+  deleteHistoryCheckbox: "我了解此操作不可復原",
+  deleteHistorySuccess: "練習紀錄已刪除",
+  deleteHistoryError: "刪除失敗，請再試一次。",
   partOfSpeech: {
     verb: "動詞",
     i_adjective: "い形容詞",

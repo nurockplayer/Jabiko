@@ -1,5 +1,5 @@
 import { useCallback, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { ChevronDown, Globe, Languages, LogIn, LogOut, MessageCircle, SunMoon } from "lucide-react";
+import { ChevronDown, Globe, Languages, LogIn, LogOut, MessageCircle, SunMoon, Trash2 } from "lucide-react";
 
 // #608: the mobile nav keeps five primary entries; the rest of the site lives
 // behind this 更多 menu -- secondary views first, then the header tools
@@ -30,6 +30,11 @@ export interface MoreMenuTools {
     signOutLabel: string;
     onSignIn: () => void;
     onSignOut: () => void;
+    /** #693: text action to open the shared delete-history dialog (#693).
+     *  Receives the trigger button so App can record it as the return-focus
+     *  target. Only rendered while signed in. */
+    deleteHistoryLabel: string;
+    onDeleteHistory: (trigger: HTMLButtonElement) => void;
   };
 }
 
@@ -65,7 +70,8 @@ export function MoreMenu({
     "tool-furigana",
     "tool-theme",
     "tool-feedback",
-    tools.auth ? "tool-auth" : null
+    tools.auth ? "tool-auth" : null,
+    tools.auth?.signedInAs ? "tool-delete-history" : null
   ].filter((key): key is string => key !== null);
 
   const allKeys = useCallback(() => [...items.map((item) => item.key), ...toolKeys], [items, toolKeys]);
@@ -298,6 +304,28 @@ export function MoreMenu({
                   {tools.auth.signInLabel}
                 </button>
               )}
+              {tools.auth.signedInAs ? (
+                <button
+                  type="button"
+                  role="menuitem"
+                  data-menu-key="tool-delete-history"
+                  tabIndex={rove("tool-delete-history")}
+                  className="nav-more-item nav-more-danger"
+                  onClick={(event) => {
+                    // Action first, then close (the menu's closeAnd contract):
+                    // App records the persistent 更多 trigger as the return-focus
+                    // target and opens the shared dialog; closeMenu collapses
+                    // this panel (its items unmount, so the item button itself
+                    // can never be a focus target again).
+                    const target = triggerRef.current ?? event.currentTarget;
+                    tools.auth!.onDeleteHistory(target);
+                    closeMenu({ returnFocus: false });
+                  }}
+                >
+                  <Trash2 aria-hidden="true" size={16} />
+                  {tools.auth.deleteHistoryLabel}
+                </button>
+              ) : null}
               {tools.auth.signedInAs || tools.auth.hint ? (
                 <p className="nav-more-hint">
                   {tools.auth.signedInAs ? <span>{tools.auth.signedInAs}</span> : null}

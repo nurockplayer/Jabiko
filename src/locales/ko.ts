@@ -483,6 +483,17 @@ export const ko: Copy = {
     authUnavailable: "로그인 서비스를 사용할 수 없습니다",
     signOutFailed: "로그아웃에 실패했습니다"
   },
+  deleteHistoryLabel: "연습 기록 삭제",
+  deleteHistoryTitle: "연습 기록 삭제",
+  deleteHistoryDescription:
+    "이 계정에 동기화된 연습 답안 기록을 삭제하고 이 기기의 연습 기록과 약점·복습 진행 상황을 지웁니다. 계정, 북마크, 언어 및 표시 설정은 삭제되지 않습니다. 이 작업은 되돌릴 수 없습니다.",
+  deleteHistoryConfirm: "삭제",
+  deleteHistoryConfirming: "삭제 중…",
+  deleteHistoryCancel: "취소",
+  deleteHistoryClose: "대화상자 닫기",
+  deleteHistoryCheckbox: "이 작업은 되돌릴 수 없다는 것을 이해합니다",
+  deleteHistorySuccess: "연습 기록이 삭제되었습니다",
+  deleteHistoryError: "삭제에 실패했습니다. 다시 시도해 주세요.",
   partOfSpeech: {
     verb: "동사",
     i_adjective: "い형용사",
