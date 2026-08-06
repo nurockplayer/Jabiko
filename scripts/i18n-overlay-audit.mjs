@@ -981,3 +981,366 @@ export function auditLearningBlockOverlays({ repoRoot, targetLocales }) {
 
   return sortAuditRecords(records);
 }
+
+// ---------------------------------------------------------------------------
+// Sentence-pattern overlay adapter (#698)
+// ---------------------------------------------------------------------------
+//
+// Audits the "source item id <-> overlay first-level item key" mapping for the
+// sentence-patterns system.
+//
+//   source:  the object elements of every `SentencePatternItem[]`-typed array
+//            literal in src/domain/sentencePatterns.ts
+//   overlay: the first-level keys of the `sentencePatternI18n` record in
+//            src/domain/sentencePatterns.i18n.ts
+//   key:     the SentencePatternItem.id
+//
+// A source element is only counted when it is statically resolvable AND
+// learner-facing: a non-empty static `id` plus at least one non-empty static
+// `hintZh` / `promptContextZh` / `explanation`. Pattern metadata, type-union
+// members, helper objects and comments are never scanned (the audit keys on the
+// `SentencePatternItem[]` type annotation, never on a bare `id:` property
+// search). Pure-aggregation arrays -- a typed array whose elements are all
+// spreads of already-collected typed arrays (e.g. `sentencePatternItems = [...A,
+// ...B]`) -- add no ids of their own and are skipped, because their ids are
+// audited in the leaf arrays they spread.
+//
+// The overlay set is ONLY the first-level keys of the `sentencePatternI18n`
+// object literal; nested `hintI18n` / `promptContextI18n` / `explanationI18n`
+// field keys are never flattened into item keys. The `patternInstructionI18n`
+// global instruction overlay is deliberately ignored. Only item-level key
+// coverage is checked (this ticket does not check nested per-locale field
+// completeness).
+//
+// Duplicate source ids / duplicate overlay keys, spreads, computed keys,
+// dynamic ids and any shape that cannot be statically confirmed fail closed
+// with a deterministic AuditParseError. Performs zero filesystem writes,
+// console output, network access and never calls process.exit.
+
+/** The fields that make a sentence pattern object a learner-facing item. */
+const SENTENCE_PATTERN_LEARNER_FIELDS = ["hintZh", "promptContextZh", "explanation"];
+
+/** True when a type annotation node is `SentencePatternItem[]`. */
+function isSentencePatternItemArrayType(typeNode) {
+  return (
+    typeNode !== undefined &&
+    ts.isArrayTypeNode(typeNode) &&
+    ts.isTypeReferenceNode(typeNode.elementType) &&
+    ts.isIdentifier(typeNode.elementType.typeName) &&
+    typeNode.elementType.typeName.text === "SentencePatternItem"
+  );
+}
+
+/**
+ * Collect every `SentencePatternItem[]`-typed variable whose initializer is an
+ * array literal, with its declaration name. Any other initializer shape fails
+ * closed because the runtime item set cannot be resolved statically.
+ */
+function findSentencePatternItemArrays(sourceFile) {
+  const arrays = [];
+  const visit = (node) => {
+    if (
+      ts.isVariableStatement(node) &&
+      ts.isVariableDeclarationList(node.declarationList)
+    ) {
+      for (const d of node.declarationList.declarations) {
+        if (!isSentencePatternItemArrayType(d.type)) continue;
+        if (!d.initializer || !ts.isArrayLiteralExpression(d.initializer)) {
+          throw new AuditParseError(
+            `SentencePatternItem[] declaration "${d.name.getText(sourceFile)}" must have an array-literal initializer so the audit can resolve item ids statically`,
+            { file: sourceFile.fileName, line: getLine(sourceFile, d) }
+          );
+        }
+        arrays.push({
+          name: ts.isIdentifier(d.name) ? d.name.text : null,
+          array: d.initializer
+        });
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return arrays;
+}
+
+/**
+ * Read the static `id` of a sentence pattern item object literal and whether it
+ * is learner-facing (carries at least one non-empty static hintZh /
+ * promptContextZh / explanation). Fails closed on spreads, computed / dynamic
+ * members, duplicate `id` members and shapes that cannot be statically
+ * confirmed.
+ */
+function readSentencePatternItem(elementNode, sourceFile, filePath) {
+  const sf = sourceFile ?? elementNode.getSourceFile?.();
+  const file = filePath ?? sf?.fileName;
+  if (!ts.isObjectLiteralExpression(elementNode)) {
+    throw new AuditParseError(
+      `sentence pattern item element must be an object literal, got ${ts.SyntaxKind[elementNode.kind]}`,
+      { file, line: getLine(sf, elementNode), context: elementNode.getText() }
+    );
+  }
+  let id = null;
+  let idMember = null;
+  let learnerFacing = false;
+  for (const member of elementNode.properties) {
+    if (ts.isSpreadAssignment(member)) {
+      throw new AuditParseError(
+        `object spread cannot be resolved statically in a sentence pattern item: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    if (!ts.isPropertyAssignment(member)) {
+      throw new AuditParseError(
+        `sentence pattern item members must be static property assignments: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    // Route through readStaticPropertyName so computed names (and any other
+    // non-static property-name shape) fail closed instead of being silently
+    // dropped -- the same contract the overlay-side adapter enforces.
+    const name = readStaticPropertyName(member.name, sf);
+    if (name === "id") {
+      if (idMember) {
+        throw new AuditParseError(
+          "duplicate \"id\" member in sentence pattern item",
+          { file, line: getLine(sf, member), context: member.getText() }
+        );
+      }
+      idMember = member;
+      const init = member.initializer;
+      if (!ts.isStringLiteral(init) && !ts.isNoSubstitutionTemplateLiteral(init)) {
+        throw new AuditParseError(
+          `sentence pattern item id must be a static string literal: ${init.getText(sf)}`,
+          { file, line: getLine(sf, member), context: init.getText(sf) }
+        );
+      }
+      id = init.text;
+      if (id.trim().length === 0) {
+        throw new AuditParseError(
+          "sentence pattern item id must be a non-empty string literal",
+          { file, line: getLine(sf, member) }
+        );
+      }
+      continue;
+    }
+    if (SENTENCE_PATTERN_LEARNER_FIELDS.includes(name)) {
+      const init = member.initializer;
+      if (!ts.isStringLiteral(init) && !ts.isNoSubstitutionTemplateLiteral(init)) {
+        throw new AuditParseError(
+          `${name} must be a static string literal: ${init.getText(sf)}`,
+          { file, line: getLine(sf, member), context: init.getText(sf) }
+        );
+      }
+      if (init.text.length > 0) learnerFacing = true;
+    }
+  }
+  if (id === null) {
+    throw new AuditParseError("sentence pattern item is missing a static string id", {
+      file,
+      line: getLine(sf, elementNode)
+    });
+  }
+  return { id, learnerFacing };
+}
+
+/**
+ * Resolve the `sentencePatternI18n` object literal from a SourceFile. Returns
+ * the object node when present (identifier `sentencePatternI18n`), otherwise
+ * undefined.
+ */
+function findSentencePatternOverlay(sourceFile) {
+  let found = undefined;
+  const visit = (node) => {
+    if (
+      found === undefined &&
+      ts.isVariableStatement(node) &&
+      ts.isVariableDeclarationList(node.declarationList)
+    ) {
+      for (const d of node.declarationList.declarations) {
+        if (!ts.isIdentifier(d.name) || d.name.text !== "sentencePatternI18n") continue;
+        if (ts.isObjectLiteralExpression(d.initializer)) found = d.initializer;
+        break;
+      }
+    }
+    if (found === undefined) ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+/**
+ * Collect the first-level item keys of the `sentencePatternI18n` object literal,
+ * in declaration order. Each entry value must be an object literal; the nested
+ * `hintI18n` / `promptContextI18n` / `explanationI18n` field keys are never
+ * read, so they can never be mistaken for item keys. Spreads, computed keys,
+ * non-property members and duplicate keys fail closed.
+ */
+function collectSentencePatternOverlayKeys(overlayNode, sourceFile, filePath) {
+  const sf = sourceFile ?? overlayNode.getSourceFile?.();
+  const file = filePath ?? sf?.fileName;
+  if (!ts.isObjectLiteralExpression(overlayNode)) {
+    throw new AuditParseError(
+      `sentencePatternI18n must be an object literal, got ${ts.SyntaxKind[overlayNode.kind]}`,
+      { file, line: getLine(sf, overlayNode) }
+    );
+  }
+  const keys = [];
+  const seen = new Set();
+  for (const member of overlayNode.properties) {
+    if (ts.isSpreadAssignment(member)) {
+      throw new AuditParseError(
+        `object spread cannot be resolved statically: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    if (!ts.isPropertyAssignment(member)) {
+      throw new AuditParseError(
+        `sentencePatternI18n entries must be static property assignments: ${member.getText()}`,
+        { file, line: getLine(sf, member), context: member.getText() }
+      );
+    }
+    const key = readStaticPropertyName(member.name, sf);
+    if (seen.has(key)) {
+      throw new AuditParseError(`duplicate overlay item key "${key}"`, {
+        file,
+        line: getLine(sf, member),
+        context: key
+      });
+    }
+    seen.add(key);
+    const value = member.initializer;
+    if (!ts.isObjectLiteralExpression(value)) {
+      throw new AuditParseError(
+        `overlay entry "${key}" must be an object literal mapping overlay fields to locales`,
+        { file, line: getLine(sf, member), context: key }
+      );
+    }
+    keys.push(key);
+  }
+  return keys;
+}
+
+/**
+ * Audit the source/overlay first-level item key mapping for the
+ * sentence-patterns system and return the overlay audit records (system
+ * "sentencePatterns") for every learner-facing item id and every target locale.
+ *
+ *   - The source set is the static `id` of every learner-facing element of every
+ *     `SentencePatternItem[]` array literal. Non-object elements, missing /
+ *     empty / dynamic ids, item-level spreads and duplicate ids fail closed.
+ *     Pure-aggregation arrays are skipped.
+ *   - The overlay set is the first-level keys of the `sentencePatternI18n`
+ *     object literal; nested field keys are never flattened. Spreads, computed
+ *     keys, duplicate keys and non-object entry values fail closed.
+ *   - For each target locale, a source id with no overlay key is `missing`; an
+ *     overlay key with no source id is `dangling`. The common record shape,
+ *     sorting and counts come from #695; the system is fixed to
+ *     "sentencePatterns". Target locales must come from the launched registry;
+ *     this adapter never hardcodes one.
+ *
+ * Returns records sorted by the canonical `sortAuditRecords` order. Performs
+ * zero filesystem writes, console output, network access and never calls
+ * process.exit.
+ */
+export function auditSentencePatternOverlays({ repoRoot, targetLocales }) {
+  if (typeof repoRoot !== "string" || repoRoot.length === 0) {
+    throw new Error("auditSentencePatternOverlays requires a non-empty repoRoot directory");
+  }
+  if (
+    !Array.isArray(targetLocales) ||
+    !targetLocales.every((l) => typeof l === "string" && l.length > 0)
+  ) {
+    throw new Error(
+      "auditSentencePatternOverlays requires targetLocales to be an array of locale strings"
+    );
+  }
+  const locales = [...new Set(targetLocales)];
+
+  const sourcePath = `${repoRoot}/src/domain/sentencePatterns.ts`;
+  const overlayPath = `${repoRoot}/src/domain/sentencePatterns.i18n.ts`;
+
+  const sourceFile = parseTypeScriptFile(sourcePath);
+  const overlayFile = parseTypeScriptFile(overlayPath);
+
+  const arrays = findSentencePatternItemArrays(sourceFile);
+  if (arrays.length === 0) {
+    throw new AuditParseError(
+      "no SentencePatternItem[] array literal found; cannot resolve sentence pattern item ids",
+      { file: sourcePath }
+    );
+  }
+  const arrayNames = new Set(arrays.map((a) => a.name).filter((n) => n !== null));
+
+  // --- source: learner-facing static item ids -------------------------------
+  const sourceKeys = [];
+  const seenIds = new Set();
+  for (const { array } of arrays) {
+    // Pure-aggregation arrays add no ids of their own; the leaf arrays they
+    // spread are audited separately.
+    if (
+      array.elements.length > 0 &&
+      array.elements.every(
+        (el) => ts.isSpreadElement(el) && ts.isIdentifier(el.expression) && arrayNames.has(el.expression.text)
+      )
+    ) {
+      continue;
+    }
+    for (const element of array.elements) {
+      if (ts.isSpreadElement(element)) {
+        throw new AuditParseError(
+          `spread element cannot be resolved statically in a sentence pattern item array: ${element.getText()}`,
+          { file: sourcePath, line: getLine(sourceFile, element), context: element.getText() }
+        );
+      }
+      const { id, learnerFacing } = readSentencePatternItem(element, sourceFile, sourcePath);
+      if (!learnerFacing) continue;
+      if (seenIds.has(id)) {
+        throw new AuditParseError(`duplicate sentence pattern item id "${id}"`, {
+          file: sourcePath,
+          context: id
+        });
+      }
+      seenIds.add(id);
+      sourceKeys.push(id);
+    }
+  }
+
+  // --- overlay: first-level item keys ---------------------------------------
+  const overlayObject = findSentencePatternOverlay(overlayFile);
+  if (!overlayObject) {
+    throw new AuditParseError("sentencePatternI18n object literal not found", {
+      file: overlayPath
+    });
+  }
+  const overlayKeys = collectSentencePatternOverlayKeys(overlayObject, overlayFile, overlayPath);
+  const overlaySet = new Set(overlayKeys);
+
+  // --- per-target-locale comparison -----------------------------------------
+  const records = [];
+  for (const locale of locales) {
+    for (const sourceKey of sourceKeys) {
+      if (!overlaySet.has(sourceKey)) {
+        records.push({
+          system: "sentencePatterns",
+          locale,
+          sourceKey,
+          overlayKey: "",
+          status: "missing"
+        });
+      }
+    }
+    for (const overlayKey of overlayKeys) {
+      if (!seenIds.has(overlayKey)) {
+        records.push({
+          system: "sentencePatterns",
+          locale,
+          sourceKey: "",
+          overlayKey,
+          status: "dangling"
+        });
+      }
+    }
+  }
+
+  return sortAuditRecords(records);
+}

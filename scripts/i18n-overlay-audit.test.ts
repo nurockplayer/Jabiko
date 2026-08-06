@@ -13,6 +13,7 @@ import {
   auditExamOverlays,
   auditKeySets,
   auditLearningBlockOverlays,
+  auditSentencePatternOverlays,
   collectStaticObjectKeys,
   parseLaunchedLocales,
   parseTypeScriptFile,
@@ -969,6 +970,285 @@ describe("auditLearningBlockOverlays (#697)", () => {
     const mkdirSpy = vi.spyOn(fs, "mkdirSync");
     try {
       const records = auditLearningBlockOverlays({ repoRoot, targetLocales: ["en", "ja"] });
+      expect(records).toEqual([]);
+      expect(writeSpy).not.toHaveBeenCalled();
+      expect(mkdirSpy).not.toHaveBeenCalled();
+    } finally {
+      writeSpy.mockRestore();
+      mkdirSpy.mockRestore();
+    }
+  });
+});
+
+describe("auditSentencePatternOverlays (#698)", () => {
+  /** Repo-style fixture tree rooted at tmpDir/src/domain. */
+  function writeSentencePatternFixtures(sourceText: string, overlayText: string): void {
+    fs.mkdirSync(path.join(tmpDir, "src", "domain"), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, "src", "domain", "sentencePatterns.ts"), sourceText);
+    fs.writeFileSync(path.join(tmpDir, "src", "domain", "sentencePatterns.i18n.ts"), overlayText);
+  }
+
+  /** An `Item: SentencePatternItem[]` typed array declaration. */
+  const ARRAY = (name: string, items: string): string =>
+    `const ${name}: SentencePatternItem[] = [${items}];`;
+  /** A learner-facing SentencePatternItem object literal with a non-empty id. */
+  const ITEM = (id: string): string =>
+    `{ id: "${id}", patternId: "starter-desu", promptText: "あ、___。", hintZh: "提示", promptContextZh: "情境", expectedAnswer: "です", options: ["です"], explanation: "解說" }`;
+  const OVERLAY = (entries: string): string =>
+    `export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {${entries}};`;
+  const ENTRY = (id: string, locales: string): string =>
+    `"${id}": { "hintI18n": { ${locales} }, "promptContextI18n": { ${locales} }, "explanationI18n": { ${locales} } }`;
+  const PAIRS = `"en": "E", "ja": "J"`;
+  const SRC_WITH_TYPE = (name: string, items: string): string =>
+    `type SentencePatternItem = { id: string; hintZh: string; promptContextZh: string; explanation: string; };\n${ARRAY(name, items)}`;
+
+  beforeAll(() => {
+    fs.mkdirSync(path.join(tmpDir, "src", "domain"), { recursive: true });
+  });
+
+  it("yields zero records when every source item id has a first-level overlay key", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE(
+        "STARTER_ITEMS",
+        ITEM("pattern-a-001") + ITEM("pattern-b-001") + ITEM("pattern-c-001")
+      ),
+      OVERLAY(ENTRY("pattern-a-001", PAIRS) + ENTRY("pattern-b-001", PAIRS) + ENTRY("pattern-c-001", PAIRS))
+    );
+    expect(
+      auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("reports a missing record per target locale for a source item with no overlay entry", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE("STARTER_ITEMS", ITEM("pattern-a-001") + ITEM("pattern-b-001")),
+      OVERLAY(ENTRY("pattern-b-001", PAIRS))
+    );
+    expect(
+      auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([
+      { system: "sentencePatterns", locale: "en", sourceKey: "pattern-a-001", overlayKey: "", status: "missing" },
+      { system: "sentencePatterns", locale: "ja", sourceKey: "pattern-a-001", overlayKey: "", status: "missing" }
+    ]);
+  });
+
+  it("reports a dangling record for an overlay key with no source item id", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE("STARTER_ITEMS", ITEM("pattern-a-001")),
+      OVERLAY(ENTRY("pattern-a-001", PAIRS) + ENTRY("pattern-deleted-001", PAIRS))
+    );
+    expect(
+      auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([
+      { system: "sentencePatterns", locale: "en", sourceKey: "", overlayKey: "pattern-deleted-001", status: "dangling" },
+      { system: "sentencePatterns", locale: "ja", sourceKey: "", overlayKey: "pattern-deleted-001", status: "dangling" }
+    ]);
+  });
+
+  it("ignores the patternInstructionI18n global instruction overlay", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE("STARTER_ITEMS", ITEM("pattern-a-001")),
+      [
+        'export const patternInstructionI18n = { en: "Choose.", ja: "選んで。" };',
+        OVERLAY(ENTRY("pattern-a-001", PAIRS))
+      ].join("\n")
+    );
+    // The global instruction overlay's own locale keys (en / ja) must never be
+    // read as item keys, and it must not fabricate phantom source keys.
+    expect(
+      auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("never flattens nested hintI18n / promptContextI18n / explanationI18n keys into item keys", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE("STARTER_ITEMS", ITEM("pattern-a-001")),
+      // The nested field names must not be treated as item keys even though the
+      // "hintI18n" field name equals an item's own identifier.
+      OVERLAY(`"hintI18n": { "en": "N", "ja": "N" }, "pattern-a-001": { "hintI18n": { ${PAIRS} } }`)
+    );
+    expect(
+      auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([
+      { system: "sentencePatterns", locale: "en", sourceKey: "", overlayKey: "hintI18n", status: "dangling" },
+      { system: "sentencePatterns", locale: "ja", sourceKey: "", overlayKey: "hintI18n", status: "dangling" }
+    ]);
+  });
+
+  it("does not misclassify pattern metadata, type-union members, helper objects or comments", () => {
+    writeSentencePatternFixtures(
+      [
+        "type SentencePatternItem = { id: string; hintZh: string; patternId: string; };",
+        'const STARTER_ITEMS: SentencePatternItem[] = [',
+        '  { id: "pattern-a-001", patternId: "starter-desu", hintZh: "提示" },',
+        "];",
+        'const PATTERN_LABEL_ZH = { "starter-desu": "基本句", "not-an-item": "元" };',
+        "// The id below is a type-union member, not an item id.",
+        'type SentencePatternId = "starter-desu" | "pattern-not-an-item";',
+        "const helper: SentencePatternItem = {",
+        '  id: "pattern-helper-001",',
+        '  patternId: "starter-desu",',
+        '  hintZh: "helper hint",',
+        "};",
+        "const meta = { id: \"pattern-meta-001\" };"
+      ].join("\n"),
+      OVERLAY(ENTRY("pattern-a-001", PAIRS))
+    );
+    expect(
+      auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("only audits first-level overlay keys, ignoring locale keys nested two levels deep", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE("STARTER_ITEMS", ITEM("pattern-a-001")),
+      OVERLAY(`"pattern-a-001": { "hintI18n": { "en": "E", "ja": "J" }, "promptContextI18n": { "ja": "J" } }`)
+    );
+    expect(
+      auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("skips non-learner-facing objects inside item arrays instead of counting them as source keys", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE(
+        "STARTER_ITEMS",
+        ITEM("pattern-a-001") + `{ id: "pattern-config-001", patternId: "starter-desu" }`
+      ),
+      OVERLAY(ENTRY("pattern-a-001", PAIRS))
+    );
+    // "pattern-config-001" carries an id but no hintZh / promptContextZh /
+    // explanation, so it is not a learner-facing item and must not produce a
+    // missing record (nor become a phantom source key).
+    expect(
+      auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    ).toEqual([]);
+  });
+
+  it("fails closed on duplicate source item ids", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE("STARTER_ITEMS", ITEM("pattern-dup-001") + ITEM("pattern-dup-001")),
+      OVERLAY(ENTRY("pattern-dup-001", PAIRS))
+    );
+    expect(() => auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/duplicate/i);
+  });
+
+  it("fails closed on duplicate overlay first-level keys", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE("STARTER_ITEMS", ITEM("pattern-a-001")),
+      OVERLAY(ENTRY("pattern-a-001", PAIRS) + ENTRY("pattern-a-001", PAIRS))
+    );
+    expect(() => auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/duplicate/i);
+  });
+
+  it("fails closed on overlay spreads at the first level", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE("STARTER_ITEMS", ITEM("pattern-a-001")),
+      OVERLAY(`"pattern-a-001": { "hintI18n": { ${PAIRS} } }, ...extra`)
+    );
+    expect(() => auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/spread/i);
+  });
+
+  it("fails closed on computed first-level overlay keys", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE("STARTER_ITEMS", ITEM("pattern-a-001")),
+      OVERLAY(`[getKey()]: { "hintI18n": { ${PAIRS} } }`)
+    );
+    expect(() => auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/computed/i);
+  });
+
+  it("fails closed on dynamic / missing source item ids", () => {
+    writeSentencePatternFixtures(
+      "type SentencePatternItem = { id: string; hintZh: string; };\n" +
+        "const STARTER_ITEMS: SentencePatternItem[] = [{ id: DYNAMIC_ID, hintZh: \"x\" }];",
+      OVERLAY(ENTRY("whatever", PAIRS))
+    );
+    expect(() => auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/id|static|literal/i);
+
+    writeSentencePatternFixtures(
+      "type SentencePatternItem = { id: string; hintZh: string; };\n" +
+        "const STARTER_ITEMS: SentencePatternItem[] = [{ hintZh: \"x\" }];",
+      OVERLAY(ENTRY("whatever", PAIRS))
+    );
+    expect(() => auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/id/);
+  });
+
+  it("fails closed on a spread inside an item array element", () => {
+    writeSentencePatternFixtures(
+      "type SentencePatternItem = { id: string; hintZh: string; };\n" +
+        "const EXTRA = { hintZh: \"x\" };\n" +
+        "const STARTER_ITEMS: SentencePatternItem[] = [{ id: \"pattern-a-001\", ...EXTRA }];",
+      OVERLAY(ENTRY("pattern-a-001", PAIRS))
+    );
+    expect(() => auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/spread/i);
+  });
+
+  it("fails closed on computed member names in an item instead of silently dropping them", () => {
+    writeSentencePatternFixtures(
+      "type SentencePatternItem = { id: string; hintZh: string; };\n" +
+        "const STARTER_ITEMS: SentencePatternItem[] = [{ id: \"pattern-a-001\", [\"hintZh\"]: \"hint\" }];",
+      OVERLAY(ENTRY("pattern-a-001", PAIRS))
+    );
+    // A computed non-id member must not be silently treated as absent: that
+    // would misclassify the item and fabricate a phantom missing/dangling pair.
+    expect(() => auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en"] })).toThrow(/computed/i);
+  });
+
+  it("returns byte-equivalent records regardless of source or locale traversal order", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE("STARTER_ITEMS", ITEM("pattern-a-001") + ITEM("pattern-b-001") + ITEM("pattern-c-001")),
+      OVERLAY(
+        ENTRY("pattern-c-001", PAIRS) +
+          ENTRY("pattern-a-001", PAIRS) +
+          ENTRY("pattern-b-001", PAIRS) +
+          ENTRY("pattern-orphan-001", PAIRS)
+      )
+    );
+    const a = JSON.stringify(
+      auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] })
+    );
+    const b = JSON.stringify(
+      auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["ja", "en"] })
+    );
+    expect(a).toBe(b);
+  });
+
+  it("has no hardcoded locales, no filesystem writes, no console output and no process.exit", () => {
+    writeSentencePatternFixtures(
+      SRC_WITH_TYPE("STARTER_ITEMS", ITEM("pattern-a-001")),
+      OVERLAY(ENTRY("pattern-a-001", PAIRS))
+    );
+    const writeSpy = vi.spyOn(fs, "writeFileSync");
+    const mkdirSpy = vi.spyOn(fs, "mkdirSync");
+    const logSpy = vi.spyOn(console, "log");
+    const errorSpy = vi.spyOn(console, "error");
+    const exitSpy = vi.spyOn(process, "exit");
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    try {
+      const records = auditSentencePatternOverlays({ repoRoot: tmpDir, targetLocales: ["en", "ja"] });
+      expect(records).toEqual([]);
+      expect(writeSpy).not.toHaveBeenCalled();
+      expect(mkdirSpy).not.toHaveBeenCalled();
+      expect(logSpy).not.toHaveBeenCalled();
+      expect(errorSpy).not.toHaveBeenCalled();
+      expect(exitSpy).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      writeSpy.mockRestore();
+      mkdirSpy.mockRestore();
+      logSpy.mockRestore();
+      errorSpy.mockRestore();
+      exitSpy.mockRestore();
+      fetchSpy.mockRestore();
+    }
+  });
+
+  it("audits the real repo with zero records and without writing anything", () => {
+    const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+    const writeSpy = vi.spyOn(fs, "writeFileSync");
+    const mkdirSpy = vi.spyOn(fs, "mkdirSync");
+    try {
+      const records = auditSentencePatternOverlays({ repoRoot, targetLocales: ["en", "ja"] });
       expect(records).toEqual([]);
       expect(writeSpy).not.toHaveBeenCalled();
       expect(mkdirSpy).not.toHaveBeenCalled();
