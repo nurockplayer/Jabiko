@@ -1,0 +1,617 @@
+name: Gemini correctness autofix
+
+# Wire #688 (orchestration state machine) + #689 (publication adapter) into a
+# manual/scheduled observe/repair run (#690).
+#
+# - workflow_dispatch input `mode` is authoritative: observe (discovery only) or
+#   repair (discovery -> RED -> GREEN -> publication candidate).  The input can
+#   never adjust limits, model policy, or permissions.
+# - schedule reads the repository variable GEMINI_AUTOFIX_MODE
+#   (off|observe|repair).  A missing/empty/unknown value is treated as `off`
+#   and safe-skips immediately after checkout (no Gemini call, no repo write).
+# - Permission isolation: `evaluate` is read-only and runs the #688 state
+#   machine; GEMINI_API_KEY is injected into exactly one step inside it.
+#   `publish` runs only on a validated repair candidate and holds the minimal
+#   contents/pull-requests write scopes; it never sees a model secret and only
+#   calls the #689 adapter (no Gemini stages, no re-running the model).
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: observe (discover only) or repair (discover -> RED -> GREEN)
+        required: true
+        default: observe
+        type: choice
+        options: [observe, repair]
+  schedule:
+    - cron: "17 19 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gemini-correctness-autofix
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    name: Evaluate correctness (observe / repair)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Read-only: the state machine reads PRs/baseline/discovery and produces a
+    # sanitized candidate.  It never writes to the repository.
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      mode: ${{ steps.mode.outputs.mode }}
+      publicationAllowed: ${{ steps.orchestrate.outputs.publicationAllowed }}
+      status: ${{ steps.orchestrate.outputs.status }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # Full baseline: the state machine resets to a recorded baseline SHA
+          # and the publish job branches from it.
+          fetch-depth: 0
+
+      # Resolve the effective mode.  workflow_dispatch input is authoritative;
+      # the schedule path reads GEMINI_AUTOFIX_MODE with an off fallback.
+      - name: Resolve run mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            MODE="${{ inputs.mode }}"
+          else
+            MODE="${{ vars.GEMINI_AUTOFIX_MODE }}"
+          fi
+          case "$MODE" in
+            off|observe|repair) ;;
+            *) MODE="off" ;;
+          esac
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+
+      - name: Safe skip when GEMINI_AUTOFIX_MODE is off
+        if: ${{ steps.mode.outputs.mode == 'off' }}
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Gemini correctness autofix — safe skip
+          GEMINI_AUTOFIX_MODE is off, missing, or invalid. No Gemini call and no repository writes were performed.
+          EOF
+
+      - name: Set up pnpm
+        if: ${{ steps.mode.outputs.mode != 'off' }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Set up Node
+        if: ${{ steps.mode.outputs.mode != 'off' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        if: ${{ steps.mode.outputs.mode != 'off' }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Gemini correctness orchestration (#688)
+        id: orchestrate
+        if: ${{ steps.mode.outputs.mode != 'off' }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_AUTOFIX_MODEL: ${{ vars.GEMINI_AUTOFIX_MODEL }}
+          GEMINI_AUTOFIX_MIN_CONFIDENCE: ${{ vars.GEMINI_AUTOFIX_MIN_CONFIDENCE }}
+          GEMINI_AUTOFIX_MAX_FILES: ${{ vars.GEMINI_AUTOFIX_MAX_FILES }}
+          GEMINI_AUTOFIX_MAX_LINES: ${{ vars.GEMINI_AUTOFIX_MAX_LINES }}
+          INPUT_MODE: ${{ steps.mode.outputs.mode }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          import path from "node:path";
+          import { spawnSync } from "node:child_process";
+          // @ts-ignore -- plain .mjs module, no types
+          import { runWorkflowOrchestration } from "./scripts/gemini-correctness/workflow-orchestrator.mjs";
+
+          const repoRoot = process.env.GITHUB_WORKSPACE;
+          const repository = process.env.GITHUB_REPOSITORY ?? "nurockplayer/Jabiko";
+          const runId = process.env.GITHUB_RUN_ID ?? "local";
+          const runUrl = `https://github.com/${repository}/actions/runs/${runId}`;
+          const mode = process.env.INPUT_MODE ?? "off";
+          const artifactDir = path.join(repoRoot, ".tmp", "gemini-correctness");
+          const baselineSha = runShell("git rev-parse HEAD").stdout.trim();
+
+          const MODEL_ALLOWLIST = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite"];
+          const DEFAULT_MIN_CONFIDENCE = 0.8;
+          const DEFAULT_MAX_FILES = 200;
+          const DEFAULT_MAX_LINES = 250;
+          // Program hard caps (tighten-only): a variable can never loosen them.
+          const HARD_MAX_FILES = 200;
+          const HARD_MAX_LINES = 250;
+
+          function runShell(cmd, opts = {}) {
+            const result = spawnSync(cmd, {
+              cwd: repoRoot,
+              encoding: "utf8",
+              shell: true,
+              stdio: ["pipe", "pipe", "pipe"],
+              maxBuffer: 64 * 1024 * 1024,
+              ...opts
+            });
+            return {
+              ok: result.status === 0,
+              status: result.status,
+              stdout: result.stdout ?? "",
+              stderr: result.stderr ?? ""
+            };
+          }
+
+          function resolveModel() {
+            const value = (process.env.GEMINI_AUTOFIX_MODEL ?? "").trim();
+            // A missing/empty/unknown model fails closed: the policy allowlist
+            // is the only source of truth and there is no implicit default.
+            if (!MODEL_ALLOWLIST.includes(value)) return null;
+            return value;
+          }
+
+          function resolveNumber(name, fallback, hardMax, minValue) {
+            const raw = (process.env[name] ?? "").trim();
+            if (!raw) return fallback;
+            const n = Number(raw);
+            if (!Number.isFinite(n) || n < minValue || n > hardMax) return null;
+            return n;
+          }
+
+          function writeOutputs(fields) {
+            for (const [key, value] of Object.entries(fields)) {
+              fs.appendFileSync(process.env.GITHUB_OUTPUT, `${key}=${value}\n`);
+            }
+          }
+
+          async function failClosedResult(reason, statusCode = "config-error") {
+            const result = {
+              schemaVersion: 1,
+              mode,
+              status: statusCode,
+              reasonCode: "invalid-limit",
+              reason: String(reason ?? "invalid configuration"),
+              publicationAllowed: false,
+              baselineSha,
+              completedAt: Date.now()
+            };
+            fs.mkdirSync(artifactDir, { recursive: true });
+            fs.writeFileSync(
+              path.join(artifactDir, "command-summary.json"),
+              JSON.stringify({ schemaVersion: 1, mode, status: result.status, publicationAllowed: false, baselineSha, workflowResult: result }, null, 2) + "\n"
+            );
+            writeOutputs({ mode, publicationAllowed: "false", status: result.status });
+            fs.writeFileSync(
+              process.env.GITHUB_STEP_SUMMARY,
+              [
+                `## Gemini correctness ${mode}`,
+                "",
+                `- **Status**: \`${result.status}\``,
+                `- **Reason**: ${result.reason}`,
+                `- **Publication**: not allowed`,
+                ""
+              ].join("\n") + "\n"
+            );
+            // A configuration failure is a hard fail-closed: the run must be
+            // visibly failed, and no downstream job may consume its outputs.
+            process.exit(1);
+          }
+
+          // Validate limits BEFORE any Gemini/baseline work (fail closed).
+          const model = resolveModel();
+          if (!model) await failClosedResult(`model ${process.env.GEMINI_AUTOFIX_MODEL ?? ""} is not on the policy allowlist`);
+          const minConfidence = resolveNumber("GEMINI_AUTOFIX_MIN_CONFIDENCE", DEFAULT_MIN_CONFIDENCE, 1, 0);
+          if (minConfidence === null) await failClosedResult("GEMINI_AUTOFIX_MIN_CONFIDENCE must be a finite number in [0,1]");
+          if (minConfidence < DEFAULT_MIN_CONFIDENCE) await failClosedResult("GEMINI_AUTOFIX_MIN_CONFIDENCE cannot be lower than the program default (tighten-only)");
+          const maxFiles = resolveNumber("GEMINI_AUTOFIX_MAX_FILES", DEFAULT_MAX_FILES, HARD_MAX_FILES, 1);
+          if (maxFiles === null) await failClosedResult("GEMINI_AUTOFIX_MAX_FILES cannot exceed the program hard maximum (tighten-only)");
+          const maxLines = resolveNumber("GEMINI_AUTOFIX_MAX_LINES", DEFAULT_MAX_LINES, HARD_MAX_LINES, 1);
+          if (maxLines === null) await failClosedResult("GEMINI_AUTOFIX_MAX_LINES cannot exceed the program hard maximum (tighten-only)");
+
+          // observe/repair require the Gemini secret; off mode never does.
+          if (!process.env.GEMINI_API_KEY) {
+            await failClosedResult("GEMINI_API_KEY is missing; observe/repair fail closed without calling Gemini");
+          }
+
+          const adapters = {
+            openAiPrGate: async () => {
+              const result = runShell(`gh pr list --repo "${repository}" --state open --limit 50 --json headRefName --jq '.[].headRefName'`);
+              if (!result.ok) return { valid: false, error: (result.stderr || result.stdout).trim() || "could not list open PRs" };
+              const refs = result.stdout.trim().split("\n").filter(Boolean);
+              return { valid: true, openPrs: refs.map((ref) => ({ ref })) };
+            },            baseline: async ({ baselineSha: expected }) => {
+              const checks = [];
+              for (const [name, cmd] of [
+                ["lint", "pnpm lint"],
+                ["typecheck", "pnpm typecheck"],
+                ["test", "pnpm test"],
+                ["build", "pnpm build"],
+                ["diff-check", "git diff --check"]
+              ]) {
+                const run = runShell(cmd, { timeoutMs: 10 * 60 * 1000 });
+                checks.push({ name, status: run.ok ? "passed" : "failed" });
+              }
+              if (checks.some((c) => c.status !== "passed")) {
+                return { valid: false, error: `baseline failed: ${checks.filter((c) => c.status !== "passed").map((c) => c.name).join(", ")}`, checks };
+              }
+              return { valid: true, baselineSha: expected, checks };
+            },
+            discovery: async ({ baselineSha: sha, limits }) => {
+              fs.mkdirSync(artifactDir, { recursive: true });
+              // discover.mjs resolves --output/--summary relative to .tmp/ and
+              // constrains them to that directory, so the CLI path is
+              // gemini-correctness/<file> (it lands at .tmp/gemini-correctness/).
+              const run = runShell(
+                `node scripts/gemini-correctness/discover.mjs --commit-sha ${sha} --model ${model} --output gemini-correctness/finding.json --summary gemini-correctness/discovery-summary.md`,
+                { timeoutMs: 8 * 60 * 1000 }
+              );
+              if (!run.ok) return { valid: false, error: (run.stderr || run.stdout).trim() || "discovery failed" };
+              let raw;
+              try {
+                raw = JSON.parse(fs.readFileSync(path.join(artifactDir, "finding.json"), "utf8"));
+              } catch {
+                return { valid: false, error: "discovery output is not valid JSON" };
+              }
+              if (!raw.valid) return { valid: false, error: raw.error ?? "discovery failed validation" };
+              const finding = raw.result;
+              const threshold = limits?.minConfidence ?? DEFAULT_MIN_CONFIDENCE;
+              if (finding && finding.status === "finding" && typeof finding.confidence === "number" && finding.confidence < threshold) {
+                return { valid: true, result: { schemaVersion: 1, status: "no-finding", reason: `finding confidence ${finding.confidence} is below threshold ${threshold}` } };
+              }
+              return { valid: true, result: finding };
+            },
+            red: async () => {
+              const run = runShell(`node scripts/gemini-correctness/red-stage.mjs --model ${model}`, { timeoutMs: 8 * 60 * 1000 });
+              if (!run.ok) return { valid: false, error: (run.stderr || run.stdout).trim() || "RED stage failed" };
+              try {
+                const redResult = JSON.parse(fs.readFileSync(path.join(artifactDir, "red-result.json"), "utf8"));
+                return { valid: true, result: redResult };
+              } catch {
+                return { valid: false, error: "RED result artifact is missing or invalid" };
+              }
+            },
+            green: async () => {
+              const run = runShell(`node scripts/gemini-correctness/green-stage.mjs --model ${model}`, { timeoutMs: 8 * 60 * 1000 });
+              if (!run.ok) return { valid: false, error: (run.stderr || run.stdout).trim() || "GREEN stage failed" };
+              try {
+                const greenResult = JSON.parse(fs.readFileSync(path.join(artifactDir, "repair-result.json"), "utf8"));
+                return { valid: true, result: greenResult };
+              } catch {
+                return { valid: false, error: "GREEN result artifact is missing or invalid" };
+              }
+            },
+            cleanup: async ({ baselineSha: sha }) => {
+              const reset = runShell(`git reset --hard ${sha}`);
+              if (!reset.ok) return { valid: false, error: reset.stderr.trim() || "clean reset failed" };
+              const clean = runShell("git clean -fdq");
+              if (!clean.ok) return { valid: false, error: clean.stderr.trim() || "clean reset failed" };
+              return { valid: true };
+            },
+            clock: () => Date.now()
+          };
+
+          const result = await runWorkflowOrchestration({
+            mode,
+            baselineSha,
+            adapters,
+            limits: { minConfidence, maxFiles, maxLines, environment: process.env }
+          });
+
+          // Assemble a validated publication candidate ONLY when the state
+          // machine says publicationAllowed=true.  The candidate embeds the
+          // production diff and regression-test source produced by RED/GREEN.
+          let candidate;
+          if (result.publicationAllowed === true) {
+            const diffOut = runShell("git diff --binary --no-ext-diff --no-renames");
+            const productionDiff = diffOut.stdout;
+            const testFile = result.red?.testFile;
+            const regressionSource = testFile ? fs.readFileSync(path.join(repoRoot, testFile), "utf8") : "";
+            candidate = {
+              schemaVersion: 1,
+              status: "repair-verified",
+              publicationAllowed: true,
+              baselineSha: result.baselineSha,
+              findingTitle: result.findingTitle,
+              findingCategory: result.findingCategory,
+              model,
+              runUrl,
+              finalDiffSha256: result.finalDiffSha256,
+              changedFiles: result.changedFiles,
+              changedLines: result.changedLines,
+              productionDiff,
+              regressionTest: { path: testFile, source: regressionSource },
+              red: result.red,
+              green: result.green
+            };
+          }
+
+          fs.mkdirSync(artifactDir, { recursive: true });
+          fs.writeFileSync(
+            path.join(artifactDir, "command-summary.json"),
+            JSON.stringify({
+              schemaVersion: 1,
+              mode,
+              status: result.status,
+              publicationAllowed: result.publicationAllowed === true,
+              baselineSha: result.baselineSha,
+              workflowResult: result,
+              ...(candidate ? { candidate } : {})
+            }, null, 2) + "\n"
+          );
+
+          writeOutputs({
+            mode,
+            publicationAllowed: result.publicationAllowed === true ? "true" : "false",
+            status: result.status
+          });
+
+          const checksLine = Array.isArray(result.checks)
+            ? result.checks.map((c) => c.status).join("/")
+            : "n/a";
+          const summary = [
+            `## Gemini correctness ${mode}`,
+            "",
+            `- **Mode**: \`${mode}\``,
+            `- **Status**: \`${result.status}\``,
+            `- **Baseline**: \`${result.baselineSha ?? "n/a"}\``,
+            `- **Baseline checks**: ${checksLine}`,
+            `- **Discovery**: ${result.findingTitle ? `\`${result.findingTitle}\` (${result.findingCategory})` : (result.status === "no-finding" ? "no finding" : "n/a")}`,
+            result.red?.testFile
+              ? `- **RED**: \`${result.red.testFile}\` :: ${result.red.testName}`
+              : `- **RED**: n/a`,
+            Array.isArray(result.green?.productionFiles) && result.green.productionFiles.length > 0
+              ? `- **GREEN**: ${result.green.productionFiles.map((f) => `\`${f}\``).join(", ")}`
+              : `- **GREEN**: n/a`,
+            `- **Diff gate**: ${result.green?.checks?.some((c) => c.name === "targeted-test") ? "passed" : "n/a"}`,
+            `- **Publication**: ${result.publicationAllowed === true ? "allowed (candidate produced)" : "not allowed"}${result.reason ? ` — ${result.reason}` : ""}`,
+            ""
+          ];
+          fs.writeFileSync(process.env.GITHUB_STEP_SUMMARY, summary.join("\n") + "\n");
+
+          console.log(JSON.stringify(result, null, 2));
+          process.exit(0);
+          NODE
+
+      # Sanitized artifacts only — allowlisted files that exist.  Raw prompts,
+      # responses, env dumps, headers, debug logs, patches, and source archives
+      # are never uploaded.  Missing stage artifacts are simply not included.
+      # always(): a fail-closed orchestration still publishes its sanitized
+      # command-summary so the failure is observable and never silently lost.
+      - name: Upload sanitized artifacts
+        if: ${{ always() && steps.mode.outputs.mode != 'off' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gemini-correctness-results
+          path: |
+            .tmp/gemini-correctness/finding.json
+            .tmp/gemini-correctness/red-result.json
+            .tmp/gemini-correctness/repair-result.json
+            .tmp/gemini-correctness/command-summary.json
+          retention-days: 7
+          if-no-files-found: warn
+
+  publish:
+    name: Publish verified repair (#689)
+    needs: evaluate
+    # Only ever publishes a validated repair candidate in repair mode.
+    if: ${{ needs.evaluate.outputs.publicationAllowed == 'true' && needs.evaluate.outputs.mode == 'repair' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Minimal write scopes for one branch + one Draft PR.  No model secret.
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # Full baseline so the branch can be created from the verified
+          # baseline SHA without an extra fetch.
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Restore the artifact at the repo root so the preserved
+      # .tmp/gemini-correctness/... structure lands exactly where the glue
+      # expects it.
+      - name: Download sanitized artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: gemini-correctness-results
+          path: ${{ github.workspace }}
+
+      # Calls ONLY the #689 publication adapter with the validated candidate.
+      # It never reruns the model or the Gemini stages, and it never receives a
+      # model secret — only the automatic GITHUB_TOKEN for the git/gh writes.
+      - name: Publish verified repair as Draft PR
+        id: publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          import path from "node:path";
+          import { spawnSync } from "node:child_process";
+          // @ts-ignore -- plain .mjs modules, no types
+          import { publishVerifiedRepair, validatePublicationCandidate } from "./scripts/gemini-correctness/publication-adapter.mjs";
+          // @ts-ignore -- plain .mjs module, no types
+          import { parseUnifiedDiff } from "./scripts/gemini-correctness/policy.mjs";
+
+          const repoRoot = process.env.GITHUB_WORKSPACE;
+          const repository = process.env.GITHUB_REPOSITORY;
+          const [owner, repoName] = repository.split("/");
+          const runId = process.env.GITHUB_RUN_ID ?? "local";
+          const artifactDir = path.join(repoRoot, ".tmp", "gemini-correctness");
+
+          function runShell(cmd, opts = {}) {
+            const result = spawnSync(cmd, {
+              cwd: repoRoot,
+              encoding: "utf8",
+              shell: true,
+              stdio: ["pipe", "pipe", "pipe"],
+              maxBuffer: 64 * 1024 * 1024,
+              ...opts
+            });
+            return {
+              ok: result.status === 0,
+              status: result.status,
+              stdout: result.stdout ?? "",
+              stderr: result.stderr ?? ""
+            };
+          }
+
+          function writePublicationResult(result) {
+            fs.mkdirSync(artifactDir, { recursive: true });
+            fs.writeFileSync(
+              path.join(artifactDir, "publication-result.json"),
+              JSON.stringify(result, null, 2) + "\n"
+            );
+          }
+
+          const summaryPath = path.join(artifactDir, "command-summary.json");
+          if (!fs.existsSync(summaryPath)) {
+            const failed = { schemaVersion: 1, status: "invalid-candidate", reasonCode: "invalid-candidate", reason: "command-summary artifact is missing", publicationAllowed: false, completedAt: Date.now() };
+            writePublicationResult(failed);
+            console.error(JSON.stringify(failed));
+            process.exit(1);
+          }
+
+          const summary = JSON.parse(fs.readFileSync(summaryPath, "utf8"));
+          const candidate = summary.candidate;
+          if (!candidate) {
+            const failed = { schemaVersion: 1, status: "invalid-candidate", reasonCode: "invalid-candidate", reason: "no validated publication candidate in the evaluate output", publicationAllowed: false, completedAt: Date.now() };
+            writePublicationResult(failed);
+            console.error(JSON.stringify(failed));
+            process.exit(1);
+          }
+
+          // Re-validate the candidate locally before ANY write.
+          const candidateCheck = validatePublicationCandidate(candidate, { sensitiveValues: [] });
+          if (!candidateCheck.valid) {
+            const failed = { schemaVersion: 1, status: "invalid-candidate", reasonCode: "invalid-candidate", reason: candidateCheck.error, publicationAllowed: false, completedAt: Date.now() };
+            writePublicationResult(failed);
+            console.error(JSON.stringify(failed));
+            process.exit(1);
+          }
+
+          runShell("git config user.name \"jabiko-gemini-autofix\"");
+          runShell("git config user.email \"actions@users.noreply.github.com\"");
+
+          const adapters = {
+            readRemoteHead: async ({ ref }) => {
+              const run = runShell(`gh api "repos/${repository}/git/ref/heads/${ref}" --jq '.object.sha'`);
+              if (!run.ok) return { valid: false, error: (run.stderr || run.stdout).trim() || "could not read remote head" };
+              return { valid: true, sha: run.stdout.trim() };
+            },
+            createBranch: async ({ name, baseSha }) => {
+              const run = runShell(`git switch -c "${name}" "${baseSha}"`);
+              if (!run.ok) return { valid: false, error: (run.stderr || run.stdout).trim() || "could not create branch" };
+              return { valid: true };
+            },
+            commit: async ({ message, regressionTest, productionDiff }) => {
+              const testAbsolute = path.join(repoRoot, regressionTest.path);
+              fs.mkdirSync(path.dirname(testAbsolute), { recursive: true });
+              fs.writeFileSync(testAbsolute, regressionTest.source);
+              const diffFile = path.join(repoRoot, ".tmp", "production-diff.patch");
+              fs.mkdirSync(path.dirname(diffFile), { recursive: true });
+              fs.writeFileSync(diffFile, productionDiff);
+              const applyRun = runShell(`git apply --binary --whitespace=nowarn "${diffFile}"`);
+              if (!applyRun.ok) return { valid: false, error: (applyRun.stderr || applyRun.stdout).trim() || "production diff could not be applied" };
+              // Stage exactly the files the validated diff touches, plus the
+              // regression test.  Derived from the shared unified-diff parser,
+              // never from the raw candidate.
+              const parsed = parseUnifiedDiff(productionDiff);
+              if (!parsed.valid) return { valid: false, error: parsed.error ?? "production diff could not be parsed" };
+              const staged = [regressionTest.path, ...parsed.files.map((file) => file.path)];
+              const addRun = runShell(`git add -- ${staged.map((f) => `"${f}"`).join(" ")}`);
+              if (!addRun.ok) return { valid: false, error: (addRun.stderr || addRun.stdout).trim() || "could not stage the verified payload" };
+              const messageFile = path.join(repoRoot, ".tmp", "commit-msg.txt");
+              fs.writeFileSync(messageFile, message);
+              const commitRun = runShell(`git commit --file "${messageFile}"`);
+              if (!commitRun.ok) return { valid: false, error: (commitRun.stderr || commitRun.stdout).trim() || "could not create the commit" };
+              const sha = runShell("git rev-parse HEAD").stdout.trim();
+              return { valid: true, sha };
+            },
+            push: async ({ branch }) => {
+              const run = runShell(`git push origin "HEAD:${branch}"`);
+              if (!run.ok) return { valid: false, error: (run.stderr || run.stdout).trim() || "could not push branch" };
+              return { valid: true };
+            },
+            createPullRequest: async ({ title, body, base, head, draft }) => {
+              const bodyFile = path.join(repoRoot, ".tmp", "pr-body.md");
+              fs.writeFileSync(bodyFile, body);
+              const safeTitle = title.replace(/["$`]/g, "").replace(/\s+/g, " ");
+              const args = [
+                `gh pr create --repo "${repository}" --base "${base}" --head "${head}"`,
+                `--title "${safeTitle}"`,
+                `--body-file "${bodyFile}"`,
+                draft ? "--draft" : ""
+              ].filter(Boolean).join(" ");
+              const run = runShell(args);
+              if (!run.ok) return { valid: false, error: (run.stderr || run.stdout).trim() || "could not create the pull request" };
+              const url = run.stdout.trim();
+              const match = url.match(/pull\/(\d+)/);
+              return { valid: true, number: match ? Number(match[1]) : undefined, url };
+            },
+            deleteBranch: async ({ name }) => {
+              const run = runShell(`git push origin --delete "${name}"`);
+              if (!run.ok) return { valid: false, error: (run.stderr || run.stdout).trim() || "could not delete branch" };
+              return { valid: true };
+            },
+            clock: () => Date.now()
+          };
+
+          const result = await publishVerifiedRepair({
+            candidate,
+            runId,
+            repository: { owner, repo: repoName, defaultBranch: process.env.GITHUB_BASE_REF || "main" },
+            adapters,
+            limits: { environment: process.env }
+          });
+
+          writePublicationResult(result);
+          const prLine = result.pullRequest?.url
+            ? `- **PR**: ${result.pullRequest.url}`
+            : `- **PR**: not created — ${result.reason ?? result.status}`;
+          fs.appendFileSync(
+            process.env.GITHUB_STEP_SUMMARY,
+            [
+              `## Publication`,
+              "",
+              `- **Status**: \`${result.status}\``,
+              prLine,
+              ""
+            ].join("\n") + "\n"
+          );
+          console.log(JSON.stringify(result, null, 2));
+          process.exit(result.status === "published" ? 0 : 1);
+          NODE
+
+      # Only the sanitized publication result is kept, never raw request/response
+      # or debug logs.
+      - name: Upload publication result
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gemini-correctness-publication
+          path: .tmp/gemini-correctness/publication-result.json
+          retention-days: 7
+          if-no-files-found: warn
