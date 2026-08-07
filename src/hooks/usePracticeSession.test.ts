@@ -1,7 +1,7 @@
 import { createElement, StrictMode } from "react";
 import type { ReactNode } from "react";
 import { act, renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BOOKMARKS_KEY } from "../domain/bookmarks";
 import { buildAllKnownQuestions } from "../domain/sessionPools";
 import type { SentencePatternId } from "../domain/sentencePatterns";
@@ -435,5 +435,150 @@ describe("initialLevelRange (#199)", () => {
     expect(initialLevelRange({ mode: "vocab" }, "n2n3")).toBe("n2n3");
     expect(initialLevelRange({ mode: "vocab" }, "n1n2")).toBe("n1n2");
     expect(initialLevelRange({ mode: "vocab" }, "all")).toBe("all");
+  });
+});
+
+// Session clock (#680) — the answer-response timer must be started by
+// events/effects (mount, startNewPass, nextQuestion), never by render-phase
+// Date.now(). The ref must start null and only be initialised by
+// beginSessionClock(); render stays a pure function of props/state.
+describe("usePracticeSession session clock (#680)", () => {
+  beforeEach(() => {
+    // Deterministic base time: all subsequent tests (except the purity one,
+    // which restores real time) build on an epoch of exactly 1000.
+    vi.useFakeTimers({ now: 1000, shouldAdvanceTime: true });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  // Purity (React Compiler) gate (#663/#680): render must not call any time
+  // API. A flag wraps the hook's own render body so the spy can tell
+  // render-phase calls (useRef(Date.now()) -- the #680 violation) apart from
+  // the legal effect- and event-handler calls (mount clock effect,
+  // scoreAttempt's finishedAt default). StrictMode double-renders, so the
+  // violation would register twice.
+  it("does not call Date.now() during render", () => {
+    let inRender = false;
+    let renderCalls = 0;
+    const spy = vi.spyOn(Date, "now").mockImplementation(() => {
+      if (inRender) renderCalls += 1;
+      return 12345;
+    });
+    const useTracked = () => {
+      inRender = true;
+      try {
+        return usePracticeSession(baseHookArgs);
+      } finally {
+        inRender = false;
+      }
+    };
+    try {
+      const { result } = renderHook(useTracked);
+      // Mount: the clock may be started by an effect (legal), never in render.
+      expect(renderCalls).toBe(0);
+      // Answer submission reads the ref in the event handler; the resulting
+      // re-render must not call Date.now() either.
+      act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+      expect(renderCalls).toBe(0);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  // Mount -> clock is started by an effect (after the pass is fully initialised).
+  it("starts the clock with an effect on mount", () => {
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs));
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts[0].responseTimeMs).toBe(0);
+  });
+
+  it("re-bases the clock on an explicit new pass, not a render dependency", () => {
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs));
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts[0].responseTimeMs).toBe(0);
+    expect(result.current.attempts[0].timestamp).toBe(1000);
+
+    // A NEW pass (resetSession -> startNewPass) re-bases the clock at the
+    // event's current time. resetSession clears attempts, so the first answer
+    // of the new pass must be a fresh 0ms (not 2000ms vs the old base).
+    vi.setSystemTime(3000);
+    act(() => result.current.resetSession());
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts[0].responseTimeMs).toBe(0);
+    expect(result.current.attempts[0].timestamp).toBe(3000);
+
+    // nextQuestion re-bases the clock to its own event time, so a later answer
+    // measures from THAT point, not from the pass start.
+    vi.setSystemTime(3500);
+    act(() => result.current.nextQuestion());
+    vi.setSystemTime(4000);
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts[1].responseTimeMs).toBe(500);
+    expect(result.current.attempts[1].timestamp).toBe(4000);
+  });
+
+  it("re-bases the clock on nextQuestion", () => {
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs));
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+
+    vi.setSystemTime(2000);
+    act(() => result.current.nextQuestion());
+    vi.setSystemTime(2400);
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts[1].responseTimeMs).toBe(400);
+    expect(result.current.attempts[1].timestamp).toBe(2400);
+  });
+
+  it("initialises a null clock in the event handler on answer", () => {
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs));
+    // Extreme case: the clock was never started (e.g. a buggy startNewPass
+    // path). The answer handler must initialise the ref itself, never fall
+    // back to a render-time Date.now().
+    result.current.startedAtRef.current = null;
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts[0].responseTimeMs).toBe(0);
+    expect(result.current.attempts[0].timestamp).toBe(1000);
+  });
+
+  it("computes durations under fake timers with the existing units and rounding", () => {
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs));
+    // Question shown at mount (clock base 1000).
+    vi.setSystemTime(1250);
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts[0].responseTimeMs).toBe(250);
+    expect(result.current.attempts[0].timestamp).toBe(1250);
+
+    // Next question re-bases the clock at 2000; answer 500ms later.
+    vi.setSystemTime(2000);
+    act(() => result.current.nextQuestion());
+    vi.setSystemTime(2500);
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts[1].responseTimeMs).toBe(500);
+    expect(result.current.attempts[1].timestamp).toBe(2500);
+
+    // Same-question elapsed is rounded as a plain ms difference (integer).
+    vi.setSystemTime(3500);
+    act(() => result.current.nextQuestion());
+    vi.setSystemTime(3600);
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts[2].responseTimeMs).toBe(100);
+    expect(result.current.attempts[2].timestamp).toBe(3600);
+  });
+
+  it("StrictMode does not start the clock twice or corrupt durations", () => {
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(StrictMode, null, children);
+    const { result } = renderHook(() => usePracticeSession(baseHookArgs), { wrapper });
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts[0].responseTimeMs).toBe(0);
+    expect(result.current.attempts[0].timestamp).toBe(1000);
+
+    vi.setSystemTime(2000);
+    act(() => result.current.nextQuestion());
+    vi.setSystemTime(2400);
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts[1].responseTimeMs).toBe(400);
   });
 });
