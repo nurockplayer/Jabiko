@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "cognee-jabiko": {
+      "type": "stdio",
+      "command": "/opt/homebrew/bin/uv",
+      "args": [
+        "--directory",
+        "/Users/tachikoma/Developer/cognee/cognee-mcp",
+        "run",
+        "cognee-mcp"
+      ],
+      "env": {
+        "COGNEE_MCP_DEFAULT_DATASET": "jabiko-memory"
+      }
+    }
+  }
+}
