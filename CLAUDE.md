@@ -77,6 +77,61 @@ Repo-wide 基礎驗證（#663 統一合約）：`pnpm lint`、`pnpm typecheck`�
 - 所有會修改檔案的實作任務**必須**在 git worktree 中進行（`EnterWorktree`），不得直接在工作目錄上修改
 - 純查詢、讀取、搜尋不需 worktree
 
+## Model Routing：DeepSeek 主導，Sol 選擇性介入
+
+在目前 Claude Code 環境可用時，以 `deepseek-v4-flash` 作為**預設主協調與實作模型**。Sol 是高價值推理／仲裁資源，不是日常 orchestrator，也不是預設 implementer。
+
+### 預設行為
+
+- 不要每張票都先向 Sol 要完整 implementation plan。
+- 先自行讀 Issue、相關規則／Spec、附近程式碼、測試與既有 contract，再開始工作。
+- 一般實作、TDD loop、常規 debugging、測試修正、機械式 refactor、UI／資料調整，以及 Sub-Agent orchestration，皆由 `deepseek-v4-flash` 主導。
+- 即使向 Sol 諮詢，implementation ownership 仍保留在 `deepseek-v4-flash`；取得建議後由 Flash 繼續實作、整合與驗證。
+
+### 實作前必須先問 Sol
+
+當 ticket 實質涉及下列任一情況時，在開始高風險編輯前，先向 Sol 提出**聚焦、精簡的決策問題**：
+
+1. Authentication、authorization、secrets、RLS 或其他 security-sensitive 行為。
+2. Persistent schema／data model migration，或成本高、難回復的 shared public contract 變更。
+3. 跨越多個主要 subsystem 的架構決策。
+4. 大型 refactor，方向判斷錯誤會造成大量返工。
+5. Infrastructure／deployment architecture 中難回復、昂貴或具明顯 vendor lock-in 的選擇。
+6. Issue、repository policy、Spec 或既有 contract 彼此衝突，而且會改變產品或工程行為。
+7. 內容可見性、語言隔離、`contentGuard`、`LocaleCode`、`LAUNCHED_LANGUAGES`、`pickLocalized()` 等產品 ownership boundary 的實質變更。
+
+Sol 的回答應聚焦於 decision、contract boundary、implementation order、主要風險與 verification strategy；不要要求 Sol 代寫一般實作程式碼。
+
+### 實作途中主動升級給 Sol
+
+遇到以下情況時，不要繼續靠猜測堆 patch，應主動把問題升級給 Sol：
+
+1. 已做過 **兩次不同 hypothesis 的 focused investigation**，root cause 仍無法解釋。
+2. 存在多個 materially different approaches，而 repository evidence 無法判定哪個才符合既有設計。
+3. 測試暴露出超出 ticket 預期範圍的 systemic problem。
+4. 表面修正開始要求大幅跨層或跨模組 refactor，超出原 ticket boundary。
+5. 實作途中才發現會影響 security/privacy、persistent data meaning、shared contracts 或其他高風險邊界。
+6. 對 root cause 或 intended contract 的信心已低到繼續做只是在猜。
+
+普通 lint/type error、簡單 import 問題、明確的單一 test failure、常規 CRUD/UI 工作，或只要讀 repository 就能回答的問題，不需要升級 Sol。
+
+### Sol 諮詢封包
+
+不要把整張票原封不動丟給 Sol。只提供最小但足夠的上下文：
+
+- Issue goal 與相關 acceptance criteria。
+- 適用的 repository／Spec／policy constraints。
+- 已檢查的檔案或區域。
+- 目前理解與具體 evidence。
+- 已嘗試過什麼，尤其是兩個不同 hypothesis。
+- **唯一需要 Sol 回答的 uncertainty／blocking question**。
+- 已知 candidate approaches（若有）。
+- 相關 failing tests／errors（若有）。
+
+優先要求最小有用答案，例如：architecture decision、debugging hypothesis、implementation strategy、contract clarification 或 risk analysis。
+
+如果依上述規則屬於 mandatory Sol consultation，但目前環境沒有可用的 Sol 諮詢機制，必須在做高風險變更前明確回報限制，不得默默猜測。
+
 ## 程式碼慣例
 
 - TypeScript strict mode 全開，禁止 `any`，除非有明確註解說明
