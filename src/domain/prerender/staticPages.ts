@@ -22,10 +22,8 @@ import { legalDocumentFor, type LegalPageKind } from "../legalContent";
 import { articleJsonLd, personJsonLd } from "./structuredData";
 import {
   STAY_D_AIRBNB_URL,
-  STAY_D_HOME_COPY,
-  STAY_D_HOME_IMAGE
+  STAY_D_EDITORIAL_COPY
 } from "../stayD";
-import { STAY_D_PAGE_COPY } from "../stayDPage";
 
 export interface StaticPage {
   /** Decoded URL path, e.g. "/grammar/〜てもいい". */
@@ -290,35 +288,19 @@ function homeBody(): string {
 }
 
 function stayDBody(): string {
-  const text = STAY_D_PAGE_COPY["zh-Hant"];
-  const facts = text.quickFacts
-    .map((fact) => `<li><strong>${escapeHtml(fact.title)}</strong> — ${escapeHtml(fact.body)}</li>`)
-    .join("");
-  const floors = text.floors
-    .map(
-      (floor) =>
-        `<li><strong>${escapeHtml(floor.label)}｜${escapeHtml(floor.title)}</strong> — ${escapeHtml(floor.body)}</li>`
-    )
-    .join("");
-  const amenities = text.amenities
-    .map((item) => `<li><strong>${escapeHtml(item.title)}</strong> — ${escapeHtml(item.body)}</li>`)
-    .join("");
+  const text = STAY_D_EDITORIAL_COPY["zh-Hant"];
   const airbnb = (placement: string) =>
     `<a href="${STAY_D_AIRBNB_URL}" target="_blank" rel="noopener noreferrer" data-stay-d-placement="${placement}">${escapeHtml(text.airbnbCta)}</a>`;
 
   return wrap(
-    text.headline,
+    text.title,
     [
       paragraph(text.kicker),
-      `<img src="${STAY_D_HOME_IMAGE.src}" srcset="${STAY_D_HOME_IMAGE.srcSet}" sizes="(max-width: 720px) calc(100vw - 40px), 640px" width="${STAY_D_HOME_IMAGE.width}" height="${STAY_D_HOME_IMAGE.height}" alt="${escapeHtml(STAY_D_HOME_COPY["zh-Hant"].imageAlt)}" fetchpriority="high">`,
+      paragraph(text.title),
       paragraph(text.body),
       `<p>${airbnb("stay-d-hero-airbnb")}</p>`,
-      `<h2>${escapeHtml(text.quickFactsLabel)}</h2><ul>${facts}</ul>`,
-      `<h2>${escapeHtml(text.layoutTitle)}</h2><ul>${floors}</ul>`,
-      `<h2>${escapeHtml(text.amenitiesTitle)}</h2>${paragraph(text.amenitiesIntro)}<ul>${amenities}</ul>`,
-      `<h2>${escapeHtml(text.neighborhoodTitle)}</h2>${paragraph(text.neighborhoodBody)}`,
-      `<h2>${escapeHtml(text.videoTitle)}</h2>${paragraph(text.videoIntro)}<p><a href="https://www.youtube.com/watch?v=wXx_t8JTyDE&amp;t=70s" rel="noopener noreferrer">${escapeHtml(text.video.watch)}</a></p>`,
-      `<h2>${escapeHtml(text.finalTitle)}</h2>${paragraph(text.finalBody)}<p>${airbnb("stay-d-final-airbnb")}</p>`
+      `<h2>${escapeHtml(text.page.videoTitle)}</h2>${paragraph(text.page.videoIntro)}<p><a href="https://www.youtube.com/watch?v=wXx_t8JTyDE&amp;t=70s" rel="noopener noreferrer">${escapeHtml(text.video.watch)}</a></p>`,
+      `<h2>${escapeHtml(text.page.finalTitle)}</h2>${paragraph(text.page.finalBody)}<p>${airbnb("stay-d-final-airbnb")}</p>`
     ].join("")
   );
 }

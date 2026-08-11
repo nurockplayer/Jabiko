@@ -170,7 +170,7 @@ describe("App", () => {
     await screen.findByRole(
       "heading",
       {
-        name: "在東京，不只住宿，也住進日常。",
+        name: "下一次來東京，不只是觀光。用學過的日文，和家人朋友一起更深入地享受東京的日常。",
         level: 1
       },
       { timeout: 15000 }

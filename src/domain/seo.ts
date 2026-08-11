@@ -82,9 +82,9 @@ export const VIEW_SEO: Record<AppView, PageSeo> = {
     path: APP_VIEW_PATHS.terms
   },
   stayD: {
-    title: "Stay.D 東京千川獨棟住宿｜52m²・千川站約5分鐘 · Jabiko",
+    title: "Stay.D 東京住宿推薦｜像生活一樣感受東京 · Jabiko",
     description:
-      "東京千川的52m²三層獨棟住宿，千川站步行約5分鐘，2025年8月完工，提供10Gbps光纖、完整廚房與兩張雙人床。前往Airbnb確認最新價格與可訂日期。",
+      "用學過的日文，和家人朋友一起更深入地享受東京的日常。Stay.D 是適合體驗東京生活的推薦住宿，前往 Airbnb 查看 Stay.D。",
     path: APP_VIEW_PATHS.stayD
   },
   grammar: {

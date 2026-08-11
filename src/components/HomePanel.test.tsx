@@ -458,3 +458,29 @@ describe("HomePanel continue banner i18n (#427)", () => {
     expect(await screen.findByText(copy.en.homeBannerContinueMain(enTitle))).toBeInTheDocument();
   });
 });
+
+describe("HomePanel Stay.D placement (#748 editorial)", () => {
+  it("renders the Stay.D recommendation without any property photo", () => {
+    renderHome({ language: "zh-Hant" });
+
+    const placement = document.querySelector('[data-placement="home-bottom"]');
+    expect(placement).not.toBeNull();
+    expect(placement?.querySelector("img")).toBeNull();
+    expect(placement?.querySelector(".stay-d-promo-image")).toBeNull();
+  });
+
+  it("keeps the direct Airbnb CTA visible on the Home block", () => {
+    renderHome({ language: "zh-Hant" });
+
+    const primary = document.querySelector<HTMLAnchorElement>(
+      '[data-stay-d-placement="home-airbnb"]'
+    );
+    expect(primary).not.toBeNull();
+    expect(primary).toHaveAttribute(
+      "href",
+      "https://www.airbnb.com/rooms/1518015758376242668"
+    );
+    expect(primary).toHaveAttribute("target", "_blank");
+    expect(primary).toHaveAttribute("rel", "noopener noreferrer");
+  });
+});

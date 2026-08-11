@@ -122,18 +122,23 @@ describe("buildStaticPages", () => {
     }
   });
 
-  it("prerenders real Stay.D copy and a crawler-visible Airbnb link", () => {
+  it("prerenders editorial Stay.D copy and a crawler-visible Airbnb link", () => {
     const stayD = byPath.get("/stay-d");
     expect(stayD).toBeDefined();
     expect(stayD!.canonical).toBe("https://jabiko.app/stay-d");
-    expect(stayD!.bodyHtml).toContain("在東京，不只住宿，也住進日常。");
+    expect(stayD!.bodyHtml).toContain(
+      "下一次來東京，不只是觀光。用學過的日文，和家人朋友一起更深入地享受東京的日常。"
+    );
     expect(stayD!.bodyHtml).toContain(
       '<a href="https://www.airbnb.com/rooms/1518015758376242668"'
     );
-    expect(stayD!.bodyHtml).toContain(
-      '<img src="/stay-d/living-hero-1600.webp"'
+    expect(stayD!.bodyHtml).toContain("在 Airbnb 查看 Stay.D");
+    expect(stayD!.bodyHtml).toContain('rel="noopener noreferrer"');
+    // #748: the prerendered body must no longer reproduce listing media or specs.
+    expect(stayD!.bodyHtml).not.toContain("<img");
+    expect(stayD!.bodyHtml).not.toMatch(
+      /2025|52m|52 m|三層|3階|three-floor|10 ?Gbps|雙人床|ダブルベッド|double beds|徒歩|步行|5-minute walk/i
     );
-    expect(stayD!.bodyHtml).toContain('width="1600" height="900"');
     expect(stayD!.bodyHtml).not.toMatch(/notion/i);
   });
 
