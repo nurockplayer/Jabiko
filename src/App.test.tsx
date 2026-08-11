@@ -159,6 +159,11 @@ describe("App", () => {
     expect(appSource).toMatch(/const StayDPage = lazy\(\(\) =>/);
     expect(appSource).toContain('import("./components/StayDPage")');
 
+    // Make the expected localized route copy an explicit test precondition.
+    // The shared setup also pins zh-Hant, but App's large integration suite
+    // mutates language storage in many cases and CI worker timing must not make
+    // this route assertion depend on cross-test hook ordering.
+    localStorage.setItem("jabiko.lang", "zh-Hant");
     window.history.replaceState({}, "", "/stay-d");
     render(<App />);
 
