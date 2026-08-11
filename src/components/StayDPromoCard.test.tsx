@@ -12,7 +12,9 @@ describe("StayDPromoCard (#744)", () => {
   it("makes Airbnb the direct primary action at home-bottom", () => {
     render(<StayDPromoCard language="zh-Hant" />);
 
-    const promo = screen.getByRole("region", { name: "東京學日文，也住得像東京人。" });
+    const promo = screen.getByRole("region", {
+      name: "下一次來東京，不只是觀光。帶著你學會的日文，和家人朋友一起深度探索東京的日常。"
+    });
     expect(promo).toHaveAttribute("data-placement", "home-bottom");
 
     const primary = screen.getByRole("link", {
@@ -85,9 +87,21 @@ describe("StayDPromoCard (#744)", () => {
   });
 
   it.each([
-    ["zh-Hant", "東京學日文，也住得像東京人。", "推廣"],
-    ["ja", "東京で学ぶなら、暮らすように泊まる。", "プロモーション"],
-    ["en", "Study Japanese in Tokyo. Stay like you live here.", "Promotion"]
+    [
+      "zh-Hant",
+      "下一次來東京，不只是觀光。帶著你學會的日文，和家人朋友一起深度探索東京的日常。",
+      "Jabiko 推薦｜東京住宿"
+    ],
+    [
+      "ja",
+      "次の東京は、観光するだけじゃない。学んだ日本語を使いながら、家族や友人と東京の日常をもっと深く楽しもう。",
+      "Jabikoおすすめ｜東京ステイ"
+    ],
+    [
+      "en",
+      "Next time in Tokyo, go beyond sightseeing. Use the Japanese you’ve learned and explore everyday Tokyo more deeply with family and friends.",
+      "Jabiko Pick | Tokyo Stay"
+    ]
   ] as const)("renders complete %s Home copy", (language, title, disclosure) => {
     render(<StayDPromoCard language={language} />);
     expect(screen.getByRole("heading", { name: title })).toBeInTheDocument();
