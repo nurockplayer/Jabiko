@@ -160,17 +160,21 @@ describe("App", () => {
     expect(appSource).toContain('import("./components/StayDPage")');
 
     // Make the expected localized route copy an explicit test precondition.
-    // The shared setup also pins zh-Hant, but App's large integration suite
-    // mutates language storage in many cases and CI worker timing must not make
-    // this route assertion depend on cross-test hook ordering.
     localStorage.setItem("jabiko.lang", "zh-Hant");
     window.history.replaceState({}, "", "/stay-d");
     render(<App />);
 
-    await screen.findByRole("heading", {
-      name: "在東京，不只住宿，也住進日常。",
-      level: 1
-    });
+    // This is the first cold import of the Stay.D route chunk. CI runners can
+    // spend longer than Testing Library's default 1s transforming that chunk,
+    // so allow the same bounded warm-up window as the grammar route below.
+    await screen.findByRole(
+      "heading",
+      {
+        name: "在東京，不只住宿，也住進日常。",
+        level: 1
+      },
+      { timeout: 15000 }
+    );
     expect(
       within(screen.getByRole("navigation", { name: "學習流程" })).queryByRole("button", {
         name: /Stay\.D/
