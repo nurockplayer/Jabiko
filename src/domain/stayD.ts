@@ -44,9 +44,9 @@ type CompleteStayDHomeCopy = Record<StayDLocale, StayDHomeCopy>;
 
 export const STAY_D_HOME_COPY = {
   "zh-Hant": {
-    disclosure: "推廣",
-    title: "東京學日文，也住得像東京人。",
-    body: "Stay.D｜東京・千川。千川站步行約 5 分鐘，52m² 三層獨棟，2025 年 8 月完工，配備 10Gbps 光纖、完整廚房與兩張雙人床。",
+    disclosure: "Jabiko 推薦｜東京住宿",
+    title: "下一次來東京，不只是觀光。帶著你學會的日文，和家人朋友一起深度探索東京的日常。",
+    body: "Stay.D 位於東京千川，距千川站步行約 5 分鐘。2025 年 8 月完工的 52m² 三層獨棟住宅，配備 10Gbps 光纖、完整廚房與兩張雙人床，適合想用更貼近日常的方式停留東京的旅客。",
     imageAlt: "Stay.D 明亮的二樓客廳與用餐空間",
     airbnbCta: "查看 Airbnb 最新價格與可訂日期",
     video: {
@@ -57,9 +57,9 @@ export const STAY_D_HOME_COPY = {
     }
   },
   ja: {
-    disclosure: "プロモーション",
-    title: "東京で学ぶなら、暮らすように泊まる。",
-    body: "Stay.D｜東京・千川。千川駅から徒歩約5分、52m²の3階建て一棟住宅。2025年8月完成、10Gbps光回線、キッチン、ダブルベッド2台を備えています。",
+    disclosure: "Jabikoおすすめ｜東京ステイ",
+    title: "次の東京は、観光するだけじゃない。学んだ日本語を使いながら、家族や友人と東京の日常をもっと深く楽しもう。",
+    body: "Stay.Dは東京・千川にある、千川駅から徒歩約5分の一棟住宅です。2025年8月完成、52m²・3階建てで、10Gbps光回線、キッチン、ダブルベッド2台を備えています。東京で暮らすように滞在したい方におすすめです。",
     imageAlt: "Stay.Dの明るい2階リビング・ダイニング",
     airbnbCta: "Airbnbで料金・空室を確認",
     video: {
@@ -70,9 +70,9 @@ export const STAY_D_HOME_COPY = {
     }
   },
   en: {
-    disclosure: "Promotion",
-    title: "Study Japanese in Tokyo. Stay like you live here.",
-    body: "Stay.D | Senkawa, Tokyo. About 5 minutes from the station, a 52 m² three-floor private home completed in August 2025, with 10 Gbps fiber, a full kitchen, and two double beds.",
+    disclosure: "Jabiko Pick | Tokyo Stay",
+    title: "Next time in Tokyo, go beyond sightseeing. Use the Japanese you’ve learned and explore everyday Tokyo more deeply with family and friends.",
+    body: "Stay.D is a private three-floor home in Senkawa, about a 5-minute walk from the station. Completed in August 2025, the 52 m² home includes 10 Gbps fiber, a full kitchen, and two double beds for travelers who want a more lived-in Tokyo experience.",
     imageAlt: "Stay.D's bright second-floor living and dining space",
     airbnbCta: "Check price & availability on Airbnb",
     video: {
