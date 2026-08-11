@@ -126,7 +126,7 @@ describe("buildStaticPages", () => {
     const terms = byPath.get("/terms");
 
     expect(privacy?.bodyHtml).toContain("Google 登入與跨裝置同步");
-    expect(privacy?.bodyHtml).toContain("匿名使用分析");
+    expect(privacy?.bodyHtml).toContain("使用分析");
     expect(terms?.bodyHtml).toContain("程式碼、內容與品牌");
     expect(terms?.bodyHtml).toContain("不代表已授權");
   });

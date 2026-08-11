@@ -80,18 +80,23 @@ slug, or leaving and later re-entering an article route, is a new view.
 Issue #745: one reusable outbound promotion click event, emitted **before**
 the external-link navigation proceeds, from the promotion CTA activation.
 
-- `promoId` — a stable, non-PII placement identifier such as `stay-d`.
+- `promoId` — bounded to approved promotion identifiers
+  (`PROMO_IDENTIFIERS`; currently `stay-d`). A free-form string such as an
+  email is rejected at compile time.
 - `destinationType` — narrowed to `"airbnb"` (the single approved
   destination); free-form destination strings are rejected at compile time.
-- `placement` — the Jabiko surface where the card rendered (e.g. `home`),
-  not free-form copy.
+- `placement` — bounded to known Jabiko surfaces (`PROMO_PLACEMENTS`:
+  `home`, `about`, `blog`). #744 picks from these; adding a new surface
+  extends the union. URLs or free text are rejected at compile time.
 - `locale` — the active UI locale.
 
 The payload never carries the destination URL, Airbnb listing content,
-account or visitor data, or arbitrary strings. Firing is fire-and-forget: a
-missing or failing Zaraz must never block the CTA or the outbound link. One
-activation emits exactly one `promo_click` (the CTA handler calls `trackEvent`
-once; there is no router-level promotion tracking).
+account or visitor data, or arbitrary strings. `promoId` / `placement` are
+bounded unions in `src/lib/analytics.ts`, so arbitrary text cannot pass the
+analytics boundary even if a caller builds the payload as a variable. Firing
+is fire-and-forget: a missing or failing Zaraz must never block the CTA or the
+outbound link. One activation emits exactly one `promo_click` (the CTA handler
+calls `trackEvent` once; there is no router-level promotion tracking).
 
 ### `view` allowed values
 

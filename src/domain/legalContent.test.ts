@@ -101,7 +101,7 @@ describe("legal content", () => {
   it("discloses GA4 routing through Zaraz in every launched privacy locale without over-claiming", () => {
     const disclosureText = (language: "zh-Hant" | "ja" | "en") =>
       legalDocumentFor(language, "privacy").sections
-        .flatMap((section) => [...(section.paragraphs ?? []), ...(section.items ?? [])])
+        .flatMap((section) => [section.title, ...(section.paragraphs ?? []), ...(section.items ?? [])])
         .join("\n");
 
     // GA4 is disclosed as a downstream analytics recipient routed through Zaraz.
@@ -130,10 +130,30 @@ describe("legal content", () => {
     expect(en).toContain("does not measure or track");
 
     // No claim that analytics is fully anonymous while GA4/Zaraz keep their
-    // own client/session mechanisms.
+    // own client/session mechanisms. The section title itself must not claim
+    // anonymity either.
     expect(en).not.toContain("fully anonymous");
     expect(zh).not.toContain("完全匿名");
     expect(ja).not.toContain("完全に匿名");
+
+    // The analytics section title must not assert anonymity in any launched
+    // locale, now that events can be routed to Google Analytics. Titles carry
+    // the numbered prefix ("3. 使用分析"), so assert the wording, not an
+    // exact match. The section is located per-locale (English has no 分析
+    // character), so key each matcher to the locale's own wording.
+    const analyticsSectionTitle = (language: "zh-Hant" | "ja" | "en") =>
+      legalDocumentFor(language, "privacy").sections
+        .find((section) =>
+          language === "en" ? section.title.includes("analytics") : section.title.includes("分析")
+        )
+        ?.title ?? "";
+
+    expect(analyticsSectionTitle("zh-Hant")).toContain("使用分析");
+    expect(analyticsSectionTitle("zh-Hant")).not.toContain("匿名");
+    expect(analyticsSectionTitle("ja")).toContain("利用状況分析");
+    expect(analyticsSectionTitle("ja")).not.toContain("匿名");
+    expect(analyticsSectionTitle("en")).toContain("Usage analytics");
+    expect(analyticsSectionTitle("en")).not.toContain("Anonymous");
   });
 
   it("does not claim that public source code is open source", () => {

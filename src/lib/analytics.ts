@@ -61,13 +61,22 @@ export interface ArticleViewedPayload {
   slug: string;
 }
 // Outbound promotion click (#745). destinationType is narrowed to the single
-// currently-approved destination ("airbnb"); placement identifies the Jabiko
-// surface the card rendered on, not free-form copy. Nothing about the
-// destination page, account, or visitor travels in this payload.
+// currently-approved destination ("airbnb"); promoId and placement are bounded
+// to approved identifiers so arbitrary free-form text or PII (an email, a URL)
+// cannot pass the analytics boundary at compile time. Extend the unions below
+// when a new approved promotion or placement lands.
+export const PROMO_IDENTIFIERS = ["stay-d"] as const satisfies readonly string[];
+export type PromoIdentifier = (typeof PROMO_IDENTIFIERS)[number];
+
+// Jabiko surfaces where a promotion card may render. #744 will choose from
+// these; adding a new non-interruptive informational surface extends the union.
+export const PROMO_PLACEMENTS = ["home", "about", "blog"] as const satisfies readonly string[];
+export type PromoPlacement = (typeof PROMO_PLACEMENTS)[number];
+
 export interface PromoClickPayload {
-  promoId: string;
+  promoId: PromoIdentifier;
   destinationType: "airbnb";
-  placement: string;
+  placement: PromoPlacement;
   locale: LocaleCode;
 }
 

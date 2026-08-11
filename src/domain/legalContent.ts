@@ -50,7 +50,7 @@ const LEGAL_COPY = {
           ]
         },
         {
-          title: "3. 匿名使用分析",
+          title: "3. 使用分析",
           paragraphs: [
             "正式環境可能透過 Cloudflare Zaraz 收集粗略的使用事件，例如開啟哪個功能、練習模式、JLPT 級別、介面語言、是否答對、完成題數、文法頁識別碼或文章代稱。這些事件用來了解功能是否真的被使用。當分析啟用時，選定的淨化後使用事件（例如促銷外連點擊）可能透過 Cloudflare Zaraz 轉交 Google Analytics，用於彙總使用分析。",
             "Jabiko 的自訂分析事件不傳送題目全文、你輸入的答案、電子郵件、Supabase 使用者 ID、文章正文、查詢字串或自由輸入文字。促銷外連點擊僅傳送促銷識別碼、目的地類型、版面位置與介面語言，不代表測量或追蹤 Airbnb 訂房轉換。Cloudflare 等基礎設施供應商仍可能為傳輸、安全與防濫用處理 IP 位址、裝置或請求資訊，並依其自身政策處理。"
@@ -169,7 +169,7 @@ const LEGAL_COPY = {
           ]
         },
         {
-          title: "3. 匿名の利用状況分析",
+          title: "3. 利用状況分析",
           paragraphs: [
             "本番環境では Cloudflare Zaraz を通じ、利用した機能、練習モード、JLPT レベル、表示言語、正誤、完了数、文法ページ ID、記事スラッグなどの大まかなイベントを収集する場合があります。分析が有効な場合、選定した浄化済みの利用イベント（プロモーションの外部リンクのクリックなど）は Cloudflare Zaraz を経由して Google Analytics に転送され、集計的な利用分析に使われることがあります。",
             "Jabiko 独自の分析イベントには、問題全文、入力した回答、メールアドレス、Supabase のユーザー ID、記事本文、クエリ文字列、自由入力文を含めません。プロモーションの外部リンクのクリックでは、プロモーション ID、宛先の種類、掲載位置、表示言語のみを送信し、Airbnb の予約転換を測定・追跡するものではありません。ただし Cloudflare などの基盤事業者は、通信・安全対策・不正防止のため IP アドレスや端末・リクエスト情報を処理する場合があります。"
@@ -288,7 +288,7 @@ const LEGAL_COPY = {
           ]
         },
         {
-          title: "3. Anonymous usage analytics",
+          title: "3. Usage analytics",
           paragraphs: [
             "The production site may use Cloudflare Zaraz to collect coarse events such as the feature opened, practice mode, JLPT level, interface language, correctness, completion counts, grammar-page identifiers, or article slugs. These events help us understand whether features are being used. When analytics is enabled, selected sanitized usage events (such as promotion outbound clicks) may be routed through Cloudflare Zaraz to Google Analytics for aggregate usage analysis.",
             "Jabiko's custom analytics events do not send full question text, your submitted answer, email address, Supabase user ID, article body, query string, or free-form input. A promotion outbound click carries only the promotion identifier, destination type, placement, and interface language; it does not measure or track Airbnb booking conversion. Infrastructure providers such as Cloudflare may still process IP addresses, device details, or request information for delivery, security, and abuse prevention under their own policies."

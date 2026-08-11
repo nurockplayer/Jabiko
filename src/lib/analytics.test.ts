@@ -214,9 +214,9 @@ describe("analytics.trackEvent", () => {
     // The promotion CTA must not forward the destination URL, account data,
     // raw user ids, or arbitrary strings. Only the four allowlisted keys pass.
     const smuggled = {
-      promoId: "stay-d",
+      promoId: "stay-d" as const,
       destinationType: "airbnb" as const,
-      placement: "home",
+      placement: "home" as const,
       locale: "zh-Hant" as const,
       destinationUrl: "https://zh-t.airbnb.com/rooms/1518015758376242668",
       email: "a@b.com",
@@ -258,6 +258,28 @@ describe("analytics.trackEvent", () => {
       // @ts-expect-error -- destinationUrl is not an allowlisted key; the
       // Airbnb URL must never travel inside the analytics payload
       destinationUrl: "https://zh-t.airbnb.com/rooms/1518015758376242668"
+    });
+  });
+
+  it("rejects an arbitrary promoId at compile time", () => {
+    trackEvent("promo_click", {
+      // @ts-expect-error -- promoId is bounded to approved promotion ids; a
+      // free-form string such as an email must not pass the boundary
+      promoId: "user@example.com",
+      destinationType: "airbnb",
+      placement: "home",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("rejects an arbitrary placement at compile time", () => {
+    trackEvent("promo_click", {
+      promoId: "stay-d",
+      destinationType: "airbnb",
+      // @ts-expect-error -- placement is bounded to known Jabiko surfaces; a
+      // URL or free text must not pass the boundary
+      placement: "https://example.com/",
+      locale: "zh-Hant"
     });
   });
 
