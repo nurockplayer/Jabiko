@@ -100,6 +100,10 @@
 
 .stay-d-home .stay-d-video-trigger:hover,
 .stay-d-home .stay-d-video-trigger:focus-visible {
+  /* Reset the global button:hover:not(:disabled) shadow + lift so the text
+     action stays static on hover (CodeRabbit P2). */
+  box-shadow: none;
+  transform: none;
   text-decoration: underline;
   text-underline-offset: 3px;
 }

@@ -76,6 +76,14 @@ describe("stay-d editorial layout (#750)", () => {
     // Radius must be reset to 0, not carry an actual pill radius.
     expect(trigger).toMatch(/border-radius:\s*0/);
     expect(trigger).not.toMatch(/border-radius:\s*(?!0\b)\S/);
+
+    // CodeRabbit P2: on hover the global button:hover:not(:disabled) shadow
+    // + lift would reappear -- the Home hover rule must reset both.
+    const hoverStart = css.indexOf("\n.stay-d-home .stay-d-video-trigger:hover");
+    expect(hoverStart).toBeGreaterThanOrEqual(0);
+    const hoverBlock = css.slice(hoverStart, css.indexOf("}", hoverStart));
+    expect(hoverBlock).toMatch(/box-shadow:\s*none/);
+    expect(hoverBlock).toMatch(/transform:\s*none/);
   });
 
   it("keeps the Home promo single-column and full-width actions at 320-390px", () => {
