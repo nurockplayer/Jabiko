@@ -20,6 +20,8 @@ import { KANA_TABLE, type KanaGroup, type KanaScript } from "../kana";
 import type { JlptLevel } from "../types";
 import { legalDocumentFor, type LegalPageKind } from "../legalContent";
 import { articleJsonLd, personJsonLd } from "./structuredData";
+import { STAY_D_AIRBNB_URL } from "../stayD";
+import { STAY_D_PAGE_COPY } from "../stayDPage";
 
 export interface StaticPage {
   /** Decoded URL path, e.g. "/grammar/〜てもいい". */
@@ -283,6 +285,39 @@ function homeBody(): string {
   );
 }
 
+function stayDBody(): string {
+  const text = STAY_D_PAGE_COPY["zh-Hant"];
+  const facts = text.quickFacts
+    .map((fact) => `<li><strong>${escapeHtml(fact.title)}</strong> — ${escapeHtml(fact.body)}</li>`)
+    .join("");
+  const floors = text.floors
+    .map(
+      (floor) =>
+        `<li><strong>${escapeHtml(floor.label)}｜${escapeHtml(floor.title)}</strong> — ${escapeHtml(floor.body)}</li>`
+    )
+    .join("");
+  const amenities = text.amenities
+    .map((item) => `<li><strong>${escapeHtml(item.title)}</strong> — ${escapeHtml(item.body)}</li>`)
+    .join("");
+  const airbnb = (placement: string) =>
+    `<a href="${STAY_D_AIRBNB_URL}" target="_blank" rel="noopener noreferrer" data-stay-d-placement="${placement}">${escapeHtml(text.airbnbCta)}</a>`;
+
+  return wrap(
+    text.headline,
+    [
+      paragraph(text.kicker),
+      paragraph(text.body),
+      `<p>${airbnb("stay-d-hero-airbnb")}</p>`,
+      `<h2>${escapeHtml(text.quickFactsLabel)}</h2><ul>${facts}</ul>`,
+      `<h2>${escapeHtml(text.layoutTitle)}</h2><ul>${floors}</ul>`,
+      `<h2>${escapeHtml(text.amenitiesTitle)}</h2>${paragraph(text.amenitiesIntro)}<ul>${amenities}</ul>`,
+      `<h2>${escapeHtml(text.neighborhoodTitle)}</h2>${paragraph(text.neighborhoodBody)}`,
+      `<h2>${escapeHtml(text.videoTitle)}</h2>${paragraph(text.videoIntro)}<p><a href="https://www.youtube.com/watch?v=wXx_t8JTyDE&amp;t=70s" rel="noopener noreferrer">${escapeHtml(text.video.watch)}</a></p>`,
+      `<h2>${escapeHtml(text.finalTitle)}</h2>${paragraph(text.finalBody)}<p>${airbnb("stay-d-final-airbnb")}</p>`
+    ].join("")
+  );
+}
+
 // #619: the /kana page's whole value to a crawler IS the chart, so render the
 // full tables (kana + romaji, grouped like the app) instead of a description.
 function kanaBody(): string {
@@ -360,6 +395,7 @@ export function buildStaticPages(): StaticPage[] {
   for (const view of ["privacy", "terms"] as const) {
     push(view, VIEW_SEO[view].path, legalPageBody(view));
   }
+  push("stayD", VIEW_SEO.stayD.path, stayDBody());
   push("kana", "/kana", kanaBody());
   push("grammar", "/grammar", grammarIndexBody());
   for (const level of LEVELS) {

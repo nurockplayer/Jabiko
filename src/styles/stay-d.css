@@ -1,0 +1,431 @@
+/* Stay.D conversion surfaces (#744). Warm, editorial treatment keeps the
+   recommendation related to Jabiko without competing with the learning hero. */
+.stay-d-promo {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem 1.2rem;
+  padding: 1.2rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--panel-border));
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--gold) 7%, var(--paper));
+  box-shadow: var(--shadow);
+}
+
+.stay-d-promo-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 6rem;
+  min-height: 6rem;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--matcha) 16%, var(--paper));
+  color: var(--matcha-dark);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.stay-d-promo-mark svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.stay-d-promo-copy {
+  min-width: 0;
+}
+
+.stay-d-disclosure {
+  display: inline-block;
+  margin-bottom: 0.35rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stay-d-promo h2,
+.stay-d-promo p,
+.stay-d-page h1,
+.stay-d-page h2,
+.stay-d-page h3,
+.stay-d-page p {
+  margin: 0;
+}
+
+.stay-d-promo h2 {
+  color: var(--ink);
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  line-height: 1.35;
+}
+
+.stay-d-promo p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.stay-d-promo-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.stay-d-airbnb-primary,
+.stay-d-video-airbnb,
+.stay-d-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.stay-d-airbnb-primary {
+  border: 1px solid var(--vermilion);
+  background: var(--vermilion);
+  color: var(--selected-text);
+}
+
+.stay-d-airbnb-primary:hover,
+.stay-d-airbnb-primary:focus-visible {
+  filter: brightness(1.06);
+  box-shadow: var(--button-hover-shadow);
+}
+
+.stay-d-airbnb-primary svg,
+.stay-d-video-airbnb svg,
+.stay-d-back svg {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+}
+
+.stay-d-video {
+  min-width: min(100%, 20rem);
+  flex: 1 1 24rem;
+}
+
+.stay-d-video-trigger {
+  max-width: 100%;
+  background: var(--paper);
+  color: var(--teal-dark);
+  font-weight: 750;
+  text-align: left;
+}
+
+.stay-d-video-panel {
+  display: grid;
+  gap: 0.7rem;
+  width: 100%;
+  margin-top: 0.7rem;
+}
+
+.stay-d-video-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  background: #111;
+}
+
+.stay-d-video-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.stay-d-video-airbnb {
+  justify-self: start;
+  border: 1px solid color-mix(in srgb, var(--vermilion) 60%, var(--button-border));
+  background: color-mix(in srgb, var(--vermilion) 10%, var(--paper));
+  color: var(--vermilion);
+}
+
+.stay-d-airbnb-primary:focus-visible,
+.stay-d-video-airbnb:focus-visible,
+.stay-d-back:focus-visible,
+.stay-d-video-trigger:focus-visible {
+  outline: 3px solid var(--focus-outline);
+  outline-offset: 3px;
+}
+
+.stay-d-page {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.6rem, 4vw, 3.2rem);
+  width: min(100%, 1080px);
+  margin: 0 auto;
+}
+
+.stay-d-back {
+  align-self: flex-start;
+  min-height: 2.5rem;
+  padding-inline: 0;
+  color: var(--teal-dark);
+}
+
+.stay-d-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(13rem, 18rem);
+  gap: clamp(1.4rem, 4vw, 3rem);
+  align-items: center;
+  padding: clamp(1.3rem, 4vw, 3rem);
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--panel-border));
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--gold) 11%, var(--paper)), var(--paper));
+  box-shadow: var(--shadow);
+}
+
+.stay-d-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.stay-d-kicker {
+  color: var(--vermilion);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stay-d-hero h1 {
+  color: var(--ink);
+  font-family: var(--font-title);
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  line-height: 1.15;
+}
+
+.stay-d-hero-copy > p:not(.stay-d-kicker) {
+  color: var(--muted);
+  font-size: 1.04rem;
+  line-height: 1.75;
+}
+
+.stay-d-hero-emblem {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--matcha) 40%, var(--panel-border));
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--matcha) 13%, var(--paper));
+  color: var(--matcha-dark);
+}
+
+.stay-d-hero-emblem svg {
+  width: 3rem;
+  height: 3rem;
+}
+
+.stay-d-hero-emblem strong {
+  font-size: 1.55rem;
+}
+
+.stay-d-hero-emblem span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stay-d-quick-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.stay-d-quick-facts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 1rem;
+  border-top: 3px solid var(--matcha);
+  background: var(--paper);
+}
+
+.stay-d-quick-facts strong {
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.stay-d-quick-facts span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.stay-d-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stay-d-section > h2,
+.stay-d-section-heading h2,
+.stay-d-neighborhood h2,
+.stay-d-final h2 {
+  color: var(--ink);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  line-height: 1.3;
+}
+
+.stay-d-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.stay-d-section-heading svg,
+.stay-d-neighborhood > svg {
+  flex: 0 0 auto;
+  color: var(--vermilion);
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.stay-d-section-intro,
+.stay-d-neighborhood p,
+.stay-d-final p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.stay-d-feature-grid,
+.stay-d-floor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.stay-d-feature-grid article,
+.stay-d-floor-grid article {
+  min-width: 0;
+  padding: 1.1rem;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.stay-d-feature-grid h3,
+.stay-d-floor-grid h3 {
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.stay-d-feature-grid p,
+.stay-d-floor-grid p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.stay-d-floor-grid article > span {
+  display: inline-block;
+  margin-bottom: 0.55rem;
+  color: var(--vermilion);
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.stay-d-neighborhood {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding: 1.3rem;
+  border-left: 4px solid var(--gold);
+  background: color-mix(in srgb, var(--gold) 8%, var(--paper));
+}
+
+.stay-d-neighborhood p {
+  margin-top: 0.55rem;
+}
+
+.stay-d-tour .stay-d-video {
+  max-width: 54rem;
+}
+
+.stay-d-final {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  padding: clamp(1.2rem, 4vw, 2rem);
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--matcha) 14%, var(--paper));
+}
+
+.stay-d-final p {
+  margin-top: 0.4rem;
+}
+
+@media (max-width: 760px) {
+  .stay-d-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .stay-d-hero-emblem {
+    width: min(11rem, 55vw);
+    justify-self: center;
+  }
+
+  .stay-d-quick-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stay-d-feature-grid,
+  .stay-d-floor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stay-d-final {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 440px) {
+  .stay-d-promo {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .stay-d-promo-mark {
+    width: 100%;
+    min-height: 4.5rem;
+  }
+
+  .stay-d-promo-actions,
+  .stay-d-airbnb-primary,
+  .stay-d-video,
+  .stay-d-video-trigger,
+  .stay-d-video-airbnb,
+  .stay-d-final .stay-d-airbnb-primary {
+    width: 100%;
+  }
+
+  .stay-d-quick-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .stay-d-neighborhood {
+    grid-template-columns: 1fr;
+  }
+}

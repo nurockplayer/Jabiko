@@ -81,6 +81,12 @@ export const VIEW_SEO: Record<AppView, PageSeo> = {
       "Jabiko 的服務範圍、合理使用規則、內容責任、程式碼與原創內容權利，以及外部服務說明。",
     path: APP_VIEW_PATHS.terms
   },
+  stayD: {
+    title: "Stay.D 東京千川獨棟住宿｜52m²・千川站約5分鐘 · Jabiko",
+    description:
+      "東京千川的52m²三層獨棟住宿，千川站步行約5分鐘，2025年8月完工，提供10Gbps光纖、完整廚房與兩張雙人床。前往Airbnb確認最新價格與可訂日期。",
+    path: APP_VIEW_PATHS.stayD
+  },
   grammar: {
     title: "JLPT 文型資料庫 · 日檢文法索引 · Jabiko",
     description:

@@ -114,11 +114,23 @@ describe("buildStaticPages", () => {
       "/about",
       "/privacy",
       "/terms",
+      "/stay-d",
       "/grammar",
       "/blog"
     ]) {
       expect(byPath.has(route), route).toBe(true);
     }
+  });
+
+  it("prerenders real Stay.D copy and a crawler-visible Airbnb link", () => {
+    const stayD = byPath.get("/stay-d");
+    expect(stayD).toBeDefined();
+    expect(stayD!.canonical).toBe("https://jabiko.app/stay-d");
+    expect(stayD!.bodyHtml).toContain("在東京，不只住宿，也住進日常。");
+    expect(stayD!.bodyHtml).toContain(
+      '<a href="https://www.airbnb.com/rooms/1518015758376242668"'
+    );
+    expect(stayD!.bodyHtml).not.toMatch(/notion/i);
   });
 
   it("prerenders the full legal documents", () => {

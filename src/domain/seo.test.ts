@@ -16,6 +16,7 @@ const VIEWS: Exclude<AppView, "grammar">[] = [
   "about",
   "privacy",
   "terms",
+  "stayD",
   "blog"
 ];
 
@@ -47,6 +48,10 @@ describe("seo", () => {
     expect(seoForView("home").canonical).toBe("https://jabiko.app/");
     expect(seoForView("mock").canonical).toBe("https://jabiko.app/mock");
     expect(seoForView("kanji").canonical).toBe("https://jabiko.app/kanji");
+    expect(seoForView("stayD").canonical).toBe("https://jabiko.app/stay-d");
+    expect(seoForView("stayD").title).toBe(
+      "Stay.D 東京千川獨棟住宿｜52m²・千川站約5分鐘 · Jabiko"
+    );
   });
 
   it("keeps descriptions within a sane SEO length (<=160 chars)", () => {

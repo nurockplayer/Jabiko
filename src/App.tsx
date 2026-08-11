@@ -99,6 +99,11 @@ const BlogArticlePage = lazy(() =>
 const LegalPanel = lazy(() =>
   import("./components/LegalPanel").then((module) => ({ default: module.LegalPanel }))
 );
+// Stay.D's long-form conversion copy remains isolated from the eager Home
+// bundle. Home imports only its compact promotion card and shared essentials.
+const StayDPage = lazy(() =>
+  import("./components/StayDPage").then((module) => ({ default: module.StayDPage }))
+);
 const BUILD_VERSION = packageJson.version;
 
 type DrillPreset = LearningBlockDrillPreset;
@@ -559,7 +564,7 @@ export default function App() {
                 surface is the page-specific h1, so the brand title yields to h2
                 to keep exactly one h1 per view. Styling rides the .app-title
                 class, not the tag, so the level change is purely semantic. */}
-            {appView === "grammar" ? (
+            {appView === "grammar" || appView === "stayD" ? (
               <h2 className="app-title">{t.appTitle}</h2>
             ) : (
               <h1 className="app-title">{t.appTitle}</h1>
@@ -828,6 +833,10 @@ export default function App() {
       ) : appView === "privacy" || appView === "terms" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
           <LegalPanel language={language} page={appView} />
+        </Suspense>
+      ) : appView === "stayD" ? (
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <StayDPage language={language} />
         </Suspense>
       ) : appView === "kanji" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
