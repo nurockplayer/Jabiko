@@ -20,7 +20,11 @@ import { KANA_TABLE, type KanaGroup, type KanaScript } from "../kana";
 import type { JlptLevel } from "../types";
 import { legalDocumentFor, type LegalPageKind } from "../legalContent";
 import { articleJsonLd, personJsonLd } from "./structuredData";
-import { STAY_D_AIRBNB_URL } from "../stayD";
+import {
+  STAY_D_AIRBNB_URL,
+  STAY_D_HOME_COPY,
+  STAY_D_HOME_IMAGE
+} from "../stayD";
 import { STAY_D_PAGE_COPY } from "../stayDPage";
 
 export interface StaticPage {
@@ -306,6 +310,7 @@ function stayDBody(): string {
     text.headline,
     [
       paragraph(text.kicker),
+      `<img src="${STAY_D_HOME_IMAGE.src}" srcset="${STAY_D_HOME_IMAGE.srcSet}" sizes="(max-width: 720px) calc(100vw - 40px), 640px" width="${STAY_D_HOME_IMAGE.width}" height="${STAY_D_HOME_IMAGE.height}" alt="${escapeHtml(STAY_D_HOME_COPY["zh-Hant"].imageAlt)}" fetchpriority="high">`,
       paragraph(text.body),
       `<p>${airbnb("stay-d-hero-airbnb")}</p>`,
       `<h2>${escapeHtml(text.quickFactsLabel)}</h2><ul>${facts}</ul>`,

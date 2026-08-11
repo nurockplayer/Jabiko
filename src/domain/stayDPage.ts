@@ -1,4 +1,25 @@
-import type { StayDLocale, StayDVideoCopy } from "./stayD";
+import type { StayDImage, StayDLocale, StayDVideoCopy } from "./stayD";
+
+export type StayDPageImageId =
+  | "exterior"
+  | "living"
+  | "kitchen"
+  | "bedroom"
+  | "bath"
+  | "layout";
+
+export interface StayDPageImage extends StayDImage {
+  id: StayDPageImageId;
+}
+
+export const STAY_D_PAGE_IMAGES = [
+  { id: "exterior", src: "/stay-d/exterior.webp", width: 800, height: 1600 },
+  { id: "living", src: "/stay-d/living.webp", width: 900, height: 1200 },
+  { id: "kitchen", src: "/stay-d/kitchen.webp", width: 900, height: 1200 },
+  { id: "bedroom", src: "/stay-d/bedroom.webp", width: 1200, height: 675 },
+  { id: "bath", src: "/stay-d/bath.webp", width: 900, height: 1200 },
+  { id: "layout", src: "/stay-d/floor-plan.webp", width: 410, height: 238 }
+] as const satisfies readonly StayDPageImage[];
 
 interface StayDFeature {
   title: string;
@@ -19,6 +40,10 @@ export interface StayDPageCopy {
   airbnbCta: string;
   quickFactsLabel: string;
   quickFacts: readonly StayDFeature[];
+  galleryTitle: string;
+  galleryIntro: string;
+  imageAlt: Record<StayDPageImageId, string>;
+  imageCaption: Record<StayDPageImageId, string>;
   whyTitle: string;
   whyIntro: string;
   whyItems: readonly StayDFeature[];
@@ -52,6 +77,24 @@ export const STAY_D_PAGE_COPY = {
       { title: "2025 年 8 月", body: "住宅完工時間" },
       { title: "10 Gbps 光纖", body: "房源已安裝的網路方案；實際速度不保證" }
     ],
+    galleryTitle: "先從空間，看見 Stay.D 的生活方式",
+    galleryIntro: "從獨棟外觀到三層樓內部，以下照片皆為 Stay.D 實際房源。",
+    imageAlt: {
+      exterior: "Stay.D 外觀",
+      living: "Stay.D 二樓客廳與電視空間",
+      kitchen: "Stay.D 二樓廚房的流理台與家電",
+      bedroom: "Stay.D 三樓臥室的兩張雙人床",
+      bath: "Stay.D 一樓浴室與浴缸",
+      layout: "Stay.D 三層樓格局圖"
+    },
+    imageCaption: {
+      exterior: "三層獨棟住宅",
+      living: "2F｜客廳",
+      kitchen: "2F｜完整廚房",
+      bedroom: "3F｜兩張雙人床",
+      bath: "1F｜浴室與浴缸",
+      layout: "1F–3F｜空間格局"
+    },
     whyTitle: "把住宿變成一段東京日常",
     whyIntro: "Stay.D 把起居、料理、休息與工作的空間分布在三個樓層，適合想在東京保有生活節奏的旅程。",
     whyItems: [
@@ -98,6 +141,24 @@ export const STAY_D_PAGE_COPY = {
       { title: "2025年8月", body: "建物の完成時期" },
       { title: "10 Gbps光回線", body: "物件に導入された回線プラン。実効速度を保証するものではありません" }
     ],
+    galleryTitle: "写真で見るStay.Dの暮らし",
+    galleryIntro: "一棟住宅の外観から3つのフロアまで、すべてStay.Dの実際の物件写真です。",
+    imageAlt: {
+      exterior: "Stay.Dの外観",
+      living: "Stay.Dの2階リビングとテレビスペース",
+      kitchen: "Stay.Dの2階キッチンにあるシンクと家電",
+      bedroom: "Stay.Dの3階寝室にあるダブルベッド2台",
+      bath: "Stay.Dの1階浴室とバスタブ",
+      layout: "Stay.Dの3フロア間取り図"
+    },
+    imageCaption: {
+      exterior: "3階建ての一棟住宅",
+      living: "2F｜リビング",
+      kitchen: "2F｜キッチン",
+      bedroom: "3F｜ダブルベッド2台",
+      bath: "1F｜浴室とバスタブ",
+      layout: "1F–3F｜間取り"
+    },
     whyTitle: "東京の日常を感じられる滞在",
     whyIntro: "Stay.Dは、くつろぐ・料理する・休む・仕事をする空間を3つの階に分け、東京でも普段の生活リズムを保ちやすい住まいです。",
     whyItems: [
@@ -144,6 +205,24 @@ export const STAY_D_PAGE_COPY = {
       { title: "August 2025", body: "The home’s completion date" },
       { title: "10 Gbps fiber", body: "The plan installed at the property; actual speeds are not guaranteed" }
     ],
+    galleryTitle: "See how Stay.D fits everyday life",
+    galleryIntro: "From the standalone exterior to all three floors, these are photographs of the actual Stay.D property.",
+    imageAlt: {
+      exterior: "Stay.D exterior",
+      living: "Stay.D's second-floor living room and TV area",
+      kitchen: "Stay.D's second-floor kitchen counter and appliances",
+      bedroom: "Two double beds in Stay.D's third-floor bedroom",
+      bath: "Stay.D's first-floor bathroom and bathtub",
+      layout: "Floor plan of Stay.D's three levels"
+    },
+    imageCaption: {
+      exterior: "Three-floor private home",
+      living: "2F | Living room",
+      kitchen: "2F | Full kitchen",
+      bedroom: "3F | Two double beds",
+      bath: "1F | Bathroom and bathtub",
+      layout: "1F–3F | Floor plan"
+    },
     whyTitle: "Make your stay feel more like daily Tokyo life",
     whyIntro: "Stay.D spreads cooking, living, sleeping, and work-friendly space across three floors for travelers who want to keep a comfortable daily rhythm in Tokyo.",
     whyItems: [

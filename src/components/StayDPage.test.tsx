@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { STAY_D_AIRBNB_URL } from "../domain/stayD";
+import { STAY_D_AIRBNB_URL, STAY_D_HOME_IMAGE } from "../domain/stayD";
+import { STAY_D_PAGE_IMAGES } from "../domain/stayDPage";
 import { StayDPage } from "./StayDPage";
 
 describe("StayDPage (#744)", () => {
@@ -10,7 +11,7 @@ describe("StayDPage (#744)", () => {
     expect(
       screen.getByRole("heading", { name: "在東京，不只住宿，也住進日常。", level: 1 })
     ).toBeInTheDocument();
-    expect(screen.getByText(/1F/)).toBeInTheDocument();
+    expect(screen.getByText("1F")).toBeInTheDocument();
     expect(screen.getByText(/10 Gbps/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "看看 Stay.D 住宿影片" }));
 
@@ -38,9 +39,45 @@ describe("StayDPage (#744)", () => {
     expect(screen.getByTitle("Stay.D home tour video")).toBeInTheDocument();
   });
 
-  it("does not fabricate or hotlink property imagery before owner approval", () => {
-    render(<StayDPage language="ja" />);
-    expect(screen.queryAllByRole("img")).toHaveLength(0);
+  it("prioritizes the local hero and lazy-loads the representative gallery", () => {
+    const { container } = render(<StayDPage language="zh-Hant" />);
+
+    const hero = screen.getByRole("img", {
+      name: "Stay.D 明亮的二樓客廳與用餐空間"
+    });
+    expect(hero).toHaveAttribute("src", STAY_D_HOME_IMAGE.src);
+    expect(hero).toHaveAttribute("loading", "eager");
+    expect(hero).toHaveAttribute("fetchpriority", "high");
+    expect(hero).toHaveAttribute("width", String(STAY_D_HOME_IMAGE.width));
+    expect(hero).toHaveAttribute("height", String(STAY_D_HOME_IMAGE.height));
+
+    const gallery = container.querySelector(".stay-d-gallery");
+    expect(gallery).not.toBeNull();
+    const galleryImages = gallery?.querySelectorAll("img") ?? [];
+    expect(galleryImages).toHaveLength(STAY_D_PAGE_IMAGES.length);
+    for (const image of galleryImages) {
+      expect(image).toHaveAttribute("loading", "lazy");
+      expect(image.getAttribute("src")).toMatch(/^\/stay-d\//);
+      expect(image).toHaveAttribute("width");
+      expect(image).toHaveAttribute("height");
+    }
+  });
+
+  it.each([
+    ["zh-Hant", "Stay.D 外觀", "Stay.D 三樓臥室的兩張雙人床"],
+    ["ja", "Stay.Dの外観", "Stay.Dの3階寝室にあるダブルベッド2台"],
+    ["en", "Stay.D exterior", "Two double beds in Stay.D's third-floor bedroom"]
+  ] as const)("localizes meaningful image alternatives in %s", (language, exterior, bedroom) => {
+    render(<StayDPage language={language} />);
+    expect(screen.getByRole("img", { name: exterior })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: bedroom })).toBeInTheDocument();
+  });
+
+  it("never renders transient or remote owner-asset URLs", () => {
+    const { container } = render(<StayDPage language="ja" />);
+    expect(container.innerHTML).not.toMatch(
+      /notion\.(?:so|site)|amazonaws\.com|airbnbstatic\.com|airbnbusercontent\.com|muscache\.com|X-Amz-|source_impression_id/i
+    );
   });
 
   it.each([

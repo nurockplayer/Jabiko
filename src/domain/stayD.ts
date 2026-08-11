@@ -20,9 +20,25 @@ export interface StayDHomeCopy {
   disclosure: string;
   title: string;
   body: string;
+  imageAlt: string;
   airbnbCta: string;
   video: StayDVideoCopy;
 }
+
+export interface StayDImage {
+  src: string;
+  width: number;
+  height: number;
+  srcSet?: string;
+}
+
+export const STAY_D_HOME_IMAGE = {
+  src: "/stay-d/living-hero-1600.webp",
+  srcSet:
+    "/stay-d/living-hero-800.webp 800w, /stay-d/living-hero-1600.webp 1600w",
+  width: 1600,
+  height: 900
+} satisfies StayDImage;
 
 type CompleteStayDHomeCopy = Record<StayDLocale, StayDHomeCopy>;
 
@@ -31,6 +47,7 @@ export const STAY_D_HOME_COPY = {
     disclosure: "推廣",
     title: "東京學日文，也住得像東京人。",
     body: "Stay.D｜東京・千川。千川站步行約 5 分鐘，52m² 三層獨棟，2025 年 8 月完工，配備 10Gbps 光纖、完整廚房與兩張雙人床。",
+    imageAlt: "Stay.D 明亮的二樓客廳與用餐空間",
     airbnbCta: "查看 Airbnb 最新價格與可訂日期",
     video: {
       watch: "▶ 看看 Stay.D 住宿影片",
@@ -43,6 +60,7 @@ export const STAY_D_HOME_COPY = {
     disclosure: "プロモーション",
     title: "東京で学ぶなら、暮らすように泊まる。",
     body: "Stay.D｜東京・千川。千川駅から徒歩約5分、52m²の3階建て一棟住宅。2025年8月完成、10Gbps光回線、キッチン、ダブルベッド2台を備えています。",
+    imageAlt: "Stay.Dの明るい2階リビング・ダイニング",
     airbnbCta: "Airbnbで料金・空室を確認",
     video: {
       watch: "▶ Stay.Dの紹介動画を見る",
@@ -55,6 +73,7 @@ export const STAY_D_HOME_COPY = {
     disclosure: "Promotion",
     title: "Study Japanese in Tokyo. Stay like you live here.",
     body: "Stay.D | Senkawa, Tokyo. About 5 minutes from the station, a 52 m² three-floor private home completed in August 2025, with 10 Gbps fiber, a full kitchen, and two double beds.",
+    imageAlt: "Stay.D's bright second-floor living and dining space",
     airbnbCta: "Check price & availability on Airbnb",
     video: {
       watch: "▶ Watch the Stay.D home tour",

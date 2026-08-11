@@ -2,9 +2,11 @@ import { ArrowLeft, ExternalLink, House, MapPin, Wifi } from "lucide-react";
 import type { Language } from "../i18n";
 import {
   STAY_D_AIRBNB_URL,
+  STAY_D_HOME_COPY,
+  STAY_D_HOME_IMAGE,
   isStayDLocale
 } from "../domain/stayD";
-import { STAY_D_PAGE_COPY } from "../domain/stayDPage";
+import { STAY_D_PAGE_COPY, STAY_D_PAGE_IMAGES } from "../domain/stayDPage";
 import { StayDVideo } from "./StayDVideo";
 
 export function StayDPage({ language }: { language: Language }) {
@@ -19,6 +21,19 @@ export function StayDPage({ language }: { language: Language }) {
       </a>
 
       <header className="stay-d-hero">
+        <div className="stay-d-hero-image">
+          <img
+            src={STAY_D_HOME_IMAGE.src}
+            srcSet={STAY_D_HOME_IMAGE.srcSet}
+            sizes="(max-width: 720px) calc(100vw - 40px), (max-width: 1180px) 54vw, 640px"
+            width={STAY_D_HOME_IMAGE.width}
+            height={STAY_D_HOME_IMAGE.height}
+            alt={STAY_D_HOME_COPY[language].imageAlt}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
+        </div>
         <div className="stay-d-hero-copy">
           <p className="stay-d-kicker">{text.kicker}</p>
           <h1>{text.headline}</h1>
@@ -34,11 +49,6 @@ export function StayDPage({ language }: { language: Language }) {
             <ExternalLink aria-hidden="true" />
           </a>
         </div>
-        <div className="stay-d-hero-emblem" aria-hidden="true">
-          <House />
-          <strong>Stay.D</strong>
-          <span>Senkawa · Tokyo</span>
-        </div>
       </header>
 
       <section className="stay-d-quick-facts" aria-label={text.quickFactsLabel}>
@@ -48,6 +58,27 @@ export function StayDPage({ language }: { language: Language }) {
             <span>{fact.body}</span>
           </div>
         ))}
+      </section>
+
+      <section className="stay-d-section stay-d-gallery-section">
+        <h2>{text.galleryTitle}</h2>
+        <p className="stay-d-section-intro">{text.galleryIntro}</p>
+        <div className="stay-d-gallery">
+          {STAY_D_PAGE_IMAGES.map((image) => (
+            <figure className={`stay-d-photo stay-d-photo-${image.id}`} key={image.id}>
+              <img
+                src={image.src}
+                width={image.width}
+                height={image.height}
+                sizes="(max-width: 720px) calc(100vw - 40px), (max-width: 1100px) 44vw, 520px"
+                alt={text.imageAlt[image.id]}
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>{text.imageCaption[image.id]}</figcaption>
+            </figure>
+          ))}
+        </div>
       </section>
 
       <section className="stay-d-section">

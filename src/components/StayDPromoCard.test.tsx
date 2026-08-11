@@ -1,7 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { STAY_D_AIRBNB_URL, STAY_D_VIDEO_ID } from "../domain/stayD";
+import {
+  STAY_D_AIRBNB_URL,
+  STAY_D_HOME_IMAGE,
+  STAY_D_VIDEO_ID
+} from "../domain/stayD";
 import { StayDPromoCard } from "./StayDPromoCard";
 
 describe("StayDPromoCard (#744)", () => {
@@ -49,6 +53,22 @@ describe("StayDPromoCard (#744)", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "收合住宿影片" }));
     expect(screen.queryByTitle("Stay.D 住宿影片")).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["zh-Hant", "Stay.D 明亮的二樓客廳與用餐空間"],
+    ["ja", "Stay.Dの明るい2階リビング・ダイニング"],
+    ["en", "Stay.D's bright second-floor living and dining space"]
+  ] as const)("shows the local, responsive Home image with %s alt text", (language, alt) => {
+    render(<StayDPromoCard language={language} />);
+
+    const image = screen.getByRole("img", { name: alt });
+    expect(image).toHaveAttribute("src", STAY_D_HOME_IMAGE.src);
+    expect(image).toHaveAttribute("srcset", STAY_D_HOME_IMAGE.srcSet);
+    expect(image).toHaveAttribute("width", String(STAY_D_HOME_IMAGE.width));
+    expect(image).toHaveAttribute("height", String(STAY_D_HOME_IMAGE.height));
+    expect(image).toHaveAttribute("loading", "lazy");
+    expect(image.getAttribute("src")).toMatch(/^\/stay-d\//);
   });
 
   it("opens the video from the keyboard", async () => {

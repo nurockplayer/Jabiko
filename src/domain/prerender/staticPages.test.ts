@@ -130,6 +130,10 @@ describe("buildStaticPages", () => {
     expect(stayD!.bodyHtml).toContain(
       '<a href="https://www.airbnb.com/rooms/1518015758376242668"'
     );
+    expect(stayD!.bodyHtml).toContain(
+      '<img src="/stay-d/living-hero-1600.webp"'
+    );
+    expect(stayD!.bodyHtml).toContain('width="1600" height="900"');
     expect(stayD!.bodyHtml).not.toMatch(/notion/i);
   });
 
