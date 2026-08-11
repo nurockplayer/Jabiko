@@ -83,6 +83,7 @@ export default defineConfig({
           setupFiles: "./src/test/setupNode.ts",
           include: [
             "src/domain/**/*.test.ts",
+            "src/domain/**/*.test.mjs",
             "functions/**/*.test.mjs",
             "scripts/**/*.test.ts"
           ],

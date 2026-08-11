@@ -327,6 +327,30 @@ describe("HomePanel legal links", () => {
   });
 });
 
+describe("HomePanel Stay.D placement (#744)", () => {
+  it("renders one promotion after the learning content and immediately before the footer", () => {
+    const { container } = render(<HomePanel
+      language="zh-Hant"
+      progressAttempts={[]}
+      reviewCount={0}
+      onNavigate={vi.fn()}
+      onStartReview={noop}
+      onStartVocab={noop}
+      onStartBookmarks={noop}
+      onStartDaily={noop}
+      onStartExamPreset={noop}
+      targetLevel={null}
+      onChooseLevel={noop}
+    />);
+
+    const promotions = container.querySelectorAll('[data-placement="home-bottom"]');
+    const footer = container.querySelector(".home-footer");
+    expect(promotions).toHaveLength(1);
+    expect(footer).not.toBeNull();
+    expect(promotions[0].nextElementSibling).toBe(footer);
+  });
+});
+
 describe("HomePanel donate link", () => {
   const ecpayUrl =
     "https://payment.ecpay.com.tw/Broadcaster/Donate/57DD8DC811013DF1C576D7ED22ACF911";

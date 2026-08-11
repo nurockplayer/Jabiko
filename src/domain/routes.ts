@@ -13,6 +13,7 @@ export const APP_VIEW_PATHS = {
   about: "/about",
   privacy: "/privacy",
   terms: "/terms",
+  stayD: "/stay-d",
   grammar: "/grammar",
   blog: "/blog"
 } as const;

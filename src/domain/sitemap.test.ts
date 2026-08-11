@@ -40,7 +40,7 @@ describe("sitemap.xml drift guard (#479 / #483)", () => {
   });
 
   it("includes the core static routes + the grammar index + the blog index", () => {
-    for (const route of ["/", "/learn", "/challenge", "/mock", "/kanji", "/kana", "/rules", "/grammar", "/about", "/privacy", "/terms", "/blog"]) {
+    for (const route of ["/", "/learn", "/challenge", "/mock", "/kanji", "/kana", "/rules", "/grammar", "/about", "/privacy", "/terms", "/stay-d", "/blog"]) {
       expect(sitemapXml).toContain(`<loc>https://jabiko.app${route}</loc>`);
     }
   });

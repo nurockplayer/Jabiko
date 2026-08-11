@@ -15,6 +15,11 @@ describe("app route contract (#623)", () => {
     }
   });
 
+  it("treats /stay-d as a normal public app route", () => {
+    expect(APP_VIEW_PATHS.stayD).toBe("/stay-d");
+    expect(parseRoute("/stay-d")).toEqual(staticRoute("stayD"));
+  });
+
   it("round-trips an encoded grammar surface", () => {
     const route: AppRoute = {
       view: "grammar",

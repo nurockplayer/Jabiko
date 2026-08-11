@@ -4,6 +4,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import App from "./App";
 import type { Attempt } from "./domain/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import appSource from "./App.tsx?raw";
 
 // #483: render counters for the lazy blog pages. Stubbed to null (we only care
 // whether they were COMMITTED, not their output) so a language-gate regression
@@ -152,6 +153,33 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: /今天想練什麼/ })).toBeInTheDocument();
     // Chapter index belongs to Learn view; not visible on Home.
     expect(screen.queryByRole("heading", { name: "一章一章解鎖" })).not.toBeInTheDocument();
+  });
+
+  it("keeps /stay-d out of the primary nav and lazy-loads its public route", async () => {
+    expect(appSource).toMatch(/const StayDPage = lazy\(\(\) =>/);
+    expect(appSource).toContain('import("./components/StayDPage")');
+
+    // Make the expected localized route copy an explicit test precondition.
+    localStorage.setItem("jabiko.lang", "zh-Hant");
+    window.history.replaceState({}, "", "/stay-d");
+    render(<App />);
+
+    // This is the first cold import of the Stay.D route chunk. CI runners can
+    // spend longer than Testing Library's default 1s transforming that chunk,
+    // so allow the same bounded warm-up window as the grammar route below.
+    await screen.findByRole(
+      "heading",
+      {
+        name: "在東京，不只住宿，也住進日常。",
+        level: 1
+      },
+      { timeout: 15000 }
+    );
+    expect(
+      within(screen.getByRole("navigation", { name: "學習流程" })).queryByRole("button", {
+        name: /Stay\.D/
+      })
+    ).not.toBeInTheDocument();
   });
 
   it("marks the active nav tab with aria-current=page and moves it on navigation", async () => {
