@@ -1,59 +1,105 @@
-/* Stay.D editorial recommendation (#748). Jabiko explains why the stay fits
-   the learner / Tokyo-life context; Airbnb explains what the property contains.
-   No property photos or listing-style specs are rendered here. */
-.stay-d-promo {
+/* Stay.D editorial recommendation (#748) + Home teaser footer (#750).
+   Jabiko explains why the stay fits the learner / Tokyo-life context;
+   Airbnb explains what the property contains. No property photos or
+   listing-style specs are rendered here. */
+.stay-d-home {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
-  padding: 1.2rem;
-  border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--panel-border));
-  border-radius: var(--radius-xl);
-  background: color-mix(in srgb, var(--gold) 7%, var(--paper));
-  box-shadow: var(--shadow);
+  gap: 0.55rem;
+  margin-top: 1.5rem;
+  padding-top: 1.3rem;
+  border-top: 1px solid var(--rule);
+  background: transparent;
 }
 
-.stay-d-promo-copy {
+.stay-d-home-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
   min-width: 0;
+  /* Editorial copy column: keeps the teaser readable instead of spanning
+     the full desktop width (#750). */
+  max-width: 44rem;
 }
 
-.stay-d-disclosure {
-  display: inline-block;
-  margin-bottom: 0.35rem;
-  color: var(--muted);
-  font-size: 0.76rem;
-  font-weight: 700;
+.stay-d-home-kicker {
+  color: var(--vermilion);
+  font-size: 0.8rem;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.stay-d-promo h2,
-.stay-d-promo p,
-.stay-d-page h1,
-.stay-d-page h2,
-.stay-d-page h3,
-.stay-d-page p {
+.stay-d-home-headline {
   margin: 0;
-}
-
-.stay-d-promo h2 {
   color: var(--ink);
-  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
-  line-height: 1.35;
+  font-family: var(--font-title);
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  line-height: 1.4;
 }
 
-.stay-d-promo p {
-  margin-top: 0.45rem;
+.stay-d-home-body {
+  margin: 0;
   color: var(--muted);
-  line-height: 1.65;
+  line-height: 1.7;
 }
 
-.stay-d-promo-actions {
+.stay-d-home-actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 0.7rem;
+  align-items: center;
+  gap: 1rem;
 }
 
+.stay-d-home-airbnb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.1rem;
+  color: var(--teal-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.stay-d-home-airbnb svg {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+}
+
+.stay-d-home-airbnb:hover,
+.stay-d-home-airbnb:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.stay-d-home .stay-d-video {
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+/* Home video trigger: lightweight text action, no filled pill. */
+.stay-d-home .stay-d-video-trigger {
+  min-height: 2.75rem;
+  padding: 0.4rem 0.1rem;
+  background: transparent;
+  color: var(--teal-dark);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.stay-d-home .stay-d-video-trigger:hover,
+.stay-d-home .stay-d-video-trigger:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Shared /stay-d action treatments. The filled vermilion primary CTA and the
+   video panel's assisted Airbnb link belong to the /stay-d page (#750 keeps
+   them there); the Home teaser uses the lightweight .stay-d-home-* above. */
 .stay-d-airbnb-primary,
 .stay-d-video-airbnb,
 .stay-d-back {
@@ -148,6 +194,13 @@
   margin: 0 auto;
 }
 
+.stay-d-page h1,
+.stay-d-page h2,
+.stay-d-page h3,
+.stay-d-page p {
+  margin: 0;
+}
+
 .stay-d-back {
   align-self: flex-start;
   min-height: 2.5rem;
@@ -238,11 +291,21 @@
 }
 
 @media (max-width: 440px) {
-  .stay-d-promo {
-    padding: 1rem;
+  .stay-d-home {
+    padding: 0;
   }
 
-  .stay-d-promo-actions,
+  .stay-d-home-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stay-d-home-airbnb,
+  .stay-d-home .stay-d-video,
+  .stay-d-home .stay-d-video-trigger {
+    width: 100%;
+  }
+
   .stay-d-airbnb-primary,
   .stay-d-video,
   .stay-d-video-trigger,

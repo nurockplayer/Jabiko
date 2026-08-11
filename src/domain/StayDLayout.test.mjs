@@ -4,45 +4,94 @@ import { describe, expect, it } from "vitest";
 
 const css = readFileSync(resolve(process.cwd(), "src/styles/stay-d.css"), "utf8");
 
-describe("stay-d editorial layout (#748)", () => {
-  it("keeps the Home promo single-column with a full-width primary CTA at 320-390px", () => {
-    // #748 removes the photo-led two-column card. The editorial block is a
-    // stacked column whose actions wrap, so a 320/390 px viewport has no
-    // horizontal overflow.
-    const promoStart = css.indexOf(".stay-d-promo {");
-    expect(promoStart).toBeGreaterThanOrEqual(0);
-    const promo = css.slice(promoStart, css.indexOf("}", promoStart));
-    expect(promo).toMatch(/flex-direction:\s*column/);
+// Find a rule whose selector starts exactly at the beginning of a line, so a
+// composite selector like ".stay-d-home .stay-d-video-trigger" never shadows
+// the standalone ".stay-d-video-trigger" rule.
+function rule(name) {
+  const start = css.indexOf(`\n${name} {`);
+  expect(start, name).toBeGreaterThanOrEqual(0);
+  return css.slice(start + 1, css.indexOf("}", start));
+}
 
-    const narrow = css.indexOf("@media (max-width: 440px) {");
-    expect(narrow).toBeGreaterThanOrEqual(0);
-    const narrowBlock = css.slice(narrow, css.indexOf("}", css.indexOf("}", narrow) + 1) + 1);
-    expect(narrowBlock).toMatch(/\.stay-d-airbnb-primary\b[^}]*width:\s*100%/s);
+function narrowBlock() {
+  const start = css.indexOf("@media (max-width: 440px) {");
+  expect(start).toBeGreaterThanOrEqual(0);
+  // Match the balanced @media { ... } block by counting braces.
+  let depth = 0;
+  for (let i = start; i < css.length; i += 1) {
+    if (css[i] === "{") depth += 1;
+    if (css[i] === "}") {
+      depth -= 1;
+      if (depth === 0) return css.slice(start, i + 1);
+    }
+  }
+  throw new Error("unterminated @media block");
+}
+
+describe("stay-d editorial layout (#750)", () => {
+  it("turns the Home recommendation into a quiet editorial footer section", () => {
+    const home = rule(".stay-d-home");
+    // Page-adjacent background instead of a tinted ad panel.
+    expect(home).toMatch(/background:\s*(transparent|var\(--app-bg\))/);
+    // No large card border / shadow / radius on the Home block.
+    expect(home).not.toMatch(/border:\s*1px solid/);
+    expect(home).not.toMatch(/box-shadow/);
+    expect(home).not.toMatch(/border-radius/);
+    // Quiet separation: a single top rule (like the home footer).
+    expect(home).toMatch(/border-top:\s*1px solid/);
+    expect(home).toMatch(/padding-top:\s*1\.3rem/);
+    // The copy column stays readable instead of spanning the full width.
+    const copy = rule(".stay-d-home-copy");
+    expect(copy).toMatch(/max-width:\s*(40|42|44)rem/);
+  });
+
+  it("shrinks the Home headline to editorial size", () => {
+    const headline = rule(".stay-d-home-headline");
+    expect(headline).toMatch(/font-size:\s*clamp\(1\.25rem/);
+  });
+
+  it("keeps the Home actions lightweight (no heavy filled conversion buttons)", () => {
+    const actions = rule(".stay-d-home-actions");
+    expect(actions).toMatch(/flex-wrap:\s*wrap/);
+
+    const primary = rule(".stay-d-home-airbnb");
+    // Text/outline link, not a filled vermilion block.
+    expect(primary).not.toMatch(/background:\s*var\(--vermilion\)/);
+    expect(primary).not.toMatch(/background:\s*var\(--gold\)/);
+    expect(primary).toMatch(/font-size:\s*0\.9rem/);
+
+    const trigger = rule(".stay-d-home .stay-d-video-trigger");
+    expect(trigger).toMatch(/color:\s*var\(--teal-dark\)/);
+    expect(trigger).toMatch(/font-weight:\s*7\d0/);
+    expect(trigger).toMatch(/text-align:\s*left/);
+  });
+
+  it("keeps the Home promo single-column and full-width actions at 320-390px", () => {
+    const home = rule(".stay-d-home");
+    expect(home).toMatch(/flex-direction:\s*column/);
+
+    const narrow = narrowBlock();
+    expect(narrow).toMatch(/\.stay-d-home\b[^}]*padding:\s*0/s);
+    expect(narrow).toMatch(/\.stay-d-home-actions\b[^}]*flex-direction:\s*column/s);
+    // The Home primary + video actions go full width in the narrow media block.
+    expect(narrow).toMatch(/\.stay-d-home-airbnb,[\s\S]*?width:\s*100%/);
   });
 
   it("keeps the video trigger and player contained within the viewport", () => {
-    const triggerStart = css.indexOf(".stay-d-video-trigger {");
-    expect(triggerStart).toBeGreaterThanOrEqual(0);
-    const trigger = css.slice(triggerStart, css.indexOf("}", triggerStart));
+    const trigger = rule(".stay-d-video-trigger");
     expect(trigger).toMatch(/max-width:\s*100%/);
 
-    const frameStart = css.indexOf(".stay-d-video-frame {");
-    expect(frameStart).toBeGreaterThanOrEqual(0);
-    const frame = css.slice(frameStart, css.indexOf("}", frameStart));
+    const frame = rule(".stay-d-video-frame");
     expect(frame).toMatch(/width:\s*100%/);
     expect(frame).toMatch(/aspect-ratio:\s*16 \/ 9/);
   });
 
   it("keeps the /stay-d hero copy and final CTA full-width-safe at narrow widths", () => {
-    const heroStart = css.indexOf(".stay-d-hero {");
-    expect(heroStart).toBeGreaterThanOrEqual(0);
-    const hero = css.slice(heroStart, css.indexOf("}", heroStart));
+    const hero = rule(".stay-d-hero");
     expect(hero).toMatch(/flex-direction:\s*column/);
     expect(hero).toMatch(/min-width:\s*0/);
 
-    const finalStart = css.indexOf(".stay-d-final {");
-    expect(finalStart).toBeGreaterThanOrEqual(0);
-    const final = css.slice(finalStart, css.indexOf("}", finalStart));
+    const final = rule(".stay-d-final");
     expect(final).toMatch(/flex-wrap:\s*wrap|flex-direction:\s*column/);
   });
 });

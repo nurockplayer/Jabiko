@@ -16,6 +16,18 @@ export interface StayDVideoCopy {
   airbnbCta: string;
 }
 
+/** Frozen #750 Home teaser (#750): short editorial recommendation shown on
+ *  the Home footer, split from the /stay-d page copy so the two stay
+ *  independent. `video` reuses StayDVideoCopy -- the Home secondary CTA is
+ *  `watch`, and the video panel strings can come from the shared /stay-d copy. */
+export interface StayDHomeTeaser {
+  kicker: string;
+  headline: string;
+  body: string;
+  primaryCta: string;
+  video: StayDVideoCopy;
+}
+
 /** Editorial extension copy for the /stay-d page (not listing content). */
 export interface StayDPageExtras {
   videoTitle: string;
@@ -94,6 +106,51 @@ export const STAY_D_EDITORIAL_COPY = {
     }
   }
 } satisfies Record<StayDLocale, StayDEditorialCopy>;
+
+/** Frozen #750 Home teaser (#750): a short Jabiko editorial recommendation
+ *  shown on the Home footer. Intentionally split from STAY_D_EDITORIAL_COPY
+ *  so shortening the Home teaser never rewrites the /stay-d page copy.
+ *  Video panel strings (iframe title / collapse / assisted Airbnb CTA) are
+ *  shared with the /stay-d video panel -- only `watch` (the Home secondary
+ *  CTA) carries the frozen #750 short label. */
+export const STAY_D_HOME_TEASER: Record<StayDLocale, StayDHomeTeaser> = {
+  "zh-Hant": {
+    kicker: "JABIKO 推薦 · 東京住宿",
+    headline: "在東京，來一趟真正用上學過日文的旅行。",
+    body: "想和家人朋友一起感受觀光景點之外的東京日常嗎？JABIKO 推薦 Stay.D，作為另一種更貼近生活的東京停留方式。",
+    primaryCta: "查看 Stay.D",
+    video: {
+      watch: "看介紹影片",
+      collapse: STAY_D_EDITORIAL_COPY["zh-Hant"].video.collapse,
+      iframeTitle: STAY_D_EDITORIAL_COPY["zh-Hant"].video.iframeTitle,
+      airbnbCta: STAY_D_EDITORIAL_COPY["zh-Hant"].video.airbnbCta
+    }
+  },
+  ja: {
+    kicker: "JABIKOおすすめ · 東京ステイ",
+    headline: "東京で、学んだ日本語を使う旅へ。",
+    body: "家族や友人と、観光だけでは見えない東京の日常を楽しみたい人へ。JABIKOから Stay.D を紹介します。",
+    primaryCta: "Stay.Dを見る",
+    video: {
+      watch: "紹介動画を見る",
+      collapse: STAY_D_EDITORIAL_COPY.ja.video.collapse,
+      iframeTitle: STAY_D_EDITORIAL_COPY.ja.video.iframeTitle,
+      airbnbCta: STAY_D_EDITORIAL_COPY.ja.video.airbnbCta
+    }
+  },
+  en: {
+    kicker: "JABIKO PICK · TOKYO STAY",
+    headline: "Put your Japanese to use in Tokyo.",
+    body: "For travelers who want to enjoy everyday Tokyo beyond sightseeing with family or friends, Jabiko recommends Stay.D as one way to stay closer to local life.",
+    primaryCta: "View Stay.D",
+    video: {
+      watch: "Watch introduction video",
+      collapse: STAY_D_EDITORIAL_COPY.en.video.collapse,
+      iframeTitle: STAY_D_EDITORIAL_COPY.en.video.iframeTitle,
+      airbnbCta: STAY_D_EDITORIAL_COPY.en.video.airbnbCta
+    }
+  }
+};
 
 export function isStayDLocale(language: Language): language is StayDLocale {
   return (STAY_D_REQUIRED_LOCALES as readonly string[]).includes(language);
