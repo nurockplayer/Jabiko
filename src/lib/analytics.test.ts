@@ -190,6 +190,77 @@ describe("analytics.trackEvent", () => {
     });
   });
 
+  it("accepts promo_click with its documented payload shape", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+    trackEvent("promo_click", {
+      promoId: "stay-d",
+      destinationType: "airbnb",
+      placement: "home",
+      locale: "zh-Hant"
+    });
+    expect(track).toHaveBeenCalledTimes(1);
+    expect(track).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      destinationType: "airbnb",
+      placement: "home",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("strips non-allowlisted keys from promo_click before forwarding to Zaraz", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+    // The promotion CTA must not forward the destination URL, account data,
+    // raw user ids, or arbitrary strings. Only the four allowlisted keys pass.
+    const smuggled = {
+      promoId: "stay-d",
+      destinationType: "airbnb" as const,
+      placement: "home",
+      locale: "zh-Hant" as const,
+      destinationUrl: "https://zh-t.airbnb.com/rooms/1518015758376242668",
+      email: "a@b.com",
+      userId: "supabase-123",
+      nested: { title: "秘密の宿" }
+    };
+    trackEvent("promo_click", smuggled);
+    expect(track).toHaveBeenCalledTimes(1);
+    const forwarded = track.mock.calls[0][1] as Record<string, unknown>;
+    expect(forwarded).not.toHaveProperty("destinationUrl");
+    expect(forwarded).not.toHaveProperty("email");
+    expect(forwarded).not.toHaveProperty("userId");
+    expect(forwarded).not.toHaveProperty("nested");
+    expect(forwarded).toEqual({
+      promoId: "stay-d",
+      destinationType: "airbnb",
+      placement: "home",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("rejects a non-airbnb destinationType for promo_click at compile time", () => {
+    trackEvent("promo_click", {
+      promoId: "stay-d",
+      // @ts-expect-error -- destinationType is narrowed to "airbnb"; free-form
+      // destination strings (e.g. booking providers) are not allowed
+      destinationType: "hotel",
+      placement: "home",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("rejects destination URL or PII keys for promo_click at compile time", () => {
+    trackEvent("promo_click", {
+      promoId: "stay-d",
+      destinationType: "airbnb",
+      placement: "home",
+      locale: "zh-Hant",
+      // @ts-expect-error -- destinationUrl is not an allowlisted key; the
+      // Airbnb URL must never travel inside the analytics payload
+      destinationUrl: "https://zh-t.airbnb.com/rooms/1518015758376242668"
+    });
+  });
+
   it("strips article content and navigation metadata from article_viewed", () => {
     __setAnalyticsEnabledForTest(true);
     const track = installZaraz();

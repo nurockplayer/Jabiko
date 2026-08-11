@@ -11,7 +11,8 @@ export type AnalyticsEventName =
   | "level_changed"
   | "locale_changed"
   | "weak_review_started"
-  | "article_viewed";
+  | "article_viewed"
+  | "promo_click";
 
 export interface PageViewPayload {
   view: string;
@@ -59,6 +60,16 @@ export interface WeakReviewStartedPayload {
 export interface ArticleViewedPayload {
   slug: string;
 }
+// Outbound promotion click (#745). destinationType is narrowed to the single
+// currently-approved destination ("airbnb"); placement identifies the Jabiko
+// surface the card rendered on, not free-form copy. Nothing about the
+// destination page, account, or visitor travels in this payload.
+export interface PromoClickPayload {
+  promoId: string;
+  destinationType: "airbnb";
+  placement: string;
+  locale: LocaleCode;
+}
 
 export interface AnalyticsPayloadMap {
   page_view: PageViewPayload;
@@ -70,6 +81,7 @@ export interface AnalyticsPayloadMap {
   locale_changed: LocaleChangedPayload;
   weak_review_started: WeakReviewStartedPayload;
   article_viewed: ArticleViewedPayload;
+  promo_click: PromoClickPayload;
 }
 
 const ZARAZ_ENABLED_FLAG = import.meta.env.VITE_ZARAZ_ENABLED;
@@ -89,7 +101,8 @@ const ALLOWED_PAYLOAD_KEYS: Record<AnalyticsEventName, readonly string[]> = {
   level_changed: ["scope", "levelRange", "locale"],
   locale_changed: ["from", "to"],
   weak_review_started: ["dueCount", "locale"],
-  article_viewed: ["slug"]
+  article_viewed: ["slug"],
+  promo_click: ["promoId", "destinationType", "placement", "locale"]
 };
 
 function sanitizePayload<K extends AnalyticsEventName>(
