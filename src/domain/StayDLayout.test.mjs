@@ -69,6 +69,13 @@ describe("stay-d editorial layout (#750)", () => {
     expect(trigger).toMatch(/color:\s*var\(--teal-dark\)/);
     expect(trigger).toMatch(/font-weight:\s*7\d0/);
     expect(trigger).toMatch(/text-align:\s*left/);
+    // CodeRabbit P2: the Home video action must drop the global <button>
+    // frame (border/radius) so it reads as a borderless text action,
+    // consistent with the adjacent Airbnb text link.
+    expect(trigger).toMatch(/border:\s*none/);
+    // Radius must be reset to 0, not carry an actual pill radius.
+    expect(trigger).toMatch(/border-radius:\s*0/);
+    expect(trigger).not.toMatch(/border-radius:\s*(?!0\b)\S/);
   });
 
   it("keeps the Home promo single-column and full-width actions at 320-390px", () => {
@@ -76,7 +83,10 @@ describe("stay-d editorial layout (#750)", () => {
     expect(home).toMatch(/flex-direction:\s*column/);
 
     const narrow = narrowBlock();
-    expect(narrow).toMatch(/\.stay-d-home\b[^}]*padding:\s*0/s);
+    // Only horizontal padding is cleared at narrow widths; the divider's
+    // top padding must stay so the kicker keeps its separation gap.
+    expect(narrow).toMatch(/\.stay-d-home\b[^}]*padding-inline:\s*0/s);
+    expect(narrow).not.toMatch(/\.stay-d-home\b[^}]*padding:\s*0[^;]*;/s);
     expect(narrow).toMatch(/\.stay-d-home-actions\b[^}]*flex-direction:\s*column/s);
     // The Home primary + video actions go full width in the narrow media block.
     expect(narrow).toMatch(/\.stay-d-home-airbnb,[\s\S]*?width:\s*100%/);

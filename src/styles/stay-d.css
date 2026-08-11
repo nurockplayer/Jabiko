@@ -82,11 +82,16 @@
   flex: 0 1 auto;
 }
 
-/* Home video trigger: lightweight text action, no filled pill. */
+/* Home video trigger: lightweight text action, no filled pill. Strips the
+   global <button> frame (border/radius) so it reads as a borderless text
+   action consistent with the adjacent Airbnb text link (CodeRabbit P2). */
 .stay-d-home .stay-d-video-trigger {
   min-height: 2.75rem;
   padding: 0.4rem 0.1rem;
   background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   color: var(--teal-dark);
   font-weight: 700;
   font-size: 0.9rem;
@@ -293,8 +298,10 @@
 }
 
 @media (max-width: 440px) {
+  /* Keep the divider's top padding so the kicker keeps its separation gap;
+     only horizontal padding is cleared (CodeRabbit P2). */
   .stay-d-home {
-    padding: 0;
+    padding-inline: 0;
   }
 
   .stay-d-home-actions {
