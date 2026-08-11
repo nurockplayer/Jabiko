@@ -47,7 +47,12 @@ describe("stay-d editorial layout (#750)", () => {
 
   it("shrinks the Home headline to editorial size", () => {
     const headline = rule(".stay-d-home-headline");
-    expect(headline).toMatch(/font-size:\s*clamp\(1\.25rem/);
+    // Must be smaller than the #749 promo headline clamp
+    // (1.15rem / 2.2vw / 1.45rem) so the footer reads lightweight (#750).
+    expect(headline).toMatch(/font-size:\s*clamp\(1\.1rem,\s*2\.1vw,\s*1\.35rem\)/);
+    // Sanity: still a headline, not body-size text.
+    const lower = headline.match(/clamp\(([0-9.]+)rem/);
+    expect(Number(lower?.[1])).toBeGreaterThanOrEqual(1);
   });
 
   it("keeps the Home actions lightweight (no heavy filled conversion buttons)", () => {

@@ -34,7 +34,9 @@
   margin: 0;
   color: var(--ink);
   font-family: var(--font-title);
-  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  /* Editorial size, smaller than the #749 promo headline clamp
+     (1.15rem/2.2vw/1.45rem) so the footer reads as lightweight (#750). */
+  font-size: clamp(1.1rem, 2.1vw, 1.35rem);
   line-height: 1.4;
 }
 
