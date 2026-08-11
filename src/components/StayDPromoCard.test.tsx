@@ -3,22 +3,22 @@ import { describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
 import {
   STAY_D_AIRBNB_URL,
-  STAY_D_HOME_IMAGE,
+  STAY_D_REQUIRED_LOCALES,
   STAY_D_VIDEO_ID
 } from "../domain/stayD";
 import { StayDPromoCard } from "./StayDPromoCard";
 
-describe("StayDPromoCard (#744)", () => {
+describe("StayDPromoCard (#748 editorial)", () => {
   it("makes Airbnb the direct primary action at home-bottom", () => {
     render(<StayDPromoCard language="zh-Hant" />);
 
     const promo = screen.getByRole("region", {
-      name: "下一次來東京，不只是觀光。帶著你學會的日文，和家人朋友一起深度探索東京的日常。"
+      name: "下一次來東京，不只是觀光。用學過的日文，和家人朋友一起更深入地享受東京的日常。"
     });
     expect(promo).toHaveAttribute("data-placement", "home-bottom");
 
     const primary = screen.getByRole("link", {
-      name: "查看 Airbnb 最新價格與可訂日期"
+      name: "在 Airbnb 查看 Stay.D"
     });
     expect(primary).toHaveAttribute("href", STAY_D_AIRBNB_URL);
     expect(primary).toHaveAttribute("target", "_blank");
@@ -27,17 +27,23 @@ describe("StayDPromoCard (#744)", () => {
     expect(primary).not.toHaveAttribute("href", "/stay-d");
   });
 
+  it("renders no Stay.D property photo in the Home block", () => {
+    const { container } = render(<StayDPromoCard language="zh-Hant" />);
+    expect(container.querySelector("img")).toBeNull();
+    expect(container.querySelector(".stay-d-promo-image")).toBeNull();
+  });
+
   it("loads the approved YouTube iframe only after interaction and can collapse it", () => {
     render(<StayDPromoCard language="zh-Hant" />);
 
-    expect(screen.queryByTitle("Stay.D 住宿影片")).not.toBeInTheDocument();
-    const trigger = screen.getByRole("button", { name: "▶ 看看 Stay.D 住宿影片" });
+    expect(screen.queryByTitle("Stay.D 介紹影片")).not.toBeInTheDocument();
+    const trigger = screen.getByRole("button", { name: "▶ 看 Stay.D 介紹影片" });
     expect(trigger).toHaveAttribute("aria-expanded", "false");
     expect(trigger).toHaveAttribute("data-stay-d-placement", "home-video");
 
     fireEvent.click(trigger);
 
-    const iframe = screen.getByTitle("Stay.D 住宿影片");
+    const iframe = screen.getByTitle("Stay.D 介紹影片");
     expect(iframe).toHaveAttribute(
       "src",
       expect.stringContaining(`youtube-nocookie.com/embed/${STAY_D_VIDEO_ID}`)
@@ -45,7 +51,7 @@ describe("StayDPromoCard (#744)", () => {
     expect(iframe).toHaveAttribute("src", expect.stringContaining("start=70"));
     expect(iframe.getAttribute("src")).not.toContain("autoplay=1");
     const assistedCta = screen.getByRole("link", {
-      name: "喜歡 Stay.D？到 Airbnb 查看最新價格與可訂日期"
+      name: "喜歡 Stay.D？到 Airbnb 查看 Stay.D"
     });
     expect(assistedCta).toHaveAttribute("href", STAY_D_AIRBNB_URL);
     expect(assistedCta).toHaveAttribute(
@@ -53,58 +59,61 @@ describe("StayDPromoCard (#744)", () => {
       "home-video-airbnb"
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "收合住宿影片" }));
-    expect(screen.queryByTitle("Stay.D 住宿影片")).not.toBeInTheDocument();
-  });
-
-  it.each([
-    ["zh-Hant", "Stay.D 明亮的二樓客廳與用餐空間"],
-    ["ja", "Stay.Dの明るい2階リビング・ダイニング"],
-    ["en", "Stay.D's bright second-floor living and dining space"]
-  ] as const)("shows the local, responsive Home image with %s alt text", (language, alt) => {
-    render(<StayDPromoCard language={language} />);
-
-    const image = screen.getByRole("img", { name: alt });
-    expect(image).toHaveAttribute("src", STAY_D_HOME_IMAGE.src);
-    expect(image).toHaveAttribute("srcset", STAY_D_HOME_IMAGE.srcSet);
-    expect(image).toHaveAttribute("width", String(STAY_D_HOME_IMAGE.width));
-    expect(image).toHaveAttribute("height", String(STAY_D_HOME_IMAGE.height));
-    expect(image).toHaveAttribute("loading", "lazy");
-    expect(image.getAttribute("src")).toMatch(/^\/stay-d\//);
+    fireEvent.click(screen.getByRole("button", { name: "收合介紹影片" }));
+    expect(screen.queryByTitle("Stay.D 介紹影片")).not.toBeInTheDocument();
   });
 
   it("opens the video from the keyboard", async () => {
     const user = userEvent.setup();
     render(<StayDPromoCard language="en" />);
 
-    const trigger = screen.getByRole("button", { name: "▶ Watch the Stay.D home tour" });
+    const trigger = screen.getByRole("button", {
+      name: "▶ Watch the Stay.D introduction video"
+    });
     await user.tab();
     await user.tab();
     expect(trigger).toHaveFocus();
     await user.keyboard("{Enter}");
 
-    expect(screen.getByTitle("Stay.D home tour video")).toBeInTheDocument();
+    expect(screen.getByTitle("Stay.D introduction video")).toBeInTheDocument();
   });
 
   it.each([
     [
       "zh-Hant",
-      "下一次來東京，不只是觀光。帶著你學會的日文，和家人朋友一起深度探索東京的日常。",
-      "Jabiko 推薦｜東京住宿"
+      "下一次來東京，不只是觀光。用學過的日文，和家人朋友一起更深入地享受東京的日常。",
+      "JABIKO 推薦｜東京住宿",
+      "在 Airbnb 查看 Stay.D"
     ],
     [
       "ja",
       "次の東京は、観光するだけじゃない。学んだ日本語を使いながら、家族や友人と東京の日常をもっと深く楽しもう。",
-      "Jabikoおすすめ｜東京ステイ"
+      "JABIKOおすすめ｜東京ステイ",
+      "Stay.DをAirbnbで見る"
     ],
     [
       "en",
-      "Next time in Tokyo, go beyond sightseeing. Use the Japanese you’ve learned and explore everyday Tokyo more deeply with family and friends.",
-      "Jabiko Pick | Tokyo Stay"
+      "Next time in Tokyo, don’t just sightsee. Use the Japanese you’ve learned and enjoy more of everyday Tokyo with family or friends.",
+      "JABIKO PICK | TOKYO STAY",
+      "View Stay.D on Airbnb"
     ]
-  ] as const)("renders complete %s Home copy", (language, title, disclosure) => {
+  ] as const)("renders complete %s Home editorial copy", (language, title, kicker, cta) => {
     render(<StayDPromoCard language={language} />);
     expect(screen.getByRole("heading", { name: title })).toBeInTheDocument();
-    expect(screen.getByText(disclosure)).toBeInTheDocument();
+    expect(screen.getByText(kicker)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: cta })).toBeInTheDocument();
   });
+
+  it.each(STAY_D_REQUIRED_LOCALES)(
+    "keeps the stable analytics placement markers in %s",
+    (language) => {
+      const { container } = render(<StayDPromoCard language={language} />);
+      for (const placement of ["home-airbnb", "home-video"]) {
+        expect(
+          container.querySelector(`[data-stay-d-placement="${placement}"]`),
+          placement
+        ).not.toBeNull();
+      }
+    }
+  );
 });

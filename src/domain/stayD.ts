@@ -16,73 +16,84 @@ export interface StayDVideoCopy {
   airbnbCta: string;
 }
 
-export interface StayDHomeCopy {
-  disclosure: string;
+/** Editorial extension copy for the /stay-d page (not listing content). */
+export interface StayDPageExtras {
+  videoTitle: string;
+  videoIntro: string;
+  finalTitle: string;
+  finalBody: string;
+}
+
+export interface StayDEditorialCopy {
+  backHome: string;
+  kicker: string;
   title: string;
   body: string;
-  imageAlt: string;
   airbnbCta: string;
   video: StayDVideoCopy;
+  page: StayDPageExtras;
 }
 
-export interface StayDImage {
-  src: string;
-  width: number;
-  height: number;
-  srcSet?: string;
-}
-
-export const STAY_D_HOME_IMAGE = {
-  src: "/stay-d/living-hero-1600.webp",
-  srcSet:
-    "/stay-d/living-hero-800.webp 800w, /stay-d/living-hero-1600.webp 1600w",
-  width: 1600,
-  height: 900
-} satisfies StayDImage;
-
-type CompleteStayDHomeCopy = Record<StayDLocale, StayDHomeCopy>;
-
-export const STAY_D_HOME_COPY = {
+export const STAY_D_EDITORIAL_COPY = {
   "zh-Hant": {
-    disclosure: "Jabiko 推薦｜東京住宿",
-    title: "下一次來東京，不只是觀光。帶著你學會的日文，和家人朋友一起深度探索東京的日常。",
-    body: "Stay.D 位於東京千川，距千川站步行約 5 分鐘。2025 年 8 月完工的 52m² 三層獨棟住宅，配備 10Gbps 光纖、完整廚房與兩張雙人床，適合想用更貼近日常的方式停留東京的旅客。",
-    imageAlt: "Stay.D 明亮的二樓客廳與用餐空間",
-    airbnbCta: "查看 Airbnb 最新價格與可訂日期",
+    backHome: "回 Jabiko 自習室",
+    kicker: "JABIKO 推薦｜東京住宿",
+    title: "下一次來東京，不只是觀光。用學過的日文，和家人朋友一起更深入地享受東京的日常。",
+    body: "不只是「來東京旅行」，也試著「像生活一樣感受東京」。Stay.D 適合想和家人朋友一起體驗東京日常的人。",
+    airbnbCta: "在 Airbnb 查看 Stay.D",
     video: {
-      watch: "▶ 看看 Stay.D 住宿影片",
-      collapse: "收合住宿影片",
-      iframeTitle: "Stay.D 住宿影片",
-      airbnbCta: "喜歡 Stay.D？到 Airbnb 查看最新價格與可訂日期"
+      watch: "▶ 看 Stay.D 介紹影片",
+      collapse: "收合介紹影片",
+      iframeTitle: "Stay.D 介紹影片",
+      airbnbCta: "喜歡 Stay.D？到 Airbnb 查看 Stay.D"
+    },
+    page: {
+      videoTitle: "先感受一下 Stay.D 的日常",
+      videoIntro: "介紹影片不會自動播放；想多了解時，再按一下載入。",
+      finalTitle: "把東京，過成一段日常",
+      finalBody: "想知道更多房況細節，或直接查看 Stay.D，請到 Airbnb 房源頁。"
     }
   },
   ja: {
-    disclosure: "Jabikoおすすめ｜東京ステイ",
+    backHome: "Jabiko自習室に戻る",
+    kicker: "JABIKOおすすめ｜東京ステイ",
     title: "次の東京は、観光するだけじゃない。学んだ日本語を使いながら、家族や友人と東京の日常をもっと深く楽しもう。",
-    body: "Stay.Dは東京・千川にある、千川駅から徒歩約5分の一棟住宅です。2025年8月完成、52m²・3階建てで、10Gbps光回線、キッチン、ダブルベッド2台を備えています。東京で暮らすように滞在したい方におすすめです。",
-    imageAlt: "Stay.Dの明るい2階リビング・ダイニング",
-    airbnbCta: "Airbnbで料金・空室を確認",
+    body: "東京を「旅行する」だけでなく、「暮らすように楽しむ」滞在へ。Stay.Dは、家族や友人と一緒に東京の日常を楽しみたい人におすすめのステイです。",
+    airbnbCta: "Stay.DをAirbnbで見る",
     video: {
       watch: "▶ Stay.Dの紹介動画を見る",
       collapse: "紹介動画を閉じる",
       iframeTitle: "Stay.Dの紹介動画",
-      airbnbCta: "Stay.Dが気になったら、Airbnbで料金・空室を確認"
+      airbnbCta: "Stay.Dが気になったら、Airbnbで見る"
+    },
+    page: {
+      videoTitle: "動画で雰囲気を確認",
+      videoIntro: "紹介動画は自動再生されません。見たいときに読み込めます。",
+      finalTitle: "東京の日常を、もっと深く",
+      finalBody: "Stay.Dの詳細はAirbnbの物件ページをご覧ください。"
     }
   },
   en: {
-    disclosure: "Jabiko Pick | Tokyo Stay",
-    title: "Next time in Tokyo, go beyond sightseeing. Use the Japanese you’ve learned and explore everyday Tokyo more deeply with family and friends.",
-    body: "Stay.D is a private three-floor home in Senkawa, about a 5-minute walk from the station. Completed in August 2025, the 52 m² home includes 10 Gbps fiber, a full kitchen, and two double beds for travelers who want a more lived-in Tokyo experience.",
-    imageAlt: "Stay.D's bright second-floor living and dining space",
-    airbnbCta: "Check price & availability on Airbnb",
+    backHome: "Back to the Jabiko study room",
+    kicker: "JABIKO PICK | TOKYO STAY",
+    title:
+      "Next time in Tokyo, don’t just sightsee. Use the Japanese you’ve learned and enjoy more of everyday Tokyo with family or friends.",
+    body: "Go beyond visiting Tokyo and spend your stay a little more like you live here. Stay.D is a recommended option for travelers who want to share everyday Tokyo with family or friends.",
+    airbnbCta: "View Stay.D on Airbnb",
     video: {
-      watch: "▶ Watch the Stay.D home tour",
-      collapse: "Collapse the home tour",
-      iframeTitle: "Stay.D home tour video",
-      airbnbCta: "Like what you see? Check current price & availability on Airbnb"
+      watch: "▶ Watch the Stay.D introduction video",
+      collapse: "Collapse the introduction video",
+      iframeTitle: "Stay.D introduction video",
+      airbnbCta: "Like Stay.D? View it on Airbnb"
+    },
+    page: {
+      videoTitle: "Get a feel for Stay.D",
+      videoIntro: "The introduction video never autoplays. Load it when you want to see more.",
+      finalTitle: "Make everyday Tokyo yours",
+      finalBody: "Find property details and view Stay.D on the Airbnb listing."
     }
   }
-} satisfies CompleteStayDHomeCopy;
+} satisfies Record<StayDLocale, StayDEditorialCopy>;
 
 export function isStayDLocale(language: Language): language is StayDLocale {
   return (STAY_D_REQUIRED_LOCALES as readonly string[]).includes(language);
