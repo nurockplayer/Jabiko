@@ -105,6 +105,17 @@ async function gotoResource(user: ReturnType<typeof userEvent.setup>, label: str
 }
 
 describe("App", () => {
+  it("constructs the language fallback through the canonical static route constructor", () => {
+    const normalization = appSource.match(
+      /function normalizeRouteForLanguage[\s\S]*?\n}\n\nexport default function App/
+    )?.[0];
+
+    expect(normalization).toContain('return staticRoute("home");');
+    expect(normalization).not.toContain(
+      'return { view: "home", grammarSurface: null, blogSlug: null };'
+    );
+  });
+
   // The challenge / mock / kanji views are React.lazy in App, and
   // React.lazy only suspends on its first resolution. Prime the chunks
   // once here so every test below renders them synchronously regardless of

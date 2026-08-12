@@ -122,7 +122,7 @@ const LANGUAGE_OPTIONS: readonly Language[] = LAUNCHED_LANGUAGES;
 // index, not a stale article.
 function normalizeRouteForLanguage(route: AppRoute, language: Language): AppRoute {
   if (route.view === "blog" && language !== "zh-Hant") {
-    return { view: "home", grammarSurface: null, blogSlug: null };
+    return staticRoute("home");
   }
   return route;
 }

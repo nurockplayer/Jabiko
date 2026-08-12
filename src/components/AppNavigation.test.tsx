@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { resolveNavigation } from "../domain/navigation";
@@ -101,12 +101,16 @@ describe("AppNavigation (#727)", () => {
 
     const resources = screen.getByRole("button", { name: "資源" });
     resources.focus();
-    await user.keyboard("{ArrowDown}{ArrowDown}{Enter}");
+    await user.keyboard("{ArrowDown}");
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: "規則表" })).toHaveFocus());
+    await user.keyboard("{ArrowDown}{Enter}");
     expect(onSelect).toHaveBeenCalledWith("kanji");
 
     const more = screen.getByRole("button", { name: "更多" });
     more.focus();
-    await user.keyboard("{ArrowDown}{ArrowDown}{Enter}");
+    await user.keyboard("{ArrowDown}");
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: "規則表" })).toHaveFocus());
+    await user.keyboard("{ArrowDown}{Enter}");
     expect(onSelect).toHaveBeenLastCalledWith("kanji");
   });
 });
