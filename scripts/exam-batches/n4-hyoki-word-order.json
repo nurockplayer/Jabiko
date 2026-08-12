@@ -772,7 +772,7 @@
     "promptContextZh": "因為父親的工作，下個月決定搬到大阪。",
     "promptContextI18n": { "ja": "父の仕事で、来月大阪へ引っ越すことになりました。", "en": "Because of my father’s work, it’s been decided that we’ll move to Osaka next month." },
     "hintZh": "因父親工作調動，全家下個月搬家。",
-    "hintI18n": { "ja": "父の仕事の都合で、家族全員が来月引っ越すことになります。", "en": "Because of a change in my father’s job, the whole family will be moving next month." },
+    "hintI18n": { "ja": "父の転勤が決まり、来月から家族で大阪に移り住む予定です。", "en": "Because of a change in my father’s job, the whole family will be moving next month." },
     "expectedAnswer": "父の仕事で来月大阪へ引っ越すことになりました",
     "options": ["父の仕事で来月大阪へ引っ越すことになりました", "父の仕事で引っ越すことに来月大阪へなりました", "父の仕事で来月大阪へなりました引っ越すことに", "引っ越すことに父の仕事で来月大阪へなりました"],
     "explanation": "「父の仕事で」說明外因，「来月大阪へ」補充時間與方向，外在決定的固定結尾是「引っ越すことに＋なりました」。三個干擾都拆開「ことになりました」，或把方向語放到「なる」前造成格關係錯誤。",
