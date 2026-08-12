@@ -466,7 +466,7 @@ describe("HomePanel Stay.D placement (#748 editorial)", () => {
     const placement = document.querySelector('[data-placement="home-bottom"]');
     expect(placement).not.toBeNull();
     expect(placement?.querySelector("img")).toBeNull();
-    expect(placement?.querySelector(".stay-d-promo-image")).toBeNull();
+    expect(placement?.querySelector(".stay-d-home-image")).toBeNull();
   });
 
   it("keeps the direct Airbnb CTA visible on the Home block", () => {
@@ -482,5 +482,28 @@ describe("HomePanel Stay.D placement (#748 editorial)", () => {
     );
     expect(primary).toHaveAttribute("target", "_blank");
     expect(primary).toHaveAttribute("rel", "noopener noreferrer");
+  });
+});
+
+describe("HomePanel Stay.D placement (#750 editorial footer)", () => {
+  it("renders the frozen #750 Home teaser copy, not the /stay-d editorial copy", () => {
+    renderHome({ language: "zh-Hant" });
+
+    expect(
+      screen.getByRole("heading", { name: "在東京，來一趟真正用上學過日文的旅行。" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("JABIKO 推薦 · 東京住宿")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /查看 Stay\.D/ })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "想和家人朋友一起感受觀光景點之外的東京日常嗎？JABIKO 推薦 Stay.D，作為另一種更貼近生活的東京停留方式。"
+      )
+    ).toBeInTheDocument();
+    // #750: the Home teaser is intentionally shorter than the /stay-d copy.
+    expect(
+      screen.queryByText("下一次來東京，不只是觀光。用學過的日文，和家人朋友一起更深入地享受東京的日常。")
+    ).not.toBeInTheDocument();
   });
 });
