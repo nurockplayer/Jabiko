@@ -190,21 +190,39 @@ describe("analytics.trackEvent", () => {
     });
   });
 
-  it("accepts promo_click with its documented payload shape", () => {
+  it("accepts promo_click with a Home direct Airbnb placement", () => {
     __setAnalyticsEnabledForTest(true);
     const track = installZaraz();
     trackEvent("promo_click", {
       promoId: "stay-d",
       destinationType: "airbnb",
-      placement: "home",
+      placement: "home-airbnb",
       locale: "zh-Hant"
     });
     expect(track).toHaveBeenCalledTimes(1);
     expect(track).toHaveBeenCalledWith("promo_click", {
       promoId: "stay-d",
       destinationType: "airbnb",
-      placement: "home",
+      placement: "home-airbnb",
       locale: "zh-Hant"
+    });
+  });
+
+  it("accepts promo_click with a /stay-d hero Airbnb placement", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+    trackEvent("promo_click", {
+      promoId: "stay-d",
+      destinationType: "airbnb",
+      placement: "stay-d-hero-airbnb",
+      locale: "ja"
+    });
+    expect(track).toHaveBeenCalledTimes(1);
+    expect(track).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      destinationType: "airbnb",
+      placement: "stay-d-hero-airbnb",
+      locale: "ja"
     });
   });
 
@@ -216,7 +234,7 @@ describe("analytics.trackEvent", () => {
     const smuggled = {
       promoId: "stay-d" as const,
       destinationType: "airbnb" as const,
-      placement: "home" as const,
+      placement: "home-airbnb" as const,
       locale: "zh-Hant" as const,
       destinationUrl: "https://zh-t.airbnb.com/rooms/1518015758376242668",
       email: "a@b.com",
@@ -233,7 +251,7 @@ describe("analytics.trackEvent", () => {
     expect(forwarded).toEqual({
       promoId: "stay-d",
       destinationType: "airbnb",
-      placement: "home",
+      placement: "home-airbnb",
       locale: "zh-Hant"
     });
   });
@@ -244,7 +262,7 @@ describe("analytics.trackEvent", () => {
       // @ts-expect-error -- destinationType is narrowed to "airbnb"; free-form
       // destination strings (e.g. booking providers) are not allowed
       destinationType: "hotel",
-      placement: "home",
+      placement: "home-airbnb",
       locale: "zh-Hant"
     });
   });
@@ -253,7 +271,7 @@ describe("analytics.trackEvent", () => {
     trackEvent("promo_click", {
       promoId: "stay-d",
       destinationType: "airbnb",
-      placement: "home",
+      placement: "home-airbnb",
       locale: "zh-Hant",
       // @ts-expect-error -- destinationUrl is not an allowlisted key; the
       // Airbnb URL must never travel inside the analytics payload
@@ -267,7 +285,7 @@ describe("analytics.trackEvent", () => {
       // free-form string such as an email must not pass the boundary
       promoId: "user@example.com",
       destinationType: "airbnb",
-      placement: "home",
+      placement: "home-airbnb",
       locale: "zh-Hant"
     });
   });

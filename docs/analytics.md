@@ -85,9 +85,21 @@ the external-link navigation proceeds, from the promotion CTA activation.
   email is rejected at compile time.
 - `destinationType` — narrowed to `"airbnb"` (the single approved
   destination); free-form destination strings are rejected at compile time.
-- `placement` — bounded to known Jabiko surfaces (`PROMO_PLACEMENTS`:
-  `home`, `about`, `blog`). #744 picks from these; adding a new surface
-  extends the union. URLs or free text are rejected at compile time.
+- `placement` — bounded to the stable Stay.D funnel interaction placements
+  frozen by #744 (`PROMO_PLACEMENTS`):
+
+  ```text
+  home-airbnb          Home direct Airbnb CTA
+  home-video           Home video trigger
+  home-video-airbnb    Airbnb CTA with/after the Home video
+  stay-d-hero-airbnb   /stay-d hero Airbnb CTA
+  stay-d-video         /stay-d video trigger
+  stay-d-video-airbnb  Airbnb CTA with the /stay-d video section
+  stay-d-final-airbnb  /stay-d final Airbnb CTA
+  ```
+
+  #744 wires exactly these values; a new funnel step extends the union. URLs,
+  surface slugs, or free text are rejected at compile time.
 - `locale` — the active UI locale.
 
 The payload never carries the destination URL, Airbnb listing content,

@@ -68,9 +68,19 @@ export interface ArticleViewedPayload {
 export const PROMO_IDENTIFIERS = ["stay-d"] as const satisfies readonly string[];
 export type PromoIdentifier = (typeof PROMO_IDENTIFIERS)[number];
 
-// Jabiko surfaces where a promotion card may render. #744 will choose from
-// these; adding a new non-interruptive informational surface extends the union.
-export const PROMO_PLACEMENTS = ["home", "about", "blog"] as const satisfies readonly string[];
+// Stable Stay.D funnel interaction placements frozen by #744 (#745 analytics
+// boundary). Each value identifies a distinct user-facing funnel interaction,
+// not a raw URL, surface slug, or free-form copy. #744 wires exactly these
+// values when the Stay.D UI lands; adding a new funnel step extends the union.
+export const PROMO_PLACEMENTS = [
+  "home-airbnb",
+  "home-video",
+  "home-video-airbnb",
+  "stay-d-hero-airbnb",
+  "stay-d-video",
+  "stay-d-video-airbnb",
+  "stay-d-final-airbnb"
+] as const satisfies readonly string[];
 export type PromoPlacement = (typeof PROMO_PLACEMENTS)[number];
 
 export interface PromoClickPayload {
