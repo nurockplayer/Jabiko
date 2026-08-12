@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NAVIGATION_REGISTRY, resolveNavigation } from "./navigation";
-import { blogRoute, grammarRoute, staticRoute } from "./routes";
+import { grammarRoute, staticRoute } from "./routes";
 
 describe("navigation registry (#727)", () => {
   it("has deterministic, duplicate-free primary and resource order", () => {
@@ -13,7 +13,6 @@ describe("navigation registry (#727)", () => {
       "rules",
       "kanji",
       "kana",
-      "blog",
       "about"
     ]);
     expect(new Set(NAVIGATION_REGISTRY.map((entry) => entry.id)).size).toBe(
@@ -21,11 +20,15 @@ describe("navigation registry (#727)", () => {
     );
   });
 
-  it("keeps blog zh-Hant-only without changing other resources", () => {
-    expect(resolveNavigation(staticRoute("home"), "zh-Hant").resources.map((item) => item.id))
-      .toEqual(["rules", "kanji", "kana", "blog", "about"]);
-    expect(resolveNavigation(staticRoute("home"), "ja").resources.map((item) => item.id))
-      .toEqual(["rules", "kanji", "kana", "about"]);
+  // The zhHantOnly gate is still part of the registry contract (it kept the
+  // retired 文章 entry zh-Hant-only); no entry uses it today, so every locale
+  // sees the same resource list.
+  it("shows the same resources in every locale while no entry is gated", () => {
+    expect(NAVIGATION_REGISTRY.some((entry) => entry.zhHantOnly)).toBe(false);
+    for (const locale of ["zh-Hant", "ja", "en"] as const) {
+      expect(resolveNavigation(staticRoute("home"), locale).resources.map((item) => item.id), locale)
+        .toEqual(["rules", "kanji", "kana", "about"]);
+    }
   });
 
   it("resolves nested primary and resource ancestors", () => {
@@ -40,8 +43,5 @@ describe("navigation registry (#727)", () => {
     const legal = resolveNavigation(staticRoute("privacy"), "en");
     expect(legal.resources.find((item) => item.id === "about")?.current).toBe(true);
     expect(legal.resourcesCurrent).toBe(true);
-
-    const article = resolveNavigation(blogRoute("an-article"), "zh-Hant");
-    expect(article.resources.find((item) => item.id === "blog")?.current).toBe(true);
   });
 });

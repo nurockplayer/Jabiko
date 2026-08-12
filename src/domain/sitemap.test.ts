@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 // in @types/node, so `tsc --noEmit` stays happy.
 import sitemapXml from "../../public/sitemap.xml?raw";
 import { grammarPatterns } from "./grammarDatabase";
-import { articleMetas, publishedArticleMetas } from "./articlesMeta";
 import { buildStaticPages } from "./prerender/staticPages";
 
 // Helper: extract the <url> block containing a given <loc> value.
@@ -15,11 +14,10 @@ function urlBlockFor(loc: string): string | undefined {
   return sitemapXml.slice(start, end + "</url>".length);
 }
 
-// Drift guard for the generated public/sitemap.xml (#479 grammar / #483 blog):
-// if a grammar pattern or a published article is added/removed, this fails
-// until `pnpm build:sitemap` is re-run, so the long-tail pages never silently
-// drop out of search discovery.
-describe("sitemap.xml drift guard (#479 / #483)", () => {
+// Drift guard for the generated public/sitemap.xml (#479): if a grammar
+// pattern is added/removed, this fails until `pnpm build:sitemap` is re-run, so
+// the long-tail pages never silently drop out of search discovery.
+describe("sitemap.xml drift guard (#479)", () => {
   it("matches the prerendered public route set in both directions", () => {
     const locs = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
     const sitemapPaths = locs.map((loc) => decodeURIComponent(new URL(loc).pathname));
@@ -39,26 +37,16 @@ describe("sitemap.xml drift guard (#479 / #483)", () => {
     expect(missing, `sitemap missing grammar pages (run pnpm build:sitemap): ${missing.join(", ")}`).toEqual([]);
   });
 
-  it("includes the core static routes + the grammar index + the blog index", () => {
-    for (const route of ["/", "/learn", "/challenge", "/mock", "/kanji", "/kana", "/rules", "/grammar", "/about", "/privacy", "/terms", "/stay-d", "/blog"]) {
+  it("includes the core static routes + the grammar index", () => {
+    for (const route of ["/", "/learn", "/challenge", "/mock", "/kanji", "/kana", "/rules", "/grammar", "/about", "/privacy", "/terms", "/stay-d"]) {
       expect(sitemapXml).toContain(`<loc>https://jabiko.app${route}</loc>`);
     }
   });
 
-  it("lists every PUBLISHED blog article", () => {
-    for (const article of publishedArticleMetas) {
-      expect(sitemapXml, article.slug).toContain(
-        `<loc>https://jabiko.app/blog/${article.slug}</loc>`
-      );
-    }
-  });
-
-  it("excludes DRAFT blog articles", () => {
-    for (const draft of articleMetas.filter((a) => a.draft)) {
-      expect(sitemapXml, draft.slug).not.toContain(
-        `<loc>https://jabiko.app/blog/${draft.slug}</loc>`
-      );
-    }
+  // The 文章 section moved to the author's own site in 2026-08; no /blog URL
+  // may reappear here (they resolve to home now, so indexing them is wrong).
+  it("carries no /blog URLs", () => {
+    expect(sitemapXml).not.toContain("<loc>https://jabiko.app/blog");
   });
 });
 
@@ -70,23 +58,7 @@ describe("sitemap grammar level hubs and lastmod (#584-B)", () => {
     }
   });
 
-  it("uses the publishedAt date as lastmod for every blog article", () => {
-    for (const article of publishedArticleMetas) {
-      const block = urlBlockFor(`https://jabiko.app/blog/${article.slug}`);
-      expect(block, article.slug).toBeDefined();
-      expect(block!).toContain(`<lastmod>${article.publishedAt}</lastmod>`);
-    }
-  });
 
-  it("uses the most recent publishedAt as lastmod for the /blog index", () => {
-    const latest = publishedArticleMetas.reduce(
-      (max, a) => (a.publishedAt > max ? a.publishedAt : max),
-      ""
-    );
-    const block = urlBlockFor("https://jabiko.app/blog");
-    expect(block).toBeDefined();
-    expect(block!).toContain(`<lastmod>${latest}</lastmod>`);
-  });
 
   it("omits lastmod for static routes that have no reliable content date", () => {
     for (const route of ["/", "/learn", "/challenge", "/mock", "/kanji", "/kana", "/rules", "/grammar", "/about", "/privacy", "/terms"]) {

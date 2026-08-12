@@ -11,7 +11,6 @@ import {
   pageFilePath
 } from "./staticPages";
 import { grammarPatterns } from "../grammarDatabase";
-import { publishedArticleMetas } from "../articlesMeta";
 
 describe("escapeHtml", () => {
   it("escapes the five HTML-special characters", () => {
@@ -115,8 +114,7 @@ describe("buildStaticPages", () => {
       "/privacy",
       "/terms",
       "/stay-d",
-      "/grammar",
-      "/blog"
+      "/grammar"
     ]) {
       expect(byPath.has(route), route).toBe(true);
     }
@@ -195,24 +193,7 @@ describe("buildStaticPages", () => {
     expect(linkCount).toBeGreaterThanOrEqual(grammarPatterns.length);
   });
 
-  it("covers the blog index and every published article", () => {
-    const blogIndex = byPath.get("/blog")!;
-    for (const meta of publishedArticleMetas) {
-      expect(blogIndex.bodyHtml).toContain(`/blog/${encodeURIComponent(meta.slug)}`);
-      const article = byPath.get(`/blog/${meta.slug}`);
-      expect(article, meta.slug).toBeDefined();
-      expect(article!.title).toContain(meta.title);
-    }
-  });
 
-  it("prerenders the country-name comparison tables as semantic HTML", () => {
-    const article = byPath.get("/blog/japanese-country-names");
-    expect(article).toBeDefined();
-    expect(article!.bodyHtml).toContain("<table>");
-    expect(article!.bodyHtml).toContain("<caption>英文以外來源的國名</caption>");
-    expect(article!.bodyHtml).toContain('<th scope="row" lang="ja">ドイツ</th>');
-    expect(article!.bodyHtml).toContain("ちゅうごく");
-  });
 
   it("gives every page a nav, an h1 and an absolute canonical", () => {
     for (const page of pages) {
@@ -222,16 +203,10 @@ describe("buildStaticPages", () => {
     }
   });
 
-  it("gives every published article a BlogPosting JSON-LD and og:type=article", () => {
-    for (const meta of publishedArticleMetas) {
-      const article = byPath.get(`/blog/${meta.slug}`)!;
-      expect(article.jsonLd, meta.slug).toBeDefined();
-      const parsed = JSON.parse(article.jsonLd!);
-      expect(parsed["@type"]).toBe("BlogPosting");
-      expect(parsed.headline).toBe(meta.title);
-      expect(parsed.datePublished).toBe(meta.publishedAt);
-      expect(article.ogType).toBe("article");
-    }
+
+  // The 文章 section moved to the author's own site in 2026-08.
+  it("prerenders no /blog page", () => {
+    expect(pages.some((page) => page.path.startsWith("/blog"))).toBe(false);
   });
 
   it("gives /about a Person JSON-LD", () => {

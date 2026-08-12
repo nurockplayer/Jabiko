@@ -15,7 +15,6 @@ const labels = {
   rules: "規則表",
   kanji: "漢字",
   kanaPageTitle: "五十音",
-  blog: "文章",
   about: "關於"
 } as const;
 
