@@ -11,6 +11,8 @@ export const my: Copy = {
   furiganaShow: "ဖူရိဂါနာ ပြရန်",
   furiganaHide: "ဖူရိဂါနာ ဖျောက်ရန်",
   flowLabel: "လေ့လာမှု အဆင့်ဆင့်",
+  navResources: "အရင်းအမြစ်များ",
+  navResourcesWithCurrent: (page) => `အရင်းအမြစ်များ (လက်ရှိ - ${page})`,
   navMore: "နောက်ထပ်",
   navMoreTools: "ဆက်တင်နှင့် ကိရိယာများ",
   navMoreWithCurrent: (page) => `နောက်ထပ် (လက်ရှိ - ${page})`,

@@ -47,12 +47,18 @@ export type DeletePracticeHistoryDialogProps = {
 
 export function DeletePracticeHistoryDialog({
   open,
+  ...props
+}: DeletePracticeHistoryDialogProps) {
+  return open ? <OpenDeletePracticeHistoryDialog {...props} /> : null;
+}
+
+function OpenDeletePracticeHistoryDialog({
   status,
   onConfirm,
   onClose,
   returnFocusRef,
   copy
-}: DeletePracticeHistoryDialogProps) {
+}: Omit<DeletePracticeHistoryDialogProps, "open">) {
   const [understood, setUnderstood] = useState(false);
   const [localError, setLocalError] = useState(false);
   const deleting = status === "deleting";
@@ -61,34 +67,24 @@ export function DeletePracticeHistoryDialog({
   const descriptionId = useId();
   const errorId = useId();
 
-  // Initial focus into the dialog whenever it opens (div is tabIndex=-1 so
-  // calling .focus() never adds it to the tab order). Runs on commit so no
-  // state write in render.
+  // The open subtree's mount/unmount is the reset boundary for checkbox and
+  // error state. Focus enters on mount and returns to the actual trigger
+  // (desktop action or mobile 更多 button) on unmount.
   useEffect(() => {
-    if (!open) return;
+    const returnFocusTarget = returnFocusRef.current;
     dialogRef.current?.focus();
-  }, [open]);
-
-  // Every close (cancel / Escape / backdrop / successful confirm) resets the
-  // checkbox + local error and returns focus to the trigger. `deleting` is
-  // excluded from the deps on purpose: mid-flight we never reset or return
-  // focus, and an in-flight state flip to "deleting" must not re-run this.
-  useEffect(() => {
-    if (!open && !deleting) {
-      setUnderstood(false);
-      setLocalError(false);
-      returnFocusRef.current?.focus();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+    return () => {
+      returnFocusTarget?.focus();
+    };
+  }, [returnFocusRef]);
 
   // A failed confirm moves focus to the error region so assistive tech lands
   // on the retryable message.
   useEffect(() => {
-    if (open && localError) {
+    if (localError) {
       document.getElementById(errorId)?.focus();
     }
-  }, [localError, open, errorId]);
+  }, [localError, errorId]);
 
   const handleConfirm = useCallback(async () => {
     const ok = await onConfirm();
@@ -101,7 +97,7 @@ export function DeletePracticeHistoryDialog({
 
   // Escape + backdrop click close only when idle/error (never while deleting).
   useEffect(() => {
-    if (!open || deleting) return;
+    if (deleting) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -110,7 +106,7 @@ export function DeletePracticeHistoryDialog({
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, deleting, onClose]);
+  }, [deleting, onClose]);
 
   // Focus trap: while open, Tab/Shift+Tab stay inside the dialog. Disabled
   // controls are skipped so the checkbox never traps when confirm is gated.
@@ -136,10 +132,6 @@ export function DeletePracticeHistoryDialog({
       first.focus();
     }
   };
-
-  if (!open) {
-    return null;
-  }
 
   return (
     <div

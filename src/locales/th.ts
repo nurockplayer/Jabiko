@@ -11,6 +11,8 @@ export const th: Copy = {
   furiganaShow: "แสดงคำอ่าน",
   furiganaHide: "ซ่อนคำอ่าน",
   flowLabel: "ขั้นตอนการเรียน",
+  navResources: "แหล่งข้อมูล",
+  navResourcesWithCurrent: (page) => `แหล่งข้อมูล (ปัจจุบัน: ${page})`,
   navMore: "เพิ่มเติม",
   navMoreTools: "การตั้งค่าและเครื่องมือ",
   navMoreWithCurrent: (page) => `เพิ่มเติม (ปัจจุบัน: ${page})`,

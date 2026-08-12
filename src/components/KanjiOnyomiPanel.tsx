@@ -1,13 +1,20 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { copy, type Language } from "../i18n";
 import type { JlptLevel } from "../domain/types";
 import { kanjiOnyomi, kanjiExamples, type KanjiOnyomiEntry } from "../domain/kanjiOnyomi";
+import {
+  readKanjiLevel,
+  readLastReadKanji,
+  writeKanjiLevel,
+  writeLastReadKanji
+} from "../domain/kanjiPreferences";
 import { kanjiMeaning } from "../domain/kanjiOnyomi.i18n";
 import { pickLocalized } from "../domain/localizedContent";
 import { SpeakButton } from "./SpeakButton";
 import { InkstoneSpot, MagnifierKanjiSpot } from "../illustrations";
 
 const LEVELS: Array<JlptLevel | "all"> = ["all", "N5", "N4", "N3", "N2", "N1"];
+const KANJI_BANK = new Set(kanjiOnyomi.map((entry) => entry.kanji));
 type ReadingType = "on" | "kun";
 
 // #683: budget state is keyed by the active filter (query + level + readingType)
@@ -39,38 +46,59 @@ export function KanjiOnyomiPanel({
   defaultLevel?: JlptLevel | "all";
 }) {
   const t = copy[language];
-  const [query, setQuery] = useState("");
-  const [level, setLevel] = useState<JlptLevel | "all">(defaultLevel);
-  const [readingType, setReadingType] = useState<ReadingType>("on");
+  const [queryFilter, setQueryFilter] = useState({ value: "", revision: 0 });
+  const query = queryFilter.value;
+  const storedLevel = useMemo(() => readKanjiLevel(defaultLevel), [defaultLevel]);
+  const [sessionLevel, setSessionLevel] = useState<{
+    defaultLevel: JlptLevel | "all";
+    level: JlptLevel | "all";
+    revision: number;
+  } | null>(null);
+  const level =
+    sessionLevel?.defaultLevel === defaultLevel
+      ? sessionLevel.level
+      : storedLevel ?? defaultLevel;
+  const [readingFilter, setReadingFilter] = useState<{
+    value: ReadingType;
+    revision: number;
+  }>({ value: "on", revision: 0 });
+  const readingType = readingFilter.value;
   const [selected, setSelected] = useState<string | null>(null);
-  // #683: the load-more budget is keyed by the active filter instead of being a
-  // plain number reset by a query/level/readingType effect (React hooks v7
-  // flags `set-state-in-effect`). A filter change is NOT a setState -- the
-  // stale-key state is simply ignored on the next render, and the effective
-  // budget falls back to FAMILY_ENTRY_BUDGET until the first load-more.
-  // language is deliberately NOT part of the key, so switching UI language
-  // never resets the already-loaded batch.
-  const [entryBudgetState, setEntryBudgetState] = useState<EntryBudgetState>(() => ({
-    filterKey: "",
-    value: FAMILY_ENTRY_BUDGET
-  }));
-
+  const [lastRead] = useState<string | null>(() => readLastReadKanji(KANJI_BANK));
+  const selectKanji = useCallback((kanji: string) => {
+    setSelected(kanji);
+    writeLastReadKanji(kanji);
+  }, []);
   const activeLabel = readingType === "on" ? t.kanjiOnyomiLabel : t.kanjiKunyomiLabel;
 
   // Pure, stable filter key: query + level + readingType. `language` is left
   // out on purpose (language switches must not reset the loaded count).
   // The :: separator can never collide with the search box or the level /
   // reading-type labels, so distinct filters always map to distinct keys.
-  const filterKey = `${query}::${level}::${readingType}`;
+  const levelRevision =
+    sessionLevel?.defaultLevel === defaultLevel ? sessionLevel.revision : 0;
+  const filterKey = `${query}::${level}::${readingType}::${queryFilter.revision}:${levelRevision}:${readingFilter.revision}`;
+
+  // #683: the load-more budget is keyed by the active filter instead of being a
+  // plain number reset by a query/level/readingType effect (React hooks v7
+  // flags `set-state-in-effect`). Each filter's existing event state carries a
+  // revision, so returning to a previous value produces a new key without any
+  // budget-state write during the filter transition.
+  // language is deliberately NOT part of the key, so switching UI language
+  // never resets the already-loaded batch.
+  const [entryBudgetState, setEntryBudgetState] = useState<EntryBudgetState>(() => ({
+    filterKey: "",
+    value: FAMILY_ENTRY_BUDGET
+  }));
   const entryBudget =
     entryBudgetState.filterKey === filterKey ? entryBudgetState.value : FAMILY_ENTRY_BUDGET;
-  const increaseEntryBudget = useCallback(() => {
+  const increaseEntryBudget = useCallback((minimumValue = 0) => {
     setEntryBudgetState((prev) => {
       // The stored key may be stale (a filter changed in between). Always bump
       // on top of the CURRENT filter's effective budget so the batch keeps
       // growing from the initial value, never from a previous filter's count.
       const base = prev.filterKey === filterKey ? prev.value : FAMILY_ENTRY_BUDGET;
-      return { filterKey, value: base + FAMILY_ENTRY_BUDGET };
+      return { filterKey, value: Math.max(base + FAMILY_ENTRY_BUDGET, minimumValue) };
     });
   }, [filterKey]);
 
@@ -120,7 +148,12 @@ export function KanjiOnyomiPanel({
   // family) -- the sequence the arrow keys walk. Includes entries still behind
   // the load-more boundary so stepping past it can reveal them.
   const orderedEntries = useMemo(() => families.flatMap(([, entries]) => entries), [families]);
-  const cellRefs = useRef(new Map<string, HTMLButtonElement>());
+  const [cellRefs] = useState(
+    () =>
+      new Map(
+        kanjiOnyomi.map((entry) => [entry.kanji, createRef<HTMLButtonElement>()])
+      )
+  );
   const pendingFocus = useRef<string | null>(null);
 
   // Desktop shortcut (user request 2026-07): ← / → walk the grid so browsing a
@@ -145,8 +178,9 @@ export function KanjiOnyomiPanel({
       if (orderedEntries.length === 0) {
         return;
       }
-      const currentIndex = selected
-        ? orderedEntries.findIndex((entry) => entry.kanji === selected)
+      const currentPosition = selected ?? lastRead;
+      const currentIndex = currentPosition
+        ? orderedEntries.findIndex((entry) => entry.kanji === currentPosition)
         : -1;
       // Nothing picked yet: the first press opens the first card.
       const nextIndex = currentIndex < 0 ? 0 : currentIndex + (event.key === "ArrowRight" ? 1 : -1);
@@ -157,16 +191,17 @@ export function KanjiOnyomiPanel({
       }
       event.preventDefault();
       // Stepping past the load-more boundary pulls the next batch in instead
-      // of dead-ending (one bump always covers the next whole family).
+      // of dead-ending. A deep remembered position requests enough of the
+      // CURRENT filter-keyed budget to reveal its next card in one update.
       if (nextIndex >= shownEntries) {
-        increaseEntryBudget();
+        increaseEntryBudget(nextIndex + 1);
       }
       pendingFocus.current = orderedEntries[nextIndex].kanji;
-      setSelected(orderedEntries[nextIndex].kanji);
+      selectKanji(orderedEntries[nextIndex].kanji);
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [orderedEntries, selected, shownEntries, increaseEntryBudget]);
+  }, [orderedEntries, selected, lastRead, shownEntries, increaseEntryBudget, selectKanji]);
 
   // Keyboard-driven selection follows the card: focus keeps the grid coherent
   // for keyboard and screen-reader users, and `block: "nearest"` only scrolls
@@ -174,12 +209,12 @@ export function KanjiOnyomiPanel({
   useEffect(() => {
     const kanji = pendingFocus.current;
     if (!kanji) return;
-    const node = cellRefs.current.get(kanji);
+    const node = cellRefs.get(kanji)?.current;
     if (!node) return; // just revealed; the next pass catches it
     pendingFocus.current = null;
     node.focus({ preventScroll: true });
     node.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
-  }, [selected, entryBudget]);
+  }, [selected, entryBudget, cellRefs]);
 
   const detail = selected ? kanjiOnyomi.find((entry) => entry.kanji === selected) ?? null : null;
   const examples = detail ? kanjiExamples(detail.kanji) : [];
@@ -198,7 +233,15 @@ export function KanjiOnyomiPanel({
           type="search"
           className="kanji-search"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) =>
+            setQueryFilter((current) => ({
+              value: event.target.value,
+              revision:
+                current.value === event.target.value
+                  ? current.revision
+                  : current.revision + 1
+            }))
+          }
           placeholder={t.kanjiSearchPlaceholder}
           aria-label={t.kanjiSearchPlaceholder}
         />
@@ -209,7 +252,13 @@ export function KanjiOnyomiPanel({
               type="button"
               className={readingType === type ? "selected" : ""}
               aria-pressed={readingType === type}
-              onClick={() => setReadingType(type)}
+              onClick={() =>
+                setReadingFilter((current) =>
+                  current.value === type
+                    ? current
+                    : { value: type, revision: current.revision + 1 }
+                )
+              }
             >
               {type === "on" ? t.kanjiReadingOn : t.kanjiReadingKun}
             </button>
@@ -222,7 +271,16 @@ export function KanjiOnyomiPanel({
               type="button"
               className={level === option ? "selected" : ""}
               aria-pressed={level === option}
-              onClick={() => setLevel(option)}
+              onClick={() => {
+                if (level === option) return;
+                setSessionLevel((current) => ({
+                  defaultLevel,
+                  level: option,
+                  revision:
+                    current?.defaultLevel === defaultLevel ? current.revision + 1 : 1
+                }));
+                writeKanjiLevel(defaultLevel, option);
+              }}
             >
               {option === "all" ? t.kanjiLevelAll : option}
             </button>
@@ -289,6 +347,7 @@ export function KanjiOnyomiPanel({
             <div className="kanji-grid">
               {entries.map((entry) => {
                 const isSelected = selected === entry.kanji;
+                const isLastRead = selected === null && lastRead === entry.kanji;
                 // Feedback 2026-07: listening used to mean scrolling back up to
                 // the detail card's TTS button after every selection. The
                 // selected cell grows an in-place speak button instead; it reads
@@ -302,13 +361,10 @@ export function KanjiOnyomiPanel({
                   <div className="kanji-cell-wrap" key={entry.kanji}>
                     <button
                       type="button"
-                      ref={(node) => {
-                        if (node) cellRefs.current.set(entry.kanji, node);
-                        else cellRefs.current.delete(entry.kanji);
-                      }}
-                      className={`kanji-cell${isSelected ? " selected" : ""}`}
+                      ref={cellRefs.get(entry.kanji)}
+                      className={`kanji-cell${isSelected ? " selected" : ""}${isLastRead ? " last-read" : ""}`}
                       aria-pressed={isSelected}
-                      onClick={() => setSelected(entry.kanji)}
+                      onClick={() => selectKanji(entry.kanji)}
                     >
                       <span className="kanji-cell-char">{entry.kanji}</span>
                       <span className="kanji-cell-read">
@@ -343,7 +399,7 @@ export function KanjiOnyomiPanel({
         <button
           type="button"
           className="kanji-load-more"
-          onClick={increaseEntryBudget}
+          onClick={() => increaseEntryBudget()}
         >
           {t.kanjiLoadMore(remainingEntries)}
         </button>

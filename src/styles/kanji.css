@@ -231,6 +231,11 @@
   background: color-mix(in srgb, var(--matcha) 12%, var(--paper));
 }
 
+.kanji-cell.last-read {
+  border-color: color-mix(in srgb, var(--matcha) 60%, var(--rule));
+  border-style: dashed;
+}
+
 .kanji-cell-char {
   font-size: 1.6rem;
   line-height: 1;

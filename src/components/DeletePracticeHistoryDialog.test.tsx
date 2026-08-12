@@ -71,7 +71,7 @@ function Harness({
   };
   return (
     <>
-      <button type="button" ref={triggerRef}>
+      <button type="button" ref={triggerRef} onClick={() => setOpen(true)}>
         trigger
       </button>
       <DeletePracticeHistoryDialog {...props} />
@@ -151,6 +151,22 @@ describe("DeletePracticeHistoryDialog (#693)", () => {
 
     // Retry is possible: the error resets and confirm can be clicked again.
     expect(screen.getByRole("button", { name: "刪除" })).toBeEnabled();
+  });
+
+  it("reopens with a fresh confirmation and error state after a failed attempt", async () => {
+    const user = userEvent.setup();
+    render(<Harness onConfirm={vi.fn(async () => false)} />);
+
+    await user.click(screen.getByRole("checkbox", { name: "我了解此操作不可復原" }));
+    await user.click(screen.getByRole("button", { name: "刪除" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("刪除失敗，請再試一次。");
+
+    await user.click(screen.getByRole("button", { name: "取消" }));
+    await user.click(screen.getByRole("button", { name: "trigger" }));
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "我了解此操作不可復原" })).not.toBeChecked();
+    expect(screen.getByRole("button", { name: "刪除" })).toBeDisabled();
   });
 
   it("lock: while deleting, confirm/cancel/close are all disabled and Escape is inert", async () => {

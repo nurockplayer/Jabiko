@@ -89,6 +89,7 @@ export default defineConfig({
           ],
           exclude: [
             "src/domain/bookmarks.test.ts",
+            "src/domain/kanjiPreferences.test.ts",
             "src/domain/levelPreference.test.ts",
             "src/domain/originMigration.test.ts",
             "src/domain/diagnostics.test.ts",
@@ -109,6 +110,7 @@ export default defineConfig({
             "src/i18n.test.ts",
             "src/lib/**/*.test.{ts,tsx}",
             "src/domain/bookmarks.test.ts",
+            "src/domain/kanjiPreferences.test.ts",
             "src/domain/levelPreference.test.ts",
             "src/domain/originMigration.test.ts",
             "src/domain/diagnostics.test.ts",

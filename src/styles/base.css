@@ -172,7 +172,6 @@
 
 body {
   margin: 0;
-  min-width: 320px;
   min-height: 100vh;
   /* Plain paper wash. The previous body had a teal/orange radial glow +
    * hairline grid that read as "SaaS dashboard"; this theme is wafuu

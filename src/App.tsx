@@ -1,20 +1,11 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  BookA,
-  BookOpen,
   ChevronDown,
-  ClipboardList,
   Globe,
-  GraduationCap,
-  Home,
-  Info,
   Languages,
   MessageCircle,
   Moon,
-  Newspaper,
   Sun,
-  Table,
-  Target
 } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
@@ -30,7 +21,7 @@ import { UpdateToast } from "./components/UpdateToast";
 import { RouteErrorBoundary } from "./components/RouteErrorBoundary";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { JabikoMark } from "./components/JabikoMark";
-import { MoreMenu, type MoreMenuNavItem } from "./components/MoreMenu";
+import { AppNavigation } from "./components/AppNavigation";
 import { DeletePracticeHistoryDialog } from "./components/DeletePracticeHistoryDialog";
 import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
@@ -46,7 +37,15 @@ import { challengeInitFromQuery } from "./domain/challengeDeepLink";
 import { readLevelPreference, writeLevelPreference } from "./domain/levelPreference";
 import { kanjiDefaultLevel, type LevelRange } from "./domain/levelRange";
 import { trackEvent } from "./lib/analytics";
-import { parseRoute, serializeRoute, type AppRoute, type AppView } from "./domain/routes";
+import {
+  blogRoute,
+  grammarRoute,
+  parseRoute,
+  serializeRoute,
+  staticRoute,
+  type AppRoute
+} from "./domain/routes";
+import { resolveNavigation, type NavigationId } from "./domain/navigation";
 import packageJson from "../package.json";
 import "./styles.css";
 
@@ -113,11 +112,6 @@ type DrillPreset = LearningBlockDrillPreset;
 // Locales with untranslated content stay hidden until they ship (i18n.ts).
 const LANGUAGE_OPTIONS: readonly Language[] = LAUNCHED_LANGUAGES;
 
-// Every view-switch tab carries a small icon (user feedback 2026-07: only
-// 文型/文章 had one, which looked half-finished). One shared style keeps
-// the nine call sites identical.
-const navIconStyle = { verticalAlign: "middle", marginRight: "0.2rem" } as const;
-
 // #686: the 文章 blog is zh-Hant-only original content, so any route that
 // resolves to the blog view is normalized to home when the active language
 // can't serve it. Every route ingress (initial load / refresh, popstate, and
@@ -128,7 +122,7 @@ const navIconStyle = { verticalAlign: "middle", marginRight: "0.2rem" } as const
 // index, not a stale article.
 function normalizeRouteForLanguage(route: AppRoute, language: Language): AppRoute {
   if (route.view === "blog" && language !== "zh-Hant") {
-    return { view: "home", grammarSurface: null, blogSlug: null };
+    return staticRoute("home");
   }
   return route;
 }
@@ -150,19 +144,21 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
-  const [appView, setAppView] = useState<AppView>(() => initialRoute.view);
-  // The grammar-point surface for the active /grammar/<surface> route (#281).
-  const [grammarSurface, setGrammarSurface] = useState<string | null>(
-    () => initialRoute.grammarSurface
+  const [route, setRoute] = useState<AppRoute>(() => initialRoute);
+  const { view: appView, grammarSurface, blogSlug } = route;
+  // The drill the challenge view starts with on its next mount. This state
+  // must exist before the popstate subscription below because back/forward
+  // restores a challenge deep link through its setter.
+  const [launch, setLaunch] = useState<SessionInit | undefined>(() =>
+    initialRoute.view === "challenge"
+      ? challengeInitFromQuery(window.location.search)
+      : undefined
   );
-  // The article slug for the active /blog/<slug> route (#483); null = index.
-  const [blogSlug, setBlogSlug] = useState<string | null>(() => initialRoute.blogSlug);
 
   // Open a grammar point's study page (#282): from the post-answer feedback's
   // "深入學習這個文法 →" link, and deep-linkable directly via the URL.
   const openGrammar = (surface: string) => {
-    setGrammarSurface(surface);
-    setAppView("grammar");
+    setRoute(grammarRoute(surface));
   };
 
   // #437: determine whether the current grammar path points to a JLPT level
@@ -176,11 +172,11 @@ export default function App() {
   // Keep the URL in sync when the view changes (push a history entry only
   // when the path actually differs, so popstate-driven changes don't loop).
   useEffect(() => {
-    const target = serializeRoute({ view: appView, grammarSurface, blogSlug });
+    const target = serializeRoute(route);
     if (window.location.pathname !== target) {
-      window.history.pushState({ view: appView }, "", target);
+      window.history.pushState({ view: route.view }, "", target);
     }
-  }, [appView, grammarSurface, blogSlug]);
+  }, [route]);
 
   // Back/forward: read the view (and grammar surface) back off the URL. The
   // parsed route is normalized for the CURRENT language first, so a non-zh-Hant
@@ -192,9 +188,7 @@ export default function App() {
         parseRoute(window.location.pathname),
         language
       );
-      setAppView(route.view);
-      setGrammarSurface(route.grammarSurface);
-      setBlogSlug(route.blogSlug);
+      setRoute(route);
       // Restore the drill from a /challenge?mode=&level= deep link on back/forward.
       if (route.view === "challenge") {
         setLaunch(challengeInitFromQuery(window.location.search));
@@ -270,8 +264,7 @@ export default function App() {
   // language's preference is saved.
   const changeLanguage = (nextLanguage: Language) => {
     if (appView === "blog" && nextLanguage !== "zh-Hant") {
-      setBlogSlug(null);
-      setAppView("home");
+      setRoute(staticRoute("home"));
     }
     setLanguage(nextLanguage);
   };
@@ -307,49 +300,37 @@ export default function App() {
   const reviewCount = useMemo(() => countMistakes(progressAttempts), [progressAttempts]);
   // #693: ONE shared delete-history dialog instance, opened by both the
   // desktop heading-auth action and the mobile 更多 menu entry. The entry
-  // clicks record the actual trigger as the return-focus target and flip
-  // `deletionOpen`; the dialog closes itself on success/cancel, and a failed
-  // delete stays open with a retryable error. `deletionSuccess` is a one-shot
-  // flag so the localized success status stays readable until the learner
-  // navigates or reopens the dialog.
-  const [deletionOpen, setDeletionOpen] = useState(false);
-  const [deletionSuccess, setDeletionSuccess] = useState(false);
+  // clicks record the actual trigger as the return-focus target and open the
+  // user-owned UI state; the dialog closes itself on success/cancel, and a
+  // failed delete stays open with a retryable error. The success flag is
+  // one-shot so the localized status stays readable until the learner reopens
+  // the dialog or the authenticated owner changes.
+  const deletionOwnerId = user?.id ?? null;
+  const [deletionUi, setDeletionUi] = useState(() => ({
+    ownerId: deletionOwnerId,
+    open: false,
+    success: false
+  }));
+  // The confirmation protocol belongs to one authenticated user. Adjust the
+  // local UI state during render when that owner changes so children never
+  // commit stale dialog/success state for a signed-out or different account.
+  if (deletionUi.ownerId !== deletionOwnerId) {
+    setDeletionUi({ ownerId: deletionOwnerId, open: false, success: false });
+  }
   const deleteHistoryReturnRef = useRef<HTMLButtonElement | null>(null);
   const openDeleteHistory = useCallback((trigger: HTMLButtonElement) => {
     deleteHistoryReturnRef.current = trigger;
-    setDeletionSuccess(false);
-    setDeletionOpen(true);
-  }, []);
+    setDeletionUi({ ownerId: deletionOwnerId, open: true, success: false });
+  }, [deletionOwnerId]);
   const handleDeleteHistoryConfirm = useCallback(async (): Promise<boolean> => {
     const ok = await deleteSyncedPracticeHistory();
     if (ok) {
-      setDeletionSuccess(true);
+      setDeletionUi((current) =>
+        current.ownerId === deletionOwnerId ? { ...current, success: true } : current
+      );
     }
     return ok;
-  }, [deleteSyncedPracticeHistory]);
-  // If the user logs out / the account disappears mid-delete, collapse the
-  // dialog and clear the success status (the protocol is user-scoped; nothing
-  // left to confirm and the old account's "deleted" status must not linger).
-  // Note: a failed delete must NOT collapse the dialog -- the dialog stays
-  // open with its retryable error until the learner dismisses or retries.
-  useEffect(() => {
-    if (!user) {
-      setDeletionOpen(false);
-      setDeletionSuccess(false);
-    }
-  }, [user]);
-  // The drill the challenge view starts with on its next mount. Set by
-  // the "start X" actions just before navigating; undefined = the default
-  // basic drill. Read once when ChallengePanel mounts (it owns the
-  // session), so changing it while already in the challenge is a no-op.
-  // Seed from a /challenge?mode=&level= deep link on a direct hit / refresh
-  // (#264), so a shared or bookmarked drill restores; a bare /challenge or any
-  // other route stays undefined (default landing).
-  const [launch, setLaunch] = useState<SessionInit | undefined>(() =>
-    initialRoute.view === "challenge"
-      ? challengeInitFromQuery(window.location.search)
-      : undefined
-  );
+  }, [deleteSyncedPracticeHistory, deletionOwnerId]);
   // Global target-level preference (#199), read once at startup. Seeds the
   // fresh-pool level range (今日練習 / 綜合 / 単字) and drives the first-run
   // onboarding card; the home card persists it.
@@ -369,12 +350,12 @@ export default function App() {
       // the #526 chip keep their current view -- no surprise navigation.
       // DELIBERATE exception (same-batch override): when this choice answers
       // the daily-CTA gate, HomePanel's auto-continue fires openChallenge
-      // right after and its setAppView("challenge") wins the batch -- the
+      // right after and its complete challenge route wins the batch -- the
       // learner asked to START PRACTISING, and the starter daily serves 入門
       // questions, so honouring that intent beats detouring to the chapter
       // list. Locked by the "gate -> 完全新手" App test.
       if (progressAttempts.length === 0 && appView === "home") {
-        setAppView("learn");
+        setRoute(staticRoute("learn"));
       }
     }
   };
@@ -393,48 +374,6 @@ export default function App() {
         ? t.authSyncedHint
         : t.authSyncingHint;
 
-  // #608: on phones the nav keeps five primary entries (home / learn /
-  // challenge / mock / grammar); these four secondary views collapse into the
-  // 更多 menu. Same handlers as the full nav buttons, so navigation contract
-  // (URL sync, aria-current) is identical whichever entry point is used.
-  const moreMenuItems: MoreMenuNavItem[] = [
-    {
-      key: "rules",
-      label: t.rules,
-      icon: <Table aria-hidden="true" size={16} style={navIconStyle} />,
-      selected: appView === "rules",
-      onSelect: () => setAppView("rules")
-    },
-    {
-      key: "kanji",
-      label: t.kanji,
-      icon: <BookA aria-hidden="true" size={16} style={navIconStyle} />,
-      selected: appView === "kanji",
-      onSelect: () => setAppView("kanji")
-    },
-    ...(blogAvailable
-      ? [
-          {
-            key: "blog",
-            label: t.blog,
-            icon: <Newspaper aria-hidden="true" size={16} style={navIconStyle} />,
-            selected: appView === "blog",
-            onSelect: () => {
-              setBlogSlug(null);
-              setAppView("blog");
-            }
-          }
-        ]
-      : []),
-    {
-      key: "about",
-      label: t.about,
-      icon: <Info aria-hidden="true" size={16} style={navIconStyle} />,
-      selected: appView === "about",
-      onSelect: () => setAppView("about")
-    }
-  ];
-
   const openChallenge = (request?: SessionInit) => {
     // `request` seeds the session when ChallengePanel MOUNTS (its
     // usePracticeSession reads init via useState initializers). Every
@@ -448,7 +387,7 @@ export default function App() {
     // cascade; re-clicking it while already in the challenge view is a
     // no-op since the mounted panel ignores re-seeds.)
     setLaunch(request);
-    setAppView("challenge");
+    setRoute(staticRoute("challenge"));
     // Phase 1 analytics (#404): every practice entry funnels through here.
     // Weak-point review gets its own event so we can tell "open review" apart
     // from "start a fresh drill"; payloads are metadata only (no question text).
@@ -483,6 +422,23 @@ export default function App() {
     openChallenge({ mode: "pattern", filter: { patternIds } });
   };
 
+  const navigation = resolveNavigation(route, language);
+  const navigateFromAppNavigation = (id: NavigationId) => {
+    if (id === "challenge") {
+      openChallenge({ mode: "daily" });
+      return;
+    }
+    if (id === "grammar") {
+      setRoute(grammarRoute());
+      return;
+    }
+    if (id === "blog") {
+      setRoute(blogRoute());
+      return;
+    }
+    setRoute(staticRoute(id));
+  };
+
   const routeResetKey = `${appView}:${grammarSurface ?? ""}:${blogSlug ?? ""}`;
 
   return (
@@ -495,9 +451,7 @@ export default function App() {
         clearCacheLabel={t.routeErrorClearCache}
         homeLabel={t.routeErrorGoHome}
         onGoHome={() => {
-          setGrammarSurface(null);
-          setBlogSlug(null);
-          setAppView("home");
+          setRoute(staticRoute("home"));
         }}
         context={{
           route: window.location.pathname,
@@ -526,16 +480,16 @@ export default function App() {
           onClose={() => setFeedbackKind(null)}
         />
       ) : null}
-      {deletionSuccess ? (
+      {deletionUi.success ? (
         <p className="delete-history-status" role="status" aria-live="polite">
           {t.deleteHistorySuccess}
         </p>
       ) : null}
       <DeletePracticeHistoryDialog
-        open={deletionOpen}
+        open={deletionUi.open}
         status={historyDeletionStatus}
         onConfirm={handleDeleteHistoryConfirm}
-        onClose={() => setDeletionOpen(false)}
+        onClose={() => setDeletionUi((current) => ({ ...current, open: false }))}
         returnFocusRef={deleteHistoryReturnRef}
         copy={{
           title: t.deleteHistoryTitle,
@@ -648,104 +602,27 @@ export default function App() {
         </div>
       </div>
 
-      <nav className="view-switch segmented" aria-label={t.flowLabel}>
-        <button
-          type="button"
-          data-nav="home"
-          className={appView === "home" ? "selected" : ""}
-          aria-current={appView === "home" ? "page" : undefined}
-          onClick={() => setAppView("home")}
-        >
-          <Home aria-hidden="true" size={16} style={navIconStyle} />
-          {t.home}
-        </button>
-        <button
-          type="button"
-          data-nav="learn"
-          className={appView === "learn" ? "selected" : ""}
-          aria-current={appView === "learn" ? "page" : undefined}
-          onClick={() => setAppView("learn")}
-        >
-          <GraduationCap aria-hidden="true" size={16} style={navIconStyle} />
-          {t.learn}
-        </button>
-        <button
-          type="button"
-          data-nav="rules"
-          className={`nav-secondary${appView === "rules" ? " selected" : ""}`}
-          aria-current={appView === "rules" ? "page" : undefined}
-          onClick={() => setAppView("rules")}
-        >
-          <Table aria-hidden="true" size={16} style={navIconStyle} />
-          {t.rules}
-        </button>
-        <button
-          type="button"
-          data-nav="kanji"
-          className={`nav-secondary${appView === "kanji" ? " selected" : ""}`}
-          aria-current={appView === "kanji" ? "page" : undefined}
-          onClick={() => setAppView("kanji")}
-        >
-          <BookA aria-hidden="true" size={16} style={navIconStyle} />
-          {t.kanji}
-        </button>
-        <button
-          type="button"
-          data-nav="grammar"
-          className={appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute) ? "selected" : ""}
-          aria-current={appView === "grammar" && (grammarSurface === null || isGrammarLevelRoute) ? "page" : undefined}
-          onClick={() => { setGrammarSurface(null); setAppView("grammar"); }}
-        >
-          <BookOpen aria-hidden="true" size={16} style={navIconStyle} />
-          {t.grammar}
-        </button>
-        {blogAvailable ? (
-          <button
-            type="button"
-            data-nav="blog"
-            className={`nav-secondary${appView === "blog" ? " selected" : ""}`}
-            aria-current={appView === "blog" ? "page" : undefined}
-            onClick={() => { setBlogSlug(null); setAppView("blog"); }}
-          >
-            <Newspaper aria-hidden="true" size={16} style={navIconStyle} />
-            {t.blog}
-          </button>
-        ) : null}
-        <button
-          type="button"
-          data-nav="challenge"
-          className={appView === "challenge" ? "selected" : ""}
-          aria-current={appView === "challenge" ? "page" : undefined}
-          onClick={() => openChallenge({ mode: "daily" })}
-        >
-          <Target aria-hidden="true" size={16} style={navIconStyle} />
-          {t.challenge}
-        </button>
-        <button
-          type="button"
-          data-nav="mock"
-          className={appView === "mock" ? "selected" : ""}
-          aria-current={appView === "mock" ? "page" : undefined}
-          onClick={() => setAppView("mock")}
-        >
-          <ClipboardList aria-hidden="true" size={16} style={navIconStyle} />
-          {t.mockExam}
-        </button>
-        <button
-          type="button"
-          data-nav="about"
-          className={`nav-secondary${appView === "about" ? " selected" : ""}`}
-          aria-current={appView === "about" ? "page" : undefined}
-          onClick={() => setAppView("about")}
-        >
-          <Info aria-hidden="true" size={16} style={navIconStyle} />
-          {t.about}
-        </button>
-        <MoreMenu
-          triggerLabel={t.navMore}
-          triggerCurrentLabel={t.navMoreWithCurrent}
-          items={moreMenuItems}
-          tools={{
+      <AppNavigation
+        ariaLabel={t.flowLabel}
+        navigation={navigation}
+        labels={{
+          home: t.home,
+          learn: t.learn,
+          challenge: t.challenge,
+          mockExam: t.mockExam,
+          grammar: t.grammar,
+          rules: t.rules,
+          kanji: t.kanji,
+          kanaPageTitle: t.kanaPageTitle,
+          blog: t.blog,
+          about: t.about
+        }}
+        resourcesLabel={t.navResources}
+        resourcesCurrentLabel={t.navResourcesWithCurrent}
+        moreLabel={t.navMore}
+        moreCurrentLabel={t.navMoreWithCurrent}
+        onSelect={navigateFromAppNavigation}
+        tools={{
             heading: t.navMoreTools,
             language:
               LANGUAGE_OPTIONS.length > 1
@@ -770,9 +647,8 @@ export default function App() {
                   onDeleteHistory: openDeleteHistory
                 }
               : undefined
-          }}
-        />
-      </nav>
+        }}
+      />
 
       <FuriganaContext.Provider value={{ enabled: furiganaEnabled }}>
       {appView === "home" ? (
@@ -787,8 +663,7 @@ export default function App() {
             }
             // Mirror the nav button: a stale grammar-point surface would
             // otherwise reopen the last-viewed point instead of the index.
-            if (target === "grammar") setGrammarSurface(null);
-            setAppView(target);
+            setRoute(target === "grammar" ? grammarRoute() : staticRoute(target));
           }}
           onStartReview={() => openChallenge({ mode: "review" })}
           onStartBookmarks={() => openChallenge({ mode: "bookmarks" })}
@@ -824,7 +699,7 @@ export default function App() {
             openChallenge({ mode: "kana", filter: { kanaScript: script } })
           }
           onStartStarterDrill={() => openChallenge({ mode: "starter" })}
-          onOpenKana={() => setAppView("kana")}
+          onOpenKana={() => setRoute(staticRoute("kana"))}
         />
       ) : appView === "rules" ? (
         <RulesPanel language={language} />
@@ -866,14 +741,14 @@ export default function App() {
             language={language}
             level={grammarLevel}
             onOpenPattern={(surface) => {
-              setGrammarSurface(surface);
+              setRoute(grammarRoute(surface));
             }}
-            onBack={() => setAppView("home")}
+            onBack={() => setRoute(staticRoute("home"))}
             onBackToOverview={() => {
-              setGrammarSurface(null);
+              setRoute(grammarRoute());
             }}
             onSelectLevel={(lvl) => {
-              setGrammarSurface(lvl);
+              setRoute(grammarRoute(lvl));
             }}
           />
         </Suspense>
@@ -885,18 +760,17 @@ export default function App() {
             onPractice={() => openChallenge({ mode: "daily" })}
             onBack={() => {
               // Go back to grammar index (overview or level index)
-              setGrammarSurface(null);
-              setAppView("grammar");
+              setRoute(grammarRoute());
             }}
-            onNavigate={(surface) => setGrammarSurface(surface)}
+            onNavigate={(surface) => setRoute(grammarRoute(surface))}
           />
         </Suspense>
       ) : appView === "blog" && blogAvailable && blogSlug === null ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
           <BlogIndexPage
             language={language}
-            onOpenArticle={(slug) => setBlogSlug(slug)}
-            onBack={() => setAppView("home")}
+            onOpenArticle={(slug) => setRoute(blogRoute(slug))}
+            onBack={() => setRoute(staticRoute("home"))}
           />
         </Suspense>
       ) : appView === "blog" && blogAvailable ? (
@@ -904,7 +778,7 @@ export default function App() {
           <BlogArticlePage
             slug={blogSlug ?? ""}
             language={language}
-            onBack={() => setBlogSlug(null)}
+            onBack={() => setRoute(blogRoute())}
             onCta={(cta) =>
               cta.kind === "challenge"
                 ? openChallenge({ mode: cta.mode })
@@ -920,7 +794,7 @@ export default function App() {
             recordAttempt={recordAttempt}
             language={language}
             targetLevel={targetLevel}
-            onExit={() => setAppView("home")}
+            onExit={() => setRoute(staticRoute("home"))}
             onOpenFeedback={() => setFeedbackKind("wish")}
           />
         </Suspense>

@@ -11,6 +11,8 @@ export const ko: Copy = {
   furiganaShow: "후리가나 표시",
   furiganaHide: "후리가나 숨김",
   flowLabel: "학습 흐름",
+  navResources: "자료",
+  navResourcesWithCurrent: (page) => `자료(현재: ${page})`,
   navMore: "더보기",
   navMoreTools: "설정 및 도구",
   navMoreWithCurrent: (page) => `더보기(현재: ${page})`,

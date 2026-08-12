@@ -11,6 +11,8 @@ export const vi: Copy = {
   furiganaShow: "Hiện furigana",
   furiganaHide: "Ẩn furigana",
   flowLabel: "Lộ trình học",
+  navResources: "Tài nguyên",
+  navResourcesWithCurrent: (page) => `Tài nguyên (hiện tại: ${page})`,
   navMore: "Xem thêm",
   navMoreTools: "Cài đặt & công cụ",
   navMoreWithCurrent: (page) => `Xem thêm (hiện tại: ${page})`,
