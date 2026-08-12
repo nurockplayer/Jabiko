@@ -149,8 +149,6 @@ describe("isProtected", () => {
   });
 
   it("protects authored learning content and legal copy from repair targeting", () => {
-    expect(isProtected("src/domain/articleBodies/restaurantOrdering.ts")).toBe(true);
-    expect(isProtected("src/domain/articles.ts")).toBe(true);
     expect(isProtected("src/domain/cloze-data.ts")).toBe(true);
     expect(isProtected("src/domain/grammarDatabase.ts")).toBe(true);
     expect(isProtected("src/domain/legalContent.ts")).toBe(true);

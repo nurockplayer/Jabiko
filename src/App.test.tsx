@@ -6,24 +6,6 @@ import type { Attempt } from "./domain/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import appSource from "./App.tsx?raw";
 
-// #483: render counters for the lazy blog pages. Stubbed to null (we only care
-// whether they were COMMITTED, not their output) so a language-gate regression
-// that renders zh-Hant article prose for even a single frame is caught at
-// render time -- a final-state DOM assertion would miss a one-frame leak.
-const blogRenders = vi.hoisted(() => ({ index: 0, article: 0 }));
-vi.mock("./components/BlogIndexPage", () => ({
-  BlogIndexPage: () => {
-    blogRenders.index++;
-    return null;
-  }
-}));
-vi.mock("./components/BlogArticlePage", () => ({
-  BlogArticlePage: () => {
-    blogRenders.article++;
-    return null;
-  }
-}));
-
 // #693: controlled auth + deletion-protocol seams for the account-entry
 // integration tests. Default OFF: every existing test keeps running the REAL
 // hooks with Supabase unconfigured (staying signed-out / local-only). Flipping
@@ -105,16 +87,6 @@ async function gotoResource(user: ReturnType<typeof userEvent.setup>, label: str
 }
 
 describe("App", () => {
-  it("constructs the language fallback through the canonical static route constructor", () => {
-    const normalization = appSource.match(
-      /function normalizeRouteForLanguage[\s\S]*?\n}\n\nexport default function App/
-    )?.[0];
-
-    expect(normalization).toContain('return staticRoute("home");');
-    expect(normalization).not.toContain(
-      'return { view: "home", grammarSurface: null, blogSlug: null };'
-    );
-  });
 
   // The challenge / mock / kanji views are React.lazy in App, and
   // React.lazy only suspends on its first resolution. Prime the chunks
@@ -1258,172 +1230,13 @@ describe("App", () => {
     window.history.replaceState({}, "", "/");
   });
 
-  it("gates the 文章 blog to zh-Hant — never commits article prose for en (#483)", async () => {
-    // Warm the (mocked) blog lazy chunks with a zh-Hant render so a later en
-    // render is synchronous and the counters reliably reflect whether the blog
-    // pages were committed (a structural gate must NOT commit them for even a
-    // frame -- CLAUDE.md 語言隔離規則).
-    localStorage.setItem("jabiko.lang", "zh-Hant");
-    window.history.replaceState({}, "", "/blog");
-    const zh = render(<App />);
-    await waitFor(() => expect(blogRenders.index).toBeGreaterThan(0));
-    zh.unmount();
 
-    // English: the blog nav is absent and a /blog or /blog/<slug> route must
-    // fall through structurally (never commit BlogIndexPage/BlogArticlePage),
-    // not merely redirect one frame late.
-    localStorage.setItem("jabiko.lang", "en");
-    blogRenders.index = 0;
-    blogRenders.article = 0;
 
-    window.history.replaceState({}, "", "/blog");
-    const en = render(<App />);
-    await waitFor(() => expect(window.location.pathname).toBe("/"));
-    expect(blogRenders.index).toBe(0);
-    expect(screen.queryByRole("button", { name: "文章" })).not.toBeInTheDocument();
-    en.unmount();
 
-    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
-    render(<App />);
-    await waitFor(() => expect(window.location.pathname).toBe("/"));
-    expect(blogRenders.article).toBe(0);
 
-    window.history.replaceState({}, "", "/");
-  });
 
-  it("normalizes a ja direct /blog/<slug> load to home — no intermediate blog commit (#686)", async () => {
-    // Same 0-frame gate as the #483 test above, but for the initializer path:
-    // a ja direct hit must commit the home view on FIRST render (no redirect
-    // effect), so the (warmed, mocked) blog chunk is never committed and the
-    // URL is rewritten by the URL-sync effect's first run.
-    localStorage.setItem("jabiko.lang", "ja");
-    blogRenders.index = 0;
-    blogRenders.article = 0;
 
-    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
-    render(<App />);
-    // Route normalization happens in the initializer, before the first paint,
-    // so no waitFor should be needed to observe the home shell (ja: ホーム).
-    expect(screen.getByRole("button", { name: "ホーム" })).toBeInTheDocument();
-    expect(blogRenders.article).toBe(0);
-    await waitFor(() => expect(window.location.pathname).toBe("/"));
 
-    window.history.replaceState({}, "", "/");
-  });
-
-  it("normalizes a ja direct /blog load to home — blog module never mounts (#686)", async () => {
-    localStorage.setItem("jabiko.lang", "ja");
-    blogRenders.index = 0;
-    blogRenders.article = 0;
-
-    window.history.replaceState({}, "", "/blog");
-    render(<App />);
-    expect(screen.getByRole("button", { name: "ホーム" })).toBeInTheDocument();
-    expect(blogRenders.index).toBe(0);
-    expect(screen.queryByRole("button", { name: "記事" })).not.toBeInTheDocument();
-    await waitFor(() => expect(window.location.pathname).toBe("/"));
-
-    window.history.replaceState({}, "", "/");
-  });
-
-  it("renders the zh-Hant blog index and article routes (#686)", async () => {
-    localStorage.setItem("jabiko.lang", "zh-Hant");
-    blogRenders.index = 0;
-
-    window.history.replaceState({}, "", "/blog");
-    const { unmount: unmountIndex } = render(<App />);
-    await waitFor(() => expect(blogRenders.index).toBeGreaterThan(0));
-    expect(window.location.pathname).toBe("/blog");
-    unmountIndex();
-
-    blogRenders.article = 0;
-    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
-    const { unmount: unmountArticle } = render(<App />);
-    await waitFor(() => expect(blogRenders.article).toBeGreaterThan(0));
-    expect(window.location.pathname).toBe("/blog/oshikatsu-slang-nyumon");
-    unmountArticle();
-
-    window.history.replaceState({}, "", "/");
-  });
-
-  it("switching to ja while ON the zh-Hant blog lands home in one event (#686)", async () => {
-    localStorage.setItem("jabiko.lang", "zh-Hant");
-    window.history.replaceState({}, "", "/blog");
-    render(<App />);
-    await waitFor(() => expect(blogRenders.index).toBeGreaterThan(0));
-    expect(window.location.pathname).toBe("/blog");
-    // Open the header language picker (still zh-Hant UI).
-    await userEvent.click(screen.getByRole("button", { name: "切換語言" }));
-    // Zero the counter now (opening the picker just re-rendered the zh-Hant
-    // blog) so we can prove the language SWITCH itself never re-commits it.
-    blogRenders.index = 0;
-    await userEvent.click(screen.getByRole("button", { name: "日本語" }));
-
-    // Synchronous: a single user event takes the home route, clears the slug,
-    // saves the preference, and rewrites the URL — no intermediate blog commit.
-    expect(window.location.pathname).toBe("/");
-    expect(localStorage.getItem("jabiko.lang")).toBe("ja");
-    expect(screen.getByRole("button", { name: "ホーム" })).toHaveAttribute("aria-current", "page");
-    expect(blogRenders.index).toBe(0);
-    expect(screen.queryByRole("button", { name: "記事" })).not.toBeInTheDocument();
-
-    window.history.replaceState({}, "", "/");
-  });
-
-  it("switching to zh-Hant from a non-blog view keeps the route (#686)", async () => {
-    localStorage.setItem("jabiko.lang", "en");
-    window.history.replaceState({}, "", "/about");
-    render(<App />);
-
-    // English UI: the switch button and the About nav carry English labels.
-    await userEvent.click(screen.getByRole("button", { name: "Change language" }));
-    await userEvent.click(screen.getByRole("button", { name: "繁體中文" }));
-
-    expect(window.location.pathname).toBe("/about");
-    expect(localStorage.getItem("jabiko.lang")).toBe("zh-Hant");
-    expect(screen.getByRole("button", { name: "資源（目前：關於）" })).toHaveClass("selected");
-
-    window.history.replaceState({}, "", "/");
-  });
-
-  it("back/forward to a blog route in ja normalizes to home (#686)", async () => {
-    localStorage.setItem("jabiko.lang", "zh-Hant");
-    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
-    const zhRender = render(<App />);
-    await waitFor(() => expect(blogRenders.article).toBeGreaterThan(0));
-    expect(window.location.pathname).toBe("/blog/oshikatsu-slang-nyumon");
-    zhRender.unmount();
-
-    // Now in ja, back/forward to that blog URL must normalize to home without
-    // ever committing the blog article (the old popstate handler would have
-    // committed a blog frame before the effect redirected).
-    localStorage.setItem("jabiko.lang", "ja");
-    blogRenders.article = 0;
-    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
-    render(<App />);
-    expect(screen.getByRole("button", { name: "ホーム" })).toBeInTheDocument();
-    window.dispatchEvent(new PopStateEvent("popstate"));
-    expect(screen.getByRole("button", { name: "ホーム" })).toBeInTheDocument();
-    expect(blogRenders.article).toBe(0);
-    await waitFor(() => expect(window.location.pathname).toBe("/"));
-
-    window.history.replaceState({}, "", "/");
-  });
-
-  it("back/forward to a blog route in zh-Hant works normally (#686)", async () => {
-    localStorage.setItem("jabiko.lang", "zh-Hant");
-    window.history.replaceState({}, "", "/blog");
-    render(<App />);
-    await waitFor(() => expect(blogRenders.index).toBeGreaterThan(0));
-
-    // zh-Hant: a popstate to the article route keeps the blog view.
-    window.history.replaceState({}, "", "/blog/oshikatsu-slang-nyumon");
-    window.dispatchEvent(new PopStateEvent("popstate"));
-    await waitFor(() => expect(blogRenders.article).toBeGreaterThan(0));
-    expect(window.location.pathname).toBe("/blog/oshikatsu-slang-nyumon");
-
-    window.history.replaceState({}, "", "/");
-  });
 
   it("navigates to secondary views through the nav's 更多 menu (#608)", async () => {
     const user = userEvent.setup();
@@ -1456,21 +1269,6 @@ describe("App", () => {
     window.history.replaceState({}, "", "/");
   });
 
-  it("keeps the 文章 entry out of the 更多 menu for non-zh languages (#608/#483)", async () => {
-    localStorage.setItem("jabiko.lang", "en");
-    const user = userEvent.setup();
-    render(<App />);
-
-    const { copy } = await import("./i18n");
-    await user.click(screen.getByRole("button", { name: copy.en.navMore }));
-    const menu = screen.getByRole("menu", { name: copy.en.navMore });
-    expect(
-      within(menu).queryByRole("menuitem", { name: copy.en.blog })
-    ).not.toBeInTheDocument();
-    expect(within(menu).getByRole("menuitem", { name: copy.en.about })).toBeInTheDocument();
-
-    localStorage.setItem("jabiko.lang", "zh-Hant");
-  });
 
   it("opens the feedback form from a persistent header button (any view, #456)", async () => {
     const user = userEvent.setup();

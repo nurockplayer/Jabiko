@@ -16,7 +16,6 @@ export function getDefaultProtectedPaths() {
     "src/domain/furiganaData*", "supabase/", "functions/",
     "src/domain/furiganaExplanationData*", "src/domain/furiganaLearningData*",
     "src/domain/examBlocks*", "src/domain/*.i18n.*",
-    "src/domain/articleBodies/", "src/domain/articles*",
     "src/domain/cloze-data*", "src/domain/contentStats*",
     "src/domain/grammarDatabase*", "src/domain/grammarNotes*",
     "src/domain/kanjiOnyomi*", "src/domain/learningBlocks*",

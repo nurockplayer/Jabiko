@@ -7,7 +7,6 @@
 // its own title/description/canonical in search results.
 //
 // Pure data + a small resolver -> trivially testable, no DOM here.
-import { articleMetaBySlug } from "./articlesMeta";
 import { APP_VIEW_PATHS, type AppView } from "./routes";
 
 /** Production origin; canonical URLs are absolute so crawlers dedupe cleanly. */
@@ -92,12 +91,6 @@ export const VIEW_SEO: Record<AppView, PageSeo> = {
     description:
       "JLPT N5–N1 文型一覽：全部文型、接續規則、用法與例句。支援搜尋、等級瀏覽與影視例句篩選——JLPT 文法攻略。",
     path: APP_VIEW_PATHS.grammar
-  },
-  blog: {
-    title: "文章｜流行語・推し活・時下日文 · Jabiko",
-    description:
-      "課本不教、但你天天會撞到的時下日文——流行語、推し活、日劇動漫、從歌詞學日文，原創筆記邊讀邊練。",
-    path: APP_VIEW_PATHS.blog
   }
 };
 
@@ -115,26 +108,7 @@ export interface ResolvedSeo {
  * crawlers. The grammar overview (/grammar with no surface) has its own SEO
  * entry distinct from HOME.
  */
-export function seoForView(
-  view: AppView,
-  grammarSurface?: string | null,
-  blogSlug?: string | null
-): ResolvedSeo {
-  // /blog/<slug> (#483): per-article title + description so each article
-  // surfaces its own metadata. Falls back to the blog index SEO for an
-  // unknown slug. Article metadata is the lightweight ./articlesMeta (no
-  // article body), so this stays off the heavy content chunk.
-  if (view === "blog" && blogSlug) {
-    const article = articleMetaBySlug(blogSlug);
-    if (article) {
-      return {
-        title: `${article.title} · Jabiko 文章`,
-        description: article.description,
-        canonical: `${SITE_ORIGIN}/blog/${encodeURIComponent(article.slug)}`
-      };
-    }
-  }
-
+export function seoForView(view: AppView, grammarSurface?: string | null): ResolvedSeo {
   if (view === "grammar" && grammarSurface) {
     // JLPT level route (e.g., /grammar/n5): show index-page metadata, not
     // a grammar-point title.

@@ -5,7 +5,6 @@ import {
   GraduationCap,
   Home,
   Info,
-  Newspaper,
   Table,
   Target,
   Type,
@@ -28,7 +27,6 @@ const ICONS: Record<NavigationIcon, LucideIcon> = {
   rules: Table,
   kanji: BookA,
   kana: Type,
-  blog: Newspaper,
   about: Info
 };
 

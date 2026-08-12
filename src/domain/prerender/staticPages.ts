@@ -14,12 +14,10 @@
 import { VIEW_SEO, seoForView } from "../seo";
 import type { AppView } from "../routes";
 import { grammarPatterns, type GrammarPattern } from "../grammarDatabase";
-import { publishedArticleMetas } from "../articlesMeta";
-import { publishedArticles, type ArticleBlock } from "../articles";
 import { KANA_TABLE, type KanaGroup, type KanaScript } from "../kana";
 import type { JlptLevel } from "../types";
 import { legalDocumentFor, type LegalPageKind } from "../legalContent";
-import { articleJsonLd, personJsonLd } from "./structuredData";
+import { personJsonLd } from "./structuredData";
 import {
   STAY_D_AIRBNB_URL,
   STAY_D_EDITORIAL_COPY
@@ -42,7 +40,7 @@ export interface StaticPage {
   jsonLd?: string;
   /** og:type override; defaults to the template's "website". */
   ogType?: string;
-  /** article:published_time (ISO date) for article pages. */
+  /** article:published_time (ISO date); set for pages that are articles. */
   publishedTime?: string;
 }
 
@@ -125,7 +123,6 @@ const NAV_LINKS: ReadonlyArray<{ href: string; label: string }> = [
   { href: "/rules", label: "規則速查表" },
   { href: "/kanji", label: "漢字音讀" },
   { href: "/grammar", label: "文型資料庫" },
-  { href: "/blog", label: "文章" },
   { href: "/challenge", label: "題庫練習" },
   { href: "/mock", label: "題型練習" },
   { href: "/about", label: "關於" },
@@ -206,77 +203,13 @@ function grammarIndexBody(level?: JlptLevel): string {
   return wrap(heading, `${paragraph(intro)}<p>${levelLinks}</p><ul>${items}</ul>`);
 }
 
-function articleText(block: ArticleBlock): string {
-  switch (block.kind) {
-    case "lead":
-    case "paragraph":
-    case "callout":
-      return paragraph(block.text);
-    case "heading":
-      return `<h2>${escapeHtml(block.text)}</h2>`;
-    case "vocab": {
-      const items = block.items
-        .map(
-          (item) =>
-            `<li><span lang="ja">${escapeHtml(item.word)}（${escapeHtml(item.reading)}）</span>：${escapeHtml(item.meaning)}${item.note ? ` — ${escapeHtml(item.note)}` : ""}</li>`
-        )
-        .join("");
-      return `<ul>${items}</ul>`;
-    }
-    case "table": {
-      const header = block.columns
-        .map((column) => `<th scope="col">${escapeHtml(column.label)}</th>`)
-        .join("");
-      const rows = block.rows
-        .map((row) => {
-          const cells = block.columns
-            .map((column, columnIndex) => {
-              const tag = column.rowHeader ? "th" : "td";
-              const scope = column.rowHeader ? ' scope="row"' : "";
-              const lang = column.lang ? ` lang="${escapeHtml(column.lang)}"` : "";
-              return `<${tag}${scope}${lang}>${escapeHtml(row[columnIndex] ?? "")}</${tag}>`;
-            })
-            .join("");
-          return `<tr>${cells}</tr>`;
-        })
-        .join("");
-      return `<table><caption>${escapeHtml(block.caption)}</caption><thead><tr>${header}</tr></thead><tbody>${rows}</tbody></table>`;
-    }
-    case "links": {
-      const items = block.items
-        .map((item) => `<li><a href="${escapeHtml(item.url)}" rel="noopener">${escapeHtml(item.label)}</a></li>`)
-        .join("");
-      return `<ul>${items}</ul>`;
-    }
-    case "lyricPoint":
-      // Deliberately render only the original commentary, never the lyric
-      // fragment — the static HTML must stay clear of reproduced lyrics.
-      return block.points.map((point) => paragraph(point)).join("");
-    case "divider":
-      return `<h2>${escapeHtml(block.label)}</h2>`;
-    case "cta":
-      return "";
-  }
-}
-
-function blogIndexBody(): string {
-  const items = publishedArticleMetas
-    .map(
-      (meta) =>
-        `<li><a href="/blog/${encodeURIComponent(meta.slug)}">${escapeHtml(meta.title)}</a> — ${escapeHtml(meta.description)}</li>`
-    )
-    .join("");
-  return wrap("Jabiko 文章｜課本不教的日文，這裡補", `${paragraph(VIEW_SEO.blog.description)}<ul>${items}</ul>`);
-}
-
 function homeBody(): string {
   const sections = [
     `<li><a href="/grammar">JLPT 文型資料庫</a>：${grammarPatterns.length} 個文型的意思、接續與例句</li>`,
     `<li><a href="/learn">分章學習</a>：動詞變化到常用句型，一章一章打底</li>`,
     `<li><a href="/challenge">題庫練習</a>：N1〜N5 綜合題庫、備考模式與弱點複習</li>`,
     `<li><a href="/mock">題型練習</a>：照 JLPT 官方題型分區逐區攻略</li>`,
-    `<li><a href="/kanji">漢字音讀速查</a>、<a href="/rules">規則速查表</a></li>`,
-    `<li><a href="/blog">文章</a>：流行語、推し活、從歌詞學日文</li>`
+    `<li><a href="/kanji">漢字音讀速查</a>、<a href="/rules">規則速查表</a></li>`
   ].join("");
   const levelLinks = LEVELS.map(
     (l) => `<a href="/grammar/${l.toLowerCase()}">JLPT ${l} 文法</a>`
@@ -364,8 +297,8 @@ export function buildStaticPages(): StaticPage[] {
   const pages: StaticPage[] = [];
   const byId = new Map(grammarPatterns.map((pattern) => [pattern.id, pattern]));
 
-  const push = (view: AppView, path: string, bodyHtml: string, surface?: string, slug?: string): StaticPage => {
-    const seo = seoForView(view, surface ?? null, slug ?? null);
+  const push = (view: AppView, path: string, bodyHtml: string, surface?: string): StaticPage => {
+    const seo = seoForView(view, surface ?? null);
     const page: StaticPage = { path, title: seo.title, description: seo.description, canonical: seo.canonical, bodyHtml };
     pages.push(page);
     return page;
@@ -375,8 +308,8 @@ export function buildStaticPages(): StaticPage[] {
   for (const view of ["learn", "rules", "kanji", "challenge", "mock"] as const) {
     push(view, VIEW_SEO[view].path, simpleViewBody(view));
   }
-  // /about carries a Person entity so every article's author resolves to a
-  // real person (E-E-A-T / author authority).
+  // /about carries a Person entity so the site resolves to a real author
+  // (E-E-A-T / author authority).
   const aboutPage = push("about", VIEW_SEO.about.path, simpleViewBody("about"));
   aboutPage.jsonLd = personJsonLd();
   for (const view of ["privacy", "terms"] as const) {
@@ -396,20 +329,5 @@ export function buildStaticPages(): StaticPage[] {
     }
     push("grammar", `/grammar/${surface}`, grammarPointBody(pattern, byId), surface);
   }
-  push("blog", "/blog", blogIndexBody());
-  for (const article of publishedArticles) {
-    const inner = article.body.map(articleText).join("");
-    const bodyHtml = wrap(article.title, `${paragraph(article.description)}${inner}<p><a href="/blog">更多文章</a></p>`);
-    const page = push("blog", `/blog/${article.slug}`, bodyHtml, undefined, article.slug);
-    page.jsonLd = articleJsonLd({
-      title: article.title,
-      description: article.description,
-      canonical: page.canonical,
-      datePublished: article.publishedAt
-    });
-    page.ogType = "article";
-    page.publishedTime = article.publishedAt;
-  }
-
   return pages;
 }

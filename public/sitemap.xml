@@ -41,12 +41,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://jabiko.app/blog</loc>
-    <lastmod>2026-07-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://jabiko.app/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -503,42 +497,6 @@
   </url>
   <url>
     <loc>https://jabiko.app/grammar/%E3%81%A8%E3%81%84%E3%81%88%E3%81%A9%E3%82%82</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://jabiko.app/blog/japanese-country-names</loc>
-    <lastmod>2026-07-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://jabiko.app/blog/japanese-restaurant-ordering-phrases</loc>
-    <lastmod>2026-07-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://jabiko.app/blog/japanese-taste-texture-expressions</loc>
-    <lastmod>2026-07-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://jabiko.app/blog/shiritsu-ebisu-chugaku-ebichili-hajimemashita</loc>
-    <lastmod>2026-07-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://jabiko.app/blog/sweet-steady-sweet-step</loc>
-    <lastmod>2026-07-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://jabiko.app/blog/cho-saikyo-tokimeki</loc>
-    <lastmod>2026-07-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

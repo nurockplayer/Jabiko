@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   APP_VIEW_PATHS,
-  blogRoute,
   grammarRoute,
   parseRoute,
   serializeRoute,
@@ -10,16 +9,10 @@ import {
   type AppView
 } from "./routes";
 
-const legacyStaticRoute = (view: AppView): AppRoute => ({
-  view,
-  grammarSurface: null,
-  blogSlug: null
-});
-
 describe("app route contract (#623)", () => {
   it("round-trips every top-level view through its shared static path", () => {
     for (const view of Object.keys(APP_VIEW_PATHS) as AppView[]) {
-      const route = legacyStaticRoute(view);
+      const route = staticRoute(view);
       expect(parseRoute(serializeRoute(route)), view).toEqual(route);
     }
   });
@@ -27,23 +20,15 @@ describe("app route contract (#623)", () => {
   it("constructs complete mutually-exclusive route identities", () => {
     expect(staticRoute("learn")).toEqual({
       view: "learn",
-      grammarSurface: null,
-      blogSlug: null
+      grammarSurface: null
     });
     expect(grammarRoute("〜てもいい")).toEqual({
       view: "grammar",
-      grammarSurface: "〜てもいい",
-      blogSlug: null
+      grammarSurface: "〜てもいい"
     });
     expect(grammarRoute()).toEqual({
       view: "grammar",
-      grammarSurface: null,
-      blogSlug: null
-    });
-    expect(blogRoute("article-slug")).toEqual({
-      view: "blog",
-      grammarSurface: null,
-      blogSlug: "article-slug"
+      grammarSurface: null
     });
   });
 
@@ -55,34 +40,36 @@ describe("app route contract (#623)", () => {
   it("round-trips an encoded grammar surface", () => {
     const route: AppRoute = {
       view: "grammar",
-      grammarSurface: "〜てもいい",
-      blogSlug: null
+      grammarSurface: "〜てもいい"
     };
 
     expect(serializeRoute(route)).toBe(`/grammar/${encodeURIComponent("〜てもいい")}`);
     expect(parseRoute(serializeRoute(route))).toEqual(route);
   });
 
-  it("canonicalizes a legacy blog alias while parsing", () => {
-    const parsed = parseRoute("/blog/sweet-step-steady");
-
-    expect(parsed).toEqual({
-      view: "blog",
-      grammarSurface: null,
-      blogSlug: "sweet-steady-sweet-step"
-    });
-    expect(serializeRoute(parsed)).toBe("/blog/sweet-steady-sweet-step");
-  });
-
   it("falls an unknown path back to the home route", () => {
     expect(parseRoute("/does-not-exist")).toEqual(staticRoute("home"));
+  });
+
+  // The 文章 section was removed in 2026-08 (moved to the author's own site).
+  // Its published URLs are still out there, so they must keep resolving to a
+  // real view instead of a broken shell -- they take the unknown-path fallback.
+  it("sends every retired /blog URL to home", () => {
+    expect(APP_VIEW_PATHS).not.toHaveProperty("blog");
+    for (const retired of [
+      "/blog",
+      "/blog/cho-saikyo-tokimeki",
+      "/blog/sweet-step-steady",
+      "/blog/anything/deeper"
+    ]) {
+      expect(parseRoute(retired), retired).toEqual(staticRoute("home"));
+    }
   });
 
   it("does not throw on a malformed encoded segment", () => {
     expect(parseRoute("/grammar/%E0%A4%A")).toEqual({
       view: "grammar",
-      grammarSurface: "%E0%A4%A",
-      blogSlug: null
+      grammarSurface: "%E0%A4%A"
     });
   });
 });
