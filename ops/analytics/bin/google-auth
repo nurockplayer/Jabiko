@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OPS_DIR="$(cd "$SELF/.." && pwd)"
+REPO_ROOT="$(cd "$SELF/../../.." && pwd)"
+export REPO_ROOT
+export OPS_DIR
+exec node "$OPS_DIR/src/cli/google-auth.mjs" "$@"

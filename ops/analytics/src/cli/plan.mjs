@@ -1,0 +1,154 @@
+// ops/analytics bin/plan — read-only discovery + desired-state diff + gates.
+// Never mutates anything.
+
+import { pathToFileURL } from "node:url";
+import { ZONE_NAME, zarazDesiredDiff, ga4DesiredDiff, analyzeZaraz } from "../desired.mjs";
+import { resolveCloudflareAuth } from "../creds.mjs";
+import { findZone, cfRequest, CfApiError, zarazConfigUrl } from "../cf.mjs";
+import { googleTokenFromEnv, listCustomDimensions } from "../ga4.mjs";
+import { probeProductionZaraz } from "../production.mjs";
+import { parseFlags, discoverGa4, repoStaticChecks } from "./cliutil.mjs";
+import * as report from "../report.mjs";
+
+/**
+ * Read-only plan. `env` and `repoRoot` are injectable for tests; a test can
+ * also stub globalThis.fetch to record that no write request is ever issued.
+ */
+export async function runPlan({
+  env = process.env,
+  repoRoot = process.env.REPO_ROOT || process.cwd()
+} = {}) {
+  const measurementIdFlag = parseFlags(process.argv.slice(2))["measurement-id"];
+  const gatesHit = [];
+
+  report.section(`Jabiko #745 analytics plan (read-only) · zone ${ZONE_NAME}`);
+
+  // 1. Repo contract (no credentials needed).
+  report.sub("Repository contract");
+  const repoFindings = await repoStaticChecks({ repoRoot });
+  if (repoFindings.length) {
+    report.printFindings(repoFindings);
+  } else {
+    report.ok("analytics contract present; no gtag/GTM in index.html; promo_click + page_view in src/lib/analytics.ts");
+  }
+
+  // 2. Production observable state (no credentials needed).
+  report.sub("Production (jabiko.app, no auth)");
+  const probe = await probeProductionZaraz();
+  for (const d of probe.details) report.bullet(d);
+  if (probe.injected) {
+    report.ok("Zaraz script is injected on production.");
+  } else {
+    report.warn("Zaraz is NOT injected on production — the #745 pipeline is not live yet.");
+  }
+
+  // 3. Cloudflare account/zone discovery.
+  report.sub("Cloudflare");
+  const cfAuth = resolveCloudflareAuth({ env });
+  if (!cfAuth) {
+    report.printGate("CLOUDFLARE_AUTH");
+    gatesHit.push("CLOUDFLARE_AUTH");
+  } else {
+    report.bullet(`auth source: ${cfAuth.source}`);
+    const zone = await findZone({ token: cfAuth.token, name: ZONE_NAME }).catch((e) => {
+      report.err(`zone discovery failed: ${e.message}`);
+      return null;
+    });
+    if (zone) {
+      report.ok(`zone ${zone.name} (id ${zone.id}, account "${zone.accountName ?? "?"}")`);
+    } else {
+      report.warn(`zone ${ZONE_NAME} not found under the current credential.`);
+    }
+
+    if (cfAuth.capabilities.includes("zarazRead") && zone) {
+      try {
+        const config = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(zone.id) });
+        report.sub("Zaraz config vs #745 desired state");
+        const a = analyzeZaraz(config);
+        report.bullet(`${a.tools.length} tool(s), ${a.triggers.length} trigger(s); autoInject=${a.autoInject}`);
+        const findings = zarazDesiredDiff(config, measurementIdFlag);
+        report.printFindings(findings, { prefix: "  " });
+        if (!measurementIdFlag) {
+          report.warn("No --measurement-id supplied; pass one or rely on Google discovery below.");
+        }
+      } catch (e) {
+        if (e instanceof CfApiError) {
+          report.err(`cannot read Zaraz config: ${e.message}`);
+          if (/auth|permission/i.test(e.message)) {
+            report.printGate("CLOUDFLARE_AUTH", "Zaraz read requires a token with Zone:Zaraz Read.");
+            gatesHit.push("CLOUDFLARE_AUTH");
+          }
+        } else {
+          report.err(`cannot read Zaraz config: ${e.message}`);
+        }
+      }
+    } else if (zone) {
+      report.warn("Current credential cannot read the Zaraz config (needs Zone:Zaraz Read).");
+      report.printGate("CLOUDFLARE_AUTH");
+      gatesHit.push("CLOUDFLARE_AUTH");
+    }
+  }
+
+  // 4. GA4 discovery.
+  report.sub("Google Analytics 4");
+  const googleToken = await googleTokenFromEnv(env);
+  if (!googleToken) {
+    report.printGate("GOOGLE_OAUTH");
+    gatesHit.push("GOOGLE_OAUTH");
+  } else {
+    try {
+      const discovered = await discoverGa4({ token: googleToken });
+      if (!discovered.property) {
+        if (discovered.candidates.length === 0) {
+          report.warn("No plausible Jabiko GA4 property found. Create one or pass --measurement-id.");
+        } else {
+          report.warn(`${discovered.candidates.length} plausible GA4 properties found — ambiguous.`);
+          for (const c of discovered.candidates) {
+            report.bullet(`${c.displayName} (${c.name})`);
+          }
+          report.printGate("GA4_PROPERTY_AMBIGUITY");
+          gatesHit.push("GA4_PROPERTY_AMBIGUITY");
+        }
+      } else {
+        report.ok(`property ${discovered.property.displayName} (${discovered.property.name})`);
+        if (discovered.measurementId) {
+          report.ok(`web stream Measurement ID ${discovered.measurementId}`);
+        } else {
+          report.warn("property has no web data stream with a Measurement ID.");
+        }
+        const effectiveMeasurementId = measurementIdFlag || discovered.measurementId;
+        const dims = await listCustomDimensions({ token: googleToken, property: discovered.property.name });
+        report.sub("GA4 custom dimensions vs #745");
+        const diff = ga4DesiredDiff(discovered.property.name, dims);
+        report.bullet(`${diff.missing.length} missing, ${diff.present.length} present, ${diff.conflicts.length} conflicting`);
+        for (const m of diff.missing) report.bullet(`create ${m.parameterName} (${m.scope})`);
+        for (const c of diff.conflicts) report.warn(`conflict: ${c.parameterName} exists as scope ${c.existingScope}, want ${c.desiredScope}`);
+        if (!effectiveMeasurementId) {
+          report.warn("Measurement ID could not be resolved; supply --measurement-id.");
+        }
+      }
+    } catch (e) {
+      report.err(`GA4 discovery failed: ${e.message}`);
+      if (/permission|unauthorized|forbidden|invalid_grant/i.test(e.message)) {
+        report.printGate("GOOGLE_OAUTH");
+        gatesHit.push("GOOGLE_OAUTH");
+      }
+    }
+  }
+
+  // 5. Summary.
+  report.section("Plan summary");
+  if (gatesHit.length === 0) {
+    report.ok("No human gates required — full desired-state diff available above.");
+  } else {
+    report.bullet(`Gates hit: ${gatesHit.join(", ")}`);
+    for (const g of gatesHit) report.printGate(g);
+  }
+  report.bullet("plan is read-only — nothing was mutated.");
+  return gatesHit;
+}
+
+// CLI entry (only when executed directly, not when imported by a test).
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await runPlan();
+}

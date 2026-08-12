@@ -226,6 +226,23 @@ repository. If the GA4 Measurement ID/property has not yet been chosen,
 repository implementation may proceed, but production activation stays blocked
 until the owner supplies/configures the intended property in Cloudflare.
 
+### Automated operator tooling (`ops/analytics`)
+
+Steps 1–6 above are automated by `ops/analytics` (read the
+[`ops/analytics/README.md`](../ops/analytics/README.md) runbook):
+
+```bash
+./ops/analytics/bin/plan    # read-only discovery + desired-state diff + human gates
+./ops/analytics/bin/apply   # idempotent; applies only missing/incorrect #745 config
+./ops/analytics/bin/smoke   # production verification (config + GA4 Realtime)
+```
+
+Only unavoidable human gates remain: a scoped Cloudflare API token
+(`HUMAN_GATE:CLOUDFLARE_AUTH`), Google GA4 access
+(`HUMAN_GATE:GOOGLE_OAUTH`), a property choice when discovery is ambiguous
+(`HUMAN_GATE:GA4_PROPERTY_AMBIGUITY`), and the one guided production-click
+sequence for real-traffic smoke (`HUMAN_GATE:PRODUCTION_INTERACTION`).
+
 ## Out of scope
 
 - Cloudflare Zaraz Consent Management (consent banner) — if production
