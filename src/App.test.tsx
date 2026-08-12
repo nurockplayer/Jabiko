@@ -1599,6 +1599,27 @@ describe("App", () => {
     expect(desktopEntry).toHaveFocus();
   });
 
+  it("sign-out clears deletion UI so the same account cannot revive stale state", async () => {
+    deletionTest.active = true;
+    deletionTest.user = signedInUser;
+    const user = userEvent.setup();
+    const { rerender } = render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "刪除練習紀錄" }));
+    expect(screen.getByRole("dialog", { name: "刪除練習紀錄" })).toBeInTheDocument();
+
+    deletionTest.user = null;
+    rerender(<App />);
+    expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+
+    deletionTest.user = signedInUser;
+    rerender(<App />);
+    expect(screen.getByRole("button", { name: "刪除練習紀錄" })).toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
   it("signed in: the mobile 更多 entry opens the SAME dialog instance (#693)", async () => {
     deletionTest.active = true;
     deletionTest.user = signedInUser;
