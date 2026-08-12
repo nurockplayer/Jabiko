@@ -1,5 +1,6 @@
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import type { Language } from "../i18n";
+import { trackEvent } from "../lib/analytics";
 import {
   STAY_D_AIRBNB_URL,
   STAY_D_EDITORIAL_COPY,
@@ -29,6 +30,14 @@ export function StayDPage({ language }: { language: Language }) {
             target="_blank"
             rel="noopener noreferrer"
             data-stay-d-placement="stay-d-hero-airbnb"
+            onClick={() =>
+              trackEvent("promo_click", {
+                promoId: "stay-d",
+                action: "airbnb",
+                placement: "stay-d-hero-airbnb",
+                locale: language
+              })
+            }
           >
             {text.airbnbCta}
             <ExternalLink aria-hidden="true" />
@@ -41,6 +50,7 @@ export function StayDPage({ language }: { language: Language }) {
         <p className="stay-d-section-intro">{text.page.videoIntro}</p>
         <StayDVideo
           copy={text.video}
+          locale={language}
           triggerPlacement="stay-d-video"
           airbnbPlacement="stay-d-video-airbnb"
         />
@@ -57,6 +67,14 @@ export function StayDPage({ language }: { language: Language }) {
           target="_blank"
           rel="noopener noreferrer"
           data-stay-d-placement="stay-d-final-airbnb"
+          onClick={() =>
+            trackEvent("promo_click", {
+              promoId: "stay-d",
+              action: "airbnb",
+              placement: "stay-d-final-airbnb",
+              locale: language
+            })
+          }
         >
           {text.airbnbCta}
           <ExternalLink aria-hidden="true" />

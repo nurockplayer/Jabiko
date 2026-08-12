@@ -1,5 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import type { Language } from "../i18n";
+import { trackEvent } from "../lib/analytics";
 import {
   STAY_D_AIRBNB_URL,
   STAY_D_HOME_TEASER,
@@ -32,12 +33,21 @@ export function StayDPromoCard({ language }: { language: Language }) {
           target="_blank"
           rel="noopener noreferrer"
           data-stay-d-placement="home-airbnb"
+          onClick={() =>
+            trackEvent("promo_click", {
+              promoId: "stay-d",
+              action: "airbnb",
+              placement: "home-airbnb",
+              locale: language
+            })
+          }
         >
           {text.primaryCta}
           <ExternalLink aria-hidden="true" />
         </a>
         <StayDVideo
           copy={text.video}
+          locale={language}
           triggerPlacement="home-video"
           airbnbPlacement="home-video-airbnb"
         />

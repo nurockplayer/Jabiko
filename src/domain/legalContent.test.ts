@@ -98,6 +98,60 @@ describe("legal content", () => {
     expect(en).not.toContain("all data");
   });
 
+  it("discloses GA4 routing through Zaraz in every launched privacy locale without over-claiming", () => {
+    const disclosureText = (language: "zh-Hant" | "ja" | "en") =>
+      legalDocumentFor(language, "privacy").sections
+        .flatMap((section) => [section.title, ...(section.paragraphs ?? []), ...(section.items ?? [])])
+        .join("\n");
+
+    // GA4 is disclosed as a downstream analytics recipient routed through Zaraz.
+    const zh = disclosureText("zh-Hant");
+    expect(zh).toContain("Google Analytics");
+    expect(zh).toContain("轉交 Google Analytics");
+
+    const ja = disclosureText("ja");
+    expect(ja).toContain("Google Analytics");
+    expect(ja).toContain("Google Analytics に転送");
+
+    const en = disclosureText("en");
+    expect(en).toContain("Google Analytics");
+    expect(en).toContain("routed through Cloudflare Zaraz to Google Analytics");
+
+    // Google Analytics is listed as an analytics provider separately from the
+    // optional Google sign-in purpose.
+    expect(zh).toContain("Google Analytics：分析啟用時");
+    expect(ja).toContain("Google Analytics：分析が有効な場合");
+    expect(en).toContain("Google Analytics: recipient of aggregate usage analysis");
+
+    // The outbound promotion click is scoped to interest measurement, not to
+    // Airbnb booking conversion tracking.
+    expect(zh).toContain("不代表測量或追蹤");
+    expect(ja).toContain("測定・追跡するものではありません");
+    expect(en).toContain("does not measure or track");
+
+    // No claim that analytics is fully anonymous while GA4/Zaraz keep their
+    // own client/session mechanisms. The section title itself must not claim
+    // anonymity either. Titles carry a numbered prefix ("3. 使用分析"), so
+    // assert the wording, not an exact match.
+    expect(en).not.toContain("fully anonymous");
+    expect(zh).not.toContain("完全匿名");
+    expect(ja).not.toContain("完全に匿名");
+
+    const analyticsSectionTitle = (language: "zh-Hant" | "ja" | "en") =>
+      legalDocumentFor(language, "privacy").sections
+        .find((section) =>
+          language === "en" ? section.title.includes("analytics") : section.title.includes("分析")
+        )
+        ?.title ?? "";
+
+    expect(analyticsSectionTitle("zh-Hant")).toContain("使用分析");
+    expect(analyticsSectionTitle("zh-Hant")).not.toContain("匿名");
+    expect(analyticsSectionTitle("ja")).toContain("利用状況分析");
+    expect(analyticsSectionTitle("ja")).not.toContain("匿名");
+    expect(analyticsSectionTitle("en")).toContain("Usage analytics");
+    expect(analyticsSectionTitle("en")).not.toContain("Anonymous");
+  });
+
   it("does not claim that public source code is open source", () => {
     const terms = legalDocumentFor("zh-Hant", "terms");
     const text = terms.sections
