@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { copy, type Language } from "../i18n";
 import type { JlptLevel } from "../domain/types";
 import { kanjiOnyomi, kanjiExamples, type KanjiOnyomiEntry } from "../domain/kanjiOnyomi";
@@ -120,7 +120,12 @@ export function KanjiOnyomiPanel({
   // family) -- the sequence the arrow keys walk. Includes entries still behind
   // the load-more boundary so stepping past it can reveal them.
   const orderedEntries = useMemo(() => families.flatMap(([, entries]) => entries), [families]);
-  const cellRefs = useRef(new Map<string, HTMLButtonElement>());
+  const [cellRefs] = useState(
+    () =>
+      new Map(
+        kanjiOnyomi.map((entry) => [entry.kanji, createRef<HTMLButtonElement>()])
+      )
+  );
   const pendingFocus = useRef<string | null>(null);
 
   // Desktop shortcut (user request 2026-07): ← / → walk the grid so browsing a
@@ -174,12 +179,12 @@ export function KanjiOnyomiPanel({
   useEffect(() => {
     const kanji = pendingFocus.current;
     if (!kanji) return;
-    const node = cellRefs.current.get(kanji);
+    const node = cellRefs.get(kanji)?.current;
     if (!node) return; // just revealed; the next pass catches it
     pendingFocus.current = null;
     node.focus({ preventScroll: true });
     node.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
-  }, [selected, entryBudget]);
+  }, [selected, entryBudget, cellRefs]);
 
   const detail = selected ? kanjiOnyomi.find((entry) => entry.kanji === selected) ?? null : null;
   const examples = detail ? kanjiExamples(detail.kanji) : [];
@@ -302,10 +307,7 @@ export function KanjiOnyomiPanel({
                   <div className="kanji-cell-wrap" key={entry.kanji}>
                     <button
                       type="button"
-                      ref={(node) => {
-                        if (node) cellRefs.current.set(entry.kanji, node);
-                        else cellRefs.current.delete(entry.kanji);
-                      }}
+                      ref={cellRefs.get(entry.kanji)}
                       className={`kanji-cell${isSelected ? " selected" : ""}`}
                       aria-pressed={isSelected}
                       onClick={() => setSelected(entry.kanji)}

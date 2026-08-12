@@ -157,6 +157,14 @@ export default function App() {
   );
   // The article slug for the active /blog/<slug> route (#483); null = index.
   const [blogSlug, setBlogSlug] = useState<string | null>(() => initialRoute.blogSlug);
+  // The drill the challenge view starts with on its next mount. This state
+  // must exist before the popstate subscription below because back/forward
+  // restores a challenge deep link through its setter.
+  const [launch, setLaunch] = useState<SessionInit | undefined>(() =>
+    initialRoute.view === "challenge"
+      ? challengeInitFromQuery(window.location.search)
+      : undefined
+  );
 
   // Open a grammar point's study page (#282): from the post-answer feedback's
   // "深入學習這個文法 →" link, and deep-linkable directly via the URL.
@@ -307,49 +315,37 @@ export default function App() {
   const reviewCount = useMemo(() => countMistakes(progressAttempts), [progressAttempts]);
   // #693: ONE shared delete-history dialog instance, opened by both the
   // desktop heading-auth action and the mobile 更多 menu entry. The entry
-  // clicks record the actual trigger as the return-focus target and flip
-  // `deletionOpen`; the dialog closes itself on success/cancel, and a failed
-  // delete stays open with a retryable error. `deletionSuccess` is a one-shot
-  // flag so the localized success status stays readable until the learner
-  // navigates or reopens the dialog.
-  const [deletionOpen, setDeletionOpen] = useState(false);
-  const [deletionSuccess, setDeletionSuccess] = useState(false);
+  // clicks record the actual trigger as the return-focus target and open the
+  // user-owned UI state; the dialog closes itself on success/cancel, and a
+  // failed delete stays open with a retryable error. The success flag is
+  // one-shot so the localized status stays readable until the learner reopens
+  // the dialog or the authenticated owner changes.
+  const deletionOwnerId = user?.id ?? null;
+  const [deletionUi, setDeletionUi] = useState(() => ({
+    ownerId: deletionOwnerId,
+    open: false,
+    success: false
+  }));
+  // The confirmation protocol belongs to one authenticated user. Adjust the
+  // local UI state during render when that owner changes so children never
+  // commit stale dialog/success state for a signed-out or different account.
+  if (deletionUi.ownerId !== deletionOwnerId) {
+    setDeletionUi({ ownerId: deletionOwnerId, open: false, success: false });
+  }
   const deleteHistoryReturnRef = useRef<HTMLButtonElement | null>(null);
   const openDeleteHistory = useCallback((trigger: HTMLButtonElement) => {
     deleteHistoryReturnRef.current = trigger;
-    setDeletionSuccess(false);
-    setDeletionOpen(true);
-  }, []);
+    setDeletionUi({ ownerId: deletionOwnerId, open: true, success: false });
+  }, [deletionOwnerId]);
   const handleDeleteHistoryConfirm = useCallback(async (): Promise<boolean> => {
     const ok = await deleteSyncedPracticeHistory();
     if (ok) {
-      setDeletionSuccess(true);
+      setDeletionUi((current) =>
+        current.ownerId === deletionOwnerId ? { ...current, success: true } : current
+      );
     }
     return ok;
-  }, [deleteSyncedPracticeHistory]);
-  // If the user logs out / the account disappears mid-delete, collapse the
-  // dialog and clear the success status (the protocol is user-scoped; nothing
-  // left to confirm and the old account's "deleted" status must not linger).
-  // Note: a failed delete must NOT collapse the dialog -- the dialog stays
-  // open with its retryable error until the learner dismisses or retries.
-  useEffect(() => {
-    if (!user) {
-      setDeletionOpen(false);
-      setDeletionSuccess(false);
-    }
-  }, [user]);
-  // The drill the challenge view starts with on its next mount. Set by
-  // the "start X" actions just before navigating; undefined = the default
-  // basic drill. Read once when ChallengePanel mounts (it owns the
-  // session), so changing it while already in the challenge is a no-op.
-  // Seed from a /challenge?mode=&level= deep link on a direct hit / refresh
-  // (#264), so a shared or bookmarked drill restores; a bare /challenge or any
-  // other route stays undefined (default landing).
-  const [launch, setLaunch] = useState<SessionInit | undefined>(() =>
-    initialRoute.view === "challenge"
-      ? challengeInitFromQuery(window.location.search)
-      : undefined
-  );
+  }, [deleteSyncedPracticeHistory, deletionOwnerId]);
   // Global target-level preference (#199), read once at startup. Seeds the
   // fresh-pool level range (今日練習 / 綜合 / 単字) and drives the first-run
   // onboarding card; the home card persists it.
@@ -526,16 +522,16 @@ export default function App() {
           onClose={() => setFeedbackKind(null)}
         />
       ) : null}
-      {deletionSuccess ? (
+      {deletionUi.success ? (
         <p className="delete-history-status" role="status" aria-live="polite">
           {t.deleteHistorySuccess}
         </p>
       ) : null}
       <DeletePracticeHistoryDialog
-        open={deletionOpen}
+        open={deletionUi.open}
         status={historyDeletionStatus}
         onConfirm={handleDeleteHistoryConfirm}
-        onClose={() => setDeletionOpen(false)}
+        onClose={() => setDeletionUi((current) => ({ ...current, open: false }))}
         returnFocusRef={deleteHistoryReturnRef}
         copy={{
           title: t.deleteHistoryTitle,
