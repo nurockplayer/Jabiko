@@ -1,9 +1,75 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { STAY_D_AIRBNB_URL, STAY_D_EDITORIAL_COPY } from "../domain/stayD";
 import { StayDPage } from "./StayDPage";
 
+const analyticsMocks = vi.hoisted(() => ({ trackEvent: vi.fn() }));
+
+vi.mock("../lib/analytics", () => analyticsMocks);
+
 describe("StayDPage (#748 editorial)", () => {
+  beforeEach(() => {
+    analyticsMocks.trackEvent.mockClear();
+  });
+
+  it("emits stay-d-hero-airbnb/airbnb promo_click on the hero Airbnb CTA", () => {
+    render(<StayDPage language="zh-Hant" />);
+    const heroCta = screen.getAllByRole("link", { name: "在 Airbnb 查看 Stay.D" })[0];
+    fireEvent.click(heroCta);
+
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "airbnb",
+      placement: "stay-d-hero-airbnb",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("emits stay-d-video/video promo_click when the /stay-d video is opened", () => {
+    render(<StayDPage language="zh-Hant" />);
+    fireEvent.click(screen.getByRole("button", { name: "▶ 看 Stay.D 介紹影片" }));
+
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "video",
+      placement: "stay-d-video",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("emits stay-d-video-airbnb/airbnb promo_click from the video-section CTA", () => {
+    render(<StayDPage language="zh-Hant" />);
+    fireEvent.click(screen.getByRole("button", { name: "▶ 看 Stay.D 介紹影片" }));
+    analyticsMocks.trackEvent.mockClear();
+    fireEvent.click(
+      screen.getByRole("link", { name: "喜歡 Stay.D？到 Airbnb 查看 Stay.D" })
+    );
+
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "airbnb",
+      placement: "stay-d-video-airbnb",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("emits stay-d-final-airbnb/airbnb promo_click on the final Airbnb CTA", () => {
+    render(<StayDPage language="zh-Hant" />);
+    const ctas = screen.getAllByRole("link", { name: "在 Airbnb 查看 Stay.D" });
+    fireEvent.click(ctas[ctas.length - 1]);
+
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "airbnb",
+      placement: "stay-d-final-airbnb",
+      locale: "zh-Hant"
+    });
+  });
+
   it("renders the editorial extension page with direct, safely opened Airbnb CTAs", () => {
     const { container } = render(<StayDPage language="zh-Hant" />);
 

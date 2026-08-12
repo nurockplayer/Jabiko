@@ -1,5 +1,7 @@
 import { useId, useState } from "react";
 import { ChevronUp, ExternalLink, PlayCircle } from "lucide-react";
+import type { Language } from "../i18n";
+import { trackEvent } from "../lib/analytics";
 import {
   STAY_D_AIRBNB_URL,
   STAY_D_VIDEO_ID,
@@ -9,10 +11,12 @@ import {
 
 export function StayDVideo({
   copy,
+  locale,
   triggerPlacement,
   airbnbPlacement
 }: {
   copy: StayDVideoCopy;
+  locale: Language;
   triggerPlacement: "home-video" | "stay-d-video";
   airbnbPlacement: "home-video-airbnb" | "stay-d-video-airbnb";
 }) {
@@ -27,7 +31,15 @@ export function StayDVideo({
         aria-expanded={expanded}
         aria-controls={panelId}
         data-stay-d-placement={triggerPlacement}
-        onClick={() => setExpanded((current) => !current)}
+        onClick={() => {
+          setExpanded((current) => !current);
+          trackEvent("promo_click", {
+            promoId: "stay-d",
+            action: "video",
+            placement: triggerPlacement,
+            locale
+          });
+        }}
       >
         {expanded ? <ChevronUp aria-hidden="true" /> : <PlayCircle aria-hidden="true" />}
         {expanded ? copy.collapse : copy.watch}
@@ -51,6 +63,14 @@ export function StayDVideo({
             target="_blank"
             rel="noopener noreferrer"
             data-stay-d-placement={airbnbPlacement}
+            onClick={() =>
+              trackEvent("promo_click", {
+                promoId: "stay-d",
+                action: "airbnb",
+                placement: airbnbPlacement,
+                locale
+              })
+            }
           >
             {copy.airbnbCta}
             <ExternalLink aria-hidden="true" />

@@ -72,7 +72,7 @@ export const VIEW_SEO: Record<AppView, PageSeo> = {
   privacy: {
     title: "隱私政策｜Jabiko",
     description:
-      "了解 Jabiko 在瀏覽器、Google 登入、跨裝置同步、匿名使用分析與回報功能中如何處理資料。",
+      "了解 Jabiko 在瀏覽器、Google 登入、跨裝置同步、使用分析與回報功能中如何處理資料。",
     path: APP_VIEW_PATHS.privacy
   },
   terms: {

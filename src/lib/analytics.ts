@@ -11,7 +11,8 @@ export type AnalyticsEventName =
   | "level_changed"
   | "locale_changed"
   | "weak_review_started"
-  | "article_viewed";
+  | "article_viewed"
+  | "promo_click";
 
 export interface PageViewPayload {
   view: string;
@@ -59,6 +60,35 @@ export interface WeakReviewStartedPayload {
 export interface ArticleViewedPayload {
   slug: string;
 }
+// Outbound promotion click (#745). promoId and placement are bounded to
+// approved identifiers so arbitrary free-form text or PII (an email, a URL)
+// cannot pass the analytics boundary at compile time. action distinguishes a
+// direct Airbnb CTA from a video-trigger interaction. Extend the unions below
+// when a new approved promotion or placement lands.
+export const PROMO_IDENTIFIERS = ["stay-d"] as const satisfies readonly string[];
+export type PromoIdentifier = (typeof PROMO_IDENTIFIERS)[number];
+
+// Stable Stay.D funnel interaction placements frozen by #744 (#745 analytics
+// boundary). Each value identifies a distinct user-facing funnel interaction,
+// not a raw URL, surface slug, or free-form copy. #744 wires exactly these
+// values when the Stay.D UI lands; adding a new funnel step extends the union.
+export const PROMO_PLACEMENTS = [
+  "home-airbnb",
+  "home-video",
+  "home-video-airbnb",
+  "stay-d-hero-airbnb",
+  "stay-d-video",
+  "stay-d-video-airbnb",
+  "stay-d-final-airbnb"
+] as const satisfies readonly string[];
+export type PromoPlacement = (typeof PROMO_PLACEMENTS)[number];
+
+export interface PromoClickPayload {
+  promoId: PromoIdentifier;
+  action: "airbnb" | "video";
+  placement: PromoPlacement;
+  locale: LocaleCode;
+}
 
 export interface AnalyticsPayloadMap {
   page_view: PageViewPayload;
@@ -70,6 +100,7 @@ export interface AnalyticsPayloadMap {
   locale_changed: LocaleChangedPayload;
   weak_review_started: WeakReviewStartedPayload;
   article_viewed: ArticleViewedPayload;
+  promo_click: PromoClickPayload;
 }
 
 const ZARAZ_ENABLED_FLAG = import.meta.env.VITE_ZARAZ_ENABLED;
@@ -89,7 +120,8 @@ const ALLOWED_PAYLOAD_KEYS: Record<AnalyticsEventName, readonly string[]> = {
   level_changed: ["scope", "levelRange", "locale"],
   locale_changed: ["from", "to"],
   weak_review_started: ["dueCount", "locale"],
-  article_viewed: ["slug"]
+  article_viewed: ["slug"],
+  promo_click: ["promoId", "action", "placement", "locale"]
 };
 
 function sanitizePayload<K extends AnalyticsEventName>(

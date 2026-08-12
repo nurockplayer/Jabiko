@@ -207,4 +207,133 @@ describe("analytics.trackEvent", () => {
       slug: "sweet-steady-sweet-step"
     });
   });
+
+  it("accepts promo_click with a Home direct Airbnb placement (action: airbnb)", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+    trackEvent("promo_click", {
+      promoId: "stay-d",
+      action: "airbnb",
+      placement: "home-airbnb",
+      locale: "zh-Hant"
+    });
+    expect(track).toHaveBeenCalledTimes(1);
+    expect(track).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "airbnb",
+      placement: "home-airbnb",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("accepts promo_click with a Home video trigger placement (action: video)", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+    trackEvent("promo_click", {
+      promoId: "stay-d",
+      action: "video",
+      placement: "home-video",
+      locale: "ja"
+    });
+    expect(track).toHaveBeenCalledTimes(1);
+    expect(track).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "video",
+      placement: "home-video",
+      locale: "ja"
+    });
+  });
+
+  it("accepts promo_click with a /stay-d final Airbnb placement", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+    trackEvent("promo_click", {
+      promoId: "stay-d",
+      action: "airbnb",
+      placement: "stay-d-final-airbnb",
+      locale: "en"
+    });
+    expect(track).toHaveBeenCalledTimes(1);
+    expect(track).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "airbnb",
+      placement: "stay-d-final-airbnb",
+      locale: "en"
+    });
+  });
+
+  it("strips non-allowlisted keys from promo_click before forwarding to Zaraz", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+    // The promotion CTA must not forward the destination URL, account data,
+    // raw user ids, or arbitrary strings. Only the four allowlisted keys pass.
+    const smuggled = {
+      promoId: "stay-d" as const,
+      action: "airbnb" as const,
+      placement: "home-airbnb" as const,
+      locale: "zh-Hant" as const,
+      destinationUrl: "https://zh-t.airbnb.com/rooms/1518015758376242668",
+      email: "a@b.com",
+      userId: "supabase-123",
+      nested: { title: "秘密の宿" }
+    };
+    trackEvent("promo_click", smuggled);
+    expect(track).toHaveBeenCalledTimes(1);
+    const forwarded = track.mock.calls[0][1] as Record<string, unknown>;
+    expect(forwarded).not.toHaveProperty("destinationUrl");
+    expect(forwarded).not.toHaveProperty("email");
+    expect(forwarded).not.toHaveProperty("userId");
+    expect(forwarded).not.toHaveProperty("nested");
+    expect(forwarded).toEqual({
+      promoId: "stay-d",
+      action: "airbnb",
+      placement: "home-airbnb",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("rejects a non airbnb|video action for promo_click at compile time", () => {
+    trackEvent("promo_click", {
+      promoId: "stay-d",
+      // @ts-expect-error -- action is narrowed to "airbnb" | "video"; a free-form
+      // destination string (e.g. a booking provider) is not allowed
+      action: "hotel",
+      placement: "home-airbnb",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("rejects destination URL or PII keys for promo_click at compile time", () => {
+    trackEvent("promo_click", {
+      promoId: "stay-d",
+      action: "airbnb",
+      placement: "home-airbnb",
+      locale: "zh-Hant",
+      // @ts-expect-error -- destinationUrl is not an allowlisted key; the
+      // Airbnb URL must never travel inside the analytics payload
+      destinationUrl: "https://zh-t.airbnb.com/rooms/1518015758376242668"
+    });
+  });
+
+  it("rejects an arbitrary promoId at compile time", () => {
+    trackEvent("promo_click", {
+      // @ts-expect-error -- promoId is bounded to approved promotion ids; a
+      // free-form string such as an email must not pass the boundary
+      promoId: "user@example.com",
+      action: "airbnb",
+      placement: "home-airbnb",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("rejects an arbitrary placement at compile time", () => {
+    trackEvent("promo_click", {
+      promoId: "stay-d",
+      action: "airbnb",
+      // @ts-expect-error -- placement is bounded to the frozen #744 funnel
+      // placements; a URL or free text must not pass the boundary
+      placement: "https://example.com/",
+      locale: "zh-Hant"
+    });
+  });
 });

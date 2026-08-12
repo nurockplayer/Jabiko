@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import {
   STAY_D_AIRBNB_URL,
@@ -9,7 +9,58 @@ import {
 } from "../domain/stayD";
 import { StayDPromoCard } from "./StayDPromoCard";
 
+const analyticsMocks = vi.hoisted(() => ({ trackEvent: vi.fn() }));
+
+vi.mock("../lib/analytics", () => analyticsMocks);
+
 describe("StayDPromoCard (#750 editorial footer)", () => {
+  beforeEach(() => {
+    analyticsMocks.trackEvent.mockClear();
+  });
+
+  it("emits exactly one home-airbnb/airbnb promo_click on the direct Airbnb CTA", () => {
+    render(<StayDPromoCard language="zh-Hant" />);
+    fireEvent.click(screen.getByRole("link", { name: /查看 Stay\.D/ }));
+
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "airbnb",
+      placement: "home-airbnb",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("emits exactly one home-video/video promo_click when the video is opened", () => {
+    render(<StayDPromoCard language="zh-Hant" />);
+    fireEvent.click(screen.getByRole("button", { name: "看介紹影片" }));
+
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "video",
+      placement: "home-video",
+      locale: "zh-Hant"
+    });
+  });
+
+  it("emits exactly one home-video-airbnb/airbnb promo_click from the expanded video CTA", () => {
+    render(<StayDPromoCard language="zh-Hant" />);
+    fireEvent.click(screen.getByRole("button", { name: "看介紹影片" }));
+    analyticsMocks.trackEvent.mockClear();
+    fireEvent.click(
+      screen.getByRole("link", { name: "喜歡 Stay.D？到 Airbnb 查看 Stay.D" })
+    );
+
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "airbnb",
+      placement: "home-video-airbnb",
+      locale: "zh-Hant"
+    });
+  });
+
   it("makes Airbnb the direct primary action at home-bottom", () => {
     render(<StayDPromoCard language="zh-Hant" />);
 
