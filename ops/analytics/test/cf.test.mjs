@@ -10,7 +10,8 @@ import {
   zarazPublishUrl,
   cfHeaders,
   parseCfResponse,
-  CfApiError
+  CfApiError,
+  cfRequest
 } from "../src/cf.mjs";
 
 const ZONE = "abc123";
@@ -64,4 +65,35 @@ test("parseCfResponse throws a CfApiError with the message on failure", () => {
     assert.ok(e instanceof CfApiError);
     assert.match(e.message, /Authentication error/);
   }
+});
+
+test("cfApiUrl is idempotent on a full Cloudflare URL (no double prefix)", () => {
+  const full = "https://api.cloudflare.com/client/v4/zones/abc/settings/zaraz/config";
+  assert.equal(cfApiUrl(full), full);
+});
+
+test("cfRequest sends a full Zaraz URL without double-prefixing it", async () => {
+  const seen = [];
+  const prev = globalThis.fetch;
+  globalThis.fetch = async (url, opts) => {
+    seen.push({ url: String(url), opts });
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true, result: {} })
+    };
+  };
+  try {
+    await cfRequest({ token: "t", path: zarazConfigUrl("z1") });
+  } finally {
+    globalThis.fetch = prev;
+  }
+  assert.equal(seen.length, 1);
+  const url = seen[0].url;
+  assert.equal(
+    url,
+    "https://api.cloudflare.com/client/v4/zones/z1/settings/zaraz/config"
+  );
+  assert.ok(!url.includes("client/v4client/v4"), "no duplicated base prefix");
+  assert.ok(!url.includes("client/v4https://"), "no scheme-in-path prefixing");
 });

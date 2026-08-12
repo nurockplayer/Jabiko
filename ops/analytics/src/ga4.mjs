@@ -24,12 +24,22 @@ const GOOGLE_SCOPES = [
 export const gaAdminUrl = (path) => `${ADMIN_BASE}${path}`;
 export const gaDataUrl = (propertyId, endpoint) =>
   `${DATA_BASE}/properties/${propertyId}:${endpoint}`;
+
+/**
+ * GA4 Admin API resource names arrive already prefixed (accounts/123,
+ * properties/456). Strip the prefix so callers can never build
+ * accounts/accounts/… or properties/properties/… paths; bare ids work too.
+ */
+function stripResourcePrefix(name, kind) {
+  return String(name).replace(new RegExp(`^${kind}/`), "");
+}
+
 export const propertiesUrl = (parent) =>
-  `${ADMIN_BASE}/${parent}/properties`;
+  `${ADMIN_BASE}/accounts/${stripResourcePrefix(parent, "accounts")}/properties`;
 export const webStreamsUrl = (property) =>
-  `${ADMIN_BASE}/${property}/webDataStreams`;
+  `${ADMIN_BASE}/properties/${stripResourcePrefix(property, "properties")}/webDataStreams`;
 export const customDimensionsUrl = (property) =>
-  `${ADMIN_BASE}/${property}/customDimensions`;
+  `${ADMIN_BASE}/properties/${stripResourcePrefix(property, "properties")}/customDimensions`;
 
 // ---------------------------------------------------------------------------
 // Auth primitives (pure, unit-tested)
@@ -151,7 +161,7 @@ export async function listAccounts({ token }) {
 export async function listProperties({ token, account }) {
   const data = await adminRequest({
     token,
-    path: `/accounts/${account}/properties`
+    path: `/accounts/${stripResourcePrefix(account, "accounts")}/properties`
   });
   return data.properties ?? [];
 }
@@ -159,7 +169,7 @@ export async function listProperties({ token, account }) {
 export async function listWebStreams({ token, property }) {
   const data = await adminRequest({
     token,
-    path: `/properties/${property}/webDataStreams`
+    path: `/properties/${stripResourcePrefix(property, "properties")}/webDataStreams`
   });
   return data.webDataStreams ?? [];
 }
@@ -167,7 +177,7 @@ export async function listWebStreams({ token, property }) {
 export async function listCustomDimensions({ token, property }) {
   const data = await adminRequest({
     token,
-    path: `/properties/${property}/customDimensions`
+    path: `/properties/${stripResourcePrefix(property, "properties")}/customDimensions`
   });
   return data.customDimensions ?? [];
 }
@@ -175,7 +185,7 @@ export async function listCustomDimensions({ token, property }) {
 export async function createCustomDimension({ token, property, dimension }) {
   const data = await adminRequest({
     token,
-    path: `/properties/${property}/customDimensions`,
+    path: `/properties/${stripResourcePrefix(property, "properties")}/customDimensions`,
     method: "POST",
     body: createCustomDimensionBody(dimension)
   });

@@ -19,6 +19,9 @@ export class CfApiError extends Error {
 }
 
 export function cfApiUrl(path) {
+  // Idempotent: a full URL (e.g. from the zaraz*Url helpers) is used as-is so
+  // callers can never double-prefix the base twice.
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
   return `${CF_BASE}${path}`;
 }
 
