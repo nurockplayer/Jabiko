@@ -11,6 +11,8 @@ export const zhHant: Copy = {
   furiganaShow: "顯示註音",
   furiganaHide: "隱藏註音",
   flowLabel: "學習流程",
+  navResources: "資源",
+  navResourcesWithCurrent: (page) => `資源（目前：${page}）`,
   navMore: "更多",
   navMoreTools: "設定與工具",
   navMoreWithCurrent: (page) => `更多（目前：${page}）`,

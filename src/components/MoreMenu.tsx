@@ -41,16 +41,20 @@ export interface MoreMenuTools {
 export function MoreMenu({
   triggerLabel,
   triggerCurrentLabel,
+  resourcesHeading,
   items,
-  tools
+  tools,
+  className = "nav-more"
 }: {
   triggerLabel: string;
   /** Accessible name for the collapsed trigger while a folded view is active,
    *  e.g. 更多（目前：文章）-- the trigger is then the only place the current
    *  location can show (PR #628 review). */
   triggerCurrentLabel: (page: string) => string;
+  resourcesHeading?: string;
   items: MoreMenuNavItem[];
-  tools: MoreMenuTools;
+  tools?: MoreMenuTools;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   // role="menu" is a single tab stop: only the focused entry keeps tabIndex 0
@@ -66,12 +70,12 @@ export function MoreMenu({
   // then the tools block). Opening and roving both derive their keys from this
   // so a key always resolves to the same DOM element.
   const toolKeys: string[] = [
-    tools.language ? "tool-language" : null,
-    "tool-furigana",
-    "tool-theme",
-    "tool-feedback",
-    tools.auth ? "tool-auth" : null,
-    tools.auth?.signedInAs ? "tool-delete-history" : null
+    tools?.language ? "tool-language" : null,
+    tools ? "tool-furigana" : null,
+    tools ? "tool-theme" : null,
+    tools ? "tool-feedback" : null,
+    tools?.auth ? "tool-auth" : null,
+    tools?.auth?.signedInAs ? "tool-delete-history" : null
   ].filter((key): key is string => key !== null);
 
   const allKeys = useCallback(() => [...items.map((item) => item.key), ...toolKeys], [items, toolKeys]);
@@ -174,7 +178,7 @@ export function MoreMenu({
   const rove = (key: string) => (effectiveFocusKey === key ? 0 : -1);
 
   return (
-    <div className="nav-more" ref={rootRef}>
+    <div className={className} ref={rootRef}>
       <button
         type="button"
         ref={triggerRef}
@@ -208,6 +212,11 @@ export function MoreMenu({
           aria-label={triggerLabel}
           onKeyDown={onPanelKeyDown}
         >
+          {resourcesHeading ? (
+            <p className="nav-more-heading" aria-hidden="true">
+              {resourcesHeading}
+            </p>
+          ) : null}
           {items.map((item) => (
             <button
               key={item.key}
@@ -224,10 +233,12 @@ export function MoreMenu({
             </button>
           ))}
 
-          <div className="nav-more-divider" role="separator" aria-hidden="true" />
-          <p className="nav-more-heading" aria-hidden="true">
-            {tools.heading}
-          </p>
+          {tools ? (
+            <>
+              <div className="nav-more-divider" role="separator" aria-hidden="true" />
+              <p className="nav-more-heading" aria-hidden="true">
+                {tools.heading}
+              </p>
 
           {tools.language ? (
             <button
@@ -332,6 +343,8 @@ export function MoreMenu({
                   {tools.auth.hint ? <span>{tools.auth.hint}</span> : null}
                 </p>
               ) : null}
+            </>
+          ) : null}
             </>
           ) : null}
         </div>

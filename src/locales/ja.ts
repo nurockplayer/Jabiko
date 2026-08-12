@@ -11,6 +11,8 @@ export const ja: Copy = {
   furiganaShow: "ふりがなを表示",
   furiganaHide: "ふりがなを隠す",
   flowLabel: "学習の流れ",
+  navResources: "資料",
+  navResourcesWithCurrent: (page) => `資料（現在：${page}）`,
   navMore: "その他",
   navMoreTools: "設定・ツール",
   navMoreWithCurrent: (page) => `その他（現在：${page}）`,

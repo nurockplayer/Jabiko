@@ -99,6 +99,11 @@ async function gotoLearn(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: "學習" }));
 }
 
+async function gotoResource(user: ReturnType<typeof userEvent.setup>, label: string) {
+  await user.click(screen.getByRole("button", { name: /^資源/ }));
+  await user.click(screen.getByRole("menuitem", { name: label }));
+}
+
 describe("App", () => {
   // The challenge / mock / kanji views are React.lazy in App, and
   // React.lazy only suspends on its first resolution. Prime the chunks
@@ -121,7 +126,7 @@ describe("App", () => {
     await screen.findByRole("region", { name: "目前題目" }, { timeout: 30000 });
     await user.click(screen.getByRole("button", { name: "題型練習" }));
     await screen.findByRole("region", { name: "題型練習" }, { timeout: 30000 });
-    await user.click(screen.getByRole("button", { name: "漢字" }));
+    await gotoResource(user, "漢字");
     await screen.findByRole("heading", { name: /漢字音読み/ }, { timeout: 30000 });
     unmount();
     // Priming navigated the URL (the app now routes view -> path); reset so the
@@ -146,7 +151,7 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: /自習室/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "學習" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "規則表" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "資源" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "題型練習" })).toBeInTheDocument();
     // Home hero copy + at least one entry card heading.
@@ -196,8 +201,8 @@ describe("App", () => {
     ).toHaveLength(1);
 
     // Navigating moves aria-current to the new tab and clears the old one.
-    await user.click(screen.getByRole("button", { name: "規則表" }));
-    expect(screen.getByRole("button", { name: "規則表" })).toHaveAttribute("aria-current", "page");
+    await gotoResource(user, "規則表");
+    expect(screen.getByRole("button", { name: "資源（目前：規則表）" })).toHaveClass("selected");
     expect(screen.getByRole("button", { name: "首頁" })).not.toHaveAttribute("aria-current");
   });
 
@@ -236,7 +241,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "規則表" }));
+    await gotoResource(user, "規則表");
 
     // Rules page banner + the full v2 eight-table set.
     expect(screen.getByRole("heading", { name: /動詞變化 速查/ })).toBeInTheDocument();
@@ -1093,7 +1098,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "漢字" }));
+    await gotoResource(user, "漢字");
 
     // The table renders, grouped by homophone family.
     expect(await screen.findByRole("heading", { name: /漢字音読み/ })).toBeInTheDocument();
@@ -1365,7 +1370,7 @@ describe("App", () => {
 
     expect(window.location.pathname).toBe("/about");
     expect(localStorage.getItem("jabiko.lang")).toBe("zh-Hant");
-    expect(screen.getByRole("button", { name: "關於" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("button", { name: "資源（目前：關於）" })).toHaveClass("selected");
 
     window.history.replaceState({}, "", "/");
   });
@@ -1431,10 +1436,7 @@ describe("App", () => {
     expect(screen.queryByRole("menu", { name: "更多" })).not.toBeInTheDocument();
     // Same navigation contract as the plain nav button: URL + aria-current.
     expect(window.location.pathname).toBe("/about");
-    expect(within(nav).getByRole("button", { name: "關於" })).toHaveAttribute(
-      "aria-current",
-      "page"
-    );
+    expect(within(nav).getByRole("button", { name: "資源（目前：關於）" })).toHaveClass("selected");
     // The collapsed trigger carries the current location while a folded view
     // is active (PR #628 review).
     const selectedTrigger = within(nav).getByRole("button", { name: "更多（目前：關於）" });

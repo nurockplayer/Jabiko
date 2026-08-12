@@ -246,13 +246,16 @@
   font-weight: 800;
 }
 
-/* ---- #608: nav 更多 menu (mobile-only trigger) ------------------------- */
+/* ---- Shared route menus (#727) ----------------------------------------- */
 
-/* The menu block lives inside the nav; desktop shows all nine entries, so
-   the whole thing stays display:none until the phone breakpoint in
-   responsive.css flips it on. */
+/* Desktop exposes the registry's resource group; mobile replaces that trigger
+   with More, which renders the same resources followed by the tool section. */
 .nav-more {
   display: none;
+}
+
+.nav-more,
+.nav-resources {
   position: relative;
 }
 

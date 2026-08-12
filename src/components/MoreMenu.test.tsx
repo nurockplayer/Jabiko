@@ -46,6 +46,7 @@ function renderMenu(items = makeItems(), tools = makeTools()) {
     <MoreMenu
       triggerLabel="更多"
       triggerCurrentLabel={(page) => `更多（目前：${page}）`}
+      resourcesHeading="資源"
       items={items}
       tools={tools}
     />
@@ -74,6 +75,7 @@ describe("MoreMenu (#608)", () => {
       expect(within(menu).getByRole("menuitem", { name: label })).toBeInTheDocument();
     }
     expect(within(menu).getByText(tools.heading)).toBeInTheDocument();
+    expect(within(menu).getByText("資源")).toBeInTheDocument();
     expect(within(menu).getByRole("menuitem", { name: "切換語言" })).toBeInTheDocument();
     expect(within(menu).getByRole("menuitemcheckbox", { name: "顯示註音" })).toBeInTheDocument();
     expect(within(menu).getByRole("menuitem", { name: "深色模式" })).toBeInTheDocument();
