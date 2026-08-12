@@ -11,6 +11,8 @@ export const id: Copy = {
   furiganaShow: "Tampilkan furigana",
   furiganaHide: "Sembunyikan furigana",
   flowLabel: "Alur belajar",
+  navResources: "Sumber daya",
+  navResourcesWithCurrent: (page) => `Sumber daya (saat ini: ${page})`,
   navMore: "Lainnya",
   navMoreTools: "Pengaturan & alat",
   navMoreWithCurrent: (page) => `Lainnya (saat ini: ${page})`,

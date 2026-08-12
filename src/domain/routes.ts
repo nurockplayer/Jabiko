@@ -26,8 +26,16 @@ export interface AppRoute {
   blogSlug: string | null;
 }
 
-function staticRoute(view: AppView): AppRoute {
+export function staticRoute(view: AppView): AppRoute {
   return { view, grammarSurface: null, blogSlug: null };
+}
+
+export function grammarRoute(surface?: string | null): AppRoute {
+  return { view: "grammar", grammarSurface: surface ?? null, blogSlug: null };
+}
+
+export function blogRoute(slug?: string | null): AppRoute {
+  return { view: "blog", grammarSurface: null, blogSlug: slug ?? null };
 }
 
 function decodePathSegment(segment: string): string {
@@ -44,20 +52,12 @@ function decodePathSegment(segment: string): string {
 export function parseRoute(pathname: string): AppRoute {
   const grammar = pathname.match(/^\/grammar\/(.+)$/);
   if (grammar) {
-    return {
-      view: "grammar",
-      grammarSurface: decodePathSegment(grammar[1]),
-      blogSlug: null
-    };
+    return grammarRoute(decodePathSegment(grammar[1]));
   }
 
   const blog = pathname.match(/^\/blog\/(.+)$/);
   if (blog) {
-    return {
-      view: "blog",
-      grammarSurface: null,
-      blogSlug: canonicalArticleSlug(decodePathSegment(blog[1]))
-    };
+    return blogRoute(canonicalArticleSlug(decodePathSegment(blog[1])));
   }
 
   const view = (Object.keys(APP_VIEW_PATHS) as AppView[]).find(

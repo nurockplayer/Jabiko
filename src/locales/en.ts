@@ -11,6 +11,8 @@ export const en: Copy = {
   furiganaShow: "Show furigana",
   furiganaHide: "Hide furigana",
   flowLabel: "Study flow",
+  navResources: "Resources",
+  navResourcesWithCurrent: (page) => `Resources (current: ${page})`,
   navMore: "More",
   navMoreTools: "Settings & tools",
   navMoreWithCurrent: (page) => `More (current: ${page})`,

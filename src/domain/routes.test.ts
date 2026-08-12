@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { APP_VIEW_PATHS, parseRoute, serializeRoute, type AppRoute, type AppView } from "./routes";
+import {
+  APP_VIEW_PATHS,
+  blogRoute,
+  grammarRoute,
+  parseRoute,
+  serializeRoute,
+  staticRoute,
+  type AppRoute,
+  type AppView
+} from "./routes";
 
-const staticRoute = (view: AppView): AppRoute => ({
+const legacyStaticRoute = (view: AppView): AppRoute => ({
   view,
   grammarSurface: null,
   blogSlug: null
@@ -10,9 +19,32 @@ const staticRoute = (view: AppView): AppRoute => ({
 describe("app route contract (#623)", () => {
   it("round-trips every top-level view through its shared static path", () => {
     for (const view of Object.keys(APP_VIEW_PATHS) as AppView[]) {
-      const route = staticRoute(view);
+      const route = legacyStaticRoute(view);
       expect(parseRoute(serializeRoute(route)), view).toEqual(route);
     }
+  });
+
+  it("constructs complete mutually-exclusive route identities", () => {
+    expect(staticRoute("learn")).toEqual({
+      view: "learn",
+      grammarSurface: null,
+      blogSlug: null
+    });
+    expect(grammarRoute("〜てもいい")).toEqual({
+      view: "grammar",
+      grammarSurface: "〜てもいい",
+      blogSlug: null
+    });
+    expect(grammarRoute()).toEqual({
+      view: "grammar",
+      grammarSurface: null,
+      blogSlug: null
+    });
+    expect(blogRoute("article-slug")).toEqual({
+      view: "blog",
+      grammarSurface: null,
+      blogSlug: "article-slug"
+    });
   });
 
   it("treats /stay-d as a normal public app route", () => {

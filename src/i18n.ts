@@ -27,6 +27,8 @@ export type Copy = {
   furiganaShow: string;
   furiganaHide: string;
   flowLabel: string;
+  navResources: string;
+  navResourcesWithCurrent: (page: string) => string;
   navMore: string;
   navMoreTools: string;
   /** Collapsed 更多 trigger's accessible name while a folded view is active. */

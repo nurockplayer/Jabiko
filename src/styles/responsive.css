@@ -296,10 +296,9 @@
     font-size: 1.3rem;
   }
 
-  /* Five primary entries + 更多; the secondary views fold into the menu.
-     `order` re-ranks the surviving buttons by importance without touching
-     the desktop DOM order. */
-  .view-switch .nav-secondary {
+  /* Five primary entries + More. Resources are shared by both menu renderers;
+     only their trigger changes at this breakpoint. */
+  .view-switch .nav-resources {
     display: none;
   }
 
