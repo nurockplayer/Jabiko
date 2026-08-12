@@ -32,13 +32,17 @@ export function StayDVideo({
         aria-controls={panelId}
         data-stay-d-placement={triggerPlacement}
         onClick={() => {
+          // Only an expand counts as a video interaction; collapsing a panel
+          // must not be misreported as a second promo interest.
+          if (!expanded) {
+            trackEvent("promo_click", {
+              promoId: "stay-d",
+              action: "video",
+              placement: triggerPlacement,
+              locale
+            });
+          }
           setExpanded((current) => !current);
-          trackEvent("promo_click", {
-            promoId: "stay-d",
-            action: "video",
-            placement: triggerPlacement,
-            locale
-          });
         }}
       >
         {expanded ? <ChevronUp aria-hidden="true" /> : <PlayCircle aria-hidden="true" />}

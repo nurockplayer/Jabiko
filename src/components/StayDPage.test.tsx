@@ -39,6 +39,22 @@ describe("StayDPage (#748 editorial)", () => {
     });
   });
 
+  it("does not fire a video promo_click again when the /stay-d video is collapsed", () => {
+    render(<StayDPage language="zh-Hant" />);
+    fireEvent.click(screen.getByRole("button", { name: "▶ 看 Stay.D 介紹影片" }));
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+
+    // Collapsing must not be counted as a second video interaction.
+    fireEvent.click(screen.getByRole("button", { name: "收合介紹影片" }));
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "video",
+      placement: "stay-d-video",
+      locale: "zh-Hant"
+    });
+  });
+
   it("emits stay-d-video-airbnb/airbnb promo_click from the video-section CTA", () => {
     render(<StayDPage language="zh-Hant" />);
     fireEvent.click(screen.getByRole("button", { name: "▶ 看 Stay.D 介紹影片" }));

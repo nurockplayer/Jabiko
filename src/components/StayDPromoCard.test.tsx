@@ -44,6 +44,22 @@ describe("StayDPromoCard (#750 editorial footer)", () => {
     });
   });
 
+  it("does not fire a video promo_click again when the video is collapsed", () => {
+    render(<StayDPromoCard language="zh-Hant" />);
+    fireEvent.click(screen.getByRole("button", { name: "看介紹影片" }));
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+
+    // Collapsing must not be counted as a second video interaction.
+    fireEvent.click(screen.getByRole("button", { name: "收合介紹影片" }));
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledTimes(1);
+    expect(analyticsMocks.trackEvent).toHaveBeenCalledWith("promo_click", {
+      promoId: "stay-d",
+      action: "video",
+      placement: "home-video",
+      locale: "zh-Hant"
+    });
+  });
+
   it("emits exactly one home-video-airbnb/airbnb promo_click from the expanded video CTA", () => {
     render(<StayDPromoCard language="zh-Hant" />);
     fireEvent.click(screen.getByRole("button", { name: "看介紹影片" }));
