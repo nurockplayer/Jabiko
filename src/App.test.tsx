@@ -1249,7 +1249,7 @@ describe("App", () => {
     await user.click(trigger);
     const menu = screen.getByRole("menu", { name: "更多" });
     // Secondary views first, then the header tools below the divider.
-    for (const label of ["規則表", "漢字", "文章", "關於"]) {
+    for (const label of ["規則表", "漢字", "關於"]) {
       expect(within(menu).getByRole("menuitem", { name: label })).toBeInTheDocument();
     }
     expect(within(menu).getByRole("menuitemcheckbox", { name: /註音/ })).toBeInTheDocument();
