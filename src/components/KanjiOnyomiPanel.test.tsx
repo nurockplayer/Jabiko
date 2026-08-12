@@ -218,6 +218,7 @@ describe("KanjiOnyomiPanel persisted resume (#740)", () => {
 
   it("reveals a deep resumed target only in the current filter-keyed budget", () => {
     render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const initialUnfilteredCount = cells().length;
     while (cells().length <= 110) {
       fireEvent.click(screen.getByRole("button", { name: /載入更多/ }));
     }
@@ -238,6 +239,9 @@ describe("KanjiOnyomiPanel persisted resume (#740)", () => {
 
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "き" } });
     expect(cells()).toHaveLength(43);
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "" } });
+    expect(cells()).toHaveLength(initialUnfilteredCount);
   });
 });
 
