@@ -1,9 +1,11 @@
 # Jabiko analytics (Cloudflare Zaraz)
 
-This document describes the anonymous learning analytics layer
+This document describes the privacy-safe learning analytics layer
 introduced in issue #404. It is intentionally small: a single typed helper,
 an environment gate, ten coarse events, and a hard privacy contract.
-GA4 is connected only as a downstream destination **through** the existing
+Payloads are sanitized, metadata-only event shapes — no question text, user
+answers, emails, raw user IDs, or arbitrary free-form strings. GA4 is
+connected only as a downstream destination **through** the existing
 Zaraz layer (issue #745) — application code never talks to Google directly.
 
 ## Why Zaraz
