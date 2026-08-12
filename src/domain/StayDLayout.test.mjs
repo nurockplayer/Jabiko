@@ -58,12 +58,25 @@ describe("stay-d editorial layout (#750)", () => {
   it("keeps the Home actions lightweight (no heavy filled conversion buttons)", () => {
     const actions = rule(".stay-d-home-actions");
     expect(actions).toMatch(/flex-wrap:\s*wrap/);
+    // CodeRabbit P2: with the video expanded the actions row is tall, so the
+    // Airbnb link must stay pinned to the top (flex-start), not jump to the
+    // vertical center of the whole video block.
+    expect(actions).toMatch(/align-items:\s*flex-start/);
 
     const primary = rule(".stay-d-home-airbnb");
     // Text/outline link, not a filled vermilion block.
     expect(primary).not.toMatch(/background:\s*var\(--vermilion\)/);
     expect(primary).not.toMatch(/background:\s*var\(--gold\)/);
     expect(primary).toMatch(/font-size:\s*0\.9rem/);
+
+    // CodeRabbit P2: when the video is expanded the wrapper must keep the
+    // shared grow (flex: 1 1 24rem / min-width: min(100%, 20rem)) so the
+    // player gets the full remaining row width. No Home override should
+    // shrink the shared .stay-d-video wrapper.
+    expect(css.indexOf("\n.stay-d-home .stay-d-video {")).toBe(-1);
+    const baseVideo = rule(".stay-d-video");
+    expect(baseVideo).toMatch(/flex:\s*1 1 24rem/);
+    expect(baseVideo).toMatch(/min-width:\s*min\(100%,\s*20rem\)/);
 
     const trigger = rule(".stay-d-home .stay-d-video-trigger");
     expect(trigger).toMatch(/color:\s*var\(--teal-dark\)/);

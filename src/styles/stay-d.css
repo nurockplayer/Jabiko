@@ -49,7 +49,10 @@
 .stay-d-home-actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  /* flex-start: with the video expanded the row is tall, so the Airbnb text
+     link stays pinned to the top instead of jumping to the vertical center
+     of the whole video block (CodeRabbit P2). */
+  align-items: flex-start;
   gap: 1rem;
 }
 
@@ -77,14 +80,6 @@
   text-underline-offset: 3px;
 }
 
-.stay-d-home .stay-d-video {
-  min-width: 0;
-  flex: 0 1 auto;
-}
-
-/* Home video trigger: lightweight text action, no filled pill. Strips the
-   global <button> frame (border/radius) so it reads as a borderless text
-   action consistent with the adjacent Airbnb text link (CodeRabbit P2). */
 .stay-d-home .stay-d-video-trigger {
   min-height: 2.75rem;
   padding: 0.4rem 0.1rem;
