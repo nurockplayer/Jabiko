@@ -94,4 +94,19 @@ describe("AppNavigation (#727)", () => {
     await user.click(screen.getByRole("menuitem", { name: "漢字" }));
     expect(onSelect).toHaveBeenCalledWith("kanji");
   });
+
+  it("supports keyboard-only resource selection from both folded navigation triggers", async () => {
+    const user = userEvent.setup();
+    const onSelect = renderNavigation();
+
+    const resources = screen.getByRole("button", { name: "資源" });
+    resources.focus();
+    await user.keyboard("{ArrowDown}{ArrowDown}{Enter}");
+    expect(onSelect).toHaveBeenCalledWith("kanji");
+
+    const more = screen.getByRole("button", { name: "更多" });
+    more.focus();
+    await user.keyboard("{ArrowDown}{ArrowDown}{Enter}");
+    expect(onSelect).toHaveBeenLastCalledWith("kanji");
+  });
 });
