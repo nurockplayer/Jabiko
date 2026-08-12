@@ -1,7 +1,29 @@
 import { Profiler, StrictMode } from "react";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  KANJI_LAST_READ_KEY,
+  KANJI_LEVEL_KEY,
+  readKanjiLevel,
+  readLastReadKanji,
+  writeKanjiLevel,
+  writeLastReadKanji
+} from "../domain/kanjiPreferences";
+import { kanjiOnyomi } from "../domain/kanjiOnyomi";
 import { KanjiOnyomiPanel } from "./KanjiOnyomiPanel";
+
+const currentKanjiBank = new Set(kanjiOnyomi.map((entry) => entry.kanji));
+const originalScrollIntoView = Element.prototype.scrollIntoView;
+
+afterEach(() => {
+  window.localStorage.removeItem(KANJI_LEVEL_KEY);
+  window.localStorage.removeItem(KANJI_LAST_READ_KEY);
+  if (originalScrollIntoView) {
+    Element.prototype.scrollIntoView = originalScrollIntoView;
+  } else {
+    delete (Element.prototype as { scrollIntoView?: Element["scrollIntoView"] }).scrollIntoView;
+  }
+});
 
 // The default view renders the whole table (~hundreds of cells), which makes
 // testing-library's accessible-name scans slow in jsdom (not in a real
@@ -63,6 +85,163 @@ describe("KanjiOnyomiPanel (#195)", () => {
     render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N2" />);
     expect(screen.getByRole("button", { name: "N2" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "全部" })).toHaveAttribute("aria-pressed", "false");
+  });
+});
+
+describe("KanjiOnyomiPanel persisted resume (#740)", () => {
+  const cells = () => Array.from(document.querySelectorAll<HTMLButtonElement>("button.kanji-cell"));
+  const charOf = (cell: Element) =>
+    cell.querySelector(".kanji-cell-char")?.textContent ?? "";
+  const selectedChar = () =>
+    document.querySelector(".kanji-cell.selected .kanji-cell-char")?.textContent ?? null;
+  const arrow = (key: "ArrowRight" | "ArrowLeft") => fireEvent.keyDown(document, { key });
+
+  it("restores a level chosen for the same default-level band", () => {
+    writeKanjiLevel("N2", "N5");
+
+    render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N2" />);
+
+    expect(screen.getByRole("button", { name: "N5" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "N2" })).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("immediately resolves the level again when the default-level band changes", () => {
+    writeKanjiLevel("N2", "N5");
+    const { rerender } = render(
+      <KanjiOnyomiPanel language="zh-Hant" defaultLevel="N2" />
+    );
+    expect(screen.getByRole("button", { name: "N5" })).toHaveAttribute("aria-pressed", "true");
+
+    rerender(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N1" />);
+
+    expect(screen.getByRole("button", { name: "N1" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "N5" })).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("persists a level chosen in the current default-level band", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N2" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "N4" }));
+
+    expect(readKanjiLevel("N2")).toBe("N4");
+  });
+
+  it("marks the remembered card without selecting, opening, focusing, or scrolling", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const remembered = charOf(cells()[1]);
+    cleanup();
+    writeLastReadKanji(remembered);
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+
+    const marked = document.querySelector<HTMLButtonElement>(".kanji-cell.last-read");
+    expect(marked).not.toBeNull();
+    expect(charOf(marked!)).toBe(remembered);
+    expect(marked).toHaveAttribute("aria-pressed", "false");
+    expect(document.querySelector(".kanji-cell.selected")).toBeNull();
+    expect(document.querySelector(".kanji-card")).toBeNull();
+    expect(document.activeElement).not.toBe(marked);
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it("clears the marker and persists the new position after any session selection", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const remembered = charOf(cells()[1]);
+    const next = charOf(cells()[0]);
+    cleanup();
+    writeLastReadKanji(remembered);
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+
+    fireEvent.click(cells()[0]);
+
+    expect(document.querySelector(".kanji-cell.last-read")).toBeNull();
+    expect(selectedChar()).toBe(next);
+    expect(readLastReadKanji(currentKanjiBank)).toBe(next);
+  });
+
+  it("uses the remembered position for arrows until this session selects a card", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const chars = cells().map(charOf);
+    cleanup();
+    writeLastReadKanji(chars[1]);
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+
+    arrow("ArrowRight");
+    expect(selectedChar()).toBe(chars[2]);
+    expect(document.querySelector(".kanji-cell.last-read")).toBeNull();
+    expect(readLastReadKanji(currentKanjiBank)).toBe(chars[2]);
+
+    arrow("ArrowLeft");
+    expect(selectedChar()).toBe(chars[1]);
+  });
+
+  it("can resume backward from the remembered position", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const chars = cells().map(charOf);
+    cleanup();
+    writeLastReadKanji(chars[2]);
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+
+    arrow("ArrowLeft");
+
+    expect(selectedChar()).toBe(chars[1]);
+  });
+
+  it("gives the current-session selection priority over the remembered position", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const chars = cells().map(charOf);
+    cleanup();
+    writeLastReadKanji(chars[0]);
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+
+    fireEvent.click(cells()[3]);
+    arrow("ArrowLeft");
+
+    expect(selectedChar()).toBe(chars[2]);
+  });
+
+  it("falls back to the first card when the remembered kanji is hidden by the active filter", () => {
+    const hiddenN1Kanji = kanjiOnyomi.find((entry) => entry.level === "N1")?.kanji;
+    expect(hiddenN1Kanji).toBeDefined();
+    writeLastReadKanji(hiddenN1Kanji!);
+
+    render(<KanjiOnyomiPanel language="zh-Hant" defaultLevel="N5" />);
+    const firstVisible = charOf(cells()[0]);
+    expect(document.querySelector(".kanji-cell.last-read")).toBeNull();
+
+    arrow("ArrowRight");
+
+    expect(selectedChar()).toBe(firstVisible);
+  });
+
+  it("reveals a deep resumed target only in the current filter-keyed budget", () => {
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    const initialUnfilteredCount = cells().length;
+    while (cells().length <= 110) {
+      fireEvent.click(screen.getByRole("button", { name: /載入更多/ }));
+    }
+    const expandedChars = cells().map(charOf);
+    const remembered = expandedChars[100];
+    const expectedNext = expandedChars[101];
+    cleanup();
+    writeLastReadKanji(remembered);
+
+    render(<KanjiOnyomiPanel language="zh-Hant" />);
+    expect(cells().map(charOf)).not.toContain(remembered);
+
+    arrow("ArrowRight");
+
+    expect(selectedChar()).toBe(expectedNext);
+    expect(cells().map(charOf)).toContain(expectedNext);
+    expect(document.activeElement).toBe(cells().find((cell) => charOf(cell) === expectedNext));
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "き" } });
+    expect(cells()).toHaveLength(43);
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "" } });
+    expect(cells()).toHaveLength(initialUnfilteredCount);
   });
 });
 
