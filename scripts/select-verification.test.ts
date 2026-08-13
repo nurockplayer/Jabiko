@@ -292,6 +292,44 @@ describe("selectVerification — rename + L2 fail-safe (#762 re-review)", () => 
   });
 });
 
+describe("selectVerification — overlay-backed sources & furigana overlay (#762 P1)", () => {
+  it("source-only change to an overlay-backed content file also selects check:i18n", () => {
+    for (const p of [
+      "src/domain/learningBlocks.ts",
+      "src/domain/sentencePatterns.ts",
+      "src/domain/grammarNotes.ts",
+      "src/domain/kanjiOnyomi.ts"
+    ]) {
+      const plan = sel([p]);
+      expect(plan.level, p).toBe("L2");
+      expect(plan.commands, p).toContain("check:exam");
+      expect(plan.commands, p).toContain("check:i18n");
+    }
+  });
+
+  it("forced L3 on an overlay-backed source change retains check:i18n", () => {
+    const plan = selectVerification(["src/domain/learningBlocks.ts"], { forceL3: true });
+    expect(plan.level).toBe("L3");
+    expect(plan.commands).toEqual(["lint", "test", "build", "check:i18n"]);
+  });
+
+  it("learningBlocks.i18n overlay -> L2 with i18n + furigana drift guards + regen hint", () => {
+    const plan = sel(["src/domain/learningBlocks.i18n.ts"]);
+    expect(plan.level).toBe("L2");
+    expect(plan.commands).toContain("check:i18n");
+    expect(plan.commands).not.toContain("check:exam");
+    expect(plan.tests).toContain("src/i18n.test.ts");
+    expect(plan.tests).toContain("src/domain/furiganaData.test.ts");
+    expect(plan.regenerate).toContain("build:furigana");
+  });
+
+  it("non-learning .i18n.ts overlay stays on the generic i18n gate (no furigana regen)", () => {
+    const plan = sel(["src/domain/kanjiOnyomi.i18n.ts"]);
+    expect(plan.tests).not.toContain("src/domain/furiganaData.test.ts");
+    expect(plan.regenerate).not.toContain("build:furigana");
+  });
+});
+
 describe("selectVerification — mapping audit corrections", () => {
   it("sentencePatterns.ts (builder logic) maps to starterPatterns + sessionPools", () => {
     const exists = (p: string) =>

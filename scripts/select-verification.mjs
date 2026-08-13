@@ -58,7 +58,8 @@ const L2_PRODUCTION_CATEGORIES = new Set([
   "exam-content",
   "furigana-reading",
   "article-content",
-  "i18n-locale"
+  "i18n-locale",
+  "i18n-furigana-source"
 ]);
 const PRODUCTION_CATEGORIES = new Set([...L1_PRODUCTION_CATEGORIES, ...L2_PRODUCTION_CATEGORIES]);
 
@@ -150,6 +151,18 @@ const RULES = [
 
   // ---- L2: path-aware domain gates ---------------------------------------
   {
+    id: "i18n-furigana-source",
+    level: "L2",
+    // learningBlocks.i18n.ts feeds build-furigana.mjs → furiganaLearningData.ts;
+    // the generic i18n gate (check:i18n / i18n.test.ts) does NOT cover that
+    // generated table, so a kanji-bearing localized pitfall must also run the
+    // furigana drift guard and surface the regeneration hint.
+    match: isExact("src/domain/learningBlocks.i18n.ts"),
+    commands: ["check:i18n"],
+    tests: ["src/i18n.test.ts", "src/domain/furiganaData.test.ts"],
+    regenerate: ["build:furigana"]
+  },
+  {
     id: "i18n-locale",
     level: "L2",
     match: (p) =>
@@ -172,7 +185,11 @@ const RULES = [
         "src/domain/wordOrder.ts",
         "src/domain/starterVocabulary.ts"
       )(p),
-    commands: ["check:exam"],
+    // exam-content also covers the overlay-backed source files
+    // (learningBlocks/grammarNotes/sentencePatterns/kanjiOnyomi + inline exam
+    // item overlays); a source-key-only change there makes check:i18n's overlay
+    // audit exit 1, so the gate must run even though these are "content".
+    commands: ["check:exam", "check:i18n"],
     tests: ["src/domain/contentStats.test.ts", "src/domain/furiganaData.test.ts"],
     regenerate: ["build:furigana"]
   },
