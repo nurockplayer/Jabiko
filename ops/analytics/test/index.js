@@ -1,7 +1,11 @@
-// Node 22 resolves `node --test ops/analytics/test/` as this directory entrypoint.
-// Delegate the actual contract files to a fresh test-runner process so each
-// `.test.mjs` keeps normal file isolation; importing every test into this one
-// worker triggers nested test-runner IPC/deserialization failures on Node 22.
+// Directory entrypoint for `node --test ops/analytics/test/` on Node 22+.
+//
+// `node --test <dir>` resolves this file as the directory entrypoint and runs it
+// under the test runner. The runner sets NODE_TEST_CONTEXT in the environment,
+// so a nested `node --test` spawned from here would inherit it and skip the real
+// files ("skipping running files") while still exiting 0 — silently gating
+// nothing in CI. Delegate to a fresh `node --test` over the concrete .test.mjs
+// files with NODE_TEST_CONTEXT cleared so the child runs the full suite.
 import { spawnSync } from "node:child_process";
 import { readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -13,8 +17,12 @@ const files = readdirSync(dir)
   .sort()
   .map((name) => join(dir, name));
 
+const childEnv = { ...process.env };
+delete childEnv.NODE_TEST_CONTEXT;
+
 const child = spawnSync(process.execPath, ["--test", ...files], {
-  stdio: "inherit"
+  stdio: "inherit",
+  env: childEnv
 });
 
 if (child.error) throw child.error;

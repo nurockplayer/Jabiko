@@ -16,7 +16,9 @@ import {
   zarazDesiredDiff,
   ga4DesiredDiff,
   buildZarazDesiredConfig,
-  plausibleProductionProperties
+  plausibleProductionProperties,
+  stripSecretValues,
+  hasPendingPreview
 } from "../src/desired.mjs";
 
 const MEASUREMENT_ID = "G-ABCDEF123";
@@ -370,4 +372,42 @@ test("property plausibility picks the jabiko production property", () => {
   const picked = plausibleProductionProperties(props);
   assert.equal(picked.length, 1);
   assert.equal(picked[0].displayName, "Jabiko Production");
+});
+
+// --- pending-preview detection (Preview & Publish mutation safety) ---
+test("hasPendingPreview ignores secret-variable values (draft is secret-stripped)", () => {
+  const published = {
+    tools: { ga4: { component: "google-analytics-4", settings: { tid: "G-1" } } },
+    variables: { s1: { name: "s1", type: "secret", value: "real-secret" } }
+  };
+  const draft = {
+    tools: { ga4: { component: "google-analytics-4", settings: { tid: "G-1" } } },
+    variables: { s1: { name: "s1", type: "secret" } }
+  };
+  assert.equal(hasPendingPreview(draft, published), false);
+});
+
+test("hasPendingPreview detects an added tool in the draft", () => {
+  const published = { tools: { a: { component: "custom-html" } } };
+  const draft = {
+    tools: { a: { component: "custom-html" }, b: { component: "custom-html" } }
+  };
+  assert.equal(hasPendingPreview(draft, published), true);
+});
+
+test("hasPendingPreview detects a changed non-secret variable value", () => {
+  const published = { variables: { v1: { name: "v1", type: "string", value: "old" } } };
+  const draft = { variables: { v1: { name: "v1", type: "string", value: "new" } } };
+  assert.equal(hasPendingPreview(draft, published), true);
+});
+
+test("stripSecretValues drops secret values but keeps non-secret values", () => {
+  const stripped = stripSecretValues({
+    variables: {
+      s1: { name: "s1", type: "secret", value: "hidden" },
+      v1: { name: "v1", type: "string", value: "visible" }
+    }
+  });
+  assert.equal("value" in stripped.variables.s1, false);
+  assert.equal(stripped.variables.v1.value, "visible");
 });

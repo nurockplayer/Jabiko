@@ -398,3 +398,44 @@ export function plausibleProductionProperties(properties = []) {
     return /jabiko/i.test(displayName) || /jabiko\.app/i.test(url);
   });
 }
+
+// ---------------------------------------------------------------------------
+// Preview & Publish mutation safety (pending-preview detection)
+// ---------------------------------------------------------------------------
+
+/**
+ * Return a deep copy of a Zaraz config with secret-variable `value` fields
+ * removed, so it can be compared against a secret-stripped /config surface
+ * without leaking or being confused by secret values.
+ */
+export function stripSecretValues(config) {
+  if (!config || typeof config !== "object") return config;
+  const out = structuredClone(config);
+  for (const variable of Object.values(out.variables ?? {})) {
+    if (variable && variable.type === "secret") {
+      delete variable.value;
+    }
+  }
+  return out;
+}
+
+/** Canonical, key-sorted stringification so two structurally equal configs
+ *  serialize identically regardless of object key order. */
+function stableStringify(value) {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(",")}]`;
+  const keys = Object.keys(value).sort();
+  return `{${keys.map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`;
+}
+
+/**
+ * True when the latest (secret-stripped) draft differs from the published
+ * config in any non-secret semantic field — i.e. someone has unpublished
+ * preview changes that a full-config PUT + publish would silently overwrite.
+ */
+export function hasPendingPreview(draft, published) {
+  return (
+    stableStringify(stripSecretValues(draft)) !==
+    stableStringify(stripSecretValues(published))
+  );
+}

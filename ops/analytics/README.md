@@ -85,6 +85,7 @@ the post-baseline count delta is evaluated.
 |---|---|---|
 | `HUMAN_GATE:CLOUDFLARE_AUTH` | no usable Zaraz token | `Zone > Zaraz : Edit` + `Zone > Zone : Read`, restricted to `jabiko.app` |
 | `HUMAN_GATE:CLOUDFLARE_PUBLISH` | preview config changed but API publish cannot run | publish in Zaraz History, or use a token with `Zone > Zaraz : Admin` for the publish call only |
+| `HUMAN_GATE:CLOUDFLARE_PREVIEW_PENDING` | unpublished preview changes exist that `apply` would overwrite | publish or discard them in Zaraz History, then re-run `apply` |
 | `HUMAN_GATE:GOOGLE_OAUTH` | no GA4 access | Analytics Admin/Data read; edit is needed when `apply` creates dimensions |
 | `HUMAN_GATE:GA4_PROPERTY_AMBIGUITY` | several plausible GA4 properties | select the intended Jabiko production property |
 | `HUMAN_GATE:PRODUCTION_INTERACTION` | placement/action production proof | one guided production interaction with Zaraz Debug Mode |

@@ -70,7 +70,8 @@ function makeFetch({
   postApplyUnconverged = false,
   workflow = "realtime",
   workflowFails = false,
-  publishFails = false
+  publishFails = false,
+  draftConfig = exportConfig()
 } = {}) {
   const calls = [];
   let putApplied = false;
@@ -111,7 +112,7 @@ function makeFetch({
         return respond(200, { success: true, result: "published" });
       }
       if (u.includes("/settings/zaraz/config") && method === "GET") {
-        return respond(200, { success: true, result: convergedConfig() });
+        return respond(200, { success: true, result: draftConfig });
       }
       return respond(404, { success: false, errors: [{ message: "unexpected" }] });
     }
@@ -236,4 +237,21 @@ test("apply exits non-zero if published export remains unconverged after mutatio
   const { impl } = makeFetch({ postApplyUnconverged: true });
   const result = await withFetch(impl, () => runApply(BASE_ARGS));
   assert.notEqual(result.exitCode, 0);
+});
+
+test("preview workflow with pending unpublished changes fails closed before any PUT", async () => {
+  // The draft (/config) carries an unpublished extra tool; a full PUT based on
+  // the published /export would overwrite it. apply must refuse and gate it.
+  const draft = {
+    ...exportConfig(),
+    tools: {
+      ...exportConfig().tools,
+      pending: { component: "custom-html", name: "Pending", type: "component", settings: {}, actions: {} }
+    }
+  };
+  const { calls, impl } = makeFetch({ workflow: "preview", draftConfig: draft });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.notEqual(result.exitCode, 0);
+  assert.ok(result.gates.includes("CLOUDFLARE_PREVIEW_PENDING"));
+  assert.ok(!calls.some((call) => call.method === "PUT"), "no PUT when pending preview changes exist");
 });

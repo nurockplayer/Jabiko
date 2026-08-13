@@ -175,8 +175,8 @@ git diff --check
 
 Contract regressions cover the Realtime 30-minute limit, forbidden Realtime
 dimensions, baseline/delta behavior, workflow-read fail-closed behavior,
-preview publication, published-state verification, and credential-documentation
-agreement.
+pending-preview detection, preview publication, published-state verification,
+and credential-documentation agreement.
 
 ## Out of scope
 

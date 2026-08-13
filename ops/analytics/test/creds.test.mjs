@@ -127,6 +127,7 @@ test("only documented human gates exist, including preview publication", () => {
     ALLOWED_GATES.toSorted(),
     [
       "CLOUDFLARE_AUTH",
+      "CLOUDFLARE_PREVIEW_PENDING",
       "CLOUDFLARE_PUBLISH",
       "GA4_PROPERTY_AMBIGUITY",
       "GOOGLE_OAUTH",

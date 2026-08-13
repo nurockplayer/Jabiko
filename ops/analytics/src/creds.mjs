@@ -21,6 +21,7 @@ export function redact(value, { visible = 4 } = {}) {
 export const ALLOWED_GATES = [
   "CLOUDFLARE_AUTH",
   "CLOUDFLARE_PUBLISH",
+  "CLOUDFLARE_PREVIEW_PENDING",
   "GOOGLE_OAUTH",
   "GA4_PROPERTY_AMBIGUITY",
   "PRODUCTION_INTERACTION"
@@ -40,6 +41,13 @@ export const GATE_DEFS = {
     scope:
       "Zaraz Admin is required only for the publish API. Do not broaden the normal edit token unless automated publishing is desired.",
     unlocks: "Moving an already-applied preview configuration into the published production state."
+  },
+  CLOUDFLARE_PREVIEW_PENDING: {
+    action:
+      "Review the existing unpublished Zaraz preview changes in the Cloudflare Zaraz History UI — publish or discard them — before re-running apply.",
+    scope:
+      "Zaraz History read. The operator decides whether the pending preview is intended; the script will not overwrite or publish over it.",
+    unlocks: "A clean preview state so apply can safely write and publish only its own change without clobbering someone else's unpublished work."
   },
   GOOGLE_OAUTH: {
     action:

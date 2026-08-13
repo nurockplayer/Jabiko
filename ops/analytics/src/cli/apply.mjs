@@ -19,6 +19,7 @@ import {
   buildZarazDesiredConfig,
   zarazDesiredDiff,
   ga4DesiredDiff,
+  hasPendingPreview,
   ZONE_NAME
 } from "../desired.mjs";
 import { resolveCloudflareAuth } from "../creds.mjs";
@@ -126,6 +127,32 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
   writeFileSync(snapshotPath, JSON.stringify(current, null, 2), { mode: 0o600 });
   writeFileSync(join(STATE_DIR, "zaraz-config-last.json"), JSON.stringify(current, null, 2), { mode: 0o600 });
   report.ok(`snapshot saved to state/${snapshotPath.split("/").pop()}`);
+
+  // In Preview & Publish mode the published /export is the mutation base, but a
+  // full PUT + publish would silently destroy any unpublished draft changes.
+  // Compare the secret-stripped draft (/config) against the published /export;
+  // if they differ, fail closed and expose the smallest human gate.
+  if (workflow === "preview") {
+    let draftConfig;
+    try {
+      draftConfig = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(zone.id) });
+    } catch (error) {
+      report.err(`cannot read the Zaraz /config (draft) surface: ${error.message}`);
+      report.err("fail closed: cannot confirm there are no pending preview changes to preserve.");
+      gates.push("CLOUDFLARE_PREVIEW_PENDING");
+      return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+    }
+    if (hasPendingPreview(draftConfig, current)) {
+      report.err("pending unpublished Preview & Publish changes detected — a full PUT + publish would overwrite them.");
+      report.printGate(
+        "CLOUDFLARE_PREVIEW_PENDING",
+        "Publish or discard the pending preview changes in Zaraz History, then re-run apply."
+      );
+      gates.push("CLOUDFLARE_PREVIEW_PENDING");
+      return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+    }
+    report.ok("no pending preview changes — the published /export is the current draft.");
+  }
 
   let measurementId = measurementIdFlag;
   if (!measurementId) {
