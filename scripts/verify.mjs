@@ -30,19 +30,28 @@ const isMain =
 
 // ---------------------------------------------------------------------------
 // Git changed-path detection (injectable for tests).
-// Union of (commits on this branch vs <base>) + (working-tree modified/untracked).
+// Union of three sources, deduped:
+//   1. committed branch changes vs <base>
+//   2. staged (index) changes
+//   3. unstaged + untracked working-tree changes
+// Each required enumeration must succeed: a failed command throws (fail-safe),
+// never silently treated as empty.
 // ---------------------------------------------------------------------------
 export function collectChangedPaths(execFn, base) {
   const branch = execFn(`git diff --name-only --diff-filter=ACMRD ${base}...HEAD`);
   if (branch === null) {
     throw new Error(`git diff ${base}...HEAD failed — missing/invalid base ref`);
   }
+  const staged = execFn(`git diff --cached --name-only --diff-filter=ACMRD`);
+  if (staged === null) {
+    throw new Error(`git diff --cached failed — cannot enumerate staged changes`);
+  }
   const worktree = execFn(`git ls-files --modified --others --exclude-standard`);
   if (worktree === null) {
     throw new Error(`git ls-files failed — cannot enumerate working-tree changes`);
   }
   const paths = new Set();
-  for (const chunk of [branch, worktree]) {
+  for (const chunk of [branch, staged, worktree]) {
     for (const line of chunk.split("\n")) {
       const trimmed = line.trim();
       if (trimmed) paths.add(trimmed);

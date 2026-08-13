@@ -1,34 +1,58 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain .mjs tooling module, no types
 import { collectChangedPaths, commandsFor } from "./verify.mjs";
+// @ts-expect-error -- plain .mjs tooling module, no types
+import { selectVerification } from "./select-verification.mjs";
 
 describe("collectChangedPaths", () => {
-  it("unions branch commits and working-tree changes, dedupes, sorts", () => {
-    const fakeExec = (cmd: string) => {
-      if (cmd.includes("git diff")) return "src/domain/a.ts\nsrc/components/B.tsx\n";
-      if (cmd.includes("git ls-files")) return "src/components/B.tsx\nsrc/domain/c.test.ts\n";
+  // fakeGit maps each of the three git queries to a controllable result.
+  // Order matters: the staged query contains "--cached" AND "git diff", so
+  // "--cached" must be matched before "git diff".
+  const fakeGit = (branch: string | null, staged: string | null, worktree: string | null) =>
+    (cmd: string) => {
+      if (cmd.includes("--cached")) return staged;
+      if (cmd.includes("git diff")) return branch;
+      if (cmd.includes("git ls-files")) return worktree;
       return null;
     };
-    expect(collectChangedPaths(fakeExec, "origin/main")).toEqual([
-      "src/components/B.tsx",
-      "src/domain/a.ts",
-      "src/domain/c.test.ts"
-    ]);
+
+  it("unions branch + staged + worktree sources, dedupes, sorts", () => {
+    const exec = fakeGit("a.ts\nb.ts\n", "b.ts\nc.ts\n", "c.ts\nd.ts\n");
+    expect(collectChangedPaths(exec, "origin/main")).toEqual(["a.ts", "b.ts", "c.ts", "d.ts"]);
   });
 
-  it("returns [] when both commands succeed with empty output", () => {
-    const fakeExec = () => "";
-    expect(collectChangedPaths(fakeExec, "main")).toEqual([]);
+  it("detects a staged-only production change", () => {
+    const exec = fakeGit("", "src/components/MoreMenu.tsx\n", "");
+    expect(collectChangedPaths(exec, "origin/main")).toEqual(["src/components/MoreMenu.tsx"]);
+  });
+
+  it("detects a staged-only i18n change and final L3 retains check:i18n", () => {
+    const exec = fakeGit("", "src/locales/en.ts\n", "");
+    const changed = collectChangedPaths(exec, "origin/main");
+    expect(changed).toEqual(["src/locales/en.ts"]);
+    const plan = selectVerification(changed, { forceL3: true });
+    expect(plan.level).toBe("L3");
+    expect(plan.commands).toEqual(["lint", "test", "build", "check:i18n"]);
+  });
+
+  it("returns [] for a genuinely clean tree (all three empty)", () => {
+    const exec = fakeGit("", "", "");
+    expect(collectChangedPaths(exec, "origin/main")).toEqual([]);
   });
 
   it("throws when the base diff fails (missing/invalid base) — fail safe", () => {
-    const fakeExec = (cmd: string) => (cmd.includes("git diff") ? null : "");
-    expect(() => collectChangedPaths(fakeExec, "main")).toThrow(/base ref/i);
+    const exec = fakeGit(null, "", "");
+    expect(() => collectChangedPaths(exec, "main")).toThrow(/base ref/i);
+  });
+
+  it("throws when staged enumeration fails — fail safe", () => {
+    const exec = fakeGit("", null, "");
+    expect(() => collectChangedPaths(exec, "main")).toThrow(/staged/i);
   });
 
   it("throws when working-tree enumeration fails — fail safe", () => {
-    const fakeExec = (cmd: string) => (cmd.includes("git diff") ? "" : null);
-    expect(() => collectChangedPaths(fakeExec, "main")).toThrow(/ls-files/i);
+    const exec = fakeGit("", "", null);
+    expect(() => collectChangedPaths(exec, "main")).toThrow(/ls-files/i);
   });
 });
 
