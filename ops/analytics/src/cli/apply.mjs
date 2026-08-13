@@ -77,6 +77,8 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
   let mutations = [];
   let dimFailures = [];
   let workflow = null;
+  let googleToken = null;
+  let resolvedProperty = null;
 
   report.section(`Jabiko #745 analytics apply · zone ${ZONE_NAME}`);
 
@@ -154,41 +156,46 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
     report.ok("no pending preview changes — the published /export is the current draft.");
   }
 
+  // Resolve and verify the Measurement ID BEFORE any Zaraz mutation. The ID (from
+  // --measurement-id or discovery) must belong to the unique jabiko.app
+  // production web stream: a mismatch, ambiguity, or no matching stream fails
+  // closed, so Zaraz and GA4 custom dimensions always target the same property.
   let measurementId = measurementIdFlag;
-  if (!measurementId) {
-    report.bullet("resolving Measurement ID from GA4 …");
-    const googleToken = await googleTokenFromEnv(env);
-    if (!googleToken) {
-      report.printGate("GOOGLE_OAUTH");
-      gates.push("GOOGLE_OAUTH");
-      return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
-    }
-    try {
-      const discovered = await discoverGa4({ token: googleToken });
-      if (!discovered.property) {
-        if ((discovered.candidates ?? []).length === 0) {
-          report.err("no plausible Jabiko GA4 property found; pass --measurement-id.");
-        } else {
-          report.printGate("GA4_PROPERTY_AMBIGUITY");
-          gates.push("GA4_PROPERTY_AMBIGUITY");
-          for (const candidate of discovered.candidates) {
-            report.bullet(`${candidate.displayName} (${candidate.name})`);
-          }
+  report.bullet("verifying the GA4 production property/stream for the Measurement ID …");
+  googleToken = await googleTokenFromEnv(env);
+  if (!googleToken) {
+    report.printGate("GOOGLE_OAUTH");
+    gates.push("GOOGLE_OAUTH");
+    return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+  }
+  try {
+    const discovered = await discoverGa4({ token: googleToken });
+    if (!discovered.property) {
+      if ((discovered.candidates ?? []).length === 0) {
+        report.err("no plausible Jabiko GA4 property found; pass --measurement-id.");
+      } else {
+        report.printGate("GA4_PROPERTY_AMBIGUITY");
+        gates.push("GA4_PROPERTY_AMBIGUITY");
+        for (const candidate of discovered.candidates) {
+          report.bullet(`${candidate.displayName} (${candidate.name})`);
         }
-        return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
       }
-      measurementId = discovered.measurementId;
-      if (!measurementId) {
-        report.err(`property ${discovered.property.displayName} has no web-stream Measurement ID; pass --measurement-id.`);
-        return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
-      }
-      report.ok(`using Measurement ID ${measurementId} from ${discovered.property.displayName}`);
-    } catch (error) {
-      report.err(`GA4 discovery failed: ${error.message}`);
       return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
     }
-  } else {
-    report.bullet(`using --measurement-id ${measurementId}`);
+    if (!discovered.measurementId) {
+      report.err(`property ${discovered.property.displayName} has no web-stream Measurement ID; pass --measurement-id.`);
+      return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+    }
+    if (measurementIdFlag && measurementIdFlag !== discovered.measurementId) {
+      report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${discovered.measurementId}); refusing to split Zaraz from GA4.`);
+      return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+    }
+    measurementId = discovered.measurementId;
+    resolvedProperty = discovered.property;
+    report.ok(`using Measurement ID ${measurementId} from ${discovered.property.displayName}`);
+  } catch (error) {
+    report.err(`GA4 discovery failed: ${error.message}`);
+    return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
   }
 
   const before = zarazDesiredDiff(current, measurementId);
@@ -232,7 +239,16 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
           });
           putOk = true;
         } catch (error) {
-          if (attempt === 0 && /version|conflict|stale/i.test(error.message)) {
+          const isConflict = /version|conflict|stale/i.test(error.message);
+          if (isConflict && workflow === "preview") {
+            // A conflict means another operator changed the draft after our
+            // pending-preview check. Retrying a full PUT from published /export
+            // could overwrite their new draft, so fail closed instead.
+            report.err(`PUT conflicted (${error.message}); preview workflow fails closed to avoid overwriting another operator's unpublished draft.`);
+            report.warn("Re-run apply after the other preview change is published or discarded.");
+            return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+          }
+          if (attempt === 0 && isConflict) {
             report.warn(`PUT conflicted (${error.message}) — re-reading published /export and retrying once.`);
             const fresh = await cfRequest({ token: cfAuth.token, path: zarazExportUrl(zone.id) });
             desired = buildZarazDesiredConfig(fresh, {
@@ -287,37 +303,16 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
   }
 
   report.sub("GA4 custom dimensions");
-  const googleToken = await googleTokenFromEnv(env);
-  if (!googleToken) {
-    report.printGate("GOOGLE_OAUTH");
-    gates.push("GOOGLE_OAUTH");
-    report.warn("Custom dimensions need Google access — desired state incomplete.");
-    failed = true;
-  } else {
-    try {
-      const discovered = await discoverGa4({ token: googleToken });
-      if (!discovered.property) {
-        report.warn("no unique Jabiko GA4 property — custom dimensions not applied.");
-        if ((discovered.candidates ?? []).length > 1) {
-          report.printGate("GA4_PROPERTY_AMBIGUITY");
-          gates.push("GA4_PROPERTY_AMBIGUITY");
-        }
-        failed = true;
-      } else {
-        report.ok(`property ${discovered.property.displayName} (${discovered.property.name})`);
-        const reconciled = await reconcileGa4Dimensions({
-          googleToken,
-          property: discovered.property.name,
-          dryRun
-        });
-        dimFailures = reconciled.failures;
-        if (dimFailures.length) failed = true;
-      }
-    } catch (error) {
-      report.err(`GA4 custom-dimension step failed: ${error.message}`);
-      failed = true;
-    }
-  }
+  // Use the property already resolved and bound to the Measurement ID above, so
+  // Zaraz and GA4 custom dimensions always target the same property/stream.
+  report.ok(`property ${resolvedProperty.displayName} (${resolvedProperty.name})`);
+  const reconciled = await reconcileGa4Dimensions({
+    googleToken,
+    property: resolvedProperty.name,
+    dryRun
+  });
+  dimFailures = reconciled.failures;
+  if (dimFailures.length) failed = true;
 
   report.section("Apply summary");
   const exitCode = failed ? 1 : 0;

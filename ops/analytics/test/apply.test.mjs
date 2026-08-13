@@ -71,6 +71,8 @@ function makeFetch({
   workflow = "realtime",
   workflowFails = false,
   publishFails = false,
+  putConflict = false,
+  dataStreamMeasurementId = "G-TEST",
   draftConfig = exportConfig()
 } = {}) {
   const calls = [];
@@ -103,6 +105,9 @@ function makeFetch({
         return respond(200, { success: true, result });
       }
       if (u.includes("/settings/zaraz/config") && method === "PUT") {
+        if (putConflict) {
+          return respond(409, { success: false, errors: [{ code: 7204, message: "config version conflict" }] });
+        }
         putApplied = true;
         return respond(200, { success: true, result: convergedConfig() });
       }
@@ -126,7 +131,7 @@ function makeFetch({
       }
       if (u.includes("/v1beta/properties/2/dataStreams")) {
         return respond(200, {
-          dataStreams: [{ name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-X" } }]
+          dataStreams: [{ name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: dataStreamMeasurementId, defaultUri: "https://jabiko.app" } }]
         });
       }
       if (u.includes("/v1beta/properties/2/customDimensions")) {
@@ -237,6 +242,28 @@ test("apply exits non-zero if published export remains unconverged after mutatio
   const { impl } = makeFetch({ postApplyUnconverged: true });
   const result = await withFetch(impl, () => runApply(BASE_ARGS));
   assert.notEqual(result.exitCode, 0);
+});
+
+test("preview workflow fails closed on PUT conflict and never retries from published /export", async () => {
+  const { calls, impl } = makeFetch({ workflow: "preview", putConflict: true });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.notEqual(result.exitCode, 0, "a preview PUT conflict must fail closed");
+  const puts = calls.filter((c) => c.method === "PUT" && c.url.includes("/settings/zaraz/config"));
+  assert.equal(puts.length, 1, "no retry PUT is issued in preview workflow");
+  assert.ok(!calls.some((c) => c.method === "POST" && c.url.includes("/settings/zaraz/publish")), "a conflicted PUT must not be published");
+});
+
+test("apply fails closed when --measurement-id does not match the discovered production stream", async () => {
+  const { calls, impl } = makeFetch({ dataStreamMeasurementId: "G-OTHER" });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.notEqual(result.exitCode, 0, "a mismatched measurement-id must fail before any Zaraz mutation");
+  assert.ok(!calls.some((c) => c.method === "PUT"), "no Zaraz PUT when the measurement-id is not bound to the production stream");
+});
+
+test("apply succeeds when --measurement-id matches the discovered production stream", async () => {
+  const { impl } = makeFetch({ dataStreamMeasurementId: "G-TEST" });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.equal(result.exitCode, 0, "a matching measurement-id proceeds");
 });
 
 test("preview workflow with pending unpublished changes fails closed before any PUT", async () => {

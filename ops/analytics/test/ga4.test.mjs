@@ -17,6 +17,7 @@ import {
   customDimensionsUrl,
   listProperties,
   listDataStreams,
+  listCustomDimensions,
   REALTIME_SMOKE_DIMENSIONS,
   STANDARD_REALTIME_MAX_MINUTES
 } from "../src/ga4.mjs";
@@ -80,6 +81,39 @@ test("listDataStreams reads dataStreams", async () => {
     globalThis.fetch = previous;
   }
   assert.equal(seen[0], "https://analyticsadmin.googleapis.com/v1beta/properties/7/dataStreams");
+});
+
+test("listCustomDimensions follows nextPageToken until exhausted", async () => {
+  const seen = [];
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    seen.push(u);
+    if (u.includes("pageToken=page2")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ customDimensions: [{ parameterName: "promoId", name: "promoId", scope: "EVENT" }] })
+      };
+    }
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({
+        customDimensions: [{ parameterName: "action", name: "action", scope: "EVENT" }],
+        nextPageToken: "page2"
+      })
+    };
+  };
+  try {
+    const dims = await listCustomDimensions({ token: "t", property: "properties/7" });
+    assert.deepEqual(dims.map((d) => d.parameterName), ["action", "promoId"]);
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.equal(seen.length, 2, "the page token is followed once");
+  assert.ok(seen[0].includes("/v1beta/properties/7/customDimensions"), "the base path is preserved");
+  assert.ok(seen[1].includes("pageToken=page2"), "the page token is appended for the next page");
 });
 
 test("discoverGa4 uses v1beta contract and webStreamData.measurementId", async () => {

@@ -1,7 +1,7 @@
 // Production smoke CLI tests with stubbed fetch only. No real credentials.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { runSmoke } from "../src/cli/smoke.mjs";
+import { runSmoke, recentDelta } from "../src/cli/smoke.mjs";
 
 const DIMS = [
   { parameterName: "promoId", name: "promoId", scope: "EVENT" },
@@ -269,4 +269,19 @@ test("pre-baseline same-minute traffic cannot satisfy the guided Realtime proof"
   assert.equal(result.exitCode, 1);
   assert.equal(result.eventCounts.page_view, 0);
   assert.equal(result.eventCounts.promo_click, 0);
+});
+
+test("recentDelta ages baseline buckets: only the baseline age-0 bucket is subtracted", () => {
+  // Baseline has 5 promo clicks at minutesAgo=1 (about to leave the window) and
+  // 3 at minutesAgo=0 (pre-baseline traffic in the same bucket as the guide).
+  // One minute later the operator adds 7 new promo clicks (minutesAgo=0).
+  const baselineRows = [
+    { eventName: "promo_click", minutesAgo: "1", eventCount: 5 },
+    { eventName: "promo_click", minutesAgo: "0", eventCount: 3 }
+  ];
+  const currentRows = [{ eventName: "promo_click", minutesAgo: "0", eventCount: 10 }];
+  const delta = recentDelta(currentRows, baselineRows, 1);
+  // current(0..1) = 10, baseline age-0 bucket = 3 → 7 new clicks. The aged-out
+  // age-1 baseline bucket (5) must NOT be subtracted.
+  assert.equal(delta.get("promo_click"), 7, "only the baseline age-0 bucket is subtracted");
 });

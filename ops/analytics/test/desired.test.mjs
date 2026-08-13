@@ -424,6 +424,29 @@ test("triggerFiresOnCustomEvent requires the Eq operator, not just match/value",
   assert.ok(!triggerFiresOnCustomEvent(wrongOp, "promo_click"), "non-Eq op must not match");
 });
 
+test("triggerFiresOnCustomEvent rejects a trigger whose exclude rules suppress the target event", () => {
+  const suppressed = {
+    loadRules: [{ id: "r", match: "custom_event_name", op: "Eq", value: "promo_click" }],
+    excludeRules: [{ id: "rx", match: "custom_event_name", op: "Eq", value: "promo_click" }]
+  };
+  assert.ok(!triggerFiresOnCustomEvent(suppressed, "promo_click"), "an exclude rule for the target event makes the trigger invalid");
+
+  const unrelated = {
+    loadRules: [{ id: "r", match: "custom_event_name", op: "Eq", value: "promo_click" }],
+    excludeRules: [{ id: "rx", match: "custom_event_name", op: "Eq", value: "page_view" }]
+  };
+  assert.ok(triggerFiresOnCustomEvent(unrelated, "promo_click"), "an exclude rule for another event does not suppress this one");
+});
+
+test("a trigger that suppresses the target event yields TRIGGER_MISSING in the diff", () => {
+  const cfg = convergedConfig();
+  cfg.triggers["trg-promo-click"].excludeRules = [
+    { id: "rx", match: "custom_event_name", op: "Eq", value: "promo_click" }
+  ];
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  assert.ok(findings.some((f) => f.code === "TRIGGER_MISSING" && f.event === "promo_click"));
+});
+
 // --- exactly one GA4 tool ---
 test("multiple GA4 tools is a blocking finding, never silently converged", () => {
   const cfg = convergedConfig();
@@ -458,6 +481,28 @@ test("build on a config with a duplicate track action surfaces a blocking findin
   );
   const { findings } = buildZarazDesiredConfig(cfg, { measurementId: MEASUREMENT_ID });
   assert.ok(findings.some((f) => f.code === "TRACK_ACTION_DUPLICATE" && f.severity === "blocking"));
+});
+
+// --- action blockingTriggers ---
+test("a track action with non-empty blockingTriggers does not satisfy forwarding", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.actions["act-promo-click"].blockingTriggers = ["trg-any-exclusion"];
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  assert.ok(
+    findings.some((f) => f.code === "TRACK_ACTION_MISSING" && f.event === "promo_click"),
+    "an action that can be blocked must be treated as missing"
+  );
+});
+
+test("build reconciles an action that is blocked by non-empty blockingTriggers", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.actions["act-promo-click"].blockingTriggers = ["trg-any-exclusion"];
+  const { config, mutations } = buildZarazDesiredConfig(cfg, { measurementId: MEASUREMENT_ID });
+  const candidates = Object.values(config.tools.ga4.actions).filter(
+    (a) => a.actionType === "track" && a.data?.en === "promo_click"
+  );
+  assert.ok(candidates.some((a) => (a.blockingTriggers ?? []).length === 0), "an unconditional action is created");
+  assert.ok(mutations.some((m) => m.code === "TRACK_ACTION_ADDED" && m.event === "promo_click"));
 });
 
 // --- GA4 tool permissions ---

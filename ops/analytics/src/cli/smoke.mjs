@@ -66,21 +66,37 @@ export function summarizeRecentEvents(rows, maxAgeMinutes) {
   return counts;
 }
 
+/** Sum eventCount per eventName from the baseline rows' minutesAgo=0 bucket. */
+export function baselineRecentCounts(baselineRows) {
+  const counts = new Map();
+  for (const row of baselineRows) {
+    if (!row?.eventName) continue;
+    if (Number(row.minutesAgo) !== 0) continue;
+    counts.set(row.eventName, (counts.get(row.eventName) ?? 0) + Number(row.eventCount ?? 0));
+  }
+  return counts;
+}
+
 /**
- * New-since-baseline delta within the same age window. Both the current and the
- * baseline rows are re-summarized for `minutesAgo <= maxAgeMinutes`, then the
- * baseline is subtracted per event (clamped to 0). This prevents pre-baseline
- * traffic that lands in the SAME minute bucket as the baseline from satisfying
- * the proof before any guided interaction occurs.
+ * New-since-baseline delta. The current snapshot is summed for the window
+ * [0, maxAgeMinutes], then only the baseline's minutesAgo=0 bucket is
+ * subtracted (clamped to 0).
+ *
+ * Only the age-0 baseline bucket is subtracted because it is the pre-baseline
+ * traffic that can still be inside the current window once the watch advances:
+ * the baseline's age-1+ buckets have already aged past the window and must not
+ * be subtracted (which would turn a correct guided interaction into a false
+ * failure). Subtracting just the age-0 bucket also prevents a same-minute
+ * baseline from satisfying the proof before any guided interaction.
  */
 export function recentDelta(currentRows, baselineRows, maxAgeMinutes) {
   const current = summarizeRecentEvents(currentRows, maxAgeMinutes);
-  const baseline = summarizeRecentEvents(baselineRows, maxAgeMinutes);
+  const preBaseline = baselineRecentCounts(baselineRows);
   const delta = new Map();
   for (const eventName of Object.keys(REQUIRED_EVENT_COUNTS)) {
     delta.set(
       eventName,
-      Math.max(0, (current.get(eventName) ?? 0) - (baseline.get(eventName) ?? 0))
+      Math.max(0, (current.get(eventName) ?? 0) - (preBaseline.get(eventName) ?? 0))
     );
   }
   return delta;

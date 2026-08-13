@@ -171,11 +171,16 @@ export async function listDataStreams({ token, property }) {
 }
 
 export async function listCustomDimensions({ token, property }) {
-  const data = await adminRequest({
-    token,
-    path: `/properties/${stripResourcePrefix(property, "properties")}/customDimensions`
-  });
-  return data.customDimensions ?? [];
+  const base = `/properties/${stripResourcePrefix(property, "properties")}/customDimensions`;
+  const all = [];
+  let pageToken = null;
+  do {
+    const path = pageToken ? `${base}?pageToken=${encodeURIComponent(pageToken)}` : base;
+    const data = await adminRequest({ token, path });
+    all.push(...(data.customDimensions ?? []));
+    pageToken = data.nextPageToken ?? null;
+  } while (pageToken);
+  return all;
 }
 
 export async function createCustomDimension({ token, property, dimension }) {

@@ -72,12 +72,19 @@ export function analyzeZaraz(config = {}) {
 /** True when a trigger fires on a `zaraz.track(eventName, ...)` custom event. */
 export function triggerFiresOnCustomEvent(trigger, eventName) {
   if (!trigger) return false;
-  return (trigger.loadRules ?? []).some(
+  const loadMatch = (trigger.loadRules ?? []).some(
     (r) =>
       r?.match === CUSTOM_EVENT_MATCH &&
       r?.op === OP_EQ &&
       String(r.value) === eventName
   );
+  if (!loadMatch) return false;
+  // A trigger that excludes the target event must not be treated as valid —
+  // the action would never actually fire.
+  const excluded = (trigger.excludeRules ?? []).some(
+    (r) => r?.match === CUSTOM_EVENT_MATCH && String(r.value) === eventName
+  );
+  return !excluded;
 }
 
 function isAutomaticPageviewAction(config, action) {
@@ -102,6 +109,9 @@ function trackActionCount(config, tool, eventName) {
   const triggers = config.triggers ?? {};
   return Object.values(tool.actions ?? {}).filter((action) => {
     if (action?.actionType !== "track") return false;
+    // An action with blocking wiring can suppress the event — it is not
+    // unconditional and must not satisfy the desired state.
+    if ((action?.blockingTriggers ?? []).length > 0) return false;
     if ((action?.data ?? {}).en !== eventName) return false;
     return (action?.firingTriggers ?? []).some((tid) =>
       triggerFiresOnCustomEvent(triggers[tid], eventName)
