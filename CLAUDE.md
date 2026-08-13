@@ -14,23 +14,50 @@
 - 修改任何 domain 檔案時，先讀對應的 `.test.ts` 了解預期行為
 - 新增／修改題庫題目前，先讀 [`docs/item-quality-rubric.md`](docs/item-quality-rubric.md)（出題品質規範：唯一正解、干擾、不洩漏、格式）
 
-## Build 與測試
+## 驗證階梯（L0–L3，issue #760）
 
-Repo-wide 基礎驗證（#663 統一合約）：`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build`，任何 PR 必全數通過；path-aware gate 另加（見下）。
+開發驗證採分層制，越接近交付驗證越強。**不可**把 repo-wide 全量驗證當作最小 TDD 單位。
 
+| 層級 | 時機 | 執行內容 |
+| --- | --- | --- |
+| **L0 Targeted** | TDD RED/GREEN 每次迭代 | 直接跑受測檔的同目錄測試：`pnpm vitest run <file>.test.ts` |
+| **L1 Affected** | 一個實作/重構單元完成後 | 受影響測試（同目錄 sibling + 已知整合測試 + 改動的測試檔） |
+| **L2 Feature Gate** | commit / PR-ready 前 | L1 + path-aware domain gate（`check:exam` / `check:i18n`）＋ drift guard |
+| **L3 Full** | PR ready / 最終 review / merge 前 | `pnpm lint`、`pnpm test`、`pnpm build`（＋非 test 子集的 path gate） |
+
+**執行器**：`pnpm verify` 依 git changed-path 自動選 L1/L2（必要時升 L3）；`pnpm verify --dry-run` 只看計畫；**`pnpm verify:full` 是唯一最終交付指令**（＝ `--level 3`：L3 full + 依 changed-path 保留 applicable 非 test path gate，如 `check:i18n`）。selector 在 [`scripts/select-verification.mjs`](scripts/select-verification.mjs)，是 deterministic、可測試、conservative 的 explicit 規則表（**不用 LLM 猜**、不做 dependency graph）。
+
+**Escalation（fail-safe）**：unknown 或高爆炸半徑的改動一律升 L3，寧可過度驗證也不靜默少測。至少涵蓋：test setup/config、Vite/Vitest/TS/build 設定、`package.json`/lockfile、共用 routing、cross-cutting domain contract/type、語言/fallback 合約、驗證 tooling 本身（含 `scripts/*.test.ts`）；base diff 失敗或 production source 無既有 affected test 也升 L3（不 no-op）。
+
+**代表性 mapping**（完整規則以 `scripts/select-verification.mjs` 為準）：
+- component / domain / hooks / lib → L1 sibling test
+- exam/content（`src/domain/exam/**`、vocabulary/grammar/sentencePatterns/learningBlocks/kanjiOnyomi/wordOrder/cloze/starterVocabulary）→ L2 `check:exam`＋contentStats/furigana drift
+- i18n（`src/locales/**`、`*.i18n.ts`）→ L2 `check:i18n`＋`i18n.test.ts`
+- furigana/reading（`src/domain/furigana*`、readingConfusers/readingLookup）→ L2 furigana drift＋（`build:furigana` 重產）
+- article/content（`src/domain/articles*`、articleBodies、prerender、public/sitemap.xml）→ L2 `sitemap.test.ts` drift＋（`build:sitemap` 重產）
+- `src/i18n.ts`、`src/domain/types.ts`、`contentGuard.ts`、`contentStats.ts`、`examBlocks.ts`、`src/App.tsx`/`main.tsx`/`routes.ts`/`components/index.ts` → L3
+
+**去重（只有 mechanically equivalent 才可省略物理執行，不削弱語意 gate）**：
+- `pnpm typecheck`（`tsc --noEmit`）是 `pnpm build` 的第一段 → L3 不需重複跑 typecheck。
+- `pnpm check:exam`（`vitest run contentGuard.test.ts`）⊂ `pnpm test` → L3 與 CI 不需重複跑。
+- 只有能證明 semantic equivalence 時才能消除物理重複，不可只刪驗證。
+
+其他既有規則：
 - TypeScript 改動後跑 `pnpm build` 確保編譯通過
 - 領域邏輯改動後跑 `pnpm test` 確保回歸
-- 只改 React 元件時可以只跑 `pnpm build`
-- `pnpm check:exam` 是題目內容快速驗證，改題庫時必跑
 - build 失敗時先讀錯誤再修，不要盲目重試
 
 ## TDD 開發流程（強制）
 
-所有開發必須遵循 **Red-Green-Refactor** 循環：
+所有開發必須遵循 **Red-Green-Refactor** 循環（對映到驗證階梯）：
 
-1. **RED** — 先寫測試，跑 `pnpm test` 確認因功能不存在而失敗
-2. **GREEN** — 寫最少程式碼讓測試通過
-3. **REFACTOR** — 重構並保持測試綠燈
+1. **RED** — 先寫測試，用 **L0** 跑該測試檔確認因功能不存在而失敗（`pnpm vitest run <file>.test.ts`）
+2. **GREEN** — 寫最少程式碼讓該測試（L0）通過
+3. **REFACTOR** — 重構後跑 **L1**（affected）保持綠燈
+4. commit 前 — 跑 **L2** path-specific gate
+5. PR ready / final review / merge 前 — 跑 **L3** full
+
+每次回報必須註明**實際完成的最高層級**與**實際跑過的指令／結果**（pass/fail），不可只寫「已測試」。
 
 ### 鐵則
 
