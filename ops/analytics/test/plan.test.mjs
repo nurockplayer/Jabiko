@@ -36,7 +36,7 @@ async function withQuietLogs(fn) {
 
 // A router factory that returns a zone, Zaraz workflow/published export/draft
 // config, and GA4 discovery with measurementId "G-X".
-function makeRouter({ workflow = "realtime", exportConfig = {}, draftConfig = null, configFails = false, exportFails = false, noZone = false, gaFails = false, streamNoMeasurementId = false } = {}) {
+function makeRouter({ workflow = "realtime", exportConfig = {}, draftConfig = null, configFails = false, exportFails = false, noZone = false, gaFails = false, streamNoMeasurementId = false, dimsWithConflict = false } = {}) {
   return (url) => {
     if (url.startsWith("https://jabiko.app/")) {
       if (url.includes("cdn-cgi/zaraz")) return { status: 404, text: "Not found" };
@@ -93,7 +93,14 @@ function makeRouter({ workflow = "realtime", exportConfig = {}, draftConfig = nu
         };
       }
       if (url.includes("/v1beta/properties/2/customDimensions")) {
-        return { status: 200, json: { customDimensions: [] } };
+        return {
+          status: 200,
+          json: {
+            customDimensions: dimsWithConflict
+              ? [{ parameterName: "promoId", name: "promoId", scope: "USER" }]
+              : []
+          }
+        };
       }
       return { status: 404, json: { error: { message: "unexpected" } } };
     }
@@ -296,4 +303,26 @@ test("plan blocks readiness when the GA4 property has no web Measurement ID", as
     globalThis.fetch = prev;
   }
   assert.ok(result.gatesHit.includes("GA4_READ_FAILURE"), "a property without a Measurement ID is incomplete GA4 evidence");
+});
+
+test("plan blocks readiness on a GA4 custom-dimension scope conflict (non-EVENT)", async () => {
+  const { impl } = fakeFetch(makeRouter({ dimsWithConflict: true }));
+  const prev = globalThis.fetch;
+  globalThis.fetch = impl;
+  let result;
+  try {
+    result = await withQuietLogs(() =>
+      runPlan({ env: { CLOUDFLARE_API_TOKEN: "tok", GA4_ACCESS_TOKEN: "gtok" }, repoRoot: process.cwd() })
+    );
+  } finally {
+    globalThis.fetch = prev;
+  }
+  assert.ok(
+    result.gatesHit.includes("GA4_DIMENSION_SCOPE_CONFLICT"),
+    "a non-EVENT scope on a required dimension is a blocking plan gate"
+  );
+  assert.ok(
+    !result.gatesHit.includes("CLOUDFLARE_AUTH"),
+    "the conflict is its own precise gate, not mislabeled as auth"
+  );
 });

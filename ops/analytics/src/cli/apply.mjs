@@ -20,6 +20,7 @@ import {
   zarazDesiredDiff,
   ga4DesiredDiff,
   hasPendingPreview,
+  configsEqualSemantically,
   ZONE_NAME
 } from "../desired.mjs";
 import { resolveCloudflareAuth } from "../creds.mjs";
@@ -295,6 +296,32 @@ export async function runApply({ env = process.env, flags = {}, stateDir = STATE
 
       if (workflow === "preview") {
         report.warn("Preview & Publish workflow detected; production completion requires publish.");
+        // TOCTOU guard: another operator may have edited the preview between
+        // our successful PUT and this publish. Re-read the draft and only
+        // publish if it still equals the exact desired config we produced;
+        // otherwise fail closed without publishing over their unreviewed work.
+        try {
+          const draftNow = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(zone.id) });
+          if (!configsEqualSemantically(draftNow, desired)) {
+            report.err("the preview draft changed after our PUT — refusing to publish another operator's unreviewed changes.");
+            report.printGate(
+              "CLOUDFLARE_PREVIEW_CHANGED",
+              "Re-run apply to rebase on the current preview, or resolve the pending preview in Zaraz History first."
+            );
+            gates.push("CLOUDFLARE_PREVIEW_CHANGED");
+            return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+          }
+          report.ok("preview still matches the desired config — publishing.");
+        } catch (error) {
+          report.err(`cannot re-read the preview draft before publish: ${error.message}`);
+          report.err("fail closed: refusing to publish without confirming the draft is unchanged.");
+          report.printGate(
+            "CLOUDFLARE_PREVIEW_CHANGED",
+            "Re-run apply once the preview draft is readable and unchanged."
+          );
+          gates.push("CLOUDFLARE_PREVIEW_CHANGED");
+          return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+        }
         try {
           await cfRequest({
             token: cfAuth.token,

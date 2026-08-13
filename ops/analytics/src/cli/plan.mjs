@@ -212,7 +212,18 @@ export async function runPlan({
         dimDiff = ga4DesiredDiff(discovered.property.name, dims);
         report.bullet(`custom dimensions: ${dimDiff.missing.length} missing, ${dimDiff.present.length} present, ${dimDiff.conflicts.length} conflicting`);
         for (const m of dimDiff.missing) report.bullet(`create ${m.parameterName} (${m.scope})`);
-        for (const c of dimDiff.conflicts) report.warn(`conflict: ${c.parameterName} exists as scope ${c.existingScope}, want ${c.desiredScope}`);
+        // A required parameter that already exists with a non-EVENT scope is
+        // not auto-fixable (apply treats it as a hard failure, smoke rejects
+        // it) — so plan must gate readiness, never print "No human gates
+        // required" while the dimension contract is unsatisfiable.
+        for (const c of dimDiff.conflicts) {
+          report.err(`scope conflict: ${c.parameterName} exists with scope ${c.existingScope} (want ${c.desiredScope}) — not auto-fixable.`);
+          report.printGate(
+            "GA4_DIMENSION_SCOPE_CONFLICT",
+            "In GA4, change the conflicting dimension(s) to EVENT scope or delete them so apply can create EVENT-scoped ones."
+          );
+          gatesHit.push("GA4_DIMENSION_SCOPE_CONFLICT");
+        }
       }
     } catch (e) {
       report.err(`GA4 discovery or dimension read failed: ${e.message}`);

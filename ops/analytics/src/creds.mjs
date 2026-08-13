@@ -22,9 +22,11 @@ export const ALLOWED_GATES = [
   "CLOUDFLARE_AUTH",
   "CLOUDFLARE_PUBLISH",
   "CLOUDFLARE_PREVIEW_PENDING",
+  "CLOUDFLARE_PREVIEW_CHANGED",
   "CLOUDFLARE_WORKFLOW_UNKNOWN",
   "CLOUDFLARE_ZONE_NOT_FOUND",
   "GA4_READ_FAILURE",
+  "GA4_DIMENSION_SCOPE_CONFLICT",
   "GOOGLE_OAUTH",
   "GA4_PROPERTY_AMBIGUITY",
   "GA4_MEASUREMENT_ID_MISMATCH",
@@ -53,6 +55,12 @@ export const GATE_DEFS = {
       "Zaraz History read. The operator decides whether the pending preview is intended; the script will not overwrite or publish over it.",
     unlocks: "A clean preview state so apply can safely write and publish only its own change without clobbering someone else's unpublished work."
   },
+  CLOUDFLARE_PREVIEW_CHANGED: {
+    action:
+      "Review the preview draft in Zaraz History — it changed after apply wrote its configuration and before publish. Re-run apply to rebase on the current preview, or resolve the pending preview manually.",
+    scope: "Zaraz History read. The script will not publish over a draft it did not produce.",
+    unlocks: "A publish that is guaranteed to contain exactly the configuration this apply produced, never another operator's unreviewed changes."
+  },
   CLOUDFLARE_WORKFLOW_UNKNOWN: {
     action:
       "Confirm the Zaraz workflow setting in the Cloudflare Zaraz dashboard — it must be Real-time or Preview & Publish.",
@@ -70,6 +78,12 @@ export const GATE_DEFS = {
       "Make the Google Analytics Admin/Data API reachable and readable (network, quota, or service availability), then re-run plan.",
     scope: "GA4 Admin + Data read on the Jabiko property.",
     unlocks: "GA4 property/stream discovery, the Measurement ID, and the custom-dimension diff that plan needs for a readiness conclusion."
+  },
+  GA4_DIMENSION_SCOPE_CONFLICT: {
+    action:
+      "In GA4, change the conflicting custom dimension(s) to EVENT scope (or delete them so apply can create EVENT-scoped ones); this is not auto-fixable.",
+    scope: "GA4 custom-dimension settings (edit) on the Jabiko property.",
+    unlocks: "Event-scoped dimensions that GA4 Realtime/Reporting can query for the promo_click parameters — plan/apply/smoke all agree the state is otherwise incomplete."
   },
   GOOGLE_OAUTH: {
     action:

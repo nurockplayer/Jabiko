@@ -71,12 +71,14 @@ function makeFetch({
   putConflict = false,
   conflictFreshBlocker = false,
   dataStreamMeasurementId = "G-TEST",
-  draftConfig = exportConfig()
+  draftConfig = exportConfig(),
+  previewChanged = false
 } = {}) {
   const calls = [];
   let putApplied = false;
   let published = false;
   let exportReads = 0;
+  let putBody = null;
 
   const impl = async (url, options = {}) => {
     const method = options.method || "GET";
@@ -116,6 +118,7 @@ function makeFetch({
           return respond(409, { success: false, errors: [{ code: 7204, message: "config version conflict" }] });
         }
         putApplied = true;
+        putBody = options.body ? JSON.parse(options.body) : null;
         return respond(200, { success: true, result: convergedConfig() });
       }
       if (u.includes("/settings/zaraz/publish") && method === "POST") {
@@ -124,7 +127,19 @@ function makeFetch({
         return respond(200, { success: true, result: "published" });
       }
       if (u.includes("/settings/zaraz/config") && method === "GET") {
-        return respond(200, { success: true, result: draftConfig });
+        // Pre-PUT: the draft used for the pending-preview check (defaults to
+        // the published export). Post-PUT: the draft is exactly what we PUT,
+        // unless `previewChanged` simulates another operator editing the
+        // preview in the PUT→publish window (the TOCTOU race).
+        if (!putApplied) return respond(200, { success: true, result: draftConfig });
+        if (previewChanged && putBody) {
+          // Another operator edits the preview: add a tool that apply did not
+          // produce, so the draft no longer equals the desired config.
+          const changed = structuredClone(putBody);
+          changed.tools["someone-else"] = { component: "custom-html", name: "Someone Else", type: "component", settings: {}, actions: {} };
+          return respond(200, { success: true, result: changed });
+        }
+        return respond(200, { success: true, result: putBody ?? draftConfig });
       }
       return respond(404, { success: false, errors: [{ message: "unexpected" }] });
     }
@@ -347,4 +362,23 @@ test("preview workflow with pending unpublished changes fails closed before any 
   assert.notEqual(result.exitCode, 0);
   assert.ok(result.gates.includes("CLOUDFLARE_PREVIEW_PENDING"));
   assert.ok(!calls.some((call) => call.method === "PUT"), "no PUT when pending preview changes exist");
+});
+
+test("preview publish re-reads the draft and publishes when it still equals desired", async () => {
+  const { calls, impl } = makeFetch({ workflow: "preview" });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.equal(result.exitCode, 0, "a matching draft publishes successfully");
+  const publish = calls.filter((c) => c.method === "POST" && c.url.includes("/settings/zaraz/publish"));
+  assert.equal(publish.length, 1, "publish proceeds when the draft still matches the desired config");
+});
+
+test("preview publish fails closed when the draft changes in the PUT->publish window (TOCTOU race)", async () => {
+  const { calls, impl } = makeFetch({ workflow: "preview", previewChanged: true });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.notEqual(result.exitCode, 0, "a changed draft must fail apply");
+  assert.ok(
+    !calls.some((c) => c.method === "POST" && c.url.includes("/settings/zaraz/publish")),
+    "zero publishes when another actor changed the preview before publish"
+  );
+  assert.ok(result.gates.includes("CLOUDFLARE_PREVIEW_CHANGED"), "a precise human gate is surfaced");
 });

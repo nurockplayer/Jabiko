@@ -586,3 +586,11 @@ export function hasPendingPreview(draft, published) {
     stableStringify(stripSecretValues(published))
   );
 }
+
+/** True when two configs are semantically equal after stripping secret values. */
+export function configsEqualSemantically(a, b) {
+  return (
+    stableStringify(stripSecretValues(a)) ===
+    stableStringify(stripSecretValues(b))
+  );
+}
