@@ -21,7 +21,7 @@ Jabiko（jabiko.app）是免費、免註冊的 **JLPT N5–N1 日檢自習室**�
 直接執行指令即可（**沒有 `rtk` 這個工具**——舊規範遺留，勿再等待或宣稱缺它而跳過驗證）。
 
 - Node／frontend tooling 一律 `pnpm`；不得使用 npm/yarn/bun（也不得產生其 lockfile）
-- 基礎驗證四閘（#663 統一合約）：`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build` 每個 PR 必跑；`pnpm check:exam` 在改動題庫（`src/domain/exam/`）時必跑，其他改動可省
+- 驗證採階梯（#760，source of truth＝CLAUDE.md「驗證階梯」）：**L0** 定向 `pnpm vitest run <file>` → **L1** affected → **L2** path gate（`pnpm verify` 依 changed-path 自動選級）→ **L3** full `pnpm lint && pnpm test && pnpm build`。PR 前必跑 L3
 - 新增／修改**文章**後必跑 `pnpm build:sitemap`（sitemap drift guard 會擋 CI——這是 Codex 歷史上最常漏的一步）
 - 新增 exam 例句／題幹後跑 `pnpm build:furigana`
 
@@ -63,7 +63,8 @@ Jabiko（jabiko.app）是免費、免註冊的 **JLPT N5–N1 日檢自習室**�
 
 ## 測試與驗證
 
-宣稱完成前回報實際執行過的驗證（三閘結果 pass/fail）。優先測：變化邏輯（音便／ない形／不規則）、答案 normalization、contentGuard／contentStats drift、主要練習流程。
+- 驗證階梯（#760）：L0 targeted → L1 affected → L2 path gate → L3 full。執行器：`pnpm verify`（changed-path 選級）、`pnpm verify --dry-run`、`pnpm verify:full`。selector＝`scripts/select-verification.mjs`（deterministic explicit 規則，非 LLM 猜）；unknown／高爆炸半徑改動 fail-safe 升 L3。完整 mapping 以 CLAUDE.md 與該檔為準，本檔不重複。
+- 宣稱完成前回報實際執行過的驗證（最高層級＋指令＋pass/fail）。優先測：變化邏輯（音便／ない形／不規則）、答案 normalization、contentGuard／contentStats drift、主要練習流程。
 
 ## 回報格式
 
