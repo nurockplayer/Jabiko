@@ -220,6 +220,115 @@ describe("App", () => {
     window.history.replaceState({}, "", "/");
   });
 
+  describe("App breadcrumbs (#729)", () => {
+    it("direct-load /grammar/n5: Home > Grammar > N5, and no duplicated route-parent back control", async () => {
+      await import("./components/GrammarIndexPage");
+      window.history.replaceState({}, "", "/grammar/n5");
+      render(<App />);
+
+      const breadcrumb = await screen.findByRole("navigation", { name: "目前位置" });
+      expect(within(breadcrumb).getByRole("link", { name: "首頁" })).toHaveAttribute("href", "/");
+      expect(within(breadcrumb).getByRole("link", { name: "文型" })).toHaveAttribute("href", "/grammar");
+      const current = within(breadcrumb).getByText("N5");
+      expect(current.tagName).toBe("SPAN");
+      expect(current).toHaveAttribute("aria-current", "page");
+
+      await screen.findByRole("heading", { name: "JLPT N5 文型" });
+      // #729: the global nav + breadcrumbs replace the page-level route-parent
+      // back controls (回首頁 header button / 回到文型一覽 CTA).
+      expect(screen.queryByText("回首頁")).not.toBeInTheDocument();
+      expect(screen.queryByText("回到文型一覽")).not.toBeInTheDocument();
+    });
+
+    it("direct-load /grammar/<surface>: current crumb is the surface with lang=ja", async () => {
+      await import("./components/GrammarPointPage");
+      const { allGrammarSurfaces } = await import("./domain/grammarPoints");
+      const surface = allGrammarSurfaces()[0];
+      window.history.replaceState({}, "", `/grammar/${encodeURIComponent(surface)}`);
+      render(<App />);
+
+      const breadcrumb = await screen.findByRole("navigation", { name: "目前位置" });
+      expect(within(breadcrumb).getByRole("link", { name: "文型" })).toHaveAttribute("href", "/grammar");
+      const current = within(breadcrumb).getByText(surface);
+      expect(current).toHaveAttribute("aria-current", "page");
+      expect(current).toHaveAttribute("lang", "ja");
+    });
+
+    it("direct-load /kana: Home > Learn > 五十音表, current crumb is not a link", async () => {
+      await import("./components/KanaTablePage");
+      window.history.replaceState({}, "", "/kana");
+      render(<App />);
+
+      const breadcrumb = await screen.findByRole("navigation", { name: "目前位置" });
+      expect(within(breadcrumb).getByRole("link", { name: "首頁" })).toHaveAttribute("href", "/");
+      expect(within(breadcrumb).getByRole("link", { name: "學習" })).toHaveAttribute("href", "/learn");
+      const current = within(breadcrumb).getByText("五十音表");
+      expect(current).toHaveAttribute("aria-current", "page");
+      expect(within(breadcrumb).queryByRole("link", { name: "五十音表" })).not.toBeInTheDocument();
+    });
+
+    it("direct-load /privacy and /terms: Home > About > legal page", async () => {
+      await import("./components/LegalPanel");
+      window.history.replaceState({}, "", "/privacy");
+      const { unmount } = render(<App />);
+      const privacyCrumb = await screen.findByRole("navigation", { name: "目前位置" });
+      expect(within(privacyCrumb).getByRole("link", { name: "關於" })).toHaveAttribute("href", "/about");
+      expect(within(privacyCrumb).getByText("隱私政策")).toHaveAttribute("aria-current", "page");
+      unmount();
+
+      window.history.replaceState({}, "", "/terms");
+      render(<App />);
+      const termsCrumb = await screen.findByRole("navigation", { name: "目前位置" });
+      expect(within(termsCrumb).getByRole("link", { name: "關於" })).toHaveAttribute("href", "/about");
+      expect(within(termsCrumb).getByText("使用條款")).toHaveAttribute("aria-current", "page");
+    });
+
+    it("renders no breadcrumb on top-level routes (home and /grammar root)", async () => {
+      await import("./components/GrammarIndexPage");
+      const home = render(<App />);
+      expect(screen.queryByRole("navigation", { name: "目前位置" })).not.toBeInTheDocument();
+      home.unmount();
+
+      window.history.replaceState({}, "", "/grammar");
+      render(<App />);
+      expect(screen.queryByRole("navigation", { name: "目前位置" })).not.toBeInTheDocument();
+    });
+
+    it("clicking a parent crumb navigates in-app (SPA) and updates the trail", async () => {
+      await import("./components/GrammarIndexPage");
+      const user = userEvent.setup();
+      window.history.replaceState({}, "", "/grammar/n5");
+      render(<App />);
+
+      const breadcrumb = await screen.findByRole("navigation", { name: "目前位置" });
+      await user.click(within(breadcrumb).getByRole("link", { name: "文型" }));
+
+      expect(window.location.pathname).toBe("/grammar");
+      await screen.findByRole("heading", { name: "JLPT 文型資料庫" });
+      expect(screen.queryByRole("navigation", { name: "目前位置" })).not.toBeInTheDocument();
+    });
+
+    it("in-app navigation reproduces the direct-load breadcrumb (grammar overview -> N5)", async () => {
+      await import("./components/GrammarIndexPage");
+      const user = userEvent.setup();
+      render(<App />);
+
+      await user.click(screen.getByRole("button", { name: "文型" }));
+      await screen.findByRole("heading", { name: "JLPT 文型資料庫" });
+      expect(screen.queryByRole("navigation", { name: "目前位置" })).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "瀏覽 N5" }));
+      const breadcrumb = await screen.findByRole("navigation", { name: "目前位置" });
+      // In-app level navigation serializes the typed level (/grammar/N5);
+      // direct loads are lowercase (/grammar/n5). Both parse to the same route
+      // and render the identical Home > Grammar > N5 trail (#727 normalizes).
+      expect(window.location.pathname.toLowerCase()).toBe("/grammar/n5");
+      expect(within(breadcrumb).getByRole("link", { name: "首頁" })).toHaveAttribute("href", "/");
+      expect(within(breadcrumb).getByRole("link", { name: "文型" })).toHaveAttribute("href", "/grammar");
+      expect(within(breadcrumb).getByText("N5")).toHaveAttribute("aria-current", "page");
+    });
+  });
+
   it("opens the rules reference page after clicking the 規則表 tab", async () => {
     const user = userEvent.setup();
     render(<App />);

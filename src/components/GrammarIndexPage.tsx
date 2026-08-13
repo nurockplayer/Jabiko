@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, BookOpen, Search, Clapperboard } from "lucide-react";
+import { BookOpen, Search, Clapperboard } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import {
   getPatternsGroupedByLevel,
@@ -13,15 +13,11 @@ export function GrammarIndexPage({
   language,
   level,
   onOpenPattern,
-  onBack,
-  onBackToOverview,
   onSelectLevel,
 }: {
   language: Language;
   level: JlptLevel | null;
   onOpenPattern: (surface: string) => void;
-  onBack: () => void;
-  onBackToOverview?: () => void;
   onSelectLevel?: (level: JlptLevel) => void;
 }) {
   const t = copy[language];
@@ -97,10 +93,6 @@ export function GrammarIndexPage({
   return (
     <section className="grammar-index" aria-label={t.grammarIndexTitle}>
       <div className="gi-header">
-        <button type="button" className="ghost-button" onClick={onBack}>
-          <ArrowLeft aria-hidden="true" />
-          {t.reviewDoneExit}
-        </button>
         {showLevel && (
           <h1 className="gi-hero-title">JLPT {level} {t.grammar}</h1>
         )}
@@ -150,8 +142,6 @@ export function GrammarIndexPage({
           patterns={grouped[level]}
           importanceLabels={importanceLabels}
           onOpenPattern={onOpenPattern}
-          onBack={onBack}
-          onBackToOverview={onBackToOverview}
         />
       ) : (
         (["N5", "N4", "N3", "N2", "N1"] as JlptLevel[]).map((lvl) => {
@@ -250,16 +240,12 @@ function GrammarLevelResults({
   patterns,
   importanceLabels,
   onOpenPattern,
-  onBack,
-  onBackToOverview,
 }: {
   language: Language;
   searchQuery: string;
   patterns: GrammarPattern[];
   importanceLabels: Record<string, string>;
   onOpenPattern: (surface: string) => void;
-  onBack: () => void;
-  onBackToOverview?: () => void;
 }) {
   const t = copy[language];
   const [showMediaOnly, setShowMediaOnly] = useState(false);
@@ -327,13 +313,6 @@ function GrammarLevelResults({
           ))}
         </ul>
       )}
-
-      <div className="gi-cta">
-        <button type="button" className="ghost-button" onClick={onBackToOverview ?? onBack}>
-          <ArrowLeft aria-hidden="true" />
-          {t.grammarBackToIndex}
-        </button>
-      </div>
     </>
   );
 }

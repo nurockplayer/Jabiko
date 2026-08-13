@@ -1,0 +1,49 @@
+/* Route-aware breadcrumbs (#729). Shown only for nested routes with a real
+   parent hierarchy (grammar surface/level, kana, legal pages). Sits under the
+   global nav, above the page content; wraps on narrow screens so 320/390px
+   viewports never overflow. Parent crumbs are real anchors; the current crumb
+   is a non-clickable element carrying aria-current="page". */
+.app-breadcrumbs {
+  max-width: 44rem;
+  margin: 0 auto 0.75rem;
+  font-size: 0.82rem;
+}
+
+.app-breadcrumbs-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-breadcrumbs-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.app-breadcrumbs-link {
+  color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.app-breadcrumbs-link:hover,
+.app-breadcrumbs-link:focus-visible {
+  color: var(--teal-dark);
+  text-decoration-thickness: 0.14em;
+}
+
+.app-breadcrumbs-current {
+  color: var(--ink);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.app-breadcrumbs-sep {
+  color: var(--muted);
+  user-select: none;
+}

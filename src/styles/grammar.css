@@ -9,14 +9,6 @@
   margin: 0 auto;
 }
 
-.gp-back {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.gp-back svg,
 .gp-practice svg {
   width: 1.05rem;
   height: 1.05rem;
@@ -454,12 +446,6 @@
   text-align: center;
   color: var(--muted);
   font-size: 0.9rem;
-}
-
-.gi-cta {
-  display: flex;
-  justify-content: center;
-  margin-top: 0.5rem;
 }
 
 /* ---- Media examples (#437) ---- */

@@ -33,13 +33,11 @@ export function GrammarPointPage({
   surface,
   language,
   onPractice,
-  onBack,
   onNavigate
 }: {
   surface: string;
   language: Language;
   onPractice: () => void;
-  onBack: () => void;
   /** Jump to an adjacent grammar point in index order (#457). Omitted = no pager. */
   onNavigate?: (surface: string) => void;
 }) {
@@ -53,20 +51,13 @@ export function GrammarPointPage({
     ? grammarPatterns.filter((p) => dbPattern.relatedPatternIds.includes(p.id))
     : [];
 
-  const backButton = (
-    <button type="button" className="ghost-button gp-back" onClick={onBack}>
-      <ArrowLeft aria-hidden="true" />
-      {t.grammarBackToIndex}
-    </button>
-  );
-
   // Prev/next pager (#457): page through 文型 in index order without going back
   // to the index. Only for the zh-Hant browse flow (the index is zh-only) and
   // only when the surface is a database pattern with a neighbour.
   const adjacent = getAdjacentPatterns(surface);
   const pager =
     onNavigate && (adjacent.prev || adjacent.next) ? (
-      <nav className="gp-pager" aria-label={t.grammarBackToIndex}>
+      <nav className="gp-pager" aria-label={t.grammarPagerLabel}>
         {adjacent.prev ? (
           <button
             type="button"
@@ -101,7 +92,6 @@ export function GrammarPointPage({
     if (!dbPattern) {
       return (
         <section className="grammar-point grammar-point-missing">
-          {backButton}
           <header className="gp-hero">
             <h1 className="gp-surface" lang="ja">
               {surface}
@@ -111,10 +101,9 @@ export function GrammarPointPage({
       );
     }
 
-    
+
     return (
       <section className="grammar-point" aria-label={surface}>
-        {backButton}
         <header className="gp-hero">
           <div className="gp-hero-row">
             <h1 className="gp-surface" lang="ja">
@@ -198,8 +187,6 @@ export function GrammarPointPage({
 
   return (
     <section className="grammar-point" aria-label={surface}>
-      {backButton}
-
       <header className="gp-hero">
         <div className="gp-hero-row">
           <h1 className="gp-surface" lang="ja">
