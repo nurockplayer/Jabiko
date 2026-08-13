@@ -36,7 +36,7 @@ async function withQuietLogs(fn) {
 
 // A router factory that returns a zone, Zaraz workflow/published export/draft
 // config, and GA4 discovery with measurementId "G-X".
-function makeRouter({ workflow = "realtime", exportConfig = {}, draftConfig = null } = {}) {
+function makeRouter({ workflow = "realtime", exportConfig = {}, draftConfig = null, configFails = false, exportFails = false } = {}) {
   return (url) => {
     if (url.startsWith("https://jabiko.app/")) {
       if (url.includes("cdn-cgi/zaraz")) return { status: 404, text: "Not found" };
@@ -47,9 +47,15 @@ function makeRouter({ workflow = "realtime", exportConfig = {}, draftConfig = nu
         return { status: 200, json: { success: true, result: workflow } };
       }
       if (url.includes("/settings/zaraz/export")) {
+        if (exportFails) {
+          return { status: 500, json: { success: false, errors: [{ message: "internal error" }] } };
+        }
         return { status: 200, json: { success: true, result: exportConfig } };
       }
       if (url.includes("/settings/zaraz/config")) {
+        if (configFails) {
+          return { status: 500, json: { success: false, errors: [{ message: "internal error" }] } };
+        }
         return { status: 200, json: { success: true, result: draftConfig ?? exportConfig } };
       }
       if (url.includes("/zones?name=")) {
@@ -188,4 +194,39 @@ test("plan blocks readiness when the workflow value is unknown", async () => {
     globalThis.fetch = prev;
   }
   assert.ok(result.gatesHit.includes("CLOUDFLARE_WORKFLOW_UNKNOWN"), "an unknown workflow must block plan readiness");
+});
+
+test("plan fails closed when the preview draft (/config) cannot be read", async () => {
+  // workflow=preview, published /export succeeds, but /config is unreadable —
+  // pending-preview status is unknown, so plan readiness must be blocked and it
+  // must never print "No human gates required".
+  const { impl } = fakeFetch(makeRouter({ workflow: "preview", exportConfig: {}, configFails: true }));
+  const prev = globalThis.fetch;
+  globalThis.fetch = impl;
+  let result;
+  try {
+    result = await withQuietLogs(() =>
+      runPlan({ env: { CLOUDFLARE_API_TOKEN: "tok", GA4_ACCESS_TOKEN: "gtok" }, repoRoot: process.cwd() })
+    );
+  } finally {
+    globalThis.fetch = prev;
+  }
+  assert.ok(result.gatesHit.includes("CLOUDFLARE_PREVIEW_PENDING"), "an unreadable preview draft must block plan readiness");
+});
+
+test("plan fails closed when the published /export cannot be read (no 'No human gates required')", async () => {
+  // A non-auth export failure must still block plan readiness; otherwise plan
+  // would report "No human gates required" even though production is unknown.
+  const { impl } = fakeFetch(makeRouter({ exportFails: true }));
+  const prev = globalThis.fetch;
+  globalThis.fetch = impl;
+  let result;
+  try {
+    result = await withQuietLogs(() =>
+      runPlan({ env: { CLOUDFLARE_API_TOKEN: "tok", GA4_ACCESS_TOKEN: "gtok" }, repoRoot: process.cwd() })
+    );
+  } finally {
+    globalThis.fetch = prev;
+  }
+  assert.ok(result.gatesHit.includes("CLOUDFLARE_AUTH"), "an unreadable published export must block plan readiness");
 });

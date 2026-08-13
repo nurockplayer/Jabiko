@@ -49,13 +49,17 @@ function isJabikoProductionHost(uri) {
  *
  * The production property is NOT prefiltered by displayName or a property URL:
  * generic names like "Production" must work. Every visible property's data
- * streams are inspected and the production property is the one with a unique
+ * streams are inspected and candidates are the properties with a unique
  * WEB_DATA_STREAM whose defaultUri hostname is jabiko.app (or www.jabiko.app).
- * Multiple matching properties/streams fail closed (property is null).
+ *
+ * If `measurementId` is supplied it is used to disambiguate: candidates are
+ * filtered to those whose stream Measurement ID matches, so a supplied ID that
+ * picks out one property resolves it before any ambiguity gate. Zero or
+ * multiple matches fail closed (property is null).
  *
  * Returns { property, candidates, measurementId }.
  */
-export async function discoverGa4({ token }) {
+export async function discoverGa4({ token, measurementId }) {
   const accounts = await listAccounts({ token });
   const candidates = [];
   for (const acc of accounts) {
@@ -66,10 +70,16 @@ export async function discoverGa4({ token }) {
       if (web) candidates.push({ account: acc.name, ...p, stream: web });
     }
   }
-  if (candidates.length !== 1) {
+  let matches = candidates;
+  if (measurementId) {
+    matches = candidates.filter(
+      (c) => c.stream?.webStreamData?.measurementId === measurementId
+    );
+  }
+  if (matches.length !== 1) {
     return { property: null, candidates, measurementId: null };
   }
-  const property = candidates[0];
+  const property = matches[0];
   return {
     property,
     candidates,

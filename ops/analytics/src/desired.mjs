@@ -82,12 +82,11 @@ export function triggerFiresOnCustomEvent(trigger, eventName) {
   if (rule?.match !== CUSTOM_EVENT_MATCH || rule?.op !== OP_EQ || String(rule.value) !== eventName) {
     return false;
   }
-  // A trigger that excludes the target event must not be treated as valid —
-  // the action would never actually fire.
-  const excluded = (trigger.excludeRules ?? []).some(
-    (r) => r?.match === CUSTOM_EVENT_MATCH && String(r.value) === eventName
-  );
-  return !excluded;
+  // A managed trigger must forward the event unconditionally. ANY exclude rule
+  // can suppress the target event in some context (regardless of the field it
+  // matches), so a non-empty excludeRules is never converged.
+  if ((trigger.excludeRules ?? []).length > 0) return false;
+  return true;
 }
 
 function isAutomaticPageviewAction(config, action) {

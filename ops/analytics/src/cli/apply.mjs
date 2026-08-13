@@ -169,14 +169,24 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
     return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
   }
   try {
-    const discovered = await discoverGa4({ token: googleToken });
+    const discovered = await discoverGa4({ token: googleToken, measurementId: measurementIdFlag });
     if (!discovered.property) {
-      if ((discovered.candidates ?? []).length === 0) {
+      const candidates = discovered.candidates ?? [];
+      if (measurementIdFlag && candidates.length === 1 && candidates[0].stream?.webStreamData?.measurementId !== measurementIdFlag) {
+        report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${candidates[0].stream?.webStreamData?.measurementId}); refusing to split Zaraz from GA4.`);
+        report.printGate(
+          "GA4_MEASUREMENT_ID_MISMATCH",
+          "Pass the correct --measurement-id (the jabiko.app production stream's Measurement ID) or drop the flag to use discovery."
+        );
+        gates.push("GA4_MEASUREMENT_ID_MISMATCH");
+        return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+      }
+      if (candidates.length === 0) {
         report.err("no plausible Jabiko GA4 property found; pass --measurement-id.");
       } else {
         report.printGate("GA4_PROPERTY_AMBIGUITY");
         gates.push("GA4_PROPERTY_AMBIGUITY");
-        for (const candidate of discovered.candidates) {
+        for (const candidate of candidates) {
           report.bullet(`${candidate.displayName} (${candidate.name})`);
         }
       }
@@ -184,10 +194,6 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
     }
     if (!discovered.measurementId) {
       report.err(`property ${discovered.property.displayName} has no web-stream Measurement ID; pass --measurement-id.`);
-      return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
-    }
-    if (measurementIdFlag && measurementIdFlag !== discovered.measurementId) {
-      report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${discovered.measurementId}); refusing to split Zaraz from GA4.`);
       return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
     }
     measurementId = discovered.measurementId;

@@ -430,12 +430,32 @@ test("triggerFiresOnCustomEvent rejects a trigger whose exclude rules suppress t
     excludeRules: [{ id: "rx", match: "custom_event_name", op: "Eq", value: "promo_click" }]
   };
   assert.ok(!triggerFiresOnCustomEvent(suppressed, "promo_click"), "an exclude rule for the target event makes the trigger invalid");
+});
 
-  const unrelated = {
+test("ANY exclude rule makes a managed trigger non-converged, regardless of the matched field", () => {
+  // A managed trigger must forward the event unconditionally. An exclude rule
+  // matching a different field (e.g. page_path) can still suppress the event in
+  // some contexts, so a non-empty excludeRules is never converged.
+  const pagePathExclude = {
+    loadRules: [{ id: "r", match: "custom_event_name", op: "Eq", value: "promo_click" }],
+    excludeRules: [{ id: "rx", match: "page_path", op: "Eq", value: "/stay-d" }]
+  };
+  assert.ok(!triggerFiresOnCustomEvent(pagePathExclude, "promo_click"), "a page_path exclude rule still makes the trigger invalid");
+
+  const otherEventExclude = {
     loadRules: [{ id: "r", match: "custom_event_name", op: "Eq", value: "promo_click" }],
     excludeRules: [{ id: "rx", match: "custom_event_name", op: "Eq", value: "page_view" }]
   };
-  assert.ok(triggerFiresOnCustomEvent(unrelated, "promo_click"), "an exclude rule for another event does not suppress this one");
+  assert.ok(!triggerFiresOnCustomEvent(otherEventExclude, "promo_click"), "ANY exclude rule makes the trigger non-converged");
+});
+
+test("a trigger with a page_path exclude rule yields TRIGGER_MISSING in the diff", () => {
+  const cfg = convergedConfig();
+  cfg.triggers["trg-promo-click"].excludeRules = [
+    { id: "rx", match: "page_path", op: "Eq", value: "/stay-d" }
+  ];
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  assert.ok(findings.some((f) => f.code === "TRIGGER_MISSING" && f.event === "promo_click"));
 });
 
 test("triggerFiresOnCustomEvent requires EXACTLY one load rule for the target event", () => {

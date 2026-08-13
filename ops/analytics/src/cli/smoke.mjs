@@ -162,9 +162,13 @@ export async function runSmoke({
       gateBlocked = true;
     } else {
       try {
-        const discovered = await discoverGa4({ token: googleToken });
+        const discovered = await discoverGa4({ token: googleToken, measurementId: measurementIdFlag });
         if (!discovered.property) {
-          if ((discovered.candidates ?? []).length > 1) {
+          const candidates = discovered.candidates ?? [];
+          if (measurementIdFlag && candidates.length === 1 && candidates[0].stream?.webStreamData?.measurementId !== measurementIdFlag) {
+            report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${candidates[0].stream?.webStreamData?.measurementId}); failing smoke before any config/Realtime verification.`);
+            failed = true;
+          } else if (candidates.length > 1) {
             report.printGate("GA4_PROPERTY_AMBIGUITY");
             gates.push("GA4_PROPERTY_AMBIGUITY");
             gateBlocked = true;
@@ -174,12 +178,6 @@ export async function runSmoke({
           }
         } else if (!discovered.measurementId) {
           report.err("the selected GA4 property has no web Measurement ID.");
-          failed = true;
-        } else if (measurementIdFlag && measurementIdFlag !== discovered.measurementId) {
-          // Bind --measurement-id to the discovered jabiko.app production stream
-          // (matching apply's semantics). A mismatch fails closed BEFORE any
-          // Zaraz/config/Realtime verification.
-          report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${discovered.measurementId}); failing smoke before any config/Realtime verification.`);
           failed = true;
         } else {
           propertyName = discovered.property.name;

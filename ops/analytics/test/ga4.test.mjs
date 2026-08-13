@@ -268,6 +268,94 @@ test("discoverGa4 fails closed when multiple properties have jabiko.app producti
   assert.equal(discovered.candidates.length, 2);
 });
 
+test("discoverGa4 resolves a single candidate via --measurement-id when multiple jabiko.app properties exist", async () => {
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    if (u.endsWith("/v1beta/accounts")) {
+      return { ok: true, status: 200, json: async () => ({ accounts: [{ name: "accounts/1" }] }) };
+    }
+    if (u.includes("/v1beta/properties?filter=")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          properties: [
+            { name: "properties/2", displayName: "Jabiko A" },
+            { name: "properties/3", displayName: "Jabiko B" }
+          ]
+        })
+      };
+    }
+    if (u.includes("/v1beta/properties/2/dataStreams")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          dataStreams: [{ name: "x", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-A", defaultUri: "https://jabiko.app" } }]
+        })
+      };
+    }
+    if (u.includes("/v1beta/properties/3/dataStreams")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          dataStreams: [{ name: "y", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-B", defaultUri: "https://jabiko.app" } }]
+        })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({ error: { message: `unexpected ${u}` } }) };
+  };
+  let discovered;
+  try {
+    discovered = await discoverGa4({ token: "t", measurementId: "G-B" });
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.equal(discovered.property?.name, "properties/3", "--measurement-id picks the matching production property");
+  assert.equal(discovered.measurementId, "G-B");
+});
+
+test("discoverGa4 fails closed when --measurement-id matches zero jabiko.app candidates", async () => {
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    if (u.endsWith("/v1beta/accounts")) {
+      return { ok: true, status: 200, json: async () => ({ accounts: [{ name: "accounts/1" }] }) };
+    }
+    if (u.includes("/v1beta/properties?filter=")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          properties: [
+            { name: "properties/2", displayName: "Jabiko A" },
+            { name: "properties/3", displayName: "Jabiko B" }
+          ]
+        })
+      };
+    }
+    if (u.includes("/dataStreams")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          dataStreams: [{ name: "x", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-A", defaultUri: "https://jabiko.app" } }]
+        })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({ error: { message: `unexpected ${u}` } }) };
+  };
+  let discovered;
+  try {
+    discovered = await discoverGa4({ token: "t", measurementId: "G-NOPE" });
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.equal(discovered.property, null, "a measurement-id matching no candidate must fail closed");
+});
+
 test("discoverGa4 uses v1beta contract and webStreamData.measurementId", async () => {
   const seen = [];
   const previous = globalThis.fetch;

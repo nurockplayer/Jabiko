@@ -96,18 +96,33 @@ export async function runPlan({
         report.bullet(`${a.tools.length} tool(s), ${a.triggers.length} trigger(s); autoInject=${a.autoInject}`);
 
         // In Preview & Publish mode, an unpublished draft that differs from the
-        // published state is a human gate — production is NOT converged.
+        // published state is a human gate — production is NOT converged. If the
+        // draft cannot be read for ANY reason, pending-preview status is unknown
+        // and plan readiness must be blocked (never "No human gates required").
         if (workflow === "preview") {
-          const draft = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(cfZone.id) });
-          if (hasPendingPreview(draft, config)) {
-            report.err("pending unpublished Preview & Publish changes detected — production is not converged.");
+          let draft;
+          try {
+            draft = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(cfZone.id) });
+          } catch (e) {
+            report.err(`cannot read the preview draft (/config): ${e.message}`);
+            report.err("pending-preview status is unknown — plan readiness is blocked.");
             report.printGate(
               "CLOUDFLARE_PREVIEW_PENDING",
-              "Publish or discard the pending preview changes in Zaraz History before the production plan can converge."
+              "Confirm whether pending preview changes exist in Zaraz History before relying on this plan."
             );
             gatesHit.push("CLOUDFLARE_PREVIEW_PENDING");
-          } else {
-            report.ok("no pending preview changes — published /export is the current production state.");
+          }
+          if (draft !== undefined) {
+            if (hasPendingPreview(draft, config)) {
+              report.err("pending unpublished Preview & Publish changes detected — production is not converged.");
+              report.printGate(
+                "CLOUDFLARE_PREVIEW_PENDING",
+                "Publish or discard the pending preview changes in Zaraz History before the production plan can converge."
+              );
+              gatesHit.push("CLOUDFLARE_PREVIEW_PENDING");
+            } else {
+              report.ok("no pending preview changes — published /export is the current production state.");
+            }
           }
         }
       } catch (e) {
@@ -119,6 +134,14 @@ export async function runPlan({
           }
         } else {
           report.err(`cannot read Zaraz config: ${e.message}`);
+        }
+        // The published /export (or workflow/draft) could not be read — the
+        // production plan is not available. Never fall through to "No human
+        // gates required" just because the error text lacks auth|permission.
+        if (config === null) {
+          report.err("the published Zaraz config could not be read — production readiness is unknown.");
+          report.printGate("CLOUDFLARE_AUTH", "Reading the published Zaraz config requires Zone:Zaraz Read.");
+          gatesHit.push("CLOUDFLARE_AUTH");
         }
       }
     } else if (cfZone) {
@@ -136,9 +159,20 @@ export async function runPlan({
     gatesHit.push("GOOGLE_OAUTH");
   } else {
     try {
-      const discovered = await discoverGa4({ token: googleToken });
+      const discovered = await discoverGa4({ token: googleToken, measurementId: measurementIdFlag });
       if (!discovered.property) {
-        if (discovered.candidates.length === 0) {
+        if (measurementIdFlag && discovered.candidates.length === 1 && discovered.candidates[0].stream?.webStreamData?.measurementId !== measurementIdFlag) {
+          // Bind --measurement-id to the discovered jabiko.app production stream
+          // (matching apply/smoke). A mismatch must not combine Zaraz target A
+          // with GA4 property B, so surface a blocking gate.
+          report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${discovered.candidates[0].stream?.webStreamData?.measurementId}); refusing to plan against mismatched targets.`);
+          report.printGate(
+            "GA4_MEASUREMENT_ID_MISMATCH",
+            "Pass the correct --measurement-id (the jabiko.app production stream's Measurement ID) or drop the flag to use discovery."
+          );
+          gatesHit.push("GA4_MEASUREMENT_ID_MISMATCH");
+          effectiveMeasurementId = null;
+        } else if (discovered.candidates.length === 0) {
           report.warn("No plausible Jabiko GA4 property found. Create one or pass --measurement-id.");
         } else {
           report.warn(`${discovered.candidates.length} plausible GA4 properties found — ambiguous.`);
@@ -155,25 +189,12 @@ export async function runPlan({
         } else {
           report.warn("property has no web data stream with a Measurement ID.");
         }
-        if (measurementIdFlag && measurementIdFlag !== discovered.measurementId) {
-          // Bind --measurement-id to the discovered jabiko.app production stream
-          // (matching apply/smoke). A mismatch must not combine Zaraz target A
-          // with GA4 property B, so surface a blocking gate and skip the diff.
-          report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${discovered.measurementId}); refusing to plan against mismatched targets.`);
-          report.printGate(
-            "GA4_MEASUREMENT_ID_MISMATCH",
-            "Pass the correct --measurement-id (the jabiko.app production stream's Measurement ID) or drop the flag to use discovery."
-          );
-          gatesHit.push("GA4_MEASUREMENT_ID_MISMATCH");
-          effectiveMeasurementId = null;
-        } else {
-          effectiveMeasurementId = discovered.measurementId;
-          const dims = await listCustomDimensions({ token: googleToken, property: discovered.property.name });
-          dimDiff = ga4DesiredDiff(discovered.property.name, dims);
-          report.bullet(`custom dimensions: ${dimDiff.missing.length} missing, ${dimDiff.present.length} present, ${dimDiff.conflicts.length} conflicting`);
-          for (const m of dimDiff.missing) report.bullet(`create ${m.parameterName} (${m.scope})`);
-          for (const c of dimDiff.conflicts) report.warn(`conflict: ${c.parameterName} exists as scope ${c.existingScope}, want ${c.desiredScope}`);
-        }
+        effectiveMeasurementId = discovered.measurementId;
+        const dims = await listCustomDimensions({ token: googleToken, property: discovered.property.name });
+        dimDiff = ga4DesiredDiff(discovered.property.name, dims);
+        report.bullet(`custom dimensions: ${dimDiff.missing.length} missing, ${dimDiff.present.length} present, ${dimDiff.conflicts.length} conflicting`);
+        for (const m of dimDiff.missing) report.bullet(`create ${m.parameterName} (${m.scope})`);
+        for (const c of dimDiff.conflicts) report.warn(`conflict: ${c.parameterName} exists as scope ${c.existingScope}, want ${c.desiredScope}`);
       }
     } catch (e) {
       report.err(`GA4 discovery failed: ${e.message}`);
