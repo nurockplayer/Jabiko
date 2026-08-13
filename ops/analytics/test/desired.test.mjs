@@ -438,6 +438,23 @@ test("triggerFiresOnCustomEvent rejects a trigger whose exclude rules suppress t
   assert.ok(triggerFiresOnCustomEvent(unrelated, "promo_click"), "an exclude rule for another event does not suppress this one");
 });
 
+test("triggerFiresOnCustomEvent requires EXACTLY one load rule for the target event", () => {
+  // A trigger with the correct rule PLUS an extra rule is over-constrained or
+  // over-broad and must not be treated as an exact event trigger.
+  const extraRule = {
+    loadRules: [
+      { id: "r1", match: "custom_event_name", op: "Eq", value: "promo_click" },
+      { id: "r2", match: "custom_event_name", op: "Eq", value: "page_view" }
+    ],
+    excludeRules: []
+  };
+  assert.ok(!triggerFiresOnCustomEvent(extraRule, "promo_click"), "extra load rules make the trigger non-converged");
+
+  // Zero rules is also not exact.
+  const empty = { loadRules: [], excludeRules: [] };
+  assert.ok(!triggerFiresOnCustomEvent(empty, "promo_click"));
+});
+
 test("a trigger that suppresses the target event yields TRIGGER_MISSING in the diff", () => {
   const cfg = convergedConfig();
   cfg.triggers["trg-promo-click"].excludeRules = [

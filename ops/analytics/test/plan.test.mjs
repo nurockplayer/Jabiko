@@ -174,3 +174,18 @@ test("plan rejects a --measurement-id that does not match the discovered product
   assert.ok(result.gatesHit.includes("GA4_MEASUREMENT_ID_MISMATCH"), "a mismatched --measurement-id gates the plan");
   assert.equal(result.effectiveMeasurementId, null, "no diff is computed against mismatched targets");
 });
+
+test("plan blocks readiness when the workflow value is unknown", async () => {
+  const { impl } = fakeFetch(makeRouter({ workflow: "weird" }));
+  const prev = globalThis.fetch;
+  globalThis.fetch = impl;
+  let result;
+  try {
+    result = await withQuietLogs(() =>
+      runPlan({ env: { CLOUDFLARE_API_TOKEN: "tok", GA4_ACCESS_TOKEN: "gtok" }, repoRoot: process.cwd() })
+    );
+  } finally {
+    globalThis.fetch = prev;
+  }
+  assert.ok(result.gatesHit.includes("CLOUDFLARE_WORKFLOW_UNKNOWN"), "an unknown workflow must block plan readiness");
+});

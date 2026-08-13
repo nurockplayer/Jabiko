@@ -2,7 +2,6 @@
 
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { plausibleProductionProperties } from "../desired.mjs";
 import { listAccounts, listProperties, listDataStreams } from "../ga4.mjs";
 
 /** Minimal `--flag value` / `--flag` / `--flag=value` parser. */
@@ -47,8 +46,14 @@ function isJabikoProductionHost(uri) {
 
 /**
  * Discover the Jabiko GA4 production property and its web-stream Measurement ID.
- * Returns { property, candidates, measurementId } — property is null when
- * discovery is ambiguous or empty.
+ *
+ * The production property is NOT prefiltered by displayName or a property URL:
+ * generic names like "Production" must work. Every visible property's data
+ * streams are inspected and the production property is the one with a unique
+ * WEB_DATA_STREAM whose defaultUri hostname is jabiko.app (or www.jabiko.app).
+ * Multiple matching properties/streams fail closed (property is null).
+ *
+ * Returns { property, candidates, measurementId }.
  */
 export async function discoverGa4({ token }) {
   const accounts = await listAccounts({ token });
@@ -56,23 +61,21 @@ export async function discoverGa4({ token }) {
   for (const acc of accounts) {
     const props = await listProperties({ token, account: acc.name });
     for (const p of props) {
-      if (plausibleProductionProperties([p]).length) {
-        candidates.push({ account: acc.name, ...p });
-      }
+      const streams = await listDataStreams({ token, property: p.name });
+      const web = selectProductionWebStream(streams);
+      if (web) candidates.push({ account: acc.name, ...p, stream: web });
     }
   }
   if (candidates.length !== 1) {
     return { property: null, candidates, measurementId: null };
   }
   const property = candidates[0];
-  const streams = await listDataStreams({ token, property: property.name });
-  const web = selectProductionWebStream(streams);
   return {
     property,
     candidates,
     // GA4 Admin v1beta DataStream: the web Measurement ID lives under
     // webStreamData.measurementId (there is no top-level measurementId).
-    measurementId: web?.webStreamData?.measurementId ?? null
+    measurementId: property.stream?.webStreamData?.measurementId ?? null
   };
 }
 

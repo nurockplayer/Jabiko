@@ -251,10 +251,20 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
           if (attempt === 0 && isConflict) {
             report.warn(`PUT conflicted (${error.message}) — re-reading published /export and retrying once.`);
             const fresh = await cfRequest({ token: cfAuth.token, path: zarazExportUrl(zone.id) });
-            desired = buildZarazDesiredConfig(fresh, {
+            const rebuilt = buildZarazDesiredConfig(fresh, {
               measurementId,
               removeForbidden: yesRemoveGtag
-            }).config;
+            });
+            // The other operator's fresh state may have introduced a blocker
+            // (duplicate GA4 tool, tool-level blocking, second analytics
+            // client). Inspect the rebuild findings BEFORE the retry PUT.
+            const blocker = rebuilt.findings.find((f) => f.severity === "blocking");
+            if (blocker) {
+              report.err(`the re-read published /export introduced a blocker (${blocker.code}): ${blocker.message ?? ""}`);
+              report.err("fail closed: refusing to retry the PUT against a state with blocking findings.");
+              return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+            }
+            desired = rebuilt.config;
           } else {
             report.err(`PUT failed: ${error.message}`);
             return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };

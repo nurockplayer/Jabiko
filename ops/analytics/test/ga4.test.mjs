@@ -196,6 +196,78 @@ test("discoverGa4 finds the production web stream on page 2 of dataStreams", asy
   assert.equal(discovered.measurementId, "G-PROD", "the production stream on page 2 is discovered");
 });
 
+test("discoverGa4 finds the production property by its web stream URI even with a generic displayName", async () => {
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    if (u.endsWith("/v1beta/accounts")) {
+      return { ok: true, status: 200, json: async () => ({ accounts: [{ name: "accounts/1" }] }) };
+    }
+    if (u.includes("/v1beta/properties?filter=")) {
+      // Generic property name with NO displayName/url signal.
+      return { ok: true, status: 200, json: async () => ({ properties: [{ name: "properties/2", displayName: "Production" }] }) };
+    }
+    if (u.includes("/v1beta/properties/2/dataStreams")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          dataStreams: [{ name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-PROD", defaultUri: "https://jabiko.app" } }]
+        })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({ error: { message: `unexpected ${u}` } }) };
+  };
+  let discovered;
+  try {
+    discovered = await discoverGa4({ token: "t" });
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.equal(discovered.measurementId, "G-PROD", "a generic property whose web stream points at jabiko.app is the production property");
+  assert.equal(discovered.property.displayName, "Production");
+});
+
+test("discoverGa4 fails closed when multiple properties have jabiko.app production streams", async () => {
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    if (u.endsWith("/v1beta/accounts")) {
+      return { ok: true, status: 200, json: async () => ({ accounts: [{ name: "accounts/1" }] }) };
+    }
+    if (u.includes("/v1beta/properties?filter=")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          properties: [
+            { name: "properties/2", displayName: "Jabiko A" },
+            { name: "properties/3", displayName: "Jabiko B" }
+          ]
+        })
+      };
+    }
+    if (u.includes("/dataStreams")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          dataStreams: [{ name: "x", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-X", defaultUri: "https://jabiko.app" } }]
+        })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({ error: { message: `unexpected ${u}` } }) };
+  };
+  let discovered;
+  try {
+    discovered = await discoverGa4({ token: "t" });
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.equal(discovered.property, null, "two production properties is ambiguous — fail closed");
+  assert.equal(discovered.candidates.length, 2);
+});
+
 test("discoverGa4 uses v1beta contract and webStreamData.measurementId", async () => {
   const seen = [];
   const previous = globalThis.fetch;

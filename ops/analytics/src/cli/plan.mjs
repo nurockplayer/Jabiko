@@ -74,9 +74,19 @@ export async function runPlan({
     if (cfAuth.capabilities.includes("zarazRead") && cfZone) {
       try {
         // Workflow is required to know whether /config may hold unpublished
-        // preview state.
+        // preview state. Any value other than realtime|preview blocks plan
+        // readiness (never reported as "No human gates required").
         const wf = await cfRequest({ token: cfAuth.token, path: zarazWorkflowUrl(cfZone.id) });
-        if (wf === "realtime" || wf === "preview") workflow = wf;
+        if (wf === "realtime" || wf === "preview") {
+          workflow = wf;
+        } else {
+          report.err(`unexpected Zaraz workflow ${JSON.stringify(wf)} — cannot determine production semantics.`);
+          report.printGate(
+            "CLOUDFLARE_WORKFLOW_UNKNOWN",
+            "Confirm the Zaraz workflow is Real-time or Preview & Publish in the dashboard."
+          );
+          gatesHit.push("CLOUDFLARE_WORKFLOW_UNKNOWN");
+        }
         report.bullet(`workflow=${workflow ?? "unknown"}`);
 
         // The production plan is based on the PUBLISHED /export, never an

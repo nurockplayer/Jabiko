@@ -72,12 +72,14 @@ function makeFetch({
   workflowFails = false,
   publishFails = false,
   putConflict = false,
+  conflictFreshBlocker = false,
   dataStreamMeasurementId = "G-TEST",
   draftConfig = exportConfig()
 } = {}) {
   const calls = [];
   let putApplied = false;
   let published = false;
+  let exportReads = 0;
 
   const impl = async (url, options = {}) => {
     const method = options.method || "GET";
@@ -99,7 +101,15 @@ function makeFetch({
         return respond(200, { success: true, result: workflow });
       }
       if (u.includes("/settings/zaraz/export")) {
+        exportReads += 1;
         if (exportFails) return respond(403, { success: false, errors: [{ code: 10000, message: "Authentication error" }] });
+        if (conflictFreshBlocker && exportReads >= 2) {
+          // The fresh published export (after a PUT conflict) now carries a
+          // tool-level blocker — the retry must fail closed.
+          const blocker = convergedConfig();
+          blocker.tools.ga4.blockingTriggers = ["trg-something"];
+          return respond(200, { success: true, result: blocker });
+        }
         const liveAfterMutation = workflow === "realtime" ? putApplied : published;
         const result = liveAfterMutation && !postApplyUnconverged ? convergedConfig() : exportConfig();
         return respond(200, { success: true, result });
@@ -264,6 +274,16 @@ test("apply succeeds when --measurement-id matches the discovered production str
   const { impl } = makeFetch({ dataStreamMeasurementId: "G-TEST" });
   const result = await withFetch(impl, () => runApply(BASE_ARGS));
   assert.equal(result.exitCode, 0, "a matching measurement-id proceeds");
+});
+
+test("realtime conflict rebuild fails closed when the fresh export introduces a blocker", async () => {
+  // The first PUT conflicts; the re-read published /export now has a tool-level
+  // blocker. apply must inspect the rebuild findings and stop BEFORE a second PUT.
+  const { calls, impl } = makeFetch({ workflow: "realtime", putConflict: true, conflictFreshBlocker: true });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.notEqual(result.exitCode, 0, "a blocker in the rebuilt state must fail closed");
+  const puts = calls.filter((c) => c.method === "PUT" && c.url.includes("/settings/zaraz/config"));
+  assert.equal(puts.length, 1, "no second PUT is issued when the rebuild introduces a blocker");
 });
 
 test("preview workflow with pending unpublished changes fails closed before any PUT", async () => {

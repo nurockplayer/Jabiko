@@ -22,6 +22,7 @@ export const ALLOWED_GATES = [
   "CLOUDFLARE_AUTH",
   "CLOUDFLARE_PUBLISH",
   "CLOUDFLARE_PREVIEW_PENDING",
+  "CLOUDFLARE_WORKFLOW_UNKNOWN",
   "GOOGLE_OAUTH",
   "GA4_PROPERTY_AMBIGUITY",
   "GA4_MEASUREMENT_ID_MISMATCH",
@@ -49,6 +50,12 @@ export const GATE_DEFS = {
     scope:
       "Zaraz History read. The operator decides whether the pending preview is intended; the script will not overwrite or publish over it.",
     unlocks: "A clean preview state so apply can safely write and publish only its own change without clobbering someone else's unpublished work."
+  },
+  CLOUDFLARE_WORKFLOW_UNKNOWN: {
+    action:
+      "Confirm the Zaraz workflow setting in the Cloudflare Zaraz dashboard — it must be Real-time or Preview & Publish.",
+    scope: "Zaraz Settings read. The workflow API returned a value other than realtime/preview.",
+    unlocks: "A production-readiness conclusion that never assumes an unknown workflow is safe."
   },
   GOOGLE_OAUTH: {
     action:

@@ -73,13 +73,15 @@ export function analyzeZaraz(config = {}) {
 /** True when a trigger fires on a `zaraz.track(eventName, ...)` custom event. */
 export function triggerFiresOnCustomEvent(trigger, eventName) {
   if (!trigger) return false;
-  const loadMatch = (trigger.loadRules ?? []).some(
-    (r) =>
-      r?.match === CUSTOM_EVENT_MATCH &&
-      r?.op === OP_EQ &&
-      String(r.value) === eventName
-  );
-  if (!loadMatch) return false;
+  // The trigger must be EXACTLY `custom_event_name Eq <event>`: exactly one load
+  // rule, correct match field, Eq operator, and target value. Extra load rules
+  // (over-constrained or over-broad) never count as the exact event trigger.
+  const rules = trigger.loadRules ?? [];
+  if (rules.length !== 1) return false;
+  const rule = rules[0];
+  if (rule?.match !== CUSTOM_EVENT_MATCH || rule?.op !== OP_EQ || String(rule.value) !== eventName) {
+    return false;
+  }
   // A trigger that excludes the target event must not be treated as valid —
   // the action would never actually fire.
   const excluded = (trigger.excludeRules ?? []).some(
