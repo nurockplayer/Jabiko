@@ -7,13 +7,12 @@ import tseslint from "typescript-eslint";
 // ESLint 9 flat config (#663). Baseline scope: repo-wide lint gate that must
 // stay behaviour-neutral on the existing codebase.
 //
-// react-hooks: v7's `flat.recommended` ships the React Compiler rule set
-// (refs, set-state-in-effect, purity, immutability, ...) whose reports would
-// force restructuring deliberately-designed render-phase refs / effect
-// setState in the current code. Those rules are deliberately NOT enabled here
-// (tracked in a follow-up issue); we enable the classic rules-of-hooks +
-// exhaustive-deps only. exhaustive-deps is "error" so lint cannot pass with
-// stale deps silently degrading a drill/review hook.
+// react-hooks: the full `flat.recommended` preset from the installed
+// eslint-plugin-react-hooks v7 is enabled (rules-of-hooks, exhaustive-deps,
+// refs, set-state-in-effect, purity, immutability,
+// preserve-manual-memoization, static-components, ...). The only deviation is
+// exhaustive-deps upgraded from the preset's "warn" to "error" (#687), so lint
+// cannot pass with stale deps silently degrading a drill/review hook.
 export default tseslint.config(
   {
     ignores: [
@@ -47,11 +46,11 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     files: ["**/*.{ts,tsx}"],
-    plugins: {
-      "react-hooks": reactHooks
-    },
+    ...reactHooks.configs.flat.recommended,
     rules: {
-      "react-hooks/rules-of-hooks": "error",
+      ...reactHooks.configs.flat.recommended.rules,
+      // flat.recommended ships exhaustive-deps as "warn"; #687 contract keeps
+      // it at "error" (allowed severity upgrade, not a downgrade).
       "react-hooks/exhaustive-deps": "error"
     }
   },
