@@ -478,6 +478,89 @@ test("triggerFiresOnCustomEvent requires EXACTLY one load rule for the target ev
   assert.ok(!triggerFiresOnCustomEvent(empty, "promo_click"));
 });
 
+test("triggerFiresOnCustomEvent rejects a trigger with system pageload semantics", () => {
+  // A trigger that also carries system: "pageload" fires on page load, so it is
+  // not a pure managed custom-event trigger — every load could emit a false
+  // promo_click. It must not be treated as the exact event trigger.
+  const pageload = {
+    name: "pageload",
+    system: "pageload",
+    loadRules: [{ id: "r", match: "custom_event_name", op: "Eq", value: "promo_click" }],
+    excludeRules: []
+  };
+  assert.ok(!triggerFiresOnCustomEvent(pageload, "promo_click"), "system semantics make the trigger invalid");
+  // Any system semantics (not just pageload) is rejected — the guard is generic.
+  assert.ok(!triggerFiresOnCustomEvent({ ...pageload, system: "click" }, "promo_click"), "system semantics (click) is rejected");
+  assert.ok(!triggerFiresOnCustomEvent({ ...pageload, system: "timer" }, "promo_click"), "system semantics (timer) is rejected");
+});
+
+test("a trigger with system pageload semantics yields TRIGGER_MISSING in the diff and the builder creates a safe trigger", () => {
+  const cfg = convergedConfig();
+  cfg.triggers["trg-promo-click"].system = "pageload";
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  assert.ok(findings.some((f) => f.code === "TRIGGER_MISSING" && f.event === "promo_click"));
+
+  const { config, mutations } = buildZarazDesiredConfig(cfg, { measurementId: MEASUREMENT_ID });
+  // The build must actually remove the miswired action, create a clean managed
+  // trigger and rewire the promo_click action to it — not merely leave any
+  // trigger whose rule happens to mention promo_click.
+  const promoActions = Object.values(config.tools.ga4.actions).filter(
+    (a) => a.actionType === "track" && a.data?.en === "promo_click"
+  );
+  assert.equal(promoActions.length, 1, "exactly one promo_click action remains");
+  assert.ok(
+    (promoActions[0].firingTriggers ?? []).every(
+      (tid) => triggerFiresOnCustomEvent(config.triggers[tid], "promo_click")
+    ),
+    "every wired trigger is a clean managed trigger (no system semantics)"
+  );
+  assert.ok(
+    Object.values(config.tools.ga4.actions).every(
+      (a) => !(a.firingTriggers ?? []).includes("trg-promo-click")
+    ),
+    "no action fires on the system-tainted trigger"
+  );
+  assert.ok(mutations.some((m) => m.code === "TRIGGER_ADDED" && m.event === "promo_click"));
+
+  // The tainted system trigger is not part of the managed state: no blocking
+  // finding remains, and the stale ghost is surfaced as a warning so an
+  // operator sees it instead of silently invisible state.
+  const post = zarazDesiredDiff(config, MEASUREMENT_ID);
+  assert.ok(!post.some((f) => f.severity === "blocking"), "built config has no blocking findings");
+  assert.ok(
+    post.some((f) => f.code === "TRIGGER_SYSTEM_SEMANTICS"),
+    "built config still surfaces the tainted ghost trigger as a warning"
+  );
+});
+
+test("a system-tainted exact-match trigger surfaces a warning even when a clean trigger also exists", () => {
+  const cfg = convergedConfig();
+  cfg.triggers["trg-promo-click"].system = "pageload"; // tainted ghost
+  cfg.triggers["trg-promo-click-clean"] = {
+    name: "promo_click",
+    loadRules: [{ id: "rc", match: "custom_event_name", op: "Eq", value: "promo_click" }],
+    excludeRules: []
+  };
+  cfg.tools.ga4.actions["act-promo-click"].firingTriggers = ["trg-promo-click-clean"];
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  assert.ok(
+    findings.some((f) => f.code === "TRIGGER_SYSTEM_SEMANTICS" && f.event === "promo_click"),
+    "the tainted trigger is surfaced as a warning"
+  );
+  assert.ok(
+    !findings.some((f) => f.code === "TRIGGER_MISSING" && f.event === "promo_click"),
+    "the clean trigger still satisfies the managed event"
+  );
+});
+
+test("a normal exact custom-event trigger remains valid", () => {
+  const ok = {
+    loadRules: [{ id: "r", match: "custom_event_name", op: "Eq", value: "promo_click" }],
+    excludeRules: []
+  };
+  assert.ok(triggerFiresOnCustomEvent(ok, "promo_click"));
+});
+
 test("a trigger that suppresses the target event yields TRIGGER_MISSING in the diff", () => {
   const cfg = convergedConfig();
   cfg.triggers["trg-promo-click"].excludeRules = [

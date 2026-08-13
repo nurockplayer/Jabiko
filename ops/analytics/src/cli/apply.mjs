@@ -57,6 +57,7 @@ async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
   const dims = await listCustomDimensions({ token: googleToken, property });
   const diff = ga4DesiredDiff(property, dims);
   const failures = [];
+  let wouldCreate = 0;
   for (const conflict of diff.conflicts) {
     report.err(`conflict: ${conflict.parameterName} exists with scope ${conflict.existingScope} (want ${conflict.desiredScope}) — not fixable automatically.`);
     failures.push({
@@ -67,6 +68,7 @@ async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
   }
   for (const dim of diff.missing) {
     if (dryRun) {
+      wouldCreate += 1;
       report.bullet(`would create custom dimension ${dim.parameterName}`);
       continue;
     }
@@ -79,7 +81,11 @@ async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
     }
   }
   if (failures.length === 0) {
-    report.ok("all desired GA4 custom dimensions present with EVENT scope.");
+    report.ok(
+      dryRun && wouldCreate > 0
+        ? `dry-run: ${wouldCreate} missing custom dimension(s) would be created on apply.`
+        : "all desired GA4 custom dimensions present with EVENT scope."
+    );
   }
   return { failures };
 }
@@ -234,6 +240,33 @@ export async function runApply({ env = process.env, flags = {}, stateDir = STATE
     return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
   }
 
+  // Reconcile the required GA4 custom dimensions BEFORE any Zaraz mutation. A
+  // known scope conflict, an unreadable dimension list, or a failure to create
+  // a missing required dimension must stop apply before the Zaraz PUT/publish
+  // would partially enable event forwarding. Only after reconciliation succeeds
+  // may Zaraz mutation proceed. dry-run reports would-create only and performs
+  // zero GA4 mutation.
+  report.sub("GA4 custom dimensions");
+  report.ok(`property ${resolvedProperty.displayName} (${resolvedProperty.name})`);
+  let reconciled;
+  try {
+    reconciled = await reconcileGa4Dimensions({
+      googleToken,
+      property: resolvedProperty.name,
+      dryRun
+    });
+  } catch (error) {
+    report.err(`GA4 custom-dimension read failed before any Zaraz mutation: ${error.message}`);
+    report.err("fail closed: cannot prove the required dimensions exist; apply stops without enabling event forwarding.");
+    dimFailures = [{ queryFailure: true, message: error.message }];
+    return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+  }
+  dimFailures = reconciled.failures;
+  if (dimFailures.length) {
+    report.err("GA4 custom-dimension reconciliation failed before any Zaraz mutation — apply stops without enabling event forwarding.");
+    return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+  }
+
   const before = zarazDesiredDiff(current, measurementId);
   report.sub("Zaraz diff vs published desired state");
   report.printFindings(before);
@@ -384,18 +417,6 @@ export async function runApply({ env = process.env, flags = {}, stateDir = STATE
       }
     }
   }
-
-  report.sub("GA4 custom dimensions");
-  // Use the property already resolved and bound to the Measurement ID above, so
-  // Zaraz and GA4 custom dimensions always target the same property/stream.
-  report.ok(`property ${resolvedProperty.displayName} (${resolvedProperty.name})`);
-  const reconciled = await reconcileGa4Dimensions({
-    googleToken,
-    property: resolvedProperty.name,
-    dryRun
-  });
-  dimFailures = reconciled.failures;
-  if (dimFailures.length) failed = true;
 
   report.section("Apply summary");
   const exitCode = failed ? 1 : 0;

@@ -63,7 +63,9 @@ const NO_DIMS = [];
 function makeFetch({
   exportFails = false,
   dimsFails = false,
+  dimsListFails = false,
   dimsList = NO_DIMS,
+  initialExport = null,
   postApplyUnconverged = false,
   workflow = "realtime",
   workflowFails = false,
@@ -117,7 +119,7 @@ function makeFetch({
           return respond(200, { success: true, result: conflictFreshConfig });
         }
         const liveAfterMutation = workflow === "realtime" ? putApplied : published;
-        const result = liveAfterMutation && !postApplyUnconverged ? convergedConfig() : exportConfig();
+        const result = liveAfterMutation && !postApplyUnconverged ? convergedConfig() : (initialExport ?? exportConfig());
         return respond(200, { success: true, result });
       }
       if (u.includes("/settings/zaraz/config") && method === "PUT") {
@@ -171,6 +173,7 @@ function makeFetch({
           if (dimsFails) return respond(403, { error: { message: "PERMISSION_DENIED", code: 403 } });
           return respond(200, { name: "properties/2/customDimensions/4" });
         }
+        if (dimsListFails) return respond(403, { error: { message: "PERMISSION_DENIED", code: 403 } });
         return respond(200, { customDimensions: dimsList });
       }
       return respond(404, { error: { message: "unexpected" } });
@@ -387,6 +390,80 @@ test("persistZarazSnapshot writes 0600 secret-safe snapshot files", () => {
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test("a GA4 dimension scope conflict blocks Zaraz mutation entirely", async () => {
+  // A required dimension already exists with USER scope — apply must fail
+  // BEFORE any Zaraz PUT/publish.
+  const { calls, impl } = makeFetch({
+    dimsList: [
+      { parameterName: "promoId", name: "promoId", scope: "USER" },
+      { parameterName: "action", name: "action", scope: "EVENT" },
+      { parameterName: "placement", name: "placement", scope: "EVENT" },
+      { parameterName: "locale", name: "locale", scope: "EVENT" }
+    ]
+  });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.notEqual(result.exitCode, 0, "a scope conflict fails apply");
+  assert.ok(!calls.some((c) => c.method === "PUT" && c.url.includes("/settings/zaraz/config")), "no Zaraz PUT on a scope conflict");
+  assert.ok(!calls.some((c) => c.method === "POST" && c.url.includes("/settings/zaraz/publish")), "no Zaraz publish on a scope conflict");
+});
+
+test("a GA4 dimension creation failure blocks Zaraz mutation entirely", async () => {
+  const { calls, impl } = makeFetch({ dimsFails: true });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.notEqual(result.exitCode, 0, "a dimension creation failure fails apply");
+  assert.ok(!calls.some((c) => c.method === "PUT" && c.url.includes("/settings/zaraz/config")), "no Zaraz PUT when a required dimension cannot be created");
+});
+
+test("dry-run performs zero GA4 dimension creation and zero Zaraz mutation", async () => {
+  const { calls, impl } = makeFetch({ dimsList: NO_DIMS });
+  // dry-run never writes, so stateDir is never created — pass an ignored path.
+  const result = await withFetch(impl, () =>
+    runApply({ env: BASE_ARGS.env, flags: { ...BASE_ARGS.flags, dryRun: true }, stateDir: join(tmpdir(), "ops-dry-ignored") })
+  );
+  assert.equal(result.exitCode, 0, "dry-run succeeds without mutation");
+  assert.ok(!calls.some((c) => c.method === "POST" && c.url.includes("/customDimensions")), "dry-run never creates GA4 dimensions");
+  assert.ok(!calls.some((c) => c.method === "PUT" && c.url.includes("/settings/zaraz/config")), "dry-run never PUTs Zaraz");
+});
+
+test("a GA4 dimension query failure fails closed before any Zaraz mutation", async () => {
+  // listCustomDimensions throws (403) — apply must surface a controlled
+  // failure (exit 2) with zero Zaraz mutation instead of an unhandled crash.
+  const { calls, impl } = makeFetch({ dimsListFails: true });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.notEqual(result.exitCode, 0, "a GA4 query failure fails apply");
+  assert.ok(result.dimFailures.length > 0, "the query failure is recorded");
+  assert.ok(!calls.some((c) => c.method === "PUT" && c.url.includes("/settings/zaraz/config")), "no Zaraz PUT on a GA4 query failure");
+  assert.ok(!calls.some((c) => c.method === "POST" && c.url.includes("/settings/zaraz/publish")), "no Zaraz publish on a GA4 query failure");
+});
+
+test("apply still reconciles GA4 dimensions when the Zaraz config is already converged", async () => {
+  // Reconcile runs before the Zaraz diff, so missing dimensions are created
+  // even when the published Zaraz config is already converged (no PUT needed).
+  const { calls, impl } = makeFetch({ dimsList: NO_DIMS, initialExport: convergedConfig() });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.equal(result.exitCode, 0, "converged Zaraz + reconciled dims succeeds");
+  assert.ok(calls.some((c) => c.method === "POST" && c.url.includes("/customDimensions")), "converged Zaraz still creates missing dims");
+  assert.ok(!calls.some((c) => c.method === "PUT" && c.url.includes("/settings/zaraz/config")), "converged Zaraz is not PUT");
+});
+
+test("a GA4 dimension scope conflict blocks preview publish as well as realtime PUT", async () => {
+  // The publish path is where a post-mutation GA4 blocker would hurt most;
+  // reconciliation must also stop a preview workflow before any publish.
+  const { calls, impl } = makeFetch({
+    workflow: "preview",
+    dimsList: [
+      { parameterName: "promoId", name: "promoId", scope: "USER" },
+      { parameterName: "action", name: "action", scope: "EVENT" },
+      { parameterName: "placement", name: "placement", scope: "EVENT" },
+      { parameterName: "locale", name: "locale", scope: "EVENT" }
+    ]
+  });
+  const result = await withFetch(impl, () => runApply(BASE_ARGS));
+  assert.notEqual(result.exitCode, 0, "a scope conflict fails apply in preview workflow");
+  assert.ok(!calls.some((c) => c.method === "PUT" && c.url.includes("/settings/zaraz/config")), "no Zaraz PUT on a scope conflict in preview");
+  assert.ok(!calls.some((c) => c.method === "POST" && c.url.includes("/settings/zaraz/publish")), "no Zaraz publish on a scope conflict in preview");
 });
 
 test("non-conflict apply still snapshots the initial published export", async () => {

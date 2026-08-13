@@ -82,11 +82,34 @@ export function triggerFiresOnCustomEvent(trigger, eventName) {
   if (rule?.match !== CUSTOM_EVENT_MATCH || rule?.op !== OP_EQ || String(rule.value) !== eventName) {
     return false;
   }
+  // A managed trigger must have NO system semantics: a trigger with e.g.
+  // system: "pageload" fires on page load and could emit a false event on every
+  // load (isAutomaticPageviewAction treats system pageload the same way).
+  if (trigger.system) return false;
   // A managed trigger must forward the event unconditionally. ANY exclude rule
   // can suppress the target event in some context (regardless of the field it
   // matches), so a non-empty excludeRules is never converged.
   if ((trigger.excludeRules ?? []).length > 0) return false;
   return true;
+}
+
+/**
+ * True when a trigger would be the exact managed trigger for `eventName`
+ * except it also carries system semantics (e.g. system: "pageload"), so it can
+ * fire on page load. Such a trigger is never part of the managed state, but the
+ * diff surfaces it so an operator can see the stale system trigger instead of a
+ * silently invisible ghost.
+ */
+function systemSemanticsConflictingWith(trigger, eventName) {
+  if (!trigger || !trigger.system) return false;
+  const rules = trigger.loadRules ?? [];
+  if (rules.length !== 1) return false;
+  const rule = rules[0];
+  return (
+    rule?.match === CUSTOM_EVENT_MATCH &&
+    rule?.op === OP_EQ &&
+    String(rule.value) === eventName
+  );
 }
 
 function isAutomaticPageviewAction(config, action) {
@@ -259,6 +282,18 @@ export function zarazDesiredDiff(config, measurementId) {
     }
   }
   for (const ev of FORWARDED_EVENTS) {
+    if (
+      Object.values(config.triggers ?? {}).some((tr) =>
+        systemSemanticsConflictingWith(tr, ev)
+      )
+    ) {
+      findings.push({
+        severity: "warning",
+        code: "TRIGGER_SYSTEM_SEMANTICS",
+        event: ev,
+        message: `A trigger matches ${ev} but also carries system semantics (e.g. pageload) and can fire on page load; it is not part of the managed state. Remove or reconfigure it.`
+      });
+    }
     if (
       !Object.values(config.triggers ?? {}).some((tr) =>
         triggerFiresOnCustomEvent(tr, ev)
