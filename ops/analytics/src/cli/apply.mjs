@@ -31,14 +31,12 @@ async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
   const dims = await listCustomDimensions({ token: googleToken, property });
   const diff = ga4DesiredDiff(property, dims);
   const failures = [];
-  if (diff.conflicts.length) {
-    for (const c of diff.conflicts) {
-      report.warn(`skip ${c.parameterName}: exists as scope ${c.existingScope} (want ${c.desiredScope})`);
-    }
-  }
-  if (diff.missing.length === 0) {
-    report.ok("all desired GA4 custom dimensions already present.");
-    return { failures };
+  // A required parameter that already exists with a non-EVENT scope is a
+  // conflict — the desired state is incomplete and cannot be fixed by creation,
+  // so it must not be reported as success.
+  for (const c of diff.conflicts) {
+    report.err(`conflict: ${c.parameterName} exists with scope ${c.existingScope} (want ${c.desiredScope}) — not fixable automatically.`);
+    failures.push({ parameterName: c.parameterName, conflict: true, existingScope: c.existingScope });
   }
   for (const dim of diff.missing) {
     if (dryRun) {
@@ -52,6 +50,9 @@ async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
       report.err(`failed to create ${dim.parameterName}: ${e.message}`);
       failures.push({ parameterName: dim.parameterName, message: e.message });
     }
+  }
+  if (failures.length === 0) {
+    report.ok("all desired GA4 custom dimensions present with EVENT scope.");
   }
   return { failures };
 }
@@ -217,25 +218,34 @@ export async function runApply({
         report.ok("zone is in realtime workflow — changes are live.");
       }
 
-      // Verify.
+      // Verify the PUT actually converged the config.
       const after = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(zone.id) });
       const remaining = zarazDesiredDiff(after, measurementId);
       report.sub("Zaraz verification");
       report.printFindings(remaining);
+      if (remaining.some((f) => f.severity === "blocking")) {
+        report.err("Zaraz config is still not converged after apply.");
+        failed = true;
+      }
     }
   }
 
   // 6. GA4 custom dimensions — reconciled unconditionally (independent state).
+  //    The desired state is only complete when all four required dimensions
+  //    exist with EVENT scope; any gate/ambiguity/conflict here is a failure.
   report.sub("GA4 custom dimensions");
   const googleToken = await googleTokenFromEnv(env);
   if (!googleToken) {
     report.printGate("GOOGLE_OAUTH");
-    report.warn("Zaraz part done. Custom dimensions need Google access — re-run apply after configuring Google credentials.");
+    report.warn("Custom dimensions need Google access — desired state incomplete.");
+    failed = true;
   } else {
     try {
       const d = await discoverGa4({ token: googleToken });
       if (!d.property) {
-        report.warn("no unique Jabiko GA4 property; custom dimensions not applied.");
+        report.warn("no unique Jabiko GA4 property — custom dimensions not applied.");
+        if (d.candidates.length > 1) report.printGate("GA4_PROPERTY_AMBIGUITY");
+        failed = true;
       } else {
         report.ok(`property ${d.property.displayName} (${d.property.name})`);
         const res = await reconcileGa4Dimensions({ googleToken, property: d.property.name, dryRun });
