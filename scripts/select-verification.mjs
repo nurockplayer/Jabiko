@@ -68,8 +68,11 @@ const PRODUCTION_CATEGORIES = new Set([...L1_PRODUCTION_CATEGORIES, ...L2_PRODUC
 // need a co-located test or an explicit EXTRA_TESTS mapping, else they
 // escalate to L3. Small, explicit, auditable (not a dependency graph).
 const L2_GATE_NOT_COVERED = {
-  "exam-content": ["src/domain/cloze"], // cloze drill logic, not the exam bank
-  "furigana-reading": ["src/domain/readingLookup.ts"] // no test imports it
+  "exam-content": [
+    "src/domain/cloze", // cloze drill logic, not the exam bank
+    "src/domain/sentencePatterns.ts" // builder/pool logic, not exercised by contentGuard
+  ],
+  "furigana-reading": ["src/domain/readingLookup.ts"] // no co-located test; gate does not exercise it
 };
 
 /** Full L3 plan used when changed paths cannot be determined (base diff failed). */
@@ -192,13 +195,13 @@ const RULES = [
   {
     id: "article-content",
     level: "L2",
+    // Blog/articles were retired (#760-era main); only the sitemap/prerender
+    // surfaces remain, gated by sitemap.test.ts.
     match: (p) =>
-      p.startsWith("src/domain/articles") ||
-      p.startsWith("src/domain/articleBodies/") ||
       p.startsWith("src/domain/prerender/") ||
       p === "public/sitemap.xml",
     commands: [],
-    tests: ["src/domain/sitemap.test.ts", "src/domain/articles.test.ts"],
+    tests: ["src/domain/sitemap.test.ts"],
     regenerate: ["build:sitemap"]
   },
 
@@ -223,9 +226,17 @@ export const DEFAULT_EXTRA_TESTS = {
     "src/domain/grammarIndex.test.ts",
     "src/domain/sitemap.test.ts"
   ],
-  "src/domain/grammarIndex.ts": ["src/domain/sitemap.test.ts"],
-  "src/domain/practice.ts": ["src/domain/practiceMode.test.ts"],
-  "src/domain/sessionPools.ts": ["src/domain/practice.test.ts"],
+  // practice.ts's pool builder is exercised by sessionPools.test.ts (its own
+  // practice.test.ts sibling covers the unit surface; practiceMode.test.ts does
+  // NOT import practice).
+  "src/domain/practice.ts": ["src/domain/sessionPools.test.ts"],
+  // sentencePatterns.ts carries builder/pool logic (buildSentencePatternPool /
+  // patternIds) that the generic exam gate (contentGuard/contentStats) does not
+  // exercise — starterPatterns and sessionPools tests call it directly.
+  "src/domain/sentencePatterns.ts": [
+    "src/domain/starterPatterns.test.ts",
+    "src/domain/sessionPools.test.ts"
+  ],
   // cloze drill logic is not part of the exam bank, so the exam-content gate
   // (contentGuard/contentStats) does not exercise it — its real covering tests
   // are the practice/session-pool suites.

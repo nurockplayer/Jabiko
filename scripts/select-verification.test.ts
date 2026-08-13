@@ -48,7 +48,7 @@ describe("classifyPath", () => {
     expect(classifyPath("src/domain/exam/items/n1.ts")).toBe("exam-content");
     expect(classifyPath("src/locales/en.ts")).toBe("i18n-locale");
     expect(classifyPath("src/domain/furiganaData.ts")).toBe("furigana-reading");
-    expect(classifyPath("src/domain/articlesMeta.ts")).toBe("article-content");
+    expect(classifyPath("public/sitemap.xml")).toBe("article-content");
     expect(classifyPath("package.json")).toBe("global-config");
     expect(classifyPath("src/App.tsx")).toBe("root-routing");
     expect(classifyPath("src/i18n.ts")).toBe("language-contract");
@@ -110,7 +110,7 @@ describe("selectVerification — levels", () => {
   });
 
   it("article/content change -> L2 with sitemap drift guard + regenerate", () => {
-    const plan = sel(["src/domain/articlesMeta.ts"]);
+    const plan = sel(["src/domain/prerender/staticPages.ts"]);
     expect(plan.level).toBe("L2");
     expect(plan.tests).toContain("src/domain/sitemap.test.ts");
     expect(plan.regenerate).toContain("build:sitemap");
@@ -289,5 +289,30 @@ describe("selectVerification — rename + L2 fail-safe (#762 re-review)", () => 
   it("readingLookup.ts (no test, not gate-covered) escalates to L3", () => {
     const plan = selectVerification(["src/domain/readingLookup.ts"], { exists: () => false });
     expect(plan.level).toBe("L3");
+  });
+});
+
+describe("selectVerification — mapping audit corrections", () => {
+  it("sentencePatterns.ts (builder logic) maps to starterPatterns + sessionPools", () => {
+    const exists = (p: string) =>
+      ["src/domain/starterPatterns.test.ts", "src/domain/sessionPools.test.ts"].includes(p);
+    const plan = selectVerification(["src/domain/sentencePatterns.ts"], { exists });
+    expect(plan.level).toBe("L2");
+    expect(plan.tests).toContain("src/domain/starterPatterns.test.ts");
+    expect(plan.tests).toContain("src/domain/sessionPools.test.ts");
+  });
+
+  it("sentencePatterns.ts escalates to L3 when its builder tests are absent (not gate-covered)", () => {
+    const plan = selectVerification(["src/domain/sentencePatterns.ts"], { exists: () => false });
+    expect(plan.level).toBe("L3");
+  });
+
+  it("practice.ts maps to sessionPools.test.ts, not practiceMode.test.ts", () => {
+    const exists = (p: string) =>
+      ["src/domain/practice.test.ts", "src/domain/sessionPools.test.ts"].includes(p);
+    const plan = selectVerification(["src/domain/practice.ts"], { exists });
+    expect(plan.level).toBe("L1");
+    expect(plan.tests).toContain("src/domain/sessionPools.test.ts");
+    expect(plan.tests).not.toContain("src/domain/practiceMode.test.ts");
   });
 });
