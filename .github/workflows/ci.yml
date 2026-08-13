@@ -42,8 +42,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Invoke the test files directly (glob), not the directory. `node --test
+      # <dir>` resolves test/index.js as a directory entrypoint whose nested
+      # `node --test` hits a Node 22 test-runner IPC bug ("Unable to deserialize
+      # cloned data") that flakes the run. The glob runs each .test.mjs file
+      # directly and is reliable on the pinned Node 22.
       - name: Analytics contract tests
-        run: node --test ops/analytics/test/
+        run: node --test ops/analytics/test/*.test.mjs
 
       - name: Lint (eslint, zero warnings)
         run: pnpm lint
