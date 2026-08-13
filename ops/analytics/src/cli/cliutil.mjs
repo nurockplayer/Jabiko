@@ -36,10 +36,16 @@ export function parseFlags(argv, { booleans = [] } = {}) {
     const eq = a.indexOf("=");
     const name = eq === -1 ? a.slice(2) : a.slice(2, eq);
     if (boolSet.has(name)) {
-      if (eq === -1) {
-        out[name] = true;
-      } else {
+      if (eq !== -1) {
         out[name] = normalizeBooleanFlag(a.slice(eq + 1), `--${name}`);
+      } else if (i + 1 < argv.length && /^(true|false)$/.test(argv[i + 1])) {
+        // A space-separated true/false after a boolean flag is consumed and
+        // honored (`--yes-remove-gtag false` must mean false, never invert into
+        // true and silently delete a second analytics client).
+        out[name] = normalizeBooleanFlag(argv[i + 1], `--${name}`);
+        i += 1;
+      } else {
+        out[name] = true;
       }
     } else if (eq !== -1) {
       out[name] = a.slice(eq + 1);

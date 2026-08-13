@@ -25,11 +25,27 @@ test("--flag=true and --flag=false normalize for boolean flags", () => {
   );
 });
 
-test("a boolean flag with a trailing space-separated value does not invert safety", () => {
-  // `--dry-run false` is treated as bare true (the stray token is ignored),
-  // which is the safe default for a safety flag. It must never become false.
-  const out = parseFlags(["--dry-run", "false"], { booleans: ["dry-run"] });
-  assert.equal(out["dry-run"], true);
+test("a space-separated true/false after a boolean flag is consumed and honored", () => {
+  // `--dry-run false` / `--yes-remove-gtag false` must not invert into true:
+  // an explicit space-separated false is honored (never deletes a second
+  // analytics client / never becomes a real mutation).
+  assert.equal(parseFlags(["--dry-run", "false"], { booleans: ["dry-run"] })["dry-run"], false);
+  assert.equal(
+    parseFlags(["--yes-remove-gtag", "false"], { booleans: ["yes-remove-gtag"] })["yes-remove-gtag"],
+    false
+  );
+  assert.equal(
+    parseFlags(["--placement-action-verified", "true"], { booleans: ["placement-action-verified"] })["placement-action-verified"],
+    true
+  );
+});
+
+test("a boolean flag followed by a non-boolean token stays true (bare flag)", () => {
+  // `--dry-run G-1`: the next token is not true/false, so the boolean is a bare
+  // true and the stray token is ignored (the safe default).
+  assert.deepEqual(parseFlags(["--dry-run", "G-1"], { booleans: ["dry-run"] }), {
+    "dry-run": true
+  });
 });
 
 test("invalid boolean =value fails closed (throws) instead of guessing", () => {
