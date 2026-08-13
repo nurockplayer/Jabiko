@@ -40,10 +40,21 @@ test("a space-separated true/false after a boolean flag is consumed and honored"
   );
 });
 
-test("a boolean flag followed by a non-boolean token stays true (bare flag)", () => {
-  // `--dry-run G-1`: the next token is not true/false, so the boolean is a bare
-  // true and the stray token is ignored (the safe default).
-  assert.deepEqual(parseFlags(["--dry-run", "G-1"], { booleans: ["dry-run"] }), {
+test("a boolean flag followed by a non-boolean position token fails closed (rejects a typo)", () => {
+  // `--yes-remove-gtag flase` is a typo — it must NOT be treated as bare true
+  // (which would silently delete a second analytics client). Fail closed.
+  assert.throws(
+    () => parseFlags(["--yes-remove-gtag", "flase"], { booleans: ["yes-remove-gtag"] }),
+    /Invalid boolean value for --yes-remove-gtag/
+  );
+  assert.throws(
+    () => parseFlags(["--dry-run", "G-1"], { booleans: ["dry-run"] }),
+    /Invalid boolean value for --dry-run/
+  );
+});
+
+test("a bare boolean flag with no trailing token stays true", () => {
+  assert.deepEqual(parseFlags(["--dry-run"], { booleans: ["dry-run"] }), {
     "dry-run": true
   });
 });

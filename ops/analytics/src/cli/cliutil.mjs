@@ -44,6 +44,14 @@ export function parseFlags(argv, { booleans = [] } = {}) {
         // true and silently delete a second analytics client).
         out[name] = normalizeBooleanFlag(argv[i + 1], `--${name}`);
         i += 1;
+      } else if (i + 1 < argv.length && !argv[i + 1].startsWith("--")) {
+        // A non-boolean position token after a boolean flag is almost always a
+        // typo (`--yes-remove-gtag flase`). Treating it as bare true could
+        // destroy a second analytics client or mark an unverified gate as
+        // confirmed, so fail closed instead of guessing.
+        throw new Error(
+          `Invalid boolean value for --${name}: ${JSON.stringify(argv[i + 1])} (expected true or false)`
+        );
       } else {
         out[name] = true;
       }
