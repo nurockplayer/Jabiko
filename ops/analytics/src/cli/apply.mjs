@@ -177,24 +177,24 @@ export async function runApply({ env = process.env, flags = {}, stateDir = STATE
   try {
     const discovered = await discoverGa4({ token: googleToken, measurementId: measurementIdFlag });
     if (!discovered.property) {
-      const candidates = discovered.candidates ?? [];
-      if (measurementIdFlag && candidates.length === 1 && candidates[0].stream?.webStreamData?.measurementId !== measurementIdFlag) {
-        report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${candidates[0].stream?.webStreamData?.measurementId}); refusing to split Zaraz from GA4.`);
+      const matched = discovered.matched ?? [];
+      if (measurementIdFlag && matched.length === 0) {
+        report.err(`--measurement-id ${measurementIdFlag} matches no jabiko.app production web stream; refusing to split Zaraz from GA4.`);
         report.printGate(
           "GA4_MEASUREMENT_ID_MISMATCH",
-          "Pass the correct --measurement-id (the jabiko.app production stream's Measurement ID) or drop the flag to use discovery."
+          "Pass the correct --measurement-id (a jabiko.app production stream's Measurement ID) or drop the flag to use discovery."
         );
         gates.push("GA4_MEASUREMENT_ID_MISMATCH");
         return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
       }
-      if (candidates.length === 0) {
-        report.err("no plausible Jabiko GA4 property found; pass --measurement-id.");
-      } else {
+      if (matched.length > 1) {
         report.printGate("GA4_PROPERTY_AMBIGUITY");
         gates.push("GA4_PROPERTY_AMBIGUITY");
-        for (const candidate of candidates) {
-          report.bullet(`${candidate.displayName} (${candidate.name})`);
+        for (const candidate of matched) {
+          report.bullet(`${candidate.displayName} (${candidate.stream?.webStreamData?.measurementId})`);
         }
+      } else {
+        report.err("no jabiko.app production web stream found; pass --measurement-id.");
       }
       return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
     }

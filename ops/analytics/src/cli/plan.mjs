@@ -167,31 +167,31 @@ export async function runPlan({
     try {
       const discovered = await discoverGa4({ token: googleToken, measurementId: measurementIdFlag });
       if (!discovered.property) {
-        if (measurementIdFlag && discovered.candidates.length === 1 && discovered.candidates[0].stream?.webStreamData?.measurementId !== measurementIdFlag) {
-          // Bind --measurement-id to the discovered jabiko.app production stream
-          // (matching apply/smoke). A mismatch must not combine Zaraz target A
-          // with GA4 property B, so surface a blocking gate.
-          report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${discovered.candidates[0].stream?.webStreamData?.measurementId}); refusing to plan against mismatched targets.`);
+        const matched = discovered.matched ?? [];
+        if (measurementIdFlag && matched.length === 0) {
+          // --measurement-id matched no jabiko.app production stream — a
+          // mismatch must not combine Zaraz target A with GA4 property B.
+          report.err(`--measurement-id ${measurementIdFlag} matches no jabiko.app production web stream; refusing to plan against mismatched targets.`);
           report.printGate(
             "GA4_MEASUREMENT_ID_MISMATCH",
-            "Pass the correct --measurement-id (the jabiko.app production stream's Measurement ID) or drop the flag to use discovery."
+            "Pass the correct --measurement-id (a jabiko.app production stream's Measurement ID) or drop the flag to use discovery."
           );
           gatesHit.push("GA4_MEASUREMENT_ID_MISMATCH");
           effectiveMeasurementId = null;
-        } else if (discovered.candidates.length === 0) {
-          report.err("No plausible Jabiko GA4 property found; GA4 evidence is incomplete.");
+        } else if (matched.length > 1) {
+          report.warn(`${matched.length} jabiko.app production web streams match — ambiguous.`);
+          for (const c of matched) {
+            report.bullet(`${c.displayName} (${c.stream?.webStreamData?.measurementId})`);
+          }
+          report.printGate("GA4_PROPERTY_AMBIGUITY");
+          gatesHit.push("GA4_PROPERTY_AMBIGUITY");
+        } else {
+          report.err("No jabiko.app production web stream found; GA4 evidence is incomplete.");
           report.printGate(
             "GA4_READ_FAILURE",
             "Create the Jabiko GA4 property / production web stream, or pass --measurement-id once it exists."
           );
           gatesHit.push("GA4_READ_FAILURE");
-        } else {
-          report.warn(`${discovered.candidates.length} plausible GA4 properties found — ambiguous.`);
-          for (const c of discovered.candidates) {
-            report.bullet(`${c.displayName} (${c.name})`);
-          }
-          report.printGate("GA4_PROPERTY_AMBIGUITY");
-          gatesHit.push("GA4_PROPERTY_AMBIGUITY");
         }
       } else {
         report.ok(`property ${discovered.property.displayName} (${discovered.property.name})`);

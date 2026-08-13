@@ -513,3 +513,106 @@ test("runRealtimeReport emits only the supported bounded request", async () => {
 test("extractGoogleError surfaces API error message", () => {
   assert.match(extractGoogleError({ error: { message: "Permission denied", code: 403 } }), /Permission denied/);
 });
+
+test("discoverGa4 selects the correct stream via --measurement-id when one property has two production streams", async () => {
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    if (u.endsWith("/v1beta/accounts")) {
+      return { ok: true, status: 200, json: async () => ({ accounts: [{ name: "accounts/1" }] }) };
+    }
+    if (u.includes("/v1beta/properties?filter=")) {
+      return { ok: true, status: 200, json: async () => ({ properties: [{ name: "properties/2", displayName: "Jabiko" }] }) };
+    }
+    if (u.includes("/dataStreams")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          dataStreams: [
+            { name: "s1", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-A", defaultUri: "https://jabiko.app" } },
+            { name: "s2", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-B", defaultUri: "https://www.jabiko.app" } }
+          ]
+        })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({ error: { message: `unexpected ${u}` } }) };
+  };
+  let discovered;
+  try {
+    discovered = await discoverGa4({ token: "t", measurementId: "G-B" });
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.equal(discovered.property?.name, "properties/2", "the ID selects the matching production stream");
+  assert.equal(discovered.measurementId, "G-B");
+  assert.equal(discovered.matched.length, 1);
+});
+
+test("discoverGa4 fails closed when --measurement-id matches none of a property's production streams", async () => {
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    if (u.endsWith("/v1beta/accounts")) {
+      return { ok: true, status: 200, json: async () => ({ accounts: [{ name: "accounts/1" }] }) };
+    }
+    if (u.includes("/v1beta/properties?filter=")) {
+      return { ok: true, status: 200, json: async () => ({ properties: [{ name: "properties/2", displayName: "Jabiko" }] }) };
+    }
+    if (u.includes("/dataStreams")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          dataStreams: [
+            { name: "s1", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-A", defaultUri: "https://jabiko.app" } },
+            { name: "s2", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-B", defaultUri: "https://www.jabiko.app" } }
+          ]
+        })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({ error: { message: `unexpected ${u}` } }) };
+  };
+  let discovered;
+  try {
+    discovered = await discoverGa4({ token: "t", measurementId: "G-NOPE" });
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.equal(discovered.property, null, "an ID matching no production stream must fail closed");
+  assert.equal(discovered.matched.length, 0);
+});
+
+test("discoverGa4 stays ambiguous when one property has two production streams and no ID is given", async () => {
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    if (u.endsWith("/v1beta/accounts")) {
+      return { ok: true, status: 200, json: async () => ({ accounts: [{ name: "accounts/1" }] }) };
+    }
+    if (u.includes("/v1beta/properties?filter=")) {
+      return { ok: true, status: 200, json: async () => ({ properties: [{ name: "properties/2", displayName: "Jabiko" }] }) };
+    }
+    if (u.includes("/dataStreams")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          dataStreams: [
+            { name: "s1", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-A", defaultUri: "https://jabiko.app" } },
+            { name: "s2", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-B", defaultUri: "https://www.jabiko.app" } }
+          ]
+        })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({ error: { message: `unexpected ${u}` } }) };
+  };
+  let discovered;
+  try {
+    discovered = await discoverGa4({ token: "t" });
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.equal(discovered.property, null, "no ID + multiple production streams stays ambiguous");
+  assert.equal(discovered.matched.length, 2);
+});

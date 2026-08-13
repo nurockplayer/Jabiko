@@ -54,6 +54,40 @@ export function realtimeMaxAgeMinutes({ baselineAt, now = Date.now() }) {
   return Math.max(0, Math.floor(now / 60000) - Math.floor(baselineAt / 60000));
 }
 
+/** True when a request started and ended within the same GA calendar-minute bucket. */
+export function baselineSameMinute({ requestStart, requestEnd }) {
+  return Math.floor(requestStart / 60000) === Math.floor(requestEnd / 60000);
+}
+
+/**
+ * Acquire the GA4 Realtime baseline with calendar-minute-boundary safety. A
+ * request whose start and end fall in different GA minute buckets is discarded
+ * and re-fetched (bounded), because attributing the response to the wrong
+ * bucket would mis-align `baselineAt` with the response's minutesAgo values.
+ * Repeated boundary crossings (or API errors) fail closed by throwing.
+ * Returns { rows, baselineAt }.
+ */
+export async function acquireBaseline({ fetchRealtime, maxAttempts = 3, now = Date.now }) {
+  let lastError;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const requestStart = now();
+    let rows;
+    try {
+      rows = await fetchRealtime();
+    } catch (error) {
+      lastError = error;
+      continue;
+    }
+    const requestEnd = now();
+    if (!baselineSameMinute({ requestStart, requestEnd })) {
+      lastError = new Error("baseline request crossed a calendar-minute boundary");
+      continue;
+    }
+    return { rows, baselineAt: requestStart };
+  }
+  throw lastError ?? new Error("baseline acquisition failed");
+}
+
 export function realtimeSignalReached(counts) {
   return Object.entries(REQUIRED_EVENT_COUNTS).every(
     ([eventName, minimum]) => (counts.get(eventName) ?? 0) >= minimum
@@ -193,16 +227,16 @@ export async function runSmoke({
       try {
         const discovered = await discoverGa4({ token: googleToken, measurementId: measurementIdFlag });
         if (!discovered.property) {
-          const candidates = discovered.candidates ?? [];
-          if (measurementIdFlag && candidates.length === 1 && candidates[0].stream?.webStreamData?.measurementId !== measurementIdFlag) {
-            report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${candidates[0].stream?.webStreamData?.measurementId}); failing smoke before any config/Realtime verification.`);
+          const matched = discovered.matched ?? [];
+          if (measurementIdFlag && matched.length === 0) {
+            report.err(`--measurement-id ${measurementIdFlag} matches no jabiko.app production web stream; failing smoke before any config/Realtime verification.`);
             failed = true;
-          } else if (candidates.length > 1) {
+          } else if (matched.length > 1) {
             report.printGate("GA4_PROPERTY_AMBIGUITY");
             gates.push("GA4_PROPERTY_AMBIGUITY");
             gateBlocked = true;
           } else {
-            report.err("no unique Jabiko GA4 property — cannot run smoke.");
+            report.err("no jabiko.app production web stream — cannot run smoke.");
             failed = true;
           }
         } else if (!discovered.measurementId) {
@@ -286,13 +320,18 @@ export async function runSmoke({
     report.bullet("It proves a new page_view / promo_click count delta during this watch, not session, route, placement, or action values.");
 
     try {
-      baselineRows = await runRealtimeReport({
-        token: googleToken,
-        propertyId,
-        dimensions: REALTIME_SMOKE_DIMENSIONS,
-        minutes: STANDARD_REALTIME_MAX_MINUTES
+      const baseline = await acquireBaseline({
+        fetchRealtime: () =>
+          runRealtimeReport({
+            token: googleToken,
+            propertyId,
+            dimensions: REALTIME_SMOKE_DIMENSIONS,
+            minutes: STANDARD_REALTIME_MAX_MINUTES
+          }),
+        maxAttempts: 3
       });
-      baselineAt = Date.now(); // wall-clock observation time for bucket alignment
+      baselineRows = baseline.rows;
+      baselineAt = baseline.baselineAt; // wall-clock observation time for bucket alignment
       baselineCounts = summarizeRealtimeEvents(baselineRows);
       report.bullet(
         `baseline · page_view=${baselineCounts.get("page_view") ?? 0} · promo_click=${baselineCounts.get("promo_click") ?? 0}`

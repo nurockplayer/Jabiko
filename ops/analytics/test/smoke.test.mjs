@@ -1,7 +1,7 @@
 // Production smoke CLI tests with stubbed fetch only. No real credentials.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { runSmoke, recentDelta, realtimeMaxAgeMinutes } from "../src/cli/smoke.mjs";
+import { runSmoke, recentDelta, realtimeMaxAgeMinutes, acquireBaseline, baselineSameMinute } from "../src/cli/smoke.mjs";
 import { FORWARDED_EVENTS } from "../src/desired.mjs";
 
 const DIMS = [
@@ -332,4 +332,58 @@ test("bucket rollover cannot subtract valid guided traffic into false failure", 
   assert.equal(delta.get("promo_click"), 7, "calendar-aligned window keeps the 7 guided clicks");
   const buggy = recentDelta(currentRows, baselineRows, 1);
   assert.equal(buggy.get("promo_click"), 0, "the floor-based window produces a false failure");
+});
+
+test("baselineSameMinute accepts a request within one calendar minute", () => {
+  const t = Date.UTC(2026, 7, 12, 12, 34, 10);
+  assert.ok(baselineSameMinute({ requestStart: t, requestEnd: t + 40000 }));
+});
+
+test("baselineSameMinute rejects a request crossing a calendar-minute boundary", () => {
+  const t = Date.UTC(2026, 7, 12, 12, 34, 59);
+  assert.ok(!baselineSameMinute({ requestStart: t, requestEnd: t + 2000 }), "12:34:59 -> 12:35:01 crosses a bucket");
+});
+
+test("acquireBaseline accepts a same-minute request and returns rows + baselineAt", async () => {
+  const rows = [{ eventName: "page_view", minutesAgo: "0", eventCount: 2 }];
+  let calls = 0;
+  const now = () => {
+    calls += 1;
+    return Date.UTC(2026, 7, 12, 12, 34, 30) + (calls - 1) * 1000;
+  };
+  const result = await acquireBaseline({ fetchRealtime: async () => rows, maxAttempts: 3, now });
+  assert.equal(result.rows, rows);
+  assert.equal(result.baselineAt, Date.UTC(2026, 7, 12, 12, 34, 30));
+  assert.equal(calls, 2, "requestStart and requestEnd are both recorded");
+});
+
+test("acquireBaseline discards a cross-minute attempt and accepts the next stable one", async () => {
+  let calls = 0;
+  const now = () => {
+    calls += 1;
+    if (calls === 1) return Date.UTC(2026, 7, 12, 12, 34, 59); // attempt 1 start
+    if (calls === 2) return Date.UTC(2026, 7, 12, 12, 35, 1); // attempt 1 end -> crosses
+    return Date.UTC(2026, 7, 12, 12, 35, 10) + (calls - 3) * 1000; // attempt 2: 12:35:10, 12:35:11
+  };
+  let fetchCalls = 0;
+  const result = await acquireBaseline({
+    fetchRealtime: async () => { fetchCalls += 1; return [{ eventName: "promo_click", minutesAgo: "0", eventCount: 7 }]; },
+    maxAttempts: 3,
+    now
+  });
+  assert.equal(fetchCalls, 2, "the cross-minute attempt is discarded and re-fetched");
+  assert.equal(result.baselineAt, Date.UTC(2026, 7, 12, 12, 35, 10), "the next stable attempt is authoritative");
+});
+
+test("acquireBaseline fails closed after repeated calendar-minute crossings", async () => {
+  let calls = 0;
+  const now = () => {
+    calls += 1;
+    const base = Date.UTC(2026, 7, 12, 12, 34, 59);
+    return base + (calls % 2 === 1 ? 0 : 2000); // every attempt start 12:34:59, end 12:35:01
+  };
+  await assert.rejects(
+    () => acquireBaseline({ fetchRealtime: async () => [], maxAttempts: 3, now }),
+    /boundary|baseline/i
+  );
 });

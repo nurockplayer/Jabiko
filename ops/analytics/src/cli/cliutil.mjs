@@ -64,41 +64,44 @@ export function unknownFlags(parsed, allowed) {
   return Object.keys(parsed).filter((name) => !allowedSet.has(name));
 }
 
-/**
- * Select the unique production web stream for a GA4 property. A production web
- * stream is a WEB_DATA_STREAM whose webStreamData.defaultUri hostname is exactly
- * jabiko.app (or www.jabiko.app) — not a staging/test subdomain. Returns null
- * when a unique production stream cannot be identified — fail closed rather
- * than picking the first WEB_DATA_STREAM.
- */
-export function selectProductionWebStream(streams = []) {
-  const production = streams.filter(
-    (s) =>
-      s.type === "WEB_DATA_STREAM" &&
-      isJabikoProductionHost(s.webStreamData?.defaultUri ?? "")
-  );
-  return production.length === 1 ? production[0] : null;
-}
-
 function isJabikoProductionHost(uri) {
   const host = String(uri).replace(/^https?:\/\//i, "").split(/[/?#]/)[0];
   return host === "jabiko.app" || host === "www.jabiko.app";
 }
 
+/** True when a single stream is a jabiko.app / www.jabiko.app production web stream. */
+export function isProductionWebStream(stream) {
+  return (
+    stream?.type === "WEB_DATA_STREAM" &&
+    isJabikoProductionHost(stream.webStreamData?.defaultUri ?? "")
+  );
+}
+
+/**
+ * Select the unique production web stream for a GA4 property. Returns null when
+ * the property has zero OR multiple production streams — the caller must decide
+ * how to resolve ambiguity (see discoverGa4, which enumerates streams first and
+ * only then applies --measurement-id).
+ */
+export function selectProductionWebStream(streams = []) {
+  const production = streams.filter(isProductionWebStream);
+  return production.length === 1 ? production[0] : null;
+}
+
 /**
  * Discover the Jabiko GA4 production property and its web-stream Measurement ID.
  *
- * The production property is NOT prefiltered by displayName or a property URL:
- * generic names like "Production" must work. Every visible property's data
- * streams are inspected and candidates are the properties with a unique
- * WEB_DATA_STREAM whose defaultUri hostname is jabiko.app (or www.jabiko.app).
+ * Every WEB_DATA_STREAM whose defaultUri hostname is jabiko.app (or
+ * www.jabiko.app) is a candidate — a property with several production streams
+ * is NOT dropped upfront. When `measurementId` is supplied it is used to filter
+ * the candidates FIRST, so an explicit ID can resolve a same-property ambiguity.
  *
- * If `measurementId` is supplied it is used to disambiguate: candidates are
- * filtered to those whose stream Measurement ID matches, so a supplied ID that
- * picks out one property resolves it before any ambiguity gate. Zero or
- * multiple matches fail closed (property is null).
+ * - exactly one match after the ID filter -> property resolved;
+ * - zero matches (with an ID) -> fail closed (matched.length === 0);
+ * - multiple matches -> ambiguous (property null, matched.length > 1);
+ * - without an ID, multiple production streams remain ambiguous.
  *
- * Returns { property, candidates, measurementId }.
+ * Returns { property, candidates, matched, measurementId }.
  */
 export async function discoverGa4({ token, measurementId }) {
   const accounts = await listAccounts({ token });
@@ -107,23 +110,26 @@ export async function discoverGa4({ token, measurementId }) {
     const props = await listProperties({ token, account: acc.name });
     for (const p of props) {
       const streams = await listDataStreams({ token, property: p.name });
-      const web = selectProductionWebStream(streams);
-      if (web) candidates.push({ account: acc.name, ...p, stream: web });
+      for (const stream of streams) {
+        if (isProductionWebStream(stream)) {
+          candidates.push({ account: acc.name, ...p, stream });
+        }
+      }
     }
   }
-  let matches = candidates;
-  if (measurementId) {
-    matches = candidates.filter(
-      (c) => c.stream?.webStreamData?.measurementId === measurementId
-    );
+  const matched = measurementId
+    ? candidates.filter(
+        (c) => c.stream?.webStreamData?.measurementId === measurementId
+      )
+    : candidates;
+  if (matched.length !== 1) {
+    return { property: null, candidates, matched, measurementId: null };
   }
-  if (matches.length !== 1) {
-    return { property: null, candidates, measurementId: null };
-  }
-  const property = matches[0];
+  const property = matched[0];
   return {
     property,
     candidates,
+    matched,
     // GA4 Admin v1beta DataStream: the web Measurement ID lives under
     // webStreamData.measurementId (there is no top-level measurementId).
     measurementId: property.stream?.webStreamData?.measurementId ?? null
