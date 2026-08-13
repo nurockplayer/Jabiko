@@ -71,6 +71,21 @@ describe("collectChangedPaths", () => {
     for (const c of diffCmds) expect(c).toContain("--no-renames");
   });
 
+  it("does not filter out type changes (T) in git diff commands", () => {
+    const calls: string[] = [];
+    const exec = (cmd: string) => {
+      calls.push(cmd);
+      if (cmd.includes("--cached")) return "";
+      if (cmd.includes("git diff")) return "src/domain/types.ts\n";
+      if (cmd.includes("git ls-files")) return "";
+      return null;
+    };
+    expect(collectChangedPaths(exec, "origin/main")).toEqual(["src/domain/types.ts"]);
+    for (const c of calls.filter((cmd) => cmd.includes("git diff"))) {
+      expect(c).not.toContain("--diff-filter");
+    }
+  });
+
   it("handles a staged rename (both old and new paths)", () => {
     const exec = fakeGit("", "src/i18n.ts\ndocs/foo.md\n", "");
     expect(collectChangedPaths(exec, "origin/main")).toEqual(["docs/foo.md", "src/i18n.ts"]);
