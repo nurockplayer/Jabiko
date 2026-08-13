@@ -34,15 +34,18 @@ const isMain =
 //   1. committed branch changes vs <base>
 //   2. staged (index) changes
 //   3. unstaged + untracked working-tree changes
+// `--no-renames` disables rename detection so a rename/move surfaces as a
+// delete (old path) + add (new path) — both sides participate in
+// classification, preserving high-blast-radius source paths.
 // Each required enumeration must succeed: a failed command throws (fail-safe),
 // never silently treated as empty.
 // ---------------------------------------------------------------------------
 export function collectChangedPaths(execFn, base) {
-  const branch = execFn(`git diff --name-only --diff-filter=ACMRD ${base}...HEAD`);
+  const branch = execFn(`git diff --name-only --no-renames --diff-filter=ACMRD ${base}...HEAD`);
   if (branch === null) {
     throw new Error(`git diff ${base}...HEAD failed — missing/invalid base ref`);
   }
-  const staged = execFn(`git diff --cached --name-only --diff-filter=ACMRD`);
+  const staged = execFn(`git diff --cached --name-only --no-renames --diff-filter=ACMRD`);
   if (staged === null) {
     throw new Error(`git diff --cached failed — cannot enumerate staged changes`);
   }

@@ -49,10 +49,28 @@ const SUBSET_OF_TEST = new Set(["check:exam"]);
 // exits 0).
 export const ALL_NON_TEST_PATH_GATES = ["check:i18n"];
 
-// L1 leaf categories that represent production source. A changed file in one
-// of these with no existing affected test is an under-tested production change
-// and escalates to L3 rather than silently no-opping (#760).
-const PRODUCTION_CATEGORIES = new Set(["component", "domain", "hooks", "lib"]);
+// Production source categories: L1 leaf surfaces + L2 path-gated surfaces.
+// A changed file in one of these with no existing affected test is an
+// under-tested production change and escalates to L3 rather than silently
+// no-opping (#760).
+const L1_PRODUCTION_CATEGORIES = new Set(["component", "domain", "hooks", "lib"]);
+const L2_PRODUCTION_CATEGORIES = new Set([
+  "exam-content",
+  "furigana-reading",
+  "article-content",
+  "i18n-locale"
+]);
+const PRODUCTION_CATEGORIES = new Set([...L1_PRODUCTION_CATEGORIES, ...L2_PRODUCTION_CATEGORIES]);
+
+// L2 gate tests (check:exam -> contentGuard.test.ts, check:i18n -> i18n.test.ts,
+// sitemap/furigana drift guards) cover the category's canonical data. These
+// prefixes declare L2 sources the gate does NOT cover — drill/logic files that
+// need a co-located test or an explicit EXTRA_TESTS mapping, else they
+// escalate to L3. Small, explicit, auditable (not a dependency graph).
+const L2_GATE_NOT_COVERED = {
+  "exam-content": ["src/domain/cloze"], // cloze drill logic, not the exam bank
+  "furigana-reading": ["src/domain/readingLookup.ts"] // no test imports it
+};
 
 /** Full L3 plan used when changed paths cannot be determined (base diff failed). */
 export function conservativeFullPlan(reason) {
@@ -207,7 +225,12 @@ export const DEFAULT_EXTRA_TESTS = {
   ],
   "src/domain/grammarIndex.ts": ["src/domain/sitemap.test.ts"],
   "src/domain/practice.ts": ["src/domain/practiceMode.test.ts"],
-  "src/domain/sessionPools.ts": ["src/domain/practice.test.ts"]
+  "src/domain/sessionPools.ts": ["src/domain/practice.test.ts"],
+  // cloze drill logic is not part of the exam bank, so the exam-content gate
+  // (contentGuard/contentStats) does not exercise it — its real covering tests
+  // are the practice/session-pool suites.
+  "src/domain/cloze.ts": ["src/domain/practice.test.ts", "src/domain/sessionPools.test.ts"],
+  "src/domain/cloze-data.ts": ["src/domain/practice.test.ts", "src/domain/sessionPools.test.ts"]
 };
 
 // ---------------------------------------------------------------------------
@@ -314,7 +337,10 @@ export function selectVerification(
       const cat = classifyPath(p);
       if (!PRODUCTION_CATEGORIES.has(cat)) continue;
       const candidates = [...siblingTestCandidates(p), ...(extraTests[p] ?? [])];
-      if (!candidates.some((t) => exists(t))) uncovered.push(p);
+      const gateCovers =
+        L2_PRODUCTION_CATEGORIES.has(cat) &&
+        !(L2_GATE_NOT_COVERED[cat] ?? []).some((prefix) => p.startsWith(prefix));
+      if (!candidates.some((t) => exists(t)) && !gateCovers) uncovered.push(p);
     }
     if (uncovered.length > 0) {
       reasons.push(`${uncovered.join(", ")} → no affected test → L3 (fail-safe)`);

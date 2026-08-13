@@ -259,3 +259,35 @@ describe("selectVerification — review fixes (#760 re-review)", () => {
     expect(plan.level).toBe("L1");
   });
 });
+
+describe("selectVerification — rename + L2 fail-safe (#762 re-review)", () => {
+  it("rename of an L3 source -> ordinary path still selects L3", () => {
+    const plan = sel(["src/App.tsx", "src/components/MovedApp.tsx"]);
+    expect(plan.level).toBe("L3");
+  });
+
+  it("rename of an i18n-sensitive source preserves its required gate", () => {
+    const plan = sel(["src/locales/en.ts", "docs/translations/en.md"]);
+    expect(plan.level).toBe("L2");
+    expect(plan.commands).toContain("check:i18n");
+  });
+
+  it("cloze.ts (mapped) stays L2 and runs its covering practice/session-pool tests", () => {
+    const exists = (p: string) =>
+      ["src/domain/practice.test.ts", "src/domain/sessionPools.test.ts"].includes(p);
+    const plan = selectVerification(["src/domain/cloze.ts"], { exists });
+    expect(plan.level).toBe("L2");
+    expect(plan.tests).toContain("src/domain/practice.test.ts");
+    expect(plan.tests).toContain("src/domain/sessionPools.test.ts");
+  });
+
+  it("exam/items (gate-covered L2) stays L2, not escalated", () => {
+    const plan = selectVerification(["src/domain/exam/items/n1.ts"], { exists: () => false });
+    expect(plan.level).toBe("L2");
+  });
+
+  it("readingLookup.ts (no test, not gate-covered) escalates to L3", () => {
+    const plan = selectVerification(["src/domain/readingLookup.ts"], { exists: () => false });
+    expect(plan.level).toBe("L3");
+  });
+});

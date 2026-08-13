@@ -54,6 +54,27 @@ describe("collectChangedPaths", () => {
     const exec = fakeGit("", "", null);
     expect(() => collectChangedPaths(exec, "main")).toThrow(/ls-files/i);
   });
+
+  it("passes --no-renames to both git diff commands (rename sides preserved)", () => {
+    const calls: string[] = [];
+    const exec = (cmd: string) => {
+      calls.push(cmd);
+      if (cmd.includes("--cached")) return "";
+      if (cmd.includes("git diff")) return "src/App.tsx\nsrc/moved/App.tsx\n";
+      if (cmd.includes("git ls-files")) return "";
+      return null;
+    };
+    const paths = collectChangedPaths(exec, "origin/main");
+    expect(paths).toEqual(["src/App.tsx", "src/moved/App.tsx"]);
+    const diffCmds = calls.filter((c) => c.includes("git diff"));
+    expect(diffCmds.length).toBe(2); // branch + staged
+    for (const c of diffCmds) expect(c).toContain("--no-renames");
+  });
+
+  it("handles a staged rename (both old and new paths)", () => {
+    const exec = fakeGit("", "src/i18n.ts\ndocs/foo.md\n", "");
+    expect(collectChangedPaths(exec, "origin/main")).toEqual(["docs/foo.md", "src/i18n.ts"]);
+  });
 });
 
 describe("commandsFor", () => {
