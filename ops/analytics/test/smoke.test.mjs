@@ -1,7 +1,7 @@
 // Production smoke CLI tests with stubbed fetch only. No real credentials.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { runSmoke, recentDelta } from "../src/cli/smoke.mjs";
+import { runSmoke, recentDelta, realtimeMaxAgeMinutes } from "../src/cli/smoke.mjs";
 
 const DIMS = [
   { parameterName: "promoId", name: "promoId", scope: "EVENT" },
@@ -303,4 +303,39 @@ test("recentDelta ages baseline buckets: only the baseline age-0 bucket is subtr
   // current(0..1) = 10, baseline age-0 bucket = 3 → 7 new clicks. The aged-out
   // age-1 baseline bucket (5) must NOT be subtracted.
   assert.equal(delta.get("promo_click"), 7, "only the baseline age-0 bucket is subtracted");
+});
+
+test("calendar-minute buckets align the Realtime window (baseline at 12:34:59)", () => {
+  // 62 real seconds elapse, but two GA minute buckets roll (12:35, 12:36).
+  // floor(62/60)=1 would under-represent the window and subtract live guided
+  // traffic as if it were pre-baseline.
+  const baselineAt = Date.UTC(2026, 7, 12, 12, 34, 59);
+  const now = Date.UTC(2026, 7, 12, 12, 36, 1);
+  assert.equal(realtimeMaxAgeMinutes({ baselineAt, now }), 2);
+  assert.equal(
+    Math.floor((now - baselineAt) / 60000),
+    1,
+    "sanity: floor(elapsed/60000) is only 1 — this is exactly the bug the calendar alignment fixes"
+  );
+});
+
+test("bucket rollover cannot subtract valid guided traffic into false failure", () => {
+  // Baseline captured at 12:34:59. Its age-0 bucket (12:34) holds 7 pre-baseline
+  // promo clicks; an older age-1 bucket holds 9 more.
+  const baselineRows = [
+    { eventName: "promo_click", minutesAgo: "0", eventCount: 7 },
+    { eventName: "promo_click", minutesAgo: "1", eventCount: 9 }
+  ];
+  // At 12:36:01 (calendar delta 2) the guided 7 promo clicks landed in 12:35
+  // (age 1); the 12:34 pre-baseline is now age 2 (still inside a 2-minute
+  // window). The floor-based window (1) would exclude the age-2 pre-baseline
+  // while still subtracting it -> false 0.
+  const currentRows = [
+    { eventName: "promo_click", minutesAgo: "1", eventCount: 7 },
+    { eventName: "promo_click", minutesAgo: "2", eventCount: 7 }
+  ];
+  const delta = recentDelta(currentRows, baselineRows, 2);
+  assert.equal(delta.get("promo_click"), 7, "calendar-aligned window keeps the 7 guided clicks");
+  const buggy = recentDelta(currentRows, baselineRows, 1);
+  assert.equal(buggy.get("promo_click"), 0, "the floor-based window produces a false failure");
 });

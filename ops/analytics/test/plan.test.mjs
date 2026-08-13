@@ -36,7 +36,7 @@ async function withQuietLogs(fn) {
 
 // A router factory that returns a zone, Zaraz workflow/published export/draft
 // config, and GA4 discovery with measurementId "G-X".
-function makeRouter({ workflow = "realtime", exportConfig = {}, draftConfig = null, configFails = false, exportFails = false } = {}) {
+function makeRouter({ workflow = "realtime", exportConfig = {}, draftConfig = null, configFails = false, exportFails = false, noZone = false, gaFails = false, streamNoMeasurementId = false } = {}) {
   return (url) => {
     if (url.startsWith("https://jabiko.app/")) {
       if (url.includes("cdn-cgi/zaraz")) return { status: 404, text: "Not found" };
@@ -59,11 +59,17 @@ function makeRouter({ workflow = "realtime", exportConfig = {}, draftConfig = nu
         return { status: 200, json: { success: true, result: draftConfig ?? exportConfig } };
       }
       if (url.includes("/zones?name=")) {
-        return { status: 200, json: { success: true, result: [{ id: "zone1", name: "jabiko.app", account: { name: "Acct" } }] } };
+        return {
+          status: 200,
+          json: { success: true, result: noZone ? [] : [{ id: "zone1", name: "jabiko.app", account: { name: "Acct" } }] }
+        };
       }
       return { status: 404, json: { success: false, errors: [{ message: "unexpected" }] } };
     }
     if (url.includes("analyticsadmin.googleapis.com")) {
+      if (gaFails) {
+        return { status: 500, json: { error: { message: "internal error", code: 500 } } };
+      }
       if (url.endsWith("/v1beta/accounts")) {
         return { status: 200, json: { accounts: [{ name: "accounts/1", displayName: "Acct" }] } };
       }
@@ -71,7 +77,20 @@ function makeRouter({ workflow = "realtime", exportConfig = {}, draftConfig = nu
         return { status: 200, json: { properties: [{ name: "properties/2", displayName: "Jabiko", url: "https://jabiko.app" }] } };
       }
       if (url.includes("/v1beta/properties/2/dataStreams")) {
-        return { status: 200, json: { dataStreams: [{ name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-X", defaultUri: "https://jabiko.app" } }] } };
+        return {
+          status: 200,
+          json: {
+            dataStreams: [
+              {
+                name: "properties/2/dataStreams/3",
+                type: "WEB_DATA_STREAM",
+                webStreamData: streamNoMeasurementId
+                  ? { defaultUri: "https://jabiko.app" }
+                  : { measurementId: "G-X", defaultUri: "https://jabiko.app" }
+              }
+            ]
+          }
+        };
       }
       if (url.includes("/v1beta/properties/2/customDimensions")) {
         return { status: 200, json: { customDimensions: [] } };
@@ -229,4 +248,52 @@ test("plan fails closed when the published /export cannot be read (no 'No human 
     globalThis.fetch = prev;
   }
   assert.ok(result.gatesHit.includes("CLOUDFLARE_AUTH"), "an unreadable published export must block plan readiness");
+});
+
+test("plan blocks readiness when the jabiko.app zone cannot be found", async () => {
+  // Valid Cloudflare token but wrong account: zone lookup returns empty.
+  const { impl } = fakeFetch(makeRouter({ noZone: true }));
+  const prev = globalThis.fetch;
+  globalThis.fetch = impl;
+  let result;
+  try {
+    result = await withQuietLogs(() =>
+      runPlan({ env: { CLOUDFLARE_API_TOKEN: "tok", GA4_ACCESS_TOKEN: "gtok" }, repoRoot: process.cwd() })
+    );
+  } finally {
+    globalThis.fetch = prev;
+  }
+  assert.ok(result.gatesHit.includes("CLOUDFLARE_ZONE_NOT_FOUND"), "a missing jabiko.app zone must gate plan readiness");
+  assert.ok(!result.gatesHit.includes("CLOUDFLARE_AUTH"), "zone-not-found is its own precise gate, not mislabeled as auth");
+});
+
+test("plan blocks readiness when the GA4 Admin read fails with a 5xx (not mislabeled as OAuth)", async () => {
+  const { impl } = fakeFetch(makeRouter({ gaFails: true }));
+  const prev = globalThis.fetch;
+  globalThis.fetch = impl;
+  let result;
+  try {
+    result = await withQuietLogs(() =>
+      runPlan({ env: { CLOUDFLARE_API_TOKEN: "tok", GA4_ACCESS_TOKEN: "gtok" }, repoRoot: process.cwd() })
+    );
+  } finally {
+    globalThis.fetch = prev;
+  }
+  assert.ok(result.gatesHit.includes("GA4_READ_FAILURE"), "any GA4 read failure must block plan readiness");
+  assert.ok(!result.gatesHit.includes("GOOGLE_OAUTH"), "a 5xx is not an OAuth problem");
+});
+
+test("plan blocks readiness when the GA4 property has no web Measurement ID", async () => {
+  const { impl } = fakeFetch(makeRouter({ streamNoMeasurementId: true }));
+  const prev = globalThis.fetch;
+  globalThis.fetch = impl;
+  let result;
+  try {
+    result = await withQuietLogs(() =>
+      runPlan({ env: { CLOUDFLARE_API_TOKEN: "tok", GA4_ACCESS_TOKEN: "gtok" }, repoRoot: process.cwd() })
+    );
+  } finally {
+    globalThis.fetch = prev;
+  }
+  assert.ok(result.gatesHit.includes("GA4_READ_FAILURE"), "a property without a Measurement ID is incomplete GA4 evidence");
 });

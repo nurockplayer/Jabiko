@@ -4,20 +4,50 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { listAccounts, listProperties, listDataStreams } from "../ga4.mjs";
 
-/** Minimal `--flag value` / `--flag` / `--flag=value` parser. */
-export function parseFlags(argv) {
+/**
+ * Normalize a boolean flag value. Accepts boolean true/false and the literal
+ * strings "true"/"false"; anything else FAILS CLOSED (throws) rather than
+ * guessing — a safety flag must never be silently inverted by a typo.
+ * `undefined`/`null` (flag absent) mean false.
+ */
+export function normalizeBooleanFlag(value, name) {
+  if (value === true || value === "true") return true;
+  if (value === false || value === "false") return false;
+  if (value === undefined || value === null) return false;
+  throw new Error(
+    `Invalid boolean value for ${name}: ${JSON.stringify(value)} (expected true or false)`
+  );
+}
+
+/**
+ * Minimal `--flag value` / `--flag` / `--flag=value` parser.
+ *
+ * Flags listed in `booleans` are normalized centrally: bare `--flag` and
+ * `--flag=true` mean true, `--flag=false` means false, and any other `=value`
+ * throws (fail closed). This prevents a `--flag=<typo>` from silently
+ * inverting a safety flag like --dry-run or --yes-remove-gtag.
+ */
+export function parseFlags(argv, { booleans = [] } = {}) {
+  const boolSet = new Set(booleans);
   const out = {};
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (!a.startsWith("--")) continue;
     const eq = a.indexOf("=");
-    if (eq !== -1) {
-      out[a.slice(2, eq)] = a.slice(eq + 1);
+    const name = eq === -1 ? a.slice(2) : a.slice(2, eq);
+    if (boolSet.has(name)) {
+      if (eq === -1) {
+        out[name] = true;
+      } else {
+        out[name] = normalizeBooleanFlag(a.slice(eq + 1), `--${name}`);
+      }
+    } else if (eq !== -1) {
+      out[name] = a.slice(eq + 1);
     } else if (i + 1 < argv.length && !argv[i + 1].startsWith("--")) {
-      out[a.slice(2)] = argv[i + 1];
+      out[name] = argv[i + 1];
       i += 1;
     } else {
-      out[a.slice(2)] = true;
+      out[name] = true;
     }
   }
   return out;

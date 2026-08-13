@@ -32,7 +32,7 @@ import {
   zarazPublishUrl
 } from "../cf.mjs";
 import { googleTokenFromEnv, listCustomDimensions, createCustomDimension } from "../ga4.mjs";
-import { parseFlags, discoverGa4 } from "./cliutil.mjs";
+import { parseFlags, discoverGa4, normalizeBooleanFlag } from "./cliutil.mjs";
 import * as report from "../report.mjs";
 
 const STATE_DIR = fileURLToPath(new URL("../../state", import.meta.url));
@@ -68,10 +68,8 @@ async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
   return { failures };
 }
 
-export async function runApply({ env = process.env, flags = {} } = {}) {
+export async function runApply({ env = process.env, flags = {}, stateDir = STATE_DIR } = {}) {
   const measurementIdFlag = flags.measurementId;
-  const dryRun = flags.dryRun === true;
-  const yesRemoveGtag = flags.yesRemoveGtag === true;
   let failed = false;
   const gates = [];
   let mutations = [];
@@ -81,6 +79,20 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
   let resolvedProperty = null;
 
   report.section(`Jabiko #745 analytics apply · zone ${ZONE_NAME}`);
+
+  // Boolean flags are normalized centrally and fail closed on invalid values:
+  // --dry-run / --dry-run=true are both true, and a typo like --dry-run=maybe
+  // must never be silently guessed into a real mutation.
+  let dryRun;
+  let yesRemoveGtag;
+  try {
+    dryRun = normalizeBooleanFlag(flags.dryRun, "--dry-run");
+    yesRemoveGtag = normalizeBooleanFlag(flags.yesRemoveGtag, "--yes-remove-gtag");
+  } catch (error) {
+    report.err(error.message);
+    report.err("fail closed: invalid boolean flag value; nothing was written.");
+    return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+  }
 
   const cfAuth = resolveCloudflareAuth({ env });
   if (!cfAuth || !cfAuth.capabilities.includes("zarazEdit")) {
@@ -122,13 +134,6 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
     report.err("fail closed: refusing to mutate Zaraz without a secret-complete published export.");
     return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
   }
-
-  mkdirSync(STATE_DIR, { recursive: true });
-  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const snapshotPath = join(STATE_DIR, `zaraz-config-published-${stamp}.json`);
-  writeFileSync(snapshotPath, JSON.stringify(current, null, 2), { mode: 0o600 });
-  writeFileSync(join(STATE_DIR, "zaraz-config-last.json"), JSON.stringify(current, null, 2), { mode: 0o600 });
-  report.ok(`snapshot saved to state/${snapshotPath.split("/").pop()}`);
 
   // In Preview & Publish mode the published /export is the mutation base, but a
   // full PUT + publish would silently destroy any unpublished draft changes.
@@ -234,6 +239,15 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
     if (dryRun) {
       report.ok("--dry-run: no changes written. Remove --dry-run to apply.");
     } else {
+      // Persist a secret-complete snapshot only in the real-mutation path —
+      // a dry-run must not create state/ or write the /export secrets.
+      mkdirSync(stateDir, { recursive: true });
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const snapshotPath = join(stateDir, `zaraz-config-published-${stamp}.json`);
+      writeFileSync(snapshotPath, JSON.stringify(current, null, 2), { mode: 0o600 });
+      writeFileSync(join(stateDir, "zaraz-config-last.json"), JSON.stringify(current, null, 2), { mode: 0o600 });
+      report.ok(`snapshot saved to ${snapshotPath}`);
+
       let putOk = false;
       for (let attempt = 0; attempt < 2 && !putOk; attempt += 1) {
         try {
@@ -337,12 +351,12 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const flags = parseFlags(process.argv.slice(2));
+  const flags = parseFlags(process.argv.slice(2), { booleans: ["dry-run", "yes-remove-gtag"] });
   const result = await runApply({
     flags: {
       measurementId: flags["measurement-id"],
-      dryRun: flags["dry-run"] === true,
-      yesRemoveGtag: flags["yes-remove-gtag"] === true
+      dryRun: flags["dry-run"],
+      yesRemoveGtag: flags["yes-remove-gtag"]
     }
   });
   process.exitCode = result.exitCode;

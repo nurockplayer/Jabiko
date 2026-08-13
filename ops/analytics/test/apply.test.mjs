@@ -1,6 +1,9 @@
 // ops/analytics apply CLI tests (stubbed fetch, no real credentials).
 import test from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { runApply } from "../src/cli/apply.mjs";
 
 const ZONE_ID = "z1";
@@ -172,6 +175,55 @@ const BASE_ARGS = {
   env: { CLOUDFLARE_API_TOKEN: "test-cf", GA4_ACCESS_TOKEN: "test-ga" },
   flags: { measurementId: "G-TEST", dryRun: false, yesRemoveGtag: false }
 };
+
+function tempStateDir() {
+  return mkdtempSync(join(tmpdir(), "ops-an-state-"));
+}
+
+test("dry-run writes no snapshot/state files and never PUTs (boolean true)", async () => {
+  const stateDir = tempStateDir();
+  try {
+    const { calls, impl } = makeFetch({ dimsList: NO_DIMS });
+    const result = await withFetch(impl, () =>
+      runApply({ ...BASE_ARGS, flags: { ...BASE_ARGS.flags, dryRun: true }, stateDir })
+    );
+    assert.equal(result.exitCode, 0, "dry-run succeeds without writing");
+    assert.ok(!calls.some((c) => c.method === "PUT"), "dry-run never issues a Zaraz PUT");
+    assert.deepEqual(readdirSync(stateDir), [], "no snapshot/state files are created during a dry-run");
+  } finally {
+    rmSync(stateDir, { recursive: true, force: true });
+  }
+});
+
+test("the string form 'true' for --dry-run is treated as a dry run (no writes, no PUT)", async () => {
+  const stateDir = tempStateDir();
+  try {
+    const { calls, impl } = makeFetch({ dimsList: NO_DIMS });
+    const result = await withFetch(impl, () =>
+      runApply({ ...BASE_ARGS, flags: { ...BASE_ARGS.flags, dryRun: "true" }, stateDir })
+    );
+    assert.equal(result.exitCode, 0);
+    assert.ok(!calls.some((c) => c.method === "PUT"), "string 'true' must not invert the safety flag into a real mutation");
+    assert.deepEqual(readdirSync(stateDir), []);
+  } finally {
+    rmSync(stateDir, { recursive: true, force: true });
+  }
+});
+
+test("an invalid boolean value for --dry-run fails closed and never writes", async () => {
+  const stateDir = tempStateDir();
+  try {
+    const { calls, impl } = makeFetch({ dimsList: NO_DIMS });
+    const result = await withFetch(impl, () =>
+      runApply({ ...BASE_ARGS, flags: { ...BASE_ARGS.flags, dryRun: "maybe" }, stateDir })
+    );
+    assert.notEqual(result.exitCode, 0, "invalid boolean value must fail closed");
+    assert.ok(!calls.some((c) => c.method === "PUT"), "no PUT on an invalid dry-run value");
+    assert.deepEqual(readdirSync(stateDir), [], "no snapshot/state files are created");
+  } finally {
+    rmSync(stateDir, { recursive: true, force: true });
+  }
+});
 
 test("workflow-read failure fails closed before any Zaraz mutation", async () => {
   const { calls, impl } = makeFetch({ workflowFails: true });

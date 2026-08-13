@@ -23,6 +23,8 @@ export const ALLOWED_GATES = [
   "CLOUDFLARE_PUBLISH",
   "CLOUDFLARE_PREVIEW_PENDING",
   "CLOUDFLARE_WORKFLOW_UNKNOWN",
+  "CLOUDFLARE_ZONE_NOT_FOUND",
+  "GA4_READ_FAILURE",
   "GOOGLE_OAUTH",
   "GA4_PROPERTY_AMBIGUITY",
   "GA4_MEASUREMENT_ID_MISMATCH",
@@ -56,6 +58,18 @@ export const GATE_DEFS = {
       "Confirm the Zaraz workflow setting in the Cloudflare Zaraz dashboard — it must be Real-time or Preview & Publish.",
     scope: "Zaraz Settings read. The workflow API returned a value other than realtime/preview.",
     unlocks: "A production-readiness conclusion that never assumes an unknown workflow is safe."
+  },
+  CLOUDFLARE_ZONE_NOT_FOUND: {
+    action:
+      "Use a Cloudflare credential that can see the jabiko.app zone (correct account + Zone:Read), or confirm the zone exists.",
+    scope: "Zone:Read on an account that owns jabiko.app.",
+    unlocks: "Reading the jabiko.app Zaraz workflow and published config so plan/apply/smoke can reason about production state."
+  },
+  GA4_READ_FAILURE: {
+    action:
+      "Make the Google Analytics Admin/Data API reachable and readable (network, quota, or service availability), then re-run plan.",
+    scope: "GA4 Admin + Data read on the Jabiko property.",
+    unlocks: "GA4 property/stream discovery, the Measurement ID, and the custom-dimension diff that plan needs for a readiness conclusion."
   },
   GOOGLE_OAUTH: {
     action:

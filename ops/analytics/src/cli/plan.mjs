@@ -68,7 +68,13 @@ export async function runPlan({
     if (cfZone) {
       report.ok(`zone ${cfZone.name} (id ${cfZone.id}, account "${cfZone.accountName ?? "?"}")`);
     } else {
-      report.warn(`zone ${ZONE_NAME} not found under the current credential.`);
+      report.err(`zone ${ZONE_NAME} not found under the current credential.`);
+      report.err("the jabiko.app Zaraz config cannot be read — plan readiness is blocked.");
+      report.printGate(
+        "CLOUDFLARE_ZONE_NOT_FOUND",
+        "Use a Cloudflare credential that can see the jabiko.app zone (correct account + Zone:Read)."
+      );
+      gatesHit.push("CLOUDFLARE_ZONE_NOT_FOUND");
     }
 
     if (cfAuth.capabilities.includes("zarazRead") && cfZone) {
@@ -173,7 +179,12 @@ export async function runPlan({
           gatesHit.push("GA4_MEASUREMENT_ID_MISMATCH");
           effectiveMeasurementId = null;
         } else if (discovered.candidates.length === 0) {
-          report.warn("No plausible Jabiko GA4 property found. Create one or pass --measurement-id.");
+          report.err("No plausible Jabiko GA4 property found; GA4 evidence is incomplete.");
+          report.printGate(
+            "GA4_READ_FAILURE",
+            "Create the Jabiko GA4 property / production web stream, or pass --measurement-id once it exists."
+          );
+          gatesHit.push("GA4_READ_FAILURE");
         } else {
           report.warn(`${discovered.candidates.length} plausible GA4 properties found — ambiguous.`);
           for (const c of discovered.candidates) {
@@ -187,7 +198,14 @@ export async function runPlan({
         if (discovered.measurementId) {
           report.ok(`web stream Measurement ID ${discovered.measurementId}`);
         } else {
-          report.warn("property has no web data stream with a Measurement ID.");
+          // A property without a Measurement ID is incomplete GA4 evidence —
+          // the plan cannot produce a meaningful Zaraz diff or dimension check.
+          report.err("the selected GA4 property has no web Measurement ID — GA4 evidence is incomplete.");
+          report.printGate(
+            "GA4_READ_FAILURE",
+            "Create the jabiko.app production web stream (with a Measurement ID) or pass --measurement-id."
+          );
+          gatesHit.push("GA4_READ_FAILURE");
         }
         effectiveMeasurementId = discovered.measurementId;
         const dims = await listCustomDimensions({ token: googleToken, property: discovered.property.name });
@@ -197,7 +215,15 @@ export async function runPlan({
         for (const c of dimDiff.conflicts) report.warn(`conflict: ${c.parameterName} exists as scope ${c.existingScope}, want ${c.desiredScope}`);
       }
     } catch (e) {
-      report.err(`GA4 discovery failed: ${e.message}`);
+      report.err(`GA4 discovery or dimension read failed: ${e.message}`);
+      // ANY failure to obtain required GA4 state blocks readiness, including
+      // 5xx/network errors. Only additionally label it OAuth when the message
+      // actually indicates an auth problem.
+      report.printGate(
+        "GA4_READ_FAILURE",
+        "GA4 Admin/Data read is required for a plan readiness conclusion; re-run when it is reachable."
+      );
+      gatesHit.push("GA4_READ_FAILURE");
       if (/permission|unauthorized|forbidden|invalid_grant/i.test(e.message)) {
         report.printGate("GOOGLE_OAUTH");
         gatesHit.push("GOOGLE_OAUTH");
@@ -219,6 +245,14 @@ export async function runPlan({
   }
 
   // 6. Summary.
+  // Defensive: never report full readiness when the published Zaraz config was
+  // not read (its diff is unavailable). Every earlier path that leaves
+  // config === null already pushes a CLOUDFLARE_* gate; this is belt-and-braces.
+  if (config === null && !gatesHit.some((g) => g.startsWith("CLOUDFLARE_"))) {
+    report.err("the published Zaraz config was not read — plan readiness is blocked.");
+    report.printGate("CLOUDFLARE_ZONE_NOT_FOUND", "The jabiko.app Zaraz production state is unavailable.");
+    gatesHit.push("CLOUDFLARE_ZONE_NOT_FOUND");
+  }
   report.section("Plan summary");
   if (gatesHit.length === 0) {
     report.ok("No human gates required — full desired-state diff available above.");

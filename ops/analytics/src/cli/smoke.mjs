@@ -28,7 +28,7 @@ import {
   STANDARD_REALTIME_MAX_MINUTES
 } from "../ga4.mjs";
 import { probeProductionZaraz } from "../production.mjs";
-import { parseFlags, discoverGa4 } from "./cliutil.mjs";
+import { parseFlags, discoverGa4, normalizeBooleanFlag } from "./cliutil.mjs";
 import * as report from "../report.mjs";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -41,6 +41,17 @@ export function summarizeRealtimeEvents(rows) {
     counts.set(row.eventName, (counts.get(row.eventName) ?? 0) + Number(row.eventCount ?? 0));
   }
   return counts;
+}
+
+/**
+ * Number of GA calendar-minute buckets that have rolled between the baseline
+ * observation and `now`. GA ages events from the start of the current calendar
+ * minute, so the window must advance by wall-clock bucket movement — NOT by
+ * floor(elapsedMilliseconds / 60000), which under-reports when the baseline
+ * was captured near the end of a minute.
+ */
+export function realtimeMaxAgeMinutes({ baselineAt, now = Date.now() }) {
+  return Math.max(0, Math.floor(now / 60000) - Math.floor(baselineAt / 60000));
 }
 
 export function realtimeSignalReached(counts) {
@@ -126,7 +137,24 @@ export async function runSmoke({
   pollIntervalMs = 10000
 } = {}) {
   const measurementIdFlag = flags.measurementId;
-  const placementActionVerified = flags.placementActionVerified === true;
+  let placementActionVerified;
+  try {
+    placementActionVerified = normalizeBooleanFlag(flags.placementActionVerified, "--placement-action-verified");
+  } catch (error) {
+    report.err(error.message);
+    report.err("fail closed: invalid boolean flag value.");
+    return {
+      exitCode: 2,
+      failed: true,
+      gateBlocked: true,
+      gates: [],
+      workflow: null,
+      eventCounts: {},
+      baselineCounts: {},
+      configFindings: [],
+      placementActionVerified: false
+    };
+  }
   let failed = false;
   let gateBlocked = false;
   const gates = [];
@@ -138,6 +166,7 @@ export async function runSmoke({
   let eventCounts = new Map();
   let baselineCounts = new Map();
   let baselineRows = [];
+  let baselineAt = null;
   let realtimeError = null;
 
   report.section(`Jabiko #745 production smoke · ${ZONE_NAME}`);
@@ -263,6 +292,7 @@ export async function runSmoke({
         dimensions: REALTIME_SMOKE_DIMENSIONS,
         minutes: STANDARD_REALTIME_MAX_MINUTES
       });
+      baselineAt = Date.now(); // wall-clock observation time for bucket alignment
       baselineCounts = summarizeRealtimeEvents(baselineRows);
       report.bullet(
         `baseline · page_view=${baselineCounts.get("page_view") ?? 0} · promo_click=${baselineCounts.get("promo_click") ?? 0}`
@@ -285,7 +315,6 @@ export async function runSmoke({
       printGuidedInteraction();
 
       const deadline = Date.now() + Math.max(0, watchSeconds) * 1000;
-      const watchStart = Date.now();
       let firstPoll = true;
       do {
         try {
@@ -295,8 +324,12 @@ export async function runSmoke({
             dimensions: REALTIME_SMOKE_DIMENSIONS,
             minutes: STANDARD_REALTIME_MAX_MINUTES
           });
-          const elapsedMinutes = Math.floor((Date.now() - watchStart) / 60000);
-          eventCounts = recentDelta(rows, baselineRows, elapsedMinutes);
+          // Align the window with GA's calendar-minute buckets since the
+          // baseline observation, not floor(elapsed/60000): a baseline captured
+          // at 12:34:59 must not let a bucket rollover subtract the guided
+          // traffic into a false failure (or admit pre-baseline traffic).
+          const maxAge = realtimeMaxAgeMinutes({ baselineAt, now: Date.now() });
+          eventCounts = recentDelta(rows, baselineRows, maxAge);
           realtimeError = null;
           report.bullet(
             `GA4 Realtime delta · page_view=+${eventCounts.get("page_view") ?? 0} · promo_click=+${eventCounts.get("promo_click") ?? 0}`
@@ -347,11 +380,11 @@ export async function runSmoke({
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const parsed = parseFlags(process.argv.slice(2));
+  const parsed = parseFlags(process.argv.slice(2), { booleans: ["placement-action-verified"] });
   const result = await runSmoke({
     flags: {
       measurementId: parsed["measurement-id"],
-      placementActionVerified: parsed["placement-action-verified"] === true
+      placementActionVerified: parsed["placement-action-verified"]
     }
   });
   process.exitCode = result.exitCode;
