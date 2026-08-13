@@ -18,6 +18,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  conservativeFullPlan,
   selectVerification,
   siblingTestCandidates
 } from "./select-verification.mjs";
@@ -32,11 +33,16 @@ const isMain =
 // Union of (commits on this branch vs <base>) + (working-tree modified/untracked).
 // ---------------------------------------------------------------------------
 export function collectChangedPaths(execFn, base) {
-  const paths = new Set();
   const branch = execFn(`git diff --name-only --diff-filter=ACMRD ${base}...HEAD`);
+  if (branch === null) {
+    throw new Error(`git diff ${base}...HEAD failed — missing/invalid base ref`);
+  }
   const worktree = execFn(`git ls-files --modified --others --exclude-standard`);
+  if (worktree === null) {
+    throw new Error(`git ls-files failed — cannot enumerate working-tree changes`);
+  }
+  const paths = new Set();
   for (const chunk of [branch, worktree]) {
-    if (!chunk) continue;
     for (const line of chunk.split("\n")) {
       const trimmed = line.trim();
       if (trimmed) paths.add(trimmed);
@@ -149,20 +155,36 @@ function main() {
     return;
   }
 
-  // ---- L1/L2 affected (auto-escalating to L3) -----------------------------
+  // ---- L3 (forced final delivery) — retains applicable non-test path gates --
   if (opts.level === "3") {
-    const plan = { level: "L3", commands: ["lint", "test", "build"], tests: [], regenerate: [], reasons: [] };
-    execute(plan, opts.dryRun);
+    let changed;
+    try {
+      changed = collectChangedPaths(execFn, opts.base);
+    } catch (e) {
+      console.warn(`⚠ ${e.message} — running conservative L3 (all path gates).`);
+      execute(conservativeFullPlan(e.message), opts.dryRun);
+      return;
+    }
+    const plan = selectVerification(changed, { forceL3: true, exists: existsSync });
+    execute(plan, opts.dryRun, changed);
     return;
   }
 
-  const changed = collectChangedPaths(execFn, opts.base);
+  // ---- L1/L2 affected (auto-escalating to L3 on failure/ambiguity) --------
+  let changed;
+  try {
+    changed = collectChangedPaths(execFn, opts.base);
+  } catch (e) {
+    console.warn(`⚠ ${e.message} — escalating to L3 (full verification).`);
+    execute(conservativeFullPlan(e.message), opts.dryRun);
+    return;
+  }
   if (changed.length === 0) {
     console.log("No changed files detected (base = " + opts.base + "). Nothing to verify.");
     return;
   }
 
-  const plan = selectVerification(changed);
+  const plan = selectVerification(changed, { exists: existsSync });
   execute(plan, opts.dryRun, changed);
 }
 

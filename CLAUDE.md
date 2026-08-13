@@ -25,9 +25,9 @@
 | **L2 Feature Gate** | commit / PR-ready 前 | L1 + path-aware domain gate（`check:exam` / `check:i18n`）＋ drift guard |
 | **L3 Full** | PR ready / 最終 review / merge 前 | `pnpm lint`、`pnpm test`、`pnpm build`（＋非 test 子集的 path gate） |
 
-**執行器**：`pnpm verify` 依 git changed-path 自動選 L1/L2（必要時升 L3）；`pnpm verify --dry-run` 只看計畫；`pnpm verify:full` 強制 L3。selector 在 [`scripts/select-verification.mjs`](scripts/select-verification.mjs)，是 deterministic、可測試、conservative 的 explicit 規則表（**不用 LLM 猜**、不做 dependency graph）。
+**執行器**：`pnpm verify` 依 git changed-path 自動選 L1/L2（必要時升 L3）；`pnpm verify --dry-run` 只看計畫；**`pnpm verify:full` 是唯一最終交付指令**（＝ `--level 3`：L3 full + 依 changed-path 保留 applicable 非 test path gate，如 `check:i18n`）。selector 在 [`scripts/select-verification.mjs`](scripts/select-verification.mjs)，是 deterministic、可測試、conservative 的 explicit 規則表（**不用 LLM 猜**、不做 dependency graph）。
 
-**Escalation（fail-safe）**：unknown 或高爆炸半徑的改動一律升 L3，寧可過度驗證也不靜默少測。至少涵蓋：test setup/config、Vite/Vitest/TS/build 設定、`package.json`/lockfile、共用 routing、cross-cutting domain contract/type、語言/fallback 合約、驗證 tooling 本身。
+**Escalation（fail-safe）**：unknown 或高爆炸半徑的改動一律升 L3，寧可過度驗證也不靜默少測。至少涵蓋：test setup/config、Vite/Vitest/TS/build 設定、`package.json`/lockfile、共用 routing、cross-cutting domain contract/type、語言/fallback 合約、驗證 tooling 本身（含 `scripts/*.test.ts`）；base diff 失敗或 production source 無既有 affected test 也升 L3（不 no-op）。
 
 **代表性 mapping**（完整規則以 `scripts/select-verification.mjs` 為準）：
 - component / domain / hooks / lib → L1 sibling test

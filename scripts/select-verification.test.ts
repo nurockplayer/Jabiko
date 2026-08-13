@@ -221,3 +221,41 @@ describe("selectVerification — aggregation & escalation", () => {
     expect(plan.tests).toContain("src/domain/grammarIndex.test.ts");
   });
 });
+
+describe("selectVerification — review fixes (#760 re-review)", () => {
+  it("verification-tooling test change -> L3, not L1 (scripts/*.test.ts)", () => {
+    for (const p of ["scripts/verify.test.ts", "scripts/select-verification.test.ts"]) {
+      expect(sel([p]).level, p).toBe("L3");
+    }
+  });
+
+  it("forced L3 retains applicable non-test path gate (i18n)", () => {
+    const plan = selectVerification(["src/locales/en.ts"], { forceL3: true });
+    expect(plan.level).toBe("L3");
+    expect(plan.commands).toEqual(["lint", "test", "build", "check:i18n"]);
+  });
+
+  it("forced L3 on a non-i18n change has no path gate", () => {
+    const plan = selectVerification(["src/components/MoreMenu.tsx"], { forceL3: true });
+    expect(plan.level).toBe("L3");
+    expect(plan.commands).toEqual(["lint", "test", "build"]);
+  });
+
+  it("production source with no existing affected test escalates to L3 (fail-safe)", () => {
+    const plan = selectVerification(["src/components/RulesPanel.tsx"], { exists: () => false });
+    expect(plan.level).toBe("L3");
+    expect(plan.commands).toEqual(["lint", "test", "build"]);
+  });
+
+  it("production source WITH an existing sibling test stays L1", () => {
+    const exists = (p: string) => p === "src/components/MoreMenu.test.tsx";
+    const plan = selectVerification(["src/components/MoreMenu.tsx"], { exists });
+    expect(plan.level).toBe("L1");
+    expect(plan.tests).toContain("src/components/MoreMenu.test.tsx");
+  });
+
+  it("docs-only change stays L1 and does not escalate (not a production source)", () => {
+    const plan = selectVerification(["README.md"], { exists: () => false });
+    expect(plan.level).toBe("L1");
+  });
+});

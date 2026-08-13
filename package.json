@@ -14,7 +14,7 @@
     "test:watch": "vitest",
     "verify": "node scripts/verify.mjs",
     "verify:dry-run": "node scripts/verify.mjs --dry-run",
-    "verify:full": "pnpm lint && pnpm test && pnpm build",
+    "verify:full": "node scripts/verify.mjs --level 3",
     "check:exam": "vitest run src/domain/contentGuard.test.ts",
     "check:readings": "node scripts/check-readings.mjs",
     "check:i18n": "node scripts/check-i18n-coverage.mjs",

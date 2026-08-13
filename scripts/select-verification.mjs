@@ -1,6 +1,6 @@
 // =============================================================================
 // select-verification.mjs — deterministic changed-path → verification selector
-// (issue #760: tiered verification L0–L4)
+// (issue #760: tiered verification L0–L3)
 // =============================================================================
 //
 // Pure, deterministic, fs-free: given a list of changed repo-relative paths,
@@ -43,22 +43,34 @@ const isBase = (re) => (p) => re.test(baseName(p));
 // project include globs. check:i18n is a separate Node scan, not subsumed.
 const SUBSET_OF_TEST = new Set(["check:exam"]);
 
+// Path gates that are NOT subsumed by `pnpm test` (separate Node scans) and
+// therefore must also run at L3. Conservative superset used when changed paths
+// are unknowable. check:readings is excluded by design (reference-only, always
+// exits 0).
+export const ALL_NON_TEST_PATH_GATES = ["check:i18n"];
+
+// L1 leaf categories that represent production source. A changed file in one
+// of these with no existing affected test is an under-tested production change
+// and escalates to L3 rather than silently no-opping (#760).
+const PRODUCTION_CATEGORIES = new Set(["component", "domain", "hooks", "lib"]);
+
+/** Full L3 plan used when changed paths cannot be determined (base diff failed). */
+export function conservativeFullPlan(reason) {
+  return {
+    level: "L3",
+    matches: [],
+    tests: [],
+    commands: ["lint", "test", "build", ...ALL_NON_TEST_PATH_GATES],
+    regenerate: [],
+    reasons: [reason ?? "changed paths unknowable → conservative L3 with all path gates"]
+  };
+}
+
 const RULES = [
   // ---- L3: high-blast-radius / contract surfaces -------------------------
-  {
-    id: "test-file",
-    level: "L1",
-    match: (p) => TEST_FILE_RE.test(p)
-  },
-  {
-    id: "docs",
-    level: "L1",
-    match: (p) =>
-      p.endsWith(".md") ||
-      p.startsWith("docs/") ||
-      isBase(/^\.(gitignore|editorconfig|prettierrc.*|npmrc|nvmrc)$/)(p) ||
-      isBase(/^LICENSE$/)(p)
-  },
+  // `global-config` (incl. `scripts/**` verification tooling) must match
+  // BEFORE `test-file`: a `scripts/*.test.ts` change is still verification
+  // tooling and must escalate to L3, not downgrade to L1 (#760).
   {
     id: "global-config",
     level: "L3",
@@ -74,6 +86,20 @@ const RULES = [
       isBase(/^tsconfig(\..*)?\.json$/)(p) ||
       isBase(/^eslint\.config\./)(p) ||
       isBase(/^\.eslintrc/)(p)
+  },
+  {
+    id: "test-file",
+    level: "L1",
+    match: (p) => TEST_FILE_RE.test(p)
+  },
+  {
+    id: "docs",
+    level: "L1",
+    match: (p) =>
+      p.endsWith(".md") ||
+      p.startsWith("docs/") ||
+      isBase(/^\.(gitignore|editorconfig|prettierrc.*|npmrc|nvmrc)$/)(p) ||
+      isBase(/^LICENSE$/)(p)
   },
   {
     id: "root-routing",
@@ -243,7 +269,10 @@ export function siblingTestCandidates(path) {
 //   regenerate `build:furigana` / `build:sitemap` hints (workflow, not a gate)
 //   reasons    human-readable "path -> category (level)" lines, sorted
 // ---------------------------------------------------------------------------
-export function selectVerification(changedPaths, { extraTests = DEFAULT_EXTRA_TESTS } = {}) {
+export function selectVerification(
+  changedPaths,
+  { extraTests = DEFAULT_EXTRA_TESTS, forceL3 = false, exists = null } = {}
+) {
   const byCategory = new Map();
   for (const p of changedPaths) {
     const cat = classifyPath(p);
@@ -276,12 +305,28 @@ export function selectVerification(changedPaths, { extraTests = DEFAULT_EXTRA_TE
     if (extra) for (const t of extra) tests.add(t);
   }
 
-  if (level === "L3") {
+  // Fail-safe: a production source change with no existing affected test must
+  // not silently no-op. Detected only when the caller supplies `exists` (the
+  // CLI does; tests inject a fake to keep this module fs-free otherwise).
+  const uncovered = [];
+  if (exists) {
+    for (const p of changedPaths) {
+      const cat = classifyPath(p);
+      if (!PRODUCTION_CATEGORIES.has(cat)) continue;
+      const candidates = [...siblingTestCandidates(p), ...(extraTests[p] ?? [])];
+      if (!candidates.some((t) => exists(t))) uncovered.push(p);
+    }
+    if (uncovered.length > 0) {
+      reasons.push(`${uncovered.join(", ")} → no affected test → L3 (fail-safe)`);
+    }
+  }
+
+  if (forceL3 || level === "L3" || uncovered.length > 0) {
     // Full gate subsumes focused tests; keep only non-subset path gates
     // (check:i18n), drop check:exam (a vitest subset of `pnpm test`).
     const pathGates = [...commands].filter((c) => !SUBSET_OF_TEST.has(c)).sort();
     return {
-      level,
+      level: "L3",
       matches,
       tests: [],
       commands: ["lint", "test", "build", ...pathGates],

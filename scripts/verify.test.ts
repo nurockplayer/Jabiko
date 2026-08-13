@@ -16,9 +16,19 @@ describe("collectChangedPaths", () => {
     ]);
   });
 
-  it("returns [] when git reports nothing", () => {
-    const fakeExec = () => null;
+  it("returns [] when both commands succeed with empty output", () => {
+    const fakeExec = () => "";
     expect(collectChangedPaths(fakeExec, "main")).toEqual([]);
+  });
+
+  it("throws when the base diff fails (missing/invalid base) — fail safe", () => {
+    const fakeExec = (cmd: string) => (cmd.includes("git diff") ? null : "");
+    expect(() => collectChangedPaths(fakeExec, "main")).toThrow(/base ref/i);
+  });
+
+  it("throws when working-tree enumeration fails — fail safe", () => {
+    const fakeExec = (cmd: string) => (cmd.includes("git diff") ? "" : null);
+    expect(() => collectChangedPaths(fakeExec, "main")).toThrow(/ls-files/i);
   });
 });
 
