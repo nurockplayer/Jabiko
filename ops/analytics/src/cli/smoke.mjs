@@ -265,7 +265,8 @@ export async function runSmoke({
     } else {
       try {
         const zone = await findZone({ token: cfAuth.token, name: ZONE_NAME });
-        if (!zone) throw new Error(`zone ${ZONE_NAME} not found`);
+        if (zone?.ambiguous) throw new Error("multiple active jabiko.app zones — ambiguous; refusing to bind to an arbitrary one");
+        if (!zone?.id) throw new Error(`zone ${ZONE_NAME} not found`);
 
         workflow = await cfRequest({ token: cfAuth.token, path: zarazWorkflowUrl(zone.id) });
         if (workflow !== "realtime" && workflow !== "preview") {

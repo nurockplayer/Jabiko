@@ -61,7 +61,7 @@ function makeRouter({ workflow = "realtime", exportConfig = {}, draftConfig = nu
       if (url.includes("/zones?name=")) {
         return {
           status: 200,
-          json: { success: true, result: noZone ? [] : [{ id: "zone1", name: "jabiko.app", account: { name: "Acct" } }] }
+          json: { success: true, result: noZone ? [] : [{ id: "zone1", name: "jabiko.app", status: "active", account: { name: "Acct" } }] }
         };
       }
       return { status: 404, json: { success: false, errors: [{ message: "unexpected" }] } };

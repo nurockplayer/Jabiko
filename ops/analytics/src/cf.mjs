@@ -72,11 +72,19 @@ export async function findZone({ token, name }) {
     token,
     path: `/zones?name=${encodeURIComponent(name)}`
   });
-  const zone = Array.isArray(result) ? result[0] : null;
-  if (!zone) return null;
-  return {
-    id: zone.id,
-    name: zone.name,
-    accountName: zone.account?.name ?? null
-  };
+  const zones = Array.isArray(result) ? result : [];
+  // Only a unique ACTIVE zone may be bound — never a pending/inactive zone or an
+  // arbitrary first result. Zero active zones is "not found"; multiple active
+  // zones is an explicit ambiguity that callers must fail closed on.
+  const active = zones.filter((z) => z.status === "active");
+  if (active.length === 1) {
+    const zone = active[0];
+    return {
+      id: zone.id,
+      name: zone.name,
+      accountName: zone.account?.name ?? null,
+      ambiguous: false
+    };
+  }
+  return { id: null, name: null, accountName: null, ambiguous: active.length > 1 };
 }

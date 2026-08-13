@@ -11,7 +11,8 @@ import {
   cfHeaders,
   parseCfResponse,
   CfApiError,
-  cfRequest
+  cfRequest,
+  findZone
 } from "../src/cf.mjs";
 
 const ZONE = "abc123";
@@ -96,4 +97,47 @@ test("cfRequest sends a full Zaraz URL without double-prefixing it", async () =>
   );
   assert.ok(!url.includes("client/v4client/v4"), "no duplicated base prefix");
   assert.ok(!url.includes("client/v4https://"), "no scheme-in-path prefixing");
+});
+
+// --- findZone: only a unique ACTIVE jabiko.app zone is selected ---
+function zone(id, status) {
+  return { id, name: "jabiko.app", status, account: { name: "Acct" } };
+}
+
+async function findZoneWith(zones) {
+  const prev = globalThis.fetch;
+  globalThis.fetch = async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ success: true, result: zones })
+  });
+  try {
+    return await findZone({ token: "t", name: "jabiko.app" });
+  } finally {
+    globalThis.fetch = prev;
+  }
+}
+
+test("findZone picks the single active zone even when a pending zone exists", async () => {
+  const result = await findZoneWith([zone("z-pending", "pending"), zone("z-active", "active")]);
+  assert.equal(result.ambiguous, false);
+  assert.equal(result.id, "z-active", "the pending zone is never selected");
+});
+
+test("findZone selects the unique active zone", async () => {
+  const result = await findZoneWith([zone("z1", "active")]);
+  assert.equal(result.ambiguous, false);
+  assert.equal(result.id, "z1");
+});
+
+test("findZone fails closed when no active zone exists", async () => {
+  const result = await findZoneWith([zone("z-pending", "pending")]);
+  assert.equal(result.id, null, "a pending-only result is treated as not-found");
+  assert.equal(result.ambiguous, false);
+});
+
+test("findZone fails closed when multiple active zones exist", async () => {
+  const result = await findZoneWith([zone("z1", "active"), zone("z2", "active")]);
+  assert.equal(result.id, null, "two active zones is ambiguous — never bind the first");
+  assert.equal(result.ambiguous, true);
 });

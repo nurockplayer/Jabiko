@@ -65,8 +65,16 @@ export async function runPlan({
       report.err(`zone discovery failed: ${e.message}`);
       return null;
     });
-    if (cfZone) {
+    if (cfZone && !cfZone.ambiguous && cfZone.id) {
       report.ok(`zone ${cfZone.name} (id ${cfZone.id}, account "${cfZone.accountName ?? "?"}")`);
+    } else if (cfZone?.ambiguous) {
+      report.err("multiple active jabiko.app zones — ambiguous; refusing to bind to an arbitrary one.");
+      report.err("plan readiness is blocked until exactly one active jabiko.app zone is identifiable.");
+      report.printGate(
+        "CLOUDFLARE_ZONE_AMBIGUITY",
+        "Resolve which active jabiko.app zone is the intended production zone (archive/rename the others), then re-run."
+      );
+      gatesHit.push("CLOUDFLARE_ZONE_AMBIGUITY");
     } else {
       report.err(`zone ${ZONE_NAME} not found under the current credential.`);
       report.err("the jabiko.app Zaraz config cannot be read — plan readiness is blocked.");
@@ -77,7 +85,7 @@ export async function runPlan({
       gatesHit.push("CLOUDFLARE_ZONE_NOT_FOUND");
     }
 
-    if (cfAuth.capabilities.includes("zarazRead") && cfZone) {
+    if (cfAuth.capabilities.includes("zarazRead") && cfZone && !cfZone.ambiguous && cfZone.id) {
       try {
         // Workflow is required to know whether /config may hold unpublished
         // preview state. Any value other than realtime|preview blocks plan
@@ -150,7 +158,7 @@ export async function runPlan({
           gatesHit.push("CLOUDFLARE_AUTH");
         }
       }
-    } else if (cfZone) {
+    } else if (cfZone?.id) {
       report.warn("Current credential cannot read the Zaraz config (needs Zone:Zaraz Read).");
       report.printGate("CLOUDFLARE_AUTH");
       gatesHit.push("CLOUDFLARE_AUTH");

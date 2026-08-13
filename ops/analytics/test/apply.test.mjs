@@ -1,10 +1,10 @@
 // ops/analytics apply CLI tests (stubbed fetch, no real credentials).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { mkdtempSync, readdirSync, rmSync, readFileSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runApply } from "../src/cli/apply.mjs";
+import { runApply, persistZarazSnapshot } from "../src/cli/apply.mjs";
 import { FORWARDED_EVENTS } from "../src/desired.mjs";
 
 const ZONE_ID = "z1";
@@ -69,7 +69,9 @@ function makeFetch({
   workflowFails = false,
   publishFails = false,
   putConflict = false,
+  putConflictOnce = false,
   conflictFreshBlocker = false,
+  conflictFreshConfig = null,
   dataStreamMeasurementId = "G-TEST",
   draftConfig = exportConfig(),
   previewChanged = false
@@ -79,6 +81,7 @@ function makeFetch({
   let published = false;
   let exportReads = 0;
   let putBody = null;
+  let putAttempts = 0;
 
   const impl = async (url, options = {}) => {
     const method = options.method || "GET";
@@ -93,7 +96,7 @@ function makeFetch({
 
     if (u.includes("api.cloudflare.com")) {
       if (u.includes("/zones?name=")) {
-        return respond(200, { success: true, result: [{ id: ZONE_ID, name: "jabiko.app", account: { name: "Acct" } }] });
+        return respond(200, { success: true, result: [{ id: ZONE_ID, name: "jabiko.app", status: "active", account: { name: "Acct" } }] });
       }
       if (u.includes("/settings/zaraz/workflow")) {
         if (workflowFails) return respond(500, { success: false, errors: [{ message: "workflow unavailable" }] });
@@ -109,13 +112,20 @@ function makeFetch({
           blocker.tools.ga4.blockingTriggers = ["trg-something"];
           return respond(200, { success: true, result: blocker });
         }
+        if (conflictFreshConfig && exportReads === 2) {
+          // The fresh published export that becomes the retry mutation base.
+          return respond(200, { success: true, result: conflictFreshConfig });
+        }
         const liveAfterMutation = workflow === "realtime" ? putApplied : published;
         const result = liveAfterMutation && !postApplyUnconverged ? convergedConfig() : exportConfig();
         return respond(200, { success: true, result });
       }
       if (u.includes("/settings/zaraz/config") && method === "PUT") {
         if (putConflict) {
-          return respond(409, { success: false, errors: [{ code: 7204, message: "config version conflict" }] });
+          putAttempts += 1;
+          if (!putConflictOnce || putAttempts === 1) {
+            return respond(409, { success: false, errors: [{ code: 7204, message: "config version conflict" }] });
+          }
         }
         putApplied = true;
         putBody = options.body ? JSON.parse(options.body) : null;
@@ -345,6 +355,53 @@ test("realtime conflict rebuild fails closed when the fresh export introduces a 
   assert.notEqual(result.exitCode, 0, "a blocker in the rebuilt state must fail closed");
   const puts = calls.filter((c) => c.method === "PUT" && c.url.includes("/settings/zaraz/config"));
   assert.equal(puts.length, 1, "no second PUT is issued when the rebuild introduces a blocker");
+});
+
+test("conflict retry persists the rollback snapshot from the fresh published export", async () => {
+  // After a realtime PUT conflict, the retry mutation base is the fresh
+  // /export. The rollback snapshot must reflect that fresh state (so a rollback
+  // restores the actual pre-retry production, not the stale pre-conflict one).
+  const dir = mkdtempSync(join(tmpdir(), "ops-snap-"));
+  const freshCfg = exportConfig(); // a clean fresh export (no blocker)
+  const { impl } = makeFetch({ workflow: "realtime", putConflict: true, putConflictOnce: true, conflictFreshConfig: freshCfg });
+  try {
+    const result = await withFetch(impl, () =>
+      runApply({ env: BASE_ARGS.env, flags: BASE_ARGS.flags, stateDir: dir })
+    );
+    assert.equal(result.exitCode, 0, "a conflict with a clean fresh export retries successfully");
+    const last = JSON.parse(readFileSync(join(dir, "zaraz-config-last.json"), "utf8"));
+    assert.deepEqual(last, freshCfg, "the rollback snapshot reflects the fresh pre-retry state, not the stale pre-conflict one");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("persistZarazSnapshot writes 0600 secret-safe snapshot files", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ops-snap-"));
+  const cfg = { tools: {}, variables: { s1: { name: "s1", type: "secret", value: "secret" } } };
+  try {
+    const path = persistZarazSnapshot(cfg, dir);
+    assert.equal((statSync(path).mode & 0o777), 0o600, "the snapshot file is owner-only");
+    assert.equal((statSync(join(dir, "zaraz-config-last.json")).mode & 0o777), 0o600);
+    assert.deepEqual(JSON.parse(readFileSync(path, "utf8")), cfg, "the snapshot carries the full config");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("non-conflict apply still snapshots the initial published export", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "ops-snap-"));
+  try {
+    const { impl } = makeFetch();
+    const result = await withFetch(impl, () =>
+      runApply({ env: BASE_ARGS.env, flags: BASE_ARGS.flags, stateDir: dir })
+    );
+    assert.equal(result.exitCode, 0);
+    const last = JSON.parse(readFileSync(join(dir, "zaraz-config-last.json"), "utf8"));
+    assert.deepEqual(last, exportConfig(), "the non-conflict path snapshots the initial published export");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test("preview workflow with pending unpublished changes fails closed before any PUT", async () => {

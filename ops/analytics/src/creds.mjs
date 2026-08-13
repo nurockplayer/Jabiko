@@ -24,6 +24,7 @@ export const ALLOWED_GATES = [
   "CLOUDFLARE_PREVIEW_PENDING",
   "CLOUDFLARE_PREVIEW_CHANGED",
   "CLOUDFLARE_WORKFLOW_UNKNOWN",
+  "CLOUDFLARE_ZONE_AMBIGUITY",
   "CLOUDFLARE_ZONE_NOT_FOUND",
   "GA4_READ_FAILURE",
   "GA4_DIMENSION_SCOPE_CONFLICT",
@@ -72,6 +73,12 @@ export const GATE_DEFS = {
       "Use a Cloudflare credential that can see the jabiko.app zone (correct account + Zone:Read), or confirm the zone exists.",
     scope: "Zone:Read on an account that owns jabiko.app.",
     unlocks: "Reading the jabiko.app Zaraz workflow and published config so plan/apply/smoke can reason about production state."
+  },
+  CLOUDFLARE_ZONE_AMBIGUITY: {
+    action:
+      "Resolve which active jabiko.app zone is the intended production zone (e.g. archive/rename the non-production one), then re-run.",
+    scope: "Zone visibility across accounts. Exactly one ACTIVE jabiko.app zone must be identifiable.",
+    unlocks: "Binding plan/apply/smoke to a single production zone instead of an arbitrary first result or a pending/inactive zone."
   },
   GA4_READ_FAILURE: {
     action:

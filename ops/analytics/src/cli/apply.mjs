@@ -38,6 +38,21 @@ import * as report from "../report.mjs";
 
 const STATE_DIR = fileURLToPath(new URL("../../state", import.meta.url));
 
+/**
+ * Persist a secret-complete Zaraz config snapshot into `stateDir` with
+ * owner-only (0o600) permissions. `config` is typically the published /export —
+ * the exact mutation base — so a rollback restores the real pre-mutation state.
+ * Returns the timestamped snapshot path.
+ */
+export function persistZarazSnapshot(config, stateDir) {
+  mkdirSync(stateDir, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const snapshotPath = join(stateDir, `zaraz-config-published-${stamp}.json`);
+  writeFileSync(snapshotPath, JSON.stringify(config, null, 2), { mode: 0o600 });
+  writeFileSync(join(stateDir, "zaraz-config-last.json"), JSON.stringify(config, null, 2), { mode: 0o600 });
+  return snapshotPath;
+}
+
 async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
   const dims = await listCustomDimensions({ token: googleToken, property });
   const diff = ga4DesiredDiff(property, dims);
@@ -105,7 +120,16 @@ export async function runApply({ env = process.env, flags = {}, stateDir = STATE
   report.bullet(`auth source: ${cfAuth.source}`);
 
   const zone = await findZone({ token: cfAuth.token, name: ZONE_NAME });
-  if (!zone) {
+  if (zone?.ambiguous) {
+    report.err("multiple active jabiko.app zones — ambiguous; refusing to bind to an arbitrary one.");
+    report.printGate(
+      "CLOUDFLARE_ZONE_AMBIGUITY",
+      "Resolve which active jabiko.app zone is the intended production zone (archive/rename the others), then re-run."
+    );
+    gates.push("CLOUDFLARE_ZONE_AMBIGUITY");
+    return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
+  }
+  if (!zone?.id) {
     report.err(`zone ${ZONE_NAME} not found.`);
     return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
   }
@@ -242,11 +266,7 @@ export async function runApply({ env = process.env, flags = {}, stateDir = STATE
     } else {
       // Persist a secret-complete snapshot only in the real-mutation path —
       // a dry-run must not create state/ or write the /export secrets.
-      mkdirSync(stateDir, { recursive: true });
-      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const snapshotPath = join(stateDir, `zaraz-config-published-${stamp}.json`);
-      writeFileSync(snapshotPath, JSON.stringify(current, null, 2), { mode: 0o600 });
-      writeFileSync(join(stateDir, "zaraz-config-last.json"), JSON.stringify(current, null, 2), { mode: 0o600 });
+      const snapshotPath = persistZarazSnapshot(current, stateDir);
       report.ok(`snapshot saved to ${snapshotPath}`);
 
       let putOk = false;
@@ -285,6 +305,12 @@ export async function runApply({ env = process.env, flags = {}, stateDir = STATE
               report.err("fail closed: refusing to retry the PUT against a state with blocking findings.");
               return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
             }
+            // `fresh` becomes the retry mutation base — persist it as the
+            // rollback snapshot now, so a rollback after a successful retry
+            // restores the actual pre-retry production state (not the stale
+            // pre-conflict `current`).
+            const freshSnapshot = persistZarazSnapshot(fresh, stateDir);
+            report.ok(`rollback snapshot refreshed from the fresh published export: ${freshSnapshot}`);
             desired = rebuilt.config;
           } else {
             report.err(`PUT failed: ${error.message}`);

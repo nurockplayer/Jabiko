@@ -101,7 +101,7 @@ function makeFetch({
     }
     if (u.includes("api.cloudflare.com")) {
       if (u.includes("/zones?name=")) {
-        return json(200, { success: true, result: [{ id: "z1", name: "jabiko.app", account: { name: "Acct" } }] });
+        return json(200, { success: true, result: [{ id: "z1", name: "jabiko.app", status: "active", account: { name: "Acct" } }] });
       }
       if (u.includes("/settings/zaraz/workflow")) {
         if (workflowFails) return json(500, { success: false, errors: [{ message: "workflow unavailable" }] });

@@ -131,6 +131,7 @@ test("only documented human gates exist, including preview publication", () => {
       "CLOUDFLARE_PREVIEW_PENDING",
       "CLOUDFLARE_PUBLISH",
       "CLOUDFLARE_WORKFLOW_UNKNOWN",
+      "CLOUDFLARE_ZONE_AMBIGUITY",
       "CLOUDFLARE_ZONE_NOT_FOUND",
       "GA4_DIMENSION_SCOPE_CONFLICT",
       "GA4_MEASUREMENT_ID_MISMATCH",
