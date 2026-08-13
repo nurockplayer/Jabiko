@@ -40,6 +40,8 @@ export type Copy = {
   routeErrorReload: string;
   routeErrorClearCache: string;
   routeErrorGoHome: string;
+  /** Accessible name for the route-aware breadcrumb nav (#729). */
+  breadcrumbLabel: string;
   home: string;
   learn: string;
   rules: string;
@@ -371,7 +373,7 @@ export type Copy = {
   grammarRelatedPatterns: string;
   grammarCommonMistakes: string;
   grammarBrowseLevel: string;
-  grammarBackToIndex: string;
+  grammarPagerLabel: string;
   grammarPrev: string;
   grammarNext: string;
   grammarImportanceMustKnow: string;

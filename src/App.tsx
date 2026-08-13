@@ -22,6 +22,9 @@ import { RouteErrorBoundary } from "./components/RouteErrorBoundary";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { JabikoMark } from "./components/JabikoMark";
 import { AppNavigation } from "./components/AppNavigation";
+import { AppBreadcrumbs } from "./components/AppBreadcrumbs";
+import { buildBreadcrumbs, type BreadcrumbLabels } from "./domain/breadcrumbs";
+import { legalLabelsFor } from "./domain/legalLabels";
 import { DeletePracticeHistoryDialog } from "./components/DeletePracticeHistoryDialog";
 import { FuriganaContext } from "./components/furiganaContext";
 import { useTheme } from "./hooks/useTheme";
@@ -127,6 +130,22 @@ export default function App() {
   const grammarLevel = isGrammarLevelRoute
     ? (grammarSurface!.toUpperCase() as JlptLevel)
     : null;
+
+  // Route-aware breadcrumbs (#729): rendered only for nested routes with a real
+  // parent hierarchy (grammar surface/level, kana, legal pages). Parent crumbs
+  // are real anchors that route through setRoute on an unmodified click.
+  const legalLabels = legalLabelsFor(language);
+  const breadcrumbLabels: BreadcrumbLabels = {
+    nav: t.breadcrumbLabel,
+    home: t.home,
+    learn: t.learn,
+    grammar: t.grammar,
+    about: t.about,
+    kanaTable: t.kanaPageTitle,
+    privacy: legalLabels.privacyLabel,
+    terms: legalLabels.termsLabel
+  };
+  const breadcrumbModel = buildBreadcrumbs(route, breadcrumbLabels);
 
   // Keep the URL in sync when the view changes (push a history entry only
   // when the path actually differs, so popstate-driven changes don't loop).
@@ -577,6 +596,10 @@ export default function App() {
         }}
       />
 
+      {breadcrumbModel ? (
+        <AppBreadcrumbs model={breadcrumbModel} onNavigate={setRoute} />
+      ) : null}
+
       <FuriganaContext.Provider value={{ enabled: furiganaEnabled }}>
       {appView === "home" ? (
         <HomePanel
@@ -670,10 +693,6 @@ export default function App() {
             onOpenPattern={(surface) => {
               setRoute(grammarRoute(surface));
             }}
-            onBack={() => setRoute(staticRoute("home"))}
-            onBackToOverview={() => {
-              setRoute(grammarRoute());
-            }}
             onSelectLevel={(lvl) => {
               setRoute(grammarRoute(lvl));
             }}
@@ -685,10 +704,6 @@ export default function App() {
             surface={grammarSurface ?? ""}
             language={language}
             onPractice={() => openChallenge({ mode: "daily" })}
-            onBack={() => {
-              // Go back to grammar index (overview or level index)
-              setRoute(grammarRoute());
-            }}
             onNavigate={(surface) => setRoute(grammarRoute(surface))}
           />
         </Suspense>

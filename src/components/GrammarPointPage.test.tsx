@@ -17,7 +17,7 @@ describe("GrammarPointPage", () => {
   it("shows the grammar point as an <h1> with its meaning and a worked example", () => {
     const point = buildGrammarPoint(notedSurface)!;
     render(
-      <GrammarPointPage surface={notedSurface} language="zh-Hant" onPractice={vi.fn()} onBack={vi.fn()} />
+      <GrammarPointPage surface={notedSurface} language="zh-Hant" onPractice={vi.fn()} />
     );
 
     expect(screen.getByRole("heading", { level: 1, name: notedSurface })).toBeInTheDocument();
@@ -30,23 +30,17 @@ describe("GrammarPointPage", () => {
     const onPractice = vi.fn();
     const user = userEvent.setup();
     render(
-      <GrammarPointPage surface={notedSurface} language="zh-Hant" onPractice={onPractice} onBack={vi.fn()} />
+      <GrammarPointPage surface={notedSurface} language="zh-Hant" onPractice={onPractice} />
     );
 
     await user.click(screen.getByRole("button", { name: t.startChallenge }));
     expect(onPractice).toHaveBeenCalledTimes(1);
   });
 
-  it("falls back gracefully for an unknown surface and supports going back", async () => {
-    const onBack = vi.fn();
-    const user = userEvent.setup();
-    render(
-      <GrammarPointPage surface="存在しない文法zzz" language="zh-Hant" onPractice={vi.fn()} onBack={onBack} />
-    );
+  it("falls back gracefully for an unknown surface", () => {
+    render(<GrammarPointPage surface="存在しない文法zzz" language="zh-Hant" onPractice={vi.fn()} />);
 
     expect(screen.getByRole("heading", { level: 1, name: "存在しない文法zzz" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: t.grammarBackToIndex }));
-    expect(onBack).toHaveBeenCalledTimes(1);
   });
 
   it("renders a database-only pattern's Chinese content in any language (#438/#427)", () => {
@@ -55,18 +49,18 @@ describe("GrammarPointPage", () => {
     const surface = dbOnly!.pattern.replace(/^[〜～]/, "");
 
     const zh = render(
-      <GrammarPointPage surface={surface} language="zh-Hant" onPractice={vi.fn()} onBack={vi.fn()} />
+      <GrammarPointPage surface={surface} language="zh-Hant" onPractice={vi.fn()} />
     );
     expect(screen.getByText(dbOnly!.meaningZh)).toBeInTheDocument();
     zh.unmount();
 
     const en = render(
-      <GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />
+      <GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} />
     );
     expect(screen.getByText(dbOnly!.meaningZh)).toBeInTheDocument();
     en.unmount();
 
-    render(<GrammarPointPage surface={surface} language="ja" onPractice={vi.fn()} onBack={vi.fn()} />);
+    render(<GrammarPointPage surface={surface} language="ja" onPractice={vi.fn()} />);
     expect(screen.getByText(dbOnly!.meaningZh)).toBeInTheDocument();
   });
 
@@ -76,7 +70,7 @@ describe("GrammarPointPage", () => {
       return p !== null && !p.note && p.explanations.length > 0 && Boolean(p.meaningI18n?.en);
     })!;
     const point = buildGrammarPoint(surface)!;
-    render(<GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} onBack={vi.fn()} />);
+    render(<GrammarPointPage surface={surface} language="en" onPractice={vi.fn()} />);
 
     expect(screen.getByText(point.meaningI18n!.en!)).toBeInTheDocument();
     const firstUsage = point.explanations
@@ -111,7 +105,6 @@ describe("GrammarPointPage next/prev pager (#457)", () => {
         surface={surface}
         language="zh-Hant"
         onPractice={vi.fn()}
-        onBack={vi.fn()}
         onNavigate={onNavigate}
       />
     );
@@ -127,7 +120,6 @@ describe("GrammarPointPage next/prev pager (#457)", () => {
         surface={surface}
         language="zh-Hant"
         onPractice={vi.fn()}
-        onBack={vi.fn()}
         onNavigate={onNavigate}
       />
     );
@@ -137,7 +129,7 @@ describe("GrammarPointPage next/prev pager (#457)", () => {
 
   it("renders no pager when onNavigate is not wired in", () => {
     const { container } = render(
-      <GrammarPointPage surface={surface} language="zh-Hant" onPractice={vi.fn()} onBack={vi.fn()} />
+      <GrammarPointPage surface={surface} language="zh-Hant" onPractice={vi.fn()} />
     );
     expect(container.querySelector(".gp-pager")).toBeNull();
   });
