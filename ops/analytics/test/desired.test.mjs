@@ -548,6 +548,94 @@ test("build removes a miswired same-name action so no false event can be emitted
   assert.ok(mutations.some((m) => m.code === "TRACK_ACTION_MISWIRED_REMOVED" && m.event === "promo_click"));
 });
 
+// --- automatic pageview: only demonstrable page_view emission is removed ---
+test("build preserves a non-page_view track action on the pageload system trigger", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.actions["act-login-impression"] = {
+    actionType: "track",
+    data: { en: "login_impression" },
+    firingTriggers: ["trg-page-load"],
+    blockingTriggers: []
+  };
+  cfg.triggers["trg-page-load"] = {
+    name: "pageload",
+    system: "pageload",
+    loadRules: [],
+    excludeRules: []
+  };
+  const { config, mutations } = buildZarazDesiredConfig(cfg, { measurementId: MEASUREMENT_ID });
+  assert.ok(
+    config.tools.ga4.actions["act-login-impression"],
+    "a login_impression track action on pageload is NOT an automatic page view and must survive"
+  );
+  assert.ok(
+    !mutations.some((m) => m.code === "AUTO_PAGEVIEW_REMOVED" && m.id === "act-login-impression"),
+    "the unrelated pageload action is never removed"
+  );
+});
+
+test("automaticPageviewActive detects only demonstrable page_view emission", () => {
+  // actionType === pageview is an automatic page view
+  const pageviewCfg = convergedConfig();
+  pageviewCfg.tools.ga4.actions["act-pv"] = { actionType: "pageview", data: {}, firingTriggers: [], blockingTriggers: [] };
+  assert.ok(automaticPageviewActive(pageviewCfg));
+
+  // a track action forwarding page_view on a pageload system trigger is one too
+  const trackPvCfg = convergedConfig();
+  trackPvCfg.tools.ga4.actions["act-track-pv"] = {
+    actionType: "track",
+    data: { en: "page_view" },
+    firingTriggers: ["trg-page-load"],
+    blockingTriggers: []
+  };
+  trackPvCfg.triggers["trg-page-load"] = { name: "pageload", system: "pageload", loadRules: [], excludeRules: [] };
+  assert.ok(automaticPageviewActive(trackPvCfg));
+
+  // a login_impression track action on pageload is NOT an automatic page view
+  const loginCfg = convergedConfig();
+  loginCfg.tools.ga4.actions["act-login"] = {
+    actionType: "track",
+    data: { en: "login_impression" },
+    firingTriggers: ["trg-page-load"],
+    blockingTriggers: []
+  };
+  loginCfg.triggers["trg-page-load"] = { name: "pageload", system: "pageload", loadRules: [], excludeRules: [] };
+  assert.ok(!automaticPageviewActive(loginCfg));
+});
+
+// --- over-wiring: an action must bind EXACTLY the expected trigger ---
+test("a same-name action over-wired to an extra trigger is blocking", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.actions["act-promo-click"].firingTriggers = ["trg-promo-click", "trg-page-view"];
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  const f = findings.find((x) => x.code === "TRACK_ACTION_MISWIRED");
+  assert.ok(f, "an over-wired action (expected trigger + extra) must be blocking");
+  assert.equal(f.event, "promo_click");
+});
+
+// --- GA4 tool-level blockingTriggers ---
+test("a reused GA4 tool with non-empty blockingTriggers is not converged", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.blockingTriggers = ["trg-something"];
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  assert.ok(findings.some((f) => f.code === "GA4_TOOL_BLOCKING_TRIGGERS"), "tool-level blocking wiring is not converged");
+});
+
+test("build surfaces a blocking finding for a reused tool with non-empty blockingTriggers (does not delete)", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.blockingTriggers = ["trg-something"];
+  const { config, findings } = buildZarazDesiredConfig(cfg, { measurementId: MEASUREMENT_ID });
+  assert.ok(
+    findings.some((f) => f.code === "GA4_TOOL_BLOCKING_TRIGGERS" && f.severity === "blocking"),
+    "reused tool blocking wiring is a blocking finding"
+  );
+  assert.deepEqual(
+    config.tools.ga4.blockingTriggers,
+    ["trg-something"],
+    "unrelated blocking logic is preserved, not silently deleted"
+  );
+});
+
 // --- GA4 tool permissions ---
 test("missing GA4 permissions is a blocking finding", () => {
   const cfg = convergedConfig();

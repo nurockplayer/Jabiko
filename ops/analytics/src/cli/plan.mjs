@@ -2,29 +2,31 @@
 // Never mutates anything.
 
 import { pathToFileURL } from "node:url";
-import { ZONE_NAME, zarazDesiredDiff, ga4DesiredDiff, analyzeZaraz } from "../desired.mjs";
+import { ZONE_NAME, zarazDesiredDiff, ga4DesiredDiff, analyzeZaraz, hasPendingPreview } from "../desired.mjs";
 import { resolveCloudflareAuth } from "../creds.mjs";
-import { findZone, cfRequest, CfApiError, zarazConfigUrl } from "../cf.mjs";
+import { findZone, cfRequest, CfApiError, zarazConfigUrl, zarazExportUrl, zarazWorkflowUrl } from "../cf.mjs";
 import { googleTokenFromEnv, listCustomDimensions } from "../ga4.mjs";
 import { probeProductionZaraz } from "../production.mjs";
 import { parseFlags, discoverGa4, repoStaticChecks } from "./cliutil.mjs";
 import * as report from "../report.mjs";
 
 /**
- * Read-only plan. `env` and `repoRoot` are injectable for tests. Returns
- * { gatesHit, effectiveMeasurementId, zarazFindings, dimDiff }.
+ * Read-only plan. `env`, `flags` and `repoRoot` are injectable for tests.
+ * Returns { gatesHit, effectiveMeasurementId, zarazFindings, dimDiff }.
  *
- * The Zaraz desired-state diff is computed AFTER GA4 discovery so that a
- * Measurement ID discovered from Google is used to recompute the diff, rather
- * than reporting it with an unresolved (undefined) Measurement ID.
+ * The Zaraz desired-state diff is computed from the PUBLISHED /export (never an
+ * unpublished preview) AFTER GA4 discovery, so a Measurement ID discovered from
+ * Google is used to recompute the diff rather than reporting it unresolved.
  */
 export async function runPlan({
   env = process.env,
+  flags = {},
   repoRoot = process.env.REPO_ROOT || process.cwd()
 } = {}) {
-  const measurementIdFlag = parseFlags(process.argv.slice(2))["measurement-id"];
+  const measurementIdFlag = flags.measurementId ?? parseFlags(process.argv.slice(2))["measurement-id"];
   const gatesHit = [];
   let config = null;
+  let workflow = null;
   let cfZone = null;
   let effectiveMeasurementId = measurementIdFlag;
   let zarazFindings = [];
@@ -71,9 +73,33 @@ export async function runPlan({
 
     if (cfAuth.capabilities.includes("zarazRead") && cfZone) {
       try {
-        config = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(cfZone.id) });
+        // Workflow is required to know whether /config may hold unpublished
+        // preview state.
+        const wf = await cfRequest({ token: cfAuth.token, path: zarazWorkflowUrl(cfZone.id) });
+        if (wf === "realtime" || wf === "preview") workflow = wf;
+        report.bullet(`workflow=${workflow ?? "unknown"}`);
+
+        // The production plan is based on the PUBLISHED /export, never an
+        // unpublished preview.
+        config = await cfRequest({ token: cfAuth.token, path: zarazExportUrl(cfZone.id) });
         const a = analyzeZaraz(config);
         report.bullet(`${a.tools.length} tool(s), ${a.triggers.length} trigger(s); autoInject=${a.autoInject}`);
+
+        // In Preview & Publish mode, an unpublished draft that differs from the
+        // published state is a human gate — production is NOT converged.
+        if (workflow === "preview") {
+          const draft = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(cfZone.id) });
+          if (hasPendingPreview(draft, config)) {
+            report.err("pending unpublished Preview & Publish changes detected — production is not converged.");
+            report.printGate(
+              "CLOUDFLARE_PREVIEW_PENDING",
+              "Publish or discard the pending preview changes in Zaraz History before the production plan can converge."
+            );
+            gatesHit.push("CLOUDFLARE_PREVIEW_PENDING");
+          } else {
+            report.ok("no pending preview changes — published /export is the current production state.");
+          }
+        }
       } catch (e) {
         if (e instanceof CfApiError) {
           report.err(`cannot read Zaraz config: ${e.message}`);
@@ -119,12 +145,25 @@ export async function runPlan({
         } else {
           report.warn("property has no web data stream with a Measurement ID.");
         }
-        effectiveMeasurementId = measurementIdFlag || discovered.measurementId;
-        const dims = await listCustomDimensions({ token: googleToken, property: discovered.property.name });
-        dimDiff = ga4DesiredDiff(discovered.property.name, dims);
-        report.bullet(`custom dimensions: ${dimDiff.missing.length} missing, ${dimDiff.present.length} present, ${dimDiff.conflicts.length} conflicting`);
-        for (const m of dimDiff.missing) report.bullet(`create ${m.parameterName} (${m.scope})`);
-        for (const c of dimDiff.conflicts) report.warn(`conflict: ${c.parameterName} exists as scope ${c.existingScope}, want ${c.desiredScope}`);
+        if (measurementIdFlag && measurementIdFlag !== discovered.measurementId) {
+          // Bind --measurement-id to the discovered jabiko.app production stream
+          // (matching apply/smoke). A mismatch must not combine Zaraz target A
+          // with GA4 property B, so surface a blocking gate and skip the diff.
+          report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${discovered.measurementId}); refusing to plan against mismatched targets.`);
+          report.printGate(
+            "GA4_MEASUREMENT_ID_MISMATCH",
+            "Pass the correct --measurement-id (the jabiko.app production stream's Measurement ID) or drop the flag to use discovery."
+          );
+          gatesHit.push("GA4_MEASUREMENT_ID_MISMATCH");
+          effectiveMeasurementId = null;
+        } else {
+          effectiveMeasurementId = discovered.measurementId;
+          const dims = await listCustomDimensions({ token: googleToken, property: discovered.property.name });
+          dimDiff = ga4DesiredDiff(discovered.property.name, dims);
+          report.bullet(`custom dimensions: ${dimDiff.missing.length} missing, ${dimDiff.present.length} present, ${dimDiff.conflicts.length} conflicting`);
+          for (const m of dimDiff.missing) report.bullet(`create ${m.parameterName} (${m.scope})`);
+          for (const c of dimDiff.conflicts) report.warn(`conflict: ${c.parameterName} exists as scope ${c.existingScope}, want ${c.desiredScope}`);
+        }
       }
     } catch (e) {
       report.err(`GA4 discovery failed: ${e.message}`);

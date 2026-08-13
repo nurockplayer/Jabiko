@@ -55,6 +55,7 @@ export function analyzeZaraz(config = {}) {
     type: t?.type ?? null,
     settings: t?.settings ?? {},
     permissions: t?.permissions ?? [],
+    blockingTriggers: t?.blockingTriggers ?? [],
     actions: t?.actions ?? {}
   }));
   const ga4Tools = tools.filter((t) => t.component === GA4_COMPONENT);
@@ -88,11 +89,18 @@ export function triggerFiresOnCustomEvent(trigger, eventName) {
 }
 
 function isAutomaticPageviewAction(config, action) {
+  // Only demonstrable page_view emission counts: the pageview action type, or a
+  // track action that explicitly forwards page_view. A track action for any
+  // other event (e.g. login_impression) on the pageload system trigger is NOT
+  // an automatic page view and must never be removed.
   if (action?.actionType === "pageview") return true;
-  const triggers = config.triggers ?? {};
-  return (action?.firingTriggers ?? []).some(
-    (tid) => (triggers[tid]?.system ?? "") === "pageload"
-  );
+  if (action?.actionType === "track" && (action?.data ?? {}).en === "page_view") {
+    const triggers = config.triggers ?? {};
+    return (action?.firingTriggers ?? []).some(
+      (tid) => (triggers[tid]?.system ?? "") === "pageload"
+    );
+  }
+  return false;
 }
 
 /** True when the GA4 tool would emit an automatic page view on load. */
@@ -117,9 +125,11 @@ function isExpectedTrackAction(config, action, eventName) {
   // unconditional and must not satisfy the desired state.
   if ((action?.blockingTriggers ?? []).length > 0) return false;
   const triggers = config.triggers ?? {};
-  return (action?.firingTriggers ?? []).some((tid) =>
-    triggerFiresOnCustomEvent(triggers[tid], eventName)
-  );
+  const firing = action?.firingTriggers ?? [];
+  if (firing.length === 0) return false;
+  // Every firing trigger must forward the target event — an action over-wired
+  // to an additional trigger (e.g. page_view) would emit a false event.
+  return firing.every((tid) => triggerFiresOnCustomEvent(triggers[tid], eventName));
 }
 
 /** Track actions named `eventName` that are NOT the expected unconditional forwarder. */
@@ -204,6 +214,15 @@ export function zarazDesiredDiff(config, measurementId) {
         toolId: t.id,
         missing: missingPermissions,
         message: `The GA4 tool is missing required permissions: ${missingPermissions.join(", ")}.`
+      });
+    }
+    if ((t.blockingTriggers ?? []).length > 0) {
+      findings.push({
+        severity: "blocking",
+        code: "GA4_TOOL_BLOCKING_TRIGGERS",
+        toolId: t.id,
+        count: (t.blockingTriggers ?? []).length,
+        message: "The GA4 tool has tool-level blocking triggers that can suppress every managed event; the desired state requires an unblocked tool."
       });
     }
     for (const ev of FORWARDED_EVENTS) {
@@ -375,6 +394,17 @@ export function buildZarazDesiredConfig(
 
   if (ga4ToolId) {
     const tool = out.tools[ga4ToolId];
+    if ((tool.blockingTriggers ?? []).length > 0) {
+      // Reused-tool blocking wiring can suppress every managed event. Fail
+      // closed rather than silently deleting unrelated blocking logic.
+      findings.push({
+        severity: "blocking",
+        code: "GA4_TOOL_BLOCKING_TRIGGERS",
+        toolId: ga4ToolId,
+        count: (tool.blockingTriggers ?? []).length,
+        message: "The GA4 tool has tool-level blocking triggers that can suppress every managed event; the desired state requires an unblocked tool."
+      });
+    }
     if (tool.settings?.tid !== measurementId) {
       tool.settings = { ...(tool.settings ?? {}), tid: measurementId };
       mutations.push({

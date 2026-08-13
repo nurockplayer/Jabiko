@@ -24,6 +24,7 @@ export const ALLOWED_GATES = [
   "CLOUDFLARE_PREVIEW_PENDING",
   "GOOGLE_OAUTH",
   "GA4_PROPERTY_AMBIGUITY",
+  "GA4_MEASUREMENT_ID_MISMATCH",
   "PRODUCTION_INTERACTION"
 ];
 
@@ -59,6 +60,12 @@ export const GATE_DEFS = {
     action: "Pick which GA4 property is the intended Jabiko production property.",
     scope: "Read access to the candidate properties is already available.",
     unlocks: "A single Measurement ID to configure in Zaraz and against which smoke verifies."
+  },
+  GA4_MEASUREMENT_ID_MISMATCH: {
+    action:
+      "Pass the correct --measurement-id — the Measurement ID of the unique jabiko.app production web stream — or drop the flag to use discovery.",
+    scope: "The supplied --measurement-id must equal the jabiko.app production stream's Measurement ID.",
+    unlocks: "A plan/apply/smoke run that never mixes Zaraz target A with GA4 property B."
   },
   PRODUCTION_INTERACTION: {
     action:

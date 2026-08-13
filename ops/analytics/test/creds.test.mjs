@@ -130,6 +130,7 @@ test("only documented human gates exist, including preview publication", () => {
       "CLOUDFLARE_PREVIEW_PENDING",
       "CLOUDFLARE_PUBLISH",
       "GA4_PROPERTY_AMBIGUITY",
+      "GA4_MEASUREMENT_ID_MISMATCH",
       "GOOGLE_OAUTH",
       "PRODUCTION_INTERACTION"
     ].toSorted()
