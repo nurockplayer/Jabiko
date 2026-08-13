@@ -26,8 +26,14 @@ export async function probeProductionZaraz({ baseUrl = "https://jabiko.app" } = 
     return { injected: false, details, reachable: false };
   }
 
-  const htmlHasZaraz = /zaraz/i.test(html);
-  details.push(htmlHasZaraz ? "index HTML contains a zaraz script reference" : "index HTML has no zaraz script reference");
+  // Require a structural script-reference marker (a <script src> pointing at the
+  // Zaraz edge resource), not arbitrary HTML text that merely mentions "zaraz".
+  const htmlHasZaraz = /<script[^>]*\bsrc=["'][^"']*cdn-cgi\/zaraz\//i.test(html);
+  details.push(
+    htmlHasZaraz
+      ? "index HTML contains a Zaraz script reference"
+      : "index HTML has no Zaraz script reference"
+  );
 
   let edgeServesZaraz = false;
   for (const path of ZARAZ_PATHS) {

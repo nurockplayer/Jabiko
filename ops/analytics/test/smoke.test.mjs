@@ -74,7 +74,7 @@ function realtimeResponse({ pageViews = 2, promoClicks = 7, minutesAgo = 0 } = {
 }
 
 function makeFetch({
-  html = "<html>zaraz injected</html>",
+  html = '<html><head><script src="/cdn-cgi/zaraz/i.js"></script></head><body>injected</body></html>',
   workflow = "realtime",
   workflowFails = false,
   publishedConfig = convergedConfig(),
@@ -186,8 +186,8 @@ test("placement/action proof remains one explicit human gate instead of an autom
   assert.equal(result.failed, false);
   assert.equal(result.gateBlocked, true);
   assert.deepEqual(result.gates, ["PRODUCTION_INTERACTION"]);
-  assert.equal(result.eventCounts.page_view, 5);
-  assert.equal(result.eventCounts.promo_click, 11);
+  assert.equal(result.eventCounts.page_view, 2);
+  assert.equal(result.eventCounts.promo_click, 7);
   assert.equal(result.baselineCounts.page_view, 3);
   assert.equal(result.baselineCounts.promo_click, 4);
 });
@@ -256,4 +256,17 @@ test("expiry of pre-baseline events does not subtract from the guided interactio
   );
   assert.equal(result.exitCode, 0);
   assert.equal(result.eventCounts.promo_click, 7, "the 7 new promo clicks are counted, not clamped to 0");
+});
+
+test("pre-baseline same-minute traffic cannot satisfy the guided Realtime proof", async () => {
+  // The baseline already contains >=2 page_view and >=7 promo_click in the same
+  // minutesAgo=0 bucket; with no new guided events, smoke must NOT pass.
+  const preExisting = realtimeResponse({ pageViews: 2, promoClicks: 7, minutesAgo: 0 });
+  const { impl } = makeFetch({ baselineRealtime: preExisting, realtime: preExisting });
+  const result = await withFetch(impl, () =>
+    runSmoke({ env: ENV, flags: { placementActionVerified: true }, watchSeconds: 0, pollIntervalMs: 1 })
+  );
+  assert.equal(result.exitCode, 1);
+  assert.equal(result.eventCounts.page_view, 0);
+  assert.equal(result.eventCounts.promo_click, 0);
 });

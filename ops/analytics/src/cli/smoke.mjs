@@ -66,6 +66,26 @@ export function summarizeRecentEvents(rows, maxAgeMinutes) {
   return counts;
 }
 
+/**
+ * New-since-baseline delta within the same age window. Both the current and the
+ * baseline rows are re-summarized for `minutesAgo <= maxAgeMinutes`, then the
+ * baseline is subtracted per event (clamped to 0). This prevents pre-baseline
+ * traffic that lands in the SAME minute bucket as the baseline from satisfying
+ * the proof before any guided interaction occurs.
+ */
+export function recentDelta(currentRows, baselineRows, maxAgeMinutes) {
+  const current = summarizeRecentEvents(currentRows, maxAgeMinutes);
+  const baseline = summarizeRecentEvents(baselineRows, maxAgeMinutes);
+  const delta = new Map();
+  for (const eventName of Object.keys(REQUIRED_EVENT_COUNTS)) {
+    delta.set(
+      eventName,
+      Math.max(0, (current.get(eventName) ?? 0) - (baseline.get(eventName) ?? 0))
+    );
+  }
+  return delta;
+}
+
 function printGuidedInteraction() {
   report.bullet("Guided interaction (once, in a fresh production tab with Zaraz Debug Mode enabled):");
   report.bullet("  1. Open https://jabiko.app/ and let Home render.");
@@ -101,6 +121,7 @@ export async function runSmoke({
   let configFindings = [];
   let eventCounts = new Map();
   let baselineCounts = new Map();
+  let baselineRows = [];
   let realtimeError = null;
 
   report.section(`Jabiko #745 production smoke · ${ZONE_NAME}`);
@@ -218,7 +239,7 @@ export async function runSmoke({
     report.bullet("It proves a new page_view / promo_click count delta during this watch, not session, route, placement, or action values.");
 
     try {
-      const baselineRows = await runRealtimeReport({
+      baselineRows = await runRealtimeReport({
         token: googleToken,
         propertyId,
         dimensions: REALTIME_SMOKE_DIMENSIONS,
@@ -257,7 +278,7 @@ export async function runSmoke({
             minutes: STANDARD_REALTIME_MAX_MINUTES
           });
           const elapsedMinutes = Math.floor((Date.now() - watchStart) / 60000);
-          eventCounts = summarizeRecentEvents(rows, elapsedMinutes);
+          eventCounts = recentDelta(rows, baselineRows, elapsedMinutes);
           realtimeError = null;
           report.bullet(
             `GA4 Realtime delta · page_view=+${eventCounts.get("page_view") ?? 0} · promo_click=+${eventCounts.get("promo_click") ?? 0}`
