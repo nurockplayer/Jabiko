@@ -20,7 +20,7 @@ import {
   REALTIME_SMOKE_DIMENSIONS,
   STANDARD_REALTIME_MAX_MINUTES
 } from "../src/ga4.mjs";
-import { discoverGa4 } from "../src/cli/cliutil.mjs";
+import { discoverGa4, selectProductionWebStream } from "../src/cli/cliutil.mjs";
 
 const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
 const PRIVATE_KEY_PEM = privateKey.export({ type: "pkcs8", format: "pem" });
@@ -120,6 +120,21 @@ test("discoverGa4 uses v1beta contract and webStreamData.measurementId", async (
   assert.ok(!seen.some((u) => u.includes("webDataStreams")));
 });
 
+test("selectProductionWebStream picks the unique jabiko.app web stream and fails closed otherwise", () => {
+  const prodWeb = { type: "WEB_DATA_STREAM", webStreamData: { defaultUri: "https://jabiko.app", measurementId: "G-PROD" } };
+  const prodWeb2 = { type: "WEB_DATA_STREAM", webStreamData: { defaultUri: "https://jabiko.app/en", measurementId: "G-PROD2" } };
+  const stagingWeb = { type: "WEB_DATA_STREAM", webStreamData: { defaultUri: "https://staging.jabiko.app", measurementId: "G-STAGE" } };
+  const noUriWeb = { type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-NOURI" } };
+  const ios = { type: "IOS_APP_DATA_STREAM", webStreamData: { measurementId: "G-IOS" } };
+
+  assert.equal(selectProductionWebStream([prodWeb])?.webStreamData?.measurementId, "G-PROD");
+  assert.equal(selectProductionWebStream([prodWeb, stagingWeb])?.webStreamData?.measurementId, "G-PROD", "staging subdomain is ignored");
+  assert.equal(selectProductionWebStream([prodWeb, prodWeb2]), null, "two production web streams is ambiguous");
+  assert.equal(selectProductionWebStream([stagingWeb]), null, "staging-only is not production");
+  assert.equal(selectProductionWebStream([noUriWeb]), null, "missing defaultUri cannot be identified");
+  assert.equal(selectProductionWebStream([ios]), null, "non-web stream is never a production web stream");
+});
+
 test("buildSignedJwt produces a verifiable JWT header + claim", () => {
   const sa = {
     client_email: "sa@proj.iam.gserviceaccount.com",
@@ -154,7 +169,7 @@ test("createCustomDimensionBody matches Admin API contract", () => {
   );
 });
 
-test("Realtime smoke uses only eventName and a maximum 30-minute standard-property window", () => {
+test("Realtime smoke uses only the supported eventName + minutesAgo dimensions and a maximum 30-minute standard-property window", () => {
   const body = realtimeReportBody();
   assert.deepEqual(body.dimensions, REALTIME_SMOKE_DIMENSIONS.map((name) => ({ name })));
   assert.deepEqual(body.metrics, [{ name: "eventCount" }]);
@@ -204,19 +219,20 @@ test("runRealtimeReport emits only the supported bounded request", async () => {
       ok: true,
       status: 200,
       json: async () => ({
-        dimensionHeaders: [{ name: "eventName" }],
-        rows: [{ dimensionValues: [{ value: "promo_click" }], metricValues: [{ value: "7" }] }]
+        dimensionHeaders: [{ name: "eventName" }, { name: "minutesAgo" }],
+        rows: [{ dimensionValues: [{ value: "promo_click" }, { value: "0" }], metricValues: [{ value: "7" }] }]
       })
     };
   };
   try {
     const rows = await runRealtimeReport({ token: "t", propertyId: "1" });
     assert.equal(rows[0].eventName, "promo_click");
+    assert.equal(rows[0].minutesAgo, "0");
     assert.equal(rows[0].eventCount, 7);
   } finally {
     globalThis.fetch = previous;
   }
-  assert.deepEqual(body.dimensions, [{ name: "eventName" }]);
+  assert.deepEqual(body.dimensions, [{ name: "eventName" }, { name: "minutesAgo" }]);
   assert.ok(body.minuteRanges[0].startMinutesAgo <= 29);
 });
 

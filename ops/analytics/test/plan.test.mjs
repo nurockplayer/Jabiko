@@ -43,7 +43,7 @@ function router(url) {
       return { status: 200, json: { properties: [{ name: "properties/2", displayName: "Jabiko", url: "https://jabiko.app" }] } };
     }
     if (url.includes("/v1beta/properties/2/dataStreams")) {
-      return { status: 200, json: { dataStreams: [{ name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-X" } }] } };
+      return { status: 200, json: { dataStreams: [{ name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-X", defaultUri: "https://jabiko.app" } }] } };
     }
     if (url.includes("/v1beta/properties/2/customDimensions")) {
       return { status: 200, json: { customDimensions: [] } };

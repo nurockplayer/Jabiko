@@ -63,12 +63,12 @@ function unconvergedConfig() {
   };
 }
 
-function realtimeResponse({ pageViews = 2, promoClicks = 7 } = {}) {
+function realtimeResponse({ pageViews = 2, promoClicks = 7, minutesAgo = 0 } = {}) {
   return {
-    dimensionHeaders: [{ name: "eventName" }],
+    dimensionHeaders: [{ name: "eventName" }, { name: "minutesAgo" }],
     rows: [
-      { dimensionValues: [{ value: "page_view" }], metricValues: [{ value: String(pageViews) }] },
-      { dimensionValues: [{ value: "promo_click" }], metricValues: [{ value: String(promoClicks) }] }
+      { dimensionValues: [{ value: "page_view" }, { value: String(minutesAgo) }], metricValues: [{ value: String(pageViews) }] },
+      { dimensionValues: [{ value: "promo_click" }, { value: String(minutesAgo) }], metricValues: [{ value: String(promoClicks) }] }
     ]
   };
 }
@@ -130,7 +130,7 @@ function makeFetch({
       }
       if (u.includes("/v1beta/properties/2/dataStreams")) {
         return json(200, {
-          dataStreams: [{ name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-TEST" } }]
+          dataStreams: [{ name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-TEST", defaultUri: "https://jabiko.app" } }]
         });
       }
       if (u.includes("/v1beta/properties/2/customDimensions")) {
@@ -168,7 +168,7 @@ test("smoke never requests unsupported Realtime dimensions or a window beyond 30
   const realtimeCalls = calls.filter((call) => call.url.includes(":runRealtimeReport"));
   assert.ok(realtimeCalls.length >= 1);
   for (const call of realtimeCalls) {
-    assert.deepEqual(call.body.dimensions, [{ name: "eventName" }]);
+    assert.deepEqual(call.body.dimensions, [{ name: "eventName" }, { name: "minutesAgo" }]);
     assert.ok(call.body.minuteRanges[0].startMinutesAgo <= 29);
     const requested = call.body.dimensions.map((d) => d.name);
     for (const forbidden of ["sessionId", "pagePath", "customEvent:promoId", "customEvent:action", "customEvent:placement", "customEvent:locale"]) {
@@ -186,8 +186,8 @@ test("placement/action proof remains one explicit human gate instead of an autom
   assert.equal(result.failed, false);
   assert.equal(result.gateBlocked, true);
   assert.deepEqual(result.gates, ["PRODUCTION_INTERACTION"]);
-  assert.equal(result.eventCounts.page_view, 2);
-  assert.equal(result.eventCounts.promo_click, 7);
+  assert.equal(result.eventCounts.page_view, 5);
+  assert.equal(result.eventCounts.promo_click, 11);
   assert.equal(result.baselineCounts.page_view, 3);
   assert.equal(result.baselineCounts.promo_click, 4);
 });
@@ -224,8 +224,7 @@ test("smoke verifies published /export, not a newer preview /config", async () =
 
 test("Realtime event delta failure is non-zero even after human verification", async () => {
   const { impl } = makeFetch({
-    baselineRealtime: realtimeResponse({ pageViews: 10, promoClicks: 20 }),
-    realtime: realtimeResponse({ pageViews: 11, promoClicks: 26 })
+    realtime: realtimeResponse({ pageViews: 1, promoClicks: 6 })
   });
   const result = await withFetch(impl, () =>
     runSmoke({ env: ENV, flags: { placementActionVerified: true }, watchSeconds: 0, pollIntervalMs: 1 })
@@ -234,13 +233,27 @@ test("Realtime event delta failure is non-zero even after human verification", a
 });
 
 
-test("pre-existing ambient traffic cannot satisfy the guided Realtime proof without a new delta", async () => {
-  const same = realtimeResponse({ pageViews: 50, promoClicks: 80 });
-  const { impl } = makeFetch({ baselineRealtime: same, realtime: same });
+test("pre-existing ambient traffic (older than the watch) cannot satisfy the guided Realtime proof", async () => {
+  const ambient = realtimeResponse({ pageViews: 50, promoClicks: 80, minutesAgo: 5 });
+  const { impl } = makeFetch({ baselineRealtime: ambient, realtime: ambient });
   const result = await withFetch(impl, () =>
     runSmoke({ env: ENV, flags: { placementActionVerified: true }, watchSeconds: 0, pollIntervalMs: 1 })
   );
   assert.equal(result.exitCode, 1);
-  assert.equal(result.eventCounts.page_view, 0);
-  assert.equal(result.eventCounts.promo_click, 0);
+  assert.equal(result.eventCounts.page_view ?? 0, 0);
+  assert.equal(result.eventCounts.promo_click ?? 0, 0);
+});
+
+test("expiry of pre-baseline events does not subtract from the guided interaction", async () => {
+  // 8 promo clicks about to expire from the 30-minute rolling window (minutesAgo
+  // 29) must not cancel the operator's 7 new clicks (minutesAgo 0).
+  const { impl } = makeFetch({
+    baselineRealtime: realtimeResponse({ pageViews: 1, promoClicks: 8, minutesAgo: 29 }),
+    realtime: realtimeResponse({ pageViews: 2, promoClicks: 7, minutesAgo: 0 })
+  });
+  const result = await withFetch(impl, () =>
+    runSmoke({ env: ENV, flags: { placementActionVerified: true }, watchSeconds: 0, pollIntervalMs: 1 })
+  );
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.eventCounts.promo_click, 7, "the 7 new promo clicks are counted, not clamped to 0");
 });

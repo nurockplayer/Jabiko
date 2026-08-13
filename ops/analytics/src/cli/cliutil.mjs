@@ -25,6 +25,27 @@ export function parseFlags(argv) {
 }
 
 /**
+ * Select the unique production web stream for a GA4 property. A production web
+ * stream is a WEB_DATA_STREAM whose webStreamData.defaultUri hostname is exactly
+ * jabiko.app (or www.jabiko.app) — not a staging/test subdomain. Returns null
+ * when a unique production stream cannot be identified — fail closed rather
+ * than picking the first WEB_DATA_STREAM.
+ */
+export function selectProductionWebStream(streams = []) {
+  const production = streams.filter(
+    (s) =>
+      s.type === "WEB_DATA_STREAM" &&
+      isJabikoProductionHost(s.webStreamData?.defaultUri ?? "")
+  );
+  return production.length === 1 ? production[0] : null;
+}
+
+function isJabikoProductionHost(uri) {
+  const host = String(uri).replace(/^https?:\/\//i, "").split(/[/?#]/)[0];
+  return host === "jabiko.app" || host === "www.jabiko.app";
+}
+
+/**
  * Discover the Jabiko GA4 production property and its web-stream Measurement ID.
  * Returns { property, candidates, measurementId } — property is null when
  * discovery is ambiguous or empty.
@@ -45,7 +66,7 @@ export async function discoverGa4({ token }) {
   }
   const property = candidates[0];
   const streams = await listDataStreams({ token, property: property.name });
-  const web = streams.find((s) => s.type === "WEB_DATA_STREAM") ?? streams[0];
+  const web = selectProductionWebStream(streams);
   return {
     property,
     candidates,

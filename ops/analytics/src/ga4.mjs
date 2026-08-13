@@ -9,11 +9,13 @@
 //     - web Measurement ID:  dataStream.webStreamData.measurementId
 //   Data:   analyticsdata.googleapis.com/v1beta (runRealtimeReport)
 //
-// Realtime is intentionally narrow here. The production smoke only needs
-// eventName + eventCount to prove that event TYPES reach GA4. It does not try
-// to query sessionId, pagePath, or event-scoped customEvent:* dimensions,
-// because those are not part of the GA4 Realtime schema. Standard-property
-// requests are capped at 30 minutes.
+// Realtime is intentionally narrow here. The production smoke needs
+// eventName + minutesAgo + eventCount to prove that event TYPES reach GA4 and
+// to bound the delta to events that arrived after the baseline (so rolling-
+// window expiry of pre-baseline events cannot subtract from the guided
+// interaction). It does not try to query sessionId, pagePath, or event-scoped
+// customEvent:* dimensions, because those are not part of the GA4 Realtime
+// schema. Standard-property requests are capped at 30 minutes.
 
 import crypto from "node:crypto";
 import { resolveGoogleCredential } from "./creds.mjs";
@@ -27,7 +29,7 @@ const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/analytics.edit"
 ];
 
-export const REALTIME_SMOKE_DIMENSIONS = Object.freeze(["eventName"]);
+export const REALTIME_SMOKE_DIMENSIONS = Object.freeze(["eventName", "minutesAgo"]);
 const REALTIME_SMOKE_DIMENSION_SET = new Set(REALTIME_SMOKE_DIMENSIONS);
 export const STANDARD_REALTIME_MAX_MINUTES = 30;
 

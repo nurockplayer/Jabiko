@@ -54,6 +54,7 @@ export function analyzeZaraz(config = {}) {
     enabled: t?.enabled ?? false,
     type: t?.type ?? null,
     settings: t?.settings ?? {},
+    permissions: t?.permissions ?? [],
     actions: t?.actions ?? {}
   }));
   const ga4Tools = tools.filter((t) => t.component === GA4_COMPONENT);
@@ -72,7 +73,10 @@ export function analyzeZaraz(config = {}) {
 export function triggerFiresOnCustomEvent(trigger, eventName) {
   if (!trigger) return false;
   return (trigger.loadRules ?? []).some(
-    (r) => r?.match === CUSTOM_EVENT_MATCH && String(r.value) === eventName
+    (r) =>
+      r?.match === CUSTOM_EVENT_MATCH &&
+      r?.op === OP_EQ &&
+      String(r.value) === eventName
   );
 }
 
@@ -93,16 +97,16 @@ export function automaticPageviewActive(config = {}) {
   );
 }
 
-/** True when a track action on the GA4 tool forwards `eventName` to GA4. */
-function hasTrackActionFor(config, tool, eventName) {
+/** Count the track actions on the GA4 tool that forward `eventName` to GA4. */
+function trackActionCount(config, tool, eventName) {
   const triggers = config.triggers ?? {};
-  return Object.values(tool.actions ?? {}).some((action) => {
+  return Object.values(tool.actions ?? {}).filter((action) => {
     if (action?.actionType !== "track") return false;
     if ((action?.data ?? {}).en !== eventName) return false;
     return (action?.firingTriggers ?? []).some((tid) =>
       triggerFiresOnCustomEvent(triggers[tid], eventName)
     );
-  });
+  }).length;
 }
 
 // ---------------------------------------------------------------------------
@@ -138,33 +142,61 @@ export function zarazDesiredDiff(config, measurementId) {
       code: "GA4_TOOL_MISSING",
       message: "No Google Analytics 4 tool is configured in Zaraz."
     });
+  } else if (a.ga4Tools.length > 1) {
+    findings.push({
+      severity: "blocking",
+      code: "GA4_TOOL_DUPLICATE",
+      count: a.ga4Tools.length,
+      message: `Expected exactly one Google Analytics 4 tool; found ${a.ga4Tools.length}. Each would forward every event, double-counting GA4 page views and promo clicks.`
+    });
   } else {
-    for (const t of a.ga4Tools) {
-      if (!t.enabled) {
+    const t = a.ga4Tools[0];
+    if (!t.enabled) {
+      findings.push({
+        severity: "blocking",
+        code: "GA4_TOOL_DISABLED",
+        toolId: t.id
+      });
+    }
+    if (t.settings.tid !== measurementId) {
+      findings.push({
+        severity: "blocking",
+        code: "GA4_TOOL_TID_MISMATCH",
+        toolId: t.id,
+        actual: t.settings.tid ?? "(none)",
+        expected: measurementId
+      });
+    }
+    const missingPermissions = GA4_PERMISSIONS.filter(
+      (p) => !(t.permissions ?? []).includes(p)
+    );
+    if (missingPermissions.length) {
+      findings.push({
+        severity: "blocking",
+        code: "GA4_TOOL_MISSING_PERMISSIONS",
+        toolId: t.id,
+        missing: missingPermissions,
+        message: `The GA4 tool is missing required permissions: ${missingPermissions.join(", ")}.`
+      });
+    }
+    for (const ev of FORWARDED_EVENTS) {
+      const count = trackActionCount(config, t, ev);
+      if (count === 0) {
         findings.push({
           severity: "blocking",
-          code: "GA4_TOOL_DISABLED",
+          code: "TRACK_ACTION_MISSING",
+          event: ev,
           toolId: t.id
         });
-      }
-      if (t.settings.tid !== measurementId) {
+      } else if (count > 1) {
         findings.push({
           severity: "blocking",
-          code: "GA4_TOOL_TID_MISMATCH",
+          code: "TRACK_ACTION_DUPLICATE",
+          event: ev,
           toolId: t.id,
-          actual: t.settings.tid ?? "(none)",
-          expected: measurementId
+          count,
+          message: `Found ${count} track actions forwarding ${ev}; exactly one is required.`
         });
-      }
-      for (const ev of FORWARDED_EVENTS) {
-        if (!hasTrackActionFor(config, t, ev)) {
-          findings.push({
-            severity: "blocking",
-            code: "TRACK_ACTION_MISSING",
-            event: ev,
-            toolId: t.id
-          });
-        }
       }
     }
   }
@@ -275,10 +307,19 @@ export function buildZarazDesiredConfig(
     mutations.push({ code: "TRIGGER_ADDED", event: ev, id });
   }
 
-  // GA4 tool.
+  // GA4 tool — exactly one is required; multiple are blocking, never pick first.
   const ga4Tools = analyzeZaraz(out).ga4Tools;
-  let ga4ToolId = ga4Tools.length ? ga4Tools[0].id : null;
-  if (!ga4ToolId) {
+  let ga4ToolId = null;
+  if (ga4Tools.length === 1) {
+    ga4ToolId = ga4Tools[0].id;
+  } else if (ga4Tools.length > 1) {
+    findings.push({
+      severity: "blocking",
+      code: "GA4_TOOL_DUPLICATE",
+      count: ga4Tools.length,
+      message: `Expected exactly one Google Analytics 4 tool; found ${ga4Tools.length}. Each would forward every event, double-counting GA4 page views and promo clicks.`
+    });
+  } else {
     out.tools = out.tools ?? {};
     ga4ToolId = unusedId(out.tools, "ga4");
     out.tools[ga4ToolId] = {
@@ -292,7 +333,9 @@ export function buildZarazDesiredConfig(
       actions: {}
     };
     mutations.push({ code: "GA4_TOOL_ADDED", id: ga4ToolId });
-  } else {
+  }
+
+  if (ga4ToolId) {
     const tool = out.tools[ga4ToolId];
     if (tool.settings?.tid !== measurementId) {
       tool.settings = { ...(tool.settings ?? {}), tid: measurementId };
@@ -306,35 +349,58 @@ export function buildZarazDesiredConfig(
       tool.enabled = true;
       mutations.push({ code: "GA4_TOOL_ENABLED", id: ga4ToolId });
     }
-  }
-
-  // One track action per forwarded event, firing on its trigger.
-  const tool = out.tools[ga4ToolId];
-  tool.actions = tool.actions ?? {};
-  for (const ev of FORWARDED_EVENTS) {
-    if (hasTrackActionFor(out, tool, ev)) continue;
-    const triggerId = findTriggerIdFor(out, ev);
-    if (!triggerId) continue;
-    const id = unusedId(tool.actions, idFor("act", ev));
-    tool.actions[id] = {
-      actionType: "track",
-      data: { en: ev },
-      firingTriggers: [triggerId],
-      blockingTriggers: []
-    };
-    mutations.push({ code: "TRACK_ACTION_ADDED", event: ev, id });
-  }
-
-  // Remove the automatic page-view action (duplicate page view guard).
-  for (const [aid, action] of Object.entries(tool.actions)) {
-    if (isAutomaticPageviewAction(out, action)) {
-      delete tool.actions[aid];
+    const missingPermissions = GA4_PERMISSIONS.filter(
+      (p) => !(tool.permissions ?? []).includes(p)
+    );
+    if (missingPermissions.length) {
+      tool.permissions = [...(tool.permissions ?? []), ...missingPermissions];
       mutations.push({
-        code: "AUTO_PAGEVIEW_REMOVED",
-        id: aid,
-        message:
-          "Removed the automatic page-view action so one logical page_view per SPA navigation is kept."
+        code: "GA4_TOOL_PERMISSIONS_ADDED",
+        id: ga4ToolId,
+        permissions: missingPermissions
       });
+    }
+
+    // One track action per forwarded event, firing on its trigger.
+    tool.actions = tool.actions ?? {};
+    for (const ev of FORWARDED_EVENTS) {
+      const count = trackActionCount(out, tool, ev);
+      if (count > 1) {
+        findings.push({
+          severity: "blocking",
+          code: "TRACK_ACTION_DUPLICATE",
+          event: ev,
+          toolId: ga4ToolId,
+          count,
+          message: `Found ${count} track actions forwarding ${ev}; exactly one is required.`
+        });
+        continue;
+      }
+      if (count === 0) {
+        const triggerId = findTriggerIdFor(out, ev);
+        if (!triggerId) continue;
+        const id = unusedId(tool.actions, idFor("act", ev));
+        tool.actions[id] = {
+          actionType: "track",
+          data: { en: ev },
+          firingTriggers: [triggerId],
+          blockingTriggers: []
+        };
+        mutations.push({ code: "TRACK_ACTION_ADDED", event: ev, id });
+      }
+    }
+
+    // Remove the automatic page-view action (duplicate page view guard).
+    for (const [aid, action] of Object.entries(tool.actions)) {
+      if (isAutomaticPageviewAction(out, action)) {
+        delete tool.actions[aid];
+        mutations.push({
+          code: "AUTO_PAGEVIEW_REMOVED",
+          id: aid,
+          message:
+            "Removed the automatic page-view action so one logical page_view per SPA navigation is kept."
+        });
+      }
     }
   }
 

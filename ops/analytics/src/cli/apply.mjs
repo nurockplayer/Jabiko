@@ -201,9 +201,11 @@ export async function runApply({ env = process.env, flags = {} } = {}) {
   let desired = built.config;
   mutations = built.mutations;
   for (const finding of built.findings) {
-    if (finding.code === "SECOND_ANALYTICS_CLIENT") {
-      report.err(finding.message);
-      report.warn("Re-run with --yes-remove-gtag to remove the second analytics client, or fix it in the dashboard.");
+    if (finding.severity === "blocking") {
+      report.err(finding.message ?? finding.code);
+      if (finding.code === "SECOND_ANALYTICS_CLIENT") {
+        report.warn("Re-run with --yes-remove-gtag to remove the second analytics client, or fix it in the dashboard.");
+      }
       return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
     }
   }

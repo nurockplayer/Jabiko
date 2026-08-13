@@ -49,12 +49,21 @@ export function realtimeSignalReached(counts) {
   );
 }
 
-export function realtimeDelta(current, baseline) {
-  const delta = new Map();
-  for (const eventName of Object.keys(REQUIRED_EVENT_COUNTS)) {
-    delta.set(eventName, Math.max(0, (current.get(eventName) ?? 0) - (baseline.get(eventName) ?? 0)));
+/**
+ * Sum eventCount per eventName, restricted to rows whose minutesAgo is at most
+ * `maxAgeMinutes`. This bounds the "new since baseline" delta to events that
+ * arrived after the baseline, so expiry of pre-baseline events out of the
+ * rolling 30-minute window cannot subtract from the guided interaction.
+ */
+export function summarizeRecentEvents(rows, maxAgeMinutes) {
+  const counts = new Map();
+  for (const row of rows) {
+    if (!row?.eventName) continue;
+    const age = Number(row.minutesAgo);
+    if (!Number.isInteger(age) || age < 0 || age > maxAgeMinutes) continue;
+    counts.set(row.eventName, (counts.get(row.eventName) ?? 0) + Number(row.eventCount ?? 0));
   }
-  return delta;
+  return counts;
 }
 
 function printGuidedInteraction() {
@@ -237,6 +246,7 @@ export async function runSmoke({
       printGuidedInteraction();
 
       const deadline = Date.now() + Math.max(0, watchSeconds) * 1000;
+      const watchStart = Date.now();
       let firstPoll = true;
       do {
         try {
@@ -246,8 +256,8 @@ export async function runSmoke({
             dimensions: REALTIME_SMOKE_DIMENSIONS,
             minutes: STANDARD_REALTIME_MAX_MINUTES
           });
-          const currentCounts = summarizeRealtimeEvents(rows);
-          eventCounts = realtimeDelta(currentCounts, baselineCounts);
+          const elapsedMinutes = Math.floor((Date.now() - watchStart) / 60000);
+          eventCounts = summarizeRecentEvents(rows, elapsedMinutes);
           realtimeError = null;
           report.bullet(
             `GA4 Realtime delta · page_view=+${eventCounts.get("page_view") ?? 0} · promo_click=+${eventCounts.get("promo_click") ?? 0}`

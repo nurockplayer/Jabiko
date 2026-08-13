@@ -411,3 +411,67 @@ test("stripSecretValues drops secret values but keeps non-secret values", () => 
   assert.equal("value" in stripped.variables.s1, false);
   assert.equal(stripped.variables.v1.value, "visible");
 });
+
+// --- trigger operator equality (custom-event matching) ---
+test("triggerFiresOnCustomEvent requires the Eq operator, not just match/value", () => {
+  const withEq = { loadRules: [{ id: "r", match: "custom_event_name", op: "Eq", value: "promo_click" }] };
+  assert.ok(triggerFiresOnCustomEvent(withEq, "promo_click"));
+
+  const missingOp = { loadRules: [{ id: "r", match: "custom_event_name", value: "promo_click" }] };
+  assert.ok(!triggerFiresOnCustomEvent(missingOp, "promo_click"), "missing op must not match");
+
+  const wrongOp = { loadRules: [{ id: "r", match: "custom_event_name", op: "Neq", value: "promo_click" }] };
+  assert.ok(!triggerFiresOnCustomEvent(wrongOp, "promo_click"), "non-Eq op must not match");
+});
+
+// --- exactly one GA4 tool ---
+test("multiple GA4 tools is a blocking finding, never silently converged", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4second = structuredClone(cfg.tools.ga4);
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  assert.ok(findings.some((f) => f.code === "GA4_TOOL_DUPLICATE"), "two GA4 tools must be blocking");
+});
+
+test("build on a config with multiple GA4 tools surfaces a blocking finding instead of picking the first", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4second = structuredClone(cfg.tools.ga4);
+  const { findings } = buildZarazDesiredConfig(cfg, { measurementId: MEASUREMENT_ID });
+  assert.ok(findings.some((f) => f.code === "GA4_TOOL_DUPLICATE" && f.severity === "blocking"));
+});
+
+// --- exactly one track action per forwarded event ---
+test("duplicate track action for the same event is a blocking finding", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.actions["act-promo-click-2"] = structuredClone(
+    cfg.tools.ga4.actions["act-promo-click"]
+  );
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  const dup = findings.find((f) => f.code === "TRACK_ACTION_DUPLICATE");
+  assert.ok(dup, "duplicate forwarding actions must be blocking");
+  assert.equal(dup.event, "promo_click");
+});
+
+test("build on a config with a duplicate track action surfaces a blocking finding", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.actions["act-promo-click-2"] = structuredClone(
+    cfg.tools.ga4.actions["act-promo-click"]
+  );
+  const { findings } = buildZarazDesiredConfig(cfg, { measurementId: MEASUREMENT_ID });
+  assert.ok(findings.some((f) => f.code === "TRACK_ACTION_DUPLICATE" && f.severity === "blocking"));
+});
+
+// --- GA4 tool permissions ---
+test("missing GA4 permissions is a blocking finding", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.permissions = ["access_client_kv"]; // missing server_network_requests
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  assert.ok(findings.some((f) => f.code === "GA4_TOOL_MISSING_PERMISSIONS"));
+});
+
+test("build reconciles missing GA4 permissions on an existing tool", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.permissions = ["access_client_kv"];
+  const { config, mutations } = buildZarazDesiredConfig(cfg, { measurementId: MEASUREMENT_ID });
+  assert.ok(config.tools.ga4.permissions.includes("server_network_requests"));
+  assert.ok(mutations.some((m) => m.code === "GA4_TOOL_PERMISSIONS_ADDED"));
+});
