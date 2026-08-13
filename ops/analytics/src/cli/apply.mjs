@@ -32,7 +32,7 @@ import {
   zarazPublishUrl
 } from "../cf.mjs";
 import { googleTokenFromEnv, listCustomDimensions, createCustomDimension } from "../ga4.mjs";
-import { parseFlags, discoverGa4, normalizeBooleanFlag } from "./cliutil.mjs";
+import { parseFlags, discoverGa4, normalizeBooleanFlag, unknownFlags } from "./cliutil.mjs";
 import * as report from "../report.mjs";
 
 const STATE_DIR = fileURLToPath(new URL("../../state", import.meta.url));
@@ -352,12 +352,20 @@ export async function runApply({ env = process.env, flags = {}, stateDir = STATE
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const flags = parseFlags(process.argv.slice(2), { booleans: ["dry-run", "yes-remove-gtag"] });
-  const result = await runApply({
-    flags: {
-      measurementId: flags["measurement-id"],
-      dryRun: flags["dry-run"],
-      yesRemoveGtag: flags["yes-remove-gtag"]
-    }
-  });
-  process.exitCode = result.exitCode;
+  // Reject unknown options so a typo like `--dryrun=true` (a safety flag) fails
+  // closed instead of being silently dropped into a real mutation.
+  const unknown = unknownFlags(flags, ["measurement-id", "dry-run", "yes-remove-gtag"]);
+  if (unknown.length) {
+    report.err(`unknown option(s) for apply: ${unknown.join(", ")}`);
+    process.exitCode = 2;
+  } else {
+    const result = await runApply({
+      flags: {
+        measurementId: flags["measurement-id"],
+        dryRun: flags["dry-run"],
+        yesRemoveGtag: flags["yes-remove-gtag"]
+      }
+    });
+    process.exitCode = result.exitCode;
+  }
 }

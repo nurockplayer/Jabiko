@@ -54,6 +54,17 @@ export function parseFlags(argv, { booleans = [] } = {}) {
 }
 
 /**
+ * Return the flag names in `parsed` that are not in `allowed`. CLI entries use
+ * this to REJECT unknown options before doing any work, so a typo like
+ * `--dryrun=true` on a safety flag fails closed instead of being silently
+ * dropped (which would let a dry run become a real mutation).
+ */
+export function unknownFlags(parsed, allowed) {
+  const allowedSet = new Set(allowed);
+  return Object.keys(parsed).filter((name) => !allowedSet.has(name));
+}
+
+/**
  * Select the unique production web stream for a GA4 property. A production web
  * stream is a WEB_DATA_STREAM whose webStreamData.defaultUri hostname is exactly
  * jabiko.app (or www.jabiko.app) — not a staging/test subdomain. Returns null

@@ -28,7 +28,7 @@ import {
   STANDARD_REALTIME_MAX_MINUTES
 } from "../ga4.mjs";
 import { probeProductionZaraz } from "../production.mjs";
-import { parseFlags, discoverGa4, normalizeBooleanFlag } from "./cliutil.mjs";
+import { parseFlags, discoverGa4, normalizeBooleanFlag, unknownFlags } from "./cliutil.mjs";
 import * as report from "../report.mjs";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -381,11 +381,17 @@ export async function runSmoke({
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const parsed = parseFlags(process.argv.slice(2), { booleans: ["placement-action-verified"] });
-  const result = await runSmoke({
-    flags: {
-      measurementId: parsed["measurement-id"],
-      placementActionVerified: parsed["placement-action-verified"]
-    }
-  });
-  process.exitCode = result.exitCode;
+  const unknown = unknownFlags(parsed, ["measurement-id", "placement-action-verified"]);
+  if (unknown.length) {
+    report.err(`unknown option(s) for smoke: ${unknown.join(", ")}`);
+    process.exitCode = 2;
+  } else {
+    const result = await runSmoke({
+      flags: {
+        measurementId: parsed["measurement-id"],
+        placementActionVerified: parsed["placement-action-verified"]
+      }
+    });
+    process.exitCode = result.exitCode;
+  }
 }

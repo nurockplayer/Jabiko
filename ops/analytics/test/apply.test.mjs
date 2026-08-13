@@ -5,10 +5,28 @@ import { mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runApply } from "../src/cli/apply.mjs";
+import { FORWARDED_EVENTS } from "../src/desired.mjs";
 
 const ZONE_ID = "z1";
 
+/** A converged Zaraz config: a trigger + track action for EVERY forwarded event. */
 function convergedConfig() {
+  const triggers = {};
+  const actions = {};
+  for (const ev of FORWARDED_EVENTS) {
+    const id = ev.replaceAll("_", "-");
+    triggers[`trg-${id}`] = {
+      name: ev,
+      loadRules: [{ id: `rule-${id}`, match: "custom_event_name", op: "Eq", value: ev }],
+      excludeRules: []
+    };
+    actions[`act-${id}`] = {
+      actionType: "track",
+      data: { en: ev },
+      firingTriggers: [`trg-${id}`],
+      blockingTriggers: []
+    };
+  }
   return {
     settings: { autoInjectScript: true },
     tools: {
@@ -20,34 +38,10 @@ function convergedConfig() {
         settings: { tid: "G-TEST" },
         permissions: ["access_client_kv", "server_network_requests"],
         blockingTriggers: [],
-        actions: {
-          "act-page-view": {
-            actionType: "track",
-            data: { en: "page_view" },
-            firingTriggers: ["trg-page-view"],
-            blockingTriggers: []
-          },
-          "act-promo-click": {
-            actionType: "track",
-            data: { en: "promo_click" },
-            firingTriggers: ["trg-promo-click"],
-            blockingTriggers: []
-          }
-        }
+        actions
       }
     },
-    triggers: {
-      "trg-page-view": {
-        name: "page_view",
-        loadRules: [{ id: "r1", match: "custom_event_name", op: "Eq", value: "page_view" }],
-        excludeRules: []
-      },
-      "trg-promo-click": {
-        name: "promo_click",
-        loadRules: [{ id: "r2", match: "custom_event_name", op: "Eq", value: "promo_click" }],
-        excludeRules: []
-      }
-    },
+    triggers,
     zarazVersion: 3
   };
 }

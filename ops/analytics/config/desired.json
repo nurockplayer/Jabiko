@@ -1,7 +1,18 @@
 {
   "//": "Jabiko #745 desired analytics state. Machine-read by ops/analytics plan/apply/smoke.",
   "zoneName": "jabiko.app",
-  "forwardedEvents": ["page_view", "promo_click"],
+  "forwardedEvents": [
+    "page_view",
+    "practice_started",
+    "answer_submitted",
+    "practice_completed",
+    "study_page_viewed",
+    "level_changed",
+    "locale_changed",
+    "weak_review_started",
+    "article_viewed",
+    "promo_click"
+  ],
   "promoClick": {
     "params": ["promoId", "action", "placement", "locale"],
     "actions": ["airbnb", "video"],

@@ -44,8 +44,22 @@ test("desired contract: only airbnb | video actions", () => {
   assert.deepEqual(PROMO_ACTIONS, ["airbnb", "video"]);
 });
 
-test("desired contract: forward page_view and promo_click only", () => {
-  assert.deepEqual(FORWARDED_EVENTS, ["page_view", "promo_click"]);
+test("desired contract: forward every event the app can emit", () => {
+  // Mirrors AnalyticsPayloadMap in src/lib/analytics.ts. A GA4-from-scratch
+  // apply must wire ALL of them, or those events silently never reach GA4
+  // while zarazDesiredDiff still reports converged.
+  assert.deepEqual(FORWARDED_EVENTS, [
+    "page_view",
+    "practice_started",
+    "answer_submitted",
+    "practice_completed",
+    "study_page_viewed",
+    "level_changed",
+    "locale_changed",
+    "weak_review_started",
+    "article_viewed",
+    "promo_click"
+  ]);
 });
 
 test("desired contract: GA4 component is google-analytics-4", () => {
@@ -63,7 +77,24 @@ test("desired contract: zone is jabiko.app", () => {
 });
 
 // --- fixtures ---
+/** A converged Zaraz config: a trigger + track action for EVERY forwarded event. */
 function convergedConfig() {
+  const triggers = {};
+  const actions = {};
+  for (const ev of FORWARDED_EVENTS) {
+    const id = ev.replaceAll("_", "-");
+    triggers[`trg-${id}`] = {
+      name: ev,
+      loadRules: [{ id: `rule-${id}`, match: "custom_event_name", op: "Eq", value: ev }],
+      excludeRules: []
+    };
+    actions[`act-${id}`] = {
+      actionType: "track",
+      data: { en: ev },
+      firingTriggers: [`trg-${id}`],
+      blockingTriggers: []
+    };
+  }
   return {
     dataLayer: true,
     settings: { autoInjectScript: true },
@@ -76,38 +107,10 @@ function convergedConfig() {
         settings: { tid: MEASUREMENT_ID },
         permissions: ["access_client_kv", "server_network_requests"],
         blockingTriggers: [],
-        actions: {
-          "act-page-view": {
-            actionType: "track",
-            data: { en: "page_view" },
-            firingTriggers: ["trg-page-view"],
-            blockingTriggers: []
-          },
-          "act-promo-click": {
-            actionType: "track",
-            data: { en: "promo_click" },
-            firingTriggers: ["trg-promo-click"],
-            blockingTriggers: []
-          }
-        }
+        actions
       }
     },
-    triggers: {
-      "trg-page-view": {
-        name: "page_view",
-        loadRules: [
-          { id: "r1", match: "custom_event_name", op: "Eq", value: "page_view" }
-        ],
-        excludeRules: []
-      },
-      "trg-promo-click": {
-        name: "promo_click",
-        loadRules: [
-          { id: "r2", match: "custom_event_name", op: "Eq", value: "promo_click" }
-        ],
-        excludeRules: []
-      }
-    },
+    triggers,
     zarazVersion: 3
   };
 }
@@ -118,7 +121,7 @@ test("analyzeZaraz finds GA4 tool, triggers, auto-inject", () => {
   assert.equal(a.autoInject, true);
   assert.equal(a.ga4Tools.length, 1);
   assert.equal(a.ga4Tools[0].settings.tid, MEASUREMENT_ID);
-  assert.equal(a.triggers.length, 2);
+  assert.equal(a.triggers.length, FORWARDED_EVENTS.length);
   assert.deepEqual(a.forbidden, []);
 });
 
@@ -687,4 +690,49 @@ test("build reconciles missing GA4 permissions on an existing tool", () => {
   const { config, mutations } = buildZarazDesiredConfig(cfg, { measurementId: MEASUREMENT_ID });
   assert.ok(config.tools.ga4.permissions.includes("server_network_requests"));
   assert.ok(mutations.some((m) => m.code === "GA4_TOOL_PERMISSIONS_ADDED"));
+});
+
+// --- full event-contract regression (#757 P1: apply must wire every app event) ---
+test("a config that only wires page_view/promo_click is NOT converged (other events missing)", () => {
+  // Only the #745 funnel events are wired — the other approved events
+  // (practice_started, answer_submitted, ...) would silently never reach GA4.
+  const partial = {
+    settings: { autoInjectScript: true },
+    tools: {
+      ga4: {
+        component: "google-analytics-4",
+        name: "Google Analytics 4",
+        type: "component",
+        enabled: true,
+        settings: { tid: MEASUREMENT_ID },
+        permissions: ["access_client_kv", "server_network_requests"],
+        blockingTriggers: [],
+        actions: {
+          "act-page-view": { actionType: "track", data: { en: "page_view" }, firingTriggers: ["trg-page-view"], blockingTriggers: [] },
+          "act-promo-click": { actionType: "track", data: { en: "promo_click" }, firingTriggers: ["trg-promo-click"], blockingTriggers: [] }
+        }
+      }
+    },
+    triggers: {
+      "trg-page-view": { name: "page_view", loadRules: [{ id: "r1", match: "custom_event_name", op: "Eq", value: "page_view" }], excludeRules: [] },
+      "trg-promo-click": { name: "promo_click", loadRules: [{ id: "r2", match: "custom_event_name", op: "Eq", value: "promo_click" }], excludeRules: [] }
+    },
+    zarazVersion: 3
+  };
+  const findings = zarazDesiredDiff(partial, MEASUREMENT_ID);
+  const missing = findings.filter((f) => f.code === "TRIGGER_MISSING").map((f) => f.event);
+  for (const ev of ["practice_started", "answer_submitted", "practice_completed", "study_page_viewed", "level_changed", "locale_changed", "weak_review_started", "article_viewed"]) {
+    assert.ok(missing.includes(ev), `partial config must not be converged: ${ev} is unwired`);
+  }
+});
+
+test("build on an empty config wires a trigger + track action for EVERY forwarded event", () => {
+  const { config } = buildZarazDesiredConfig({}, { measurementId: MEASUREMENT_ID });
+  for (const ev of FORWARDED_EVENTS) {
+    const id = ev.replaceAll("_", "-");
+    assert.ok(config.triggers[`trg-${id}`], `trigger for ${ev} exists`);
+    assert.equal(config.tools.ga4.actions[`act-${id}`]?.data?.en, ev, `track action for ${ev} forwards the event name`);
+  }
+  assert.equal(Object.keys(config.triggers).length, FORWARDED_EVENTS.length);
+  assert.equal(Object.keys(config.tools.ga4.actions).length, FORWARDED_EVENTS.length);
 });

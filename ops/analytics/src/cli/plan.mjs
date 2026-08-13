@@ -7,7 +7,7 @@ import { resolveCloudflareAuth } from "../creds.mjs";
 import { findZone, cfRequest, CfApiError, zarazConfigUrl, zarazExportUrl, zarazWorkflowUrl } from "../cf.mjs";
 import { googleTokenFromEnv, listCustomDimensions } from "../ga4.mjs";
 import { probeProductionZaraz } from "../production.mjs";
-import { parseFlags, discoverGa4, repoStaticChecks } from "./cliutil.mjs";
+import { parseFlags, discoverGa4, repoStaticChecks, unknownFlags } from "./cliutil.mjs";
 import * as report from "../report.mjs";
 
 /**
@@ -266,5 +266,12 @@ export async function runPlan({
 
 // CLI entry (only when executed directly, not when imported by a test).
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  await runPlan();
+  const flags = parseFlags(process.argv.slice(2));
+  const unknown = unknownFlags(flags, ["measurement-id"]);
+  if (unknown.length) {
+    report.err(`unknown option(s) for plan: ${unknown.join(", ")}`);
+    process.exitCode = 2;
+  } else {
+    await runPlan();
+  }
 }
