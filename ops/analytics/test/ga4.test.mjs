@@ -1,14 +1,4 @@
-// ops/analytics GA4 Admin + Data API client tests.
-//
-// These tests encode the ACTUAL Google Analytics Admin API v1beta contract:
-//   - Admin base is /v1beta (not /v1).
-//   - Properties are listed via the top-level
-//     GET /v1beta/properties?filter=parent:accounts/{id} (there is no nested
-//     /accounts/{id}/properties in v1beta).
-//   - Data streams are listed via GET /v1beta/properties/{property}/dataStreams
-//     (webDataStreams is legacy UA naming, not GA4 v1beta).
-//   - A web stream's Measurement ID lives at webStreamData.measurementId.
-//   - Custom dimensions live at /v1beta/properties/{property}/customDimensions.
+// ops/analytics GA4 Admin + Data API client contract tests.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { generateKeyPairSync } from "node:crypto";
@@ -20,17 +10,18 @@ import {
   refreshTokenBody,
   createCustomDimensionBody,
   realtimeReportBody,
+  runRealtimeReport,
   extractGoogleError,
   propertiesListUrl,
   dataStreamsUrl,
   customDimensionsUrl,
   listProperties,
-  listDataStreams
+  listDataStreams,
+  REALTIME_SMOKE_DIMENSIONS,
+  STANDARD_REALTIME_MAX_MINUTES
 } from "../src/ga4.mjs";
 import { discoverGa4 } from "../src/cli/cliutil.mjs";
 
-// Runtime-generated key so the JWT is actually signed (no key material in
-// source, nothing secret committed).
 const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
 const PRIVATE_KEY_PEM = privateKey.export({ type: "pkcs8", format: "pem" });
 
@@ -39,7 +30,7 @@ test("Admin API base is /v1beta, Data API stays /v1beta", () => {
   assert.equal(gaDataUrl("123", "runRealtimeReport"), "https://analyticsdata.googleapis.com/v1beta/properties/123:runRealtimeReport");
 });
 
-test("propertiesListUrl uses the top-level properties.list with a parent filter (not /accounts/{id}/properties)", () => {
+test("propertiesListUrl uses top-level properties.list with parent filter", () => {
   assert.equal(
     propertiesListUrl("accounts/1"),
     "https://analyticsadmin.googleapis.com/v1beta/properties?filter=parent%3Aaccounts%2F1"
@@ -50,27 +41,18 @@ test("propertiesListUrl uses the top-level properties.list with a parent filter 
   );
 });
 
-test("dataStreamsUrl uses dataStreams (not webDataStreams)", () => {
-  assert.equal(
-    dataStreamsUrl("properties/7"),
-    "https://analyticsadmin.googleapis.com/v1beta/properties/7/dataStreams"
-  );
-  assert.equal(
-    dataStreamsUrl("7"),
-    "https://analyticsadmin.googleapis.com/v1beta/properties/7/dataStreams"
-  );
+test("dataStreamsUrl uses dataStreams", () => {
+  assert.equal(dataStreamsUrl("properties/7"), "https://analyticsadmin.googleapis.com/v1beta/properties/7/dataStreams");
+  assert.equal(dataStreamsUrl("7"), "https://analyticsadmin.googleapis.com/v1beta/properties/7/dataStreams");
 });
 
-test("customDimensionsUrl is unchanged under /v1beta", () => {
-  assert.equal(
-    customDimensionsUrl("properties/7"),
-    "https://analyticsadmin.googleapis.com/v1beta/properties/7/customDimensions"
-  );
+test("customDimensionsUrl remains under /v1beta", () => {
+  assert.equal(customDimensionsUrl("properties/7"), "https://analyticsadmin.googleapis.com/v1beta/properties/7/customDimensions");
 });
 
-test("listProperties issues the top-level properties.list with a parent filter", async () => {
+test("listProperties issues top-level properties.list with a parent filter", async () => {
   const seen = [];
-  const prev = globalThis.fetch;
+  const previous = globalThis.fetch;
   globalThis.fetch = async (url) => {
     seen.push(String(url));
     return { ok: true, status: 200, json: async () => ({ properties: [] }) };
@@ -78,18 +60,16 @@ test("listProperties issues the top-level properties.list with a parent filter",
   try {
     await listProperties({ token: "t", account: "accounts/123" });
   } finally {
-    globalThis.fetch = prev;
+    globalThis.fetch = previous;
   }
-  assert.equal(seen.length, 1);
-  assert.equal(
-    seen[0],
+  assert.deepEqual(seen, [
     "https://analyticsadmin.googleapis.com/v1beta/properties?filter=parent%3Aaccounts%2F123"
-  );
+  ]);
 });
 
-test("listDataStreams reads dataStreams (not webDataStreams)", async () => {
+test("listDataStreams reads dataStreams", async () => {
   const seen = [];
-  const prev = globalThis.fetch;
+  const previous = globalThis.fetch;
   globalThis.fetch = async (url) => {
     seen.push(String(url));
     return { ok: true, status: 200, json: async () => ({ dataStreams: [] }) };
@@ -97,14 +77,14 @@ test("listDataStreams reads dataStreams (not webDataStreams)", async () => {
   try {
     await listDataStreams({ token: "t", property: "properties/7" });
   } finally {
-    globalThis.fetch = prev;
+    globalThis.fetch = previous;
   }
   assert.equal(seen[0], "https://analyticsadmin.googleapis.com/v1beta/properties/7/dataStreams");
 });
 
-test("discoverGa4 uses the v1beta contract and extracts webStreamData.measurementId", async () => {
+test("discoverGa4 uses v1beta contract and webStreamData.measurementId", async () => {
   const seen = [];
-  const prev = globalThis.fetch;
+  const previous = globalThis.fetch;
   globalThis.fetch = async (url) => {
     const u = String(url);
     seen.push(u);
@@ -127,18 +107,17 @@ test("discoverGa4 uses the v1beta contract and extracts webStreamData.measuremen
     }
     return { ok: false, status: 404, json: async () => ({ error: { message: `unexpected ${u}` } }) };
   };
-  let d;
+  let discovered;
   try {
-    d = await discoverGa4({ token: "t" });
+    discovered = await discoverGa4({ token: "t" });
   } finally {
-    globalThis.fetch = prev;
+    globalThis.fetch = previous;
   }
-  assert.equal(d.measurementId, "G-X");
-  assert.ok(seen.some((u) => u.endsWith("/v1beta/accounts")), "lists accounts at /v1beta/accounts");
-  assert.ok(seen.some((u) => u.includes("/v1beta/properties?filter=parent%3Aaccounts%2F1")), "lists properties via top-level filter");
-  assert.ok(seen.some((u) => u.endsWith("/v1beta/properties/2/dataStreams")), "lists data streams via dataStreams");
-  assert.ok(!seen.some((u) => u.includes("webDataStreams")), "webDataStreams is never used");
-  assert.ok(!seen.some((u) => u.includes("/accounts/accounts/") || u.includes("/properties/properties/")), "no duplicated prefixes");
+  assert.equal(discovered.measurementId, "G-X");
+  assert.ok(seen.some((u) => u.endsWith("/v1beta/accounts")));
+  assert.ok(seen.some((u) => u.includes("/v1beta/properties?filter=parent%3Aaccounts%2F1")));
+  assert.ok(seen.some((u) => u.endsWith("/v1beta/properties/2/dataStreams")));
+  assert.ok(!seen.some((u) => u.includes("webDataStreams")));
 });
 
 test("buildSignedJwt produces a verifiable JWT header + claim", () => {
@@ -149,9 +128,8 @@ test("buildSignedJwt produces a verifiable JWT header + claim", () => {
   };
   const now = 1_700_000_000;
   const jwt = buildSignedJwt(sa, { now });
-  const parts = jwt.split(".");
-  assert.equal(parts.length, 3);
   const [header, claim] = decodeJwtPayload(jwt);
+  assert.equal(jwt.split(".").length, 3);
   assert.equal(header.alg, "RS256");
   assert.equal(header.typ, "JWT");
   assert.equal(claim.iss, "sa@proj.iam.gserviceaccount.com");
@@ -169,32 +147,79 @@ test("refreshTokenBody encodes the user-oauth refresh flow", () => {
   assert.equal(body.get("refresh_token"), "rtoken");
 });
 
-test("createCustomDimensionBody matches the Admin API contract", () => {
-  const body = createCustomDimensionBody({ parameterName: "promoId", displayName: "Promo ID", scope: "EVENT" });
-  assert.deepEqual(body, {
-    parameterName: "promoId",
-    displayName: "Promo ID",
-    scope: "EVENT"
-  });
+test("createCustomDimensionBody matches Admin API contract", () => {
+  assert.deepEqual(
+    createCustomDimensionBody({ parameterName: "promoId", displayName: "Promo ID", scope: "EVENT" }),
+    { parameterName: "promoId", displayName: "Promo ID", scope: "EVENT" }
+  );
 });
 
-test("realtimeReportBody builds a bounded event report", () => {
-  const body = realtimeReportBody({
-    dimensions: ["eventName", "customEvent:promoId"],
-    minutes: 10
-  });
-  assert.deepEqual(body.dimensions, [
-    { name: "eventName" },
-    { name: "customEvent:promoId" }
-  ]);
-  assert.ok(Array.isArray(body.metrics));
-  assert.equal(body.minuteRanges[0].startMinutesAgo, 9);
+test("Realtime smoke uses only eventName and a maximum 30-minute standard-property window", () => {
+  const body = realtimeReportBody();
+  assert.deepEqual(body.dimensions, REALTIME_SMOKE_DIMENSIONS.map((name) => ({ name })));
+  assert.deepEqual(body.metrics, [{ name: "eventCount" }]);
+  assert.equal(body.minuteRanges[0].startMinutesAgo, STANDARD_REALTIME_MAX_MINUTES - 1);
   assert.equal(body.minuteRanges[0].endMinutesAgo, 0);
+  assert.ok(body.minuteRanges[0].startMinutesAgo <= 29);
 });
 
-test("extractGoogleError surfaces the API error message", () => {
-  const msg = extractGoogleError({
-    error: { message: "Permission denied", code: 403 }
-  });
-  assert.match(msg, /Permission denied/);
+test("Realtime request rejects any window beyond the standard 30-minute contract", () => {
+  for (const minutes of [0, 31, 60, 30.5]) {
+    assert.throws(() => realtimeReportBody({ dimensions: ["eventName"], minutes }), /Realtime window/);
+  }
+});
+
+test("unsupported Realtime dimensions are rejected before a network request", async () => {
+  const unsupported = ["sessionId", "pagePath", "customEvent:promoId", "customEvent:action", "customEvent:placement", "customEvent:locale"];
+  for (const dimension of unsupported) {
+    assert.throws(
+      () => realtimeReportBody({ dimensions: ["eventName", dimension], minutes: 30 }),
+      /Unsupported dimension/
+    );
+  }
+
+  let fetchCalls = 0;
+  const previous = globalThis.fetch;
+  globalThis.fetch = async () => {
+    fetchCalls += 1;
+    throw new Error("should not be reached");
+  };
+  try {
+    await assert.rejects(
+      () => runRealtimeReport({ token: "t", propertyId: "1", dimensions: ["sessionId"], minutes: 30 }),
+      /Unsupported dimension/
+    );
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.equal(fetchCalls, 0);
+});
+
+test("runRealtimeReport emits only the supported bounded request", async () => {
+  let body;
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (_url, options) => {
+    body = JSON.parse(options.body);
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({
+        dimensionHeaders: [{ name: "eventName" }],
+        rows: [{ dimensionValues: [{ value: "promo_click" }], metricValues: [{ value: "7" }] }]
+      })
+    };
+  };
+  try {
+    const rows = await runRealtimeReport({ token: "t", propertyId: "1" });
+    assert.equal(rows[0].eventName, "promo_click");
+    assert.equal(rows[0].eventCount, 7);
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.deepEqual(body.dimensions, [{ name: "eventName" }]);
+  assert.ok(body.minuteRanges[0].startMinutesAgo <= 29);
+});
+
+test("extractGoogleError surfaces API error message", () => {
+  assert.match(extractGoogleError({ error: { message: "Permission denied", code: 403 } }), /Permission denied/);
 });

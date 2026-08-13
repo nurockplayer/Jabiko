@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
@@ -40,8 +42,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Analytics contract tests
+        run: node --test ops/analytics/test/
+
       - name: Lint (eslint, zero warnings)
         run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
 
       - name: Check exam bank (hint leaks / answer-in-options / level labels)
         run: pnpm check:exam
@@ -50,4 +58,8 @@ jobs:
         run: pnpm test
 
       - name: Build
-        run: pnpm run build
+        run: pnpm build
+
+      - name: Diff whitespace check (latest PR commit)
+        if: github.event_name == 'pull_request'
+        run: git diff --check HEAD^ HEAD

@@ -1,136 +1,212 @@
 # ops/analytics — Jabiko production analytics automation (#745)
 
-Automates the Cloudflare Zaraz → GA4 production setup and smoke verification for
-issue #745 (measure the Stay.D funnel without a second analytics stack).
+Repository-owned operator tooling for the remaining Cloudflare Zaraz → GA4
+production setup and verification in #745.
 
-The repository code for #745 is merged (PR #756). This tool automates the
-**remaining production configuration steps** that used to be manual dashboard
-work:
-
-1. discover the jabiko.app Cloudflare zone and its Zaraz config;
-2. diff it against the #745 desired state;
-3. apply only the missing/incorrect bits (GA4 tool + triggers + actions, no
-   duplicate page views, event-scoped custom dimensions);
-4. smoke-verify real production traffic against GA4 Realtime.
+The application-side analytics code is already in the repository. These tools
+manage and verify the external production configuration without committing
+credentials or inventing unsupported GA4 reporting behavior.
 
 ## Operator interface
 
 ```bash
-./ops/analytics/bin/plan          # read-only: discover + desired-state diff + gates
-./ops/analytics/bin/apply         # idempotent: apply only missing/incorrect config
-./ops/analytics/bin/smoke         # production verification (config + real traffic)
+./ops/analytics/bin/plan          # read-only discovery + desired-state diff + gates
+./ops/analytics/bin/apply         # idempotent production reconciliation
+./ops/analytics/bin/smoke         # published-config + production traffic verification
 ./ops/analytics/bin/google-auth   # inspect/set up Google GA4 access
 ```
 
-Run everything from the repository root. `plan` never writes; `apply` takes a
-Zaraz-config snapshot in `ops/analytics/state/` before every mutation
-(gitignored) and refuses to delete a second analytics client without
-`--yes-remove-gtag`.
+Run from the repository root. `plan` never writes. `apply` snapshots the
+published Zaraz export in `ops/analytics/state/` with mode `0600` before any
+mutation and refuses to remove a second analytics client unless
+`--yes-remove-gtag` is explicit.
 
-## Human gates (the only things this automation will ask you for)
+## Evidence contract
 
-| Gate | When | Minimum scope | Unlocks |
-|------|------|---------------|---------|
-| `HUMAN_GATE:CLOUDFLARE_AUTH` | No `CLOUDFLARE_API_TOKEN` with Zaraz permission | Zone:Zaraz Edit + Zone:Read, scoped to jabiko.app | Reading/mutating the Zaraz config |
-| `HUMAN_GATE:GOOGLE_OAUTH` | No GA4 access | analytics.readonly (+ edit for apply) on the Jabiko property | Property discovery, Measurement ID, custom dimensions, Realtime checks |
-| `HUMAN_GATE:GA4_PROPERTY_AMBIGUITY` | Several plausible GA4 properties | read access to the candidates | A single Measurement ID |
-| `HUMAN_GATE:PRODUCTION_INTERACTION` | Real-traffic smoke | one normal visitor session | Realtime proof the funnel reaches GA4 |
+The smoke intentionally separates evidence by what each official surface can
+actually prove.
 
-Values that can be discovered programmatically are never asked for.
+| Surface | What it proves | What it does **not** claim |
+|---|---|---|
+| Production HTML | Zaraz is injected on `jabiko.app` | GA4 delivery or event payload correctness |
+| Zaraz `GET /workflow` | zone workflow is `realtime` or `preview` | production publication by itself |
+| Zaraz `GET /export` | current **published** config, including secrets | a newer preview is live |
+| GA4 Admin API | intended property/stream + four event-scoped custom dimensions exist | recent event delivery |
+| GA4 Realtime Data API | recent `page_view` / `promo_click` event names reached GA4 | session identity, route path, placement/action/custom-event values |
+| Zaraz Debug Mode, human gate | the guided interaction carries the seven expected placement/action payloads and fires the GA4 actions | unattended API verification |
+
+### Why Realtime is deliberately narrow
+
+For a standard GA4 property, `runRealtimeReport` is limited to the latest 30
+minutes. The Realtime schema supports `eventName` and `eventCount`, but does
+not expose `sessionId`, `pagePath`, or event-scoped `customEvent:*` dimensions.
+The smoke therefore hard-limits every Realtime request to:
+
+```text
+dimension: eventName
+metric:    eventCount
+window:    <= 30 minutes
+```
+
+The code rejects unsupported Realtime dimensions before issuing a network
+request.
+
+### Why placement/action is one human gate
+
+Two documented API alternatives were evaluated:
+
+- GA4 Core Reporting (`runReport`) supports event-scoped `customEvent:*`
+  dimensions, but Core report data is processed/aggregated and is not a
+  reliable immediate proof of one just-completed guided interaction.
+- Cloudflare Zaraz Monitoring API can report events, pageviews, triggers,
+  actions, and server-side request statuses, but its documented datasets are
+  monitoring/aggregate surfaces and do not provide a supported contract for
+  querying all seven arbitrary `placement` values and correlating them to one
+  guided visitor interaction.
+
+Rather than turn either limitation into a false automated PASS, `smoke` keeps
+one explicit `HUMAN_GATE:PRODUCTION_INTERACTION`. Run:
+
+```bash
+./ops/analytics/bin/smoke --placement-action-verified
+```
+
+The command first captures a supported GA4 Realtime `eventName` baseline, then
+prints the guided sequence and watches for a new `page_view` / `promo_click`
+count delta. During that same watch, enable Cloudflare Zaraz Debug Mode and
+verify the seven payload/action pairs. The flag is the operator attestation for
+that debugger observation; it never causes Realtime to query unsupported fields.
+Pre-existing ambient traffic cannot satisfy the automated check because only
+the post-baseline count delta is evaluated.
+
+## Human gates
+
+| Gate | When | Minimum scope / action |
+|---|---|---|
+| `HUMAN_GATE:CLOUDFLARE_AUTH` | no usable Zaraz token | `Zone > Zaraz : Edit` + `Zone > Zone : Read`, restricted to `jabiko.app` |
+| `HUMAN_GATE:CLOUDFLARE_PUBLISH` | preview config changed but API publish cannot run | publish in Zaraz History, or use a token with `Zone > Zaraz : Admin` for the publish call only |
+| `HUMAN_GATE:GOOGLE_OAUTH` | no GA4 access | Analytics Admin/Data read; edit is needed when `apply` creates dimensions |
+| `HUMAN_GATE:GA4_PROPERTY_AMBIGUITY` | several plausible GA4 properties | select the intended Jabiko production property |
+| `HUMAN_GATE:PRODUCTION_INTERACTION` | placement/action production proof | one guided production interaction with Zaraz Debug Mode |
+
+`CLOUDFLARE_PUBLISH` is intentionally separate from normal Cloudflare auth.
+Cloudflare accepts Zaraz Edit/Read/Admin for workflow reads, while the publish
+endpoint requires Zaraz Admin. The normal token does not need to be broadened
+unless automated preview publication is desired.
 
 ## Credentials
 
-Credentials live **outside git** — no token, key, or cookie is ever committed.
+Credentials stay outside git. Tokens are never printed.
 
-- **Cloudflare**: create a scoped API token in the Cloudflare dashboard
-  (My Profile → API Tokens → Create Token → "Edit zone DNS"/custom, add
-  `Zone > Zaraz : Edit` and `Zone > Zone : Read` for the `jabiko.app` zone).
-  Export it: `export CLOUDFLARE_API_TOKEN=…`.
-  - The existing `wrangler` OAuth login is auto-detected and used for zone
-    discovery, but it only has `account:read`/`zone:read` and **cannot** read
-    or write Zaraz — that part needs the scoped token.
-- **Google**: any one of
-  1. `export GA4_ACCESS_TOKEN=…` (one-shot);
-  2. a service-account JSON (see below) via `GOOGLE_APPLICATION_CREDENTIALS`;
-  3. `ops/analytics/.secrets/gcp-service-account.json` or
-     `ops/analytics/.secrets/google-oauth.json`;
-  4. ADC from `gcloud auth application-default login`:
-     ```bash
-     docker compose -f ops/analytics/docker-compose.yml run --rm gcloud
-     ```
-     (Docker only — no host `gcloud` needed. The ADC lands in
-     `ops/analytics/state/gcloud/`.)
+`ops/analytics/.env.example` is a **variable-name reference only**. The
+operator wrappers do not auto-load `ops/analytics/.env` and do not shell-source
+`.env.example`. Export credentials in the shell, which matches the executable
+behavior:
 
-  Run `./ops/analytics/bin/google-auth` to check which source is active and get
-  exact setup steps. Service-account flow is pure Node (RSA JWT) — no Docker
-  required.
+```bash
+export CLOUDFLARE_API_TOKEN=...
+export GA4_ACCESS_TOKEN=...
+# or: export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+```
 
-## Workflow
+### Cloudflare
+
+Normal `plan`/`apply`/`smoke` operation uses a zone-scoped token with Zaraz Edit
+and Zone Read. If the zone is in Preview & Publish and `apply` changed the
+config, automated publication additionally requires Zaraz Admin. If publish
+fails, `apply` exits non-zero and gives the precise manual publish gate.
+
+The existing Wrangler OAuth login may be used for account/zone discovery, but
+it does not provide Zaraz mutation permission.
+
+### Google
+
+Any one of:
+
+1. exported `GA4_ACCESS_TOKEN` for a one-shot run;
+2. exported `GOOGLE_APPLICATION_CREDENTIALS` pointing at a service-account JSON;
+3. `ops/analytics/.secrets/gcp-service-account.json`;
+4. `ops/analytics/.secrets/google-oauth.json`;
+5. gcloud ADC, including the Docker helper in `docker-compose.yml`.
+
+Use `./ops/analytics/bin/google-auth` to inspect the active source without
+printing secret values.
+
+## Apply workflow and production publication
 
 ```bash
 ./ops/analytics/bin/plan
-# → diff + gates; nothing mutated
-./ops/analytics/bin/apply                 # needs CLOUDFLARE_API_TOKEN (+ Google for the Measurement ID / dims)
-./ops/analytics/bin/apply --dry-run       # preview without writing
-./ops/analytics/bin/smoke                 # production verification
+./ops/analytics/bin/apply
+./ops/analytics/bin/smoke
 ```
 
-### Desired state applied by `apply`
+`apply` follows these publication rules:
 
-- GA4 is downstream of **Zaraz only** — no gtag/GTM/second analytics client
-  (a second client is reported and only removed with `--yes-remove-gtag`).
-- The GA4 managed tool (`google-analytics-4`) uses the Jabiko Measurement ID.
-- Custom-event triggers forward `page_view` and `promo_click`; one `track`
-  action per event with `data.en` = the event name.
-- The automatic page-view action is **not** enabled — Jabiko's explicit SPA
-  `page_view` stays authoritative, so one logical page view per SPA navigation.
-- `promo_click` parameters are exactly `promoId`, `action`, `placement`,
-  `locale` (the app-side allowlist in `src/lib/analytics.ts` already enforces
-  this).
-- Event-scoped GA4 custom dimensions exist for those four fields (idempotent,
-  never duplicated).
+1. Resolve the zone.
+2. `GET /settings/zaraz/workflow`. Any read failure or unknown value fails
+   closed before a mutation. It never assumes `realtime`.
+3. Read the mutation base from `GET /settings/zaraz/export` only. This is the
+   current **published** configuration and retains secret variable values.
+4. Build and PUT only the desired delta.
+5. If workflow is `preview`, production completion requires successful
+   `POST /settings/zaraz/publish`. Publish failure is a non-zero human gate.
+6. Re-read `/export` and require the **published** configuration to converge.
+   `/config` is not accepted as production proof because Cloudflare documents
+   it as the latest config, which may be preview or published.
+7. Reconcile the four GA4 event-scoped custom dimensions independently.
 
-### Smoke coverage
+A preview-only change is never reported as production success.
 
-1. Zaraz is injected on jabiko.app (no credentials).
-2. Zaraz config has the GA4 tool, both triggers, both actions, no automatic
-   page view.
-3. The four GA4 custom dimensions exist.
-4. Real traffic: the operator performs one guided set of Stay.D clicks
-   (`HUMAN_GATE:PRODUCTION_INTERACTION`); the script watches GA4 Realtime and
-   verifies `page_view` (Home + /stay-d), all seven placements, and the
-   `airbnb`/`video` action semantics, and flags any session with suspicious
-   duplicate page views.
+## Desired state
+
+- One GA4 managed tool (`google-analytics-4`) with the intended Measurement ID.
+- Custom-event triggers forward `page_view` and `promo_click`.
+- One `track` action per event.
+- No automatic page-view action in parallel with Jabiko's explicit SPA
+  `page_view`.
+- `promo_click` parameters remain `promoId`, `action`, `placement`, `locale`.
+- Event-scoped GA4 custom dimensions exist for those four fields.
+- A second analytics client is reported and is only removed with explicit
+  `--yes-remove-gtag`.
+
+## Smoke coverage
+
+`smoke` requires all of the following before exit 0:
+
+1. production Zaraz injection;
+2. readable `realtime|preview` workflow;
+3. converged **published** Zaraz `/export`;
+4. all four GA4 custom dimensions registered;
+5. GA4 Realtime captures a baseline, then shows a new delta of at least two
+   `page_view` and seven `promo_click` events during the guided watch, using
+   only `eventName` + `eventCount` and a <=30-minute window;
+6. during that same watch the operator completes the single Zaraz Debug Mode
+   placement/action verification under `--placement-action-verified`.
+
+Step 5 is deliberately an event-arrival delta, not a session identifier. It
+does not claim route/session identity or page-view deduplication because those
+dimensions are not available on the supported Realtime surface used here.
 
 ## Tests
 
-Pure logic (diff, idempotency, redaction, duplicate-dimension prevention, safe
-config mutation) is unit-tested with Node's built-in runner — no extra deps:
-
 ```bash
-node --test ops/analytics/test/*.test.mjs
+node --test ops/analytics/test/
+pnpm lint
+pnpm typecheck
+pnpm build
+git diff --check
 ```
+
+The contract suite includes regressions for the Realtime 30-minute limit,
+forbidden Realtime dimensions, workflow-read fail-closed behavior, preview
+publication, published-state verification, and `.env` documentation/runtime
+agreement.
 
 ## Security notes
 
-- Tokens are resolved into opaque objects; every printed value passes through
-  `redact()` (`src/creds.mjs`). `plan`/`apply`/`smoke` never print secrets.
-- `apply` snapshots the Zaraz config to `ops/analytics/state/` (gitignored)
-  before mutation, with owner-only file permissions. The mutation base is read
-  from the **export** endpoint (secret variable values included) so a full-config
-  PUT never clobbers unrelated secrets; it falls back to `/config` (secrets
-  excluded) with a warning when export is unavailable.
-- No `curl | bash`, no one-shot remote executors, no new dependencies.
-- The GA4 workflow stays the documented Admin + Data APIs only.
-
-## Known limitations
-
-- If the zone uses Zaraz's **Preview & Publish** workflow, the API applies to
-  preview and the tool attempts the publish endpoint; if that endpoint is not
-  exposed it tells you to publish in the dashboard History page.
-- `apply` builds the from-scratch tool/trigger shapes from Cloudflare's
-  documented schema; `plan` probes the live config first and `apply` mirrors
-  existing shapes when a GA4 tool is already present, so the two only diverge
-  on a truly empty zone.
-- Realtime param-level smoke checks need the GA4 custom dimensions registered
-  first (run `apply` once with Google access).
+- No production credential is used by the test suite; HTTP is stubbed.
+- `.env`, `.secrets/`, and `state/` are gitignored.
+- Published Zaraz snapshots may contain secrets and are written mode `0600`.
+- A full config PUT is never based on secret-stripped `/config`.
+- `/export` failure is fatal; there is no destructive fallback.
+- No `curl | bash`, no remote one-shot executor, and no new package dependency.

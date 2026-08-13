@@ -1,29 +1,13 @@
-// End-to-end smoke CLI tests with a stubbed global fetch. These catch the
-// control-flow, session-isolation, polling-accumulation and exit-status bugs
-// without any real credentials or network.
-
+// Production smoke CLI tests with stubbed fetch only. No real credentials.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { runSmoke } from "../src/cli/smoke.mjs";
-import { PLACEMENT_ACTION } from "../src/smokelogic.mjs";
-
-const PLACEMENTS = Object.keys(PLACEMENT_ACTION);
 
 const DIMS = [
   { parameterName: "promoId", name: "promoId", scope: "EVENT" },
   { parameterName: "action", name: "action", scope: "EVENT" },
   { parameterName: "placement", name: "placement", scope: "EVENT" },
   { parameterName: "locale", name: "locale", scope: "EVENT" }
-];
-
-const RICH_DIMS = [
-  "eventName",
-  "sessionId",
-  "pagePath",
-  "customEvent:promoId",
-  "customEvent:action",
-  "customEvent:placement",
-  "customEvent:locale"
 ];
 
 function convergedConfig() {
@@ -70,232 +54,193 @@ function convergedConfig() {
   };
 }
 
-function row(eventName, sessionId, overrides = {}) {
-  return { eventName, sessionId, pagePath: "/", eventCount: 1, ...overrides };
-}
-function pageView(sessionId, pagePath = "/") {
-  return row("page_view", sessionId, { pagePath });
-}
-function promo(sessionId, placement, action) {
-  return row("promo_click", sessionId, {
-    "customEvent:promoId": "stay-d",
-    "customEvent:action": action,
-    "customEvent:placement": placement,
-    "customEvent:locale": "zh-Hant"
-  });
-}
-function guidedRows(sessionId, { pageViews = true, stayD = true } = {}) {
-  const rows = [];
-  if (pageViews) {
-    rows.push(pageView(sessionId, "/"));
-    if (stayD) rows.push(pageView(sessionId, "/stay-d"));
-  }
-  for (const placement of PLACEMENTS) {
-    rows.push(promo(sessionId, placement, PLACEMENT_ACTION[placement]));
-  }
-  return rows;
-}
-
-function richResponse(rows) {
+function unconvergedConfig() {
   return {
-    dimensionHeaders: RICH_DIMS.map((name) => ({ name })),
-    rows: rows.map((r) => ({
-      dimensionValues: RICH_DIMS.map((k) => ({ value: r[k] ?? "" })),
-      metricValues: [{ value: String(r.eventCount ?? 1) }]
-    }))
+    settings: { autoInjectScript: true },
+    tools: {},
+    triggers: {},
+    zarazVersion: 3
   };
 }
 
-function baselineResponse(sessionIds) {
+function realtimeResponse({ pageViews = 2, promoClicks = 7 } = {}) {
   return {
-    dimensionHeaders: [{ name: "sessionId" }],
-    rows: sessionIds.map((sid) => ({
-      dimensionValues: [{ value: sid }],
-      metricValues: [{ value: "1" }]
-    }))
+    dimensionHeaders: [{ name: "eventName" }],
+    rows: [
+      { dimensionValues: [{ value: "page_view" }], metricValues: [{ value: String(pageViews) }] },
+      { dimensionValues: [{ value: "promo_click" }], metricValues: [{ value: String(promoClicks) }] }
+    ]
   };
 }
 
-function makeFetch({ richRows, baselineSessions, realtimeCalls, html = "zaraz injected", baselineFails = false, richDimsFail = false }) {
+function makeFetch({
+  html = "<html>zaraz injected</html>",
+  workflow = "realtime",
+  workflowFails = false,
+  publishedConfig = convergedConfig(),
+  baselineRealtime = realtimeResponse({ pageViews: 3, promoClicks: 4 }),
+  realtime = realtimeResponse({ pageViews: 5, promoClicks: 11 })
+} = {}) {
   const calls = [];
-  const impl = async (url, opts = {}) => {
-    const method = opts.method || "GET";
+  let realtimeReads = 0;
+  const impl = async (url, options = {}) => {
     const u = String(url);
-    calls.push({ method, url: u });
-    const respond = (status, json) => ({
+    const method = options.method || "GET";
+    const body = options.body ? JSON.parse(options.body) : undefined;
+    calls.push({ url: u, method, body });
+    const json = (status, payload) => ({
       ok: status < 400,
       status,
-      json: async () => json,
-      text: async () => JSON.stringify(json)
+      json: async () => payload,
+      text: async () => JSON.stringify(payload)
     });
-    const respondText = (status, text) => ({
+    const text = (status, payload) => ({
       ok: status < 400,
       status,
       json: async () => ({}),
-      text: async () => text
+      text: async () => payload
     });
 
     if (u.startsWith("https://jabiko.app/")) {
-      if (u.includes("cdn-cgi/zaraz")) return respondText(404, "Not found");
-      return respondText(200, html);
+      if (u.includes("cdn-cgi/zaraz")) return text(404, "not found");
+      return text(200, html);
     }
     if (u.includes("api.cloudflare.com")) {
-      if (u.includes("/settings/zaraz/config")) {
-        return respond(200, { success: true, result: convergedConfig() });
-      }
       if (u.includes("/zones?name=")) {
-        return respond(200, {
-          success: true,
-          result: [{ id: "z1", name: "jabiko.app", account: { name: "Acct" } }]
-        });
+        return json(200, { success: true, result: [{ id: "z1", name: "jabiko.app", account: { name: "Acct" } }] });
       }
-      return respond(404, { success: false, errors: [{ message: "unexpected" }] });
+      if (u.includes("/settings/zaraz/workflow")) {
+        if (workflowFails) return json(500, { success: false, errors: [{ message: "workflow unavailable" }] });
+        return json(200, { success: true, result: workflow });
+      }
+      if (u.includes("/settings/zaraz/export")) {
+        return json(200, { success: true, result: publishedConfig });
+      }
+      if (u.includes("/settings/zaraz/config")) {
+        return json(200, { success: true, result: convergedConfig() });
+      }
+      return json(404, { success: false, errors: [{ message: "unexpected" }] });
     }
     if (u.includes("analyticsadmin.googleapis.com")) {
-      if (u.includes("/v1beta/properties/2/customDimensions")) {
-        return respond(200, { customDimensions: DIMS });
-      }
-      if (u.includes("/v1beta/properties/2/dataStreams")) {
-        return respond(200, {
-          dataStreams: [
-            { name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-TEST" } }
-          ]
-        });
+      if (u.endsWith("/v1beta/accounts")) {
+        return json(200, { accounts: [{ name: "accounts/1", displayName: "Acct" }] });
       }
       if (u.includes("/v1beta/properties?filter=")) {
-        return respond(200, {
-          properties: [{ name: "properties/2", displayName: "Jabiko", url: "https://jabiko.app" }]
+        return json(200, { properties: [{ name: "properties/2", displayName: "Jabiko", url: "https://jabiko.app" }] });
+      }
+      if (u.includes("/v1beta/properties/2/dataStreams")) {
+        return json(200, {
+          dataStreams: [{ name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-TEST" } }]
         });
       }
-      if (u.endsWith("/v1beta/accounts")) {
-        return respond(200, { accounts: [{ name: "accounts/1", displayName: "Acct" }] });
+      if (u.includes("/v1beta/properties/2/customDimensions")) {
+        return json(200, { customDimensions: DIMS });
       }
-      return respond(404, { error: { message: "unexpected" } });
+      return json(404, { error: { message: "unexpected admin request" } });
     }
     if (u.includes("analyticsdata.googleapis.com")) {
-      const body = opts.body ? JSON.parse(opts.body) : {};
-      const dims = (body.dimensions ?? []).map((d) => d.name);
-      realtimeCalls.push({ dims });
-      if (dims.length === 1 && dims[0] === "sessionId") {
-        if (baselineFails) return respond(500, { error: { message: "internal error" } });
-        return respond(200, baselineResponse(baselineSessions));
-      }
-      if (richDimsFail) return respond(400, { error: { message: "not a valid dimension: customEvent:promoId" } });
-      return respond(200, richResponse(richRows));
+      realtimeReads += 1;
+      return json(200, realtimeReads === 1 ? baselineRealtime : realtime);
     }
-    return respondText(404, "Not found");
+    return text(404, "not found");
   };
   return { calls, impl };
 }
 
 async function withFetch(impl, fn) {
-  const prev = globalThis.fetch;
+  const previous = globalThis.fetch;
   globalThis.fetch = impl;
   try {
     return await fn();
   } finally {
-    globalThis.fetch = prev;
+    globalThis.fetch = previous;
   }
 }
 
-test("smoke success continues through config, GA4 dimensions and Realtime, isolating the new session", async () => {
-  const realtimeCalls = [];
-  // Old pre-existing traffic (in the baseline) also carries all seven
-  // placements — it must be excluded. Only smoke-session counts.
-  const richRows = [...guidedRows("old-session"), ...guidedRows("smoke-session")];
-  const { calls, impl } = makeFetch({
-    richRows,
-    baselineSessions: ["old-session"],
-    realtimeCalls
-  });
-  const result = await withFetch(impl, () =>
-    runSmoke({
-      env: { CLOUDFLARE_API_TOKEN: "t", GA4_ACCESS_TOKEN: "g" },
-      watchSeconds: 30,
-      pollIntervalMs: 20
-    })
-  );
+const ENV = { CLOUDFLARE_API_TOKEN: "test-cf", GA4_ACCESS_TOKEN: "test-ga" };
 
-  assert.ok(calls.some((c) => c.url.includes("/settings/zaraz/config")), "step 3 read the Zaraz config");
-  assert.ok(calls.some((c) => c.url.includes("/customDimensions")), "step 4 checked GA4 custom dimensions");
-  assert.ok(calls.some((c) => c.url.includes(":runRealtimeReport")), "step 5 ran the Realtime watch");
-  assert.equal(result.guidedSession, "smoke-session", "guided session is the newly observed one");
-  assert.equal(result.exitCode, 0, "a complete guided session passes");
-  assert.deepEqual(result.failures, []);
+test("smoke never requests unsupported Realtime dimensions or a window beyond 30 minutes", async () => {
+  const { calls, impl } = makeFetch();
+  const result = await withFetch(impl, () =>
+    runSmoke({ env: ENV, flags: { placementActionVerified: true }, watchSeconds: 0, pollIntervalMs: 1 })
+  );
+  assert.equal(result.exitCode, 0);
+  const realtimeCalls = calls.filter((call) => call.url.includes(":runRealtimeReport"));
+  assert.ok(realtimeCalls.length >= 1);
+  for (const call of realtimeCalls) {
+    assert.deepEqual(call.body.dimensions, [{ name: "eventName" }]);
+    assert.ok(call.body.minuteRanges[0].startMinutesAgo <= 29);
+    const requested = call.body.dimensions.map((d) => d.name);
+    for (const forbidden of ["sessionId", "pagePath", "customEvent:promoId", "customEvent:action", "customEvent:placement", "customEvent:locale"]) {
+      assert.ok(!requested.includes(forbidden), `${forbidden} must never be requested from Realtime`);
+    }
+  }
 });
 
-test("smoke exits non-zero when Home or /stay-d page views are missing from the guided session", async () => {
-  const realtimeCalls = [];
-  const richRows = [
-    pageView("smoke-session", "/"), // only ONE page view — Home + /stay-d requirement fails
-    ...PLACEMENTS.map((p) => promo("smoke-session", p, PLACEMENT_ACTION[p]))
-  ];
-  const { impl } = makeFetch({ richRows, baselineSessions: [], realtimeCalls });
+test("placement/action proof remains one explicit human gate instead of an automated fake pass", async () => {
+  const { impl } = makeFetch();
   const result = await withFetch(impl, () =>
-    runSmoke({
-      env: { CLOUDFLARE_API_TOKEN: "t", GA4_ACCESS_TOKEN: "g" },
-      watchSeconds: 1,
-      pollIntervalMs: 10
-    })
+    runSmoke({ env: ENV, flags: {}, watchSeconds: 0, pollIntervalMs: 1 })
   );
-  assert.equal(result.exitCode, 1, "missing page views must fail smoke");
-  assert.ok(result.failures.some((f) => /Home page view/.test(f)));
-  assert.ok(result.failures.some((f) => /\/stay-d page view/.test(f)));
+  assert.equal(result.exitCode, 2);
+  assert.equal(result.failed, false);
+  assert.equal(result.gateBlocked, true);
+  assert.deepEqual(result.gates, ["PRODUCTION_INTERACTION"]);
+  assert.equal(result.eventCounts.page_view, 2);
+  assert.equal(result.eventCounts.promo_click, 7);
+  assert.equal(result.baselineCounts.page_view, 3);
+  assert.equal(result.baselineCounts.promo_click, 4);
 });
 
-test("smoke stops with a non-zero exit when Zaraz is not injected", async () => {
-  const realtimeCalls = [];
-  // The HTML must NOT contain the literal "zaraz" (the probe greps for it).
-  const { calls, impl } = makeFetch({
-    richRows: [],
-    baselineSessions: [],
-    realtimeCalls,
-    html: "<html><body>hello</body></html>"
-  });
+test("verified human placement/action gate + supported Realtime event signal can pass", async () => {
+  const { impl } = makeFetch({ workflow: "preview" });
   const result = await withFetch(impl, () =>
-    runSmoke({
-      env: { CLOUDFLARE_API_TOKEN: "t", GA4_ACCESS_TOKEN: "g" },
-      watchSeconds: 5,
-      pollIntervalMs: 10
-    })
+    runSmoke({ env: ENV, flags: { placementActionVerified: true }, watchSeconds: 0, pollIntervalMs: 1 })
+  );
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.workflow, "preview");
+  assert.equal(result.placementActionVerified, true);
+});
+
+test("workflow read failure fails closed and cannot become production success", async () => {
+  const { calls, impl } = makeFetch({ workflowFails: true });
+  const result = await withFetch(impl, () =>
+    runSmoke({ env: ENV, flags: { placementActionVerified: true }, watchSeconds: 0, pollIntervalMs: 1 })
   );
   assert.equal(result.exitCode, 1);
-  assert.ok(!calls.some((c) => c.url.includes(":runRealtimeReport")), "no realtime watch when not injected");
+  assert.equal(result.workflow, null);
+  assert.ok(!calls.some((call) => call.url.includes(":runRealtimeReport")), "no Realtime success after unknown workflow");
 });
 
-test("smoke fails closed when the baseline Realtime read fails (no empty baseline)", async () => {
-  const realtimeCalls = [];
-  const { impl } = makeFetch({
-    richRows: guidedRows("smoke-session"),
-    baselineSessions: [],
-    realtimeCalls,
-    baselineFails: true
-  });
+test("smoke verifies published /export, not a newer preview /config", async () => {
+  const { calls, impl } = makeFetch({ workflow: "preview", publishedConfig: unconvergedConfig() });
   const result = await withFetch(impl, () =>
-    runSmoke({
-      env: { CLOUDFLARE_API_TOKEN: "t", GA4_ACCESS_TOKEN: "g" },
-      watchSeconds: 5,
-      pollIntervalMs: 10
-    })
+    runSmoke({ env: ENV, flags: { placementActionVerified: true }, watchSeconds: 0, pollIntervalMs: 1 })
   );
-  assert.ok(result.exitCode !== 0, "baseline failure must fail smoke, not proceed with an empty baseline");
-  assert.ok(!result.placements.length || result.guidedSession === null, "no verification from an empty baseline");
+  assert.equal(result.exitCode, 1);
+  assert.ok(calls.some((call) => call.url.includes("/settings/zaraz/export")));
+  assert.ok(!calls.some((call) => call.url.includes("/settings/zaraz/config")), "preview-capable /config is not production proof");
 });
 
-test("smoke fails clearly when the rich custom dimensions are not queryable (no degraded fallback)", async () => {
-  const realtimeCalls = [];
+test("Realtime event delta failure is non-zero even after human verification", async () => {
   const { impl } = makeFetch({
-    richRows: guidedRows("smoke-session"),
-    baselineSessions: [],
-    realtimeCalls,
-    richDimsFail: true
+    baselineRealtime: realtimeResponse({ pageViews: 10, promoClicks: 20 }),
+    realtime: realtimeResponse({ pageViews: 11, promoClicks: 26 })
   });
   const result = await withFetch(impl, () =>
-    runSmoke({
-      env: { CLOUDFLARE_API_TOKEN: "t", GA4_ACCESS_TOKEN: "g" },
-      watchSeconds: 5,
-      pollIntervalMs: 10
-    })
+    runSmoke({ env: ENV, flags: { placementActionVerified: true }, watchSeconds: 0, pollIntervalMs: 1 })
   );
-  assert.ok(result.exitCode !== 0, "unverifiable placements must fail smoke, not degrade to a non-verifying mode");
+  assert.equal(result.exitCode, 1);
+});
+
+
+test("pre-existing ambient traffic cannot satisfy the guided Realtime proof without a new delta", async () => {
+  const same = realtimeResponse({ pageViews: 50, promoClicks: 80 });
+  const { impl } = makeFetch({ baselineRealtime: same, realtime: same });
+  const result = await withFetch(impl, () =>
+    runSmoke({ env: ENV, flags: { placementActionVerified: true }, watchSeconds: 0, pollIntervalMs: 1 })
+  );
+  assert.equal(result.exitCode, 1);
+  assert.equal(result.eventCounts.page_view, 0);
+  assert.equal(result.eventCounts.promo_click, 0);
 });

@@ -9,15 +9,8 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// Directory of ops/analytics/ (src/.. from this module), so .secrets and
-// state/ resolve regardless of the operator's current working directory.
 const OPS_DIR = fileURLToPath(new URL("..", import.meta.url));
 
-// ---------------------------------------------------------------------------
-// Redaction
-// ---------------------------------------------------------------------------
-
-/** Mask a sensitive value, keeping only a short readable prefix. */
 export function redact(value, { visible = 4 } = {}) {
   if (value == null || value === "") return value;
   const s = String(value);
@@ -25,12 +18,9 @@ export function redact(value, { visible = 4 } = {}) {
   return s.slice(0, visible) + "*".repeat(8);
 }
 
-// ---------------------------------------------------------------------------
-// Human gates (#745 automation contract)
-// ---------------------------------------------------------------------------
-
 export const ALLOWED_GATES = [
   "CLOUDFLARE_AUTH",
+  "CLOUDFLARE_PUBLISH",
   "GOOGLE_OAUTH",
   "GA4_PROPERTY_AMBIGUITY",
   "PRODUCTION_INTERACTION"
@@ -39,15 +29,23 @@ export const ALLOWED_GATES = [
 export const GATE_DEFS = {
   CLOUDFLARE_AUTH: {
     action:
-      "Create a scoped Cloudflare API token (Zone > Zaraz : Edit, Zone > Zone : Read) and export CLOUDFLARE_API_TOKEN.",
-    scope: "Zone:Zaraz Edit + Zone:Read, scoped to the jabiko.app zone only.",
-    unlocks: "Reading and mutating the jabiko.app Zaraz configuration."
+      "Create a scoped Cloudflare API token with Zone > Zaraz : Edit and Zone > Zone : Read for jabiko.app, then export CLOUDFLARE_API_TOKEN.",
+    scope:
+      "Zone:Zaraz Edit + Zone:Read, scoped to jabiko.app. This is enough for realtime workflow mutation and workflow reads; preview publishing is a separate gate.",
+    unlocks: "Reading the workflow and published Zaraz config, and applying Zaraz configuration changes."
+  },
+  CLOUDFLARE_PUBLISH: {
+    action:
+      "Publish the pending Zaraz preview in the Cloudflare Zaraz History UI, or rerun apply with a token that has Zone > Zaraz : Admin.",
+    scope:
+      "Zaraz Admin is required only for the publish API. Do not broaden the normal edit token unless automated publishing is desired.",
+    unlocks: "Moving an already-applied preview configuration into the published production state."
   },
   GOOGLE_OAUTH: {
     action:
       "Provide GA4 access: (a) a service-account JSON added to the GA4 property, or (b) gcloud application-default login, or (c) export GA4_ACCESS_TOKEN.",
     scope: "Google Analytics Admin + Data API, read (and edit for apply) on the Jabiko property.",
-    unlocks: "Discovering the GA4 property/stream, reading Measurement ID and custom dimensions, running Realtime smoke checks."
+    unlocks: "Discovering the GA4 property/stream, reading Measurement ID and custom dimensions, and running the bounded Realtime event-name check."
   },
   GA4_PROPERTY_AMBIGUITY: {
     action: "Pick which GA4 property is the intended Jabiko production property.",
@@ -56,15 +54,13 @@ export const GATE_DEFS = {
   },
   PRODUCTION_INTERACTION: {
     action:
-      "In a fresh production browser tab, perform the exact Stay.D clicks the smoke script prints.",
-    scope: "One normal visitor session on jabiko.app — no credentials, no admin actions.",
-    unlocks: "Realtime GA4 data proving page_view / promo_click reach GA4 with correct params."
+      "Run smoke with --placement-action-verified, enable Cloudflare Zaraz Debug Mode in a fresh jabiko.app tab, then perform the printed Stay.D interaction while the smoke watch is running and manually verify the seven promo_click placement/action payloads and GA4 action firings.",
+    scope:
+      "One normal production browser interaction during the smoke watch plus Cloudflare's documented Zaraz debugger; no production credential is stored by the script.",
+    unlocks:
+      "The placement/action evidence that GA4 Realtime cannot expose through its supported schema."
   }
 };
-
-// ---------------------------------------------------------------------------
-// Cloudflare auth
-// ---------------------------------------------------------------------------
 
 const WRANGLER_CONFIG_PATHS = [
   join(homedir(), "Library", "Preferences", ".wrangler", "config", "default.toml"),
@@ -88,11 +84,6 @@ function parseTomlValue(line) {
   return value;
 }
 
-/**
- * Read the wrangler OAuth access token from its on-disk config store.
- * Returns `{ token, accountId, scopes }` or null. Only the OAuth access token
- * is read — other fields (refresh token, secrets) are never returned.
- */
 export function readWranglerOAuth(configPath) {
   const path = configPath || WRANGLER_CONFIG_PATHS.find((p) => existsSync(p));
   if (!path) return null;
@@ -107,15 +98,13 @@ export function readWranglerOAuth(configPath) {
   const accountId =
     parseTomlValue(raw.match(/^\s*account_id\s*=.*$/m)?.[0] ?? "") || "";
   const scopes = parseTomlValue(raw.match(/^\s*scopes\s*=.*$/m)?.[0] ?? "") || [];
-  return { token: oauthToken, accountId: String(accountId), scopes: Array.isArray(scopes) ? scopes : [] };
+  return {
+    token: oauthToken,
+    accountId: String(accountId),
+    scopes: Array.isArray(scopes) ? scopes : []
+  };
 }
 
-/**
- * Resolve Cloudflare credentials. Returns an auth object or null:
- *   { source, token, capabilities: ["accountRead","zoneRead","zarazRead","zarazEdit"] }
- * The wrangler OAuth token can only read accounts/zones (it lacks Zaraz scope),
- * so Zaraz-capable operations must use CLOUDFLARE_API_TOKEN.
- */
 export function resolveCloudflareAuth({ env = process.env, wranglerConfigPath = null } = {}) {
   if (env.CLOUDFLARE_API_TOKEN) {
     return {
@@ -135,10 +124,6 @@ export function resolveCloudflareAuth({ env = process.env, wranglerConfigPath = 
   return null;
 }
 
-// ---------------------------------------------------------------------------
-// Google auth
-// ---------------------------------------------------------------------------
-
 const SECRETS_DIR = join(OPS_DIR, ".secrets");
 
 function readJsonOrNull(file) {
@@ -150,14 +135,6 @@ function readJsonOrNull(file) {
   }
 }
 
-/**
- * Resolve a Google credential. Order:
- *   1. GA4_ACCESS_TOKEN (explicit, for automation)
- *   2. GOOGLE_APPLICATION_CREDENTIALS (service-account JSON)
- *   3. ops/analytics/.secrets/google-oauth.json (user refresh token)
- *   4. ~/.config/gcloud/application_default_credentials.json (ADC)
- * Returns an opaque credential object or null.
- */
 export function resolveGoogleCredential({ env = process.env } = {}) {
   if (env.GA4_ACCESS_TOKEN) {
     return { type: "access-token", token: env.GA4_ACCESS_TOKEN };
@@ -204,7 +181,8 @@ export function resolveGoogleCredential({ env = process.env } = {}) {
     join(OPS_DIR, "state", "gcloud", "application_default_credentials.json"),
     join(homedir(), ".config", "gcloud", "application_default_credentials.json")
   ].filter(Boolean);
-  const adc = readJsonOrNull(adcCandidates.find((p) => existsSync(p)));
+  const adcPath = adcCandidates.find((p) => existsSync(p));
+  const adc = readJsonOrNull(adcPath);
   if (adc) {
     if (adc.type === "service_account" || adc.client_email) {
       return {

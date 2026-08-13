@@ -4,13 +4,16 @@
 //   Admin:  analyticsadmin.googleapis.com/v1beta
 //     - accounts:            GET /v1beta/accounts
 //     - properties:          GET /v1beta/properties?filter=parent:accounts/{id}
-//                            (top-level list; there is NO /accounts/{id}/properties)
 //     - data streams:        GET /v1beta/properties/{property}/dataStreams
-//                            (webDataStreams is legacy UA naming, not GA4 v1beta)
 //     - custom dimensions:   GET/POST /v1beta/properties/{property}/customDimensions
 //     - web Measurement ID:  dataStream.webStreamData.measurementId
 //   Data:   analyticsdata.googleapis.com/v1beta (runRealtimeReport)
-// No `gcloud analytics` workflow is invented.
+//
+// Realtime is intentionally narrow here. The production smoke only needs
+// eventName + eventCount to prove that event TYPES reach GA4. It does not try
+// to query sessionId, pagePath, or event-scoped customEvent:* dimensions,
+// because those are not part of the GA4 Realtime schema. Standard-property
+// requests are capped at 30 minutes.
 
 import crypto from "node:crypto";
 import { resolveGoogleCredential } from "./creds.mjs";
@@ -24,9 +27,9 @@ const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/analytics.edit"
 ];
 
-// ---------------------------------------------------------------------------
-// URL helpers (pure, unit-tested)
-// ---------------------------------------------------------------------------
+export const REALTIME_SMOKE_DIMENSIONS = Object.freeze(["eventName"]);
+const REALTIME_SMOKE_DIMENSION_SET = new Set(REALTIME_SMOKE_DIMENSIONS);
+export const STANDARD_REALTIME_MAX_MINUTES = 30;
 
 export const gaAdminUrl = (path) => {
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
@@ -35,28 +38,21 @@ export const gaAdminUrl = (path) => {
 export const gaDataUrl = (propertyId, endpoint) =>
   `${DATA_BASE}/properties/${propertyId}:${endpoint}`;
 
-/** Strip an `accounts/` or `properties/` prefix (idempotent). */
 function stripResourcePrefix(name, kind) {
   return String(name).replace(new RegExp(`^${kind}/`), "");
 }
 
-/** Ensure a resource name is fully prefixed (accounts/123, properties/456). */
 function toResourceName(name, kind) {
   const s = String(name);
   return s.startsWith(`${kind}/`) ? s : `${kind}/${s}`;
 }
 
-/** Top-level properties.list with a parent filter (v1beta has no nested path). */
 export const propertiesListUrl = (parent) =>
   `${ADMIN_BASE}/properties?filter=${encodeURIComponent(`parent:${toResourceName(parent, "accounts")}`)}`;
 export const dataStreamsUrl = (property) =>
   `${ADMIN_BASE}/properties/${stripResourcePrefix(property, "properties")}/dataStreams`;
 export const customDimensionsUrl = (property) =>
   `${ADMIN_BASE}/properties/${stripResourcePrefix(property, "properties")}/customDimensions`;
-
-// ---------------------------------------------------------------------------
-// Auth primitives (pure, unit-tested)
-// ---------------------------------------------------------------------------
 
 export function buildSignedJwt(sa, { now = Math.floor(Date.now() / 1000) } = {}) {
   const header = { alg: "RS256", typ: "JWT" };
@@ -97,10 +93,6 @@ export function extractGoogleError(body) {
   return `Google API error: ${JSON.stringify(body)}`;
 }
 
-// ---------------------------------------------------------------------------
-// Access-token resolution
-// ---------------------------------------------------------------------------
-
 async function exchangeServiceAccount(credential) {
   const jwt = buildSignedJwt({
     client_email: credential.clientEmail,
@@ -139,7 +131,6 @@ async function refreshUserOAuth(credential) {
   return data.access_token;
 }
 
-/** Turn a resolved credential (see creds.mjs) into a usable access token. */
 export async function getGoogleAccessToken({ credential }) {
   if (!credential) return null;
   if (credential.type === "access-token") return credential.token;
@@ -147,10 +138,6 @@ export async function getGoogleAccessToken({ credential }) {
   if (credential.type === "user-oauth") return refreshUserOAuth(credential);
   return null;
 }
-
-// ---------------------------------------------------------------------------
-// Admin + Data request helpers
-// ---------------------------------------------------------------------------
 
 async function adminRequest({ token, path, method = "GET", body = undefined }) {
   const res = await fetch(gaAdminUrl(path), {
@@ -172,18 +159,12 @@ export async function listAccounts({ token }) {
 }
 
 export async function listProperties({ token, account }) {
-  const data = await adminRequest({
-    token,
-    path: propertiesListUrl(account)
-  });
+  const data = await adminRequest({ token, path: propertiesListUrl(account) });
   return data.properties ?? [];
 }
 
 export async function listDataStreams({ token, property }) {
-  const data = await adminRequest({
-    token,
-    path: dataStreamsUrl(property)
-  });
+  const data = await adminRequest({ token, path: dataStreamsUrl(property) });
   return data.dataStreams ?? [];
 }
 
@@ -196,13 +177,12 @@ export async function listCustomDimensions({ token, property }) {
 }
 
 export async function createCustomDimension({ token, property, dimension }) {
-  const data = await adminRequest({
+  return adminRequest({
     token,
     path: `/properties/${stripResourcePrefix(property, "properties")}/customDimensions`,
     method: "POST",
     body: createCustomDimensionBody(dimension)
   });
-  return data;
 }
 
 export function createCustomDimensionBody(dimension) {
@@ -213,25 +193,40 @@ export function createCustomDimensionBody(dimension) {
   };
 }
 
-export function realtimeReportBody({ dimensions = [], minutes = 30 } = {}) {
+/**
+ * Build the only Realtime request shape that the production smoke is allowed
+ * to use. This is deliberately stricter than GA4's full Realtime schema so a
+ * future refactor cannot accidentally reintroduce unsupported session/path or
+ * event-scoped custom dimensions.
+ */
+export function realtimeReportBody({ dimensions = REALTIME_SMOKE_DIMENSIONS, minutes = STANDARD_REALTIME_MAX_MINUTES } = {}) {
+  if (!Number.isInteger(minutes) || minutes < 1 || minutes > STANDARD_REALTIME_MAX_MINUTES) {
+    throw new RangeError(
+      `GA4 standard Realtime window must be an integer from 1 to ${STANDARD_REALTIME_MAX_MINUTES} minutes; got ${minutes}`
+    );
+  }
+  const unsupported = dimensions.filter((name) => !REALTIME_SMOKE_DIMENSION_SET.has(name));
+  if (unsupported.length) {
+    throw new Error(`Unsupported dimension(s) for Jabiko GA4 Realtime smoke: ${unsupported.join(", ")}`);
+  }
   return {
     dimensions: dimensions.map((name) => ({ name })),
     metrics: [{ name: "eventCount" }],
     minuteRanges: [
-      { startMinutesAgo: Math.max(0, minutes - 1), endMinutesAgo: 0 }
+      { startMinutesAgo: minutes - 1, endMinutesAgo: 0 }
     ]
   };
 }
 
-/** Run a GA4 Realtime report and return rows. */
-export async function runRealtimeReport({ token, propertyId, dimensions, minutes }) {
+export async function runRealtimeReport({ token, propertyId, dimensions = REALTIME_SMOKE_DIMENSIONS, minutes = STANDARD_REALTIME_MAX_MINUTES }) {
+  const body = realtimeReportBody({ dimensions, minutes });
   const res = await fetch(gaDataUrl(propertyId, "runRealtimeReport"), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(realtimeReportBody({ dimensions, minutes }))
+    body: JSON.stringify(body)
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(extractGoogleError(data));
@@ -246,7 +241,6 @@ export async function runRealtimeReport({ token, propertyId, dimensions, minutes
   });
 }
 
-/** Highest-level convenience: resolve a Google credential + token from env. */
 export async function googleTokenFromEnv(env = process.env) {
   const credential = resolveGoogleCredential({ env });
   if (!credential) return null;

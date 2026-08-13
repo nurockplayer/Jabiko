@@ -1,13 +1,16 @@
-// ops/analytics bin/apply — apply only the missing/incorrect #745 Zaraz + GA4
-// configuration. Idempotent, snapshots the Zaraz config before mutation, and
-// refuses to delete a second analytics client without --yes-remove-gtag.
+// ops/analytics bin/apply — reconcile #745 Zaraz + GA4 production config.
 //
 // Production-safety invariants:
-//   - The full-config PUT base is read from the Zaraz *export* endpoint (secret
-//     variable values included). If /export is unavailable, apply FAILS CLOSED
-//     before any mutation — it never falls back to the secret-stripped /config
-//     as the PUT base.
-//   - If any required GA4 custom dimension creation fails, apply exits non-zero.
+//   - Full-config PUT is based only on /settings/zaraz/export (published config
+//     with secrets). If export is unavailable, fail closed before mutation.
+//   - GET /settings/zaraz/workflow is mandatory; lookup failure never defaults
+//     to realtime.
+//   - In preview workflow, a changed config is not production-complete until
+//     POST /publish succeeds. Publish requires Zaraz Admin; if unavailable the
+//     command returns a precise human publish gate and non-zero status.
+//   - Post-mutation verification reads /export again, because /config may be a
+//     newer preview and cannot prove the published production state.
+//   - Any required GA4 custom-dimension failure is non-zero.
 
 import { writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -19,24 +22,31 @@ import {
   ZONE_NAME
 } from "../desired.mjs";
 import { resolveCloudflareAuth } from "../creds.mjs";
-import { findZone, cfRequest, zarazConfigUrl, zarazExportUrl, zarazWorkflowUrl, zarazPublishUrl } from "../cf.mjs";
+import {
+  findZone,
+  cfRequest,
+  zarazConfigUrl,
+  zarazExportUrl,
+  zarazWorkflowUrl,
+  zarazPublishUrl
+} from "../cf.mjs";
 import { googleTokenFromEnv, listCustomDimensions, createCustomDimension } from "../ga4.mjs";
 import { parseFlags, discoverGa4 } from "./cliutil.mjs";
 import * as report from "../report.mjs";
 
 const STATE_DIR = fileURLToPath(new URL("../../state", import.meta.url));
 
-/** Idempotent GA4 custom-dimension reconciliation. Returns { failures }. */
 async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
   const dims = await listCustomDimensions({ token: googleToken, property });
   const diff = ga4DesiredDiff(property, dims);
   const failures = [];
-  // A required parameter that already exists with a non-EVENT scope is a
-  // conflict — the desired state is incomplete and cannot be fixed by creation,
-  // so it must not be reported as success.
-  for (const c of diff.conflicts) {
-    report.err(`conflict: ${c.parameterName} exists with scope ${c.existingScope} (want ${c.desiredScope}) — not fixable automatically.`);
-    failures.push({ parameterName: c.parameterName, conflict: true, existingScope: c.existingScope });
+  for (const conflict of diff.conflicts) {
+    report.err(`conflict: ${conflict.parameterName} exists with scope ${conflict.existingScope} (want ${conflict.desiredScope}) — not fixable automatically.`);
+    failures.push({
+      parameterName: conflict.parameterName,
+      conflict: true,
+      existingScope: conflict.existingScope
+    });
   }
   for (const dim of diff.missing) {
     if (dryRun) {
@@ -46,9 +56,9 @@ async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
     try {
       await createCustomDimension({ token: googleToken, property, dimension: dim });
       report.ok(`created custom dimension ${dim.parameterName}`);
-    } catch (e) {
-      report.err(`failed to create ${dim.parameterName}: ${e.message}`);
-      failures.push({ parameterName: dim.parameterName, message: e.message });
+    } catch (error) {
+      report.err(`failed to create ${dim.parameterName}: ${error.message}`);
+      failures.push({ parameterName: dim.parameterName, message: error.message });
     }
   }
   if (failures.length === 0) {
@@ -57,99 +67,105 @@ async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
   return { failures };
 }
 
-/**
- * Run the full apply sequence. `env` and `flags` are injectable for tests.
- * Returns { exitCode, failed, mutations, dimFailures }.
- */
-export async function runApply({
-  env = process.env,
-  flags = {}
-} = {}) {
+export async function runApply({ env = process.env, flags = {} } = {}) {
   const measurementIdFlag = flags.measurementId;
   const dryRun = flags.dryRun === true;
   const yesRemoveGtag = flags.yesRemoveGtag === true;
   let failed = false;
+  const gates = [];
   let mutations = [];
   let dimFailures = [];
+  let workflow = null;
 
   report.section(`Jabiko #745 analytics apply · zone ${ZONE_NAME}`);
 
-  // 1. Credential gate — Zaraz mutation requires an API token.
   const cfAuth = resolveCloudflareAuth({ env });
   if (!cfAuth || !cfAuth.capabilities.includes("zarazEdit")) {
-    report.err("apply requires CLOUDFLARE_API_TOKEN with Zone:Zaraz Edit (the wrangler OAuth token cannot mutate Zaraz).");
+    report.err("apply requires CLOUDFLARE_API_TOKEN with Zone:Zaraz Edit (plus Zone:Read for zone discovery).");
     report.printGate("CLOUDFLARE_AUTH");
-    return { exitCode: 2, failed: true, mutations, dimFailures };
+    gates.push("CLOUDFLARE_AUTH");
+    return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
   }
   report.bullet(`auth source: ${cfAuth.source}`);
 
   const zone = await findZone({ token: cfAuth.token, name: ZONE_NAME });
   if (!zone) {
     report.err(`zone ${ZONE_NAME} not found.`);
-    return { exitCode: 2, failed: true, mutations, dimFailures };
+    return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
   }
   report.ok(`zone ${zone.name} (id ${zone.id})`);
 
-  // 2. Read the mutation base from /export ONLY. Fail closed if unavailable —
-  //    a secret-stripped /config must never become the full-config PUT body.
+  // Workflow is a required production-state input. Never infer realtime.
+  try {
+    workflow = await cfRequest({ token: cfAuth.token, path: zarazWorkflowUrl(zone.id) });
+    if (workflow !== "realtime" && workflow !== "preview") {
+      throw new Error(`unexpected workflow ${JSON.stringify(workflow)}`);
+    }
+    report.ok(`workflow=${workflow}`);
+  } catch (error) {
+    report.err(`cannot read Zaraz workflow: ${error.message}`);
+    report.err("fail closed: refusing to mutate without knowing realtime vs preview semantics.");
+    return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow: null };
+  }
+
+  // The mutation base MUST be the current published export so secret values are
+  // preserved. /config may be secret-stripped and/or preview-only.
   let current;
   try {
     current = await cfRequest({ token: cfAuth.token, path: zarazExportUrl(zone.id) });
-    report.ok("base config from /export (secret values preserved on PUT).");
-  } catch (e) {
-    report.err(`cannot read the Zaraz /export config: ${e.message}`);
-    report.err("fail closed: refusing to mutate Zaraz without a secret-complete export.");
-    report.warn("Provide a Cloudflare API token that can call /settings/zaraz/export and re-run.");
-    return { exitCode: 2, failed: true, mutations, dimFailures };
+    report.ok("base config from published /export (secret values preserved on PUT).");
+  } catch (error) {
+    report.err(`cannot read the Zaraz /export config: ${error.message}`);
+    report.err("fail closed: refusing to mutate Zaraz without a secret-complete published export.");
+    return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
   }
 
-  // Snapshot the pre-mutation state (gitignored; may contain secrets from
-  // /export — written with owner-only permissions).
   mkdirSync(STATE_DIR, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const snapshotPath = join(STATE_DIR, `zaraz-config-preview-${stamp}.json`);
+  const snapshotPath = join(STATE_DIR, `zaraz-config-published-${stamp}.json`);
   writeFileSync(snapshotPath, JSON.stringify(current, null, 2), { mode: 0o600 });
   writeFileSync(join(STATE_DIR, "zaraz-config-last.json"), JSON.stringify(current, null, 2), { mode: 0o600 });
   report.ok(`snapshot saved to state/${snapshotPath.split("/").pop()}`);
 
-  // 3. Resolve the Measurement ID.
   let measurementId = measurementIdFlag;
   if (!measurementId) {
     report.bullet("resolving Measurement ID from GA4 …");
     const googleToken = await googleTokenFromEnv(env);
     if (!googleToken) {
       report.printGate("GOOGLE_OAUTH");
-      report.warn("Cannot resolve the Measurement ID without Google access; pass --measurement-id.");
-      return { exitCode: 2, failed: true, mutations, dimFailures };
+      gates.push("GOOGLE_OAUTH");
+      return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
     }
     try {
-      const d = await discoverGa4({ token: googleToken });
-      if (!d.property) {
-        if (d.candidates.length === 0) {
+      const discovered = await discoverGa4({ token: googleToken });
+      if (!discovered.property) {
+        if ((discovered.candidates ?? []).length === 0) {
           report.err("no plausible Jabiko GA4 property found; pass --measurement-id.");
         } else {
           report.printGate("GA4_PROPERTY_AMBIGUITY");
-          for (const c of d.candidates) report.bullet(`${c.displayName} (${c.name})`);
+          gates.push("GA4_PROPERTY_AMBIGUITY");
+          for (const candidate of discovered.candidates) {
+            report.bullet(`${candidate.displayName} (${candidate.name})`);
+          }
         }
-        return { exitCode: 2, failed: true, mutations, dimFailures };
+        return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
       }
-      measurementId = d.measurementId;
+      measurementId = discovered.measurementId;
       if (!measurementId) {
-        report.err(`property ${d.property.displayName} has no web-stream Measurement ID; pass --measurement-id.`);
-        return { exitCode: 2, failed: true, mutations, dimFailures };
+        report.err(`property ${discovered.property.displayName} has no web-stream Measurement ID; pass --measurement-id.`);
+        return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
       }
-      report.ok(`using Measurement ID ${measurementId} from ${d.property.displayName}`);
-    } catch (e) {
-      report.err(`GA4 discovery failed: ${e.message}`);
-      return { exitCode: 2, failed: true, mutations, dimFailures };
+      report.ok(`using Measurement ID ${measurementId} from ${discovered.property.displayName}`);
+    } catch (error) {
+      report.err(`GA4 discovery failed: ${error.message}`);
+      return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
     }
   } else {
     report.bullet(`using --measurement-id ${measurementId}`);
   }
 
-  // 4. Diff and build.
   const before = zarazDesiredDiff(current, measurementId);
-  report.sub("Zaraz diff vs desired state");
+  report.sub("Zaraz diff vs published desired state");
   report.printFindings(before);
   const built = buildZarazDesiredConfig(current, {
     measurementId,
@@ -157,20 +173,22 @@ export async function runApply({
   });
   let desired = built.config;
   mutations = built.mutations;
-  for (const f of built.findings) {
-    if (f.code === "SECOND_ANALYTICS_CLIENT") {
-      report.err(f.message);
+  for (const finding of built.findings) {
+    if (finding.code === "SECOND_ANALYTICS_CLIENT") {
+      report.err(finding.message);
       report.warn("Re-run with --yes-remove-gtag to remove the second analytics client, or fix it in the dashboard.");
-      return { exitCode: 2, failed: true, mutations, dimFailures };
+      return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
     }
   }
 
-  // 5. Mutate (idempotent; only when there is something to change).
   if (mutations.length === 0) {
-    report.ok("Zaraz config already converged.");
+    report.ok("published Zaraz config already converged.");
   } else {
     report.sub("Zaraz mutations");
-    for (const m of mutations) report.bullet(`${m.code}${m.event ? ` [${m.event}]` : ""}${m.id ? ` (${m.id})` : ""}${m.message ? ` — ${m.message}` : ""}`);
+    for (const mutation of mutations) {
+      report.bullet(`${mutation.code}${mutation.event ? ` [${mutation.event}]` : ""}${mutation.id ? ` (${mutation.id})` : ""}${mutation.message ? ` — ${mutation.message}` : ""}`);
+    }
+
     if (dryRun) {
       report.ok("--dry-run: no changes written. Remove --dry-run to apply.");
     } else {
@@ -184,76 +202,90 @@ export async function runApply({
             body: desired
           });
           putOk = true;
-        } catch (e) {
-          if (attempt === 0 && /version|conflict|stale/i.test(e.message)) {
-            report.warn(`PUT conflicted (${e.message}) — re-reading /export and retrying once.`);
+        } catch (error) {
+          if (attempt === 0 && /version|conflict|stale/i.test(error.message)) {
+            report.warn(`PUT conflicted (${error.message}) — re-reading published /export and retrying once.`);
             const fresh = await cfRequest({ token: cfAuth.token, path: zarazExportUrl(zone.id) });
-            const rebuilt = buildZarazDesiredConfig(fresh, { measurementId, removeForbidden: yesRemoveGtag });
-            desired = rebuilt.config;
+            desired = buildZarazDesiredConfig(fresh, {
+              measurementId,
+              removeForbidden: yesRemoveGtag
+            }).config;
           } else {
-            report.err(`PUT failed: ${e.message}`);
-            report.warn("restore the snapshot from state/ or re-run apply; the snapshot is untouched.");
-            return { exitCode: 2, failed: true, mutations, dimFailures };
+            report.err(`PUT failed: ${error.message}`);
+            return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
           }
         }
       }
+      report.ok(workflow === "preview" ? "Zaraz preview config updated." : "Zaraz realtime config updated.");
 
-      report.ok("Zaraz config updated.");
-      // Workflow: realtime is live immediately; preview needs publish.
-      let workflow = null;
-      try {
-        workflow = await cfRequest({ token: cfAuth.token, path: zarazWorkflowUrl(zone.id) });
-      } catch {
-        // workflow endpoint not always exposed — default realtime.
-      }
-      if (String(workflow) === "preview") {
-        report.warn("zone uses the Preview & Publish workflow — attempting publish.");
+      if (workflow === "preview") {
+        report.warn("Preview & Publish workflow detected; production completion requires publish.");
         try {
-          await cfRequest({ token: cfAuth.token, path: zarazPublishUrl(zone.id), method: "POST" });
-          report.ok("published.");
-        } catch (e) {
-          report.warn(`auto-publish failed (${e.message}); publish manually in the Zaraz History page.`);
+          await cfRequest({
+            token: cfAuth.token,
+            path: zarazPublishUrl(zone.id),
+            method: "POST"
+          });
+          report.ok("preview published to production.");
+        } catch (error) {
+          report.err(`publish failed: ${error.message}`);
+          report.printGate(
+            "CLOUDFLARE_PUBLISH",
+            "The preview contains the requested change but production has not been updated. Publish it in Zaraz History, then rerun apply/smoke."
+          );
+          gates.push("CLOUDFLARE_PUBLISH");
+          return { exitCode: 2, failed: true, gates, mutations, dimFailures, workflow };
         }
       } else {
-        report.ok("zone is in realtime workflow — changes are live.");
+        report.ok("realtime workflow: the successful PUT is live immediately.");
       }
 
-      // Verify the PUT actually converged the config.
-      const after = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(zone.id) });
-      const remaining = zarazDesiredDiff(after, measurementId);
-      report.sub("Zaraz verification");
-      report.printFindings(remaining);
-      if (remaining.some((f) => f.severity === "blocking")) {
-        report.err("Zaraz config is still not converged after apply.");
+      // Verify PUBLISHED state, never the possibly-preview /config surface.
+      try {
+        const publishedAfter = await cfRequest({ token: cfAuth.token, path: zarazExportUrl(zone.id) });
+        const remaining = zarazDesiredDiff(publishedAfter, measurementId);
+        report.sub("Published Zaraz verification");
+        report.printFindings(remaining);
+        if (remaining.some((finding) => finding.severity === "blocking")) {
+          report.err("published Zaraz config is still not converged after apply/publish.");
+          failed = true;
+        }
+      } catch (error) {
+        report.err(`cannot verify published Zaraz config after mutation: ${error.message}`);
         failed = true;
       }
     }
   }
 
-  // 6. GA4 custom dimensions — reconciled unconditionally (independent state).
-  //    The desired state is only complete when all four required dimensions
-  //    exist with EVENT scope; any gate/ambiguity/conflict here is a failure.
   report.sub("GA4 custom dimensions");
   const googleToken = await googleTokenFromEnv(env);
   if (!googleToken) {
     report.printGate("GOOGLE_OAUTH");
+    gates.push("GOOGLE_OAUTH");
     report.warn("Custom dimensions need Google access — desired state incomplete.");
     failed = true;
   } else {
     try {
-      const d = await discoverGa4({ token: googleToken });
-      if (!d.property) {
+      const discovered = await discoverGa4({ token: googleToken });
+      if (!discovered.property) {
         report.warn("no unique Jabiko GA4 property — custom dimensions not applied.");
-        if (d.candidates.length > 1) report.printGate("GA4_PROPERTY_AMBIGUITY");
+        if ((discovered.candidates ?? []).length > 1) {
+          report.printGate("GA4_PROPERTY_AMBIGUITY");
+          gates.push("GA4_PROPERTY_AMBIGUITY");
+        }
         failed = true;
       } else {
-        report.ok(`property ${d.property.displayName} (${d.property.name})`);
-        const res = await reconcileGa4Dimensions({ googleToken, property: d.property.name, dryRun });
-        dimFailures = res.failures;
+        report.ok(`property ${discovered.property.displayName} (${discovered.property.name})`);
+        const reconciled = await reconcileGa4Dimensions({
+          googleToken,
+          property: discovered.property.name,
+          dryRun
+        });
+        dimFailures = reconciled.failures;
         if (dimFailures.length) failed = true;
       }
-    } catch (e) {
-      report.err(`GA4 custom-dimension step failed: ${e.message}`);
+    } catch (error) {
+      report.err(`GA4 custom-dimension step failed: ${error.message}`);
       failed = true;
     }
   }
@@ -261,10 +293,9 @@ export async function runApply({
   report.section("Apply summary");
   const exitCode = failed ? 1 : 0;
   report.bullet(dryRun ? "dry-run — nothing was written." : `apply finished with exit code ${exitCode}.`);
-  return { exitCode, failed, mutations, dimFailures };
+  return { exitCode, failed, gates, mutations, dimFailures, workflow };
 }
 
-// CLI entry (only when executed directly, not when imported by a test).
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const flags = parseFlags(process.argv.slice(2));
   const result = await runApply({

@@ -1,278 +1,309 @@
-// ops/analytics bin/smoke — automated production verification for #745.
+// ops/analytics bin/smoke — production verification for #745.
 //
-// Verifies, in order:
-//   1. Zaraz is actually injected on jabiko.app (no credentials).
-//   2. The GA4 property is discoverable and yields a Measurement ID (Google).
-//   3. The Zaraz config has the GA4 tool, triggers, actions, and no automatic
-//      page view (needs Zone:Zaraz Read).
-//   4. The GA4 custom dimensions exist (needs Google access).
-//   5. Real traffic: the operator performs one guided set of Stay.D clicks
-//      (HUMAN_GATE:PRODUCTION_INTERACTION) while this script watches GA4
-//      Realtime and verifies every expected event + parameter arrives from ONE
-//      newly observed session.
-//
-// Any failed step produces a non-zero exit code.
+// Evidence is deliberately split by what the official APIs can prove:
+//   1. Production HTML: Zaraz is injected.
+//   2. Cloudflare Zaraz API: workflow is readable and the PUBLISHED /export
+//      configuration contains the desired GA4 tool/triggers/actions.
+//   3. GA4 Admin API: the required event-scoped custom dimensions exist.
+//   4. GA4 Realtime: ONLY eventName + eventCount, within a 30-minute window,
+//      proves recent page_view / promo_click events reached GA4.
+//   5. One explicit human gate verifies the seven placement/action payloads in
+//      Cloudflare Zaraz Debug Mode. Realtime never pretends it can query
+//      sessionId, pagePath, or event-scoped customEvent:* dimensions.
 
 import { pathToFileURL } from "node:url";
 import { ZONE_NAME, analyzeZaraz, zarazDesiredDiff, ga4DesiredDiff } from "../desired.mjs";
 import { resolveCloudflareAuth } from "../creds.mjs";
-import { findZone, cfRequest, zarazConfigUrl } from "../cf.mjs";
-import { googleTokenFromEnv, listCustomDimensions, runRealtimeReport } from "../ga4.mjs";
 import {
-  PLACEMENT_ACTION,
-  computeSmokeState,
-  verifySmokeState,
-  smokeTargetReached
-} from "../smokelogic.mjs";
+  findZone,
+  cfRequest,
+  zarazExportUrl,
+  zarazWorkflowUrl
+} from "../cf.mjs";
+import {
+  googleTokenFromEnv,
+  listCustomDimensions,
+  runRealtimeReport,
+  REALTIME_SMOKE_DIMENSIONS,
+  STANDARD_REALTIME_MAX_MINUTES
+} from "../ga4.mjs";
 import { probeProductionZaraz } from "../production.mjs";
 import { parseFlags, discoverGa4 } from "./cliutil.mjs";
 import * as report from "../report.mjs";
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const REQUIRED_EVENT_COUNTS = Object.freeze({ page_view: 2, promo_click: 7 });
 
-const RICH_DIMS = [
-  "eventName",
-  "sessionId",
-  "pagePath",
-  "customEvent:promoId",
-  "customEvent:action",
-  "customEvent:placement",
-  "customEvent:locale"
-];
-const REQUIRED_PLACEMENTS = Object.keys(PLACEMENT_ACTION);
+export function summarizeRealtimeEvents(rows) {
+  const counts = new Map();
+  for (const row of rows) {
+    if (!row?.eventName) continue;
+    counts.set(row.eventName, (counts.get(row.eventName) ?? 0) + Number(row.eventCount ?? 0));
+  }
+  return counts;
+}
+
+export function realtimeSignalReached(counts) {
+  return Object.entries(REQUIRED_EVENT_COUNTS).every(
+    ([eventName, minimum]) => (counts.get(eventName) ?? 0) >= minimum
+  );
+}
+
+export function realtimeDelta(current, baseline) {
+  const delta = new Map();
+  for (const eventName of Object.keys(REQUIRED_EVENT_COUNTS)) {
+    delta.set(eventName, Math.max(0, (current.get(eventName) ?? 0) - (baseline.get(eventName) ?? 0)));
+  }
+  return delta;
+}
+
+function printGuidedInteraction() {
+  report.bullet("Guided interaction (once, in a fresh production tab with Zaraz Debug Mode enabled):");
+  report.bullet("  1. Open https://jabiko.app/ and let Home render.");
+  report.bullet("  2. Click Home direct Airbnb CTA            (home-airbnb → airbnb).");
+  report.bullet("  3. Open the Home video                    (home-video → video).");
+  report.bullet("  4. Click Home video-section Airbnb CTA    (home-video-airbnb → airbnb).");
+  report.bullet("  5. Open https://jabiko.app/stay-d and let the page render.");
+  report.bullet("  6. Click /stay-d hero Airbnb CTA          (stay-d-hero-airbnb → airbnb).");
+  report.bullet("  7. Open the /stay-d video                 (stay-d-video → video).");
+  report.bullet("  8. Click /stay-d video-section Airbnb CTA (stay-d-video-airbnb → airbnb).");
+  report.bullet("  9. Click /stay-d final Airbnb CTA         (stay-d-final-airbnb → airbnb).");
+}
 
 /**
- * Run the full smoke sequence. `env`, `watchSeconds` and `pollIntervalMs` are
- * injectable for tests. Sets process.exitCode (1 on any failure) and returns a
- * structured result.
+ * Run the production smoke. Tests inject env/timing/flags only; no production
+ * credential is ever needed by the test suite.
  */
 export async function runSmoke({
   env = process.env,
+  flags = {},
   watchSeconds = 300,
   pollIntervalMs = 10000
 } = {}) {
-  const measurementIdFlag = parseFlags(process.argv.slice(2))["measurement-id"];
+  const measurementIdFlag = flags.measurementId;
+  const placementActionVerified = flags.placementActionVerified === true;
   let failed = false;
+  let gateBlocked = false;
   const gates = [];
   let propertyId = null;
   let propertyName = null;
   let measurementId = measurementIdFlag;
-  let dimDiff = null;
+  let workflow = null;
   let configFindings = [];
-  let apiError = null;
-  let state = {
-    guidedSession: null,
-    pageViews: 0,
-    stayDViews: 0,
-    placements: new Map()
-  };
-  let failures = [];
+  let eventCounts = new Map();
+  let baselineCounts = new Map();
+  let realtimeError = null;
 
   report.section(`Jabiko #745 production smoke · ${ZONE_NAME}`);
-  // 1. Production observable state (no auth).
+
   report.sub("1. Zaraz injection on production");
   const probe = await probeProductionZaraz();
-  for (const d of probe.details) report.bullet(d);
+  for (const detail of probe.details) report.bullet(detail);
   if (!probe.injected) {
     report.err("Zaraz is not injected on jabiko.app — the #745 pipeline cannot be live.");
-    report.warn("Run ./ops/analytics/bin/plan then ./ops/analytics/bin/apply once credentials are available.");
     failed = true;
   } else {
-    report.ok("Zaraz is live on production.");
+    report.ok("Zaraz is injected on production.");
   }
 
-  // 2. GA4 property discovery (needed for the Measurement ID + Realtime).
   let googleToken = null;
   if (!failed) {
     report.sub("2. GA4 property discovery");
     googleToken = await googleTokenFromEnv(env);
     if (!googleToken) {
-      report.printGate("GOOGLE_OAUTH", "smoke steps 2, 4 and 5 need Google Analytics access.");
+      report.printGate("GOOGLE_OAUTH", "smoke needs Google Analytics Admin/Data read access.");
       gates.push("GOOGLE_OAUTH");
-      failed = true;
+      gateBlocked = true;
     } else {
       try {
-        const d = await discoverGa4({ token: googleToken });
-        if (!d.property) {
-          report.err("no unique Jabiko GA4 property — cannot run smoke.");
-          failed = true;
+        const discovered = await discoverGa4({ token: googleToken });
+        if (!discovered.property) {
+          if ((discovered.candidates ?? []).length > 1) {
+            report.printGate("GA4_PROPERTY_AMBIGUITY");
+            gates.push("GA4_PROPERTY_AMBIGUITY");
+            gateBlocked = true;
+          } else {
+            report.err("no unique Jabiko GA4 property — cannot run smoke.");
+            failed = true;
+          }
         } else {
-          propertyName = d.property.name;
-          propertyId = d.property.name.replace("properties/", "");
-          measurementId = measurementId || d.measurementId;
-          report.ok(`property ${d.property.displayName} (id ${propertyId})${d.measurementId ? `, Measurement ID ${d.measurementId}` : ""}`);
+          propertyName = discovered.property.name;
+          propertyId = propertyName.replace("properties/", "");
+          measurementId = measurementId || discovered.measurementId;
+          if (!measurementId) {
+            report.err("the selected GA4 property has no web Measurement ID.");
+            failed = true;
+          } else {
+            report.ok(`property ${discovered.property.displayName} (id ${propertyId}), Measurement ID ${measurementId}`);
+          }
         }
-      } catch (e) {
-        report.err(`GA4 discovery failed: ${e.message}`);
+      } catch (error) {
+        report.err(`GA4 discovery failed: ${error.message}`);
         failed = true;
       }
     }
   }
 
-  // 3. Zaraz config (needs Zone:Zaraz Read).
-  if (!failed) {
-    report.sub("3. Zaraz config");
+  if (!failed && !gateBlocked) {
+    report.sub("3. Published Zaraz config + workflow");
     const cfAuth = resolveCloudflareAuth({ env });
     if (!cfAuth || !cfAuth.capabilities.includes("zarazRead")) {
-      report.printGate("CLOUDFLARE_AUTH", "smoke step 3 needs Zone:Zaraz Read.");
+      report.printGate("CLOUDFLARE_AUTH", "smoke needs Zaraz Read to verify the published production config.");
       gates.push("CLOUDFLARE_AUTH");
-      failed = true;
+      gateBlocked = true;
     } else {
-      const zone = await findZone({ token: cfAuth.token, name: ZONE_NAME }).catch(() => null);
-      if (!zone) {
-        report.err(`zone ${ZONE_NAME} not found.`);
-        failed = true;
-      } else {
-        try {
-          const config = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(zone.id) });
-          const a = analyzeZaraz(config);
-          report.bullet(`${a.ga4Tools.length} GA4 tool(s), ${a.triggers.length} trigger(s), autoInject=${a.autoInject}`);
-          configFindings = zarazDesiredDiff(config, measurementId);
-          report.printFindings(configFindings);
-          if (configFindings.some((f) => f.severity === "blocking")) {
-            report.warn("Zaraz config is not converged — run ./ops/analytics/bin/apply first.");
-            failed = true;
-          }
-        } catch (e) {
-          report.err(`cannot read Zaraz config: ${e.message}`);
-          failed = true;
+      try {
+        const zone = await findZone({ token: cfAuth.token, name: ZONE_NAME });
+        if (!zone) throw new Error(`zone ${ZONE_NAME} not found`);
+
+        workflow = await cfRequest({ token: cfAuth.token, path: zarazWorkflowUrl(zone.id) });
+        if (workflow !== "realtime" && workflow !== "preview") {
+          throw new Error(`unexpected Zaraz workflow ${JSON.stringify(workflow)}`);
         }
+        report.bullet(`workflow=${workflow}`);
+
+        // /export is explicitly the current PUBLISHED configuration. /config
+        // may be a newer preview and therefore cannot prove production state.
+        const publishedConfig = await cfRequest({ token: cfAuth.token, path: zarazExportUrl(zone.id) });
+        const analysis = analyzeZaraz(publishedConfig);
+        report.bullet(`${analysis.ga4Tools.length} GA4 tool(s), ${analysis.triggers.length} trigger(s), autoInject=${analysis.autoInject}`);
+        configFindings = zarazDesiredDiff(publishedConfig, measurementId);
+        report.printFindings(configFindings);
+        if (configFindings.some((finding) => finding.severity === "blocking")) {
+          report.err("published Zaraz config is not converged; preview-only changes are not production success.");
+          failed = true;
+        } else {
+          report.ok("published Zaraz configuration matches the desired production state.");
+        }
+      } catch (error) {
+        report.err(`cannot verify Zaraz workflow/published config: ${error.message}`);
+        report.err("fail closed: workflow lookup or published-state verification is required.");
+        failed = true;
       }
     }
   }
 
-  // 4. GA4 custom dimensions.
-  if (!failed) {
+  if (!failed && !gateBlocked) {
     report.sub("4. GA4 custom dimensions");
     try {
-      const dims = await listCustomDimensions({ token: googleToken, property: propertyName });
-      dimDiff = ga4DesiredDiff(propertyName, dims);
-      report.bullet(`${dimDiff.missing.length} missing, ${dimDiff.present.length} present, ${dimDiff.conflicts.length} conflicting`);
-      if (dimDiff.missing.length) {
-        report.warn("run ./ops/analytics/bin/apply to create the missing custom dimensions; the realtime watch cannot fully read the promo params.");
+      const dimensions = await listCustomDimensions({ token: googleToken, property: propertyName });
+      const diff = ga4DesiredDiff(propertyName, dimensions);
+      report.bullet(`${diff.missing.length} missing, ${diff.present.length} present, ${diff.conflicts.length} conflicting`);
+      if (diff.missing.length || diff.conflicts.length) {
+        report.err("required event-scoped reporting dimensions are not fully registered.");
         failed = true;
-      }
-    } catch (e) {
-      report.err(`GA4 custom-dimension check failed: ${e.message}`);
-      failed = true;
-    }
-  }
-
-  // 5. Real traffic watch + verification.
-  if (!failed) {
-    report.sub("5. Real traffic verification (GA4 Realtime)");
-    report.printGate(
-      "PRODUCTION_INTERACTION",
-      `Watch window: ${watchSeconds}s. Perform the guided clicks below exactly once in a fresh browser tab.`
-    );
-    report.bullet("Guided clicks (exactly once, in order):");
-    report.bullet("  1. Open https://jabiko.app/ → wait for Home to render (one page_view).");
-    report.bullet("  2. Click the direct Airbnb CTA on Home  (placement home-airbnb).");
-    report.bullet("  3. Open the Home video               (placement home-video).");
-    report.bullet("  4. Click the Airbnb CTA under the video (placement home-video-airbnb).");
-    report.bullet("  5. Navigate to https://jabiko.app/stay-d → wait for the page (page_view /stay-d).");
-    report.bullet("  6. Click the hero Airbnb CTA         (placement stay-d-hero-airbnb).");
-    report.bullet("  7. Open the /stay-d video            (placement stay-d-video).");
-    report.bullet("  8. Click the video-section Airbnb CTA (placement stay-d-video-airbnb).");
-    report.bullet("  9. Click the final Airbnb CTA        (placement stay-d-final-airbnb).");
-    report.bullet("That is the whole interaction. The script verifies backend arrival automatically.");
-
-    // Baseline: sessions already present before the guided interaction. A
-    // failed baseline must NOT degrade to an empty baseline — retry boundedly,
-    // then fail closed (otherwise unrelated recent traffic would be counted).
-    let baselineSessions = new Set();
-    let baselineOk = false;
-    for (let attempt = 0; attempt < 3 && !baselineOk; attempt += 1) {
-      try {
-        const baselineRows = await runRealtimeReport({
-          token: googleToken,
-          propertyId,
-          dimensions: ["sessionId"],
-          minutes: 60
-        });
-        baselineSessions = new Set(baselineRows.map((r) => r.sessionId).filter(Boolean));
-        baselineOk = true;
-      } catch (e) {
-        report.warn(`baseline realtime read failed (attempt ${attempt + 1}/3): ${e.message}`);
-        if (attempt < 2) await sleep(pollIntervalMs);
-      }
-    }
-    if (!baselineOk) {
-      report.err("baseline realtime read failed after retries — aborting smoke (cannot isolate the guided session).");
-      failed = true;
-    }
-
-    if (baselineOk) {
-      const deadline = Date.now() + watchSeconds * 1000;
-      while (Date.now() < deadline) {
-        let rows = [];
-        try {
-          rows = await runRealtimeReport({ token: googleToken, propertyId, dimensions: RICH_DIMS, minutes: 60 });
-          apiError = null;
-        } catch (e) {
-          if (/not a valid dimension|customEvent/i.test(e.message)) {
-            report.err(`custom event dimensions are not queryable: ${e.message}`);
-            report.err("failing smoke: a degraded mode cannot verify the seven placements/action parameters.");
-            failed = true;
-            break;
-          }
-          apiError = e.message;
-          report.warn(`realtime poll failed: ${e.message}`);
-          await sleep(pollIntervalMs);
-          continue;
-        }
-        state = computeSmokeState({ rows, baselineSessions });
-        const covered = state.placements.size;
-        report.bullet(`watch t-${Math.max(0, Math.ceil((deadline - Date.now()) / 1000))}s · page_view=${state.pageViews} · placements ${covered}/${REQUIRED_PLACEMENTS.length}${state.guidedSession ? ` · session=${state.guidedSession.slice(0, 8)}…` : ""}`);
-        if (smokeTargetReached({ ...state, useRichDims: true })) break;
-        await sleep(pollIntervalMs);
-      }
-    }
-
-    // Verification results.
-    report.sub("Verification results");
-    report.bullet(`guided session: ${state.guidedSession ? state.guidedSession.slice(0, 8) + "…" : "(none observed)"}`);
-    report.bullet(`page_view events: ${state.pageViews} (expected ≥ 2 for Home + /stay-d in the guided sequence)`);
-    report.bullet(`page_view with pagePath /stay-d: ${state.stayDViews} (expected ≥ 1)`);
-    for (const placement of REQUIRED_PLACEMENTS) {
-      const seen = state.placements.get(placement);
-      const expectedAction = PLACEMENT_ACTION[placement];
-      if (!seen) {
-        report.err(`missing promo_click for ${placement}`);
-        continue;
-      }
-      if (seen.action === expectedAction && seen.promoId === "stay-d" && seen.locale) {
-        report.ok(`${placement} → action=${seen.action} promoId=${seen.promoId} locale=${seen.locale}`);
       } else {
-        report.err(`${placement} → action=${seen.action ?? "?"} expected ${expectedAction}, promoId=${seen.promoId ?? "?"}, locale=${seen.locale ?? "?"}`);
+        report.ok("required event-scoped custom dimensions are registered.");
+      }
+    } catch (error) {
+      report.err(`GA4 custom-dimension check failed: ${error.message}`);
+      failed = true;
+    }
+  }
+
+  if (!failed && !gateBlocked) {
+    report.sub("5. Production traffic evidence");
+    report.bullet(
+      `Automated GA4 evidence is intentionally limited to ${REALTIME_SMOKE_DIMENSIONS.join(", ")} + eventCount over <=${STANDARD_REALTIME_MAX_MINUTES} minutes.`
+    );
+    report.bullet("It proves a new page_view / promo_click count delta during this watch, not session, route, placement, or action values.");
+
+    try {
+      const baselineRows = await runRealtimeReport({
+        token: googleToken,
+        propertyId,
+        dimensions: REALTIME_SMOKE_DIMENSIONS,
+        minutes: STANDARD_REALTIME_MAX_MINUTES
+      });
+      baselineCounts = summarizeRealtimeEvents(baselineRows);
+      report.bullet(
+        `baseline · page_view=${baselineCounts.get("page_view") ?? 0} · promo_click=${baselineCounts.get("promo_click") ?? 0}`
+      );
+    } catch (error) {
+      report.err(`cannot establish GA4 Realtime baseline: ${error.message}`);
+      failed = true;
+    }
+
+    if (!failed) {
+      if (!placementActionVerified) {
+        report.printGate(
+          "PRODUCTION_INTERACTION",
+          "Rerun with --placement-action-verified, enable Cloudflare Zaraz Debug Mode, then perform and inspect the printed guided interaction while the smoke watch is running."
+        );
+        gates.push("PRODUCTION_INTERACTION");
+      } else {
+        report.ok("operator attests the Zaraz Debug Mode placement/action verification will be completed during this guided watch.");
+      }
+      printGuidedInteraction();
+
+      const deadline = Date.now() + Math.max(0, watchSeconds) * 1000;
+      let firstPoll = true;
+      do {
+        try {
+          const rows = await runRealtimeReport({
+            token: googleToken,
+            propertyId,
+            dimensions: REALTIME_SMOKE_DIMENSIONS,
+            minutes: STANDARD_REALTIME_MAX_MINUTES
+          });
+          const currentCounts = summarizeRealtimeEvents(rows);
+          eventCounts = realtimeDelta(currentCounts, baselineCounts);
+          realtimeError = null;
+          report.bullet(
+            `GA4 Realtime delta · page_view=+${eventCounts.get("page_view") ?? 0} · promo_click=+${eventCounts.get("promo_click") ?? 0}`
+          );
+          if (realtimeSignalReached(eventCounts)) break;
+        } catch (error) {
+          realtimeError = error.message;
+          report.warn(`Realtime read failed: ${error.message}`);
+        }
+        firstPoll = false;
+        if (Date.now() < deadline) await sleep(pollIntervalMs);
+      } while (firstPoll || Date.now() < deadline);
+
+      if (!realtimeSignalReached(eventCounts)) {
+        report.err("GA4 Realtime did not show the required new page_view/promo_click count delta after the baseline.");
+        if (realtimeError) report.warn(`last Realtime error: ${realtimeError}`);
+        failed = true;
+      } else {
+        report.ok("GA4 Realtime shows a new page_view and promo_click count delta during the guided watch.");
       }
     }
-    if (apiError) report.warn(`realtime API issue: ${apiError}`);
 
-    const verification = verifySmokeState({ ...state, useRichDims: true });
-    failures = verification.failures;
-    for (const f of failures) report.err(f);
-    if (failures.length) failed = true;
-    report.bullet(verification.ok ? "SMOKE RESULT: PASS" : "SMOKE RESULT: FAIL");
+    if (!placementActionVerified) {
+      gateBlocked = true;
+      report.warn("placement/action verification remains a deliberate human gate; automated success is not reported.");
+    }
   } else {
-    report.warn("Skipping the realtime watch because an earlier step failed.");
+    report.warn("Skipping production traffic evidence because an earlier prerequisite failed or is gated.");
   }
+
+  const exitCode = failed ? 1 : gateBlocked ? 2 : 0;
+  report.section("Smoke summary");
+  if (exitCode === 0) report.ok("SMOKE RESULT: PASS");
+  else if (gateBlocked && !failed) report.warn("SMOKE RESULT: HUMAN GATE REQUIRED");
+  else report.err("SMOKE RESULT: FAIL");
 
   return {
-    exitCode: failed ? 1 : 0,
+    exitCode,
     failed,
+    gateBlocked,
     gates,
-    guidedSession: state.guidedSession,
-    pageViews: state.pageViews,
-    stayDViews: state.stayDViews,
-    placements: [...state.placements.entries()],
-    failures,
-    configFindings
+    workflow,
+    eventCounts: Object.fromEntries(eventCounts),
+    baselineCounts: Object.fromEntries(baselineCounts),
+    configFindings,
+    placementActionVerified
   };
 }
 
-// CLI entry (only when executed directly, not when imported by a test).
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const result = await runSmoke();
+  const parsed = parseFlags(process.argv.slice(2));
+  const result = await runSmoke({
+    flags: {
+      measurementId: parsed["measurement-id"],
+      placementActionVerified: parsed["placement-action-verified"] === true
+    }
+  });
   process.exitCode = result.exitCode;
 }

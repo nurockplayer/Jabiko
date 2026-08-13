@@ -2,10 +2,10 @@
 //
 // Uses the documented Zaraz zone-level endpoints:
 //   GET/PUT /zones/{zone_id}/settings/zaraz/config
-//   GET     /zones/{zone_id}/settings/zaraz/export   (full config incl. secrets)
+//   GET     /zones/{zone_id}/settings/zaraz/export   (published config incl. secrets)
 //   GET     /zones/{zone_id}/settings/zaraz/default  (default config)
-//   PUT     /zones/{zone_id}/settings/zaraz/workflow (realtime | preview)
-//   POST    /zones/{zone_id}/settings/zaraz/publish  (preview workflow only)
+//   GET/PUT /zones/{zone_id}/settings/zaraz/workflow (realtime | preview)
+//   POST    /zones/{zone_id}/settings/zaraz/publish  (preview workflow only; Zaraz Admin)
 
 const CF_BASE = "https://api.cloudflare.com/client/v4";
 
@@ -19,8 +19,6 @@ export class CfApiError extends Error {
 }
 
 export function cfApiUrl(path) {
-  // Idempotent: a full URL (e.g. from the zaraz*Url helpers) is used as-is so
-  // callers can never double-prefix the base twice.
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
   return `${CF_BASE}${path}`;
 }
@@ -42,7 +40,6 @@ export function cfHeaders(token) {
   };
 }
 
-/** Return the Cloudflare API `result`, or throw CfApiError on `success: false`. */
 export function parseCfResponse(body) {
   if (body?.success === true) return body.result;
   const errors = body?.errors ?? [];
@@ -52,7 +49,6 @@ export function parseCfResponse(body) {
   throw new CfApiError(message, { code: errors[0]?.code, errors });
 }
 
-/** One Cloudflare API request with JSON body handling. */
 export async function cfRequest({ token, path, method = "GET", body = undefined }) {
   const res = await fetch(cfApiUrl(path), {
     method,
@@ -66,12 +62,11 @@ export async function cfRequest({ token, path, method = "GET", body = undefined 
     throw new CfApiError(`Cloudflare API returned non-JSON (HTTP ${res.status})`);
   }
   if (!res.ok && json?.success === false) {
-    parseCfResponse(json); // throws CfApiError with the API message
+    parseCfResponse(json);
   }
   return parseCfResponse(json);
 }
 
-/** Resolve the jabiko.app zone; returns { id, name, accountName } or null. */
 export async function findZone({ token, name }) {
   const result = await cfRequest({
     token,
