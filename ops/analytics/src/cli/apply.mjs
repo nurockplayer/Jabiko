@@ -2,13 +2,15 @@
 // configuration. Idempotent, snapshots the Zaraz config before mutation, and
 // refuses to delete a second analytics client without --yes-remove-gtag.
 //
-// The mutation base is read from the Zaraz *export* endpoint (which includes
-// secret variable values) so that a full-config PUT never clobbers unrelated
-// secrets. It falls back to /config (secrets excluded) with a warning only
-// when the export endpoint is unavailable.
+// Production-safety invariants:
+//   - The full-config PUT base is read from the Zaraz *export* endpoint (secret
+//     variable values included). If /export is unavailable, apply FAILS CLOSED
+//     before any mutation — it never falls back to the secret-stripped /config
+//     as the PUT base.
+//   - If any required GA4 custom dimension creation fails, apply exits non-zero.
 
 import { writeFileSync, mkdirSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { join } from "node:path";
 import {
   buildZarazDesiredConfig,
@@ -24,15 +26,11 @@ import * as report from "../report.mjs";
 
 const STATE_DIR = fileURLToPath(new URL("../../state", import.meta.url));
 
-const flags = parseFlags(process.argv.slice(2));
-const measurementIdFlag = flags["measurement-id"];
-const dryRun = flags["dry-run"] === true;
-const yesRemoveGtag = flags["yes-remove-gtag"] === true;
-
-/** Idempotent GA4 custom-dimension reconciliation. dryRun only reports. */
+/** Idempotent GA4 custom-dimension reconciliation. Returns { failures }. */
 async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
   const dims = await listCustomDimensions({ token: googleToken, property });
   const diff = ga4DesiredDiff(property, dims);
+  const failures = [];
   if (diff.conflicts.length) {
     for (const c of diff.conflicts) {
       report.warn(`skip ${c.parameterName}: exists as scope ${c.existingScope} (want ${c.desiredScope})`);
@@ -40,203 +38,196 @@ async function reconcileGa4Dimensions({ googleToken, property, dryRun }) {
   }
   if (diff.missing.length === 0) {
     report.ok("all desired GA4 custom dimensions already present.");
-    return;
+    return { failures };
   }
   for (const dim of diff.missing) {
     if (dryRun) {
       report.bullet(`would create custom dimension ${dim.parameterName}`);
-    } else {
-      try {
-        await createCustomDimension({ token: googleToken, property, dimension: dim });
-        report.ok(`created custom dimension ${dim.parameterName}`);
-      } catch (e) {
-        report.err(`failed to create ${dim.parameterName}: ${e.message}`);
-      }
+      continue;
+    }
+    try {
+      await createCustomDimension({ token: googleToken, property, dimension: dim });
+      report.ok(`created custom dimension ${dim.parameterName}`);
+    } catch (e) {
+      report.err(`failed to create ${dim.parameterName}: ${e.message}`);
+      failures.push({ parameterName: dim.parameterName, message: e.message });
     }
   }
+  return { failures };
 }
 
-report.section(`Jabiko #745 analytics apply · zone ${ZONE_NAME}`);
+/**
+ * Run the full apply sequence. `env` and `flags` are injectable for tests.
+ * Returns { exitCode, failed, mutations, dimFailures }.
+ */
+export async function runApply({
+  env = process.env,
+  flags = {}
+} = {}) {
+  const measurementIdFlag = flags.measurementId;
+  const dryRun = flags.dryRun === true;
+  const yesRemoveGtag = flags.yesRemoveGtag === true;
+  let failed = false;
+  let mutations = [];
+  let dimFailures = [];
 
-// 1. Credential gate — Zaraz mutation requires an API token.
-const cfAuth = resolveCloudflareAuth();
-if (!cfAuth || !cfAuth.capabilities.includes("zarazEdit")) {
-  report.err("apply requires CLOUDFLARE_API_TOKEN with Zone:Zaraz Edit (the wrangler OAuth token cannot mutate Zaraz).");
-  report.printGate("CLOUDFLARE_AUTH");
-  process.exitCode = 2;
-} else {
+  report.section(`Jabiko #745 analytics apply · zone ${ZONE_NAME}`);
+
+  // 1. Credential gate — Zaraz mutation requires an API token.
+  const cfAuth = resolveCloudflareAuth({ env });
+  if (!cfAuth || !cfAuth.capabilities.includes("zarazEdit")) {
+    report.err("apply requires CLOUDFLARE_API_TOKEN with Zone:Zaraz Edit (the wrangler OAuth token cannot mutate Zaraz).");
+    report.printGate("CLOUDFLARE_AUTH");
+    return { exitCode: 2, failed: true, mutations, dimFailures };
+  }
   report.bullet(`auth source: ${cfAuth.source}`);
 
   const zone = await findZone({ token: cfAuth.token, name: ZONE_NAME });
   if (!zone) {
     report.err(`zone ${ZONE_NAME} not found.`);
-    process.exitCode = 2;
-  } else {
-    report.ok(`zone ${zone.name} (id ${zone.id})`);
+    return { exitCode: 2, failed: true, mutations, dimFailures };
+  }
+  report.ok(`zone ${zone.name} (id ${zone.id})`);
 
-    // 2. Read current config — prefer /export so unrelated secret variable
-    //    values survive the full-config PUT round-trip.
-    let current;
-    let baseFrom = "export";
-    try {
-      current = await cfRequest({ token: cfAuth.token, path: zarazExportUrl(zone.id) });
-      report.ok("base config from /export (secret values preserved on PUT).");
-    } catch {
-      baseFrom = "config";
-      try {
-        current = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(zone.id) });
-      } catch (e2) {
-        report.err(`cannot read Zaraz config: ${e2.message}`);
-        process.exitCode = 2;
-        current = null;
-      }
+  // 2. Read the mutation base from /export ONLY. Fail closed if unavailable —
+  //    a secret-stripped /config must never become the full-config PUT body.
+  let current;
+  try {
+    current = await cfRequest({ token: cfAuth.token, path: zarazExportUrl(zone.id) });
+    report.ok("base config from /export (secret values preserved on PUT).");
+  } catch (e) {
+    report.err(`cannot read the Zaraz /export config: ${e.message}`);
+    report.err("fail closed: refusing to mutate Zaraz without a secret-complete export.");
+    report.warn("Provide a Cloudflare API token that can call /settings/zaraz/export and re-run.");
+    return { exitCode: 2, failed: true, mutations, dimFailures };
+  }
+
+  // Snapshot the pre-mutation state (gitignored; may contain secrets from
+  // /export — written with owner-only permissions).
+  mkdirSync(STATE_DIR, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const snapshotPath = join(STATE_DIR, `zaraz-config-preview-${stamp}.json`);
+  writeFileSync(snapshotPath, JSON.stringify(current, null, 2), { mode: 0o600 });
+  writeFileSync(join(STATE_DIR, "zaraz-config-last.json"), JSON.stringify(current, null, 2), { mode: 0o600 });
+  report.ok(`snapshot saved to state/${snapshotPath.split("/").pop()}`);
+
+  // 3. Resolve the Measurement ID.
+  let measurementId = measurementIdFlag;
+  if (!measurementId) {
+    report.bullet("resolving Measurement ID from GA4 …");
+    const googleToken = await googleTokenFromEnv(env);
+    if (!googleToken) {
+      report.printGate("GOOGLE_OAUTH");
+      report.warn("Cannot resolve the Measurement ID without Google access; pass --measurement-id.");
+      return { exitCode: 2, failed: true, mutations, dimFailures };
     }
-
-    if (current) {
-      // Snapshot the pre-mutation state (gitignored; may contain secrets from
-      // /export — written with owner-only permissions).
-      mkdirSync(STATE_DIR, { recursive: true });
-      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const snapshotPath = join(STATE_DIR, `zaraz-config-preview-${stamp}.json`);
-      writeFileSync(snapshotPath, JSON.stringify(current, null, 2), { mode: 0o600 });
-      writeFileSync(join(STATE_DIR, "zaraz-config-last.json"), JSON.stringify(current, null, 2), { mode: 0o600 });
-      report.ok(`snapshot saved to state/${snapshotPath.split("/").pop()}`);
-      if (baseFrom === "config") {
-        report.warn("base came from /config (secrets excluded). If the zone has secret variables unrelated to #745, re-run with a token that can call /export, or configure in the dashboard.");
-      }
-
-      // 3. Resolve the Measurement ID.
-      let measurementId = measurementIdFlag;
-      if (!measurementId) {
-        report.bullet("resolving Measurement ID from GA4 …");
-        const googleToken = await googleTokenFromEnv();
-        if (!googleToken) {
-          report.printGate("GOOGLE_OAUTH");
-          report.warn("Cannot resolve the Measurement ID without Google access; pass --measurement-id.");
-          process.exitCode = 2;
+    try {
+      const d = await discoverGa4({ token: googleToken });
+      if (!d.property) {
+        if (d.candidates.length === 0) {
+          report.err("no plausible Jabiko GA4 property found; pass --measurement-id.");
         } else {
-          try {
-            const d = await discoverGa4({ token: googleToken });
-            if (!d.property) {
-              if (d.candidates.length === 0) {
-                report.err("no plausible Jabiko GA4 property found; pass --measurement-id.");
-              } else {
-                report.printGate("GA4_PROPERTY_AMBIGUITY");
-                for (const c of d.candidates) report.bullet(`${c.displayName} (${c.name})`);
-              }
-              process.exitCode = 2;
-            } else {
-              measurementId = d.measurementId;
-              if (!measurementId) {
-                report.err(`property ${d.property.displayName} has no web-stream Measurement ID; pass --measurement-id.`);
-                process.exitCode = 2;
-              } else {
-                report.ok(`using Measurement ID ${measurementId} from ${d.property.displayName}`);
-              }
-            }
-          } catch (e) {
-            report.err(`GA4 discovery failed: ${e.message}`);
-            process.exitCode = 2;
-          }
+          report.printGate("GA4_PROPERTY_AMBIGUITY");
+          for (const c of d.candidates) report.bullet(`${c.displayName} (${c.name})`);
         }
-      } else {
-        report.bullet(`using --measurement-id ${measurementId}`);
+        return { exitCode: 2, failed: true, mutations, dimFailures };
       }
-
-      if (measurementId && process.exitCode !== 2) {
-        // 4. Diff and build.
-        const before = zarazDesiredDiff(current, measurementId);
-        report.sub("Zaraz diff vs desired state");
-        report.printFindings(before);
-        let { config: desired, mutations, findings } = buildZarazDesiredConfig(current, {
-          measurementId,
-          removeForbidden: yesRemoveGtag
-        });
-        for (const f of findings) {
-          if (f.code === "SECOND_ANALYTICS_CLIENT") {
-            report.err(f.message);
-            report.warn("Re-run with --yes-remove-gtag to remove the second analytics client, or fix it in the dashboard.");
-            process.exitCode = 2;
-          }
-        }
-
-        if (process.exitCode !== 2) {
-          if (mutations.length === 0) {
-            report.ok("Zaraz config already converged.");
-          } else {
-            report.sub("Zaraz mutations");
-            for (const m of mutations) report.bullet(`${m.code}${m.event ? ` [${m.event}]` : ""}${m.id ? ` (${m.id})` : ""}${m.message ? ` — ${m.message}` : ""}`);
-          }
-
-          if (dryRun) {
-            report.ok("--dry-run: no changes written. Remove --dry-run to apply.");
-            process.exitCode = 0;
-          } else {
-            // 5. PUT (with one retry on a concurrent-version conflict).
-            let putOk = mutations.length === 0;
-            for (let attempt = 0; attempt < 2 && !putOk; attempt += 1) {
-              try {
-                await cfRequest({
-                  token: cfAuth.token,
-                  path: zarazConfigUrl(zone.id),
-                  method: "PUT",
-                  body: desired
-                });
-                putOk = true;
-              } catch (e) {
-                if (attempt === 0 && /version|conflict|stale/i.test(e.message)) {
-                  report.warn(`PUT conflicted (${e.message}) — re-reading and retrying once.`);
-                  const fresh = await cfRequest({ token: cfAuth.token, path: zarazExportUrl(zone.id) });
-                  const rebuilt = buildZarazDesiredConfig(fresh, { measurementId, removeForbidden: yesRemoveGtag });
-                  desired = rebuilt.config;
-                } else {
-                  report.err(`PUT failed: ${e.message}`);
-                  report.warn("restore the snapshot from state/ or re-run apply; the snapshot is untouched.");
-                  process.exitCode = 2;
-                  break;
-                }
-              }
-            }
-
-            if (putOk && mutations.length > 0) {
-              report.ok("Zaraz config updated.");
-              // 6. Workflow: realtime is live immediately; preview needs publish.
-              let workflow = null;
-              try {
-                workflow = await cfRequest({ token: cfAuth.token, path: zarazWorkflowUrl(zone.id) });
-              } catch {
-                // workflow endpoint not always exposed — default realtime.
-              }
-              if (String(workflow) === "preview") {
-                report.warn("zone uses the Preview & Publish workflow — attempting publish.");
-                try {
-                  await cfRequest({ token: cfAuth.token, path: zarazPublishUrl(zone.id), method: "POST" });
-                  report.ok("published.");
-                } catch (e) {
-                  report.warn(`auto-publish failed (${e.message}); publish manually in the Zaraz History page.`);
-                }
-              } else {
-                report.ok("zone is in realtime workflow — changes are live.");
-              }
-
-              // 7. Verify.
-              const after = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(zone.id) });
-              const remaining = zarazDesiredDiff(after, measurementId);
-              report.sub("Zaraz verification");
-              report.printFindings(remaining);
-            }
-          }
-        }
+      measurementId = d.measurementId;
+      if (!measurementId) {
+        report.err(`property ${d.property.displayName} has no web-stream Measurement ID; pass --measurement-id.`);
+        return { exitCode: 2, failed: true, mutations, dimFailures };
       }
+      report.ok(`using Measurement ID ${measurementId} from ${d.property.displayName}`);
+    } catch (e) {
+      report.err(`GA4 discovery failed: ${e.message}`);
+      return { exitCode: 2, failed: true, mutations, dimFailures };
+    }
+  } else {
+    report.bullet(`using --measurement-id ${measurementId}`);
+  }
+
+  // 4. Diff and build.
+  const before = zarazDesiredDiff(current, measurementId);
+  report.sub("Zaraz diff vs desired state");
+  report.printFindings(before);
+  const built = buildZarazDesiredConfig(current, {
+    measurementId,
+    removeForbidden: yesRemoveGtag
+  });
+  let desired = built.config;
+  mutations = built.mutations;
+  for (const f of built.findings) {
+    if (f.code === "SECOND_ANALYTICS_CLIENT") {
+      report.err(f.message);
+      report.warn("Re-run with --yes-remove-gtag to remove the second analytics client, or fix it in the dashboard.");
+      return { exitCode: 2, failed: true, mutations, dimFailures };
     }
   }
-}
 
-// 8. GA4 custom dimensions — reconciled unconditionally (even when the Zaraz
-//    config was already converged), because dimensions are independent state.
-if (process.exitCode !== 2) {
+  // 5. Mutate (idempotent; only when there is something to change).
+  if (mutations.length === 0) {
+    report.ok("Zaraz config already converged.");
+  } else {
+    report.sub("Zaraz mutations");
+    for (const m of mutations) report.bullet(`${m.code}${m.event ? ` [${m.event}]` : ""}${m.id ? ` (${m.id})` : ""}${m.message ? ` — ${m.message}` : ""}`);
+    if (dryRun) {
+      report.ok("--dry-run: no changes written. Remove --dry-run to apply.");
+    } else {
+      let putOk = false;
+      for (let attempt = 0; attempt < 2 && !putOk; attempt += 1) {
+        try {
+          await cfRequest({
+            token: cfAuth.token,
+            path: zarazConfigUrl(zone.id),
+            method: "PUT",
+            body: desired
+          });
+          putOk = true;
+        } catch (e) {
+          if (attempt === 0 && /version|conflict|stale/i.test(e.message)) {
+            report.warn(`PUT conflicted (${e.message}) — re-reading /export and retrying once.`);
+            const fresh = await cfRequest({ token: cfAuth.token, path: zarazExportUrl(zone.id) });
+            const rebuilt = buildZarazDesiredConfig(fresh, { measurementId, removeForbidden: yesRemoveGtag });
+            desired = rebuilt.config;
+          } else {
+            report.err(`PUT failed: ${e.message}`);
+            report.warn("restore the snapshot from state/ or re-run apply; the snapshot is untouched.");
+            return { exitCode: 2, failed: true, mutations, dimFailures };
+          }
+        }
+      }
+
+      report.ok("Zaraz config updated.");
+      // Workflow: realtime is live immediately; preview needs publish.
+      let workflow = null;
+      try {
+        workflow = await cfRequest({ token: cfAuth.token, path: zarazWorkflowUrl(zone.id) });
+      } catch {
+        // workflow endpoint not always exposed — default realtime.
+      }
+      if (String(workflow) === "preview") {
+        report.warn("zone uses the Preview & Publish workflow — attempting publish.");
+        try {
+          await cfRequest({ token: cfAuth.token, path: zarazPublishUrl(zone.id), method: "POST" });
+          report.ok("published.");
+        } catch (e) {
+          report.warn(`auto-publish failed (${e.message}); publish manually in the Zaraz History page.`);
+        }
+      } else {
+        report.ok("zone is in realtime workflow — changes are live.");
+      }
+
+      // Verify.
+      const after = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(zone.id) });
+      const remaining = zarazDesiredDiff(after, measurementId);
+      report.sub("Zaraz verification");
+      report.printFindings(remaining);
+    }
+  }
+
+  // 6. GA4 custom dimensions — reconciled unconditionally (independent state).
   report.sub("GA4 custom dimensions");
-  const googleToken = await googleTokenFromEnv();
+  const googleToken = await googleTokenFromEnv(env);
   if (!googleToken) {
     report.printGate("GOOGLE_OAUTH");
     report.warn("Zaraz part done. Custom dimensions need Google access — re-run apply after configuring Google credentials.");
@@ -247,13 +238,31 @@ if (process.exitCode !== 2) {
         report.warn("no unique Jabiko GA4 property; custom dimensions not applied.");
       } else {
         report.ok(`property ${d.property.displayName} (${d.property.name})`);
-        await reconcileGa4Dimensions({ googleToken, property: d.property.name, dryRun });
+        const res = await reconcileGa4Dimensions({ googleToken, property: d.property.name, dryRun });
+        dimFailures = res.failures;
+        if (dimFailures.length) failed = true;
       }
     } catch (e) {
       report.err(`GA4 custom-dimension step failed: ${e.message}`);
+      failed = true;
     }
   }
+
+  report.section("Apply summary");
+  const exitCode = failed ? 1 : 0;
+  report.bullet(dryRun ? "dry-run — nothing was written." : `apply finished with exit code ${exitCode}.`);
+  return { exitCode, failed, mutations, dimFailures };
 }
 
-report.section("Apply summary");
-report.bullet(dryRun ? "dry-run — nothing was written." : `apply finished with exit code ${process.exitCode ?? 0}.`);
+// CLI entry (only when executed directly, not when imported by a test).
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const flags = parseFlags(process.argv.slice(2));
+  const result = await runApply({
+    flags: {
+      measurementId: flags["measurement-id"],
+      dryRun: flags["dry-run"] === true,
+      yesRemoveGtag: flags["yes-remove-gtag"] === true
+    }
+  });
+  process.exitCode = result.exitCode;
+}

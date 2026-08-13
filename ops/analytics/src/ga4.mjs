@@ -1,14 +1,21 @@
 // ops/analytics — Google Analytics 4 Admin + Data API client.
 //
-// Uses the official APIs only:
-//   Admin:  analyticsadmin.googleapis.com  (accounts/properties/webDataStreams/customDimensions)
-//   Data:   analyticsdata.googleapis.com    (runRealtimeReport)
+// Uses the official APIs only, against the CURRENT contract (v1beta):
+//   Admin:  analyticsadmin.googleapis.com/v1beta
+//     - accounts:            GET /v1beta/accounts
+//     - properties:          GET /v1beta/properties?filter=parent:accounts/{id}
+//                            (top-level list; there is NO /accounts/{id}/properties)
+//     - data streams:        GET /v1beta/properties/{property}/dataStreams
+//                            (webDataStreams is legacy UA naming, not GA4 v1beta)
+//     - custom dimensions:   GET/POST /v1beta/properties/{property}/customDimensions
+//     - web Measurement ID:  dataStream.webStreamData.measurementId
+//   Data:   analyticsdata.googleapis.com/v1beta (runRealtimeReport)
 // No `gcloud analytics` workflow is invented.
 
 import crypto from "node:crypto";
 import { resolveGoogleCredential } from "./creds.mjs";
 
-const ADMIN_BASE = "https://analyticsadmin.googleapis.com/v1";
+const ADMIN_BASE = "https://analyticsadmin.googleapis.com/v1beta";
 const DATA_BASE = "https://analyticsdata.googleapis.com/v1beta";
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 
@@ -21,23 +28,29 @@ const GOOGLE_SCOPES = [
 // URL helpers (pure, unit-tested)
 // ---------------------------------------------------------------------------
 
-export const gaAdminUrl = (path) => `${ADMIN_BASE}${path}`;
+export const gaAdminUrl = (path) => {
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${ADMIN_BASE}${path}`;
+};
 export const gaDataUrl = (propertyId, endpoint) =>
   `${DATA_BASE}/properties/${propertyId}:${endpoint}`;
 
-/**
- * GA4 Admin API resource names arrive already prefixed (accounts/123,
- * properties/456). Strip the prefix so callers can never build
- * accounts/accounts/… or properties/properties/… paths; bare ids work too.
- */
+/** Strip an `accounts/` or `properties/` prefix (idempotent). */
 function stripResourcePrefix(name, kind) {
   return String(name).replace(new RegExp(`^${kind}/`), "");
 }
 
-export const propertiesUrl = (parent) =>
-  `${ADMIN_BASE}/accounts/${stripResourcePrefix(parent, "accounts")}/properties`;
-export const webStreamsUrl = (property) =>
-  `${ADMIN_BASE}/properties/${stripResourcePrefix(property, "properties")}/webDataStreams`;
+/** Ensure a resource name is fully prefixed (accounts/123, properties/456). */
+function toResourceName(name, kind) {
+  const s = String(name);
+  return s.startsWith(`${kind}/`) ? s : `${kind}/${s}`;
+}
+
+/** Top-level properties.list with a parent filter (v1beta has no nested path). */
+export const propertiesListUrl = (parent) =>
+  `${ADMIN_BASE}/properties?filter=${encodeURIComponent(`parent:${toResourceName(parent, "accounts")}`)}`;
+export const dataStreamsUrl = (property) =>
+  `${ADMIN_BASE}/properties/${stripResourcePrefix(property, "properties")}/dataStreams`;
 export const customDimensionsUrl = (property) =>
   `${ADMIN_BASE}/properties/${stripResourcePrefix(property, "properties")}/customDimensions`;
 
@@ -161,17 +174,17 @@ export async function listAccounts({ token }) {
 export async function listProperties({ token, account }) {
   const data = await adminRequest({
     token,
-    path: `/accounts/${stripResourcePrefix(account, "accounts")}/properties`
+    path: propertiesListUrl(account)
   });
   return data.properties ?? [];
 }
 
-export async function listWebStreams({ token, property }) {
+export async function listDataStreams({ token, property }) {
   const data = await adminRequest({
     token,
-    path: `/properties/${stripResourcePrefix(property, "properties")}/webDataStreams`
+    path: dataStreamsUrl(property)
   });
-  return data.webDataStreams ?? [];
+  return data.dataStreams ?? [];
 }
 
 export async function listCustomDimensions({ token, property }) {

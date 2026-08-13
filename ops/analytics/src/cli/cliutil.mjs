@@ -3,7 +3,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { plausibleProductionProperties } from "../desired.mjs";
-import { listAccounts, listProperties, listWebStreams } from "../ga4.mjs";
+import { listAccounts, listProperties, listDataStreams } from "../ga4.mjs";
 
 /** Minimal `--flag value` / `--flag` / `--flag=value` parser. */
 export function parseFlags(argv) {
@@ -44,12 +44,14 @@ export async function discoverGa4({ token }) {
     return { property: null, candidates, measurementId: null };
   }
   const property = candidates[0];
-  const streams = await listWebStreams({ token, property: property.name });
+  const streams = await listDataStreams({ token, property: property.name });
   const web = streams.find((s) => s.type === "WEB_DATA_STREAM") ?? streams[0];
   return {
     property,
     candidates,
-    measurementId: web?.measurementId ?? null
+    // GA4 Admin v1beta DataStream: the web Measurement ID lives under
+    // webStreamData.measurementId (there is no top-level measurementId).
+    measurementId: web?.webStreamData?.measurementId ?? null
   };
 }
 

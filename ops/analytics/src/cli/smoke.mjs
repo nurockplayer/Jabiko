@@ -39,7 +39,6 @@ const RICH_DIMS = [
   "customEvent:placement",
   "customEvent:locale"
 ];
-const FALLBACK_DIMS = ["eventName", "sessionId"];
 const REQUIRED_PLACEMENTS = Object.keys(PLACEMENT_ACTION);
 
 /**
@@ -61,7 +60,6 @@ export async function runSmoke({
   let dimDiff = null;
   let configFindings = [];
   let apiError = null;
-  let useRichDims = true;
   let state = {
     guidedSession: null,
     pageViews: 0,
@@ -179,53 +177,63 @@ export async function runSmoke({
     report.bullet("  9. Click the final Airbnb CTA        (placement stay-d-final-airbnb).");
     report.bullet("That is the whole interaction. The script verifies backend arrival automatically.");
 
-    // Baseline: sessions already present before the guided interaction.
+    // Baseline: sessions already present before the guided interaction. A
+    // failed baseline must NOT degrade to an empty baseline — retry boundedly,
+    // then fail closed (otherwise unrelated recent traffic would be counted).
     let baselineSessions = new Set();
-    try {
-      const baselineRows = await runRealtimeReport({
-        token: googleToken,
-        propertyId,
-        dimensions: ["sessionId"],
-        minutes: 60
-      });
-      baselineSessions = new Set(baselineRows.map((r) => r.sessionId).filter(Boolean));
-      report.bullet(`baseline: ${baselineSessions.size} pre-existing session(s) excluded from verification.`);
-    } catch (e) {
-      report.warn(`baseline realtime read failed: ${e.message}`);
+    let baselineOk = false;
+    for (let attempt = 0; attempt < 3 && !baselineOk; attempt += 1) {
+      try {
+        const baselineRows = await runRealtimeReport({
+          token: googleToken,
+          propertyId,
+          dimensions: ["sessionId"],
+          minutes: 60
+        });
+        baselineSessions = new Set(baselineRows.map((r) => r.sessionId).filter(Boolean));
+        baselineOk = true;
+      } catch (e) {
+        report.warn(`baseline realtime read failed (attempt ${attempt + 1}/3): ${e.message}`);
+        if (attempt < 2) await sleep(pollIntervalMs);
+      }
+    }
+    if (!baselineOk) {
+      report.err("baseline realtime read failed after retries — aborting smoke (cannot isolate the guided session).");
+      failed = true;
     }
 
-    const deadline = Date.now() + watchSeconds * 1000;
-    while (Date.now() < deadline) {
-      let rows = [];
-      try {
-        const dims = useRichDims ? RICH_DIMS : FALLBACK_DIMS;
-        rows = await runRealtimeReport({ token: googleToken, propertyId, dimensions: dims, minutes: 60 });
-        apiError = null;
-      } catch (e) {
-        if (useRichDims && /not a valid dimension|customEvent/i.test(e.message)) {
-          report.warn("customEvent dimensions not readable yet — falling back to eventName/sessionId.");
-          useRichDims = false;
+    if (baselineOk) {
+      const deadline = Date.now() + watchSeconds * 1000;
+      while (Date.now() < deadline) {
+        let rows = [];
+        try {
+          rows = await runRealtimeReport({ token: googleToken, propertyId, dimensions: RICH_DIMS, minutes: 60 });
+          apiError = null;
+        } catch (e) {
+          if (/not a valid dimension|customEvent/i.test(e.message)) {
+            report.err(`custom event dimensions are not queryable: ${e.message}`);
+            report.err("failing smoke: a degraded mode cannot verify the seven placements/action parameters.");
+            failed = true;
+            break;
+          }
+          apiError = e.message;
+          report.warn(`realtime poll failed: ${e.message}`);
+          await sleep(pollIntervalMs);
           continue;
         }
-        apiError = e.message;
-        report.warn(`realtime poll failed: ${e.message}`);
+        state = computeSmokeState({ rows, baselineSessions });
+        const covered = state.placements.size;
+        report.bullet(`watch t-${Math.max(0, Math.ceil((deadline - Date.now()) / 1000))}s · page_view=${state.pageViews} · placements ${covered}/${REQUIRED_PLACEMENTS.length}${state.guidedSession ? ` · session=${state.guidedSession.slice(0, 8)}…` : ""}`);
+        if (smokeTargetReached({ ...state, useRichDims: true })) break;
         await sleep(pollIntervalMs);
-        continue;
       }
-      state = computeSmokeState({ rows, baselineSessions });
-      const covered = state.placements.size;
-      report.bullet(`watch t-${Math.max(0, Math.ceil((deadline - Date.now()) / 1000))}s · page_view=${state.pageViews} · placements ${covered}/${REQUIRED_PLACEMENTS.length}${state.guidedSession ? ` · session=${state.guidedSession.slice(0, 8)}…` : ""}`);
-      if (smokeTargetReached({ ...state, useRichDims })) break;
-      await sleep(pollIntervalMs);
     }
 
     // Verification results.
     report.sub("Verification results");
     report.bullet(`guided session: ${state.guidedSession ? state.guidedSession.slice(0, 8) + "…" : "(none observed)"}`);
     report.bullet(`page_view events: ${state.pageViews} (expected ≥ 2 for Home + /stay-d in the guided sequence)`);
-    if (useRichDims) {
-      report.bullet(`page_view with pagePath /stay-d: ${state.stayDViews} (expected ≥ 1)`);
-    }
+    report.bullet(`page_view with pagePath /stay-d: ${state.stayDViews} (expected ≥ 1)`);
     for (const placement of REQUIRED_PLACEMENTS) {
       const seen = state.placements.get(placement);
       const expectedAction = PLACEMENT_ACTION[placement];
@@ -241,7 +249,7 @@ export async function runSmoke({
     }
     if (apiError) report.warn(`realtime API issue: ${apiError}`);
 
-    const verification = verifySmokeState({ ...state, useRichDims });
+    const verification = verifySmokeState({ ...state, useRichDims: true });
     failures = verification.failures;
     for (const f of failures) report.err(f);
     if (failures.length) failed = true;

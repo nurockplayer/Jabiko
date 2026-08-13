@@ -116,7 +116,7 @@ function baselineResponse(sessionIds) {
   };
 }
 
-function makeFetch({ richRows, baselineSessions, realtimeCalls, html = "zaraz injected" }) {
+function makeFetch({ richRows, baselineSessions, realtimeCalls, html = "zaraz injected", baselineFails = false, richDimsFail = false }) {
   const calls = [];
   const impl = async (url, opts = {}) => {
     const method = opts.method || "GET";
@@ -152,22 +152,22 @@ function makeFetch({ richRows, baselineSessions, realtimeCalls, html = "zaraz in
       return respond(404, { success: false, errors: [{ message: "unexpected" }] });
     }
     if (u.includes("analyticsadmin.googleapis.com")) {
-      if (u.includes("/customDimensions")) {
+      if (u.includes("/v1beta/properties/2/customDimensions")) {
         return respond(200, { customDimensions: DIMS });
       }
-      if (u.includes("/webDataStreams")) {
+      if (u.includes("/v1beta/properties/2/dataStreams")) {
         return respond(200, {
-          webDataStreams: [
-            { name: "properties/2/webDataStreams/3", type: "WEB_DATA_STREAM", measurementId: "G-TEST" }
+          dataStreams: [
+            { name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-TEST" } }
           ]
         });
       }
-      if (u.includes("/properties")) {
+      if (u.includes("/v1beta/properties?filter=")) {
         return respond(200, {
           properties: [{ name: "properties/2", displayName: "Jabiko", url: "https://jabiko.app" }]
         });
       }
-      if (u.endsWith("/v1/accounts")) {
+      if (u.endsWith("/v1beta/accounts")) {
         return respond(200, { accounts: [{ name: "accounts/1", displayName: "Acct" }] });
       }
       return respond(404, { error: { message: "unexpected" } });
@@ -177,8 +177,10 @@ function makeFetch({ richRows, baselineSessions, realtimeCalls, html = "zaraz in
       const dims = (body.dimensions ?? []).map((d) => d.name);
       realtimeCalls.push({ dims });
       if (dims.length === 1 && dims[0] === "sessionId") {
+        if (baselineFails) return respond(500, { error: { message: "internal error" } });
         return respond(200, baselineResponse(baselineSessions));
       }
+      if (richDimsFail) return respond(400, { error: { message: "not a valid dimension: customEvent:promoId" } });
       return respond(200, richResponse(richRows));
     }
     return respondText(404, "Not found");
@@ -259,4 +261,41 @@ test("smoke stops with a non-zero exit when Zaraz is not injected", async () => 
   );
   assert.equal(result.exitCode, 1);
   assert.ok(!calls.some((c) => c.url.includes(":runRealtimeReport")), "no realtime watch when not injected");
+});
+
+test("smoke fails closed when the baseline Realtime read fails (no empty baseline)", async () => {
+  const realtimeCalls = [];
+  const { impl } = makeFetch({
+    richRows: guidedRows("smoke-session"),
+    baselineSessions: [],
+    realtimeCalls,
+    baselineFails: true
+  });
+  const result = await withFetch(impl, () =>
+    runSmoke({
+      env: { CLOUDFLARE_API_TOKEN: "t", GA4_ACCESS_TOKEN: "g" },
+      watchSeconds: 5,
+      pollIntervalMs: 10
+    })
+  );
+  assert.ok(result.exitCode !== 0, "baseline failure must fail smoke, not proceed with an empty baseline");
+  assert.ok(!result.placements.length || result.guidedSession === null, "no verification from an empty baseline");
+});
+
+test("smoke fails clearly when the rich custom dimensions are not queryable (no degraded fallback)", async () => {
+  const realtimeCalls = [];
+  const { impl } = makeFetch({
+    richRows: guidedRows("smoke-session"),
+    baselineSessions: [],
+    realtimeCalls,
+    richDimsFail: true
+  });
+  const result = await withFetch(impl, () =>
+    runSmoke({
+      env: { CLOUDFLARE_API_TOKEN: "t", GA4_ACCESS_TOKEN: "g" },
+      watchSeconds: 5,
+      pollIntervalMs: 10
+    })
+  );
+  assert.ok(result.exitCode !== 0, "unverifiable placements must fail smoke, not degrade to a non-verifying mode");
 });

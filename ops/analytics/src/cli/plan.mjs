@@ -11,8 +11,12 @@ import { parseFlags, discoverGa4, repoStaticChecks } from "./cliutil.mjs";
 import * as report from "../report.mjs";
 
 /**
- * Read-only plan. `env` and `repoRoot` are injectable for tests; a test can
- * also stub globalThis.fetch to record that no write request is ever issued.
+ * Read-only plan. `env` and `repoRoot` are injectable for tests. Returns
+ * { gatesHit, effectiveMeasurementId, zarazFindings, dimDiff }.
+ *
+ * The Zaraz desired-state diff is computed AFTER GA4 discovery so that a
+ * Measurement ID discovered from Google is used to recompute the diff, rather
+ * than reporting it with an unresolved (undefined) Measurement ID.
  */
 export async function runPlan({
   env = process.env,
@@ -20,6 +24,11 @@ export async function runPlan({
 } = {}) {
   const measurementIdFlag = parseFlags(process.argv.slice(2))["measurement-id"];
   const gatesHit = [];
+  let config = null;
+  let cfZone = null;
+  let effectiveMeasurementId = measurementIdFlag;
+  let zarazFindings = [];
+  let dimDiff = null;
 
   report.section(`Jabiko #745 analytics plan (read-only) · zone ${ZONE_NAME}`);
 
@@ -42,7 +51,7 @@ export async function runPlan({
     report.warn("Zaraz is NOT injected on production — the #745 pipeline is not live yet.");
   }
 
-  // 3. Cloudflare account/zone discovery.
+  // 3. Cloudflare account/zone discovery + read the live Zaraz config.
   report.sub("Cloudflare");
   const cfAuth = resolveCloudflareAuth({ env });
   if (!cfAuth) {
@@ -50,27 +59,21 @@ export async function runPlan({
     gatesHit.push("CLOUDFLARE_AUTH");
   } else {
     report.bullet(`auth source: ${cfAuth.source}`);
-    const zone = await findZone({ token: cfAuth.token, name: ZONE_NAME }).catch((e) => {
+    cfZone = await findZone({ token: cfAuth.token, name: ZONE_NAME }).catch((e) => {
       report.err(`zone discovery failed: ${e.message}`);
       return null;
     });
-    if (zone) {
-      report.ok(`zone ${zone.name} (id ${zone.id}, account "${zone.accountName ?? "?"}")`);
+    if (cfZone) {
+      report.ok(`zone ${cfZone.name} (id ${cfZone.id}, account "${cfZone.accountName ?? "?"}")`);
     } else {
       report.warn(`zone ${ZONE_NAME} not found under the current credential.`);
     }
 
-    if (cfAuth.capabilities.includes("zarazRead") && zone) {
+    if (cfAuth.capabilities.includes("zarazRead") && cfZone) {
       try {
-        const config = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(zone.id) });
-        report.sub("Zaraz config vs #745 desired state");
+        config = await cfRequest({ token: cfAuth.token, path: zarazConfigUrl(cfZone.id) });
         const a = analyzeZaraz(config);
         report.bullet(`${a.tools.length} tool(s), ${a.triggers.length} trigger(s); autoInject=${a.autoInject}`);
-        const findings = zarazDesiredDiff(config, measurementIdFlag);
-        report.printFindings(findings, { prefix: "  " });
-        if (!measurementIdFlag) {
-          report.warn("No --measurement-id supplied; pass one or rely on Google discovery below.");
-        }
       } catch (e) {
         if (e instanceof CfApiError) {
           report.err(`cannot read Zaraz config: ${e.message}`);
@@ -82,14 +85,14 @@ export async function runPlan({
           report.err(`cannot read Zaraz config: ${e.message}`);
         }
       }
-    } else if (zone) {
+    } else if (cfZone) {
       report.warn("Current credential cannot read the Zaraz config (needs Zone:Zaraz Read).");
       report.printGate("CLOUDFLARE_AUTH");
       gatesHit.push("CLOUDFLARE_AUTH");
     }
   }
 
-  // 4. GA4 discovery.
+  // 4. GA4 discovery (property, stream, Measurement ID, custom dimensions).
   report.sub("Google Analytics 4");
   const googleToken = await googleTokenFromEnv(env);
   if (!googleToken) {
@@ -116,16 +119,12 @@ export async function runPlan({
         } else {
           report.warn("property has no web data stream with a Measurement ID.");
         }
-        const effectiveMeasurementId = measurementIdFlag || discovered.measurementId;
+        effectiveMeasurementId = measurementIdFlag || discovered.measurementId;
         const dims = await listCustomDimensions({ token: googleToken, property: discovered.property.name });
-        report.sub("GA4 custom dimensions vs #745");
-        const diff = ga4DesiredDiff(discovered.property.name, dims);
-        report.bullet(`${diff.missing.length} missing, ${diff.present.length} present, ${diff.conflicts.length} conflicting`);
-        for (const m of diff.missing) report.bullet(`create ${m.parameterName} (${m.scope})`);
-        for (const c of diff.conflicts) report.warn(`conflict: ${c.parameterName} exists as scope ${c.existingScope}, want ${c.desiredScope}`);
-        if (!effectiveMeasurementId) {
-          report.warn("Measurement ID could not be resolved; supply --measurement-id.");
-        }
+        dimDiff = ga4DesiredDiff(discovered.property.name, dims);
+        report.bullet(`custom dimensions: ${dimDiff.missing.length} missing, ${dimDiff.present.length} present, ${dimDiff.conflicts.length} conflicting`);
+        for (const m of dimDiff.missing) report.bullet(`create ${m.parameterName} (${m.scope})`);
+        for (const c of dimDiff.conflicts) report.warn(`conflict: ${c.parameterName} exists as scope ${c.existingScope}, want ${c.desiredScope}`);
       }
     } catch (e) {
       report.err(`GA4 discovery failed: ${e.message}`);
@@ -136,7 +135,20 @@ export async function runPlan({
     }
   }
 
-  // 5. Summary.
+  // 5. Zaraz desired-state diff — computed now, using the Measurement ID
+  //    resolved from --measurement-id or GA4 discovery.
+  report.sub("Zaraz config vs #745 desired state");
+  if (config) {
+    zarazFindings = zarazDesiredDiff(config, effectiveMeasurementId);
+    report.printFindings(zarazFindings, { prefix: "  " });
+    if (!effectiveMeasurementId) {
+      report.warn("Measurement ID could not be resolved; supply --measurement-id.");
+    }
+  } else {
+    report.warn("Zaraz config was not read — diff unavailable.");
+  }
+
+  // 6. Summary.
   report.section("Plan summary");
   if (gatesHit.length === 0) {
     report.ok("No human gates required — full desired-state diff available above.");
@@ -145,7 +157,7 @@ export async function runPlan({
     for (const g of gatesHit) report.printGate(g);
   }
   report.bullet("plan is read-only — nothing was mutated.");
-  return gatesHit;
+  return { gatesHit, effectiveMeasurementId, zarazFindings, dimDiff };
 }
 
 // CLI entry (only when executed directly, not when imported by a test).
