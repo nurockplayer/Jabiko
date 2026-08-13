@@ -172,16 +172,20 @@ export async function runSmoke({
             report.err("no unique Jabiko GA4 property — cannot run smoke.");
             failed = true;
           }
+        } else if (!discovered.measurementId) {
+          report.err("the selected GA4 property has no web Measurement ID.");
+          failed = true;
+        } else if (measurementIdFlag && measurementIdFlag !== discovered.measurementId) {
+          // Bind --measurement-id to the discovered jabiko.app production stream
+          // (matching apply's semantics). A mismatch fails closed BEFORE any
+          // Zaraz/config/Realtime verification.
+          report.err(`--measurement-id ${measurementIdFlag} does not match the jabiko.app production stream (${discovered.measurementId}); failing smoke before any config/Realtime verification.`);
+          failed = true;
         } else {
           propertyName = discovered.property.name;
           propertyId = propertyName.replace("properties/", "");
-          measurementId = measurementId || discovered.measurementId;
-          if (!measurementId) {
-            report.err("the selected GA4 property has no web Measurement ID.");
-            failed = true;
-          } else {
-            report.ok(`property ${discovered.property.displayName} (id ${propertyId}), Measurement ID ${measurementId}`);
-          }
+          measurementId = discovered.measurementId;
+          report.ok(`property ${discovered.property.displayName} (id ${propertyId}), Measurement ID ${measurementId}`);
         }
       } catch (error) {
         report.err(`GA4 discovery failed: ${error.message}`);

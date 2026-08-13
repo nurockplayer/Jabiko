@@ -104,19 +104,36 @@ export function automaticPageviewActive(config = {}) {
   );
 }
 
-/** Count the track actions on the GA4 tool that forward `eventName` to GA4. */
-function trackActionCount(config, tool, eventName) {
+/** All track actions on the GA4 tool that forward `eventName` (by data.en). */
+function trackActionsForEvent(tool, eventName) {
+  return Object.values(tool.actions ?? {}).filter(
+    (action) => action?.actionType === "track" && (action?.data ?? {}).en === eventName
+  );
+}
+
+/** True when the action is the expected unconditional forwarder for `eventName`. */
+function isExpectedTrackAction(config, action, eventName) {
+  // An action with blocking wiring can suppress the event — it is not
+  // unconditional and must not satisfy the desired state.
+  if ((action?.blockingTriggers ?? []).length > 0) return false;
   const triggers = config.triggers ?? {};
-  return Object.values(tool.actions ?? {}).filter((action) => {
-    if (action?.actionType !== "track") return false;
-    // An action with blocking wiring can suppress the event — it is not
-    // unconditional and must not satisfy the desired state.
-    if ((action?.blockingTriggers ?? []).length > 0) return false;
-    if ((action?.data ?? {}).en !== eventName) return false;
-    return (action?.firingTriggers ?? []).some((tid) =>
-      triggerFiresOnCustomEvent(triggers[tid], eventName)
-    );
-  }).length;
+  return (action?.firingTriggers ?? []).some((tid) =>
+    triggerFiresOnCustomEvent(triggers[tid], eventName)
+  );
+}
+
+/** Track actions named `eventName` that are NOT the expected unconditional forwarder. */
+function miswiredTrackActions(config, tool, eventName) {
+  return trackActionsForEvent(tool, eventName).filter(
+    (action) => !isExpectedTrackAction(config, action, eventName)
+  );
+}
+
+/** Count the expected unconditional track actions that forward `eventName` to GA4. */
+function trackActionCount(config, tool, eventName) {
+  return trackActionsForEvent(tool, eventName).filter((action) =>
+    isExpectedTrackAction(config, action, eventName)
+  ).length;
 }
 
 // ---------------------------------------------------------------------------
@@ -190,6 +207,17 @@ export function zarazDesiredDiff(config, measurementId) {
       });
     }
     for (const ev of FORWARDED_EVENTS) {
+      const miswired = miswiredTrackActions(config, t, ev);
+      if (miswired.length) {
+        findings.push({
+          severity: "blocking",
+          code: "TRACK_ACTION_MISWIRED",
+          event: ev,
+          toolId: t.id,
+          count: miswired.length,
+          message: `Found ${miswired.length} ${ev} action(s) wired to another trigger or blocked; exactly one unconditional action on the ${ev} trigger is required.`
+        });
+      }
       const count = trackActionCount(config, t, ev);
       if (count === 0) {
         findings.push({
@@ -371,9 +399,21 @@ export function buildZarazDesiredConfig(
       });
     }
 
-    // One track action per forwarded event, firing on its trigger.
+    // One track action per forwarded event, firing on its trigger. First remove
+    // any same-name action that is miswired (another trigger or blocking) so the
+    // built config can never emit a false page_view/promo_click.
     tool.actions = tool.actions ?? {};
     for (const ev of FORWARDED_EVENTS) {
+      for (const [aid, action] of Object.entries(tool.actions)) {
+        if (
+          action?.actionType === "track" &&
+          (action?.data ?? {}).en === ev &&
+          !isExpectedTrackAction(out, action, ev)
+        ) {
+          delete tool.actions[aid];
+          mutations.push({ code: "TRACK_ACTION_MISWIRED_REMOVED", event: ev, id: aid });
+        }
+      }
       const count = trackActionCount(out, tool, ev);
       if (count > 1) {
         findings.push({

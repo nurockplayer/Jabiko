@@ -16,6 +16,7 @@ import {
   dataStreamsUrl,
   customDimensionsUrl,
   listProperties,
+  listAccounts,
   listDataStreams,
   listCustomDimensions,
   REALTIME_SMOKE_DIMENSIONS,
@@ -114,6 +115,85 @@ test("listCustomDimensions follows nextPageToken until exhausted", async () => {
   assert.equal(seen.length, 2, "the page token is followed once");
   assert.ok(seen[0].includes("/v1beta/properties/7/customDimensions"), "the base path is preserved");
   assert.ok(seen[1].includes("pageToken=page2"), "the page token is appended for the next page");
+});
+
+test("listAccounts follows nextPageToken until exhausted", async () => {
+  const seen = [];
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    seen.push(u);
+    if (u.includes("pageToken=acct2")) {
+      return { ok: true, status: 200, json: async () => ({ accounts: [{ name: "accounts/2" }] }) };
+    }
+    return { ok: true, status: 200, json: async () => ({ accounts: [{ name: "accounts/1" }], nextPageToken: "acct2" }) };
+  };
+  try {
+    const accounts = await listAccounts({ token: "t" });
+    assert.deepEqual(accounts.map((a) => a.name), ["accounts/1", "accounts/2"]);
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.equal(seen.length, 2);
+  assert.ok(seen[0].endsWith("/v1beta/accounts"), "the base path is preserved");
+  assert.ok(seen[1].includes("pageToken=acct2"), "the page token is appended");
+});
+
+test("listProperties preserves the parent filter query when paginating", async () => {
+  const seen = [];
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    seen.push(u);
+    if (u.includes("pageToken=p2")) {
+      return { ok: true, status: 200, json: async () => ({ properties: [{ name: "properties/9" }] }) };
+    }
+    return { ok: true, status: 200, json: async () => ({ properties: [{ name: "properties/2" }], nextPageToken: "p2" }) };
+  };
+  try {
+    const properties = await listProperties({ token: "t", account: "accounts/1" });
+    assert.deepEqual(properties.map((p) => p.name), ["properties/2", "properties/9"]);
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.ok(seen[0].includes("filter=parent%3Aaccounts%2F1"), "the parent filter is preserved");
+  assert.ok(seen[1].includes("filter=parent%3Aaccounts%2F1"), "the filter survives page 2");
+  assert.ok(seen[1].includes("pageToken=p2"), "the page token is appended");
+});
+
+test("discoverGa4 finds the production web stream on page 2 of dataStreams", async () => {
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    if (u.endsWith("/v1beta/accounts")) {
+      return { ok: true, status: 200, json: async () => ({ accounts: [{ name: "accounts/1" }] }) };
+    }
+    if (u.includes("/v1beta/properties?filter=")) {
+      return { ok: true, status: 200, json: async () => ({ properties: [{ name: "properties/2", displayName: "Jabiko", url: "https://jabiko.app" }] }) };
+    }
+    if (u.includes("/v1beta/properties/2/dataStreams")) {
+      if (u.includes("pageToken=s2")) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ dataStreams: [{ name: "properties/2/dataStreams/9", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-PROD", defaultUri: "https://jabiko.app" } }] })
+        };
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ dataStreams: [{ name: "properties/2/dataStreams/3", type: "WEB_DATA_STREAM", webStreamData: { measurementId: "G-OLD" } }], nextPageToken: "s2" })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({ error: { message: `unexpected ${u}` } }) };
+  };
+  let discovered;
+  try {
+    discovered = await discoverGa4({ token: "t" });
+  } finally {
+    globalThis.fetch = previous;
+  }
+  assert.equal(discovered.measurementId, "G-PROD", "the production stream on page 2 is discovered");
 });
 
 test("discoverGa4 uses v1beta contract and webStreamData.measurementId", async () => {

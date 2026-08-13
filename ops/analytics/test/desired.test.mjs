@@ -505,6 +505,49 @@ test("build reconciles an action that is blocked by non-empty blockingTriggers",
   assert.ok(mutations.some((m) => m.code === "TRACK_ACTION_ADDED" && m.event === "promo_click"));
 });
 
+// --- wrong-wired same-name actions ---
+function miswiredPromoClick() {
+  return {
+    actionType: "track",
+    data: { en: "promo_click" },
+    firingTriggers: ["trg-page-view"],
+    blockingTriggers: []
+  };
+}
+
+test("a same-name action wired to another trigger is a blocking finding", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.actions["act-promo-miswired"] = miswiredPromoClick();
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  const f = findings.find((x) => x.code === "TRACK_ACTION_MISWIRED");
+  assert.ok(f, "a miswired same-name action must be blocking");
+  assert.equal(f.event, "promo_click");
+});
+
+test("a same-name action with blocking wiring is a blocking finding", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.actions["act-promo-miswired"] = {
+    actionType: "track",
+    data: { en: "promo_click" },
+    firingTriggers: ["trg-promo-click"],
+    blockingTriggers: ["trg-any-exclusion"]
+  };
+  const findings = zarazDesiredDiff(cfg, MEASUREMENT_ID);
+  assert.ok(findings.some((f) => f.code === "TRACK_ACTION_MISWIRED" && f.event === "promo_click"));
+});
+
+test("build removes a miswired same-name action so no false event can be emitted", () => {
+  const cfg = convergedConfig();
+  cfg.tools.ga4.actions["act-promo-miswired"] = miswiredPromoClick();
+  const { config, mutations } = buildZarazDesiredConfig(cfg, { measurementId: MEASUREMENT_ID });
+  const promoActions = Object.values(config.tools.ga4.actions).filter(
+    (a) => a.actionType === "track" && a.data?.en === "promo_click"
+  );
+  assert.equal(promoActions.length, 1, "only the correctly-wired promo_click action remains");
+  assert.deepEqual(promoActions[0].firingTriggers, ["trg-promo-click"]);
+  assert.ok(mutations.some((m) => m.code === "TRACK_ACTION_MISWIRED_REMOVED" && m.event === "promo_click"));
+});
+
 // --- GA4 tool permissions ---
 test("missing GA4 permissions is a blocking finding", () => {
   const cfg = convergedConfig();

@@ -202,6 +202,25 @@ test("verified human placement/action gate + supported Realtime event signal can
   assert.equal(result.placementActionVerified, true);
 });
 
+test("smoke fails closed when --measurement-id does not match the discovered production stream", async () => {
+  // The published Zaraz config carries the flag's TID (so the config diff would
+  // converge), but the discovered jabiko.app production stream has a different
+  // Measurement ID — smoke must reject the flag BEFORE any config/Realtime step.
+  const mismatchedConfig = convergedConfig();
+  mismatchedConfig.tools.ga4.settings.tid = "G-OTHER";
+  const { calls, impl } = makeFetch({ publishedConfig: mismatchedConfig });
+  const result = await withFetch(impl, () =>
+    runSmoke({
+      env: ENV,
+      flags: { placementActionVerified: true, measurementId: "G-OTHER" },
+      watchSeconds: 0,
+      pollIntervalMs: 1
+    })
+  );
+  assert.equal(result.exitCode, 1, "a mismatched measurement-id must fail smoke");
+  assert.ok(!calls.some((call) => call.url.includes(":runRealtimeReport")), "no Realtime verification runs on a measurement-id mismatch");
+});
+
 test("workflow read failure fails closed and cannot become production success", async () => {
   const { calls, impl } = makeFetch({ workflowFails: true });
   const result = await withFetch(impl, () =>

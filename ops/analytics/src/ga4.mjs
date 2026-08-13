@@ -156,18 +156,41 @@ async function adminRequest({ token, path, method = "GET", body = undefined }) {
 }
 
 export async function listAccounts({ token }) {
-  const data = await adminRequest({ token, path: "/accounts" });
-  return data.accounts ?? [];
+  const all = [];
+  let pageToken = null;
+  do {
+    const path = pageToken ? `/accounts?pageToken=${encodeURIComponent(pageToken)}` : "/accounts";
+    const data = await adminRequest({ token, path });
+    all.push(...(data.accounts ?? []));
+    pageToken = data.nextPageToken ?? null;
+  } while (pageToken);
+  return all;
 }
 
 export async function listProperties({ token, account }) {
-  const data = await adminRequest({ token, path: propertiesListUrl(account) });
-  return data.properties ?? [];
+  const all = [];
+  let pageToken = null;
+  do {
+    const base = propertiesListUrl(account);
+    const path = pageToken ? `${base}&pageToken=${encodeURIComponent(pageToken)}` : base;
+    const data = await adminRequest({ token, path });
+    all.push(...(data.properties ?? []));
+    pageToken = data.nextPageToken ?? null;
+  } while (pageToken);
+  return all;
 }
 
 export async function listDataStreams({ token, property }) {
-  const data = await adminRequest({ token, path: dataStreamsUrl(property) });
-  return data.dataStreams ?? [];
+  const all = [];
+  let pageToken = null;
+  do {
+    const base = dataStreamsUrl(property);
+    const path = pageToken ? `${base}?pageToken=${encodeURIComponent(pageToken)}` : base;
+    const data = await adminRequest({ token, path });
+    all.push(...(data.dataStreams ?? []));
+    pageToken = data.nextPageToken ?? null;
+  } while (pageToken);
+  return all;
 }
 
 export async function listCustomDimensions({ token, property }) {
