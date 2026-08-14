@@ -1,6 +1,7 @@
 /* Aggregator: imports must stay in cascade order (top = first applied). */
 @import "./styles/base.css";
 @import "./styles/layout.css";
+@import "./styles/breadcrumbs.css";
 @import "./styles/learning.css";
 @import "./styles/grammar.css";
 @import "./styles/challenge.css";
@@ -13,7 +14,6 @@
 @import "./styles/mock.css";
 @import "./styles/about.css";
 @import "./styles/legal.css";
-@import "./styles/blog.css";
 @import "./styles/stay-d.css";
 @import "./styles/responsive.css";
 

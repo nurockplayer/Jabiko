@@ -1,6 +1,6 @@
-// Generates public/sitemap.xml from the app's routes, grammar database, and
-// published article metadata. Re-run after route or content changes with
-// `pnpm build:sitemap`; src/domain/sitemap.test.ts guards against drift.
+// Generates public/sitemap.xml from the app's routes and grammar database.
+// Re-run after route changes with `pnpm build:sitemap`;
+// src/domain/sitemap.test.ts guards against drift.
 //
 // Vite is used only as a TypeScript module loader, matching prerender.mjs. This
 // keeps the sitemap on the same source of truth as the app instead of parsing
@@ -12,14 +12,6 @@ import { createServer } from "vite";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ORIGIN = "https://jabiko.app";
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-
-function isIsoCalendarDate(value) {
-  if (!ISO_DATE.test(value)) return false;
-  const date = new Date(`${value}T00:00:00.000Z`);
-  return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value;
-}
-
 const ROUTES = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/learn", changefreq: "weekly", priority: "0.8" },
@@ -29,7 +21,6 @@ const ROUTES = [
   { path: "/kana", changefreq: "monthly", priority: "0.7" },
   { path: "/rules", changefreq: "monthly", priority: "0.7" },
   { path: "/grammar", changefreq: "weekly", priority: "0.7" },
-  { path: "/blog", changefreq: "weekly", priority: "0.7" },
   { path: "/about", changefreq: "monthly", priority: "0.5" },
   { path: "/privacy", changefreq: "yearly", priority: "0.3" },
   { path: "/terms", changefreq: "yearly", priority: "0.3" },
@@ -64,14 +55,9 @@ const server = await createServer({
 });
 
 let grammarPatterns;
-let publishedArticleMetas;
 try {
-  const [grammarModule, articleModule] = await Promise.all([
-    server.ssrLoadModule("/src/domain/grammarDatabase.ts"),
-    server.ssrLoadModule("/src/domain/articlesMeta.ts"),
-  ]);
+  const grammarModule = await server.ssrLoadModule("/src/domain/grammarDatabase.ts");
   grammarPatterns = grammarModule.grammarPatterns;
-  publishedArticleMetas = articleModule.publishedArticleMetas;
 } finally {
   await server.close();
 }
@@ -84,32 +70,13 @@ const grammarPaths = [
   ),
 ];
 
-for (const { slug, publishedAt } of publishedArticleMetas) {
-  if (!isIsoCalendarDate(publishedAt)) {
-    throw new Error(`Invalid publishedAt for article "${slug}": ${publishedAt}`);
-  }
-}
-
-const newestArticleDate = publishedArticleMetas.reduce(
-  (latest, article) => (article.publishedAt > latest ? article.publishedAt : latest),
-  "",
-);
-
 const entries = [
-  ...ROUTES.map((route) =>
-    route.path === "/blog" ? { ...route, lastmod: newestArticleDate } : route,
-  ),
+  ...ROUTES,
   ...LEVEL_HUBS,
   ...grammarPaths.map((routePath) => ({
     path: routePath,
     changefreq: "monthly",
     priority: "0.6",
-  })),
-  ...publishedArticleMetas.map(({ slug, publishedAt }) => ({
-    path: `/blog/${encodeURIComponent(slug)}`,
-    changefreq: "monthly",
-    priority: "0.6",
-    lastmod: publishedAt,
   })),
 ];
 
@@ -123,5 +90,5 @@ const xml = [
 
 writeFileSync(path.join(ROOT, "public/sitemap.xml"), xml);
 console.log(
-  `wrote public/sitemap.xml — ${ROUTES.length + LEVEL_HUBS.length} routes + ${grammarPaths.length} grammar pages + ${publishedArticleMetas.length} blog articles = ${entries.length} URLs`,
+  `wrote public/sitemap.xml — ${ROUTES.length + LEVEL_HUBS.length} routes + ${grammarPaths.length} grammar pages = ${entries.length} URLs`,
 );

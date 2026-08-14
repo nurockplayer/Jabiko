@@ -12,8 +12,6 @@ type PageProps = {
   language: "zh-Hant";
   level: JlptLevel | null;
   onOpenPattern: (surface: string) => void;
-  onBack: () => void;
-  onBackToOverview: () => void;
   onSelectLevel: (level: JlptLevel) => void;
 };
 
@@ -22,8 +20,6 @@ function makeProps(level: JlptLevel | null): PageProps {
     language: "zh-Hant",
     level,
     onOpenPattern: vi.fn(),
-    onBack: vi.fn(),
-    onBackToOverview: vi.fn(),
     onSelectLevel: vi.fn(),
   };
 }

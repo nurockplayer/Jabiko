@@ -11,7 +11,6 @@ export type NavigationId =
   | "rules"
   | "kanji"
   | "kana"
-  | "blog"
   | "about";
 export type NavigationIcon =
   | "home"
@@ -22,7 +21,6 @@ export type NavigationIcon =
   | "rules"
   | "kanji"
   | "kana"
-  | "blog"
   | "about";
 export type NavigationLabelKey =
   | "home"
@@ -33,7 +31,6 @@ export type NavigationLabelKey =
   | "rules"
   | "kanji"
   | "kanaPageTitle"
-  | "blog"
   | "about";
 
 export interface NavigationDefinition {
@@ -58,7 +55,6 @@ export const NAVIGATION_REGISTRY: readonly NavigationDefinition[] = [
   { id: "rules", view: "rules", group: "resource", labelKey: "rules", icon: "rules" },
   { id: "kanji", view: "kanji", group: "resource", labelKey: "kanji", icon: "kanji" },
   { id: "kana", view: "kana", group: "resource", labelKey: "kanaPageTitle", icon: "kana" },
-  { id: "blog", view: "blog", group: "resource", labelKey: "blog", icon: "blog", zhHantOnly: true },
   { id: "about", view: "about", group: "resource", labelKey: "about", icon: "about" }
 ] as const;
 

@@ -3,8 +3,6 @@ import { SITE_ORIGIN, VIEW_SEO, seoForView } from "./seo";
 import type { AppView } from "./routes";
 
 // The static-route views (every AppView except the dynamic "grammar" route).
-// "blog" has a static index entry (VIEW_SEO.blog) plus a dynamic /blog/<slug>
-// variant, tested separately below like grammar.
 const VIEWS: Exclude<AppView, "grammar">[] = [
   "home",
   "learn",
@@ -16,8 +14,7 @@ const VIEWS: Exclude<AppView, "grammar">[] = [
   "about",
   "privacy",
   "terms",
-  "stayD",
-  "blog"
+  "stayD"
 ];
 
 describe("seo", () => {
@@ -76,29 +73,6 @@ describe("seo", () => {
     expect(seoForView("grammar").canonical).toBe(`${SITE_ORIGIN}/grammar`);
   });
 
-  // The /blog/<slug> route is dynamic (#483): per-article title/description/
-  // canonical from the (lightweight) article metadata.
-  describe("blog article routes", () => {
-    it("builds per-article metadata for a /blog/<slug> route", () => {
-      const resolved = seoForView("blog", null, "cho-saikyo-tokimeki");
-      expect(resolved.title).toContain("超最強");
-      expect(resolved.title).toMatch(/Jabiko/);
-      expect(resolved.description.length).toBeGreaterThan(20);
-      expect(resolved.description.length).toBeLessThanOrEqual(160);
-      expect(resolved.canonical).toBe(`${SITE_ORIGIN}/blog/cho-saikyo-tokimeki`);
-    });
-
-    it("falls back to the blog index SEO for an unknown slug", () => {
-      const resolved = seoForView("blog", null, "does-not-exist");
-      expect(resolved.canonical).toBe(`${SITE_ORIGIN}/blog`);
-      expect(resolved.title).toContain("文章");
-    });
-
-    it("uses the blog index SEO for the bare /blog route", () => {
-      expect(seoForView("blog").canonical).toBe(`${SITE_ORIGIN}/blog`);
-      expect(seoForView("blog").title).toContain("文章");
-    });
-  });
 
   // /grammar/n5 – /grammar/n1 are level-index routes (#437), not grammar-point
   // pages; they should show level-specific index metadata rather than point SEO.

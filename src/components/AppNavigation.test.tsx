@@ -15,7 +15,6 @@ const labels = {
   rules: "規則表",
   kanji: "漢字",
   kanaPageTitle: "五十音",
-  blog: "文章",
   about: "關於"
 } as const;
 
@@ -62,7 +61,7 @@ describe("AppNavigation (#727)", () => {
     await user.click(screen.getByRole("button", { name: "資源" }));
     const desktop = screen.getByRole("menu", { name: "資源" });
     expect(within(desktop).getAllByRole("menuitem").map((item) => item.textContent)).toEqual([
-      "規則表", "漢字", "五十音", "文章", "關於"
+      "規則表", "漢字", "五十音", "關於"
     ]);
     fireEvent.keyDown(within(desktop).getByRole("menuitem", { name: "規則表" }), { key: "Escape" });
 
@@ -70,8 +69,8 @@ describe("AppNavigation (#727)", () => {
     const mobile = screen.getByRole("menu", { name: "更多" });
     expect(within(mobile).getByText("資源")).toBeInTheDocument();
     expect(within(mobile).getByText("設定與工具")).toBeInTheDocument();
-    expect(within(mobile).getAllByRole("menuitem").slice(0, 5).map((item) => item.textContent)).toEqual([
-      "規則表", "漢字", "五十音", "文章", "關於"
+    expect(within(mobile).getAllByRole("menuitem").slice(0, 4).map((item) => item.textContent)).toEqual([
+      "規則表", "漢字", "五十音", "關於"
     ]);
   });
 

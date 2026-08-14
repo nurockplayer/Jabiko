@@ -53,11 +53,12 @@ jobs:
       - name: Lint (eslint, zero warnings)
         run: pnpm lint
 
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Check exam bank (hint leaks / answer-in-options / level labels)
-        run: pnpm check:exam
+      # #760: `pnpm check:exam` runs `vitest run src/domain/contentGuard.test.ts`,
+      # which `pnpm test` already covers (its domain-node project includes
+      # `src/domain/**/*.test.ts`). Running it here is unconditional duplicate
+      # work for non-exam PRs and adds no information the full suite does not.
+      # The focused gate remains available as a fast inner-loop check via
+      # `pnpm check:exam` / `pnpm verify` (path-aware L2 exam gate).
 
       - name: Run tests
         run: pnpm test

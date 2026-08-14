@@ -76,14 +76,14 @@ describe("MockExamPanel N4 / N5 blueprints (#703)", () => {
     expect(reading).not.toHaveTextContent("準備中");
   });
 
-  it("an N4 section with no authored items renders as 準備中, not a startable button", () => {
+  it("the newly authored N4 表記 and 語順組合 pools are startable with live counts (#665)", () => {
     renderPanel();
     fireEvent.click(screen.getByRole("button", { name: "N4" }));
-    // 表記 has no authored N4 items yet, so the row is a plain info row.
-    const row = screen.getByText("表記").closest("li");
-    expect(row).not.toBeNull();
-    expect(row).toHaveTextContent("準備中");
-    expect(within(row as HTMLLIElement).queryByRole("button")).not.toBeInTheDocument();
+    for (const label of ["表記", "文の文法 2（文の組み立て）"]) {
+      const section = screen.getByRole("button", { name: new RegExp(label) });
+      expect(section).toHaveTextContent("17 題");
+      expect(section).not.toHaveTextContent("準備中");
+    }
   });
 
   it("starting a section calls onStartSection with the level and matching promptLabel", () => {
