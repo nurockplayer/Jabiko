@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
@@ -40,6 +42,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Invoke the test files directly (glob), not the directory. `node --test
+      # <dir>` resolves test/index.js as a directory entrypoint whose nested
+      # `node --test` hits a Node 22 test-runner IPC bug ("Unable to deserialize
+      # cloned data") that flakes the run. The glob runs each .test.mjs file
+      # directly and is reliable on the pinned Node 22.
+      - name: Analytics contract tests
+        run: node --test ops/analytics/test/*.test.mjs
+
       - name: Lint (eslint, zero warnings)
         run: pnpm lint
 
@@ -54,4 +64,8 @@ jobs:
         run: pnpm test
 
       - name: Build
-        run: pnpm run build
+        run: pnpm build
+
+      - name: Diff whitespace check (latest PR commit)
+        if: github.event_name == 'pull_request'
+        run: git diff --check HEAD^ HEAD

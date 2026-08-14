@@ -1,0 +1,6 @@
+# Never commit credentials or runtime state.
+.secrets/
+state/
+.env
+.env.local
+*.local.json

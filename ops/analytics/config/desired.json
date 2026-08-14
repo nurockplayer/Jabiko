@@ -1,0 +1,38 @@
+{
+  "//": "Jabiko #745 desired analytics state. Machine-read by ops/analytics plan/apply/smoke.",
+  "zoneName": "jabiko.app",
+  "forwardedEvents": [
+    "page_view",
+    "practice_started",
+    "answer_submitted",
+    "practice_completed",
+    "study_page_viewed",
+    "level_changed",
+    "locale_changed",
+    "weak_review_started",
+    "article_viewed",
+    "promo_click"
+  ],
+  "promoClick": {
+    "params": ["promoId", "action", "placement", "locale"],
+    "actions": ["airbnb", "video"],
+    "placements": [
+      "home-airbnb",
+      "home-video",
+      "home-video-airbnb",
+      "stay-d-hero-airbnb",
+      "stay-d-video",
+      "stay-d-video-airbnb",
+      "stay-d-final-airbnb"
+    ]
+  },
+  "ga4": {
+    "component": "google-analytics-4",
+    "customDimensions": [
+      { "parameterName": "promoId", "displayName": "Promo ID", "scope": "EVENT" },
+      { "parameterName": "action", "displayName": "Action", "scope": "EVENT" },
+      { "parameterName": "placement", "displayName": "Placement", "scope": "EVENT" },
+      { "parameterName": "locale", "displayName": "Locale", "scope": "EVENT" }
+    ]
+  }
+}

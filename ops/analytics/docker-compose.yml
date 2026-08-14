@@ -1,0 +1,11 @@
+# gcloud-in-Docker for the Google OAuth step, so the host needs no gcloud.
+#   docker compose run --rm gcloud
+# prints a one-time authorization URL; paste the returned code to finish
+# `gcloud auth application-default login`. The ADC JSON lands in ./state/gcloud/
+# (gitignored), which bin/google-auth and the scripts also check.
+services:
+  gcloud:
+    image: google/cloud-sdk:latest
+    command: ["gcloud", "auth", "application-default", "login", "--no-launch-browser"]
+    volumes:
+      - ./state/gcloud:/root/.config/gcloud
