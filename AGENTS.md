@@ -1,73 +1,74 @@
 # Jabiko — Codex Agent Guidelines
 
-> **Source of truth：`CLAUDE.md`。** 本檔是給 Codex 的精簡鏡像；兩檔衝突時以 CLAUDE.md 為準。（#314）
+> **Source of truth: `CLAUDE.md`.** This file is a concise mirror for Codex; on conflict, `CLAUDE.md` wins. (#314)
 
-## 語言設定
+## Language
 
-永遠使用台灣正體中文回覆。日文只用於學習材料、例句、UI 標籤或語法說明。
+- Always reply in Taiwan Traditional Chinese. Japanese is used only for learning materials, example sentences, UI labels, or grammar explanations.
+- Per the Technical Artifact Language Policy in `CLAUDE.md`, technical artifacts (code comments/docstrings, developer errors/logs, tests, architecture/API/schema docs, CI/CD docs, implementation plans, branches/commits, and detailed issue/PR technical specifications) are written in English; concise Japanese summaries in team-facing issue/PR descriptions are optional.
 
-## 專案定位（2026-07 現況）
+## Project Positioning (current as of 2026-07)
 
-Jabiko（jabiko.app）是免費、免註冊的 **JLPT N5–N1 日檢自習室**：文法／單字／漢字讀音／官方題型練習／模擬考／學習文章。題庫 3,600+、學習章 73+、文章區已上線。
+Jabiko (jabiko.app) is a free, registration-free **JLPT N5–N1 self-study room**: grammar / vocabulary / kanji readings / official question types / mock exams / learning articles. Item bank 3,600+, learning sections 73+, article section live.
 
-- 技術棧：React 19 + TypeScript strict + Vite 7 + Vitest 4 + jsdom、pnpm、PWA（vite-plugin-pwa）
-- 資料：local-first（localStorage）＋**選配** Supabase 跨裝置同步（Google 登入）；Cloudflare Pages 部署＋prerender
-- i18n：上線語系 zh-Hant／ja／en（`LAUNCHED_LANGUAGES`），另有 ko/th/id/vi/my Copy 檔未上線
+- Tech stack: React 19 + TypeScript strict + Vite 7 + Vitest 4 + jsdom, pnpm, PWA (vite-plugin-pwa)
+- Data: local-first (localStorage) + **optional** Supabase cross-device sync (Google login); Cloudflare Pages deployment + prerender
+- i18n: launched languages zh-Hant / ja / en (`LAUNCHED_LANGUAGES`); ko/th/id/vi/my Copy files present but not launched
 
-舊描述（《大家的日本語》動詞變化工具、無後端無登入）已過時，勿依其做設計假設。`docs/superpowers/specs/` 是 2026-05 的歷史設計稿，非現行 spec。
+The old description (a 《大家的日本語》verb-conjugation tool with no backend and no login) is outdated; don't make design assumptions from it. `docs/superpowers/specs/` are 2026-05 historical design drafts, not the current spec.
 
-## Shell 指令
+## Shell Commands
 
-直接執行指令即可（**沒有 `rtk` 這個工具**——舊規範遺留，勿再等待或宣稱缺它而跳過驗證）。
+Run commands directly (**there is no `rtk` tool** — leftover from an old convention; don't wait for it or claim it's missing to skip verification).
 
-- Node／frontend tooling 一律 `pnpm`；不得使用 npm/yarn/bun（也不得產生其 lockfile）
-- 驗證採階梯（#760，source of truth＝CLAUDE.md「驗證階梯」）：**L0** 定向 `pnpm vitest run <file>` → **L1** affected → **L2** path gate（`pnpm verify` 依 changed-path 自動選級）→ **L3** full `pnpm lint && pnpm test && pnpm build`。PR 前必跑 L3
-- 新增／修改**文章**後必跑 `pnpm build:sitemap`（sitemap drift guard 會擋 CI——這是 Codex 歷史上最常漏的一步）
-- 新增 exam 例句／題幹後跑 `pnpm build:furigana`
+- Node/frontend tooling is always `pnpm`; never use npm/yarn/bun (and never generate their lockfiles)
+- Verification ladder (#760, source of truth = the "Verification Ladder" section of `CLAUDE.md`): **L0** targeted `pnpm vitest run <file>` → **L1** affected → **L2** path gate (`pnpm verify` picks the level by changed paths) → **L3** full `pnpm lint && pnpm test && pnpm build`. Always run L3 before a PR
+- After adding/modifying **articles**, always run `pnpm build:sitemap` (the sitemap drift guard blocks CI — historically the step Codex most often misses)
+- After adding exam example sentences/stems, run `pnpm build:furigana`
 
-## 政策關鍵規則（CLAUDE.md 摘要，違反=擋 merge）
+## Policy Key Rules (CLAUDE.md summary; violating = blocks merge)
 
-- **TDD 強制**：先寫測試觀察 RED 再實作；例外僅限一次性 prototype、純設定檔、自動產生程式碼（要先告知）
-- **contentGuard 不變條件**：不得改 `src/domain/contentGuard.ts` 驗證規則，除非透過 issue 討論
-- **語言隔離**：`*Zh` 欄位不得對 zh-Hant 以外渲染，除非走 `pickLocalized()`＋有效 i18n overlay；`isZhHant` 是唯一閘門變數；不得動 `LAUNCHED_LANGUAGES`／`LocaleCode`／`pickLocalized()` fallback
-- **分層**：領域邏輯在 `src/domain/`，React 元件不放商業邏輯；TypeScript strict、禁 `any`
-- **Bundle 紀律**：examBlocks／furigana 資料／文章 body 只准進 lazy chunk，勿從 eager 路徑（App／components barrel／首頁）import
-- **EOL**：`exam/items/*.ts` 是 `-text`，暫存用 `git -c core.autocrlf=false add <files>`（明列檔名），commit 前 `git diff --cached --check` 必須乾淨
+- **TDD mandatory**: write the test and observe RED first; exceptions only for one-off prototypes, pure config files, auto-generated code (tell the user first)
+- **contentGuard invariant**: don't change the validation rules in `src/domain/contentGuard.ts` except through issue discussion
+- **Language isolation**: `*Zh` fields must not be rendered to languages other than zh-Hant unless via `pickLocalized()` with a valid i18n overlay; `isZhHant` is the only gate variable; don't touch `LAUNCHED_LANGUAGES` / `LocaleCode` / the `pickLocalized()` fallback
+- **Layering**: domain logic in `src/domain/`, React components don't hold business logic; TypeScript strict, no `any`
+- **Bundle discipline**: examBlocks / furigana data / article bodies may only enter lazy chunks; don't import them from eager paths (App / components barrel / home page)
+- **EOL**: `exam/items/*.ts` is `-text`; stage with `git -c core.autocrlf=false add <files>` (list files explicitly); `git diff --cached --check` must be clean before committing
 
-## Scope 邊界
+## Scope Boundaries
 
-- 不把未要求的功能、重構或 future work 混進同一個變更
-- 需要新增依賴、調整架構或擴大範圍時，先回報理由與替代方案
-- 內容批次（題庫／文章）天然 diff 大，屬正常，不必為 diff 大小道歉
+- Don't mix unrequested features, refactors, or future work into the same change
+- When you need a new dependency, an architecture change, or scope growth, report the reason and alternatives first
+- Content batches (item banks / articles) are naturally large diffs; that's normal, no apology needed for diff size
 
-## Git／PR 規範
+## Git / PR Conventions
 
-- Branch 命名 `codex/<short-description>`；commit 訊息簡潔（英文祈使句或 `<type>: <desc>`）
-- 不用 `git add -A`／`git add .`；只 stage 本次任務檔案
-- GitHub／git 指令必須 non-interactive
-- **PR 開出來請轉為 ready**（draft 會擋 merge）
-- **勿開 stacked PR**（base 指向另一個 PR 的分支）：前面的 PR squash 合併刪分支時，後面的會被 GitHub 自動關閉且無法 reopen。多篇內容各自從 main 開分支
-- CI 必過閘只有「Test and build」；CodeRabbit 綠勾可能是 rate-limit skip，不算真審
+- Branch naming `codex/<short-description>`; concise commit messages (English imperative or `<type>: <desc>`)
+- Don't use `git add -A` / `git add .`; stage only this task's files
+- GitHub/git commands must be non-interactive
+- **Set the PR to ready when opened** (draft blocks merge)
+- **Don't open stacked PRs** (base pointing at another PR's branch): when the earlier PR is squash-merged and its branch deleted, the later ones get auto-closed by GitHub and can't be reopened. Open each content PR from main
+- The only required CI gate is "Test and build"; a CodeRabbit green check may be a rate-limit skip, not a real review
 
-## 供應鏈安全
+## Supply Chain Security
 
-- 不得自行新增依賴，除非任務需要且已在回報中說明原因
-- 不得執行 `npx`、`pnpm dlx`、`npm exec`、`curl | bash`、`wget | sh` 這類遠端即時執行指令
-- `package.json` 與 lockfile 改動必須在回報中明確說明
+- Don't add dependencies on your own unless the task requires it and the reason is stated in the report
+- Don't run `npx`, `pnpm dlx`, `npm exec`, `curl | bash`, `wget | sh`, or similar remote ad-hoc executions
+- `package.json` and lockfile changes must be explicitly explained in the report
 
-## 內容品質（出題／文章）
+## Content Quality (item banks / articles)
 
-- 出題先讀 `docs/item-quality-rubric.md`：唯一正解、干擾誘答、不洩漏、格式
-- 最大雷＝近義雙解與接續秒殺；教學句最大雷＝**顧客句用「〜ますか」問聽話者動作**（主語錯位）
-- 文章不轉載歌詞（外連＋片段佔位）；例句一律原創
+- Before writing items, read `docs/item-quality-rubric.md`: unique correct answer, distractor lure answers, no leaks, format
+- Biggest traps = near-synonym double answers and continuation instant-kills; biggest teaching-sentence trap = **customer sentences asking the listener's action with 〜ますか** (subject misplacement)
+- Articles don't reproduce lyrics (external links + fragment placeholders); example sentences are always original
 
-## 測試與驗證
+## Testing and Verification
 
-- 驗證階梯（#760）：L0 targeted → L1 affected → L2 path gate → L3 full。執行器：`pnpm verify`（changed-path 選級）、`pnpm verify --dry-run`、`pnpm verify:full`。selector＝`scripts/select-verification.mjs`（deterministic explicit 規則，非 LLM 猜）；unknown／高爆炸半徑改動 fail-safe 升 L3。完整 mapping 以 CLAUDE.md 與該檔為準，本檔不重複。
-- 宣稱完成前回報實際執行過的驗證（最高層級＋指令＋pass/fail）。優先測：變化邏輯（音便／ない形／不規則）、答案 normalization、contentGuard／contentStats drift、主要練習流程。
+- Verification ladder (#760): L0 targeted → L1 affected → L2 path gate → L3 full. Executor: `pnpm verify` (level selected by changed paths), `pnpm verify --dry-run`, `pnpm verify:full`. Selector = `scripts/select-verification.mjs` (deterministic explicit rules, not LLM guessing); unknown / high-blast-radius changes fail-safe to L3. Full mapping in `CLAUDE.md` and that file; not duplicated here.
+- Before claiming completion, report the actual verification executed (highest level + commands + pass/fail). Priority tests: changed logic (音便 / ない形 / irregular), answer normalization, contentGuard/contentStats drift, main practice flows.
 
-## 回報格式
+## Report Format
 
-- 只列關鍵變更：檔案＋一句說明
-- 測試結果只報 pass/fail 與失敗原因，不貼完整 log
-- 遇到錯誤先給診斷與建議修法，再問是否繼續
+- List only key changes: file + one-line explanation
+- Test results: report only pass/fail and failure reasons, not full logs
+- On errors, give a diagnosis and suggested fix first, then ask whether to continue

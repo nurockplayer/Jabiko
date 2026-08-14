@@ -1,24 +1,30 @@
-## 什麼改動
+<!-- Optional Japanese summary for team-facing visibility; keep detailed technical specifications in English (see the Technical Artifact Language Policy in CLAUDE.md). -->
 
-<!-- 簡短描述這個 PR 做了什麼 -->
+## Summary (概要)
 
-## 為什麼
+<!-- Concise summary of what this PR does. A short Japanese summary is welcome; detailed technical specs go in the English sections below. -->
 
-<!-- 說明動機或解決的問題 -->
+## What changes
 
-## 測試方式
+<!-- Briefly describe what this PR does -->
 
-- [ ] `pnpm test` 通過
-- [ ] `pnpm build` 通過
-- [ ] `pnpm check:exam` 通過
-- [ ] 手動驗證（描述步驟）
+## Why
+
+<!-- Motivation or problem being solved -->
+
+## Tests
+
+- [ ] `pnpm test` passes
+- [ ] `pnpm build` passes
+- [ ] `pnpm check:exam` passes
+- [ ] Manual verification (describe steps)
 
 ## Scope
 
-- 關聯 issue：#
-- Depends on：<!-- 若有前置 PR，填入連結；否則刪除此行 -->
-- 超出範圍：<!-- 刻意不處理的事項 -->
+- Related issue: #
+- Depends on: <!-- if there are prerequisite PRs, add links; otherwise delete this line -->
+- Out of scope: <!-- things intentionally not handled -->
 
-## 備註
+## Notes
 
-<!-- 審閱者需要知道的其他事項 -->
+<!-- Anything else reviewers need to know -->
