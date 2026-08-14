@@ -22,7 +22,10 @@ if (!credential) {
   report.bullet("     - Create a JSON key and save it to:");
   report.bullet(`       ${join(SECRETS_DIR, "gcp-service-account.json")}  (or export GOOGLE_APPLICATION_CREDENTIALS=…)`);
   report.bullet("  B) Your own Google account (gcloud):");
+  report.bullet("     - Google Cloud Console → APIs & Services → Credentials → Create Credentials → OAuth client ID → Desktop app → Download JSON.");
+  report.bullet(`     - Save it as ${join(SECRETS_DIR, "google-oauth-client.json")}  (gitignored, never committed)`);
   report.bullet(`     - docker compose -f ${join(OPS_DIR, "docker-compose.yml")} run --rm gcloud`);
+  report.bullet("     - the container mounts the JSON read-only and passes it via --client-id-file; it fails fast if the JSON is missing instead of using gcloud's blocked default client.");
   report.bullet("     - the ADC credentials land in a docker volume the scripts also look at.");
   report.bullet("  C) One-shot access token for a single run:");
   report.bullet("     - export GA4_ACCESS_TOKEN=$(… via any OAuth tool …)");
