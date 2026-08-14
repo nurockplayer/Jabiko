@@ -38,12 +38,17 @@ actually prove.
 ### Why Realtime is deliberately narrow
 
 For a standard GA4 property, `runRealtimeReport` is limited to the latest 30
-minutes. The Realtime schema supports `eventName` and `eventCount`, but does
-not expose `sessionId`, `pagePath`, or event-scoped `customEvent:*` dimensions.
-The smoke therefore hard-limits every Realtime request to:
+minutes. The Realtime schema supports the `eventName` and `minutesAgo`
+dimensions and the `eventCount` metric, but does not expose `sessionId`,
+`pagePath`, or event-scoped `customEvent:*` dimensions. `minutesAgo` is a
+required part of the request, not optional: it bounds the post-baseline delta
+to events that arrived after the baseline was captured, so rolling-window
+expiry of pre-baseline events cannot subtract from the guided interaction. The
+smoke therefore hard-limits every Realtime request to:
 
 ```text
 dimension: eventName
+dimension: minutesAgo
 metric:    eventCount
 window:    <= 30 minutes
 ```
@@ -148,20 +153,28 @@ printing secret values.
    closed before a mutation. It never assumes `realtime`.
 3. Read the mutation base from `GET /settings/zaraz/export` only. This is the
    current **published** configuration and retains secret variable values.
-4. Build and PUT only the desired delta.
-5. If workflow is `preview`, production completion requires successful
+4. Resolve the GA4 property/stream and reconcile the required event-scoped
+   custom dimensions BEFORE any Zaraz PUT or publish. An unreadable dimension
+   list, a scope conflict, or a failed required-dimension creation fails closed
+   (non-zero exit) with zero Zaraz mutation — event forwarding is never
+   partially enabled before a GA4 blocker is known. Reconcile is declarative
+   and idempotent (already-present EVENT-scope dimensions are skipped).
+5. Build and PUT only the desired delta.
+6. If workflow is `preview`, production completion requires successful
    `POST /settings/zaraz/publish`. Publish failure is a non-zero human gate.
-6. Re-read `/export` and require the **published** configuration to converge.
+7. Re-read `/export` and require the **published** configuration to converge.
    `/config` is not accepted as production proof because Cloudflare documents
    it as the latest config, which may be preview or published.
-7. Reconcile the four GA4 event-scoped custom dimensions independently.
 
 A preview-only change is never reported as production success.
 
 ## Desired state
 
 - One GA4 managed tool (`google-analytics-4`) with the intended Measurement ID.
-- Custom-event triggers forward `page_view` and `promo_click`.
+- Custom-event triggers forward every event in `FORWARDED_EVENTS` — the full
+  ten: `page_view`, `practice_started`, `answer_submitted`,
+  `practice_completed`, `study_page_viewed`, `level_changed`, `locale_changed`,
+  `weak_review_started`, `article_viewed`, `promo_click`.
 - One `track` action per event.
 - No automatic page-view action in parallel with Jabiko's explicit SPA
   `page_view`.
@@ -180,7 +193,8 @@ A preview-only change is never reported as production success.
 4. all four GA4 custom dimensions registered;
 5. GA4 Realtime captures a baseline, then shows a new delta of at least two
    `page_view` and seven `promo_click` events during the guided watch, using
-   only `eventName` + `eventCount` and a <=30-minute window;
+   only the `eventName` + `minutesAgo` dimensions and the `eventCount` metric
+   within a <=30-minute window;
 6. during that same watch the operator completes the single Zaraz Debug Mode
    placement/action verification under `--placement-action-verified`.
 

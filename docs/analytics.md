@@ -62,7 +62,10 @@ video opening, or the outbound Airbnb link.
 GA4 is downstream of Zaraz only. The production Zaraz desired state is:
 
 - one native Google Analytics 4 managed tool with the intended Measurement ID;
-- explicit `page_view` and `promo_click` custom-event triggers/actions;
+- explicit custom-event triggers/actions for every event in `FORWARDED_EVENTS`
+  (`page_view`, `practice_started`, `answer_submitted`, `practice_completed`,
+  `study_page_viewed`, `level_changed`, `locale_changed`,
+  `weak_review_started`, `article_viewed`, `promo_click`);
 - no second gtag/GTM analytics client;
 - no automatic page-view action that would double-count Jabiko's explicit SPA
   `page_view`;
@@ -116,12 +119,16 @@ For a standard GA4 property, this smoke constrains Realtime to a maximum
 
 ```text
 dimension: eventName
+dimension: minutesAgo
 metric:    eventCount
 ```
 
-It never requests `sessionId`, `pagePath`, or event-scoped `customEvent:*`
-dimensions from `runRealtimeReport`. The helper rejects those dimensions before
-issuing a request.
+`minutesAgo` is required: it bounds the post-baseline delta to events that
+arrived after the baseline was captured, so rolling-window expiry of
+pre-baseline events cannot subtract from the guided interaction. It never
+requests `sessionId`, `pagePath`, or event-scoped `customEvent:*` dimensions
+from `runRealtimeReport`. The helper rejects those dimensions before issuing a
+request.
 
 The smoke first captures a Realtime baseline, then watches for a new delta of at
 least two `page_view` and seven `promo_click` events while the guided interaction
