@@ -22,11 +22,11 @@ if (!credential) {
   report.bullet("     - Create a JSON key and save it to:");
   report.bullet(`       ${join(SECRETS_DIR, "gcp-service-account.json")}  (or export GOOGLE_APPLICATION_CREDENTIALS=…)`);
   report.bullet("  B) Your own Google account (gcloud):");
-  report.bullet(`     - docker compose -f ${join(OPS_DIR, "docker-compose.yml")} run --rm gcloud gcloud auth application-default login`);
+  report.bullet(`     - docker compose -f ${join(OPS_DIR, "docker-compose.yml")} run --rm gcloud`);
   report.bullet("     - the ADC credentials land in a docker volume the scripts also look at.");
   report.bullet("  C) One-shot access token for a single run:");
   report.bullet("     - export GA4_ACCESS_TOKEN=$(… via any OAuth tool …)");
-  report.bullet(`   Scopes needed: analytics.readonly (plan/smoke), analytics.edit (apply).`);
+  report.bullet(`   Scopes needed: cloud-platform, analytics.readonly (plan/smoke), analytics.edit (apply).`);
   report.printGate("GOOGLE_OAUTH");
   process.exitCode = 1;
 } else {

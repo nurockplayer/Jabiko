@@ -5,7 +5,13 @@
 # (gitignored), which bin/google-auth and the scripts also check.
 services:
   gcloud:
-    image: google/cloud-sdk:latest
-    command: ["gcloud", "auth", "application-default", "login", "--no-launch-browser"]
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:stable
+    command:
+      - gcloud
+      - auth
+      - application-default
+      - login
+      - --no-launch-browser
+      - --scopes=https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/analytics.readonly,https://www.googleapis.com/auth/analytics.edit
     volumes:
       - ./state/gcloud:/root/.config/gcloud
