@@ -1,17 +1,36 @@
 # gcloud-in-Docker for the Google OAuth step, so the host needs no gcloud.
 #   docker compose run --rm gcloud
-# prints a one-time authorization URL; paste the returned code to finish
-# `gcloud auth application-default login`. The ADC JSON lands in ./state/gcloud/
+# prints a one-time authorization URL; paste the returned code to finish the
+# Application Default Credentials login. The ADC JSON lands in ./state/gcloud/
 # (gitignored), which bin/google-auth and the scripts also check.
+#
+# #767: gcloud's default OAuth client is blocked by Google for the GA4 scopes,
+# so the login requires a Jabiko-owned Desktop OAuth client JSON at
+# ops/analytics/.secrets/google-oauth-client.json (gitignored). The container
+# mounts it read-only and passes it via --client-id-file. If the JSON is absent
+# the helper fails fast instead of silently falling back to the blocked default
+# client.
 services:
   gcloud:
     image: gcr.io/google.com/cloudsdktool/google-cloud-cli:stable
     command:
-      - gcloud
-      - auth
-      - application-default
-      - login
-      - --no-launch-browser
-      - --scopes=https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/analytics.readonly,https://www.googleapis.com/auth/analytics.edit
+      - sh
+      - -c
+      - |
+        if [ ! -f /root/google-oauth-client.json ]; then
+          echo "ERROR: Google OAuth Desktop client JSON not found at /root/google-oauth-client.json." >&2
+          echo "Create a Desktop app OAuth client in the Google Cloud Console" >&2
+          echo "(APIs & Services > Credentials > Create Credentials > OAuth client ID > Desktop app)," >&2
+          echo "download its JSON and save it to ops/analytics/.secrets/google-oauth-client.json" >&2
+          echo "(gitignored, mounted read-only, never committed)." >&2
+          echo "If a prior run without the file left an empty directory at that path, remove it first." >&2
+          echo "See ops/analytics/README.md for the full bootstrap." >&2
+          exit 1
+        fi
+        exec gcloud auth application-default login \
+          --client-id-file=/root/google-oauth-client.json \
+          --no-launch-browser \
+          --scopes=https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/analytics.readonly,https://www.googleapis.com/auth/analytics.edit
     volumes:
       - ./state/gcloud:/root/.config/gcloud
+      - ./.secrets/google-oauth-client.json:/root/google-oauth-client.json:ro

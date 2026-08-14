@@ -133,10 +133,33 @@ Any one of:
 2. exported `GOOGLE_APPLICATION_CREDENTIALS` pointing at a service-account JSON;
 3. `ops/analytics/.secrets/gcp-service-account.json`;
 4. `ops/analytics/.secrets/google-oauth.json`;
-5. gcloud ADC, including the Docker helper in `docker-compose.yml`.
+5. gcloud ADC via the Docker helper in `docker-compose.yml`.
 
 Use `./ops/analytics/bin/google-auth` to inspect the active source without
 printing secret values.
+
+#### gcloud ADC with a Desktop OAuth client (#767)
+
+`docker compose run --rm gcloud` (run from `ops/analytics/`) bootstraps
+Application Default Credentials inside the official gcloud CLI image, so the
+host needs no gcloud. Google blocks gcloud's default OAuth client for the GA4
+scopes, so the helper requires a Jabiko-owned **Desktop app** OAuth client:
+
+1. In the Google Cloud Console open **APIs & Services → Credentials →
+   Create Credentials → OAuth client ID → Desktop app** and download the JSON.
+2. Save it at `ops/analytics/.secrets/google-oauth-client.json`.
+   `.secrets/` is gitignored — the client secret is never committed.
+3. Run `docker compose run --rm gcloud`. The container mounts the JSON
+   read-only and passes it via `--client-id-file` together with the required
+   scopes (`cloud-platform`, `analytics.readonly`, `analytics.edit`), then
+   prints a one-time authorization URL; paste the returned code to finish.
+4. The resulting ADC JSON lands in `ops/analytics/state/gcloud/` (gitignored),
+   which `bin/google-auth` and the scripts also read.
+
+If the client JSON is absent the container fails fast with an actionable
+message instead of falling back to gcloud's blocked default OAuth client. If a
+prior run created an empty directory at that path, remove it before saving the
+JSON.
 
 ## Apply workflow and production publication
 
