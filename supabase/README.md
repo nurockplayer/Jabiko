@@ -1,17 +1,17 @@
-# Supabase（跨裝置進度同步 / #151）
+# Supabase (cross-device progress sync / #151)
 
-本資料夾存放 Jabiko 跨裝置「錯題與進度（attempts）同步」用的資料庫結構。應用程式平時把資料存在本機 localStorage（`src/domain/storage.ts`），登入後才與這裡的 `attempts` 表雙向同步。
+This folder holds the database structure for Jabiko's cross-device "mistakes and progress (attempts) sync". The app normally stores data in localStorage on the device (`src/domain/storage.ts`); after login it two-way syncs with the `attempts` table here.
 
 ## migrations
 
-- [`migrations/0001_create_attempts.sql`](migrations/0001_create_attempts.sql) — 建 `attempts` 表（每筆 attempt 一列、**複合主鍵 `(user_id, id)`**、`id` 為 deterministic key／hash、append-only）＋ 開 RLS（每位使用者只能讀寫自己的列）。複合主鍵讓不同使用者的相同 attempt 不會撞鍵丟資料。
+- [`migrations/0001_create_attempts.sql`](migrations/0001_create_attempts.sql) — creates the `attempts` table (one row per attempt, **composite primary key `(user_id, id)`**, `id` is a deterministic key/hash, append-only) + enables RLS (each user can only read/write their own rows). The composite primary key means identical attempts from different users don't collide and lose data.
 
-## 手動步驟（agent 無專案登入，需你執行）
+## Manual steps (the agent has no project login; you must run these)
 
-1. **建表**：把 `migrations/0001_create_attempts.sql` 全文貼到 Supabase Dashboard → SQL Editor → Run（或 `supabase db push`）。冪等、可重跑。
-2. **端到端驗證**（待同步程式碼 P2/P3 上線後）：真人 Google 登入（最好兩個瀏覽器/裝置）確認進度確實同步 —— 驗證通過後才會放行 P5 的「已同步」UI 文案。
-3. 確認 Supabase Auth 的 redirect / allowed URL 含你的部署網址（多半已 OK）。
+1. **Create the table**: paste the full contents of `migrations/0001_create_attempts.sql` into Supabase Dashboard → SQL Editor → Run (or `supabase db push`). Idempotent, safe to re-run.
+2. **End-to-end verification** (after the sync code P2/P3 ships): a real user signs in with Google (ideally on two browsers/devices) and confirms the progress actually syncs — the "synced" UI copy (P5) ships only after this verification passes.
+3. Confirm Supabase Auth's redirect / allowed URLs include your deployed origin (usually already OK).
 
-**不需**新環境變數或密鑰：anon key 已設定，存取一律靠 RLS ＋ 使用者 JWT。
+**No new environment variables or secrets needed**: the anon key is already set; access relies entirely on RLS + the user JWT.
 
-> 相關程式碼：`src/domain/attemptSync.ts`（合併邏輯, #153）、後續 `attemptRemote.ts`（P2 遠端 repo）、`useProgressAttempts.ts`（P3 串接）。追蹤見 issue #151。
+> Related code: `src/domain/attemptSync.ts` (merge logic, #153), later `attemptRemote.ts` (P2 remote repo), `useProgressAttempts.ts` (P3 wiring). Tracked in issue #151.

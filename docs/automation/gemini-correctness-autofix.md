@@ -1,259 +1,264 @@
 # Gemini correctness autofix — owner / security runbook
 
-> 本文件是 **owner / security runbook**：說明如何把已合併的 Gemini correctness
-> automation（#688 orchestration 狀態機 + #689 publication adapter 的 #690
-> workflow 接線）從 `off` → `observe` → manual `repair` → scheduled `repair`
-> 逐步上線，包含 rollout 證據、即時停止條件與復原、以及 orphan branch 清理。
+> This document is an **owner / security runbook**: it describes how to roll out the merged
+> Gemini correctness automation (#688 orchestration state machine + #689 publication adapter,
+> wired up by the #690 workflow) from `off` → `observe` → manual `repair` → scheduled `repair`
+> step by step, including rollout evidence, immediate-stop conditions and recovery, and orphan
+> branch cleanup.
 >
-> 本 runbook **只描述已合併的實作（#690 / PR #736）**，不重新設計任何行為。
-> 若本文件與 `.github/workflows/gemini-correctness-autofix.yml` 或
-> `scripts/gemini-correctness/**` 不符，以 workflow 與 scripts 為準並回報。
+> This runbook **only describes the merged implementation (#690 / PR #736)**; it does not
+> redesign any behavior. If this document disagrees with
+> `.github/workflows/gemini-correctness-autofix.yml` or `scripts/gemini-correctness/**`, the
+> workflow and scripts win — please report the discrepancy.
 
-相關 issue：#638（parent）、#688（orchestration 狀態機）、#689（publication
-adapter）、#690（workflow 接線）、#691（本 runbook）。
+Related issues: #638 (parent), #688 (orchestration state machine), #689 (publication adapter),
+#690 (workflow wiring), #691 (this runbook).
 
 ---
 
-## 1. 系統概觀
+## 1. System overview
 
-單一 workflow：`.github/workflows/gemini-correctness-autofix.yml`
-（名稱：`Gemini correctness autofix`），包含兩個 job：
+A single workflow: `.github/workflows/gemini-correctness-autofix.yml`
+(name: `Gemini correctness autofix`), with two jobs:
 
-- **`evaluate`**（Evaluate correctness (observe / repair)）
-  - read-only permissions：`contents: read` + `pull-requests: read`。
-  - 跑 #688 的 `runWorkflowOrchestration` 狀態機：open-PR gate → baseline →
-    discovery →（repair 模式才）RED → clean reset → GREEN。
-  - `GEMINI_API_KEY` **只注入這個 job 的 `orchestrate` step**。
-  - 輸出：`mode`、`publicationAllowed`、`status` 三個 job outputs。
-- **`publish`**（Publish verified repair）
-  - 僅在 `evaluate` 輸出 `publicationAllowed == 'true' && mode == 'repair'`
-    時執行（condition gate，見 workflow line 404）。
-  - 最小 write scopes：`contents: write` + `pull-requests: write`。
-  - **永不看到 model secret**，只呼叫 #689 的 `publishVerifiedRepair`
-    adapter，不重跑 Gemini stage。
-  - 行為：重新驗證 candidate → 重讀 remote main 比對 baseline →
-    建 branch → 一個 commit → push → 開一個 **Draft PR**。
+- **`evaluate`** (Evaluate correctness (observe / repair))
+  - read-only permissions: `contents: read` + `pull-requests: read`.
+  - Runs #688's `runWorkflowOrchestration` state machine: open-PR gate → baseline →
+    discovery → (repair mode only) RED → clean reset → GREEN.
+  - `GEMINI_API_KEY` **is injected only into this job's `orchestrate` step**.
+  - Outputs: `mode`, `publicationAllowed`, `status` as three job outputs.
+- **`publish`** (Publish verified repair)
+  - Runs only when `evaluate` outputs `publicationAllowed == 'true' && mode == 'repair'`
+    (condition gate, workflow line 404).
+  - Minimal write scopes: `contents: write` + `pull-requests: write`.
+  - **Never sees the model secret**; it only calls #689's `publishVerifiedRepair`
+    adapter and does not re-run the Gemini stage.
+  - Behavior: re-validates the candidate → re-reads remote main and compares the baseline →
+    creates a branch → a single commit → pushes → opens a **Draft PR**.
 
-觸發：
+Triggers:
 
-- `workflow_dispatch`：`mode` 輸入（`observe` | `repair`，預設 `observe`）。
-  **輸入永遠不能調整 limits、model policy 或 permissions。**
-- `schedule`：固定 cron `17 19 * * *`（UTC 19:17 每日）。排程模式讀 repository
-  variable `GEMINI_AUTOFIX_MODE`；缺失/空/未知值一律當 `off`，checkout 後立刻
-  safe-skip（不呼叫 Gemini、不寫 repo）。
+- `workflow_dispatch`: `mode` input (`observe` | `repair`, default `observe`).
+  **The input can never adjust limits, model policy, or permissions.**
+- `schedule`: fixed cron `17 19 * * *` (UTC 19:17 daily). Scheduled mode reads the repository
+  variable `GEMINI_AUTOFIX_MODE`; missing/empty/unknown values are treated as `off` and
+  safe-skip immediately after checkout (no Gemini call, no repo write).
 
-共用設定：`runs-on: ubuntu-latest`、`timeout-minutes: 30`、Node 22、
-`pnpm/action-setup@v4`（10.33.0）、`pnpm install --frozen-lockfile`、
-concurrency group `gemini-correctness-autofix`（`cancel-in-progress: false`）。
+Shared settings: `runs-on: ubuntu-latest`, `timeout-minutes: 30`, Node 22,
+`pnpm/action-setup@v4` (10.33.0), `pnpm install --frozen-lockfile`,
+concurrency group `gemini-correctness-autofix` (`cancel-in-progress: false`).
 
-## 2. Repository 設定（exact names）
+## 2. Repository settings (exact names)
 
-在 GitHub repo **Settings → Secrets and variables → Actions** 設定：
+Configure in GitHub repo **Settings → Secrets and variables → Actions**:
 
-### Secret（`secrets.*`）
+### Secret (`secrets.*`)
 
-| 名稱 | 用途 |
+| Name | Purpose |
 | --- | --- |
-| `GEMINI_API_KEY` | Gemini REST API key（`AIza...`）。只有 `evaluate.orchestrate` step 讀到。缺失時 observe/repair **fail closed**（不會呼叫 Gemini）。 |
+| `GEMINI_API_KEY` | Gemini REST API key (`AIza...`). Read only by the `evaluate.orchestrate` step. When missing, observe/repair **fail closed** (Gemini is not called). |
 
-### Repository variables（`vars.*`）
+### Repository variables (`vars.*`)
 
-| 名稱 | 允許值 | 預設行為 |
+| Name | Allowed values | Default behavior |
 | --- | --- | --- |
-| `GEMINI_AUTOFIX_MODE` | `off` \| `observe` \| `repair` | 只供 **schedule** 路徑讀取；缺失/空/未知 → `off`（safe skip）。`workflow_dispatch` 的 `mode` input 具更高優先權。 |
-| `GEMINI_AUTOFIX_MODEL` | 必須在 model policy allowlist 內 | allowlist：`gemini-2.5-flash`、`gemini-2.5-pro`、`gemini-2.5-flash-lite`。缺失/空/未知 → **fail closed**（無隱式預設）。 |
-| `GEMINI_AUTOFIX_MIN_CONFIDENCE` | 數值，`[0,1]` | 預設 `0.8`；**tighten-only**：不可低於程式預設值。非數值或超界 → fail closed。 |
-| `GEMINI_AUTOFIX_MAX_FILES` | 整數，`[1,200]` | 預設 `200`；hard cap `200`（**tighten-only**，變數不可能放寬）。 |
-| `GEMINI_AUTOFIX_MAX_LINES` | 整數，`[1,250]` | 預設 `250`；hard cap `250`（**tighten-only**）。 |
+| `GEMINI_AUTOFIX_MODE` | `off` \| `observe` \| `repair` | Read only by the **schedule** path; missing/empty/unknown → `off` (safe skip). The `workflow_dispatch` `mode` input takes precedence. |
+| `GEMINI_AUTOFIX_MODEL` | must be in the model policy allowlist | allowlist: `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-2.5-flash-lite`. Missing/empty/unknown → **fail closed** (no implicit default). |
+| `GEMINI_AUTOFIX_MIN_CONFIDENCE` | numeric, `[0,1]` | default `0.8`; **tighten-only**: cannot be below the code default. Non-numeric or out of range → fail closed. |
+| `GEMINI_AUTOFIX_MAX_FILES` | integer, `[1,200]` | default `200`; hard cap `200` (**tighten-only**; the variable can never loosen it). |
+| `GEMINI_AUTOFIX_MAX_LINES` | integer, `[1,250]` | default `250`; hard cap `250` (**tighten-only**). |
 
-> 這些 limits/model/secret 全部由 workflow 的 `orchestrate` step 以 **fail-closed**
-> 方式驗證（model policy allowlist + tighten-only numeric limits +
-> secret missing fail closed），任何不合規值都會讓 `evaluate` job 失敗並
-> 標記 `config-error`，**不會**產生候選或 publish。
+> These limits/model/secret are all validated **fail-closed** by the workflow's `orchestrate`
+> step (model policy allowlist + tighten-only numeric limits + secret-missing fail closed); any
+> non-compliant value fails the `evaluate` job and marks `config-error`, producing **no**
+> candidate and no publish.
 
-### 固定常數（程式內，不可被變數放寬）
+### Fixed constants (in code, cannot be loosened by variables)
 
-- GREEN hard budgets（`policy.mjs`）：`MAX_GREEN_PRODUCTION_FILES = 3`、
-  `MAX_GREEN_DIFF_LINES = 250`。
-- Prompt 上限（`prompt-builder.mjs`）：`MAX_TOTAL_CHARS = 500_000`、
-  `MAX_PROJECT_RULES_CHARS = 100_000`；`DEFAULT_MODEL = "gemini-2.5-flash"`。
-- Gemini client（`gemini-client.mjs`）：`DEFAULT_TIMEOUT_MS = 30_000`、
-  `DEFAULT_MAX_RETRIES = 2`；retryable HTTP `429, 500, 502, 503, 504`；
-  exponential backoff（1s, 2s, 4s… 上限 30s）。
-- Path policy（`policy.mjs`）：allowlist `src/domain/**` + `src/hooks/**`；
-  大量 protected paths（`.github/`、`.env*`、`package.json`、`src/i18n.ts`、
-  `src/domain/types.ts`、`src/domain/contentGuard.ts`、`src/domain/exam/items/`、
-  `scripts/exam-batches/`、`supabase/`、`public/`、`vite.config.ts` …）。
+- GREEN hard budgets (`policy.mjs`): `MAX_GREEN_PRODUCTION_FILES = 3`,
+  `MAX_GREEN_DIFF_LINES = 250`.
+- Prompt caps (`prompt-builder.mjs`): `MAX_TOTAL_CHARS = 500_000`,
+  `MAX_PROJECT_RULES_CHARS = 100_000`; `DEFAULT_MODEL = "gemini-2.5-flash"`.
+- Gemini client (`gemini-client.mjs`): `DEFAULT_TIMEOUT_MS = 30_000`,
+  `DEFAULT_MAX_RETRIES = 2`; retryable HTTP `429, 500, 502, 503, 504`;
+  exponential backoff (1s, 2s, 4s… capped at 30s).
+- Path policy (`policy.mjs`): allowlist `src/domain/**` + `src/hooks/**`;
+  a broad set of protected paths (`.github/`, `.env*`, `package.json`, `src/i18n.ts`,
+  `src/domain/types.ts`, `src/domain/contentGuard.ts`, `src/domain/exam/items/`,
+  `scripts/exam-batches/`, `supabase/`, `public/`, `vite.config.ts` …).
 
-## 3. 四階段 rollout
+## 3. Four-phase rollout
 
-### Phase 1 — manual observe（scheduled mode 保持 `off`）
+### Phase 1 — manual observe (scheduled mode stays `off`)
 
-1. 設定 secret `GEMINI_API_KEY`（必填）。
-2. **不要**設定 `GEMINI_AUTOFIX_MODE`（或保持 `off`）→ schedule 每日 cron 只會
-   safe-skip，絕不會自己呼叫 Gemini 或寫 repo。
-3. 設好其餘變數（`GEMINI_AUTOFIX_MODEL` 等）；初次可全部留白，讓程式用
-   tighten-only 預設值。
-4. 手動跑 **`workflow_dispatch` → mode = `observe`**（1–2 次），人工核對：
-   - step summary 顯示 `Status: observed`（或 `no-finding` / fail-closed 理由）。
-   - artifact `gemini-correctness-results` 內只有 allowlisted 檔案。
-   - **沒有**任何 branch / commit / PR 被建立。
-5. 檢視 discovery artifact 品質；先不要切 repair。
+1. Set the secret `GEMINI_API_KEY` (required).
+2. **Do not** set `GEMINI_AUTOFIX_MODE` (or keep it `off`) → the daily cron only
+   safe-skips; it will never call Gemini or write the repo on its own.
+3. Set `GEMINI_AUTOFIX_MODEL` to an allowlisted model — it has **no implicit default**, and
+   observe/repair fail closed when it is missing or empty. The numeric tighten-only variables
+   (`GEMINI_AUTOFIX_MIN_CONFIDENCE`, `GEMINI_AUTOFIX_MAX_FILES`, `GEMINI_AUTOFIX_MAX_LINES`)
+   may be left blank to use the code defaults.
+4. Manually run **`workflow_dispatch` → mode = `observe`** (1–2 times) and verify:
+   - The step summary shows `Status: observed` (or `no-finding` / a fail-closed reason).
+   - The `gemini-correctness-results` artifact contains only allowlisted files.
+   - **No** branch / commit / PR was created.
+5. Review the discovery artifact quality; don't switch to repair yet.
 
-證據門檻（進入 Phase 2 前）：
+Evidence threshold (before entering Phase 2):
 
-- [ ] 至少 1 次成功的 manual observe 且有合理 finding（或可信的 no-finding）。
-- [ ] step summary 未出現 secrets、env 值、絕對 runner 路徑或 raw model response。
-- [ ] 確認無任何 branch/PR 被 observe 建立。
+- [ ] At least 1 successful manual observe with a reasonable finding (or a credible no-finding).
+- [ ] The step summary shows no secrets, env values, absolute runner paths, or raw model responses.
+- [ ] Confirmed no branch/PR was created by observe.
 
-### Phase 2 — scheduled observe（owner opt-in）
+### Phase 2 — scheduled observe (owner opt-in)
 
-1. 設定 `GEMINI_AUTOFIX_MODE = observe`（這是 owner 明確 opt-in 的信號）。
-2. 等 1–2 個 cron 週期（`17 19 * * *`），核對：
-   - schedule run 的 `mode` 確實為 `observe`（step summary `## Gemini correctness observe`）。
-   - `evaluate` 正常產生 artifacts；`publish` job 不執行。
-   - 沒有任何 branch/commit/PR。
-3. 若 schedule run 顯示 `mode=off`，檢查 variable 名是否拼錯或未存到 repo level。
+1. Set `GEMINI_AUTOFIX_MODE = observe` (this is the owner's explicit opt-in signal).
+2. Wait 1–2 cron periods (`17 19 * * *`) and verify:
+   - The scheduled run's `mode` is indeed `observe` (step summary `## Gemini correctness observe`).
+   - `evaluate` produces artifacts normally; the `publish` job does not run.
+   - No branch/commit/PR.
+3. If a scheduled run shows `mode=off`, check that the variable name is spelled correctly and stored at repo level.
 
-證據門檻（進入 Phase 3 前）：
+Evidence threshold (before entering Phase 3):
 
-- [ ] 至少 2 個連續 schedule observe 週期正常。
-- [ ] observe 累積的 finding 品質足以判斷 candidate 值得修。
-- [ ] 沒有意外 publish、沒有 branch/PR、沒有 secret 洩漏跡象。
+- [ ] At least 2 consecutive scheduled observe periods run cleanly.
+- [ ] The findings accumulated in observe are good enough to judge whether a candidate is worth fixing.
+- [ ] No unexpected publish, no branch/PR, no sign of secret leaks.
 
-### Phase 3 — manual repair（fixture-backed Draft PR + independent review）
+### Phase 3 — manual repair (fixture-backed Draft PR + independent review)
 
-> `repair` 只開 **Draft** PR。合併前必須經人工 independent review；workflow
-> **不會 auto-approve / auto-merge**。
+> `repair` only opens **Draft** PRs. A human independent review is required before merging; the
+> workflow **does not auto-approve / auto-merge**.
 
-1. 保持 `GEMINI_AUTOFIX_MODE = observe`（schedule 維持 observe，不要排程 repair）。
-2. 手動跑 **`workflow_dispatch` → mode = `repair`**。執行流程：
-   - `evaluate`：open-PR gate → baseline（`pnpm lint` / `typecheck` / `test` /
-     `build` / `git diff --check`）→ discovery → RED（fixture-backed：在
-     `.tmp` 寫 test patch，initial run + replay 都 replay-confirmed）→ clean
-     reset → GREEN（production diff 受 `3 files / 250 lines` 硬上限約束）。
-   - `evaluate` 產出 sanitized `candidate`（內嵌 production diff 與 regression
-     test source），`publicationAllowed=true`。
-   - `publish`：re-validate candidate → 重讀 remote main 與 `baselineSha` 比對 →
-     branch → 單一 commit → push → **一個 Draft PR**。
-3. 預期 branch / commit / PR 契約：
-   - Branch：`gemini/auto-fix-<runId>`（`runId` 由 `GITHUB_RUN_ID` slug 化，
-     最長 80 chars；prefix 固定 `gemini/auto-fix-`）。
-   - Commit：**恰一個**，message 為 `fix: <findingTitle>`（≤140 chars，strip
-     control characters），內容 = regression test（`.regression.test.ts` /
-     `.regression.test.tsx`，與 production file 同目錄）+ allowlisted
-     production diff；**不含** `.tmp/**`、raw、secret 內容。
-   - PR：**Draft**（`draft: true`），title `fix: <findingTitle>`，body 由
-     validated candidate 欄位確定性生成，含 RED/GREEN evidence、checks、
-     stats、branch、run URL、model。body 永不拼接 raw model Markdown。
-4. **Independent review**：Draft PR 上的變更由 owner / 第二人獨立 review；
-   approve 後才手動 merge。先看 regression test 是否真能復現、production diff
-   是否只動 finding 相關檔、有無洩漏或測試竄改。
+1. Keep `GEMINI_AUTOFIX_MODE = observe` (schedule stays in observe; do not schedule repair).
+2. Manually run **`workflow_dispatch` → mode = `repair`**. Flow:
+   - `evaluate`: open-PR gate → baseline (`pnpm lint` / `typecheck` / `test` /
+     `build` / `git diff --check`) → discovery → RED (fixture-backed: writes a test patch in
+     `.tmp`; both the initial run and the replay are replay-confirmed) → clean
+     reset → GREEN (production diff constrained by the hard `3 files / 250 lines` budget).
+   - `evaluate` produces a sanitized `candidate` (with the production diff and the regression
+     test source embedded), `publicationAllowed=true`.
+   - `publish`: re-validates the candidate → re-reads remote main and compares with `baselineSha` →
+     branch → single commit → push → **one Draft PR**.
+3. Expected branch / commit / PR contract:
+   - Branch: `gemini/auto-fix-<runId>` (`runId` is a slugified `GITHUB_RUN_ID`,
+     max 80 chars; fixed prefix `gemini/auto-fix-`).
+   - Commit: **exactly one**, message `fix: <findingTitle>` (≤140 chars, control characters
+     stripped), content = regression test (`.regression.test.ts` / `.regression.test.tsx`,
+     same directory as the production file) + allowlisted production diff; **no** `.tmp/**`,
+     raw, or secret content.
+   - PR: **Draft** (`draft: true`), title `fix: <findingTitle>`, body deterministically generated
+     from validated candidate fields, including RED/GREEN evidence, checks, stats, branch, run
+     URL, model. The body never concatenates raw model Markdown.
+4. **Independent review**: an owner / second person independently reviews the Draft PR's changes;
+   merge manually only after approval. First check whether the regression test truly reproduces,
+   whether the production diff only touches finding-related files, and whether there are leaks or
+   test tampering.
 
-證據門檻（進入 Phase 4 前）：
+Evidence threshold (before entering Phase 4):
 
-- [ ] 至少 1 次 manual repair 產生 Draft PR，且其 branch/commit/diff 符合上述契約。
-- [ ] Draft PR 經人工 independent review 並（選擇性）合併，未發生 scope escape /
-  test tampering / secret 洩漏。
-- [ ] 過程中的無效/失敗 run 皆未留下 orphan branch 或意外 PR。
+- [ ] At least 1 manual repair produced a Draft PR whose branch/commit/diff matches the above contract.
+- [ ] The Draft PR went through human independent review and was (optionally) merged, with no scope escape / test tampering / secret leak.
+- [ ] No invalid/failed run during the process left an orphan branch or an unexpected PR.
 
-### Phase 4 — scheduled repair（prior evidence 通過 + 明確 owner opt-in）
+### Phase 4 — scheduled repair (prior evidence passed + explicit owner opt-in)
 
-1. 只有在前三階段證據全過、且 owner **明確**把 `GEMINI_AUTOFIX_MODE` 改成
-   `repair` 後才啟用。
-2. 設定 `GEMINI_AUTOFIX_MODE = repair`，每天 `17 19 * * *` 會自動：
-   - 跑完整 discover → RED → GREEN；通過才 `publicationAllowed=true`。
-   - `publish` 只在此條件成立時開一個 Draft PR。
-3. 每個排程 repair 週期後，owner 應檢查：
-   - 是否有新的 Draft PR（**最多一個**）且符合契約。
-   - 沒有新 PR = no-finding / fail-closed，**不**代表有問題。
-4. **回退條件**：任何一次違反本 runbook 的 stop condition（見 §4）發生，立刻把
-   `GEMINI_AUTOFIX_MODE` 設回 `observe`（或 `off`）→ 回到較低階段重新累積證據。
+1. Enable only after all three previous phases' evidence passes and the owner **explicitly** sets
+   `GEMINI_AUTOFIX_MODE` to `repair`.
+2. Set `GEMINI_AUTOFIX_MODE = repair`; every day at `17 19 * * *` it will:
+   - Run the full discover → RED → GREEN; only if it passes is `publicationAllowed=true`.
+   - `publish` opens one Draft PR only when that condition holds.
+3. After each scheduled repair cycle, the owner should check:
+   - Whether there is a new Draft PR (**at most one**) matching the contract.
+   - No new PR = no-finding / fail-closed, **not** a problem.
+4. **Rollback condition**: if any run violates this runbook's stop condition (see §4), immediately
+   set `GEMINI_AUTOFIX_MODE` back to `observe` (or `off`) → return to a lower phase to re-accumulate evidence.
 
-## 4. Per-run acceptance（每次 run 的驗收）
+## 4. Per-run acceptance
 
-每次 run（手動或排程）完成後核對：
+Verify after each run (manual or scheduled):
 
-1. **baseline SHA 匹配 current main**：`evaluate` 的 baseline = `git rev-parse
-   HEAD`（checkout 後的 current main）；`publish` 在寫入前會再讀一次 remote
-   main，與 `candidate.baselineSha` 不一致 → `baseline-stale`，零寫入。
-2. **no-finding / failure 不建立任何 branch/commit/PR**：只有 `repair-verified`
-   且 `publicationAllowed=true` 的 run 才會進入 `publish`。
-3. **successful repair 至多一個 Draft PR**，且 branch/commit/diff 符合 §3 契約
-   （`gemini/auto-fix-<runId>`、單一 commit、allowlisted diff + regression test）。
-4. **無 secrets / env 值 / 絕對 runner 路徑 / raw model response** 出現在
-   summaries、artifacts 或 PR body（redaction + scrub 強制；§6 再講）。
-5. **無 auto-approve / auto-merge**：Draft PR 一律人工 review 後才 merge。
+1. **baseline SHA matches current main**: `evaluate`'s baseline = `git rev-parse
+   HEAD` (current main after checkout); `publish` re-reads remote main before writing and, if it
+   differs from `candidate.baselineSha` → `baseline-stale`, zero writes.
+2. **no-finding / failure creates no branch/commit/PR**: only a `repair-verified`
+   run with `publicationAllowed=true` enters `publish`.
+3. **a successful repair creates at most one Draft PR**, with branch/commit/diff matching the §3
+   contract (`gemini/auto-fix-<runId>`, single commit, allowlisted diff + regression test).
+4. **No secrets / env values / absolute runner paths / raw model responses** appear in
+   summaries, artifacts, or PR bodies (redaction + scrub enforced; see §6).
+5. **No auto-approve / auto-merge**: Draft PRs are merged only after human review.
 
-## 5. Immediate-stop conditions 與復原
+## 5. Immediate-stop conditions and recovery
 
-發生以下任一情況：**立即停止**（取消進行中的 run、把 mode 設回 `off` /
-`observe`）、依下表復原、記錄事件，未確認 root cause 前不重啟。
+When any of the following happens: **stop immediately** (cancel the in-flight run, set the mode
+back to `off` / `observe`), recover per the table, log the event, and don't restart until the
+root cause is confirmed.
 
-| 情況 | 停止動作 | 復原 |
+| Situation | Stop action | Recovery |
 | --- | --- | --- |
-| **懷疑 secret 洩漏**（step summary / artifact / PR body 出現 `AIza...`、`ghp_...`、`sk-...`、`AKIA...`、env 值） | 立即取消 run；關閉/刪除該 PR 與 branch | 到 GitHub **Settings → Secrets** 撤銷並輪替 `GEMINI_API_KEY`；檢查 Actions run log（官方 log 對 secret 有 mask，但不要依賴）；審視該 run 的 artifact 下載權限；找出洩漏源後才重啟 |
-| **scope escape 或 test tampering**（production diff 觸及 protected/非 allowlisted 路徑，或 regression test 被改寫成不真正失敗） | 取消 run；不 merge；關閉該 PR | 檢查 `publication-adapter` 的 candidate 驗證失敗原因（`invalid-candidate`）；確認 GREEN 硬上限（3 files / 250 lines）與 allowlist；人工重建 repro 後才重試 |
-| **stale-baseline publication**（`publish` 回報 `baseline-stale`） | 系統已 fail closed 零寫入；不需額外動作 | 確認 remote main 與 candidate 差距；重新跑一次 repair（會抓最新 main 當 baseline） |
-| **multiple PRs / orphan branch**（一次 run 出現 >1 個 PR，或發現無 PR 的 `gemini/auto-fix-*` branch） | 停止後續 run；不要直接刪 branch | 先 `gh pr list` 檢查**所有 open PR 的 head branch 與 owner**（見 §6 清理流程），確認某 branch 確實沒有 open PR 且屬本次 automation 才刪除；用 `gh pr close <n> --delete-branch` 或 `git push origin --delete`，**絕不用 force push** |
-| **failed checks 仍 publish**（baseline 或 GREEN checks 失敗卻產生 PR） | 立即關閉該 PR 並標記 | 這是違反契約的嚴重事件：檢查 `evaluate` 是否真的跑完 baseline 五項（lint/typecheck/test/build/diff-check）與 `publicationAllowed` gate；未確認 root cause 前禁止排程 repair |
-| **workflow cancellation**（run 被取消 / concurrency 擋住） | `cancel-in-progress: false`，不會自動 cancel 既有 run；人工確認沒有半成品 | 檢查該 run 是否留下 branch（push 後才被 cancel）；若有，依 §6 清理；重新觸發一次 |
-| **missing artifact**（`publish` 找不到 `command-summary.json` 或 candidate） | 系統 fail closed（`invalid-candidate`） | 重新檢查 `evaluate` 的 artifact upload 是否成功（`if-no-files-found: warn`）；缺 stage artifact 時只有 sanitized summary 會被上傳；重跑該 run |
-| **Gemini quota / API failure**（429 / 5xx / timeout / network） | client 會 retry（429/5xx/network/timeout）；非 retryable（400/401/403）立即停 | 確認 `GEMINI_API_KEY` 額度與 quota；檢查 `quota-api-error` / `finding-rejected` 狀態；錯誤訊息已 truncate + redact，不會含 raw body 或 key；重試前一併檢查 model allowlist |
-| **GitHub outage**（`gh` / API 失敗） | adapter 有 bounded retry（3 次）無窮重試；仍失敗則 fail closed | 等 GitHub 恢復後重新觸發；檢查是否有 push 成功但 PR 失敗留下的 branch（`publication-cleaned-up` / `cleanup-failed` 狀態，後者=orphan，依 §6 清理） |
+| **Suspected secret leak** (`AIza...`, `ghp_...`, `sk-...`, `AKIA...`, env values appear in step summary / artifact / PR body) | cancel the run immediately; close/delete the PR and branch | revoke and rotate `GEMINI_API_KEY` in GitHub **Settings → Secrets**; check the Actions run log (official logs mask secrets, but don't rely on it); review that run's artifact download permissions; restart only after finding the leak source |
+| **Scope escape or test tampering** (production diff touches protected/non-allowlisted paths, or the regression test was rewritten so it doesn't really fail) | cancel the run; don't merge; close the PR | check the `publication-adapter` candidate validation failure reason (`invalid-candidate`); confirm the GREEN hard caps (3 files / 250 lines) and the allowlist; retry only after manually rebuilding the repro |
+| **Stale-baseline publication** (`publish` reports `baseline-stale`) | the system already fail-closed with zero writes; no extra action | confirm the gap between remote main and the candidate; re-run repair once (it picks up the latest main as the baseline) |
+| **Multiple PRs / orphan branch** (one run produced >1 PR, or a `gemini/auto-fix-*` branch with no PR) | stop subsequent runs; don't delete the branch directly | first run `gh pr list` to check **all open PRs' head branches and owners** (see §6 cleanup), confirm a branch truly has no open PR and belongs to this automation before deleting; use `gh pr close <n> --delete-branch` or `git push origin --delete`, **never force push** |
+| **Publish despite failed checks** (baseline or GREEN checks failed yet a PR was produced) | close that PR immediately and flag it | this is a serious contract violation: check whether `evaluate` actually completed all five baseline items (lint/typecheck/test/build/diff-check) and the `publicationAllowed` gate; ban scheduled repair until the root cause is confirmed |
+| **Workflow cancellation** (run cancelled / blocked by concurrency) | `cancel-in-progress: false`, existing runs aren't auto-cancelled; manually confirm no half-finished output | check whether the run left a branch (pushed before cancellation); if so, clean up per §6; re-trigger once |
+| **Missing artifact** (`publish` can't find `command-summary.json` or the candidate) | system fail-closed (`invalid-candidate`) | re-check whether `evaluate`'s artifact upload succeeded (`if-no-files-found: warn`); when a stage artifact is missing, only the sanitized summary is uploaded; re-run the run |
+| **Gemini quota / API failure** (429 / 5xx / timeout / network) | the client retries (429/5xx/network/timeout); non-retryable (400/401/403) stops immediately | confirm `GEMINI_API_KEY` quota; check `quota-api-error` / `finding-rejected` status; error messages are truncated + redacted and won't contain raw bodies or the key; also check the model allowlist before retrying |
+| **GitHub outage** (`gh` / API failure) | the adapter has bounded retry (3 attempts), no infinite retry; still failing → fail closed | wait for GitHub to recover and re-trigger; check whether a push succeeded but PR creation failed, leaving a branch (`publication-cleaned-up` / `cleanup-failed` status; the latter = orphan, clean up per §6) |
 
-## 6. Orphan branch 清理（無 force push）
+## 6. Orphan branch cleanup (no force push)
 
-場景：push 成功但 PR 建立失敗（adapter 自己會嘗試清掉**本次 run 的 branch**；
-成功 → `publication-cleaned-up`，失敗 → `cleanup-failed` 且留下 orphan）；或
-run 在 push 後被取消。
+Scenario: push succeeded but PR creation failed (the adapter itself tries to clean up **this run's
+branch**; success → `publication-cleaned-up`, failure → `cleanup-failed` and an orphan is left); or
+a run was cancelled after pushing.
 
-安全清理流程（**先檢查 open PR ownership 再刪**）：
+Safe cleanup flow (**check open-PR ownership before deleting**):
 
-1. 列出所有 open PR，對每個 `gemini/auto-fix-*` branch 確認其 head branch：
+1. List all open PRs and confirm the head branch of each `gemini/auto-fix-*` branch:
    ```bash
    gh pr list --state open --json headRefName,author,number
    ```
-2. 只有當該 branch **沒有 open PR 指向它**（或被確認為本次 automation 留下的
-   orphan）才刪除。
-3. 用以下任一方式刪除，**絕不用 force push**：
+2. Delete a branch only when it has **no open PR pointing at it** (or is confirmed to be an orphan
+   left by this automation).
+3. Delete with one of these, **never force push**:
    ```bash
-   gh pr close <number> --delete-branch   # 有 open PR 且確認該關
-   git push origin --delete gemini/auto-fix-<runId>   # 純 orphan branch
+   gh pr close <number> --delete-branch   # has an open PR and confirmed to close
+   git push origin --delete gemini/auto-fix-<runId>   # pure orphan branch
    ```
-4. 刪除後確認 `gh pr list` / `git ls-remote --heads origin` 無殘留。
+4. After deletion, confirm `gh pr list` / `git ls-remote --heads origin` has no residue.
 
-## 7. 防洩漏與紅acted 保證（已內建於實作）
+## 7. Leak prevention and redaction guarantees (built into the implementation)
 
-- `discover.mjs` / `workflow-orchestrator.mjs` / `publication-adapter.mjs` 共用
-  `redactForOutput`（redact `AIza...` + 精確 secret），再疊加 pattern scrub：
-  `ghp_*`、`sk-*`、`AKIA*`、env-dump assignment（`KEY=value`）、絕對 POSIX 路徑
-  （`/tmp|/var|/home|/Users|/etc|/usr|/opt|/root|/private|/Applications|/Library`）。
-  URL（`https://...`）不受影響。
-- `gemini-client.mjs`：API key 永不進 log / error / artifact；error 會 truncate
-  response body 並 redact key；timeout + bounded retry。
-- Artifact upload 只有 allowlisted 檔：`finding.json`、`red-result.json`、
-  `repair-result.json`、`command-summary.json`、`publication-result.json`
-  （retention 7 天）。raw prompt / response / env dump / headers / debug log /
-  patch / source archive 永不 upload。
-- PR body 由 validated candidate 欄位確定性生成；narrative 欄位（title、root
-  cause、fix summary、test name）經 scrub + control-character 壓平，無法注入
-  Markdown 結構或 secret。
+- `discover.mjs` / `workflow-orchestrator.mjs` / `publication-adapter.mjs` share
+  `redactForOutput` (redacts `AIza...` + exact secrets), then layer pattern scrubbing:
+  `ghp_*`, `sk-*`, `AKIA*`, env-dump assignments (`KEY=value`), absolute POSIX paths
+  (`/tmp|/var|/home|/Users|/etc|/usr|/opt|/root|/private|/Applications|/Library`).
+  URLs (`https://...`) are unaffected.
+- `gemini-client.mjs`: the API key never enters logs / errors / artifacts; errors truncate the
+  response body and redact the key; timeout + bounded retry.
+- Artifact upload only allows allowlisted files: `finding.json`, `red-result.json`,
+  `repair-result.json`, `command-summary.json`, `publication-result.json`
+  (7-day retention). Raw prompt / response / env dump / headers / debug log / patch / source
+  archive are never uploaded.
+- The PR body is deterministically generated from validated candidate fields; narrative fields
+  (title, root cause, fix summary, test name) are scrubbed and control characters flattened, so
+  no Markdown structure or secret can be injected.
 
-## 8. Rollout 決策速查
+## 8. Rollout decision quick reference
 
-| 階段 | `GEMINI_AUTOFIX_MODE` | 觸發方式 | 可能產出 |
+| Phase | `GEMINI_AUTOFIX_MODE` | Trigger | Possible output |
 | --- | --- | --- | --- |
-| 1. manual observe | （留空 / `off`） | 手動 `workflow_dispatch: observe` | 只有 artifacts + summary |
-| 2. scheduled observe | `observe` | cron `17 19 * * *` | 只有 artifacts + summary |
-| 3. manual repair | `observe`（排程保持 observe） | 手動 `workflow_dispatch: repair` | ≤1 個 Draft PR |
-| 4. scheduled repair | `repair` | cron `17 19 * * *` | 每次 ≤1 個 Draft PR |
+| 1. manual observe | (leave blank / `off`) | manual `workflow_dispatch: observe` | artifacts + summary only |
+| 2. scheduled observe | `observe` | cron `17 19 * * *` | artifacts + summary only |
+| 3. manual repair | `observe` (schedule stays observe) | manual `workflow_dispatch: repair` | ≤1 Draft PR |
+| 4. scheduled repair | `repair` | cron `17 19 * * *` | ≤1 Draft PR per cycle |
 
-任何 stop condition 觸發 → 把 mode 設回 `observe` 或 `off` → 處理後重跑
-Phase 2/3 累積證據，才考慮回到 Phase 4。
+Any stop condition triggers → set the mode back to `observe` or `off` → re-run Phase 2/3 to
+accumulate evidence before considering Phase 4 again.
 
 ---
 
-_本 runbook 對應 merged implementation #690（PR #736）。任何行為描述以
-`.github/workflows/gemini-correctness-autofix.yml` 與
-`scripts/gemini-correctness/**` 為準。_
+_This runbook corresponds to the merged implementation #690 (PR #736). Any behavior description
+takes `.github/workflows/gemini-correctness-autofix.yml` and `scripts/gemini-correctness/**` as
+authoritative._
