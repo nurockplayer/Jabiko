@@ -12,7 +12,10 @@ export type AnalyticsEventName =
   | "locale_changed"
   | "weak_review_started"
   | "article_viewed"
-  | "promo_click";
+  | "promo_click"
+  | "focus_started"
+  | "focus_cycle_completed"
+  | "focus_ended";
 
 export interface PageViewPayload {
   view: string;
@@ -90,6 +93,25 @@ export interface PromoClickPayload {
   locale: LocaleCode;
 }
 
+// Focus Mode lifecycle (#771). Durations are whole configured minutes and the
+// cycle count is a small integer -- low-cardinality metadata only, no text or
+// study content. focus_started fires on a Focus run start (and each next
+// cycle), focus_cycle_completed when a focus phase folds into the break, and
+// focus_ended when the learner ends Focus Mode.
+export interface FocusStartedPayload {
+  focusMin: number;
+  breakMin: number;
+  locale: LocaleCode;
+}
+export interface FocusCycleCompletedPayload {
+  durationMin: number;
+  locale: LocaleCode;
+}
+export interface FocusEndedPayload {
+  cycles: number;
+  locale: LocaleCode;
+}
+
 export interface AnalyticsPayloadMap {
   page_view: PageViewPayload;
   practice_started: PracticeStartedPayload;
@@ -101,6 +123,9 @@ export interface AnalyticsPayloadMap {
   weak_review_started: WeakReviewStartedPayload;
   article_viewed: ArticleViewedPayload;
   promo_click: PromoClickPayload;
+  focus_started: FocusStartedPayload;
+  focus_cycle_completed: FocusCycleCompletedPayload;
+  focus_ended: FocusEndedPayload;
 }
 
 const ZARAZ_ENABLED_FLAG = import.meta.env.VITE_ZARAZ_ENABLED;
@@ -121,7 +146,10 @@ const ALLOWED_PAYLOAD_KEYS: Record<AnalyticsEventName, readonly string[]> = {
   locale_changed: ["from", "to"],
   weak_review_started: ["dueCount", "locale"],
   article_viewed: ["slug"],
-  promo_click: ["promoId", "action", "placement", "locale"]
+  promo_click: ["promoId", "action", "placement", "locale"],
+  focus_started: ["focusMin", "breakMin", "locale"],
+  focus_cycle_completed: ["durationMin", "locale"],
+  focus_ended: ["cycles", "locale"]
 };
 
 function sanitizePayload<K extends AnalyticsEventName>(

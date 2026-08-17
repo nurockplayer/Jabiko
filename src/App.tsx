@@ -35,6 +35,16 @@ import { useOriginMigration } from "./hooks/useOriginMigration";
 import { isSupabaseConfigured } from "./lib/supabase";
 import { useAuth } from "./hooks/useAuth";
 import { useProgressAttempts } from "./hooks/useProgressAttempts";
+import { useFocusMode } from "./hooks/useFocusMode";
+import { FocusControl, type FocusControlCopy } from "./components/focus/FocusControl";
+import { FocusConfigureDialog } from "./components/focus/FocusConfigureDialog";
+import { FocusActiveDialog } from "./components/focus/FocusActiveDialog";
+import {
+  FocusBreakOverlay,
+  type FocusBreakSummaryData
+} from "./components/focus/FocusBreakOverlay";
+import { formatFocusClock } from "./components/focus/formatFocusClock";
+import { buildFocusSummary, dayKeyOf, MS_PER_MINUTE } from "./domain/focus";
 import type { SessionInit } from "./hooks/usePracticeSession";
 import { challengeInitFromQuery } from "./domain/challengeDeepLink";
 import { readLevelPreference, writeLevelPreference } from "./domain/levelPreference";
@@ -249,6 +259,54 @@ export default function App() {
   // countMistakes). The full review queue -- which needs the question pool to
   // resolve items -- is built inside the lazy challenge view.
   const reviewCount = useMemo(() => countMistakes(progressAttempts), [progressAttempts]);
+
+  // Focus Mode (#771): app-wide Pomodoro. The hook lives at the App-shell level
+  // so the active session survives every in-app route change; the absolute
+  // deadline reconcile handles expiry, hidden tabs, device sleep, and reload
+  // recovery. The Break summary is a delta over existing local attempts -- no
+  // new remote data model (Issue contract). Focus sessions are always ad-free.
+  const focus = useFocusMode({ locale: language });
+  const [focusUi, setFocusUi] = useState<"none" | "configure" | "active">("none");
+  const focusTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const focusSession = focus.state.session;
+  const focusPhase: "idle" | "focus" | "break" = focusSession ? focusSession.phase : "idle";
+
+  const attemptTotals = useMemo(
+    () => ({
+      answered: progressAttempts.length,
+      correct: progressAttempts.filter((attempt) => attempt.isCorrect).length
+    }),
+    [progressAttempts]
+  );
+
+  // Break summary: meaningful only on question surfaces (a session baseline
+  // exists); otherwise omit the section rather than showing empty metrics.
+  const focusBreakSummary: FocusBreakSummaryData | null = useMemo(() => {
+    if (!focusSession || focusSession.phase !== "break" || !focusSession.summary) {
+      return null;
+    }
+    const summary = buildFocusSummary(
+      focusSession.summary,
+      attemptTotals.answered,
+      attemptTotals.correct,
+      focus.state.config.focusMinutes * MS_PER_MINUTE,
+      focus.state.dayTotals[dayKeyOf(focus.now)] ?? 0
+    );
+    return {
+      focusDurationMin: Math.round(summary.focusDurationMs / MS_PER_MINUTE),
+      answered: summary.answered,
+      accuracy: summary.accuracy,
+      dayFocusedMin: Math.round(summary.dayFocusedMs / MS_PER_MINUTE)
+    };
+  }, [focusSession, focus.state, focus.now, attemptTotals]);
+
+  const focusControlCopy: FocusControlCopy = {
+    label: t.focusLabel,
+    remainingAria: (clock) =>
+      focusPhase === "break"
+        ? `${t.focusRemainingLabel} ${clock}`
+        : `${t.focusLabel} ${clock}`
+  };
   // #693: ONE shared delete-history dialog instance, opened by both the
   // desktop heading-auth action and the mobile 更多 menu entry. The entry
   // clicks record the actual trigger as the return-focus target and open the
@@ -450,6 +508,62 @@ export default function App() {
           error: t.deleteHistoryError
         }}
       />
+      <FocusConfigureDialog
+        open={focusUi === "configure"}
+        defaultFocusMinutes={focus.state.config.focusMinutes}
+        defaultBreakMinutes={focus.state.config.breakMinutes}
+        onStart={(config) => {
+          focus.start(config, attemptTotals);
+          setFocusUi("none");
+        }}
+        onClose={() => setFocusUi("none")}
+        returnFocusRef={focusTriggerRef}
+        copy={{
+          title: t.focusConfigureTitle,
+          focusMinutes: t.focusConfigureFocusMinutes,
+          breakMinutes: t.focusConfigureBreakMinutes,
+          start: t.focusConfigureSave,
+          close: t.feedbackClose
+        }}
+      />
+      <FocusActiveDialog
+        open={focusUi === "active"}
+        cycle={focusSession?.cycle ?? 1}
+        remainingMs={focus.remainingMs}
+        onEnd={() => {
+          focus.end();
+          setFocusUi("none");
+        }}
+        onClose={() => setFocusUi("none")}
+        returnFocusRef={focusTriggerRef}
+        copy={{
+          title: t.focusActiveTitle,
+          remainingLabel: t.focusRemainingLabel,
+          cycleLabel: t.focusCycleLabel,
+          endMode: t.focusEndMode,
+          close: t.feedbackClose
+        }}
+      />
+      <FocusBreakOverlay
+        open={focusSession?.phase === "break"}
+        breakRemainingMs={focus.remainingMs}
+        breakDone={focusSession?.breakDone ?? false}
+        summary={focusBreakSummary}
+        onSkip={() => focus.skipBreak(attemptTotals)}
+        onEnd={() => focus.end()}
+        returnFocusRef={focusTriggerRef}
+        copy={{
+          title: t.focusBreakTitle,
+          restPrompt: t.focusBreakRestPrompt,
+          skipBreak: t.focusSkipBreak,
+          nextCycle: t.focusNextCycle,
+          endMode: t.focusEndMode,
+          summaryFocus: t.focusSummaryFocus,
+          summaryQuestions: t.focusSummaryQuestions,
+          summaryAccuracy: t.focusSummaryAccuracy,
+          summaryToday: t.focusSummaryToday
+        }}
+      />
       {/* #608: non-home views compress the heading to a one-line brand bar on
           phones (CSS-only; desktop and the home hero keep the full intro). */}
       <div
@@ -507,6 +621,14 @@ export default function App() {
             </div>
           )}
           <div className="utility-actions">
+            <FocusControl
+              phase={focusPhase}
+              remainingMs={focus.remainingMs}
+              onOpenConfigure={() => setFocusUi("configure")}
+              onOpenActiveMenu={() => setFocusUi("active")}
+              triggerRef={focusTriggerRef}
+              copy={focusControlCopy}
+            />
             {LANGUAGE_OPTIONS.length > 1 && (
               <button
                 type="button"
@@ -570,6 +692,13 @@ export default function App() {
         onSelect={navigateFromAppNavigation}
         tools={{
             heading: t.navMoreTools,
+            focus: {
+              label:
+                focusPhase === "idle"
+                  ? t.focusLabel
+                  : `${t.focusLabel} ${formatFocusClock(focus.remainingMs)}`,
+              onOpen: () => setFocusUi(focusPhase === "idle" ? "configure" : "active")
+            },
             language:
               LANGUAGE_OPTIONS.length > 1
                 ? { label: t.languageSwitchLabel, onOpen: () => setLangPickerOpen(true) }
