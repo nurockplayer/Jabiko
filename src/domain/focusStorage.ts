@@ -73,5 +73,13 @@ function browserStorage(): StorageLike | null {
   if (typeof window === "undefined") {
     return null;
   }
-  return window.localStorage;
+  // Merely READING window.localStorage can throw (privacy mode / sandboxed
+  // storage policy), before any getItem/setItem call -- treat that like any
+  // other blocked-storage case so the store falls back to memory instead of
+  // crashing the module at initialization.
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
 }

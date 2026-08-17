@@ -171,4 +171,29 @@ describe("useFocusMode", () => {
     expect(remounted.result.current.state.session!.phase).toBe("break");
     expect(remounted.result.current.remainingMs).toBe(BREAK_MS - MS_PER_MINUTE);
   });
+
+  it("initializes safely when merely acquiring localStorage throws (module init)", async () => {
+    // Simulate a privacy/sandboxed context where READING window.localStorage
+    // itself raises a SecurityError. The module-level createFocusStore() must
+    // not crash the hook -- it falls back to memory like any blocked storage.
+    const hadOwn = Object.prototype.hasOwnProperty.call(window, "localStorage");
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      get() {
+        throw new DOMException("The operation is insecure.", "SecurityError");
+      }
+    });
+    try {
+      vi.resetModules();
+      const { useFocusMode: ReloadedUseFocusMode } = await import("./useFocusMode");
+      const { result } = renderHook(() => ReloadedUseFocusMode({ locale: "zh-Hant" }));
+      expect(result.current.state.session).toBeNull();
+      expect(result.current.remainingMs).toBe(0);
+    } finally {
+      if (!hadOwn) {
+        delete (window as { localStorage?: unknown }).localStorage;
+      }
+      vi.resetModules();
+    }
+  });
 });
