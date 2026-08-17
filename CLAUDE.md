@@ -143,7 +143,7 @@ Adding exam items (grammar/vocabulary, etc.) always goes through this loop, one 
    - codex usage: `codex exec --skip-git-repo-check "$(cat prompt.txt)" < /dev/null` (stdin must be closed or it hangs). codex sometimes writes explanations in Japanese; translate them to Traditional Chinese when consolidating.
 3. **Convert**: convert the simplified shape (`question/answer/...`) into the importer's `ExamQuestionInput` (`id,level,surface,reading,meaningZh,promptLabel,instructionZh,promptText,promptContextZh,hintZh,expectedAnswer,options[4],explanation`) in `scripts/exam-batches/<name>.json`.
    - **contentGuard hard rules**: `hintZh` non-empty and **sharing no ≥2-char substring with `meaningZh`**; exactly 4 mutually distinct `options`; `expectedAnswer ∈ options`; `promptLabel` must not contain N1–N5 strings.
-4. **Verify**: pass `node scripts/import-exam-items.mjs <file> --dry-run`, then run `--dry-run` without the actual append.
+4. **Verify**: run `node scripts/import-exam-items.mjs <file> --dry-run` first; once it passes, rerun **without** `--dry-run` to perform the actual append.
 5. **contentStats sync** (`src/domain/contentStats.ts`, hardcoded numbers; `contentStats.test.ts` is the drift guard):
    - `examItems` counts **all** levels; `n1Grammar` counts only N1 grammar form-selection items.
    - **N1 batches: both `examItems` and `n1Grammar` +N; N2/N3 batches: only `examItems`.**

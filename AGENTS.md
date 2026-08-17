@@ -9,7 +9,7 @@
 
 ## Project Positioning (current as of 2026-07)
 
-Jabiko (jabiko.app) is a free, registration-free **JLPT N5–N1 self-study room**: grammar / vocabulary / kanji readings / official question types / mock exams / learning articles. Item bank 3,600+, learning sections 73+, article section live.
+Jabiko (jabiko.app) is a free, registration-free **JLPT N5–N1 self-study room**: grammar / vocabulary / kanji readings / official question types / mock exams. Item bank 3,600+, learning sections 73+.
 
 - Tech stack: React 19 + TypeScript strict + Vite 7 + Vitest 4 + jsdom, pnpm, PWA (vite-plugin-pwa)
 - Data: local-first (localStorage) + **optional** Supabase cross-device sync (Google login); Cloudflare Pages deployment + prerender

@@ -94,8 +94,10 @@ Configure in GitHub repo **Settings → Secrets and variables → Actions**:
 1. Set the secret `GEMINI_API_KEY` (required).
 2. **Do not** set `GEMINI_AUTOFIX_MODE` (or keep it `off`) → the daily cron only
    safe-skips; it will never call Gemini or write the repo on its own.
-3. Set the remaining variables (`GEMINI_AUTOFIX_MODEL` etc.); you may leave them all blank
-   initially and let the code use the tighten-only defaults.
+3. Set `GEMINI_AUTOFIX_MODEL` to an allowlisted model — it has **no implicit default**, and
+   observe/repair fail closed when it is missing or empty. The numeric tighten-only variables
+   (`GEMINI_AUTOFIX_MIN_CONFIDENCE`, `GEMINI_AUTOFIX_MAX_FILES`, `GEMINI_AUTOFIX_MAX_LINES`)
+   may be left blank to use the code defaults.
 4. Manually run **`workflow_dispatch` → mode = `observe`** (1–2 times) and verify:
    - The step summary shows `Status: observed` (or `no-finding` / a fail-closed reason).
    - The `gemini-correctness-results` artifact contains only allowlisted files.
