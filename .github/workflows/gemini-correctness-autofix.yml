@@ -235,7 +235,7 @@ jobs:
                 ["build", "pnpm build"],
                 ["diff-check", "git diff --check"]
               ]) {
-                const run = runShell(cmd, { timeoutMs: 10 * 60 * 1000 });
+                const run = runShell(cmd, { timeout: 10 * 60 * 1000 });
                 checks.push({ name, status: run.ok ? "passed" : "failed" });
               }
               if (checks.some((c) => c.status !== "passed")) {
@@ -250,7 +250,7 @@ jobs:
               // gemini-correctness/<file> (it lands at .tmp/gemini-correctness/).
               const run = runShell(
                 `node scripts/gemini-correctness/discover.mjs --commit-sha ${sha} --model ${model} --output gemini-correctness/finding.json --summary gemini-correctness/discovery-summary.md`,
-                { timeoutMs: 8 * 60 * 1000 }
+                { timeout: 8 * 60 * 1000 }
               );
               if (!run.ok) return { valid: false, error: (run.stderr || run.stdout).trim() || "discovery failed" };
               let raw;
@@ -268,7 +268,7 @@ jobs:
               return { valid: true, result: finding };
             },
             red: async () => {
-              const run = runShell(`node scripts/gemini-correctness/red-stage.mjs --model ${model}`, { timeoutMs: 8 * 60 * 1000 });
+              const run = runShell(`node scripts/gemini-correctness/red-stage.mjs --model ${model}`, { timeout: 8 * 60 * 1000 });
               if (!run.ok) return { valid: false, error: (run.stderr || run.stdout).trim() || "RED stage failed" };
               try {
                 const redResult = JSON.parse(fs.readFileSync(path.join(artifactDir, "red-result.json"), "utf8"));
@@ -278,7 +278,7 @@ jobs:
               }
             },
             green: async () => {
-              const run = runShell(`node scripts/gemini-correctness/green-stage.mjs --model ${model}`, { timeoutMs: 8 * 60 * 1000 });
+              const run = runShell(`node scripts/gemini-correctness/green-stage.mjs --model ${model}`, { timeout: 8 * 60 * 1000 });
               if (!run.ok) return { valid: false, error: (run.stderr || run.stdout).trim() || "GREEN stage failed" };
               try {
                 const greenResult = JSON.parse(fs.readFileSync(path.join(artifactDir, "repair-result.json"), "utf8"));
