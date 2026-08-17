@@ -1,5 +1,5 @@
 import { useCallback, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { ChevronDown, Globe, Languages, LogIn, LogOut, MessageCircle, SunMoon, Trash2 } from "lucide-react";
+import { ChevronDown, Globe, Languages, LogIn, LogOut, MessageCircle, SunMoon, Timer, Trash2 } from "lucide-react";
 
 // #608: the mobile nav keeps five primary entries; the rest of the site lives
 // behind this 更多 menu -- secondary views first, then the header tools
@@ -17,6 +17,8 @@ export interface MoreMenuNavItem {
 
 export interface MoreMenuTools {
   heading: string;
+  /** Focus Mode (#771) — mobile mirror of the header pill. */
+  focus?: { label: string; onOpen: () => void };
   /** Absent when only one UI language is launched (mirrors the header). */
   language?: { label: string; onOpen: () => void };
   furigana: { label: string; pressed: boolean; onToggle: () => void };
@@ -70,6 +72,7 @@ export function MoreMenu({
   // then the tools block). Opening and roving both derive their keys from this
   // so a key always resolves to the same DOM element.
   const toolKeys: string[] = [
+    tools?.focus ? "tool-focus" : null,
     tools?.language ? "tool-language" : null,
     tools ? "tool-furigana" : null,
     tools ? "tool-theme" : null,
@@ -240,6 +243,19 @@ export function MoreMenu({
                 {tools.heading}
               </p>
 
+          {tools.focus ? (
+            <button
+              type="button"
+              role="menuitem"
+              data-menu-key="tool-focus"
+              tabIndex={rove("tool-focus")}
+              className="nav-more-item"
+              onClick={closeAnd(tools.focus.onOpen)}
+            >
+              <Timer aria-hidden="true" size={16} />
+              {tools.focus.label}
+            </button>
+          ) : null}
           {tools.language ? (
             <button
               type="button"

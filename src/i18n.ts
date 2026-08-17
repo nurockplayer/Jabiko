@@ -72,6 +72,26 @@ export type Copy = {
   feedbackClose: string;
   feedbackError: string;
   feedbackFallback: string;
+  // ---- Focus Mode (#771) ---------------------------------------------------
+  focusLabel: string;
+  focusStartLabel: string;
+  focusEndLabel: string;
+  focusConfigureTitle: string;
+  focusConfigureFocusMinutes: string;
+  focusConfigureBreakMinutes: string;
+  focusConfigureSave: string;
+  focusBreakTitle: string;
+  focusBreakRestPrompt: string;
+  focusSkipBreak: string;
+  focusNextCycle: string;
+  focusEndMode: string;
+  focusSummaryFocus: string;
+  focusSummaryQuestions: string;
+  focusSummaryAccuracy: string;
+  focusSummaryToday: string;
+  focusActiveTitle: string;
+  focusRemainingLabel: string;
+  focusCycleLabel: (cycle: number) => string;
   // ---- Per-question "report this question" (#299) --------------------------
   feedbackYourAnswer: string;
   reportQuestionCta: string;

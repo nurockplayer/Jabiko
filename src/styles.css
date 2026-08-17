@@ -15,6 +15,7 @@
 @import "./styles/about.css";
 @import "./styles/legal.css";
 @import "./styles/stay-d.css";
+@import "./styles/focus.css";
 @import "./styles/responsive.css";
 
 /* #473: FeedbackPanel moved between .word-block and .choice-grid (a single

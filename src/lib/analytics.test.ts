@@ -336,4 +336,49 @@ describe("analytics.trackEvent", () => {
       locale: "zh-Hant"
     });
   });
+
+  it("accepts Focus Mode lifecycle events with low-cardinality payloads", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+    trackEvent("focus_started", { focusMin: 25, breakMin: 5, locale: "zh-Hant" });
+    trackEvent("focus_cycle_completed", { durationMin: 25, locale: "zh-Hant" });
+    trackEvent("focus_ended", { cycles: 3, locale: "zh-Hant" });
+    expect(track).toHaveBeenCalledTimes(3);
+    expect(track).toHaveBeenNthCalledWith(1, "focus_started", {
+      focusMin: 25,
+      breakMin: 5,
+      locale: "zh-Hant"
+    });
+    expect(track).toHaveBeenNthCalledWith(3, "focus_ended", {
+      cycles: 3,
+      locale: "zh-Hant"
+    });
+  });
+
+  it("strips non-allowlisted keys from focus_ended before forwarding to Zaraz", () => {
+    __setAnalyticsEnabledForTest(true);
+    const track = installZaraz();
+    const smuggled = {
+      cycles: 3,
+      locale: "zh-Hant" as const,
+      // Smuggled past the type system -- must still be stripped at runtime.
+      focusStartedAt: 1_234_567,
+      rawText: "private"
+    };
+    trackEvent("focus_ended", smuggled);
+    expect(track).toHaveBeenCalledTimes(1);
+    expect(track).toHaveBeenCalledWith("focus_ended", {
+      cycles: 3,
+      locale: "zh-Hant"
+    });
+  });
+
+  it("rejects study content in Focus Mode events at compile time", () => {
+    trackEvent("focus_cycle_completed", {
+      durationMin: 25,
+      locale: "zh-Hant",
+      // @ts-expect-error -- no question/answer text may ride the focus analytics
+      questionText: "秘密の問題"
+    });
+  });
 });
