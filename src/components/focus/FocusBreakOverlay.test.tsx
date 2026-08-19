@@ -103,6 +103,12 @@ describe("FocusBreakOverlay", () => {
     expect(screen.queryByRole("complementary", { name: COPY.advertisement })).not.toBeInTheDocument();
   });
 
+  it("withholds the ad boundary for a zero-answer timer-only cycle", () => {
+    renderOverlay({ summary: { ...SUMMARY, answered: 0, accuracy: 0 } });
+    expect(screen.getByText(COPY.summaryFocus)).toBeInTheDocument();
+    expect(screen.queryByRole("complementary", { name: COPY.advertisement })).not.toBeInTheDocument();
+  });
+
   it("offers only the allowlisted Focus Break placement when substantive summary content exists", () => {
     renderOverlay();
     const ad = screen.getByRole("complementary", { name: COPY.advertisement });

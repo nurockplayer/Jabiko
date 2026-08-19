@@ -87,7 +87,7 @@ describe("App AdSense isolation (#772)", () => {
     expect(adBoundary.render).not.toHaveBeenCalled();
   }, 60000);
 
-  it("exposes only the allowlisted placement after Focus transitions to Break", () => {
+  it("keeps a zero-answer Focus Break ineligible while exposing only the allowlisted boundary", () => {
     vi.useFakeTimers();
     render(<App />);
     startFocus();
@@ -96,7 +96,7 @@ describe("App AdSense isolation (#772)", () => {
     expect(screen.getByRole("dialog", { name: "休息一下" })).toBeInTheDocument();
     expect(adBoundary.render).toHaveBeenCalled();
     for (const [props] of adBoundary.render.mock.calls) {
-      expect(props).toMatchObject({ placement: "focus-break" });
+      expect(props).toMatchObject({ placement: "focus-break", eligible: false });
     }
   });
 });

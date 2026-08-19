@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AdSensePlacement } from "./AdSensePlacement";
 
@@ -92,5 +92,26 @@ describe("AdSensePlacement", () => {
     await waitFor(() =>
       expect(screen.queryByRole("complementary", { name: "廣告" })).not.toBeInTheDocument()
     );
+  });
+
+  it("removes a unit that never reports a fill result", async () => {
+    vi.useFakeTimers();
+    render(<AdSensePlacement placement="focus-break" eligible={true} label="廣告" />);
+    await act(async () => Promise.resolve());
+    expect(screen.getByRole("complementary", { name: "廣告" })).toBeInTheDocument();
+    await act(async () => vi.advanceTimersByTimeAsync(30_000));
+    expect(screen.queryByRole("complementary", { name: "廣告" })).not.toBeInTheDocument();
+  });
+
+  it("keeps a unit that reports a successful fill before the timeout", async () => {
+    vi.useFakeTimers();
+    const { container } = render(
+      <AdSensePlacement placement="focus-break" eligible={true} label="廣告" />
+    );
+    await act(async () => Promise.resolve());
+    container.querySelector("ins.adsbygoogle")?.setAttribute("data-ad-status", "filled");
+    await act(async () => Promise.resolve());
+    await act(async () => vi.advanceTimersByTimeAsync(30_000));
+    expect(screen.getByRole("complementary", { name: "廣告" })).toBeInTheDocument();
   });
 });

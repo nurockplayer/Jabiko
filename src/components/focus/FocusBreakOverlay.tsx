@@ -8,6 +8,7 @@
 // showing empty metrics.
 import { useEffect, useId, useRef, type RefObject } from "react";
 import { Coffee, Play, X } from "lucide-react";
+import { isFocusBreakAdEligible } from "../../domain/adEligibility";
 import { AdSensePlacement } from "../ads/AdSensePlacement";
 import { formatFocusClock } from "./formatFocusClock";
 
@@ -149,7 +150,7 @@ function OpenFocusBreakOverlay({
 
         <AdSensePlacement
           placement="focus-break"
-          eligible={summary !== null}
+          eligible={summary !== null && isFocusBreakAdEligible(summary)}
           label={copy.advertisement}
         />
 

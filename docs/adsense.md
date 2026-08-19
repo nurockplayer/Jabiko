@@ -53,7 +53,8 @@ AdSense script:
 4. `VITE_ADSENSE_FOCUS_BREAK_POLICY_ELIGIBLE` is exactly `true`.
 5. The account-supplied publisher and Focus Break slot IDs are present and
    match the formats emitted by AdSense.
-6. The rendered Break contains a real completed-session summary. A timer-only
+6. The rendered Break contains a real completed-session summary with at least
+   one answer recorded during that Focus cycle. A timer-only or zero-answer
    Break is not context-eligible.
 7. An operator-installed Google-certified CMP exposes the standard IAB TCF API.
    The callback must succeed and either report that GDPR does not apply, or

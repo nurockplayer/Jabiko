@@ -7,6 +7,8 @@ import {
   type AdSensePlacementId
 } from "../../lib/adsense";
 
+const AD_FILL_TIMEOUT_MS = 10_000;
+
 export function AdSensePlacement({
   placement,
   eligible,
@@ -51,11 +53,15 @@ export function AdSensePlacement({
   useEffect(() => {
     if (!ready || !configuration || !configurationKey) return;
     let active = true;
+    let fillTimeout: number | undefined;
     const ad = adRef.current;
     const observer =
       ad && typeof MutationObserver !== "undefined"
         ? new MutationObserver(() => {
-            if (ad.dataset.adStatus === "unfilled" && active) {
+            if (ad.dataset.adStatus === "filled") {
+              clearTimeout(fillTimeout);
+            } else if (ad.dataset.adStatus === "unfilled" && active) {
+              clearTimeout(fillTimeout);
               setFailedKey(configurationKey);
             }
           })
@@ -70,6 +76,9 @@ export function AdSensePlacement({
         if (!active) return;
         try {
           requestAdSenseFill();
+          fillTimeout = window.setTimeout(() => {
+            if (active) setFailedKey(configurationKey);
+          }, AD_FILL_TIMEOUT_MS);
         } catch {
           setFailedKey(configurationKey);
         }
@@ -80,6 +89,7 @@ export function AdSensePlacement({
 
     return () => {
       active = false;
+      clearTimeout(fillTimeout);
       observer?.disconnect();
     };
   }, [configuration, configurationKey, ready]);
