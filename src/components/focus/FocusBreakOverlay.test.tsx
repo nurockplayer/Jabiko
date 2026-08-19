@@ -38,6 +38,7 @@ function renderOverlay(props: Partial<React.ComponentProps<typeof FocusBreakOver
       breakRemainingMs={5 * 60_000}
       breakDone={false}
       summary={SUMMARY}
+      adEligible={true}
       onSkip={onSkip}
       onEnd={onEnd}
       returnFocusRef={returnFocusRef}
@@ -103,8 +104,8 @@ describe("FocusBreakOverlay", () => {
     expect(screen.queryByRole("complementary", { name: COPY.advertisement })).not.toBeInTheDocument();
   });
 
-  it("withholds the ad boundary for a zero-answer timer-only cycle", () => {
-    renderOverlay({ summary: { ...SUMMARY, answered: 0, accuracy: 0 } });
+  it("withholds the ad boundary when cycle-local activity is ineligible", () => {
+    renderOverlay({ adEligible: false });
     expect(screen.getByText(COPY.summaryFocus)).toBeInTheDocument();
     expect(screen.queryByRole("complementary", { name: COPY.advertisement })).not.toBeInTheDocument();
   });

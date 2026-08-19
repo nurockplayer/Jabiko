@@ -35,6 +35,7 @@ function renderBreak() {
       breakRemainingMs={300_000}
       breakDone={false}
       summary={{ focusDurationMin: 25, answered: 8, accuracy: 75, dayFocusedMin: 25 }}
+      adEligible={true}
       onSkip={onSkip}
       onEnd={onEnd}
       returnFocusRef={createRef<HTMLButtonElement>()}

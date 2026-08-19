@@ -8,7 +8,6 @@
 // showing empty metrics.
 import { useEffect, useId, useRef, type RefObject } from "react";
 import { Coffee, Play, X } from "lucide-react";
-import { isFocusBreakAdEligible } from "../../domain/adEligibility";
 import { AdSensePlacement } from "../ads/AdSensePlacement";
 import { formatFocusClock } from "./formatFocusClock";
 
@@ -39,6 +38,7 @@ export function FocusBreakOverlay({
   breakRemainingMs,
   breakDone,
   summary,
+  adEligible,
   onSkip,
   onEnd,
   returnFocusRef,
@@ -48,6 +48,7 @@ export function FocusBreakOverlay({
   breakRemainingMs: number;
   breakDone: boolean;
   summary: FocusBreakSummaryData | null;
+  adEligible: boolean;
   onSkip: () => void;
   onEnd: () => void;
   returnFocusRef: RefObject<HTMLButtonElement | null>;
@@ -59,6 +60,7 @@ export function FocusBreakOverlay({
       breakRemainingMs={breakRemainingMs}
       breakDone={breakDone}
       summary={summary}
+      adEligible={adEligible}
       onSkip={onSkip}
       onEnd={onEnd}
       returnFocusRef={returnFocusRef}
@@ -71,6 +73,7 @@ function OpenFocusBreakOverlay({
   breakRemainingMs,
   breakDone,
   summary,
+  adEligible,
   onSkip,
   onEnd,
   returnFocusRef,
@@ -79,6 +82,7 @@ function OpenFocusBreakOverlay({
   breakRemainingMs: number;
   breakDone: boolean;
   summary: FocusBreakSummaryData | null;
+  adEligible: boolean;
   onSkip: () => void;
   onEnd: () => void;
   returnFocusRef: RefObject<HTMLButtonElement | null>;
@@ -150,7 +154,7 @@ function OpenFocusBreakOverlay({
 
         <AdSensePlacement
           placement="focus-break"
-          eligible={summary !== null && isFocusBreakAdEligible(summary)}
+          eligible={summary !== null && adEligible}
           label={copy.advertisement}
         />
 

@@ -99,4 +99,32 @@ describe("App AdSense isolation (#772)", () => {
       expect(props).toMatchObject({ placement: "focus-break", eligible: false });
     }
   });
+
+  it("makes the Break eligible only after a local attempt is recorded during Focus", async () => {
+    localStorage.setItem(
+      "jabiko:attempts",
+      JSON.stringify([
+        {
+          questionId: "n1-grammar-yainaya",
+          vocabularyId: "n1-grammar-yainaya",
+          targetForm: "meaning",
+          prompt: "seed",
+          expectedAnswers: ["や否や"],
+          submittedAnswer: "x",
+          isCorrect: false,
+          timestamp: 1000,
+          responseTimeMs: 100
+        }
+      ])
+    );
+    vi.useFakeTimers();
+    render(<App />);
+    startFocus();
+    fireEvent.click(screen.getByRole("button", { name: /等待複習/ }));
+    await act(async () => Promise.resolve());
+    fireEvent.click(screen.getByRole("button", { name: "や否や" }));
+    act(() => vi.advanceTimersByTime(25 * 60_000));
+    expect(screen.getByRole("dialog", { name: "休息一下" })).toBeInTheDocument();
+    expect(adBoundary.render.mock.calls.some(([props]) => props.eligible === true)).toBe(true);
+  });
 });
