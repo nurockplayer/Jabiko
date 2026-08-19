@@ -17,7 +17,11 @@ const COMPLETE_ENV = {
 
 describe("AdSense configuration", () => {
   it("fails closed outside production even when every public value is present", () => {
-    expect(resolveAdSenseConfig(COMPLETE_ENV, false)).toBeNull();
+    expect(resolveAdSenseConfig(COMPLETE_ENV, false, "jabiko.app")).toBeNull();
+  });
+
+  it("fails closed on a production-built preview host", () => {
+    expect(resolveAdSenseConfig(COMPLETE_ENV, true, "preview.jabiko.pages.dev")).toBeNull();
   });
 
   it.each([
@@ -28,11 +32,11 @@ describe("AdSense configuration", () => {
     ["slot absent", { ...COMPLETE_ENV, VITE_ADSENSE_FOCUS_BREAK_SLOT: "" }],
     ["slot invalid", { ...COMPLETE_ENV, VITE_ADSENSE_FOCUS_BREAK_SLOT: "slot-id" }]
   ])("fails closed when %s", (_case, env) => {
-    expect(resolveAdSenseConfig(env, true)).toBeNull();
+    expect(resolveAdSenseConfig(env, true, "jabiko.app")).toBeNull();
   });
 
   it("resolves the one allowlisted placement from complete production configuration", () => {
-    const config = resolveAdSenseConfig(COMPLETE_ENV, true);
+    const config = resolveAdSenseConfig(COMPLETE_ENV, true, "jabiko.app");
     expect(config).toEqual({
       publisherId: COMPLETE_ENV.VITE_ADSENSE_PUBLISHER_ID,
       placements: {
@@ -47,7 +51,7 @@ describe("AdSense configuration", () => {
   });
 
   it("rejects unsupported placement identifiers at the runtime boundary", () => {
-    const config = resolveAdSenseConfig(COMPLETE_ENV, true);
+    const config = resolveAdSenseConfig(COMPLETE_ENV, true, "jabiko.app");
     expect(resolveAdSensePlacement(config, "challenge-answer" as string)).toBeNull();
   });
 

@@ -47,13 +47,15 @@ Every condition below must pass before Jabiko creates an ad unit or requests the
 AdSense script:
 
 1. Vite reports a production build. Development and tests are always disabled.
-2. `VITE_ADSENSE_ENABLED` is exactly `true`.
-3. `VITE_ADSENSE_FOCUS_BREAK_POLICY_ELIGIBLE` is exactly `true`.
-4. The account-supplied publisher and Focus Break slot IDs are present and
+2. The browser is on the exact canonical host `jabiko.app`. Cloudflare preview
+   hosts remain disabled even if they accidentally inherit production variables.
+3. `VITE_ADSENSE_ENABLED` is exactly `true`.
+4. `VITE_ADSENSE_FOCUS_BREAK_POLICY_ELIGIBLE` is exactly `true`.
+5. The account-supplied publisher and Focus Break slot IDs are present and
    match the formats emitted by AdSense.
-5. The rendered Break contains a real completed-session summary. A timer-only
+6. The rendered Break contains a real completed-session summary. A timer-only
    Break is not context-eligible.
-6. An operator-installed Google-certified CMP exposes the standard IAB TCF API.
+7. An operator-installed Google-certified CMP exposes the standard IAB TCF API.
    The callback must succeed and either report that GDPR does not apply, or
    reach a ready state with a non-empty TC string and Purpose 1 consent. Missing,
    failed, incomplete, or timed-out signals withhold the ad request.
@@ -104,10 +106,11 @@ All items are required. A missing item keeps Mode B in force.
    vendor disclosures, consent withdrawal/control path, and top-level
    `__tcfapi` signal in EEA, UK, Switzerland, and non-applicable test cases.
    Do not build a Jabiko-specific CMP.
-5. Update the Privacy Policy if the selected CMP, vendors, ad-serving mode, or
-   data handling differs from the conditional disclosure now shipped. Obtain
-   any legal review the operator considers necessary; do not describe the code
-   gates as legal compliance.
+5. Update all three launched Privacy Policy translations and the effective date
+   before every Mode A activation: remove the current "disabled" statement and
+   accurately describe the selected CMP, vendors, ad-serving mode, and data
+   handling. Rerun the legal-content tests. Obtain any legal review the operator
+   considers necessary; do not describe the code gates as legal compliance.
 6. In AdSense, copy the exact authorized-seller line for the real account into
    `public/ads.txt`. Do not adapt a documentation example. Build, then verify
    `dist/ads.txt` contains only the intended account-supplied record.

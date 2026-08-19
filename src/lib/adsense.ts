@@ -1,6 +1,7 @@
 const PUBLISHER_ID_PATTERN = /^ca-pub-\d{16}$/;
 const SLOT_ID_PATTERN = /^\d{10}$/;
 const CONSENT_READY_EVENTS = new Set(["tcloaded", "useractioncomplete"]);
+const ADSENSE_PRODUCTION_HOST = "jabiko.app";
 
 export const ADSENSE_SCRIPT_ID = "jabiko-adsense-script";
 
@@ -47,10 +48,12 @@ export interface AdConsentWindow {
 
 export function resolveAdSenseConfig(
   env: AdSensePublicEnv,
-  isProduction: boolean
+  isProduction: boolean,
+  hostname?: string
 ): AdSenseConfig | null {
   if (
     !isProduction ||
+    hostname !== ADSENSE_PRODUCTION_HOST ||
     env.VITE_ADSENSE_ENABLED !== "true" ||
     env.VITE_ADSENSE_FOCUS_BREAK_POLICY_ELIGIBLE !== "true"
   ) {
@@ -90,7 +93,8 @@ export function getAdSensePlacement(placement: string): AdSensePlacementConfig |
       VITE_ADSENSE_PUBLISHER_ID: import.meta.env.VITE_ADSENSE_PUBLISHER_ID,
       VITE_ADSENSE_FOCUS_BREAK_SLOT: import.meta.env.VITE_ADSENSE_FOCUS_BREAK_SLOT
     },
-    import.meta.env.PROD
+    import.meta.env.PROD,
+    window.location.hostname
   );
   return resolveAdSensePlacement(config, placement);
 }
