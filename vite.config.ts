@@ -106,6 +106,7 @@ export default defineConfig({
           include: [
             "src/App*.test.tsx",
             "src/components/**/*.test.{ts,tsx}",
+            "src/components/**/*.test.mjs",
             "src/hooks/**/*.test.{ts,tsx}",
             "src/i18n.test.ts",
             "src/lib/**/*.test.{ts,tsx}",
