@@ -76,6 +76,7 @@ export const ko: Copy = {
   focusSummaryQuestions: "답변",
   focusSummaryAccuracy: "정답률",
   focusSummaryToday: "오늘 누계",
+  focusAdvertisement: "광고",
   focusActiveTitle: "집중 진행 중",
   focusRemainingLabel: "남은 시간",
   focusCycleLabel: (cycle) => `${cycle}번째 라운드`,

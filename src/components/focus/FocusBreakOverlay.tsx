@@ -8,6 +8,7 @@
 // showing empty metrics.
 import { useEffect, useId, useRef, type RefObject } from "react";
 import { Coffee, Play, X } from "lucide-react";
+import { AdSensePlacement } from "../ads/AdSensePlacement";
 import { formatFocusClock } from "./formatFocusClock";
 
 export interface FocusBreakSummaryData {
@@ -29,6 +30,7 @@ export type FocusBreakOverlayCopy = {
   summaryQuestions: string;
   summaryAccuracy: string;
   summaryToday: string;
+  advertisement: string;
 };
 
 export function FocusBreakOverlay({
@@ -144,6 +146,12 @@ function OpenFocusBreakOverlay({
         </p>
 
         <p className="focus-break-rest">{copy.restPrompt}</p>
+
+        <AdSensePlacement
+          placement="focus-break"
+          eligible={summary !== null}
+          label={copy.advertisement}
+        />
 
         {summary ? (
           <dl className="focus-summary">

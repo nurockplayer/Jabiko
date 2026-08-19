@@ -77,6 +77,7 @@ export const ja: Copy = {
   focusSummaryQuestions: "回答",
   focusSummaryAccuracy: "正答率",
   focusSummaryToday: "今日の合計",
+  focusAdvertisement: "広告",
   focusActiveTitle: "集中実行中",
   focusRemainingLabel: "残り",
   focusCycleLabel: (cycle) => `第 ${cycle} ラウンド`,

@@ -187,6 +187,26 @@
   background: color-mix(in srgb, var(--paper-deep) 60%, transparent);
 }
 
+.focus-break-ad {
+  display: flex;
+  min-height: 6.25rem;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-block: 0.75rem;
+  border-block: 1px solid var(--panel-border);
+}
+
+.focus-break-ad-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.focus-break-ad .adsbygoogle {
+  display: block;
+  width: 100%;
+}
+
 .focus-summary-item {
   display: flex;
   flex-direction: column;
@@ -228,4 +248,15 @@
 .focus-break-primary:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+@media (max-width: 30rem) {
+  .focus-break-dialog {
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+  }
+
+  .focus-break-ad {
+    min-height: 3.125rem;
+  }
 }

@@ -100,3 +100,37 @@ describe("/assets/* poisoned-fallback guard", () => {
     expect(await res.text()).toBe("png-bytes");
   });
 });
+
+describe("/ads.txt root-file contract", () => {
+  it("returns a plain-text 404 instead of the SPA shell when no seller record ships", async () => {
+    const res = await onRequest({
+      request: new Request("https://jabiko.app/ads.txt"),
+      next: () =>
+        Promise.resolve(
+          new Response("<!doctype html><title>shell</title>", {
+            status: 200,
+            headers: { "content-type": "text/html; charset=utf-8" }
+          })
+        )
+    });
+    expect(res.status).toBe(404);
+    expect(res.headers.get("content-type")).toBe("text/plain; charset=utf-8");
+    expect(await res.text()).toBe("Not found");
+  });
+
+  it("passes an operator-supplied plain-text seller record through unchanged", async () => {
+    const sellerRecord = "account-supplied seller record";
+    const res = await onRequest({
+      request: new Request("https://jabiko.app/ads.txt"),
+      next: () =>
+        Promise.resolve(
+          new Response(sellerRecord, {
+            status: 200,
+            headers: { "content-type": "text/plain; charset=utf-8" }
+          })
+        )
+    });
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe(sellerRecord);
+  });
+});

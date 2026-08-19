@@ -76,6 +76,7 @@ export const my: Copy = {
   focusSummaryQuestions: "ဖြေပြီး",
   focusSummaryAccuracy: "မှန်ကန်မှု",
   focusSummaryToday: "ယနေ့စုစုပေါင်း",
+  focusAdvertisement: "ကြော်ငြာ",
   focusActiveTitle: "အာရုံစိုက်နေသည်",
   focusRemainingLabel: "ကျန်",
   focusCycleLabel: (cycle) => `အခန်း ${cycle}`,

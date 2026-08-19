@@ -76,6 +76,7 @@ export const zhHant: Copy = {
   focusSummaryQuestions: "作答",
   focusSummaryAccuracy: "正確率",
   focusSummaryToday: "今日累計",
+  focusAdvertisement: "廣告",
   focusActiveTitle: "專注進行中",
   focusRemainingLabel: "剩餘",
   focusCycleLabel: (cycle) => `第 ${cycle} 輪`,

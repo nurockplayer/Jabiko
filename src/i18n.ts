@@ -89,6 +89,7 @@ export type Copy = {
   focusSummaryQuestions: string;
   focusSummaryAccuracy: string;
   focusSummaryToday: string;
+  focusAdvertisement: string;
   focusActiveTitle: string;
   focusRemainingLabel: string;
   focusCycleLabel: (cycle: number) => string;

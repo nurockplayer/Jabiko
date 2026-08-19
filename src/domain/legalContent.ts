@@ -22,7 +22,7 @@ export interface LegalPageCopy extends LegalPageLabels {
   terms: LegalDocument;
 }
 
-const PRIVACY_UPDATED_AT = "2026-08-12";
+const PRIVACY_UPDATED_AT = "2026-08-20";
 const TERMS_UPDATED_AT = "2026-07-18";
 
 const LEGAL_COPY = {
@@ -57,38 +57,46 @@ const LEGAL_COPY = {
           ]
         },
         {
-          title: "4. 意見回饋與題目回報",
+          title: "4. 廣告與同意",
+          paragraphs: [
+            "Google AdSense 廣告基礎目前未啟用。停用、設定不完整、版位政策資格未確認或必要同意訊號缺少時，Jabiko 不會載入 AdSense 程式或送出廣告請求，也不會保留空白廣告版位。",
+            "若日後完成帳號與版位核准並啟用，Google 與其廣告技術合作夥伴可能為廣告投放、個人化與成效衡量使用廣告 Cookie 或其他本機儲存，並處理 IP 位址、裝置、瀏覽器、廣告互動及相關個人資料。需要同意的流量會由 Google 認證且支援 IAB TCF 的同意管理平台處理；廣告同意獨立於選用的登入、學習進度儲存與 Zaraz 分析。Jabiko 不會要求觀看或點擊廣告才能繼續學習。"
+          ]
+        },
+        {
+          title: "5. 意見回饋與題目回報",
           paragraphs: [
             "送出一般回饋時，會保存類別、訊息、是否希望回覆，以及你自行填寫的聯絡方式。題目回報還會包含回報原因、題目 ID、題型標籤、作答目標形式、級別、單字表記、題目提示、預期答案、你所選的答案、介面語言，以及你自行填寫的補充說明，方便定位問題；若勾選希望回覆，也會保存你填寫的聯絡方式。",
             "若你已登入，Supabase 會在伺服器端記錄帳號 ID、電子郵件與登入提供者；匿名使用者則不會有這些帳號欄位。回報資料不會透過網站公開讀取。請不要在自由輸入欄位提供不必要的敏感資料。"
           ]
         },
         {
-          title: "5. 外部服務",
+          title: "6. 外部服務",
           items: [
             "Cloudflare：網站傳遞、安全與選用的 Zaraz 分析。",
             "Google Analytics：分析啟用時，作為彙總使用分析的接收方。",
+            "Google AdSense：只有在廣告另行通過帳號、政策、設定與同意閘門並啟用後，才會作為廣告供應商。",
             "Supabase：Google 登入、登入狀態、練習同步與回報資料庫。",
             "Google：你主動選擇 Google 登入時的身分驗證。",
             "ECPay 與其他外部連結：只有在你主動點擊後才會前往第三方網站；付款資料不會由 Jabiko 前端保存。"
           ]
         },
         {
-          title: "6. 保存、刪除與聯絡",
+          title: "7. 保存、刪除與聯絡",
           paragraphs: [
             "本機資料會保留到你清除瀏覽器網站資料為止。遠端練習紀錄與回報會保留到完成其同步、維護、回覆或問題追蹤用途，或由你提出刪除要求為止。",
             "目前尚未提供自助匯出介面。若要匯出或刪除其他與帳號相關的資料，請先登入相同帳號，再使用網站的「回饋」功能並勾選希望回覆；請勿在公開 GitHub issue 張貼個人資料。Jabiko 不會出售個人資料。"
           ]
         },
         {
-          title: "7. 刪除已同步的練習紀錄",
+          title: "8. 刪除已同步的練習紀錄",
           paragraphs: [
             "已登入的使用者可以由帳號區自助刪除該帳號已同步的練習作答紀錄。刪除成功時，也會清除目前裝置的練習紀錄、弱點與複習進度。",
             "此操作不會刪除登入帳號、收藏、語言與外觀設定。刪除不可復原；若刪除失敗，請重試，且不得宣稱資料已刪除。"
           ]
         },
         {
-          title: "8. 政策變更",
+          title: "9. 政策變更",
           paragraphs: [
             "功能或資料處理方式有實質改變時，這份政策會同步更新日期與內容。若變更會明顯影響使用者權益，會以網站上的適當方式提醒。"
           ]
@@ -176,38 +184,46 @@ const LEGAL_COPY = {
           ]
         },
         {
-          title: "4. フィードバックと問題報告",
+          title: "4. 広告と同意",
+          paragraphs: [
+            "Google AdSense の広告基盤は現在は有効化されていません。無効、設定不足、掲載面のポリシー適格性が未確認、または必要な同意シグナルがない場合、Jabiko は AdSense のスクリプトを読み込まず、広告リクエストを送信せず、空の広告枠も残しません。",
+            "将来、アカウントと掲載面の承認を得て有効化した場合、Google と広告技術パートナーは広告配信・パーソナライズ・効果測定のため、広告 Cookie その他のローカルストレージを使用し、IP アドレス、端末、ブラウザ、広告操作その他の個人データを処理する場合があります。同意が必要なトラフィックは、Google 認定かつ IAB TCF 対応の同意管理プラットフォームで扱います。広告の同意は任意のログインとは別であり、学習進捗の保存や Zaraz 分析からも分離して扱われます。学習の継続に広告の閲覧やクリックを求めることはありません。"
+          ]
+        },
+        {
+          title: "5. フィードバックと問題報告",
           paragraphs: [
             "一般のフィードバックでは、種別、本文、返信希望の有無、任意で入力した連絡先を保存します。問題報告には、報告理由、問題 ID、問題形式のラベル、解答対象の形式、レベル、語彙の表記、問題の提示文、想定解、選択した回答、表示言語、任意の補足説明も含まれます。返信を希望した場合は、入力した連絡先も保存されます。",
             "ログイン中は、Supabase がサーバー側でアカウント ID、メールアドレス、ログイン事業者を記録します。匿名時はこれらの欄は空です。報告内容はサイトの公開 API から閲覧できません。不要な機微情報は入力しないでください。"
           ]
         },
         {
-          title: "5. 外部サービス",
+          title: "6. 外部サービス",
           items: [
             "Cloudflare：サイト配信、安全対策、任意の Zaraz 分析。",
             "Google Analytics：分析が有効な場合の集計的な利用分析の受信者。",
+            "Google AdSense：アカウント、ポリシー、設定、同意の各条件を別途満たして有効化した場合のみ利用する広告事業者。",
             "Supabase：Google ログイン、セッション、練習同期、フィードバック保存。",
             "Google：利用者が Google ログインを選んだ場合の認証。",
             "ECPay その他の外部リンク：利用者がリンクを開いた後は第三者のサービスとなり、Jabiko のフロントエンドは決済情報を保存しません。"
           ]
         },
         {
-          title: "6. 保存、削除、問い合わせ",
+          title: "7. 保存、削除、問い合わせ",
           paragraphs: [
             "ローカル情報はブラウザのサイトデータを削除するまで残ります。同期履歴とフィードバックは、同期・保守・返信・問題追跡に必要な期間、または削除依頼を受けるまで保持します。",
             "現時点では自己操作によるエクスポート画面はありません。エクスポートを希望する場合や、その他のアカウント関連情報の削除を希望する場合は、同じアカウントでログインし、サイトの「フィードバック」で返信希望を選んでください。公開 GitHub issue に個人情報を書かないでください。個人情報を販売することはありません。"
           ]
         },
         {
-          title: "7. 同期した練習履歴の削除",
+          title: "8. 同期した練習履歴の削除",
           paragraphs: [
             "ログイン中の利用者は、アカウント領域からこのアカウントに同期した練習の回答記録を自分で削除できます。削除に成功すると、この端末の練習記録・弱点・復習の進捗も消去されます。",
             "この操作では、アカウント・お気に入り・言語・表示設定は削除されません。削除は元に戻せません。削除に失敗した場合は、もう一度お試しください。データが削除されたと判断しないでください。"
           ]
         },
         {
-          title: "8. ポリシーの変更",
+          title: "9. ポリシーの変更",
           paragraphs: [
             "機能や情報の取扱いに実質的な変更がある場合、本ポリシーの内容と更新日を変更します。利用者への影響が大きい場合は、サイト上で適切にお知らせします。"
           ]
@@ -295,38 +311,46 @@ const LEGAL_COPY = {
           ]
         },
         {
-          title: "4. Feedback and question reports",
+          title: "4. Advertising and consent",
+          paragraphs: [
+            "The Google AdSense foundation is currently disabled. When it is disabled, incompletely configured, not confirmed policy-eligible, or missing a required consent signal, Jabiko does not load the AdSense script, send an ad request, or leave an empty ad slot.",
+            "If an approved account and placement are enabled in the future, Google and its advertising technology partners may use advertising cookies or other local storage and process IP address, device, browser, ad-interaction, and related personal data for ad delivery, personalization, and measurement. Traffic that requires consent will be handled through a Google-certified, IAB TCF-integrated consent management platform. Advertising consent is separate from optional sign-in, learning-progress storage, and Zaraz analytics. Jabiko never requires an ad view or click to continue learning."
+          ]
+        },
+        {
+          title: "5. Feedback and question reports",
           paragraphs: [
             "General feedback stores its category, message, whether you requested a reply, and any contact detail you enter. A question report also includes its reason, question ID, question-type label, target form, level, surface form, prompt, expected answers, selected answer, interface language, and any optional detail you provide so the issue can be located; if you request a reply, the contact detail you enter is stored as well.",
             "If you are signed in, Supabase records your account ID, email, and sign-in provider on the server. Those fields remain empty for anonymous submissions. Reports are not readable through the site's public API. Do not include unnecessary sensitive information in free-form fields."
           ]
         },
         {
-          title: "5. External services",
+          title: "6. External services",
           items: [
             "Cloudflare: site delivery, security, and optional Zaraz analytics.",
             "Google Analytics: recipient of aggregate usage analysis when analytics is enabled.",
+            "Google AdSense: advertising provider only if separate account, policy, configuration, and consent gates are completed and enabled.",
             "Supabase: Google sign-in, sessions, practice sync, and feedback storage.",
             "Google: authentication when you choose Google sign-in.",
             "ECPay and other external links: third-party services apply after you choose to open them; payment details are not stored by the Jabiko frontend."
           ]
         },
         {
-          title: "6. Retention, deletion, and contact",
+          title: "7. Retention, deletion, and contact",
           paragraphs: [
             "Local data remains until you clear the browser's site data. Remote practice records and feedback are kept while needed for sync, maintenance, replies, or issue tracking, or until you request deletion.",
             "A self-service export screen is not yet available. To request an export, or to ask about or request deletion of other account-linked data, sign in with the same account and use the site's Feedback form with the reply option selected. Do not post personal data in a public GitHub issue. Jabiko does not sell personal data."
           ]
         },
         {
-          title: "7. Deleting your synced practice history",
+          title: "8. Deleting your synced practice history",
           paragraphs: [
             "Signed-in users can delete the practice answers synced to this account on their own from the account area. When the deletion succeeds, it also clears this device's practice records, weak points, and review progress.",
             "This does not delete your account, bookmarks, language, or appearance settings. Deletion cannot be undone; if it fails, please try again and do not treat the data as deleted."
           ]
         },
         {
-          title: "8. Changes to this policy",
+          title: "9. Changes to this policy",
           paragraphs: [
             "When features or data handling change materially, this policy and its update date will be revised. Changes with a significant effect on users will be highlighted through an appropriate notice on the site."
           ]

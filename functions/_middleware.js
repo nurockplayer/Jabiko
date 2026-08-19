@@ -23,6 +23,7 @@ const CANONICAL_ORIGIN = "https://jabiko.app";
 const OLD_HOST = "jabiko.pages.dev";
 const BRIDGE_PREFIX = "/migration-bridge";
 const ASSETS_PREFIX = "/assets/";
+const ADS_TXT_PATH = "/ads.txt";
 
 /** Pure decision: the 301 target for `url`, or null to serve normally. */
 export function redirectTargetFor(url) {
@@ -62,5 +63,18 @@ export async function onRequest(context) {
 
   const target = redirectTargetFor(context.request.url);
   if (target !== null) return Response.redirect(target, 301);
-  return context.next();
+  const response = await context.next();
+  if (
+    pathname === ADS_TXT_PATH &&
+    (response.headers.get("content-type") || "").includes("text/html")
+  ) {
+    return new Response("Not found", {
+      status: 404,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "cache-control": "no-store"
+      }
+    });
+  }
+  return response;
 }

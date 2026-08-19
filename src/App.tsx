@@ -561,7 +561,8 @@ export default function App() {
           summaryFocus: t.focusSummaryFocus,
           summaryQuestions: t.focusSummaryQuestions,
           summaryAccuracy: t.focusSummaryAccuracy,
-          summaryToday: t.focusSummaryToday
+          summaryToday: t.focusSummaryToday,
+          advertisement: t.focusAdvertisement
         }}
       />
       {/* #608: non-home views compress the heading to a one-line brand bar on

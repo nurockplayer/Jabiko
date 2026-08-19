@@ -76,6 +76,7 @@ export const en: Copy = {
   focusSummaryQuestions: "Answered",
   focusSummaryAccuracy: "Accuracy",
   focusSummaryToday: "Today total",
+  focusAdvertisement: "Advertisement",
   focusActiveTitle: "Focus in progress",
   focusRemainingLabel: "Remaining",
   focusCycleLabel: (cycle) => `Round ${cycle}`,
