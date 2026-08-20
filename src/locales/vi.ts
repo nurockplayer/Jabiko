@@ -20,7 +20,7 @@ export const vi: Copy = {
   partnersTitle: "Hợp tác",
   partnersIntro: "Đây là những đối tác hiện tại của Jabiko.",
   partnersContactTitle: "Muốn hợp tác với Jabiko?",
-  partnersContactBody: "Mọi trao đổi hợp tác xin gửi thẳng cho tôi. Đây là địa chỉ của tác giả Jabiko, không phải đầu mối liên hệ của các đối tác ở trên.",
+  partnersContactBody: "Mọi trao đổi hợp tác xin gửi tới địa chỉ này. Đây là địa chỉ của Jabiko, không phải đầu mối liên hệ của các đối tác ở trên.",
   loading: "Đang tải…",
   updateAvailable: "Đã có phiên bản mới — chạm để cập nhật",
   routeErrorTitle: "Không tải được trang",

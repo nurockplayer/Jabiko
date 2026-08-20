@@ -20,7 +20,7 @@ export const ko: Copy = {
   partnersTitle: "제휴 홍보",
   partnersIntro: "현재 Jabiko와 제휴 중인 곳을 정리했습니다.",
   partnersContactTitle: "Jabiko와 제휴하고 싶으신가요?",
-  partnersContactBody: "제휴 문의는 아래 주소로 보내 주세요. Jabiko 제작자의 메일 주소이며, 위에 소개된 제휴처의 연락처가 아닙니다.",
+  partnersContactBody: "제휴 문의는 이 주소로 보내 주세요. Jabiko의 연락처이며, 위에 소개된 제휴처의 연락처가 아닙니다.",
   loading: "불러오는 중…",
   updateAvailable: "새 버전이 있습니다 — 탭하여 업데이트",
   routeErrorTitle: "페이지를 불러오지 못했습니다",

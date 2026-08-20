@@ -146,9 +146,9 @@ describe("buildStaticPages", () => {
     expect(partners!.bodyHtml).toContain("合作推廣");
     expect(partners!.bodyHtml).toContain("這裡列出目前和 Jabiko 有合作的對象。");
     expect(partners!.bodyHtml).toContain('<a href="mailto:islu245777@gmail.com">');
-    // The address must be introduced as the author's, never as a partner's.
+    // The address must be introduced as Jabiko's own, never as a partner's.
     expect(partners!.bodyHtml).toContain(
-      "這是 Jabiko 作者花雪的信箱，不是上面各合作對象的聯絡方式。"
+      "這是 Jabiko 的聯絡信箱，不是上面各合作對象的聯絡方式。"
     );
     // The repeated closing CTA of the old landing page is gone.
     expect(partners!.bodyHtml).not.toContain("stay-d-final-airbnb");

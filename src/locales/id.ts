@@ -20,7 +20,7 @@ export const id: Copy = {
   partnersTitle: "Kemitraan",
   partnersIntro: "Semua mitra Jabiko saat ini terdaftar di sini.",
   partnersContactTitle: "Ingin bermitra dengan Jabiko?",
-  partnersContactBody: "Kirim pertanyaan kerja sama langsung ke saya. Ini alamat penulis Jabiko, bukan kontak mitra yang tercantum di atas.",
+  partnersContactBody: "Kirim pertanyaan kerja sama ke alamat ini. Ini alamat Jabiko, bukan kontak mitra yang tercantum di atas.",
   loading: "Memuat…",
   updateAvailable: "Versi baru tersedia — ketuk untuk memperbarui",
   routeErrorTitle: "Halaman gagal dimuat",

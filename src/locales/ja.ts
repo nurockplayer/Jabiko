@@ -20,7 +20,7 @@ export const ja: Copy = {
   partnersTitle: "提携・PR",
   partnersIntro: "Jabiko が現在提携している先をまとめています。",
   partnersContactTitle: "Jabiko と提携しませんか？",
-  partnersContactBody: "提携のご相談は下記までお願いします。こちらは Jabiko 制作者（花雪）の連絡先で、上記の提携先の窓口ではありません。",
+  partnersContactBody: "提携のご相談はこちらのアドレスまでお願いします。Jabiko の連絡先で、上記の提携先の窓口ではありません。",
   loading: "読み込み中…",
   updateAvailable: "新しいバージョンがあります。タップして更新",
   routeErrorTitle: "ページの読み込みに失敗しました",
