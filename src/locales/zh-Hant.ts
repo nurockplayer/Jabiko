@@ -20,7 +20,7 @@ export const zhHant: Copy = {
   partnersTitle: "合作推廣",
   partnersIntro: "這裡列出目前和 Jabiko 有合作的對象。",
   partnersContactTitle: "想和 Jabiko 合作？",
-  partnersContactBody: "合作洽詢請直接寄信給我。這是 Jabiko 作者花雪的信箱，不是上面各合作對象的聯絡方式。",
+  partnersContactBody: "合作洽詢請直接寄到這個信箱。",
   loading: "載入中…",
   updateAvailable: "有新版本，點此更新",
   routeErrorTitle: "頁面載入失敗",
