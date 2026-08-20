@@ -35,15 +35,15 @@ describe("LegalPanel", () => {
       { heading: string; marker: RegExp }
     > = {
       "zh-Hant": {
-        heading: "7. 刪除已同步的練習紀錄",
+        heading: "8. 刪除已同步的練習紀錄",
         marker: /由帳號區自助刪除該帳號已同步的練習作答紀錄/
       },
       ja: {
-        heading: "7. 同期した練習履歴の削除",
+        heading: "8. 同期した練習履歴の削除",
         marker: /アカウント領域からこのアカウントに同期した練習の回答記録を自分で削除/
       },
       en: {
-        heading: "7. Deleting your synced practice history",
+        heading: "8. Deleting your synced practice history",
         marker: /delete the practice answers synced to this account on their own from the account area/
       }
     };
@@ -65,7 +65,7 @@ describe("LegalPanel", () => {
       // policy-change section in every locale.
       const headings = screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
       const deletionIndex = headings.indexOf(heading);
-      const changeIndex = headings.findIndex((h) => h?.startsWith("8. "));
+      const changeIndex = headings.findIndex((h) => h?.startsWith("9. "));
       expect(deletionIndex, language).toBeGreaterThanOrEqual(0);
       expect(changeIndex, language).toBeGreaterThan(deletionIndex);
     }

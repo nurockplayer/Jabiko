@@ -76,6 +76,7 @@ export const vi: Copy = {
   focusSummaryQuestions: "Đã trả lời",
   focusSummaryAccuracy: "Độ chính xác",
   focusSummaryToday: "Tổng hôm nay",
+  focusAdvertisement: "Quảng cáo",
   focusActiveTitle: "Đang tập trung",
   focusRemainingLabel: "Còn lại",
   focusCycleLabel: (cycle) => `Vòng ${cycle}`,

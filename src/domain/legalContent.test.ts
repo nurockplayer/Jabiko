@@ -152,6 +152,34 @@ describe("legal content", () => {
     expect(analyticsSectionTitle("en")).not.toContain("Anonymous");
   });
 
+  it("accurately discloses the disabled AdSense foundation and its separate consent boundary", () => {
+    const disclosureText = (language: "zh-Hant" | "ja" | "en") =>
+      legalDocumentFor(language, "privacy").sections
+        .flatMap((section) => [section.title, ...(section.paragraphs ?? []), ...(section.items ?? [])])
+        .join("\n");
+
+    const zh = disclosureText("zh-Hant");
+    expect(zh).toContain("Google AdSense");
+    expect(zh).toContain("目前未啟用");
+    expect(zh).toContain("廣告 Cookie");
+    expect(zh).toContain("同意");
+    expect(zh).toContain("獨立於選用的登入");
+
+    const ja = disclosureText("ja");
+    expect(ja).toContain("Google AdSense");
+    expect(ja).toContain("現在は有効化されていません");
+    expect(ja).toContain("広告 Cookie");
+    expect(ja).toContain("同意");
+    expect(ja).toContain("任意のログインとは別");
+
+    const en = disclosureText("en");
+    expect(en).toContain("Google AdSense");
+    expect(en).toContain("currently disabled");
+    expect(en).toContain("advertising cookies");
+    expect(en).toContain("consent");
+    expect(en).toContain("separate from optional sign-in");
+  });
+
   it("does not claim that public source code is open source", () => {
     const terms = legalDocumentFor("zh-Hant", "terms");
     const text = terms.sections

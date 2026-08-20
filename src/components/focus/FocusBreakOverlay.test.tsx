@@ -8,6 +8,11 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { FocusBreakOverlay, type FocusBreakOverlayCopy } from "./FocusBreakOverlay";
 
+vi.mock("../ads/AdSensePlacement", () => ({
+  AdSensePlacement: ({ eligible, label }: { eligible: boolean; label: string }) =>
+    eligible ? <aside aria-label={label}>provider boundary</aside> : null
+}));
+
 const COPY: FocusBreakOverlayCopy = {
   title: "休息一下",
   restPrompt: "放鬆一下，伸展或喝口水，再繼續下一輪。",
@@ -17,7 +22,8 @@ const COPY: FocusBreakOverlayCopy = {
   summaryFocus: "本次專注",
   summaryQuestions: "作答",
   summaryAccuracy: "正確率",
-  summaryToday: "今日累計"
+  summaryToday: "今日累計",
+  advertisement: "廣告"
 };
 
 const SUMMARY = { focusDurationMin: 25, answered: 12, accuracy: 75, dayFocusedMin: 50 };
@@ -32,6 +38,7 @@ function renderOverlay(props: Partial<React.ComponentProps<typeof FocusBreakOver
       breakRemainingMs={5 * 60_000}
       breakDone={false}
       summary={SUMMARY}
+      adEligible={true}
       onSkip={onSkip}
       onEnd={onEnd}
       returnFocusRef={returnFocusRef}
@@ -94,6 +101,26 @@ describe("FocusBreakOverlay", () => {
     expect(screen.queryByText(COPY.summaryFocus)).not.toBeInTheDocument();
     expect(screen.queryByText(COPY.summaryQuestions)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: COPY.skipBreak })).toBeInTheDocument();
+    expect(screen.queryByRole("complementary", { name: COPY.advertisement })).not.toBeInTheDocument();
+  });
+
+  it("withholds the ad boundary when cycle-local activity is ineligible", () => {
+    renderOverlay({ adEligible: false });
+    expect(screen.getByText(COPY.summaryFocus)).toBeInTheDocument();
+    expect(screen.queryByRole("complementary", { name: COPY.advertisement })).not.toBeInTheDocument();
+  });
+
+  it("offers only the allowlisted Focus Break placement when substantive summary content exists", () => {
+    renderOverlay();
+    const ad = screen.getByRole("complementary", { name: COPY.advertisement });
+    const summary = screen.getByText(COPY.summaryFocus).closest("dl");
+    const actions = screen.getByRole("button", { name: COPY.skipBreak }).closest("div");
+    expect(summary).not.toBeNull();
+    expect(actions).not.toBeNull();
+    expect(ad.compareDocumentPosition(summary as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(
+      (summary as Node).compareDocumentPosition(actions as Node) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 
   it("is soft-strict: Escape does not dismiss the break surface", async () => {

@@ -77,6 +77,7 @@ export const th: Copy = {
   focusSummaryQuestions: "ตอบแล้ว",
   focusSummaryAccuracy: "ความแม่นยำ",
   focusSummaryToday: "รวมวันนี้",
+  focusAdvertisement: "โฆษณา",
   focusActiveTitle: "กำลังโฟกัส",
   focusRemainingLabel: "เหลือ",
   focusCycleLabel: (cycle) => `รอบที่ ${cycle}`,

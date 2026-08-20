@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
-import type { JlptLevel } from "./domain/types";
+import type { Attempt, JlptLevel } from "./domain/types";
+import { isFocusBreakAdEligible } from "./domain/adEligibility";
 import { countMistakes } from "./domain/srs";
 import { copy, LAUNCHED_LANGUAGES, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
@@ -270,6 +271,20 @@ export default function App() {
   const focusTriggerRef = useRef<HTMLButtonElement | null>(null);
   const focusSession = focus.state.session;
   const focusPhase: "idle" | "focus" | "break" = focusSession ? focusSession.phase : "idle";
+  const focusPhaseRef = useRef(focusPhase);
+  useEffect(() => {
+    focusPhaseRef.current = focusPhase;
+  }, [focusPhase]);
+  const [focusCycleLocalAnswered, setFocusCycleLocalAnswered] = useState(0);
+  const recordLocalAttempt = useCallback(
+    (attempt: Attempt) => {
+      recordAttempt(attempt);
+      if (focusPhaseRef.current === "focus") {
+        setFocusCycleLocalAnswered((count) => count + 1);
+      }
+    },
+    [recordAttempt]
+  );
 
   const attemptTotals = useMemo(
     () => ({
@@ -299,6 +314,9 @@ export default function App() {
       dayFocusedMin: Math.round(summary.dayFocusedMs / MS_PER_MINUTE)
     };
   }, [focusSession, focus.state, focus.now, attemptTotals]);
+  const focusBreakAdEligible = isFocusBreakAdEligible({
+    localAnswered: focusCycleLocalAnswered
+  });
 
   const focusControlCopy: FocusControlCopy = {
     label: t.focusLabel,
@@ -513,6 +531,7 @@ export default function App() {
         defaultFocusMinutes={focus.state.config.focusMinutes}
         defaultBreakMinutes={focus.state.config.breakMinutes}
         onStart={(config) => {
+          setFocusCycleLocalAnswered(0);
           focus.start(config, attemptTotals);
           setFocusUi("none");
         }}
@@ -531,6 +550,7 @@ export default function App() {
         cycle={focusSession?.cycle ?? 1}
         remainingMs={focus.remainingMs}
         onEnd={() => {
+          setFocusCycleLocalAnswered(0);
           focus.end();
           setFocusUi("none");
         }}
@@ -549,8 +569,15 @@ export default function App() {
         breakRemainingMs={focus.remainingMs}
         breakDone={focusSession?.breakDone ?? false}
         summary={focusBreakSummary}
-        onSkip={() => focus.skipBreak(attemptTotals)}
-        onEnd={() => focus.end()}
+        adEligible={focusBreakAdEligible}
+        onSkip={() => {
+          setFocusCycleLocalAnswered(0);
+          focus.skipBreak(attemptTotals);
+        }}
+        onEnd={() => {
+          setFocusCycleLocalAnswered(0);
+          focus.end();
+        }}
         returnFocusRef={focusTriggerRef}
         copy={{
           title: t.focusBreakTitle,
@@ -561,7 +588,8 @@ export default function App() {
           summaryFocus: t.focusSummaryFocus,
           summaryQuestions: t.focusSummaryQuestions,
           summaryAccuracy: t.focusSummaryAccuracy,
-          summaryToday: t.focusSummaryToday
+          summaryToday: t.focusSummaryToday,
+          advertisement: t.focusAdvertisement
         }}
       />
       {/* #608: non-home views compress the heading to a one-line brand bar on
@@ -841,7 +869,7 @@ export default function App() {
           <ChallengePanel
             init={launch}
             progressAttempts={progressAttempts}
-            recordAttempt={recordAttempt}
+            recordAttempt={recordLocalAttempt}
             language={language}
             targetLevel={targetLevel}
             onExit={() => setRoute(staticRoute("home"))}

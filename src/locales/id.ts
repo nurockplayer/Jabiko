@@ -76,6 +76,7 @@ export const id: Copy = {
   focusSummaryQuestions: "Dijawab",
   focusSummaryAccuracy: "Akurasi",
   focusSummaryToday: "Total hari ini",
+  focusAdvertisement: "Iklan",
   focusActiveTitle: "Fokus berlangsung",
   focusRemainingLabel: "Tersisa",
   focusCycleLabel: (cycle) => `Putaran ${cycle}`,
