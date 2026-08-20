@@ -327,30 +327,6 @@ describe("HomePanel legal links", () => {
   });
 });
 
-describe("HomePanel Stay.D placement (#744)", () => {
-  it("renders one promotion after the learning content and immediately before the footer", () => {
-    const { container } = render(<HomePanel
-      language="zh-Hant"
-      progressAttempts={[]}
-      reviewCount={0}
-      onNavigate={vi.fn()}
-      onStartReview={noop}
-      onStartVocab={noop}
-      onStartBookmarks={noop}
-      onStartDaily={noop}
-      onStartExamPreset={noop}
-      targetLevel={null}
-      onChooseLevel={noop}
-    />);
-
-    const promotions = container.querySelectorAll('[data-placement="home-bottom"]');
-    const footer = container.querySelector(".home-footer");
-    expect(promotions).toHaveLength(1);
-    expect(footer).not.toBeNull();
-    expect(promotions[0].nextElementSibling).toBe(footer);
-  });
-});
-
 describe("HomePanel donate link", () => {
   const ecpayUrl =
     "https://payment.ecpay.com.tw/Broadcaster/Donate/57DD8DC811013DF1C576D7ED22ACF911";
@@ -459,51 +435,12 @@ describe("HomePanel continue banner i18n (#427)", () => {
   });
 });
 
-describe("HomePanel Stay.D placement (#748 editorial)", () => {
-  it("renders the Stay.D recommendation without any property photo", () => {
+describe("HomePanel promotion placement", () => {
+  it("no longer renders any Stay.D promotion on Home", () => {
     renderHome({ language: "zh-Hant" });
 
-    const placement = document.querySelector('[data-placement="home-bottom"]');
-    expect(placement).not.toBeNull();
-    expect(placement?.querySelector("img")).toBeNull();
-    expect(placement?.querySelector(".stay-d-home-image")).toBeNull();
-  });
-
-  it("keeps the direct Airbnb CTA visible on the Home block", () => {
-    renderHome({ language: "zh-Hant" });
-
-    const primary = document.querySelector<HTMLAnchorElement>(
-      '[data-stay-d-placement="home-airbnb"]'
-    );
-    expect(primary).not.toBeNull();
-    expect(primary).toHaveAttribute(
-      "href",
-      "https://www.airbnb.com/rooms/1518015758376242668"
-    );
-    expect(primary).toHaveAttribute("target", "_blank");
-    expect(primary).toHaveAttribute("rel", "noopener noreferrer");
-  });
-});
-
-describe("HomePanel Stay.D placement (#750 editorial footer)", () => {
-  it("renders the frozen #750 Home teaser copy, not the /stay-d editorial copy", () => {
-    renderHome({ language: "zh-Hant" });
-
-    expect(
-      screen.getByRole("heading", { name: "在東京，來一趟真正用上學過日文的旅行。" })
-    ).toBeInTheDocument();
-    expect(screen.getByText("JABIKO 推薦 · 東京住宿")).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /查看 Stay\.D/ })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "想和家人朋友一起感受觀光景點之外的東京日常嗎？JABIKO 推薦 Stay.D，作為另一種更貼近生活的東京停留方式。"
-      )
-    ).toBeInTheDocument();
-    // #750: the Home teaser is intentionally shorter than the /stay-d copy.
-    expect(
-      screen.queryByText("下一次來東京，不只是觀光。用學過的日文，和家人朋友一起更深入地享受東京的日常。")
-    ).not.toBeInTheDocument();
+    expect(document.querySelector('[data-placement="home-bottom"]')).toBeNull();
+    expect(document.querySelector(".stay-d-home")).toBeNull();
+    expect(document.querySelector("[data-stay-d-placement]")).toBeNull();
   });
 });

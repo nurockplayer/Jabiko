@@ -15,7 +15,8 @@ const labels = {
   rules: "規則表",
   kanji: "漢字",
   kanaPageTitle: "五十音",
-  about: "關於"
+  about: "關於",
+  navPartnership: "合作推廣"
 } as const;
 
 const tools: MoreMenuTools = {
@@ -92,6 +93,20 @@ describe("AppNavigation (#727)", () => {
     await user.click(screen.getByRole("button", { name: "資源" }));
     await user.click(screen.getByRole("menuitem", { name: "漢字" }));
     expect(onSelect).toHaveBeenCalledWith("kanji");
+  });
+
+  it("focuses an item inside the menu that was opened, not a sibling menu's twin", async () => {
+    const user = userEvent.setup();
+    renderNavigation();
+
+    const more = screen.getByRole("button", { name: "更多" });
+    more.focus();
+    await user.keyboard("{ArrowDown}");
+
+    const panel = await screen.findByRole("menu", { name: "更多" });
+    await waitFor(() =>
+      expect(panel).toContainElement(document.activeElement as HTMLElement | null)
+    );
   });
 
   it("supports keyboard-only resource selection from both folded navigation triggers", async () => {

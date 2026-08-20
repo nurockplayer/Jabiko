@@ -16,6 +16,7 @@ export const id: Copy = {
   navMore: "Lainnya",
   navMoreTools: "Pengaturan & alat",
   navMoreWithCurrent: (page) => `Lainnya (saat ini: ${page})`,
+  navPartnership: "Kemitraan",
   loading: "Memuat…",
   updateAvailable: "Versi baru tersedia — ketuk untuk memperbarui",
   routeErrorTitle: "Halaman gagal dimuat",
@@ -44,8 +45,9 @@ export const id: Copy = {
   aboutAuthorTitle: "Penulis",
   aboutAuthorName: "花雪（HanaYukii）",
   aboutAuthorBody:
-    "Berlatar belakang kompetisi pemrograman, sempat tiga tahun jadi insinyur di Google, dan setelah keluar pada 2025 kini menjadi Tech Lead di sebuah startup AI. Bahasa Jepang adalah modal lama yang ditinggalkan setelah lulus N2 sepuluh tahun lalu, sampai mulai mengejar idol Jepang lagi pada 2024 dan kembali menekuninya. Setelah itu ada sedikit waktu luang, lalu mulai serius melatihnya — dan dari sinilah Jabiko lahir. Awalnya murni untuk dipakai sendiri, tetapi tanpa disangka penggunanya perlahan bertambah; karena sudah dipakai orang, kini tujuannya adalah memolesnya menjadi karya yang benar-benar memuaskan, merekomendasikannya kepada lebih banyak orang yang antusias pada bahasa Jepang, sekaligus menjadi kesempatan bertukar pikiran dengan sesama penggemar. Sambil membangun situs ini pun terus belajar dengannya — targetnya bukan sekadar lulus ujian, melainkan kemajuan besar kemampuan bahasa Jepang secara keseluruhan.",
+    "Berlatar belakang pemrogram kompetitif papan atas; lulus S2 langsung masuk Google, tiga tahun di sana lalu keluar, dan kini menjadi Tech Lead di sebuah startup AI. Bahasa Jepang adalah modal lama — lulus N2 sepuluh tahun lalu lalu dianggurkan — sampai kembali mengikuti idola Jepang pada 2024 dan memungutnya lagi. Jabiko awalnya murni untuk dipakai sendiri: dari konjugasi kata kerja sampai tata bahasa N1, soal yang salah otomatis masuk antrean ulasan, tingkat kesulitan menyesuaikan hasil jawaban, dan soalnya dibuat massal dengan AI lalu diperiksa sendiri. Lama-lama ada penggunanya, jadi sekarang dirawat sebagai proyek serius, dengan bank soal dan fitur yang terus ditambah.",
   aboutAuthorLink: "Selengkapnya tentang penulis →",
+  aboutAuthorContact: "Hubungi penulis",
   aboutAuthor2Title: "Penulis",
   aboutAuthor2Name: "塔奇巧克力（TachikoChoko）",
   aboutAuthor2Body:

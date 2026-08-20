@@ -711,7 +711,8 @@ export default function App() {
           rules: t.rules,
           kanji: t.kanji,
           kanaPageTitle: t.kanaPageTitle,
-          about: t.about
+          about: t.about,
+          navPartnership: t.navPartnership
         }}
         resourcesLabel={t.navResources}
         resourcesCurrentLabel={t.navResourcesWithCurrent}

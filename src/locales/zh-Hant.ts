@@ -16,6 +16,7 @@ export const zhHant: Copy = {
   navMore: "更多",
   navMoreTools: "設定與工具",
   navMoreWithCurrent: (page) => `更多（目前：${page}）`,
+  navPartnership: "合作推廣",
   loading: "載入中…",
   updateAvailable: "有新版本，點此更新",
   routeErrorTitle: "頁面載入失敗",
@@ -44,8 +45,9 @@ export const zhHant: Copy = {
   aboutAuthorTitle: "作者",
   aboutAuthorName: "花雪（HanaYukii）",
   aboutAuthorBody:
-    "程式競賽出身、在 Google 待了三年的工程師，2025 年離開後，現在於 AI 新創當 Tech Lead。日語是十年前考過 N2 就擱著的老本，直到 2024 年重新追起日系偶像才又撿了回來。那之後多了點時間，就開始認真把它練起來——Jabiko 就是這時候做出來的。一開始純粹自用，沒想到慢慢有了不少使用者；既然被用起來了，就想把它磨成一個自己真心滿意的作品，推薦給更多熱衷日文的人，也藉這個機會跟同好交流。一邊做網站，也一邊用它學習——目標不只是通過檢定，而是讓自己的日語整體大幅進步。",
+    "頂級程式競賽選手出身，碩士畢業直接進 Google，待了三年後離開，現在在 AI 新創當 Tech Lead。日語是十年前考過 N2 就擱著的老本，直到 2024 年重新追起日系偶像才又撿了回來。Jabiko 一開始純粹自用：從動詞變化練到 N1 文法，答錯的題目會自動排進複習，難度照作答狀況調，題目用 AI 大量生成再自己審過。後來慢慢有了使用者，就當正式專案在維護，題庫和功能持續補。",
   aboutAuthorLink: "更多關於作者 →",
+  aboutAuthorContact: "聯絡作者",
   aboutAuthor2Title: "作者",
   aboutAuthor2Name: "塔奇巧克力（TachikoChoko）",
   aboutAuthor2Body:
