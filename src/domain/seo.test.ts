@@ -47,7 +47,7 @@ describe("seo", () => {
     expect(seoForView("kanji").canonical).toBe("https://jabiko.app/kanji");
     expect(seoForView("stayD").canonical).toBe("https://jabiko.app/stay-d");
     expect(seoForView("stayD").title).toBe(
-      "Stay.D 東京住宿推薦｜像生活一樣感受東京 · Jabiko"
+      "合作推廣｜Stay.D 東京住宿推薦 · Jabiko"
     );
   });
 

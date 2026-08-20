@@ -17,8 +17,8 @@ export function StayDVideo({
 }: {
   copy: StayDVideoCopy;
   locale: Language;
-  triggerPlacement: "home-video" | "stay-d-video";
-  airbnbPlacement: "home-video-airbnb" | "stay-d-video-airbnb";
+  triggerPlacement: "stay-d-video";
+  airbnbPlacement: "stay-d-video-airbnb";
 }) {
   const [expanded, setExpanded] = useState(false);
   const panelId = useId();

@@ -81,9 +81,9 @@ export const VIEW_SEO: Record<AppView, PageSeo> = {
     path: APP_VIEW_PATHS.terms
   },
   stayD: {
-    title: "Stay.D 東京住宿推薦｜像生活一樣感受東京 · Jabiko",
+    title: "合作推廣｜Stay.D 東京住宿推薦 · Jabiko",
     description:
-      "用學過的日文，和家人朋友一起更深入地享受東京的日常。Stay.D 是適合體驗東京生活的推薦住宿，前往 Airbnb 查看 Stay.D。",
+      "Jabiko 目前的合作對象一覽。Stay.D 是適合體驗東京生活的推薦住宿：用學過的日文，和家人朋友一起更深入地享受東京的日常，前往 Airbnb 查看 Stay.D。合作洽詢請聯絡 Jabiko 作者。",
     path: APP_VIEW_PATHS.stayD
   },
   grammar: {

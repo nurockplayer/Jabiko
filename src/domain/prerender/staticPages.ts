@@ -18,10 +18,10 @@ import { KANA_TABLE, type KanaGroup, type KanaScript } from "../kana";
 import type { JlptLevel } from "../types";
 import { legalDocumentFor, type LegalPageKind } from "../legalContent";
 import { personJsonLd } from "./structuredData";
-import {
-  STAY_D_AIRBNB_URL,
-  STAY_D_EDITORIAL_COPY
-} from "../stayD";
+import { STAY_D_VIDEO_ID } from "../stayD";
+import { PARTNER_REGISTRY } from "../partners";
+import { AUTHOR_EMAIL } from "../author";
+import { copy as uiCopy } from "../../i18n";
 
 export interface StaticPage {
   /** Decoded URL path, e.g. "/grammar/〜てもいい". */
@@ -220,20 +220,33 @@ function homeBody(): string {
   );
 }
 
-function stayDBody(): string {
-  const text = STAY_D_EDITORIAL_COPY["zh-Hant"];
-  const airbnb = (placement: string) =>
-    `<a href="${STAY_D_AIRBNB_URL}" target="_blank" rel="noopener noreferrer" data-stay-d-placement="${placement}">${escapeHtml(text.airbnbCta)}</a>`;
+function partnersBody(): string {
+  const t = uiCopy["zh-Hant"];
+  const cards = PARTNER_REGISTRY.flatMap((partner) => {
+    const text = partner.copy["zh-Hant"];
+    if (!text) return [];
+    const video = partner.video?.copy["zh-Hant"];
+    return [
+      [
+        `<h2>${escapeHtml(text.name)}</h2>`,
+        paragraph(text.kicker),
+        paragraph(text.body),
+        `<p><a href="${partner.url}" target="_blank" rel="noopener noreferrer" data-stay-d-placement="${partner.linkPlacement}">${escapeHtml(text.cta)}</a></p>`,
+        video
+          ? `<p><a href="https://www.youtube.com/watch?v=${STAY_D_VIDEO_ID}&amp;t=70s" rel="noopener noreferrer">${escapeHtml(video.watch)}</a></p>`
+          : ""
+      ].join("")
+    ];
+  });
 
   return wrap(
-    text.title,
+    t.partnersTitle,
     [
-      paragraph(text.kicker),
-      paragraph(text.title),
-      paragraph(text.body),
-      `<p>${airbnb("stay-d-hero-airbnb")}</p>`,
-      `<h2>${escapeHtml(text.page.videoTitle)}</h2>${paragraph(text.page.videoIntro)}<p><a href="https://www.youtube.com/watch?v=wXx_t8JTyDE&amp;t=70s" rel="noopener noreferrer">${escapeHtml(text.video.watch)}</a></p>`,
-      `<h2>${escapeHtml(text.page.finalTitle)}</h2>${paragraph(text.page.finalBody)}<p>${airbnb("stay-d-final-airbnb")}</p>`
+      paragraph(t.partnersIntro),
+      ...cards,
+      `<h2>${escapeHtml(t.partnersContactTitle)}</h2>`,
+      paragraph(t.partnersContactBody),
+      `<p><a href="mailto:${AUTHOR_EMAIL}">${escapeHtml(AUTHOR_EMAIL)}</a></p>`
     ].join("")
   );
 }
@@ -315,7 +328,7 @@ export function buildStaticPages(): StaticPage[] {
   for (const view of ["privacy", "terms"] as const) {
     push(view, VIEW_SEO[view].path, legalPageBody(view));
   }
-  push("stayD", VIEW_SEO.stayD.path, stayDBody());
+  push("stayD", VIEW_SEO.stayD.path, partnersBody());
   push("kana", "/kana", kanaBody());
   push("grammar", "/grammar", grammarIndexBody());
   for (const level of LEVELS) {
