@@ -16,6 +16,7 @@ export const en: Copy = {
   navMore: "More",
   navMoreTools: "Settings & tools",
   navMoreWithCurrent: (page) => `More (current: ${page})`,
+  navPartnership: "Partnership",
   loading: "Loading…",
   updateAvailable: "A new version is available — tap to update",
   routeErrorTitle: "Page failed to load",
@@ -44,8 +45,9 @@ export const en: Copy = {
   aboutAuthorTitle: "Author",
   aboutAuthorName: "花雪 (HanaYukii)",
   aboutAuthorBody:
-    "A competitive-programming background and three years as an engineer at Google; after leaving in 2025, now a Tech Lead at an AI startup. Japanese was an old asset — N2 passed ten years ago and then shelved — until getting back into Japanese idols in 2024 brought it back. With a bit more time after that, the serious practice began — and that's when Jabiko was built. It started as a purely personal tool, then unexpectedly picked up quite a few users; since people are actually using it, the plan now is to keep polishing it into a work to be genuinely proud of, share it with more people who are passionate about Japanese, and take the chance to connect with fellow fans and learners. Building the site and studying with it go hand in hand — the goal isn't just passing the JLPT, but a real, across-the-board jump in Japanese.",
+    "A top-tier competitive programmer; went straight from a master's degree into Google, spent three years there, and is now a Tech Lead at an AI startup. Japanese was an old asset — N2 passed ten years ago and then shelved — picked back up in 2024 after getting into Japanese idols again. Jabiko started as a purely personal tool: from verb conjugation up to N1 grammar, missed questions go back into review automatically, difficulty follows how you answer, and questions are generated in bulk with AI and then reviewed by hand. It gradually picked up users, so it is now maintained as a real project, with the question bank and features still growing.",
   aboutAuthorLink: "More about the author →",
+  aboutAuthorContact: "Contact the author",
   aboutAuthor2Title: "Author",
   aboutAuthor2Name: "塔奇巧克力 (TachikoChoko)",
   aboutAuthor2Body:

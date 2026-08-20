@@ -10,6 +10,7 @@ describe("navigation registry (#727)", () => {
       "challenge",
       "mock",
       "grammar",
+      "stayD",
       "rules",
       "kanji",
       "kana",
@@ -29,6 +30,25 @@ describe("navigation registry (#727)", () => {
       expect(resolveNavigation(staticRoute("home"), locale).resources.map((item) => item.id), locale)
         .toEqual(["rules", "kanji", "kana", "about"]);
     }
+  });
+
+  it("puts the partnership tab at the end of the primary row where Stay.D has copy", () => {
+    for (const locale of ["zh-Hant", "ja", "en"] as const) {
+      expect(resolveNavigation(staticRoute("home"), locale).primary.map((item) => item.id), locale)
+        .toEqual(["home", "learn", "challenge", "mock", "grammar", "stayD"]);
+    }
+  });
+
+  it("hides the partnership tab in locales that have no Stay.D copy", () => {
+    for (const locale of ["ko", "vi", "th", "id", "my"] as const) {
+      const nav = resolveNavigation(staticRoute("home"), locale);
+      expect(nav.primary.some((item) => item.id === "stayD"), locale).toBe(false);
+    }
+  });
+
+  it("marks the partnership tab current on the /stay-d route", () => {
+    const nav = resolveNavigation(staticRoute("stayD"), "zh-Hant");
+    expect(nav.primary.find((item) => item.id === "stayD")?.current).toBe(true);
   });
 
   it("resolves nested primary and resource ancestors", () => {

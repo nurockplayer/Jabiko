@@ -3,6 +3,7 @@ import {
   BookOpen,
   ClipboardList,
   GraduationCap,
+  Handshake,
   Home,
   Info,
   Table,
@@ -27,7 +28,8 @@ const ICONS: Record<NavigationIcon, LucideIcon> = {
   rules: Table,
   kanji: BookA,
   kana: Type,
-  about: Info
+  about: Info,
+  stayD: Handshake
 };
 
 const iconStyle = { verticalAlign: "middle", marginRight: "0.2rem" } as const;

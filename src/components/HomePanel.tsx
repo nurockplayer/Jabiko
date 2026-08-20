@@ -18,7 +18,6 @@ import { ShareButtons } from "./challenge/ShareButtons";
 import { LegalLinks } from "./LegalLinks";
 import type { FeedbackCategory } from "../domain/feedbackRemote";
 import { getBookmarkedIds } from "../domain/bookmarks";
-import { StayDPromoCard } from "./StayDPromoCard";
 
 // External walkthrough / 使用說明書: the author's blog post about Jabiko.
 // Surfaced in the hero so first-time visitors can read how to use the app.
@@ -601,7 +600,6 @@ export function HomePanel({
         </section>
       ) : null}
 
-      <StayDPromoCard language={language} />
 
       <footer className="home-footer">
         <div className="home-footer-spots" aria-hidden="true">

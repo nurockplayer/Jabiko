@@ -1,5 +1,6 @@
 import type { LocaleCode } from "./types";
 import type { AppRoute, AppView } from "./routes";
+import { STAY_D_REQUIRED_LOCALES } from "./stayD";
 
 export type NavigationGroup = "primary" | "resource";
 export type NavigationId =
@@ -11,7 +12,8 @@ export type NavigationId =
   | "rules"
   | "kanji"
   | "kana"
-  | "about";
+  | "about"
+  | "stayD";
 export type NavigationIcon =
   | "home"
   | "learn"
@@ -21,7 +23,8 @@ export type NavigationIcon =
   | "rules"
   | "kanji"
   | "kana"
-  | "about";
+  | "about"
+  | "stayD";
 export type NavigationLabelKey =
   | "home"
   | "learn"
@@ -31,7 +34,8 @@ export type NavigationLabelKey =
   | "rules"
   | "kanji"
   | "kanaPageTitle"
-  | "about";
+  | "about"
+  | "navPartnership";
 
 export interface NavigationDefinition {
   readonly id: NavigationId;
@@ -40,6 +44,10 @@ export interface NavigationDefinition {
   readonly labelKey: NavigationLabelKey;
   readonly icon: NavigationIcon;
   readonly zhHantOnly?: true;
+  /** Entry is only offered in these locales -- for tabs whose destination has
+   *  content in a subset of the app's locales (e.g. the Stay.D partnership
+   *  page). Undefined means "every locale". */
+  readonly locales?: readonly LocaleCode[];
 }
 
 export interface ResolvedNavigationEntry extends NavigationDefinition {
@@ -52,6 +60,14 @@ export const NAVIGATION_REGISTRY: readonly NavigationDefinition[] = [
   { id: "challenge", view: "challenge", group: "primary", labelKey: "challenge", icon: "challenge" },
   { id: "mock", view: "mock", group: "primary", labelKey: "mockExam", icon: "mock" },
   { id: "grammar", view: "grammar", group: "primary", labelKey: "grammar", icon: "grammar" },
+  {
+    id: "stayD",
+    view: "stayD",
+    group: "primary",
+    labelKey: "navPartnership",
+    icon: "stayD",
+    locales: STAY_D_REQUIRED_LOCALES
+  },
   { id: "rules", view: "rules", group: "resource", labelKey: "rules", icon: "rules" },
   { id: "kanji", view: "kanji", group: "resource", labelKey: "kanji", icon: "kanji" },
   { id: "kana", view: "kana", group: "resource", labelKey: "kanaPageTitle", icon: "kana" },
@@ -72,7 +88,9 @@ export function resolveNavigation(route: AppRoute, language: LocaleCode): {
   resourcesCurrent: boolean;
 } {
   const visible = NAVIGATION_REGISTRY.filter(
-    (entry) => !entry.zhHantOnly || language === "zh-Hant"
+    (entry) =>
+      (!entry.zhHantOnly || language === "zh-Hant") &&
+      (!entry.locales || entry.locales.includes(language))
   ).map((entry) => ({ ...entry, current: isCurrent(entry, route) }));
   const primary = visible.filter((entry) => entry.group === "primary");
   const resources = visible.filter((entry) => entry.group === "resource");

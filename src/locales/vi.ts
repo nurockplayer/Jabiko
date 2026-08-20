@@ -16,6 +16,7 @@ export const vi: Copy = {
   navMore: "Xem thêm",
   navMoreTools: "Cài đặt & công cụ",
   navMoreWithCurrent: (page) => `Xem thêm (hiện tại: ${page})`,
+  navPartnership: "Hợp tác",
   loading: "Đang tải…",
   updateAvailable: "Đã có phiên bản mới — chạm để cập nhật",
   routeErrorTitle: "Không tải được trang",
@@ -44,8 +45,9 @@ export const vi: Copy = {
   aboutAuthorTitle: "Tác giả",
   aboutAuthorName: "花雪 (HanaYukii)",
   aboutAuthorBody:
-    "Xuất thân từ lập trình thi đấu và ba năm làm kỹ sư tại Google; sau khi rời đi năm 2025, hiện là Tech Lead tại một startup AI. Tiếng Nhật là một vốn liếng cũ — đậu N2 mười năm trước rồi gác lại — cho đến khi quay lại với idol Nhật năm 2024 đã làm nó sống dậy. Sau đó có thêm chút thời gian, việc luyện tập nghiêm túc mới bắt đầu — và đó cũng là lúc Jabiko ra đời. Ban đầu hoàn toàn để dùng riêng, không ngờ dần dần có thêm khá nhiều người dùng; đã vậy thì muốn mài giũa nó thành một tác phẩm khiến bản thân thật sự hài lòng, giới thiệu đến nhiều người yêu tiếng Nhật hơn, và cũng là dịp giao lưu với những người cùng sở thích. Vừa làm trang web vừa tiếp tục dùng nó để học — mục tiêu không chỉ là đậu kỳ thi, mà là để tiếng Nhật tiến bộ vượt bậc về mọi mặt.",
+    "Xuất thân là tuyển thủ lập trình thi đấu hàng đầu; tốt nghiệp thạc sĩ là vào thẳng Google, làm ba năm rồi rời đi, hiện là Tech Lead tại một startup AI. Tiếng Nhật là vốn liếng cũ — đậu N2 mười năm trước rồi gác lại — đến năm 2024 quay lại với idol Nhật mới nhặt lên. Jabiko ban đầu thuần túy để tự dùng: từ chia động từ đến ngữ pháp N1, câu sai sẽ tự động được đưa vào phần ôn lại, độ khó điều chỉnh theo kết quả làm bài, còn câu hỏi thì tạo hàng loạt bằng AI rồi tự tay duyệt lại. Về sau dần có người dùng, nên giờ được duy trì như một dự án chính thức, ngân hàng câu hỏi và tính năng vẫn tiếp tục được bổ sung.",
   aboutAuthorLink: "Tìm hiểu thêm về tác giả →",
+  aboutAuthorContact: "Liên hệ tác giả",
   aboutAuthor2Title: "Tác giả",
   aboutAuthor2Name: "塔奇巧克力（TachikoChoko）",
   aboutAuthor2Body:

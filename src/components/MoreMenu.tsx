@@ -85,20 +85,14 @@ export function MoreMenu({
 
   // Opening is an event-driven transition: the event handler seeds the first
   // key and flips `open` together, so the focus effect never has to write
-  // state (the Hooks v7 set-state-in-effect rule).
-  const openMenu = useCallback(
-    (options: { focus: boolean }) => {
-      const first = allKeys()[0] ?? null;
-      setFocusKey(first);
-      setOpen(true);
-      if (options.focus && first) {
-        requestAnimationFrame(() =>
-          document.querySelector<HTMLElement>(`[data-menu-key="${first}"]`)?.focus()
-        );
-      }
-    },
-    [allKeys]
-  );
+  // state (the Hooks v7 set-state-in-effect rule). Moving focus is left to the
+  // layout effect below -- it is scoped to this menu's own root and lands in
+  // the same commit, where an extra document-wide rAF focus could both pick a
+  // sibling menu's identically-keyed item and land after a following arrow key.
+  const openMenu = useCallback(() => {
+    setFocusKey(allKeys()[0] ?? null);
+    setOpen(true);
+  }, [allKeys]);
 
   // Every close path (click, Escape, Tab, outside press, action select) funnels
   // through here so the focus key is always cleared with `open`.
@@ -194,13 +188,13 @@ export function MoreMenu({
           if (open) {
             closeMenu({ returnFocus: false });
           } else {
-            openMenu({ focus: true });
+            openMenu();
           }
         }}
         onKeyDown={(event) => {
           if (event.key === "ArrowDown" && !open) {
             event.preventDefault();
-            openMenu({ focus: true });
+            openMenu();
           }
         }}
       >

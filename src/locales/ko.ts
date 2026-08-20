@@ -16,6 +16,7 @@ export const ko: Copy = {
   navMore: "더보기",
   navMoreTools: "설정 및 도구",
   navMoreWithCurrent: (page) => `더보기(현재: ${page})`,
+  navPartnership: "제휴 홍보",
   loading: "불러오는 중…",
   updateAvailable: "새 버전이 있습니다 — 탭하여 업데이트",
   routeErrorTitle: "페이지를 불러오지 못했습니다",
@@ -44,8 +45,9 @@ export const ko: Copy = {
   aboutAuthorTitle: "제작자",
   aboutAuthorName: "花雪 (HanaYukii)",
   aboutAuthorBody:
-    "알고리즘 대회 출신으로 Google에서 3년간 엔지니어로 일했고, 2025년 퇴사 후 지금은 AI 스타트업의 Tech Lead입니다. 일본어는 10년 전 N2를 따고 묵혀 둔 오래된 자산이었는데, 2024년 일본 아이돌에 다시 빠지면서 되살아났어요. 그 뒤로 시간이 조금 더 생기면서 본격적인 연습이 시작됐고 — 바로 그때 Jabiko를 만들었습니다. 처음엔 순전히 개인용이었는데 뜻밖에 사용자가 조금씩 늘었어요. 이왕 이렇게 된 것, 스스로 진심으로 만족할 수 있는 작품으로 다듬어 일본어에 열정 있는 분들께 더 널리 추천하고, 같은 취미를 가진 분들과 교류하는 계기로도 삼고 싶습니다. 사이트를 만들면서 저도 계속 이걸로 공부하고 있고요 — 목표는 시험 합격만이 아니라 일본어 실력 전체를 크게 끌어올리는 것입니다.",
+    "최상위권 알고리즘 대회 선수 출신으로, 석사를 마치고 바로 Google에 입사해 3년간 일한 뒤 퇴사했고 지금은 AI 스타트업의 Tech Lead입니다. 일본어는 10년 전 N2를 따고 묵혀 둔 오래된 자산이었는데, 2024년 일본 아이돌을 다시 좋아하게 되면서 되살렸습니다. Jabiko는 처음엔 순전히 제가 쓰려고 만든 도구였습니다 — 동사 활용부터 N1 문법까지, 틀린 문제는 자동으로 복습에 들어가고, 난이도는 정답 상황에 맞춰 조정되며, 문제는 AI로 대량 생성한 뒤 직접 검수합니다. 이후 사용자가 조금씩 늘면서 정식 프로젝트로 유지하고 있고, 문제와 기능을 계속 추가하는 중입니다.",
   aboutAuthorLink: "제작자에 대해 더 보기 →",
+  aboutAuthorContact: "작성자에게 연락",
   aboutAuthor2Title: "제작자",
   aboutAuthor2Name: "塔奇巧克力（TachikoChoko）",
   aboutAuthor2Body:

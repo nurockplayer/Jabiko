@@ -33,6 +33,8 @@ export type Copy = {
   navMoreTools: string;
   /** Collapsed 更多 trigger's accessible name while a folded view is active. */
   navMoreWithCurrent: (page: string) => string;
+  /** Primary-nav label for the Stay.D partnership page. */
+  navPartnership: string;
   loading: string;
   updateAvailable: string;
   routeErrorTitle: string;
@@ -170,6 +172,7 @@ export type Copy = {
   aboutAuthorName: string;
   aboutAuthorBody: string;
   aboutAuthorLink: string;
+  aboutAuthorContact: string;
   aboutAuthor2Title: string;
   aboutAuthor2Name: string;
   aboutAuthor2Body: string;

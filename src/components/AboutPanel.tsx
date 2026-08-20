@@ -4,6 +4,8 @@ import { LegalLinks } from "./LegalLinks";
 
 // The author's personal "about" page.
 const ABOUT_URL = "https://hanayukii.dev/about";
+// Direct line to the author, offered next to the personal-site link.
+const AUTHOR_EMAIL = "islu245777@gmail.com";
 
 // 關於 view: a quiet reading page -- where the name came from, how the app
 // grew, and a short note about who made it. Static text only (no learner
@@ -36,6 +38,9 @@ export function AboutPanel({ language }: { language: Language }) {
         <p>{t.aboutAuthorBody}</p>
         <a className="about-link" href={ABOUT_URL} target="_blank" rel="noopener noreferrer">
           {t.aboutAuthorLink}
+        </a>
+        <a className="about-link" href={`mailto:${AUTHOR_EMAIL}`}>
+          {t.aboutAuthorContact}
         </a>
       </article>
 
