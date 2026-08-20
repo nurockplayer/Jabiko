@@ -20,7 +20,7 @@ export const en: Copy = {
   partnersTitle: "Partnerships",
   partnersIntro: "Everything Jabiko currently partners with is listed here.",
   partnersContactTitle: "Want to partner with Jabiko?",
-  partnersContactBody: "Partnership enquiries go to this address. It reaches Jabiko, not the partners listed above.",
+  partnersContactBody: "Partnership enquiries go to this address.",
   loading: "Loading…",
   updateAvailable: "A new version is available — tap to update",
   routeErrorTitle: "Page failed to load",

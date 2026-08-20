@@ -40,6 +40,13 @@ describe("partners page layout", () => {
     expect(heading).toMatch(/font-size: clamp\([^)]*1\.8rem\)/);
   });
 
+  it("keeps a partner card close to body size instead of hero size", () => {
+    const name = rule(".partner-name");
+    // Upper bound at ~1rem: the headline is a sentence, not a page title.
+    expect(name).toMatch(/font-size: clamp\([^)]*1\.05rem\)/);
+    expect(rule(".partner-body")).toContain("font-size: 0.9rem");
+  });
+
   it("renders partners as an unbulleted card list", () => {
     const list = rule(".partners-list");
     expect(list).toContain("list-style: none");

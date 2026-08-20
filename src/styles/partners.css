@@ -67,9 +67,9 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: 0.4rem;
   min-width: 0;
-  padding: clamp(0.9rem, 2.5vw, 1.25rem);
+  padding: clamp(0.75rem, 2vw, 1rem);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-lg);
   background: var(--paper);
@@ -83,17 +83,19 @@
   text-transform: uppercase;
 }
 
+/* The card headline is a full sentence of editorial copy, so it is set close
+   to body size -- a title-scale clamp turned the one card into a hero. */
 .partner-name {
   color: var(--ink);
   font-family: var(--font-title);
-  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
-  line-height: 1.4;
+  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
+  line-height: 1.5;
 }
 
 .partner-body {
   color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: 0.9rem;
+  line-height: 1.65;
 }
 
 .partner-link {

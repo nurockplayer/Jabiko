@@ -20,7 +20,7 @@ export const th: Copy = {
   partnersTitle: "ความร่วมมือ",
   partnersIntro: "รวมพันธมิตรที่ร่วมงานกับ Jabiko อยู่ในขณะนี้",
   partnersContactTitle: "อยากร่วมงานกับ Jabiko ไหม?",
-  partnersContactBody: "ติดต่อเรื่องความร่วมมือได้ที่อีเมลนี้ ซึ่งเป็นอีเมลของ Jabiko ไม่ใช่ช่องทางติดต่อของพันธมิตรที่แสดงไว้ข้างบน",
+  partnersContactBody: "ติดต่อเรื่องความร่วมมือได้ที่อีเมลนี้",
   loading: "กำลังโหลด…",
   updateAvailable: "มีเวอร์ชันใหม่ — แตะเพื่ออัปเดต",
   routeErrorTitle: "โหลดหน้าไม่สำเร็จ",
