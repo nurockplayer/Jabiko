@@ -104,8 +104,8 @@ const LegalPanel = lazy(() =>
 );
 // Stay.D's long-form conversion copy remains isolated from the eager Home
 // bundle. Home imports only its compact promotion card and shared essentials.
-const StayDPage = lazy(() =>
-  import("./components/StayDPage").then((module) => ({ default: module.StayDPage }))
+const PartnersPage = lazy(() =>
+  import("./components/PartnersPage").then((module) => ({ default: module.PartnersPage }))
 );
 const BUILD_VERSION = packageJson.version;
 
@@ -819,7 +819,7 @@ export default function App() {
         </Suspense>
       ) : appView === "stayD" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>
-          <StayDPage language={language} />
+          <PartnersPage language={language} />
         </Suspense>
       ) : appView === "kanji" ? (
         <Suspense fallback={<PanelFallback label={t.loading} />}>

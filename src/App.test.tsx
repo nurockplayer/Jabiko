@@ -143,31 +143,25 @@ describe("App", () => {
     expect(screen.queryByRole("heading", { name: "一章一章解鎖" })).not.toBeInTheDocument();
   });
 
-  it("keeps /stay-d out of the primary nav and lazy-loads its public route", async () => {
-    expect(appSource).toMatch(/const StayDPage = lazy\(\(\) =>/);
-    expect(appSource).toContain('import("./components/StayDPage")');
+  it("reaches the partnership page from the primary nav and lazy-loads its route", async () => {
+    expect(appSource).toMatch(/const PartnersPage = lazy\(\(\) =>/);
+    expect(appSource).toContain('import("./components/PartnersPage")');
 
     // Make the expected localized route copy an explicit test precondition.
     localStorage.setItem("jabiko.lang", "zh-Hant");
     window.history.replaceState({}, "", "/stay-d");
     render(<App />);
 
-    // This is the first cold import of the Stay.D route chunk. CI runners can
-    // spend longer than Testing Library's default 1s transforming that chunk,
-    // so allow the same bounded warm-up window as the grammar route below.
-    await screen.findByRole(
-      "heading",
-      {
-        name: "下一次來東京，不只是觀光。用學過的日文，和家人朋友一起更深入地享受東京的日常。",
-        level: 1
-      },
-      { timeout: 15000 }
-    );
-    expect(
-      within(screen.getByRole("navigation", { name: "學習流程" })).queryByRole("button", {
-        name: /Stay\.D/
-      })
-    ).not.toBeInTheDocument();
+    // This is the first cold import of the partnership route chunk. CI runners
+    // can spend longer than Testing Library's default 1s transforming that
+    // chunk, so allow the same bounded warm-up window as the grammar route.
+    await screen.findByRole("heading", { name: "合作推廣", level: 1 }, { timeout: 15000 });
+
+    // The tab is part of the primary row, and it is the current page.
+    const tab = within(screen.getByRole("navigation", { name: "學習流程" })).getByRole("button", {
+      name: "合作推廣"
+    });
+    expect(tab).toHaveAttribute("aria-current", "page");
   });
 
   it("marks the active nav tab with aria-current=page and moves it on navigation", async () => {

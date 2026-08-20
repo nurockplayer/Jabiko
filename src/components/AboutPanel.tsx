@@ -1,11 +1,10 @@
 import { copy, type Language } from "../i18n";
 import { JabikoMark } from "./JabikoMark";
 import { LegalLinks } from "./LegalLinks";
+import { AUTHOR_EMAIL } from "../domain/author";
 
 // The author's personal "about" page.
 const ABOUT_URL = "https://hanayukii.dev/about";
-// Direct line to the author, offered next to the personal-site link.
-const AUTHOR_EMAIL = "islu245777@gmail.com";
 
 // 關於 view: a quiet reading page -- where the name came from, how the app
 // grew, and a short note about who made it. Static text only (no learner

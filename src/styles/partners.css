@@ -1,0 +1,235 @@
+/* 合作推廣 (/stay-d): a compact list of what Jabiko partners with, plus the
+   author's own contact block. Sized as a list page -- narrow column, card per
+   partner -- so a second partnership is one more card, not a redesign.
+   The .stay-d-video-* rules stay as-is: the click-to-load video panel is
+   shared by any partner that ships one. */
+.partners-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  /* Deliberately narrower than a landing page: this is a short list. */
+  width: min(100%, 720px);
+  margin: 0 auto;
+}
+
+.partners-page h1,
+.partners-page h2,
+.partners-page p {
+  margin: 0;
+}
+
+.partners-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  color: var(--teal-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.partners-back svg {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+}
+
+.partners-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.partners-head h1 {
+  color: var(--ink);
+  font-family: var(--font-title);
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  line-height: 1.3;
+}
+
+.partners-intro {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.partners-list {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.partner-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: clamp(0.9rem, 2.5vw, 1.25rem);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.partner-kicker {
+  color: var(--vermilion);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.partner-name {
+  color: var(--ink);
+  font-family: var(--font-title);
+  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+  line-height: 1.4;
+}
+
+.partner-body {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.partner-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  color: var(--teal-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.partner-link svg {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+}
+
+.partners-back:hover,
+.partners-back:focus-visible,
+.partner-link:hover,
+.partner-link:focus-visible,
+.partners-contact-mail:hover,
+.partners-contact-mail:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* The contact block is the author's, never a partner's: it sits outside the
+   card list, under its own rule, with copy that says whose address it is. */
+.partners-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.partners-contact h2 {
+  color: var(--ink);
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.partners-contact p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.partners-contact-mail {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--teal-dark);
+  font-weight: 700;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+/* ── shared click-to-load video panel ───────────────────────────────── */
+.stay-d-video {
+  min-width: min(100%, 20rem);
+  width: 100%;
+}
+
+.stay-d-video-trigger {
+  max-width: 100%;
+  background: var(--paper);
+  color: var(--teal-dark);
+  font-weight: 750;
+  text-align: left;
+}
+
+.stay-d-video-panel {
+  display: grid;
+  gap: 0.7rem;
+  width: 100%;
+  margin-top: 0.7rem;
+}
+
+.stay-d-video-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  background: #111;
+}
+
+.stay-d-video-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.stay-d-video-airbnb {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--vermilion) 60%, var(--button-border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--vermilion) 10%, var(--paper));
+  color: var(--vermilion);
+  font-weight: 800;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.stay-d-video-airbnb svg {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+}
+
+.partners-back:focus-visible,
+.partner-link:focus-visible,
+.partners-contact-mail:focus-visible,
+.stay-d-video-airbnb:focus-visible,
+.stay-d-video-trigger:focus-visible {
+  outline: 3px solid var(--focus-outline);
+  outline-offset: 3px;
+}
+
+@media (max-width: 440px) {
+  .partner-link,
+  .stay-d-video,
+  .stay-d-video-trigger,
+  .stay-d-video-airbnb {
+    width: 100%;
+  }
+}
