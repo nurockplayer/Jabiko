@@ -175,7 +175,9 @@ async function main() {
       肉厚: "にくあつ",
       丼物: "どんぶりもの",
       普通盛り: "ふつうもり",
-      小盛り: "こもり"
+      小盛り: "こもり",
+      真正面: "ましょうめん",
+      雨音: "あまおと"
     };
 
     // #714: standalone reading-drill surfaces keep their vocabulary reading,
