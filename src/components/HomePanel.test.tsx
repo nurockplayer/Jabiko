@@ -436,11 +436,16 @@ describe("HomePanel continue banner i18n (#427)", () => {
 });
 
 describe("HomePanel promotion placement", () => {
-  it("no longer renders any Stay.D promotion on Home", () => {
-    renderHome({ language: "zh-Hant" });
+  it("places the Stay.D recommendation after the learner's next step and before self-serve practice", () => {
+    renderHome({ language: "zh-Hant", targetLevel: "n4n5" });
 
-    expect(document.querySelector('[data-placement="home-bottom"]')).toBeNull();
-    expect(document.querySelector(".stay-d-home")).toBeNull();
-    expect(document.querySelector("[data-stay-d-placement]")).toBeNull();
+    const nextStep = screen.getByRole("button", { name: /開始 N4＋N5 備考/ });
+    const recommendation = screen.getByRole("complementary", {
+      name: "JABIKO 推薦 · 東京住宿"
+    });
+    const practiceHeading = screen.getByRole("heading", { name: "自己挑一區練習" });
+
+    expect(nextStep.compareDocumentPosition(recommendation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(recommendation.compareDocumentPosition(practiceHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

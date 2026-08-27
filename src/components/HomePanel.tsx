@@ -18,6 +18,7 @@ import { ShareButtons } from "./challenge/ShareButtons";
 import { LegalLinks } from "./LegalLinks";
 import type { FeedbackCategory } from "../domain/feedbackRemote";
 import { getBookmarkedIds } from "../domain/bookmarks";
+import { StayDHomeRecommendation } from "./StayDHomeRecommendation";
 
 // External walkthrough / 使用說明書: the author's blog post about Jabiko.
 // Surfaced in the hero so first-time visitors can read how to use the app.
@@ -459,6 +460,8 @@ export function HomePanel({
           <ArrowRight aria-hidden="true" />
         </button>
       ) : null}
+
+      <StayDHomeRecommendation language={language} />
 
       {/* Names the entry-card grid as a self-serve section (a plain,
           non-anaphoric label -- no "or" -- so it can't dangle in any of the

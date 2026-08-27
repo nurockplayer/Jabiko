@@ -63,7 +63,7 @@ export const NAVIGATION_REGISTRY: readonly NavigationDefinition[] = [
   {
     id: "stayD",
     view: "stayD",
-    group: "primary",
+    group: "resource",
     labelKey: "navPartnership",
     icon: "stayD",
     locales: STAY_D_REQUIRED_LOCALES

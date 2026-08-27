@@ -34,6 +34,95 @@
   font-size: 0.9rem;
 }
 
+/* Stay.D sits inside Home's editorial reading flow: a recommendation with
+   the same rules and type hierarchy as Jabiko content, never a campaign card. */
+.home-stay-recommendation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  padding: 1.05rem 0;
+  border-block: 1px solid var(--rule);
+}
+
+.home-stay-recommendation-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  min-width: 0;
+  max-width: 46rem;
+}
+
+.home-stay-recommendation-kicker,
+.home-stay-recommendation-copy h2,
+.home-stay-recommendation-copy p {
+  margin: 0;
+}
+
+.home-stay-recommendation-kicker {
+  color: var(--vermilion);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-stay-recommendation-copy h2 {
+  color: var(--ink);
+  font-family: var(--font-title);
+  font-size: clamp(1.05rem, 1.8vw, 1.22rem);
+  line-height: 1.4;
+  text-wrap: balance;
+}
+
+.home-stay-recommendation-copy > p:last-child {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.home-stay-recommendation-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.1rem;
+  color: var(--teal-dark);
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.home-stay-recommendation-link svg {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+}
+
+.home-stay-recommendation-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.home-stay-recommendation-link:focus-visible {
+  outline: 3px solid var(--focus-outline);
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .home-stay-recommendation {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .home-stay-recommendation-link {
+    justify-self: start;
+  }
+}
+
 .home-feedback {
   display: flex;
   flex-wrap: wrap;
