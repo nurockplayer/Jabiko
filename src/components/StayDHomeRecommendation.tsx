@@ -4,7 +4,6 @@ import { trackEvent } from "../lib/analytics";
 import {
   isStayDLocale,
   STAY_D_AIRBNB_URL,
-  STAY_D_EDITORIAL_COPY,
   STAY_D_HOME_RECOMMENDATION
 } from "../domain/stayD";
 
@@ -20,7 +19,6 @@ export function StayDHomeRecommendation({ language }: { language: Language }) {
       <div className="home-stay-recommendation-copy">
         <p className="home-stay-recommendation-kicker">{text.kicker}</p>
         <h2>{text.headline}</h2>
-        <p>{text.body}</p>
       </div>
       <a
         className="home-stay-recommendation-link"
@@ -37,7 +35,7 @@ export function StayDHomeRecommendation({ language }: { language: Language }) {
           })
         }
       >
-        {STAY_D_EDITORIAL_COPY[language].airbnbCta}
+        {text.cta}
         <ExternalLink aria-hidden="true" />
       </a>
     </aside>
