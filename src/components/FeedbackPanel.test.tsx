@@ -278,6 +278,38 @@ describe("FeedbackPanel grammar study link (#282, #469)", () => {
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
   });
 
+  it("uses the same isolated study link after a correct grammar answer", () => {
+    render(
+      <FeedbackPanel
+        feedback={{
+          status: "correct",
+          question: grammarBase,
+          submittedAnswer: grammarBase.expectedAnswers[0]
+        }}
+        language="zh-Hant"
+        options={grammarBase.options ?? []}
+      />
+    );
+    const link = screen.getByRole("link", { name: linkName });
+    expect(link).toHaveAttribute("href", `/grammar/${encodeURIComponent(grammarBase.vocabulary.surface)}`);
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  });
+
+  it("keeps a revealed grammar answer in the source tab while study opens separately", () => {
+    render(
+      <FeedbackPanel
+        feedback={{ status: "revealed", question: grammarBase, submittedAnswer: null }}
+        language="zh-Hant"
+        options={grammarBase.options ?? []}
+      />
+    );
+    const link = screen.getByRole("link", { name: linkName });
+    expect(link).toHaveAttribute("href", `/grammar/${encodeURIComponent(grammarBase.vocabulary.surface)}`);
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  });
+
   it("hides the link for a non-grammar (reading) item", () => {
     render(
       <FeedbackPanel

@@ -828,6 +828,63 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps an answered grammar drill mounted when deep study opens separately (#786)", async () => {
+    const { StrictMode } = await import("react");
+    const { examStyleQuestions } = await import("./domain/examBlocks");
+    const user = userEvent.setup();
+    render(
+      <StrictMode>
+        <App />
+      </StrictMode>
+    );
+
+    await user.click(screen.getByRole("button", { name: "題型練習" }));
+    await user.click(screen.getByRole("button", { name: /文の文法 1/ }));
+
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    const questionId = panel.getAttribute("data-question-id");
+    const question = examStyleQuestions.find((candidate) => candidate.id === questionId);
+    if (!question) {
+      throw new Error(`Expected current exam question ${String(questionId)} in the item bank`);
+    }
+    const wrongAnswer = question.options?.find(
+      (option) => !question.expectedAnswers.includes(option)
+    );
+    if (!wrongAnswer) {
+      throw new Error(`Expected grammar question ${question.id} to have a wrong option`);
+    }
+
+    const progressBefore = panel.querySelector(".prompt-header span")?.textContent;
+    await user.click(within(panel).getByRole("button", { name: wrongAnswer }));
+
+    expect(panel).toHaveAttribute("data-question-id", questionId);
+    expect(panel).toHaveAttribute("data-question-type", "文法形式選擇");
+    expect(panel).toHaveAttribute("data-selected", wrongAnswer);
+    expect(panel).toHaveAttribute("data-result", "wrong");
+    expect(panel.querySelector(".prompt-header span")?.textContent).toBe(progressBefore);
+    const scoreBefore = screen.getByLabelText("今日戰報").textContent;
+    const studyLink = screen.getByRole("link", { name: "深入學習這個文法" });
+    expect(studyLink).toHaveAttribute(
+      "href",
+      `/grammar/${encodeURIComponent(question.vocabulary.surface)}`
+    );
+    expect(studyLink).toHaveAttribute("target", "_blank");
+    expect(studyLink).toHaveAttribute("rel", "noopener noreferrer");
+
+    await user.click(studyLink);
+
+    const restoredPanel = screen.getByRole("region", { name: "目前題目" });
+    expect(window.location.pathname).toBe("/challenge");
+    expect(restoredPanel).toBe(panel);
+    expect(restoredPanel).toHaveAttribute("data-question-id", questionId);
+    expect(restoredPanel).toHaveAttribute("data-question-type", "文法形式選擇");
+    expect(restoredPanel).toHaveAttribute("data-selected", wrongAnswer);
+    expect(restoredPanel).toHaveAttribute("data-result", "wrong");
+    expect(restoredPanel.querySelector(".prompt-header span")?.textContent).toBe(progressBefore);
+    expect(screen.getByLabelText("今日戰報").textContent).toBe(scoreBefore);
+    expect(document.activeElement).toBe(studyLink);
+  });
+
   it("starts the challenge from the learning path", async () => {
     const user = userEvent.setup();
     render(<App />);
