@@ -36,51 +36,60 @@ describe("issue #783 grammar feedback regressions", () => {
     expect(question.explanationI18n?.en).not.toMatch(/contradict/i);
   });
 
-  it("identifies わかってきた as the ta-form used before といったところだ", () => {
+  it("defines といったところだ as an approximate quantity or degree", () => {
     const question = findQuestion(n1Items, "n1-grammar-toittatokoroda-2");
 
-    expect(question.explanation).toMatch(/「わかってきた」是「わかってくる」的た形/);
-    expect(question.explanationI18n?.ja).toMatch(/「わかってきた」は「わかってくる」のた形/);
-    expect(question.explanationI18n?.en).toMatch(
-      /わかってきた.*ta-form of.*わかってくる/i
-    );
+    expect(question.vocabulary.meaningZh).toBe("大致是……的程度");
+    expect(question.vocabulary.meaningI18n).toEqual({
+      ja: "おおよそ…ぐらいの程度",
+      en: "roughly about...; around the level of..."
+    });
   });
 
-  it("requires a direct self-assessment instead of continuation-only elimination for といったところだ", () => {
+  it("uses four grammatical scalar claims with one answer at the recorded 48 percent", () => {
     const question = findQuestion(n1Items, "n1-grammar-toittatokoroda-2");
 
     expect(question.promptText).toBe(
-      "新しい仕事の内容を自分ではどの程度理解できているかと聞かれたが、正直なところ、ようやく半分 ___ 。"
+      "作業記録では、全工程の48％が完了している。この作業の進捗は現在、___ 。"
     );
     expect(question.promptContextZh).toBe(
-      "被問到自己覺得目前理解新工作內容到什麼程度；老實說，也才好不容易懂了大約一半。"
+      "作業記錄顯示全工程已完成48％；這項作業目前大致進行到一半。"
     );
     expect(question.promptContextI18n?.ja).toBe(
-      "新しい仕事の内容を自分ではどの程度理解できているかと聞かれたが、正直なところ、ようやく半分わかってきたといったところだ。"
+      "作業記録では、全工程の48％が完了している。この作業の進捗は現在、半分といったところだ。"
     );
     expect(question.promptContextI18n?.en).toBe(
-      "When asked how much of the new job I felt I currently understood, honestly, I'd only just gotten the hang of about half of it."
+      "The work record shows that 48% of the entire process is complete. The work is currently at roughly the halfway point."
     );
-    expect(question.expectedAnswers).toEqual(["わかってきたといったところだ"]);
+    expect(question.expectedAnswers).toEqual(["半分といったところだ"]);
     expect(question.options).toEqual([
-      "わかってきたといったところだ",
-      "わかってきたことにしている",
-      "わかってきたことになっている",
-      "わかってきたと上司からは評価されている"
+      "半分といったところだ",
+      "半分を優に超えている",
+      "半分には遠く及ばない",
+      "ちょうど半分に達している"
     ]);
-    expect(question.options?.every((option) => option.startsWith("わかってきた"))).toBe(true);
-    expect(question.explanation).toContain("自分ではどの程度");
-    expect(question.explanation).toContain("わかってきたことにしている");
-    expect(question.explanation).toContain("わかってきたことになっている");
-    expect(question.explanation).toContain("わかってきたと上司からは評価されている");
-    expect(question.explanationI18n?.ja).toContain("自分ではどの程度");
-    expect(question.explanationI18n?.ja).toContain("わかってきたことにしている");
-    expect(question.explanationI18n?.ja).toContain("わかってきたことになっている");
-    expect(question.explanationI18n?.ja).toContain("わかってきたと上司からは評価されている");
-    expect(question.explanationI18n?.en).toContain("self-assessment");
-    expect(question.explanationI18n?.en).toContain("わかってきたことにしている");
-    expect(question.explanationI18n?.en).toContain("わかってきたことになっている");
-    expect(question.explanationI18n?.en).toContain("わかってきたと上司からは評価されている");
+    expect(question.hintZh).toBe(
+      "記錄中的完成率是48％；請比較各選項所表示的比例方向與幅度。"
+    );
+    expect(question.hintI18n?.ja).toBe(
+      "記録上の完了率は48％です。各選択肢が示す割合の方向と幅を比べましょう。"
+    );
+    expect(question.hintI18n?.en).toBe(
+      "The recorded completion rate is 48%. Compare the direction and magnitude expressed by each option."
+    );
+    expect(question.explanation).toBe(
+      "「N＋といったところだ」把數量或程度概括為「大致是 N 左右」。記錄中的完成率是48％，只比一半少2個百分點，因此「半分といったところだ」能自然地把目前進度概括為大約一半。「半分を優に超えている」表示明顯超過一半；「半分には遠く及ばない」表示離一半還很遠；「ちょうど半分に達している」表示正好達到50％。三者都與記錄中的48％不符。"
+    );
+    expect(question.explanationI18n?.ja).toBe(
+      "「N＋といったところだ」は、数量や程度を「おおよそNぐらい」とまとめて述べる表現です。記録上の完了率は48％で、半分との差は2ポイントしかないため、「半分といったところだ」が現在の進捗をおおよそ半分と自然にまとめています。「半分を優に超えている」は半分を明らかに上回ること、「半分には遠く及ばない」は半分から大きく隔たっていること、「ちょうど半分に達している」は正確に50％に達していることを表します。いずれも記録の48％とは合いません。"
+    );
+    expect(question.explanationI18n?.en).toBe(
+      "「N＋といったところだ」 summarizes a quantity or degree as being roughly around N. The recorded completion rate is 48%, only two percentage points below half, so 「半分といったところだ」 naturally summarizes the current progress as around halfway. 「半分を優に超えている」 means well over half, 「半分には遠く及ばない」 means far short of half, and 「ちょうど半分に達している」 means reaching exactly 50%. Each contradicts the recorded 48%."
+    );
+    expect(question.promptText).not.toContain("おおまか");
+    expect(question.hintZh).not.toMatch(/大致|大約|左右/);
+    expect(question.hintI18n?.ja).not.toMatch(/おおよそ|ぐらい|といったところ/);
+    expect(question.hintI18n?.en).not.toMatch(/rough|about|approximately/i);
   });
 
   it("does not offer に基づいて as a second defensible answer to に照らして", () => {
