@@ -984,7 +984,7 @@ const N5_RIYUU_ITEMS: SentencePatternItem[] = [
     id: "pattern-n5-riyuu-008",
     patternId: "n5-riyuu",
     promptText: "「___ にほんごを べんきょうして いますか。」「にほんへ いきたいですから。」",
-    hintZh: "想知道對方學日語的動機。",
+    hintZh: "兩位同學聊學日語的事。",
     promptContextZh: "「你為什麼在學日語？」「因為想去日本。」",
     expectedAnswer: "どうして",
     options: ["どうして", "なに", "どこ", "いつ"],

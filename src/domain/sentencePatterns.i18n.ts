@@ -912,7 +912,7 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-008": {
-    "hintI18n": { "en": "Curious what drives their Japanese study.", "ja": "日本語を勉強している動機を知りたい。" },
+    "hintI18n": { "en": "Two classmates talk about studying Japanese.", "ja": "クラスメート同士が日本語の勉強について話す。" },
     "promptContextI18n": { "en": "\"Why are you studying Japanese?\" \"Because I want to go to Japan.\"", "ja": "「どうして日本語を勉強していますか。」「日本へ行きたいですから。」" },
     "explanationI18n": {
       "en": "The reply is 「〜ですから」 (because ~), so the question must ask for a reason: 「どうして」 = why. 「いつ」 (when) and 「どこ」 (where) don't match an answer about motivation; 「なに」 asks for a thing — the sentence already has the object にほんごを. ※べんきょうします = to study, 〜たいです = want to ~.",

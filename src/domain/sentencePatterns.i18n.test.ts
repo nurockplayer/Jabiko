@@ -59,6 +59,12 @@ describe("sentence-pattern overlays", () => {
         hintZh: "朋友確認昨天與今天是否外出。",
         hintEn: "A friend asks about going out yesterday and today.",
         hintJa: "友だちが昨日と今日の外出について聞く。"
+      },
+      {
+        id: "pattern-n5-riyuu-008",
+        hintZh: "兩位同學聊學日語的事。",
+        hintEn: "Two classmates talk about studying Japanese.",
+        hintJa: "クラスメート同士が日本語の勉強について話す。"
       }
     ];
 
