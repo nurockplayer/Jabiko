@@ -52,6 +52,14 @@
   padding: 1rem;
 }
 
+/* Keep the selected detail in the same browsing context as its card. As a
+   full-width grid item it opens immediately below that card without nesting
+   interactive controls or creating a second detail surface. */
+.kanji-grid > .kanji-card {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
 .kanji-card-head {
   display: flex;
   align-items: center;
