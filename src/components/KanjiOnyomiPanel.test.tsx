@@ -569,10 +569,15 @@ function firstCellReading(cell: HTMLElement, type: "on" | "kun"): string {
 
 describe("KanjiOnyomiPanel in-place cell TTS", () => {
   let synth: MockSynth;
+  let now = Date.UTC(2200, 0, 1);
   beforeEach(() => {
+    vi.useFakeTimers();
+    now += 1_000;
+    vi.setSystemTime(now);
     synth = setupSynth();
   });
   afterEach(() => {
+    vi.useRealTimers();
     delete (window as unknown as { speechSynthesis?: unknown }).speechSynthesis;
     delete (window as unknown as { SpeechSynthesisUtterance?: unknown }).SpeechSynthesisUtterance;
   });
@@ -611,6 +616,21 @@ describe("KanjiOnyomiPanel in-place cell TTS", () => {
     fireEvent.click(cell!);
     const wrap = cell!.closest(".kanji-cell-wrap") as HTMLElement;
     fireEvent.click(within(wrap).getByRole("button", { name: "朗讀日文" }));
+
+    expect((synth.speak.mock.calls[0][0] as { text: string }).text).toBe(expectedReading);
+  });
+
+  it("reads a displayed example word through its canonical reading", () => {
+    renderNarrowed("機");
+    const grid = document.querySelector(".kanji-grid") as HTMLElement;
+    const cell = grid.querySelector<HTMLButtonElement>("button.kanji-cell");
+    expect(cell).not.toBeNull();
+    fireEvent.click(cell!);
+
+    const example = document.querySelector(".kanji-examples li") as HTMLElement;
+    const expectedReading = example.querySelector(".kanji-example-reading")?.textContent;
+    expect(expectedReading).toBeTruthy();
+    fireEvent.click(within(example).getByRole("button", { name: "朗讀日文" }));
 
     expect((synth.speak.mock.calls[0][0] as { text: string }).text).toBe(expectedReading);
   });

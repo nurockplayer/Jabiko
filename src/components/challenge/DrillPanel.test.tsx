@@ -1,11 +1,13 @@
 import type { ComponentProps } from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { DrillPanel } from "./DrillPanel";
 import { FuriganaContext } from "../furiganaContext";
 import type { Attempt, PracticeQuestion } from "../../domain/types";
 import type { Language } from "../../i18n";
+import { buildQuestionPool } from "../../domain/practice";
+import { jlptVocabulary } from "../../domain/vocabulary-jlpt";
 
 const question: PracticeQuestion = {
   id: "kaku:te",
@@ -54,6 +56,13 @@ const baseProps = {
   onExit: vi.fn()
 };
 
+let speechTestNow = Date.UTC(2100, 0, 1);
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
+});
+
 function renderPanel(language: Language) {
   return render(<DrillPanel {...baseProps} language={language} />);
 }
@@ -96,6 +105,96 @@ function renderDone(opts: {
 }
 
 describe("DrillPanel", () => {
+  it("sends the canonical kana payload for each reported vocabulary reading", () => {
+    vi.useFakeTimers();
+    speechTestNow += 1_000;
+    vi.setSystemTime(speechTestNow);
+    const speak = vi.fn();
+    vi.stubGlobal("speechSynthesis", {
+      getVoices: () => [],
+      speak,
+      cancel: () => {},
+      speaking: false,
+      pending: false
+    });
+    vi.stubGlobal(
+      "SpeechSynthesisUtterance",
+      class {
+        constructor(public text: string) {}
+        lang = "";
+        rate = 1;
+        addEventListener() {}
+      }
+    );
+    const readings = [
+      ["n3-履歴書", "りれきしょ"],
+      ["n1-把持", "はじ"]
+    ] as const;
+
+    for (const [id, expectedReading] of readings) {
+      const vocabulary = jlptVocabulary.find((item) => item.id === id)!;
+      const readingQuestion = buildQuestionPool([vocabulary], {
+        partOfSpeech: "mixed",
+        verbGroup: "all",
+        targetForms: ["reading"]
+      })[0]!;
+      const { unmount } = render(
+        <DrillPanel {...baseProps} language="zh-Hant" currentQuestion={readingQuestion} />
+      );
+      fireEvent.click(screen.getByRole("button", { name: "朗讀日文" }));
+      unmount();
+      vi.advanceTimersByTime(130);
+      expect((speak.mock.calls.at(-1)![0] as { text: string }).text).toBe(expectedReading);
+    }
+
+    expect(speak).toHaveBeenCalledTimes(readings.length);
+  });
+
+  it("sends canonical kana when reviewing the meaning of each reported vocabulary item", () => {
+    vi.useFakeTimers();
+    speechTestNow += 1_000;
+    vi.setSystemTime(speechTestNow);
+    const speak = vi.fn();
+    vi.stubGlobal("speechSynthesis", {
+      getVoices: () => [],
+      speak,
+      cancel: () => {},
+      speaking: false,
+      pending: false
+    });
+    vi.stubGlobal(
+      "SpeechSynthesisUtterance",
+      class {
+        constructor(public text: string) {}
+        lang = "";
+        rate = 1;
+        addEventListener() {}
+      }
+    );
+    const readings = [
+      ["n3-履歴書", "りれきしょ"],
+      ["n1-把持", "はじ"]
+    ] as const;
+
+    for (const [id, expectedReading] of readings) {
+      const vocabulary = jlptVocabulary.find((item) => item.id === id)!;
+      const meaningQuestion = buildQuestionPool([vocabulary], {
+        partOfSpeech: "mixed",
+        verbGroup: "all",
+        targetForms: ["meaning"]
+      })[0]!;
+      const { unmount } = render(
+        <DrillPanel {...baseProps} language="zh-Hant" currentQuestion={meaningQuestion} />
+      );
+      fireEvent.click(screen.getByRole("button", { name: "朗讀日文" }));
+      unmount();
+      vi.advanceTimersByTime(130);
+      expect((speak.mock.calls.at(-1)![0] as { text: string }).text).toBe(expectedReading);
+    }
+
+    expect(speak).toHaveBeenCalledTimes(readings.length);
+  });
+
   it("localizes the pre-answer meaning gloss (#427)", () => {
     renderPanel("en");
     expect(screen.getByText("to write")).toBeInTheDocument();

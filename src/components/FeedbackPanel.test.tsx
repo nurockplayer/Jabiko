@@ -730,7 +730,10 @@ describe("FeedbackPanel answer-key TTS on reading questions", () => {
       }
     );
   });
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
 
   it("offers TTS for the correct reading once the question is answered", () => {
     const question = readingPool[0];
@@ -743,6 +746,49 @@ describe("FeedbackPanel answer-key TTS on reading questions", () => {
     );
     const speak = container.querySelector(".answer-key .speak-button");
     expect(speak).not.toBeNull();
+  });
+
+  it("uses the canonical kana answer for the reported exam readings", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(Date.UTC(2400, 0, 1));
+    const speak = vi.fn();
+    vi.stubGlobal("speechSynthesis", {
+      getVoices: () => [],
+      speak,
+      cancel: () => {},
+      speaking: false,
+      pending: false
+    });
+    vi.stubGlobal(
+      "SpeechSynthesisUtterance",
+      class {
+        constructor(public text: string) {}
+        lang = "";
+        rate = 1;
+        addEventListener() {}
+      }
+    );
+    const expected = [
+      ["n1-read-hedataru", "へだたった"],
+      ["n3-kanji-korobu", "ころぶ"]
+    ] as const;
+
+    for (const [id, reading] of expected) {
+      const question = examStyleQuestions.find((candidate) => candidate.id === id)!;
+      const { container, unmount } = render(
+        <FeedbackPanel
+          feedback={{ status: "incorrect", question, submittedAnswer: null }}
+          language="zh-Hant"
+          options={question.options ?? []}
+        />
+      );
+      fireEvent.click(container.querySelector(".answer-key .speak-button")!);
+      unmount();
+      vi.advanceTimersByTime(130);
+      expect((speak.mock.calls.at(-1)![0] as { text: string }).text).toBe(reading);
+    }
+
+    expect(speak).toHaveBeenCalledTimes(expected.length);
   });
 
   it("does not add a speak button to non-reading questions (no UI bloat)", () => {

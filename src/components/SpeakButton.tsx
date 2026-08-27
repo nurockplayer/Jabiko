@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Volume2 } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { getJapaneseVoice } from "../lib/speech";
@@ -9,10 +10,51 @@ import { readTtsRate } from "../lib/ttsRate";
 // (which finish first) are never touched. One shared timer -- there is a
 // single global speechSynthesis engine.
 let keepAliveTimer: ReturnType<typeof setInterval> | null = null;
+let delayedSpeakTimer: ReturnType<typeof setTimeout> | null = null;
+let nextPlaybackId = 0;
+let activePlaybackId: number | null = null;
+let activeSynth: SpeechSynthesis | null = null;
+const CANCEL_COOLDOWN_MS = 130;
+let cancelCooldownUntil = 0;
+
 function stopKeepAlive() {
   if (keepAliveTimer !== null) {
     clearInterval(keepAliveTimer);
     keepAliveTimer = null;
+  }
+}
+
+function clearDelayedSpeak() {
+  if (delayedSpeakTimer !== null) {
+    clearTimeout(delayedSpeakTimer);
+    delayedSpeakTimer = null;
+  }
+}
+
+function cancelSynthesis(synth: SpeechSynthesis) {
+  cancelCooldownUntil = Math.max(cancelCooldownUntil, Date.now() + CANCEL_COOLDOWN_MS);
+  synth.cancel();
+}
+
+function finishPlayback(playbackId: number) {
+  if (activePlaybackId !== playbackId) return;
+  activePlaybackId = null;
+  activeSynth = null;
+  stopKeepAlive();
+}
+
+function cancelPlayback(playbackId?: number) {
+  if (playbackId !== undefined && activePlaybackId !== playbackId) return;
+  activePlaybackId = null;
+  clearDelayedSpeak();
+  stopKeepAlive();
+  const synth = activeSynth;
+  activeSynth = null;
+  if (!synth) return;
+  try {
+    cancelSynthesis(synth);
+  } catch {
+    // An unavailable engine has the same fail-soft result as an unsupported API.
   }
 }
 function startKeepAlive(synth: SpeechSynthesis) {
@@ -35,6 +77,18 @@ function startKeepAlive(synth: SpeechSynthesis) {
 // JA voice isn't available, the component renders nothing rather than a
 // broken-feeling button.
 export function SpeakButton({ text, language }: { text: string; language: Language }) {
+  const playbackIdRef = useRef<number | null>(null);
+
+  // SpeechSynthesis is document-global. If this button owns the active
+  // utterance, leaving its view or changing its payload owns stopping it;
+  // another button's newer utterance is left alone.
+  useEffect(
+    () => () => {
+      if (playbackIdRef.current !== null) cancelPlayback(playbackIdRef.current);
+    },
+    [text]
+  );
+
   const supported =
     typeof window !== "undefined" &&
     "speechSynthesis" in window &&
@@ -46,6 +100,13 @@ export function SpeakButton({ text, language }: { text: string; language: Langua
   const handleClick = () => {
     try {
       const synth = window.speechSynthesis;
+      const wasActive = synth.speaking || synth.pending;
+      clearDelayedSpeak();
+      stopKeepAlive();
+      const playbackId = ++nextPlaybackId;
+      playbackIdRef.current = playbackId;
+      activePlaybackId = playbackId;
+      activeSynth = synth;
       const utterance = new window.SpeechSynthesisUtterance(text);
       // iOS/iPadOS ignores `lang` alone and may read kanji with a Chinese
       // voice -- pin an explicit ja-* voice when one is available.
@@ -55,22 +116,33 @@ export function SpeakButton({ text, language }: { text: string; language: Langua
       // Read the rate fresh each click so a change in the 語速 control (#527)
       // applies immediately; defaults to the long-standing 0.95 when unset.
       utterance.rate = readTtsRate();
-      utterance.addEventListener("end", stopKeepAlive);
-      utterance.addEventListener("error", stopKeepAlive);
+      utterance.addEventListener("end", () => finishPlayback(playbackId));
+      utterance.addEventListener("error", () => finishPlayback(playbackId));
 
       const speak = () => {
-        startKeepAlive(synth);
-        synth.speak(utterance);
+        if (activePlaybackId !== playbackId) return;
+        try {
+          startKeepAlive(synth);
+          synth.speak(utterance);
+        } catch {
+          finishPlayback(playbackId);
+        }
       };
 
       // The reported "缺失一小段" (clipped start) / 爆音: Chrome drops the
       // beginning of an utterance when speak() is called in the same tick as
-      // cancel(). So only cancel when something is actually playing, and give
-      // the engine a beat before the new utterance; when idle, speak now --
-      // no clip, no needless latency.
-      if (synth.speaking || synth.pending) {
-        synth.cancel();
-        setTimeout(speak, 130);
+      // cancel(). Each app cancellation creates a short global cooldown: a
+      // replacement request may replace the payload, but cannot call speak()
+      // before the engine has had that beat to settle.
+      if (wasActive) {
+        cancelSynthesis(synth);
+      }
+      const remainingCooldown = Math.max(0, cancelCooldownUntil - Date.now());
+      if (remainingCooldown > 0) {
+        delayedSpeakTimer = setTimeout(() => {
+          delayedSpeakTimer = null;
+          speak();
+        }, remainingCooldown);
       } else {
         speak();
       }
@@ -78,7 +150,7 @@ export function SpeakButton({ text, language }: { text: string; language: Langua
       // Voice synthesis can throw if the engine is in a bad state; the
       // worst case here is "no sound played", which is better than
       // crashing the practice flow.
-      stopKeepAlive();
+      if (playbackIdRef.current !== null) cancelPlayback(playbackIdRef.current);
     }
   };
 

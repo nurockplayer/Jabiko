@@ -202,7 +202,7 @@ export function DrillPanel({
                     plain={isReadingPrompt(currentQuestion.promptLabel, currentQuestion.targetForm)}
                   />
                   <SpeakButton
-                    text={currentQuestion.vocabulary.surface}
+                    text={currentQuestion.vocabulary.reading}
                     language={language}
                   />
                 </p>
