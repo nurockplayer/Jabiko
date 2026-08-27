@@ -876,9 +876,10 @@ const N5_ONEGAI_ITEMS: SentencePatternItem[] = [
 // N5 pattern: n5-riyuu -- reasons and contrast: から・ので・が (#547).
 //   から and ので are near-interchangeable as reason markers, so they never
 //   compete as semantic foils. Item 001 uses complete causal replies locked by
-//   visible polarity/time facts; item 002 tests noun + なので with complete
-//   replies, and item 005 tests taught sentence-initial connectors. Their
-//   distractors are rejected by explicit polarity, time, and activity facts.
+//   visible polarity/time facts; item 002 explicitly requests ので and tests
+//   noun attachment against the common bare-noun error, while its grammatical
+//   から replies are out of contract. Item 005 tests taught sentence-initial
+//   connectors against explicit polarity, time, and activity facts.
 // ===========================================================================
 const N5_RIYUU_ITEMS: SentencePatternItem[] = [
   {
@@ -903,19 +904,19 @@ const N5_RIYUU_ITEMS: SentencePatternItem[] = [
     id: "pattern-n5-riyuu-002",
     patternId: "n5-riyuu",
     promptText:
-      "「あしたは やすみですか。」「はい、やすみです。」「がっこうへ きますか。」「いいえ、___。」",
-    hintZh: "老師確認學生明天是否到校。",
+      "「あしたは やすみです。いえに います。『ので』を つかって、ひとつの ぶんに してください。」「___。」",
+    hintZh: "老師請學生把兩句日文合成一句。",
     promptContextZh:
-      "「明天放假嗎？」「對，放假。」「要來學校嗎？」「不去。因為放假，所以不去。」",
-    expectedAnswer: "やすみなので、いきません",
+      "「明天放假。我會待在家。請使用『ので』合成一句話。」「因為放假，所以我會待在家。」",
+    expectedAnswer: "やすみなので、いえに います",
     options: [
-      "やすみなので、いきません",
-      "やすみなので、いきます",
-      "やすみだから、いきます",
-      "きょうは やすみなので、いきません"
+      "やすみなので、いえに います",
+      "やすみので、いえに います",
+      "やすみだから、いえに います",
+      "やすみですから、いえに います"
     ],
     explanation:
-      "題目問的是「明天」要不要去學校，回答先明說「いいえ」，所以要選「やすみなので、いきません」：名詞「やすみ」接「ので」時加「な」。兩個「いきます」選項都和「いいえ」直接矛盾；「きょうは やすみなので、いきません」說的是今天，不能回答明天是否到校。四個選項都是完整且成立的句子，必須依日文題幹的否定與時間判斷。"
+      "題目用日文指定要用「ので」合併兩句；名詞「やすみ」接「ので」時必須加「な」，所以是「やすみなので、いえに います」。「やすみので」少了「な」，是常見的接續錯誤；「やすみだから」和較禮貌的「やすみですから」都是成立的理由說法，但都改用了「から」，不符合題目的「ので」指示。四個選項的時間、狀態與後句都相同，不能靠肯否或時間排除，必須判斷名詞接「ので」的形式。"
   },
   {
     id: "pattern-n5-riyuu-003",

@@ -864,11 +864,11 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-002": {
-    "hintI18n": { "en": "A teacher checks whether a student will come to school tomorrow.", "ja": "先生が生徒に明日学校へ来るか確認する。" },
-    "promptContextI18n": { "en": "\"Is tomorrow a day off?\" \"Yes, it is.\" \"Are you coming to school?\" \"No. Since it is a day off, I am not going.\"", "ja": "「明日は休みですか。」「はい、休みです。」「学校へ来ますか。」「いいえ、休みなので、行きません。」" },
+    "hintI18n": { "en": "A teacher asks a student to combine two Japanese sentences.", "ja": "先生が生徒に、二つの日本語の文を一文にするよう言う。" },
+    "promptContextI18n": { "en": "\"Tomorrow is a day off. I will stay home. Use 「ので」 to make one sentence.\" \"Since it is a day off, I will stay home.\"", "ja": "「あしたは休みです。家にいます。『ので』を使って、一つの文にしてください。」「休みなので、家にいます。」" },
     "explanationI18n": {
-      "en": "The question asks whether the student will go to school tomorrow, and the reply begins with a clear \"no\". Choose 「やすみなので、いきません」: a noun such as 「やすみ」 takes 「な」 before 「ので」. Both 「いきます」 options directly contradict 「いいえ」; 「きょうは やすみなので、いきません」 is about today and cannot answer whether the student will go tomorrow. All four choices are complete, grammatical sentences, so the visible polarity and time decide the answer.",
-      "ja": "問題は「明日」学校へ行くかを尋ね、答えは「いいえ」と明示しているので、「やすみなので、いきません」を選ぶ。名詞「やすみ」に「ので」を付けるときは「な」が必要。二つの「いきます」は「いいえ」と直接矛盾し、「きょうは やすみなので、いきません」は今日の話なので、明日の登校について答えられない。四つとも文法的に成立する完全な文であり、日本語の否定と時間で判断する。"
+      "en": "The Japanese prompt explicitly says to combine the two statements with 「ので」. A noun such as 「やすみ」 must take 「な」 before 「ので」, so the answer is 「やすみなので、いえに います」. 「やすみので」 omits the required 「な」, a common attachment error. 「やすみだから」 and the more polite 「やすみですから」 are both grammatical ways to give the same reason, but they use 「から」 and therefore do not follow the visible 「ので」 instruction. Every option keeps the same time, state, and final clause; polarity or time cannot select the answer.",
+      "ja": "問題文は、二つの文を「ので」でつなぐよう日本語で明示している。名詞「やすみ」に「ので」を付けるときは「な」が必要なので、正解は「やすみなので、いえに います」。「やすみので」は必要な「な」が抜けた、よくある接続の誤り。「やすみだから」と、より丁寧な「やすみですから」はどちらも同じ理由を表す文として成立するが、「から」を使っているため、問題文の「ので」という指示に合わない。四つの選択肢は時間・状態・後件がすべて同じで、肯否や時間だけでは選べない。"
     }
   },
   "pattern-n5-riyuu-003": {
