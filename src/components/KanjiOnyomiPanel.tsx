@@ -1,4 +1,4 @@
-import { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { copy, type Language } from "../i18n";
 import type { JlptLevel } from "../domain/types";
 import { kanjiOnyomi, kanjiExamples, type KanjiOnyomiEntry } from "../domain/kanjiOnyomi";
@@ -155,6 +155,7 @@ export function KanjiOnyomiPanel({
       )
   );
   const pendingFocus = useRef<string | null>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
 
   // Desktop shortcut (user request 2026-07): ← / → walk the grid so browsing a
   // level or a search result doesn't mean clicking every card. A GLOBAL
@@ -214,11 +215,56 @@ export function KanjiOnyomiPanel({
     pendingFocus.current = null;
     node.focus({ preventScroll: true });
     node.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
+    detailRef.current?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
   }, [selected, entryBudget, cellRefs]);
 
   const detail = selected ? kanjiOnyomi.find((entry) => entry.kanji === selected) ?? null : null;
   const examples = detail ? kanjiExamples(detail.kanji) : [];
   const detailSpeak = detail ? detail.onyomi[0] ?? detail.kunyomi[0] : "";
+  const detailCard = detail ? (
+    <div className="kanji-card" ref={detailRef} aria-live="polite">
+      <div className="kanji-card-head">
+        <span className="kanji-card-char">{detail.kanji}</span>
+        <div>
+          {detail.onyomi.length > 0 ? (
+            <p className="kanji-card-onyomi">
+              {detail.onyomi.join("・")}
+              <small>{t.kanjiOnyomiLabel}</small>
+            </p>
+          ) : null}
+          {detail.kunyomi.length > 0 ? (
+            <p className="kanji-card-kunyomi">
+              {detail.kunyomi.join("・")}
+              <small>{t.kanjiKunyomiLabel}</small>
+            </p>
+          ) : null}
+          <p className="kanji-card-mean">
+            {kanjiMeaning(detail, language)}
+            {detailSpeak ? <SpeakButton text={detailSpeak} language={language} /> : null}
+          </p>
+        </div>
+      </div>
+      <p className="kanji-examples-label">{t.kanjiExamplesLabel}</p>
+      {examples.length > 0 ? (
+        <ul className="kanji-examples">
+          {examples.map((example) => (
+            <li key={example.surface}>
+              <span className="kanji-example-surface">
+                {example.surface}
+                <SpeakButton text={example.reading} language={language} />
+              </span>
+              <span className="kanji-example-reading">{example.reading}</span>
+              <span className="kanji-example-mean">
+                {pickLocalized(example.meaningZh, example.meaningI18n, language)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="kanji-no-examples">{t.kanjiNoExamples}</p>
+      )}
+    </div>
+  ) : null;
 
   return (
     <section className="kanji-panel" aria-label={t.kanjiTitle}>
@@ -291,51 +337,6 @@ export function KanjiOnyomiPanel({
       {/* Hidden on touch devices (no keyboard to hint at) via CSS. */}
       <p className="kanji-key-hint">{t.kanjiArrowHint}</p>
 
-      {detail ? (
-        <div className="kanji-card" aria-live="polite">
-          <div className="kanji-card-head">
-            <span className="kanji-card-char">{detail.kanji}</span>
-            <div>
-              {detail.onyomi.length > 0 ? (
-                <p className="kanji-card-onyomi">
-                  {detail.onyomi.join("・")}
-                  <small>{t.kanjiOnyomiLabel}</small>
-                </p>
-              ) : null}
-              {detail.kunyomi.length > 0 ? (
-                <p className="kanji-card-kunyomi">
-                  {detail.kunyomi.join("・")}
-                  <small>{t.kanjiKunyomiLabel}</small>
-                </p>
-              ) : null}
-              <p className="kanji-card-mean">
-                {kanjiMeaning(detail, language)}
-                {detailSpeak ? <SpeakButton text={detailSpeak} language={language} /> : null}
-              </p>
-            </div>
-          </div>
-          <p className="kanji-examples-label">{t.kanjiExamplesLabel}</p>
-          {examples.length > 0 ? (
-            <ul className="kanji-examples">
-              {examples.map((example) => (
-                <li key={example.surface}>
-                  <span className="kanji-example-surface">
-                    {example.surface}
-                    <SpeakButton text={example.reading} language={language} />
-                  </span>
-                  <span className="kanji-example-reading">{example.reading}</span>
-                  <span className="kanji-example-mean">
-                    {pickLocalized(example.meaningZh, example.meaningI18n, language)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="kanji-no-examples">{t.kanjiNoExamples}</p>
-          )}
-        </div>
-      ) : null}
-
       {families.length > 0 ? (
         visibleFamilies.map(([reading, entries]) => (
           <div className="kanji-family" key={reading}>
@@ -358,31 +359,34 @@ export function KanjiOnyomiPanel({
                     ? entry.onyomi[0] ?? entry.kunyomi[0]
                     : entry.kunyomi[0] ?? entry.onyomi[0];
                 return (
-                  <div className="kanji-cell-wrap" key={entry.kanji}>
-                    <button
-                      type="button"
-                      ref={cellRefs.get(entry.kanji)}
-                      className={`kanji-cell${isSelected ? " selected" : ""}${isLastRead ? " last-read" : ""}`}
-                      aria-pressed={isSelected}
-                      onClick={() => selectKanji(entry.kanji)}
-                    >
-                      <span className="kanji-cell-char">{entry.kanji}</span>
-                      <span className="kanji-cell-read">
-                        {entry.onyomi.length > 0 ? (
-                          <span className="kanji-cell-on">{t.kanjiCellOnPrefix} {entry.onyomi.join("・")}</span>
-                        ) : null}
-                        {entry.kunyomi.length > 0 ? (
-                          <span className="kanji-cell-kun">{t.kanjiCellKunPrefix} {entry.kunyomi.join("・")}</span>
-                        ) : null}
-                      </span>
-                      <span className="kanji-cell-mean">{kanjiMeaning(entry, language)}</span>
-                    </button>
-                    {isSelected && cellSpeak ? (
-                      <span className="kanji-cell-speak">
-                        <SpeakButton text={cellSpeak} language={language} />
-                      </span>
-                    ) : null}
-                  </div>
+                  <Fragment key={entry.kanji}>
+                    <div className="kanji-cell-wrap">
+                      <button
+                        type="button"
+                        ref={cellRefs.get(entry.kanji)}
+                        className={`kanji-cell${isSelected ? " selected" : ""}${isLastRead ? " last-read" : ""}`}
+                        aria-pressed={isSelected}
+                        onClick={() => selectKanji(entry.kanji)}
+                      >
+                        <span className="kanji-cell-char">{entry.kanji}</span>
+                        <span className="kanji-cell-read">
+                          {entry.onyomi.length > 0 ? (
+                            <span className="kanji-cell-on">{t.kanjiCellOnPrefix} {entry.onyomi.join("・")}</span>
+                          ) : null}
+                          {entry.kunyomi.length > 0 ? (
+                            <span className="kanji-cell-kun">{t.kanjiCellKunPrefix} {entry.kunyomi.join("・")}</span>
+                          ) : null}
+                        </span>
+                        <span className="kanji-cell-mean">{kanjiMeaning(entry, language)}</span>
+                      </button>
+                      {isSelected && cellSpeak ? (
+                        <span className="kanji-cell-speak">
+                          <SpeakButton text={cellSpeak} language={language} />
+                        </span>
+                      ) : null}
+                    </div>
+                    {isSelected ? detailCard : null}
+                  </Fragment>
                 );
               })}
             </div>

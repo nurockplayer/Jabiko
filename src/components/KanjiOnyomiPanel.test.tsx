@@ -521,6 +521,67 @@ describe("KanjiOnyomiPanel arrow-key browsing", () => {
   });
 });
 
+describe("KanjiOnyomiPanel local selected detail (#788)", () => {
+  const cells = () => Array.from(document.querySelectorAll<HTMLButtonElement>("button.kanji-cell"));
+  const detail = () => document.querySelector<HTMLElement>(".kanji-card");
+  const selectedWrap = () => document.querySelector<HTMLElement>(".kanji-cell.selected")?.closest(
+    ".kanji-cell-wrap"
+  );
+
+  it("renders one detail surface immediately after the selected card in its grid", () => {
+    renderNarrowed("高");
+    fireEvent.click(cells()[1]);
+
+    expect(detail()).not.toBeNull();
+    expect(document.querySelectorAll(".kanji-card")).toHaveLength(1);
+    expect(selectedWrap()?.nextElementSibling).toBe(detail());
+    expect(detail()?.closest(".kanji-grid")).toBe(selectedWrap()?.closest(".kanji-grid"));
+    expect(detail()?.querySelector(".kanji-card-char")?.textContent).toBe(
+      cells()[1].querySelector(".kanji-cell-char")?.textContent
+    );
+  });
+
+  it("moves the sole detail with ArrowRight while keeping focus on the new card", () => {
+    renderNarrowed("高");
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    const firstWrap = selectedWrap();
+
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+
+    const selected = document.querySelector<HTMLButtonElement>(".kanji-cell.selected");
+    expect(selected).not.toBeNull();
+    expect(selectedWrap()).not.toBe(firstWrap);
+    expect(document.querySelectorAll(".kanji-card")).toHaveLength(1);
+    expect(selectedWrap()?.nextElementSibling).toBe(detail());
+    expect(detail()?.querySelector(".kanji-card-char")?.textContent).toBe(
+      selected?.querySelector(".kanji-cell-char")?.textContent
+    );
+    expect(document.activeElement).toBe(selected);
+  });
+
+  it("keeps the keyboard-selected card and its detail in the nearest scroll region", () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    renderNarrowed("高");
+
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+
+    const selected = document.querySelector<HTMLButtonElement>(".kanji-cell.selected");
+    expect(selected).not.toBeNull();
+    expect(detail()).not.toBeNull();
+    expect(scrollIntoView.mock.instances).toEqual([selected, detail()]);
+    expect(scrollIntoView).toHaveBeenNthCalledWith(1, {
+      block: "nearest",
+      behavior: "smooth"
+    });
+    expect(scrollIntoView).toHaveBeenNthCalledWith(2, {
+      block: "nearest",
+      behavior: "smooth"
+    });
+    expect(document.activeElement).toBe(selected);
+  });
+});
+
 // Feedback 2026-07: hearing a kanji's reading used to require selecting the
 // cell, scrolling up to the detail card's TTS button, then scrolling back down
 // to pick the next kanji. The selected cell now grows an in-place speak button
@@ -596,7 +657,7 @@ describe("KanjiOnyomiPanel in-place cell TTS", () => {
     const wrap = cell!.closest(".kanji-cell-wrap");
     expect(wrap).not.toBeNull();
     const speak = within(wrap as HTMLElement).getByRole("button", { name: "朗讀日文" });
-    expect(within(grid).getAllByRole("button", { name: "朗讀日文" })).toHaveLength(1);
+    expect(grid.querySelectorAll(".kanji-cell-speak .speak-button")).toHaveLength(1);
 
     fireEvent.click(speak);
     expect(synth.speak).toHaveBeenCalledTimes(1);
