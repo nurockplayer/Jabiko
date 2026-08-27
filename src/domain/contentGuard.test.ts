@@ -447,45 +447,47 @@ describe("sentence-pattern content guard", () => {
     expect(item?.hintZh).not.toMatch(/沒有|不在|出門/);
   });
 
-  it("enforces the manually reviewed visible-context contracts", () => {
-    // Japanese semantic uniqueness cannot be inferred safely with string
-    // heuristics. These focused contracts record the visible facts and valid
-    // forms that were manually checked by substituting every offered option.
+  it("locks the complete human-reviewed content for the reported items", () => {
+    // This is intentionally an exact authored-content lock, not a claim that
+    // code can understand Japanese semantics. Every prompt/options change here
+    // requires a human to substitute all four forms and repeat the review.
     const reviews = [
       {
         id: "pattern-n5-sonzai-007",
+        promptText: "「ねこは いえに いますか。」「いいえ、いまは ___。」",
+        hintZh: "家人確認貓現在在哪裡。",
         expectedAnswer: "いません",
-        requiredPromptFragments: ["ねこ", "いますか", "いいえ", "いま"],
-        validDistractors: ["ありません", "います", "いました"]
+        options: ["いません", "ありません", "います", "いました"]
       },
       {
         id: "pattern-n5-riyuu-002",
+        promptText:
+          "あしたは やすみなので、いえで ゆっくり やすみたいです。___、さっき きゅうに かいしゃから でんわが あって、あさから しごとに なりました。",
+        hintZh: "說話者說明明天的休假計畫與公司來電。",
         expectedAnswer: "ですが",
-        requiredPromptFragments: ["やすみ", "しごと"],
-        validDistractors: ["だから", "なので", "ですから"]
+        options: ["ですが", "だから", "なので", "ですから"]
       },
       {
         id: "pattern-n5-riyuu-005",
+        promptText:
+          "あめが ふって いて、そとは さむいので、いえを でたく ありません。___、もう しごとの じかんなので、いかなければなりません。",
+        hintZh: "說話者說明出門前的天氣與上班時間。",
         expectedAnswer: "でも",
-        requiredPromptFragments: ["あめ", "さむい", "しごと", "いかなければなりません"],
-        validDistractors: ["だから", "それで", "そのため"]
+        options: ["でも", "だから", "それで", "そのため"]
       }
     ];
 
-    for (const review of reviews) {
-      const { id, expectedAnswer, requiredPromptFragments, validDistractors } = review;
+    const actual = reviews.map(({ id }) => {
       const item = sentencePatternItems.find((candidate) => candidate.id === id);
+      return {
+        id,
+        promptText: item?.promptText,
+        hintZh: item?.hintZh,
+        expectedAnswer: item?.expectedAnswer,
+        options: item?.options
+      };
+    });
 
-      expect(item, id).toBeDefined();
-      expect(item?.expectedAnswer, id).toBe(expectedAnswer);
-      expect(new Set(item?.options), id).toEqual(
-        new Set([expectedAnswer, ...validDistractors])
-      );
-      for (const fragment of requiredPromptFragments) {
-        expect(item?.promptText, `${id}: missing visible context "${fragment}"`).toContain(
-          fragment
-        );
-      }
-    }
+    expect(actual).toEqual(reviews);
   });
 });

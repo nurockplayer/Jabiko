@@ -32,15 +32,41 @@ describe("sentence-pattern overlays", () => {
     expect(q.vocabulary.examples[0]?.meaningI18n?.en).toBe(q.promptContextI18n?.en);
   });
 
-  it("keeps the corrected absence cue out of every pre-answer hint locale", () => {
-    const q = buildSentencePatternPool().find(
-      (candidate) => candidate.id === "pattern-n5-sonzai-007"
-    );
+  it("locks neutral pre-answer hints for every human-reviewed locale", () => {
+    // Exact content lock: these hints were reviewed as situation-only context.
+    // They must not drift without repeating the semantic review of the prompt.
+    const reviews = [
+      {
+        id: "pattern-n5-sonzai-007",
+        hintZh: "家人確認貓現在在哪裡。",
+        hintEn: "A family member checks the cat's current location.",
+        hintJa: "家族が猫の今いる場所を確認する。"
+      },
+      {
+        id: "pattern-n5-riyuu-002",
+        hintZh: "說話者說明明天的休假計畫與公司來電。",
+        hintEn: "The speaker describes tomorrow's day-off plan and a call from work.",
+        hintJa: "話し手が明日の休みの予定と会社からの電話について話す。"
+      },
+      {
+        id: "pattern-n5-riyuu-005",
+        hintZh: "說話者說明出門前的天氣與上班時間。",
+        hintEn: "The speaker describes the weather and work time before leaving home.",
+        hintJa: "話し手が家を出る前の天気と仕事の時間について話す。"
+      }
+    ];
 
-    expect(q).toBeDefined();
-    expect(q?.promptText).toContain("いいえ");
-    expect(q?.hintZh).not.toMatch(/沒有|不在|出門/);
-    expect(q?.hintI18n?.en).not.toMatch(/isn't home|went out/i);
-    expect(q?.hintI18n?.ja).not.toMatch(/いない|外に出/);
+    const pool = buildSentencePatternPool();
+    const actual = reviews.map(({ id }) => {
+      const q = pool.find((candidate) => candidate.id === id);
+      return {
+        id,
+        hintZh: q?.hintZh,
+        hintEn: q?.hintI18n?.en,
+        hintJa: q?.hintI18n?.ja
+      };
+    });
+
+    expect(actual).toEqual(reviews);
   });
 });

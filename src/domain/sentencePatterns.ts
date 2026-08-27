@@ -876,7 +876,7 @@ const N5_ONEGAI_ITEMS: SentencePatternItem[] = [
 // N5 pattern: n5-riyuu -- reasons and contrast: から・ので・が (#547).
 //   から and ので are near-interchangeable as reason markers, so they never
 //   compete as semantic foils. Item 002 contrasts three well-formed reason
-//   connectors with ですが under an explicit day-off/work conflict; other
+//   connectors with ですが after an explicit disrupted day-off plan; other
 //   から/ので appearances are blocked by attachment or visible context.
 // ===========================================================================
 const N5_RIYUU_ITEMS: SentencePatternItem[] = [
@@ -894,13 +894,15 @@ const N5_RIYUU_ITEMS: SentencePatternItem[] = [
   {
     id: "pattern-n5-riyuu-002",
     patternId: "n5-riyuu",
-    promptText: "あしたは やすみ___、あさから しごとが あります。",
-    hintZh: "說明明天的行程安排。",
-    promptContextZh: "「明天雖然放假，但一早就有工作。」",
+    promptText:
+      "あしたは やすみなので、いえで ゆっくり やすみたいです。___、さっき きゅうに かいしゃから でんわが あって、あさから しごとに なりました。",
+    hintZh: "說話者說明明天的休假計畫與公司來電。",
+    promptContextZh:
+      "「明天原本放假，所以我想在家好好休息。但是，剛才公司突然來電，臨時變成一早就要上班。」",
     expectedAnswer: "ですが",
     options: ["ですが", "だから", "なので", "ですから"],
     explanation:
-      "放假卻一早有工作，前後是明確的轉折，所以用名詞＋「ですが」。「だから」「なので」「ですから」都是真實且接續正確的理由形式，但會把放假說成有工作的原因，和日文題幹顯示的關係不符。"
+      "第一句明說因為明天放假，所以想在家休息；接著公司卻突然來電，將安排改成一早上班，只有表轉折的「ですが」成立。「だから」「なので」「ですから」都是真實的因果連接形式，但會把想休息說成公司來電與改班的原因，和題幹明示的因果關係衝突。※さっき＝剛才。"
   },
   {
     id: "pattern-n5-riyuu-003",
@@ -928,13 +930,14 @@ const N5_RIYUU_ITEMS: SentencePatternItem[] = [
     id: "pattern-n5-riyuu-005",
     patternId: "n5-riyuu",
     promptText:
-      "あめが ふって いて、そとは さむいです。___、しごとに いかなければなりません。",
-    hintZh: "說明上班前的天氣和安排。",
-    promptContextZh: "「正在下雨，外面也很冷。可是，我必須去上班。」",
+      "あめが ふって いて、そとは さむいので、いえを でたく ありません。___、もう しごとの じかんなので、いかなければなりません。",
+    hintZh: "說話者說明出門前的天氣與上班時間。",
+    promptContextZh:
+      "「正在下雨，外面很冷，所以我不想離開家。但是，已經到上班時間了，我必須出門。」",
     expectedAnswer: "でも",
     options: ["でも", "だから", "それで", "そのため"],
     explanation:
-      "下雨、寒冷都是出門的阻力，後句卻說必須去上班，前後明確相反，所以用「でも」。「だから」「それで」「そのため」都是真實的因果連接詞，但天氣並不是必須上班的原因。※そと＝外面。"
+      "第一句明說天雨寒冷造成「不想離開家」，第二句則明說「已到上班時間」造成必須出門，兩個結論相反，所以只有「でも」成立。「だから」「それで」「そのため」都是真實的因果連接詞，但會把不想出門說成上班時間與出門義務的原因，和題幹明示的兩條因果鏈衝突。※そと＝外面。"
   },
   {
     id: "pattern-n5-riyuu-006",

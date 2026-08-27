@@ -864,11 +864,11 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-002": {
-    "hintI18n": { "en": "Describing tomorrow's schedule.", "ja": "明日の予定を説明する。" },
-    "promptContextI18n": { "en": "\"Tomorrow is a day off, but I have work from the morning.\"", "ja": "「明日は休みですが、朝から仕事があります。」" },
+    "hintI18n": { "en": "The speaker describes tomorrow's day-off plan and a call from work.", "ja": "話し手が明日の休みの予定と会社からの電話について話す。" },
+    "promptContextI18n": { "en": "\"Tomorrow is a day off, so I want to rest at home. However, the company suddenly called, and now I have to work from the morning.\"", "ja": "「明日は休みなので、家でゆっくり休みたいです。ですが、さっき急に会社から電話があって、朝から仕事になりました。」" },
     "explanationI18n": {
-      "en": "A day off followed by work from the morning is an explicit contrast, so use noun + 「ですが」. 「だから」, 「なので」, and 「ですから」 are all real, correctly attached reason forms, but they would make the day off the reason for having work, which the Japanese context does not support.",
-      "ja": "休みなのに朝から仕事があるので、前後は明確な逆接。名詞＋「ですが」を使う。「だから」「なので」「ですから」はどれも実在する正しい理由の形だが、休みであることを仕事の原因にしてしまい、日本語の文脈に合わない。"
+      "en": "The first sentence explicitly gives the day off as the reason for wanting to rest. The company then suddenly calls and changes the morning to work, so only contrastive 「ですが」 fits. 「だから」, 「なので」, and 「ですから」 are genuine causal connectors, but each would make the wish to rest cause the call and schedule change, contradicting the visible causal chain.",
+      "ja": "最初の文は、明日が休みだから家で休みたいという因果関係を明示している。その後、会社から急に電話があり、朝から仕事に変わったので、逆接の「ですが」だけが合う。「だから」「なので」「ですから」は実在する因果の接続表現だが、休みたいことを電話や予定変更の原因にしてしまい、問題文の因果関係と矛盾する。"
     }
   },
   "pattern-n5-riyuu-003": {
@@ -888,11 +888,11 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-005": {
-    "hintI18n": { "en": "Describing the weather and plans before work.", "ja": "出勤前の天気と予定を説明する。" },
-    "promptContextI18n": { "en": "\"It's raining and cold outside. But I have to go to work.\"", "ja": "「雨が降っていて、外は寒いです。でも、仕事に行かなければなりません。」" },
+    "hintI18n": { "en": "The speaker describes the weather and work time before leaving home.", "ja": "話し手が家を出る前の天気と仕事の時間について話す。" },
+    "promptContextI18n": { "en": "\"It's raining and cold outside, so I don't want to leave home. But it's already time for work, so I have to go.\"", "ja": "「雨が降っていて、外は寒いので、家を出たくありません。でも、もう仕事の時間なので、行かなければなりません。」" },
     "explanationI18n": {
-      "en": "Rain and cold both discourage going out, but the next sentence says work is mandatory, so 「でも」 marks the explicit contrast. 「だから」, 「それで」, and 「そのため」 are all real causal connectors, but the weather does not cause the work obligation. ※そと = outside.",
-      "ja": "雨と寒さはどちらも外出の妨げなのに、後ろでは仕事に行く必要があると言っている。明確な逆接なので「でも」。「だから」「それで」「そのため」はどれも実在する因果の接続詞だが、天気は出勤義務の原因ではない。"
+      "en": "The first sentence explicitly makes the rain and cold the reason for not wanting to leave home. The second explicitly makes work time the reason the speaker must go; the conclusions conflict, so only 「でも」 fits. 「だから」, 「それで」, and 「そのため」 are genuine causal connectors, but each would make not wanting to leave cause the work time and obligation, contradicting the two visible causal chains. ※そと = outside.",
+      "ja": "最初の文は、雨と寒さが家を出たくない理由だと明示している。次の文は、もう仕事の時間だから行かなければならないと明示しており、結論が反対なので「でも」だけが合う。「だから」「それで」「そのため」は実在する因果の接続詞だが、出たくないことを仕事の時間や出勤義務の原因にしてしまい、二つの因果関係と矛盾する。"
     }
   },
   "pattern-n5-riyuu-006": {
