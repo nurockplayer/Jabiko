@@ -864,11 +864,11 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-002": {
-    "hintI18n": { "en": "The speaker describes tomorrow's day-off plan and a call from work.", "ja": "話し手が明日の休みの予定と会社からの電話について話す。" },
-    "promptContextI18n": { "en": "\"Tomorrow is a day off, so I want to rest at home. However, the company suddenly called, and now I have to work from the morning.\"", "ja": "「明日は休みなので、家でゆっくり休みたいです。ですが、さっき急に会社から電話があって、朝から仕事になりました。」" },
+    "hintI18n": { "en": "A teacher checks whether a student will come to school tomorrow.", "ja": "先生が生徒に明日学校へ来るか確認する。" },
+    "promptContextI18n": { "en": "\"Is tomorrow a day off?\" \"Yes, it is.\" \"Are you coming to school?\" \"No. Since it is a day off, I am not going.\"", "ja": "「明日は休みですか。」「はい、休みです。」「学校へ来ますか。」「いいえ、休みなので、行きません。」" },
     "explanationI18n": {
-      "en": "The first sentence explicitly gives the day off as the reason for wanting to rest. The company then suddenly calls and changes the morning to work, so only contrastive 「ですが」 fits. 「だから」, 「なので」, and 「ですから」 are genuine causal connectors, but each would make the wish to rest cause the call and schedule change, contradicting the visible causal chain.",
-      "ja": "最初の文は、明日が休みだから家で休みたいという因果関係を明示している。その後、会社から急に電話があり、朝から仕事に変わったので、逆接の「ですが」だけが合う。「だから」「なので」「ですから」は実在する因果の接続表現だが、休みたいことを電話や予定変更の原因にしてしまい、問題文の因果関係と矛盾する。"
+      "en": "The question asks whether the student will go to school tomorrow, and the reply begins with a clear \"no\". Choose 「やすみなので、いきません」: a noun such as 「やすみ」 takes 「な」 before 「ので」. Both 「いきます」 options directly contradict 「いいえ」; 「きょうは やすみなので、いきません」 is about today and cannot answer whether the student will go tomorrow. All four choices are complete, grammatical sentences, so the visible polarity and time decide the answer.",
+      "ja": "問題は「明日」学校へ行くかを尋ね、答えは「いいえ」と明示しているので、「やすみなので、いきません」を選ぶ。名詞「やすみ」に「ので」を付けるときは「な」が必要。二つの「いきます」は「いいえ」と直接矛盾し、「きょうは やすみなので、いきません」は今日の話なので、明日の登校について答えられない。四つとも文法的に成立する完全な文であり、日本語の否定と時間で判断する。"
     }
   },
   "pattern-n5-riyuu-003": {
@@ -888,11 +888,11 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-005": {
-    "hintI18n": { "en": "The speaker describes the weather and work time before leaving home.", "ja": "話し手が家を出る前の天気と仕事の時間について話す。" },
-    "promptContextI18n": { "en": "\"It's raining and cold outside, so I don't want to leave home. But it's already time for work, so I have to go.\"", "ja": "「雨が降っていて、外は寒いので、家を出たくありません。でも、もう仕事の時間なので、行かなければなりません。」" },
+    "hintI18n": { "en": "A friend asks about going out yesterday and today.", "ja": "友だちが昨日と今日の外出について聞く。" },
+    "promptContextI18n": { "en": "\"Did you go out yesterday?\" \"No, I stayed home.\" \"It is raining today. Do you have an umbrella?\" \"No, I do not.\" \"Are you going out today?\" \"I do not have an umbrella. But I am going out.\"", "ja": "「昨日、出かけましたか。」「いいえ、家にいました。」「今日は雨が降っています。傘はありますか。」「いいえ、ありません。」「今日、出かけますか。」「傘はありません。でも、出かけます。」" },
     "explanationI18n": {
-      "en": "The first sentence explicitly makes the rain and cold the reason for not wanting to leave home. The second explicitly makes work time the reason the speaker must go; the conclusions conflict, so only 「でも」 fits. 「だから」, 「それで」, and 「そのため」 are genuine causal connectors, but each would make not wanting to leave cause the work time and obligation, contradicting the two visible causal chains. ※そと = outside.",
-      "ja": "最初の文は、雨と寒さが家を出たくない理由だと明示している。次の文は、もう仕事の時間だから行かなければならないと明示しており、結論が反対なので「でも」だけが合う。「だから」「それで」「そのため」は実在する因果の接続詞だが、出たくないことを仕事の時間や出勤義務の原因にしてしまい、二つの因果関係と矛盾する。"
+      "en": "The respondent says that they stayed home yesterday and have no umbrella today, while the prompt also states that it is raining. The reply repeats the lack of an umbrella and contrasts it with going out, so only 「でも」 fits. 「かさは あります」 contradicts the respondent's answer; 「あめは ふって いません」 contradicts the rain; 「きのう でかけました」 contradicts staying home yesterday. The four complete, grammatical choices use only the lesson's 「でも／だから／そして／それから」 set, so the visible facts decide the answer. ※でかけます = to go out.",
+      "ja": "問題文は、昨日は家にいたこと、今日は雨が降っていること、傘がないことを明示している。傘がない事実を繰り返し、それでも出かけると対比するので、「でも」だけが合う。「かさは あります」は傘がないことと矛盾し、「あめは ふって いません」は雨を否定し、「きのう でかけました」は昨日家にいたことを否定する。四つの選択肢は本課の「でも／だから／そして／それから」だけを使った、文法的に成立する完全な文であり、日本語の既知の事実で判断する。"
     }
   },
   "pattern-n5-riyuu-006": {

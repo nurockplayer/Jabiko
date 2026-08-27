@@ -876,8 +876,9 @@ const N5_ONEGAI_ITEMS: SentencePatternItem[] = [
 // N5 pattern: n5-riyuu -- reasons and contrast: から・ので・が (#547).
 //   から and ので are near-interchangeable as reason markers, so they never
 //   compete as semantic foils. Item 001 uses complete causal replies locked by
-//   visible polarity/time facts; item 002 contrasts three well-formed reason
-//   connectors with ですが after an explicit disrupted day-off plan.
+//   visible polarity/time facts; item 002 tests noun + なので with complete
+//   replies, and item 005 tests taught sentence-initial connectors. Their
+//   distractors are rejected by explicit polarity, time, and activity facts.
 // ===========================================================================
 const N5_RIYUU_ITEMS: SentencePatternItem[] = [
   {
@@ -902,14 +903,19 @@ const N5_RIYUU_ITEMS: SentencePatternItem[] = [
     id: "pattern-n5-riyuu-002",
     patternId: "n5-riyuu",
     promptText:
-      "あしたは やすみなので、いえで ゆっくり やすみたいです。___、さっき きゅうに かいしゃから でんわが あって、あさから しごとに なりました。",
-    hintZh: "說話者說明明天的休假計畫與公司來電。",
+      "「あしたは やすみですか。」「はい、やすみです。」「がっこうへ きますか。」「いいえ、___。」",
+    hintZh: "老師確認學生明天是否到校。",
     promptContextZh:
-      "「明天原本放假，所以我想在家好好休息。但是，剛才公司突然來電，臨時變成一早就要上班。」",
-    expectedAnswer: "ですが",
-    options: ["ですが", "だから", "なので", "ですから"],
+      "「明天放假嗎？」「對，放假。」「要來學校嗎？」「不去。因為放假，所以不去。」",
+    expectedAnswer: "やすみなので、いきません",
+    options: [
+      "やすみなので、いきません",
+      "やすみなので、いきます",
+      "やすみだから、いきます",
+      "きょうは やすみなので、いきません"
+    ],
     explanation:
-      "第一句明說因為明天放假，所以想在家休息；接著公司卻突然來電，將安排改成一早上班，只有表轉折的「ですが」成立。「だから」「なので」「ですから」都是真實的因果連接形式，但會把想休息說成公司來電與改班的原因，和題幹明示的因果關係衝突。※さっき＝剛才。"
+      "題目問的是「明天」要不要去學校，回答先明說「いいえ」，所以要選「やすみなので、いきません」：名詞「やすみ」接「ので」時加「な」。兩個「いきます」選項都和「いいえ」直接矛盾；「きょうは やすみなので、いきません」說的是今天，不能回答明天是否到校。四個選項都是完整且成立的句子，必須依日文題幹的否定與時間判斷。"
   },
   {
     id: "pattern-n5-riyuu-003",
@@ -937,14 +943,19 @@ const N5_RIYUU_ITEMS: SentencePatternItem[] = [
     id: "pattern-n5-riyuu-005",
     patternId: "n5-riyuu",
     promptText:
-      "あめが ふって いて、そとは さむいので、いえを でたく ありません。___、もう しごとの じかんなので、いかなければなりません。",
-    hintZh: "說話者說明出門前的天氣與上班時間。",
+      "「きのう、でかけましたか。」「いいえ、いえに いました。」「きょうは あめが ふって います。かさは ありますか。」「いいえ、ありません。」「きょう、でかけますか。」「___。」",
+    hintZh: "朋友確認昨天與今天是否外出。",
     promptContextZh:
-      "「正在下雨，外面很冷，所以我不想離開家。但是，已經到上班時間了，我必須出門。」",
-    expectedAnswer: "でも",
-    options: ["でも", "だから", "それで", "そのため"],
+      "「昨天有出門嗎？」「沒有，待在家。」「今天正在下雨。有傘嗎？」「沒有。」「今天要出門嗎？」「沒有傘。但是，我要出門。」",
+    expectedAnswer: "かさは ありません。でも、でかけます",
+    options: [
+      "かさは ありません。でも、でかけます",
+      "かさは あります。だから、でかけます",
+      "あめは ふって いません。そして、でかけます",
+      "きのう でかけました。それから、きょうも でかけます"
+    ],
     explanation:
-      "第一句明說天雨寒冷造成「不想離開家」，第二句則明說「已到上班時間」造成必須出門，兩個結論相反，所以只有「でも」成立。「だから」「それで」「そのため」都是真實的因果連接詞，但會把不想出門說成上班時間與出門義務的原因，和題幹明示的兩條因果鏈衝突。※そと＝外面。"
+      "題幹明說昨天待在家、今天下雨而且沒有傘；回答「沒有傘，但是要出門」時，只有表示轉折的「でも」符合。「かさは あります」否定了沒有傘；「あめは ふって いません」否定了正在下雨；「きのう でかけました」否定了昨天待在家。四個選項分別使用本課的「でも／だから／そして／それから」，也都是完整且成立的句子，必須依日文題幹的已知事實判斷。※でかけます＝出門。"
   },
   {
     id: "pattern-n5-riyuu-006",

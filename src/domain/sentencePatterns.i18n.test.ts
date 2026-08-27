@@ -50,15 +50,15 @@ describe("sentence-pattern overlays", () => {
       },
       {
         id: "pattern-n5-riyuu-002",
-        hintZh: "說話者說明明天的休假計畫與公司來電。",
-        hintEn: "The speaker describes tomorrow's day-off plan and a call from work.",
-        hintJa: "話し手が明日の休みの予定と会社からの電話について話す。"
+        hintZh: "老師確認學生明天是否到校。",
+        hintEn: "A teacher checks whether a student will come to school tomorrow.",
+        hintJa: "先生が生徒に明日学校へ来るか確認する。"
       },
       {
         id: "pattern-n5-riyuu-005",
-        hintZh: "說話者說明出門前的天氣與上班時間。",
-        hintEn: "The speaker describes the weather and work time before leaving home.",
-        hintJa: "話し手が家を出る前の天気と仕事の時間について話す。"
+        hintZh: "朋友確認昨天與今天是否外出。",
+        hintEn: "A friend asks about going out yesterday and today.",
+        hintJa: "友だちが昨日と今日の外出について聞く。"
       }
     ];
 
