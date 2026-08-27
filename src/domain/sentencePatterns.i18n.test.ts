@@ -55,10 +55,34 @@ describe("sentence-pattern overlays", () => {
         hintJa: "先生が生徒に、二つの日本語の文を一文にするよう言う。"
       },
       {
+        id: "pattern-n5-riyuu-003",
+        hintZh: "學習者分享對日語的感想。",
+        hintEn: "A learner shares their impressions of Japanese.",
+        hintJa: "学習者が日本語についての感想を話す。"
+      },
+      {
+        id: "pattern-n5-riyuu-004",
+        hintZh: "向路人開口問路。",
+        hintEn: "Stopping a passerby to ask the way.",
+        hintJa: "道で人に声をかけて場所を聞く。"
+      },
+      {
         id: "pattern-n5-riyuu-005",
         hintZh: "朋友確認昨天與今天是否外出。",
         hintEn: "A friend asks about going out yesterday and today.",
         hintJa: "友だちが昨日と今日の外出について聞く。"
+      },
+      {
+        id: "pattern-n5-riyuu-006",
+        hintZh: "學生談明天的考試與今晚的安排。",
+        hintEn: "A student talks about tomorrow's test and tonight's plans.",
+        hintJa: "学生が明日のテストと今晩の予定について話す。"
+      },
+      {
+        id: "pattern-n5-riyuu-007",
+        hintZh: "趕時間，決定搭車方式。",
+        hintEn: "Short on time — settling how to get there.",
+        hintJa: "時間がない。移動手段を決める。"
       },
       {
         id: "pattern-n5-riyuu-008",

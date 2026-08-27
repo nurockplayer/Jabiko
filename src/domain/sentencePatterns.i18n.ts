@@ -872,7 +872,7 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-003": {
-    "hintI18n": { "en": "Japanese is hard — and fun all the same.", "ja": "日本語は難しい。それでも面白い、という話。" },
+    "hintI18n": { "en": "A learner shares their impressions of Japanese.", "ja": "学習者が日本語についての感想を話す。" },
     "promptContextI18n": { "en": "\"Japanese is difficult, but it's interesting.\"", "ja": "「日本語は難しいですが、面白いです。」" },
     "explanationI18n": {
       "en": "Sentence-medial 「が」 marks contrast = although ~, but ~: むずかしいですが、おもしろいです — used when the two halves point in opposite directions. 「を」「の」「に」 can't follow です. ※むずかしい = difficult, おもしろい = interesting.",
@@ -896,7 +896,7 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-006": {
-    "hintI18n": { "en": "Test tomorrow — tonight is for studying, no way around it.", "ja": "明日は試験。今晩は勉強するしかない。" },
+    "hintI18n": { "en": "A student talks about tomorrow's test and tonight's plans.", "ja": "学生が明日のテストと今晩の予定について話す。" },
     "promptContextI18n": { "en": "\"There's a test tomorrow. So I'll study tonight.\"", "ja": "「明日テストがあります。だから、今晩勉強します。」" },
     "explanationI18n": {
       "en": "Cause followed by its natural consequence takes 「だから」 = so. 「でも」「しかし」 mark contrast (a test, \"but\" studying? — wrong direction); 「まだ」 (still/yet) is an adverb and can't sit at the head of a sentence as a connector. ※テスト = test, こんばん = tonight.",
