@@ -875,21 +875,28 @@ const N5_ONEGAI_ITEMS: SentencePatternItem[] = [
 // ===========================================================================
 // N5 pattern: n5-riyuu -- reasons and contrast: から・ので・が (#547).
 //   から and ので are near-interchangeable as reason markers, so they never
-//   compete as semantic foils. Item 002 contrasts three well-formed reason
-//   connectors with ですが after an explicit disrupted day-off plan; other
-//   から/ので appearances are blocked by attachment or visible context.
+//   compete as semantic foils. Item 001 uses complete causal replies locked by
+//   visible polarity/time facts; item 002 contrasts three well-formed reason
+//   connectors with ですが after an explicit disrupted day-off plan.
 // ===========================================================================
 const N5_RIYUU_ITEMS: SentencePatternItem[] = [
   {
     id: "pattern-n5-riyuu-001",
     patternId: "n5-riyuu",
-    promptText: "「どうして がっこうを やすみましたか。」「ねつが あった___です。」",
-    hintZh: "解釋沒去學校的原因。",
-    promptContextZh: "「為什麼沒來學校？」「因為發燒了。」",
-    expectedAnswer: "から",
-    options: ["から", "ので", "が", "まで"],
+    promptText:
+      "「きのう、ねつが ありましたね。がっこうへは いきませんでしたね。どうして がっこうを やすみましたか。」「___。」",
+    hintZh: "老師確認學生昨天缺席時的情況。",
+    promptContextZh:
+      "「昨天發燒了吧，也沒有去學校。為什麼請假？」「因為發燒了。」",
+    expectedAnswer: "ねつが あったからです",
+    options: [
+      "ねつが あったからです",
+      "ねつが なかったからです",
+      "がっこうへ いったからです",
+      "きょうは げんきだからです"
+    ],
     explanation:
-      "回答「どうして（為什麼）」用固定句式「〜からです」：ねつが あったからです。「ので」不能直接接です（×のでです）；「が」「まで」也接不上。※やすみます＝請假・休息。"
+      "題幹明說昨天發燒、而且沒有去學校，所以用「ねつが あったからです」回答「どうして」。「ねつが なかったからです」否定了已知的發燒；「がっこうへ いったからです」和「沒有去學校／請假」矛盾；「きょうは げんきだからです」是今天的狀態，不能解釋昨天缺席。四個選項都是完整且成立的理由句，必須依日文題幹判斷。※やすみます＝請假・休息。"
   },
   {
     id: "pattern-n5-riyuu-002",

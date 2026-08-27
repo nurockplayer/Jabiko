@@ -43,6 +43,12 @@ describe("sentence-pattern overlays", () => {
         hintJa: "家族が猫の今いる場所を確認する。"
       },
       {
+        id: "pattern-n5-riyuu-001",
+        hintZh: "老師確認學生昨天缺席時的情況。",
+        hintEn: "A teacher checks what happened when a student was absent yesterday.",
+        hintJa: "先生が生徒の昨日の欠席について確認する。"
+      },
+      {
         id: "pattern-n5-riyuu-002",
         hintZh: "說話者說明明天的休假計畫與公司來電。",
         hintEn: "The speaker describes tomorrow's day-off plan and a call from work.",

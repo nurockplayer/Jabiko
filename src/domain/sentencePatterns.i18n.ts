@@ -856,11 +856,11 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-001": {
-    "hintI18n": { "en": "Explaining why you missed school.", "ja": "学校を休んだわけを説明する。" },
-    "promptContextI18n": { "en": "\"Why did you miss school?\" \"Because I had a fever.\"", "ja": "「どうして学校を休みましたか。」「熱があったからです。」" },
+    "hintI18n": { "en": "A teacher checks what happened when a student was absent yesterday.", "ja": "先生が生徒の昨日の欠席について確認する。" },
+    "promptContextI18n": { "en": "\"You had a fever yesterday and didn't go to school, right? Why did you miss school?\" \"Because I had a fever.\"", "ja": "「昨日、熱がありましたね。学校へは行きませんでしたね。どうして学校を休みましたか。」「熱があったからです。」" },
     "explanationI18n": {
-      "en": "Answering 「どうして」 (why) uses the fixed shape 「〜からです」: ねつが あったからです. 「ので」 can't attach directly to です (×のでです); 「が」 and 「まで」 don't connect either. ※やすみます = to take a day off.",
-      "ja": "「どうして」への答えは「〜からです」で固定：ねつが あったからです。「ので」は です に直接つながらない（×のでです）。「が」「まで」も接続できない。"
+      "en": "The prompt states that the student had a fever yesterday and did not go to school, so answer 「どうして」 with 「ねつが あったからです」. 「ねつが なかったからです」 contradicts the known fever; 「がっこうへ いったからです」 contradicts not going and being absent; 「きょうは げんきだからです」 describes today and cannot explain yesterday's absence. All four options are complete, grammatical reason sentences, so the visible Japanese context decides the answer. ※やすみます = to take a day off.",
+      "ja": "問題文は、昨日は熱があり、学校へ行かなかったと明示しているので、「どうして」には「ねつが あったからです」と答える。「ねつが なかったからです」は既知の発熱を否定し、「がっこうへ いったからです」は学校へ行かなかったこと・休んだことと矛盾する。「きょうは げんきだからです」は今日の状態で、昨日の欠席を説明できない。四つとも文法的に成立する完全な理由文なので、日本語の文脈で判断する。"
     }
   },
   "pattern-n5-riyuu-002": {
