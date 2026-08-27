@@ -365,6 +365,40 @@ describe("usePracticeSession basic composable filters (#789)", () => {
     expect(result.current.selectedVerbGroups).toBeUndefined();
   });
 
+  it("preserves basic filters across mode changes while clearing mode-specific filters", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          filter: {
+            levels: ["N5"],
+            verbGroups: ["godan"],
+            kanaScript: "katakana"
+          },
+          partOfSpeech: "verb",
+          targetForm: "meaning"
+        }
+      })
+    );
+
+    act(() => result.current.applyModePreset("kana"));
+
+    expect(result.current.practiceFilter).toEqual({
+      levels: ["N5"],
+      verbGroups: ["godan"]
+    });
+
+    act(() => result.current.applyModePreset("basic"));
+
+    expect(result.current.practiceFilter).toEqual({
+      levels: ["N5"],
+      verbGroups: ["godan"]
+    });
+    expect(result.current.currentQuestion?.vocabulary.level).toBe("N5");
+    expect(result.current.currentQuestion?.vocabulary.group).toBe("godan");
+  });
+
   it("keeps an explicit empty filter as a zero-question pass", () => {
     const { result } = renderHook(() =>
       usePracticeSession({

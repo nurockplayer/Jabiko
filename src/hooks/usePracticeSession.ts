@@ -651,19 +651,24 @@ export function usePracticeSession({
   // The mode picker lists the exam pool as three side-by-side presets
   // (綜合 / N1 備考 / N2 備考), so picking one sets BOTH the mode and its
   // level range at once. Non-exam presets pass "all" (a no-op for the
-  // modes that ignore levelRange). Clearing the filter keeps the picker a
-  // "fresh mix" (a chapter drill button is what sets a patternIds filter).
+  // modes that ignore levelRange). Mode-specific filters are cleared so the
+  // picker starts a fresh mix, while focused-basic selections survive a
+  // round trip through another mode.
   const applyModePreset = (nextMode: PracticeMode, nextRange?: LevelRange) => {
     // An explicit range (the exam 綜合 / 備考 cards) wins; otherwise inherit
     // the global target preference, so daily / 単字 keep honouring it when
     // re-picked from the in-session picker -- not only on first mount (#199).
     const resolvedRange = nextRange ?? initialLevelRange({ mode: nextMode }, targetLevel);
     if (nextMode === practiceMode && resolvedRange === levelRange) return;
+    const { levels, verbGroups } = configRef.current.filter;
     startNewPass({
       ...configRef.current,
       mode: nextMode,
       levelRange: resolvedRange,
-      filter: {}
+      filter: {
+        ...(levels === undefined ? {} : { levels: [...levels] }),
+        ...(verbGroups === undefined ? {} : { verbGroups: [...verbGroups] })
+      }
     });
   };
 
