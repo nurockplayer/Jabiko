@@ -22,7 +22,7 @@ import {
 } from "../domain/sessionPools";
 import { collectAttemptedIds } from "../domain/unattempted";
 import { getBookmarkedIds, toggleBookmark } from "../domain/bookmarks";
-import type { Attempt, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
+import type { Attempt, JlptLevel, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
 import { readStored, writeStored } from "../domain/safeStorage";
 import { copy, type Language } from "../i18n";
 import { trackEvent } from "../lib/analytics";
@@ -50,6 +50,10 @@ export type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbia
 // many `import { PracticeMode } from "../hooks/usePracticeSession"` sites keep working.
 export type { PracticeMode };
 export type PracticeFilter = {
+  // Focused basic-practice filters. Undefined means no restriction; an
+  // explicit empty array intentionally produces a zero-question pass.
+  levels?: JlptLevel[];
+  verbGroups?: VerbGroup[];
   patternIds?: SentencePatternId[];
   // Narrows exam mode to one JLPT section (by level + promptLabel), set
   // when the learner taps a section card in the 模擬考 picker.
@@ -58,6 +62,25 @@ export type PracticeFilter = {
   // the 入門 chapter CTAs. Kana mode without it defaults to hiragana.
   kanaScript?: KanaScript;
 };
+
+function copyPracticeFilter(filter: PracticeFilter): PracticeFilter {
+  return {
+    ...filter,
+    levels: filter.levels === undefined ? undefined : [...filter.levels],
+    verbGroups: filter.verbGroups === undefined ? undefined : [...filter.verbGroups]
+  };
+}
+
+function legacyVerbGroupFilter(verbGroup: VerbGroup | "all"): PracticeFilter {
+  return verbGroup === "all" ? {} : { verbGroups: [verbGroup] };
+}
+
+function initialPracticeFilter(init: SessionInit | undefined): PracticeFilter {
+  if (init?.filter !== undefined) {
+    return copyPracticeFilter(init.filter);
+  }
+  return legacyVerbGroupFilter(init?.verbGroup ?? "godan");
+}
 
 // Initial configuration the challenge view is launched with. App sets
 // this (the "launch request") when the learner taps a learning-block
@@ -192,7 +215,7 @@ function makeInitialConfig(
 ): PracticeSessionConfig {
   const config = {
     mode: init?.mode ?? "daily",
-    filter: init?.filter ?? {},
+    filter: initialPracticeFilter(init),
     partOfSpeech: init?.partOfSpeech ?? "verb",
     verbGroup: init?.verbGroup ?? "godan",
     practiceFocus: init?.practiceFocus ?? "single",
@@ -216,8 +239,14 @@ export function createPracticePoolSnapshot(
     examSection: config.filter.examSection,
     patternIds: config.filter.patternIds,
     kanaScript: config.filter.kanaScript,
+    levels: config.filter.levels === undefined ? undefined : [...config.filter.levels],
+    verbGroups:
+      config.filter.verbGroups === undefined ? undefined : [...config.filter.verbGroups],
     partOfSpeech: config.partOfSpeech,
-    verbGroup: config.verbGroup,
+    // PracticePoolOptions keeps the scalar for direct legacy callers. Once a
+    // canonical filter exists, its arrays are authoritative; an omitted group
+    // array means all groups rather than falling back to an unrelated scalar.
+    verbGroup: config.filter.verbGroups === undefined ? "all" : config.verbGroup,
     targetForms: [...config.targetForms],
     levelRange: config.levelRange,
     sessionLength: config.sessionLength,
@@ -491,7 +520,11 @@ export function usePracticeSession({
   const updateConfig = (nextConfig: PracticeSessionConfig) => {
     // Resolve targetForms for the NEW config so a mode/focus/form change can
     // never carry a stale form set into the fresh pass (e.g. daily -> exam).
-    const next = { ...nextConfig, targetForms: resolveTargetForms(nextConfig) };
+    const next = {
+      ...nextConfig,
+      filter: copyPracticeFilter(nextConfig.filter),
+      targetForms: resolveTargetForms(nextConfig)
+    };
     configRef.current = next;
     setConfig(next);
     return next;
@@ -517,7 +550,14 @@ export function usePracticeSession({
   const setPartOfSpeech = (next: PartOfSpeech | "mixed") =>
     updateConfig({ ...configRef.current, partOfSpeech: next });
   const setVerbGroup = (next: VerbGroup | "all") =>
-    updateConfig({ ...configRef.current, verbGroup: next });
+    updateConfig({
+      ...configRef.current,
+      verbGroup: next,
+      filter: {
+        ...configRef.current.filter,
+        verbGroups: next === "all" ? undefined : [next]
+      }
+    });
   const setTargetForm = (next: TargetForm) =>
     updateConfig({ ...configRef.current, targetForm: next });
   const setPracticeFocus = (next: PracticeFocus) =>
@@ -526,6 +566,10 @@ export function usePracticeSession({
     updateConfig({ ...configRef.current, mode: next });
   const setPracticeFilter = (next: PracticeFilter) =>
     updateConfig({ ...configRef.current, filter: next });
+
+  const handlePracticeFilterChange = (nextFilter: PracticeFilter) => {
+    startNewPass({ ...configRef.current, filter: nextFilter });
+  };
 
   const handlePartOfSpeechChange = (nextPartOfSpeech: PartOfSpeech | "mixed") => {
     startNewPass({
@@ -551,7 +595,15 @@ export function usePracticeSession({
     // re-picked from the in-session picker -- not only on first mount (#199).
     const resolvedRange = nextRange ?? initialLevelRange({ mode: nextMode }, targetLevel);
     if (nextMode === practiceMode && resolvedRange === levelRange) return;
-    startNewPass({ ...configRef.current, mode: nextMode, levelRange: resolvedRange, filter: {} });
+    startNewPass({
+      ...configRef.current,
+      mode: nextMode,
+      levelRange: resolvedRange,
+      filter:
+        nextMode === "basic"
+          ? legacyVerbGroupFilter(configRef.current.verbGroup)
+          : {}
+    });
   };
 
   const handleLevelRangeChange = (nextRange: LevelRange) => {
@@ -684,6 +736,7 @@ export function usePracticeSession({
   return {
     partOfSpeech,
     verbGroup,
+    practiceFilter,
     practiceFocus,
     practiceMode,
     levelRange,
@@ -728,6 +781,7 @@ export function usePracticeSession({
     startedAtRef,
     handlePartOfSpeechChange,
     handlePracticeFocusChange,
+    handlePracticeFilterChange,
     applyModePreset,
     handleLevelRangeChange,
     handleSessionLengthChange,

@@ -1,14 +1,24 @@
 import { RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import { JabikoMark } from "../JabikoMark";
-import type { PartOfSpeech, TargetForm, VerbGroup } from "../../domain/types";
+import type { JlptLevel, PartOfSpeech, TargetForm, VerbGroup } from "../../domain/types";
 import { VOCAB_LEVEL_RANGE_OPTIONS } from "../../domain/levelRange";
 import { MODE_GROUPS } from "../../domain/practiceMode";
 import { type PracticeSession } from "../../hooks/usePracticeSession";
 
 const partOfSpeechOptions: Array<PartOfSpeech | "mixed"> = ["verb", "i_adjective", "na_adjective", "noun", "mixed"];
 
-const verbGroupOptions: Array<VerbGroup | "all"> = ["godan", "ichidan", "irregular", "all"];
+const jlptLevelOptions: JlptLevel[] = ["N1", "N2", "N3", "N4", "N5"];
+
+const verbGroupOptions: VerbGroup[] = ["godan", "ichidan", "irregular"];
+
+function toggleSelection<T>(options: readonly T[], selected: T[] | undefined, value: T): T[] {
+  if (selected === undefined) return [value];
+  const next = new Set(selected);
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
+  return options.filter((option) => next.has(option));
+}
 
 const formOptions: TargetForm[] = [
   "te",
@@ -40,13 +50,12 @@ const formOptions: TargetForm[] = [
 export function ModePicker({
   language,
   partOfSpeech,
-  verbGroup,
+  practiceFilter,
   practiceFocus,
   practiceMode,
   levelRange,
   showLevelRange,
   selectedForm,
-  setVerbGroup,
   setTargetForm,
   compatibleForms,
   isVerbCapable,
@@ -57,19 +66,19 @@ export function ModePicker({
   modeCounts,
   handlePartOfSpeechChange,
   handlePracticeFocusChange,
+  handlePracticeFilterChange,
   applyModePreset,
   handleLevelRangeChange,
   resetSession
 }: Pick<
   PracticeSession,
   | "partOfSpeech"
-  | "verbGroup"
+  | "practiceFilter"
   | "practiceFocus"
   | "practiceMode"
   | "levelRange"
   | "showLevelRange"
   | "selectedForm"
-  | "setVerbGroup"
   | "setTargetForm"
   | "compatibleForms"
   | "isVerbCapable"
@@ -80,6 +89,7 @@ export function ModePicker({
   | "modeCounts"
   | "handlePartOfSpeechChange"
   | "handlePracticeFocusChange"
+  | "handlePracticeFilterChange"
   | "applyModePreset"
   | "handleLevelRangeChange"
   | "resetSession"
@@ -174,6 +184,41 @@ export function ModePicker({
             </div>
           </fieldset>
 
+          <fieldset>
+            <legend>{t.levelRange}</legend>
+            <div className="segmented level-segmented">
+              <button
+                type="button"
+                className={practiceFilter.levels === undefined ? "selected" : ""}
+                aria-pressed={practiceFilter.levels === undefined}
+                onClick={() =>
+                  handlePracticeFilterChange({ ...practiceFilter, levels: undefined })
+                }
+              >
+                {t.levelRangeOptions.all}
+              </button>
+              {jlptLevelOptions.map((level) => {
+                const selected = practiceFilter.levels?.includes(level) ?? false;
+                return (
+                  <button
+                    key={level}
+                    type="button"
+                    className={selected ? "selected" : ""}
+                    aria-pressed={selected}
+                    onClick={() =>
+                      handlePracticeFilterChange({
+                        ...practiceFilter,
+                        levels: toggleSelection(jlptLevelOptions, practiceFilter.levels, level)
+                      })
+                    }
+                  >
+                    {level}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+
           {availableFocusOptions.length > 0 ? (
             <fieldset>
               <legend>{t.practiceFocus}</legend>
@@ -195,16 +240,33 @@ export function ModePicker({
           {isVerbCapable ? (
             <fieldset>
               <legend>{t.verbGroup}</legend>
-              <div className="segmented">
+              <div className="segmented level-segmented">
+                <button
+                  type="button"
+                  className={practiceFilter.verbGroups === undefined ? "selected" : ""}
+                  aria-pressed={practiceFilter.verbGroups === undefined}
+                  onClick={() =>
+                    handlePracticeFilterChange({ ...practiceFilter, verbGroups: undefined })
+                  }
+                >
+                  {t.verbGroups.all}
+                </button>
                 {verbGroupOptions.map((option) => (
                   <button
                     key={option}
                     type="button"
-                    className={verbGroup === option ? "selected" : ""}
-                    onClick={() => {
-                      setVerbGroup(option);
-                      resetSession();
-                    }}
+                    className={practiceFilter.verbGroups?.includes(option) ? "selected" : ""}
+                    aria-pressed={practiceFilter.verbGroups?.includes(option) ?? false}
+                    onClick={() =>
+                      handlePracticeFilterChange({
+                        ...practiceFilter,
+                        verbGroups: toggleSelection(
+                          verbGroupOptions,
+                          practiceFilter.verbGroups,
+                          option
+                        )
+                      })
+                    }
                   >
                     {t.verbGroups[option]}
                   </button>

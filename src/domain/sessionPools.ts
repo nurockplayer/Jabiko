@@ -26,7 +26,7 @@ import {
   reduceAdjacentClusters,
   shuffleQuestions
 } from "./practice";
-import type { PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./types";
+import type { JlptLevel, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./types";
 import { prioritizeUnattempted } from "./unattempted";
 import { starterVocabulary } from "./starterVocabulary";
 import { vocabulary } from "./vocabulary";
@@ -233,6 +233,11 @@ export type PracticePoolOptions = {
   // Gojuon script for kana mode (#533); undefined -> hiragana.
   kanaScript?: KanaScript;
   partOfSpeech: PartOfSpeech | "mixed";
+  // Focused basic-practice filters. Undefined keeps every level / the
+  // legacy scalar verbGroup; an explicit empty array intentionally yields
+  // no matching basic questions.
+  levels?: JlptLevel[];
+  verbGroups?: VerbGroup[];
   verbGroup: VerbGroup | "all";
   targetForms: TargetForm[];
   levelRange: LevelRange;
@@ -268,6 +273,8 @@ export function buildPracticeQuestions(options: PracticePoolOptions): PracticeQu
     patternIds,
     kanaScript,
     partOfSpeech,
+    levels,
+    verbGroups,
     verbGroup,
     targetForms,
     levelRange,
@@ -389,16 +396,31 @@ export function buildPracticeQuestions(options: PracticePoolOptions): PracticeQu
       // review -- toggling a star mid-session doesn't reshuffle the live pass.
       return bookmarkedQuestions;
 
-    case "basic":
+    case "basic": {
+      const selectedVerbGroups =
+        verbGroups ?? (verbGroup === "all" ? undefined : [verbGroup]);
+      const basicVocabulary = vocabulary
+        .filter(
+          (item) =>
+            levels === undefined ||
+            (item.level !== undefined && levels.includes(item.level))
+        )
+        .filter(
+          (item) =>
+            item.partOfSpeech !== "verb" ||
+            selectedVerbGroups === undefined ||
+            (item.group !== null && selectedVerbGroups.includes(item.group))
+        );
       return cap(
         shuffleQuestions(
-          buildQuestionPool(vocabulary, {
+          buildQuestionPool(basicVocabulary, {
             partOfSpeech,
-            verbGroup,
+            verbGroup: "all",
             targetForms
           })
         )
       );
+    }
 
     default:
       return assertNever(mode);

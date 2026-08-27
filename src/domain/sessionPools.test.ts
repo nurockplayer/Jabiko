@@ -374,6 +374,95 @@ describe("buildPracticeQuestions", () => {
   });
 });
 
+describe("buildPracticeQuestions basic composable filters (#789)", () => {
+  it("narrows the basic pool to one selected JLPT level", () => {
+    const questions = buildPracticeQuestions(
+      poolParams({
+        partOfSpeech: "noun",
+        targetForms: ["meaning"],
+        levels: ["N4"]
+      })
+    );
+
+    expect(questions.length).toBeGreaterThan(0);
+    expect(questions.every((question) => question.vocabulary.level === "N4")).toBe(true);
+  });
+
+  it("unions selected JLPT levels within the basic pool", () => {
+    const questions = buildPracticeQuestions(
+      poolParams({
+        partOfSpeech: "noun",
+        targetForms: ["meaning"],
+        levels: ["N3", "N4", "N5"]
+      })
+    );
+
+    expect(new Set(questions.map((question) => question.vocabulary.level))).toEqual(
+      new Set(["N3", "N4", "N5"])
+    );
+  });
+
+  it("unions selected verb groups and excludes unselected groups", () => {
+    const questions = buildPracticeQuestions(
+      poolParams({
+        partOfSpeech: "verb",
+        verbGroup: "irregular",
+        verbGroups: ["godan", "ichidan"],
+        targetForms: ["meaning"]
+      })
+    );
+
+    expect(new Set(questions.map((question) => question.vocabulary.group))).toEqual(
+      new Set(["godan", "ichidan"])
+    );
+  });
+
+  it("intersects levels, part of speech, verb groups, and target forms", () => {
+    const selectedLevels = new Set(["N3", "N4", "N5"]);
+    const selectedGroups = new Set(["godan", "ichidan"]);
+    const questions = buildPracticeQuestions(
+      poolParams({
+        partOfSpeech: "verb",
+        verbGroups: ["godan", "ichidan"],
+        targetForms: ["meaning"],
+        levels: ["N3", "N4", "N5"]
+      })
+    );
+
+    expect(questions.length).toBeGreaterThan(0);
+    expect(new Set(questions.map((question) => question.vocabulary.group))).toEqual(
+      new Set(["godan", "ichidan"])
+    );
+    expect(
+      questions.every(
+        (question) =>
+          question.vocabulary.level !== undefined &&
+          selectedLevels.has(question.vocabulary.level) &&
+          question.vocabulary.partOfSpeech === "verb" &&
+          question.vocabulary.group !== null &&
+          selectedGroups.has(question.vocabulary.group) &&
+          question.targetForm === "meaning"
+      )
+    ).toBe(true);
+  });
+
+  it("keeps an explicitly empty level selection empty", () => {
+    const questions = buildPracticeQuestions(
+      poolParams({ partOfSpeech: "noun", targetForms: ["meaning"], levels: [] })
+    );
+
+    expect(questions).toEqual([]);
+  });
+
+  it("keeps an explicitly empty verb-group selection empty", () => {
+    const questions = buildPracticeQuestions(
+      poolParams({ partOfSpeech: "verb", targetForms: ["meaning"], verbGroups: [] })
+    );
+
+    expect(questions).toEqual([]);
+  });
+});
+
 describe("composeDailySet", () => {
   const makeDue = (n: number): PracticeQuestion[] => buildExamQuestionPool("N1").slice(0, n);
 
