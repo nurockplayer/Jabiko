@@ -16,13 +16,14 @@ import {
   buildAllKnownQuestions,
   buildModeCounts,
   buildPracticeQuestions,
+  getAvailableBasicLevels,
   resolveBookmarkedQuestions,
   type PracticePoolOptions,
   uniqueForms
 } from "../domain/sessionPools";
 import { collectAttemptedIds } from "../domain/unattempted";
 import { getBookmarkedIds, toggleBookmark } from "../domain/bookmarks";
-import type { Attempt, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
+import type { Attempt, JlptLevel, PartOfSpeech, TargetForm, VerbGroup } from "../domain/types";
 import { readStored, writeStored } from "../domain/safeStorage";
 import { copy, type Language } from "../i18n";
 import { trackEvent } from "../lib/analytics";
@@ -50,6 +51,10 @@ export type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbia
 // many `import { PracticeMode } from "../hooks/usePracticeSession"` sites keep working.
 export type { PracticeMode };
 export type PracticeFilter = {
+  // Focused basic-practice filters. Undefined means no restriction; an
+  // explicit empty array intentionally produces a zero-question pass.
+  levels?: JlptLevel[];
+  verbGroups?: VerbGroup[];
   patternIds?: SentencePatternId[];
   // Narrows exam mode to one JLPT section (by level + promptLabel), set
   // when the learner taps a section card in the 模擬考 picker.
@@ -58,6 +63,21 @@ export type PracticeFilter = {
   // the 入門 chapter CTAs. Kana mode without it defaults to hiragana.
   kanaScript?: KanaScript;
 };
+
+function copyPracticeFilter(filter: PracticeFilter): PracticeFilter {
+  return {
+    ...filter,
+    levels: filter.levels === undefined ? undefined : [...filter.levels],
+    verbGroups: filter.verbGroups === undefined ? undefined : [...filter.verbGroups]
+  };
+}
+
+function initialPracticeFilter(init: SessionInit | undefined): PracticeFilter {
+  if (init?.filter !== undefined) {
+    return copyPracticeFilter(init.filter);
+  }
+  return {};
+}
 
 // Initial configuration the challenge view is launched with. App sets
 // this (the "launch request") when the learner taps a learning-block
@@ -186,13 +206,47 @@ export function resolveTargetForms(config: {
   return [...(focusOptions.find((option) => option.value === config.practiceFocus)?.targetForms ?? [selectedForm])];
 }
 
+function pruneUnavailableLevels(
+  levels: JlptLevel[] | undefined,
+  availableLevels: readonly JlptLevel[]
+): JlptLevel[] | undefined {
+  if (levels === undefined) return undefined;
+  if (levels.length === 0) return [];
+  const available = new Set(availableLevels);
+  const pruned = levels.filter((level) => available.has(level));
+  return pruned.length > 0 ? pruned : undefined;
+}
+
+function preparePracticeSessionConfig(
+  config: PracticeSessionConfig
+): PracticeSessionConfig {
+  const targetForms = resolveTargetForms(config);
+  const filter = copyPracticeFilter(config.filter);
+  if (config.mode !== "basic") return { ...config, filter, targetForms };
+
+  const availableLevels = getAvailableBasicLevels({
+    partOfSpeech: config.partOfSpeech,
+    verbGroups: filter.verbGroups,
+    verbGroup: config.verbGroup,
+    targetForms
+  });
+  return {
+    ...config,
+    filter: {
+      ...filter,
+      levels: pruneUnavailableLevels(filter.levels, availableLevels)
+    },
+    targetForms
+  };
+}
+
 function makeInitialConfig(
   init: SessionInit | undefined,
   targetLevel: LevelRange | null
 ): PracticeSessionConfig {
   const config = {
     mode: init?.mode ?? "daily",
-    filter: init?.filter ?? {},
+    filter: initialPracticeFilter(init),
     partOfSpeech: init?.partOfSpeech ?? "verb",
     verbGroup: init?.verbGroup ?? "godan",
     practiceFocus: init?.practiceFocus ?? "single",
@@ -200,7 +254,10 @@ function makeInitialConfig(
     levelRange: initialLevelRange(init, targetLevel),
     sessionLength: readSessionLength()
   };
-  return { ...config, targetForms: resolveTargetForms(config) };
+  return preparePracticeSessionConfig({
+    ...config,
+    targetForms: resolveTargetForms(config)
+  });
 }
 
 // Pure snapshot builder (#679): merges the static config with the live
@@ -216,8 +273,13 @@ export function createPracticePoolSnapshot(
     examSection: config.filter.examSection,
     patternIds: config.filter.patternIds,
     kanaScript: config.filter.kanaScript,
+    levels: config.filter.levels === undefined ? undefined : [...config.filter.levels],
+    verbGroups:
+      config.filter.verbGroups === undefined ? undefined : [...config.filter.verbGroups],
     partOfSpeech: config.partOfSpeech,
-    verbGroup: config.verbGroup,
+    // Explicit arrays are authoritative; without one, retain the scalar launch
+    // contract for legacy mixed/basic callers.
+    verbGroup: config.filter.verbGroups === undefined ? config.verbGroup : "all",
     targetForms: [...config.targetForms],
     levelRange: config.levelRange,
     sessionLength: config.sessionLength,
@@ -376,6 +438,25 @@ export function usePracticeSession({
   // the chosen word type / verb group / form), and "review" is dynamic
   // (the due count) so it's read from reviewQueue at render time.
   const modeCounts = useMemo(() => buildModeCounts(), []);
+  const selectedVerbGroups = useMemo(
+    () =>
+      practiceFilter.verbGroups === undefined
+        ? verbGroup === "all"
+          ? undefined
+          : [verbGroup]
+        : [...practiceFilter.verbGroups],
+    [practiceFilter.verbGroups, verbGroup]
+  );
+  const availableBasicLevels = useMemo(
+    () =>
+      getAvailableBasicLevels({
+        partOfSpeech,
+        verbGroups: practiceFilter.verbGroups,
+        verbGroup,
+        targetForms
+      }),
+    [partOfSpeech, practiceFilter.verbGroups, targetForms, verbGroup]
+  );
   const isVerbCapable = partOfSpeech === "verb" || partOfSpeech === "mixed";
   const availableFocusOptions = focusOptions.filter((option) => {
     if (option.verbOnly && !isVerbCapable) return false;
@@ -491,7 +572,7 @@ export function usePracticeSession({
   const updateConfig = (nextConfig: PracticeSessionConfig) => {
     // Resolve targetForms for the NEW config so a mode/focus/form change can
     // never carry a stale form set into the fresh pass (e.g. daily -> exam).
-    const next = { ...nextConfig, targetForms: resolveTargetForms(nextConfig) };
+    const next = preparePracticeSessionConfig(nextConfig);
     configRef.current = next;
     setConfig(next);
     return next;
@@ -517,7 +598,14 @@ export function usePracticeSession({
   const setPartOfSpeech = (next: PartOfSpeech | "mixed") =>
     updateConfig({ ...configRef.current, partOfSpeech: next });
   const setVerbGroup = (next: VerbGroup | "all") =>
-    updateConfig({ ...configRef.current, verbGroup: next });
+    updateConfig({
+      ...configRef.current,
+      verbGroup: next,
+      filter: {
+        ...configRef.current.filter,
+        verbGroups: undefined
+      }
+    });
   const setTargetForm = (next: TargetForm) =>
     updateConfig({ ...configRef.current, targetForm: next });
   const setPracticeFocus = (next: PracticeFocus) =>
@@ -527,10 +615,30 @@ export function usePracticeSession({
   const setPracticeFilter = (next: PracticeFilter) =>
     updateConfig({ ...configRef.current, filter: next });
 
+  const handlePracticeFilterChange = (nextFilter: PracticeFilter) => {
+    startNewPass({ ...configRef.current, filter: nextFilter });
+  };
+
+  const handleVerbGroupsChange = (nextVerbGroups: VerbGroup[] | undefined) => {
+    startNewPass({
+      ...configRef.current,
+      verbGroup: "all",
+      filter: {
+        ...configRef.current.filter,
+        verbGroups: nextVerbGroups === undefined ? undefined : [...nextVerbGroups]
+      }
+    });
+  };
+
   const handlePartOfSpeechChange = (nextPartOfSpeech: PartOfSpeech | "mixed") => {
+    const leavingVerbPractice = nextPartOfSpeech !== "verb";
     startNewPass({
       ...configRef.current,
       partOfSpeech: nextPartOfSpeech,
+      verbGroup: leavingVerbPractice ? "all" : configRef.current.verbGroup,
+      filter: leavingVerbPractice
+        ? { ...configRef.current.filter, verbGroups: undefined }
+        : configRef.current.filter,
       practiceFocus: "single",
       targetForm: nextPartOfSpeech === "verb" || nextPartOfSpeech === "mixed" ? "te" : "plainPresentNegative"
     });
@@ -543,15 +651,25 @@ export function usePracticeSession({
   // The mode picker lists the exam pool as three side-by-side presets
   // (綜合 / N1 備考 / N2 備考), so picking one sets BOTH the mode and its
   // level range at once. Non-exam presets pass "all" (a no-op for the
-  // modes that ignore levelRange). Clearing the filter keeps the picker a
-  // "fresh mix" (a chapter drill button is what sets a patternIds filter).
+  // modes that ignore levelRange). Mode-specific filters are cleared so the
+  // picker starts a fresh mix, while focused-basic selections survive a
+  // round trip through another mode.
   const applyModePreset = (nextMode: PracticeMode, nextRange?: LevelRange) => {
     // An explicit range (the exam 綜合 / 備考 cards) wins; otherwise inherit
     // the global target preference, so daily / 単字 keep honouring it when
     // re-picked from the in-session picker -- not only on first mount (#199).
     const resolvedRange = nextRange ?? initialLevelRange({ mode: nextMode }, targetLevel);
     if (nextMode === practiceMode && resolvedRange === levelRange) return;
-    startNewPass({ ...configRef.current, mode: nextMode, levelRange: resolvedRange, filter: {} });
+    const { levels, verbGroups } = configRef.current.filter;
+    startNewPass({
+      ...configRef.current,
+      mode: nextMode,
+      levelRange: resolvedRange,
+      filter: {
+        ...(levels === undefined ? {} : { levels: [...levels] }),
+        ...(verbGroups === undefined ? {} : { verbGroups: [...verbGroups] })
+      }
+    });
   };
 
   const handleLevelRangeChange = (nextRange: LevelRange) => {
@@ -684,6 +802,7 @@ export function usePracticeSession({
   return {
     partOfSpeech,
     verbGroup,
+    practiceFilter,
     practiceFocus,
     practiceMode,
     levelRange,
@@ -705,6 +824,8 @@ export function usePracticeSession({
     setPracticeFilter,
     compatibleForms,
     isVerbCapable,
+    availableBasicLevels,
+    selectedVerbGroups,
     availableFocusOptions,
     focusSummary,
     activeModeCopyKey,
@@ -728,6 +849,8 @@ export function usePracticeSession({
     startedAtRef,
     handlePartOfSpeechChange,
     handlePracticeFocusChange,
+    handlePracticeFilterChange,
+    handleVerbGroupsChange,
     applyModePreset,
     handleLevelRangeChange,
     handleSessionLengthChange,

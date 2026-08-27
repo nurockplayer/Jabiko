@@ -26,7 +26,7 @@ import {
   reduceAdjacentClusters,
   shuffleQuestions
 } from "./practice";
-import type { PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./types";
+import type { JlptLevel, PartOfSpeech, PracticeQuestion, TargetForm, VerbGroup } from "./types";
 import { prioritizeUnattempted } from "./unattempted";
 import { starterVocabulary } from "./starterVocabulary";
 import { vocabulary } from "./vocabulary";
@@ -233,6 +233,11 @@ export type PracticePoolOptions = {
   // Gojuon script for kana mode (#533); undefined -> hiragana.
   kanaScript?: KanaScript;
   partOfSpeech: PartOfSpeech | "mixed";
+  // Focused basic-practice filters. Undefined keeps every level / the
+  // legacy scalar verbGroup; an explicit empty array intentionally yields
+  // no matching basic questions.
+  levels?: JlptLevel[];
+  verbGroups?: VerbGroup[];
   verbGroup: VerbGroup | "all";
   targetForms: TargetForm[];
   levelRange: LevelRange;
@@ -256,6 +261,56 @@ export type PracticePoolOptions = {
   attemptedIds?: Set<string>;
 };
 
+type BasicPracticePoolOptions = Pick<
+  PracticePoolOptions,
+  "partOfSpeech" | "levels" | "verbGroups" | "verbGroup" | "targetForms"
+>;
+
+const BASIC_JLPT_LEVEL_ORDER: readonly JlptLevel[] = ["N1", "N2", "N3", "N4", "N5"];
+
+function buildBasicQuestionPool({
+  partOfSpeech,
+  levels,
+  verbGroups,
+  verbGroup,
+  targetForms
+}: BasicPracticePoolOptions): PracticeQuestion[] {
+  const levelFiltered = vocabulary.filter(
+    (item) =>
+      levels === undefined ||
+      (item.level !== undefined && levels.includes(item.level))
+  );
+  // An explicit array is a canonical verb-only filter, including [] as an
+  // intentional zero state. Without one, preserve buildQuestionPool's legacy
+  // scalar semantics: mixed practice keeps non-verbs and narrows only verbs.
+  const source =
+    verbGroups === undefined
+      ? levelFiltered
+      : levelFiltered.filter(
+          (item) => item.group !== null && verbGroups.includes(item.group)
+        );
+
+  return buildQuestionPool(source, {
+    partOfSpeech,
+    verbGroup: verbGroups === undefined ? verbGroup : "all",
+    targetForms
+  });
+}
+
+// Derive the level picker's enabled choices from the exact canonical pool
+// predicate. This deliberately scans item.level metadata instead of encoding
+// today's verb-bank level as UI knowledge.
+export function getAvailableBasicLevels(
+  options: Omit<BasicPracticePoolOptions, "levels">
+): JlptLevel[] {
+  const available = new Set(
+    buildBasicQuestionPool({ ...options, levels: undefined })
+      .map((question) => question.vocabulary.level)
+      .filter((level): level is JlptLevel => level !== undefined)
+  );
+  return BASIC_JLPT_LEVEL_ORDER.filter((level) => available.has(level));
+}
+
 // Derives the active question pool for the current mode. This is the body
 // of usePracticeSession's `questions` memo, lifted out verbatim so every
 // mode/range branch (section-filtered exam, 綜合 level-range exam, cloze,
@@ -268,6 +323,8 @@ export function buildPracticeQuestions(options: PracticePoolOptions): PracticeQu
     patternIds,
     kanaScript,
     partOfSpeech,
+    levels,
+    verbGroups,
     verbGroup,
     targetForms,
     levelRange,
@@ -389,16 +446,13 @@ export function buildPracticeQuestions(options: PracticePoolOptions): PracticeQu
       // review -- toggling a star mid-session doesn't reshuffle the live pass.
       return bookmarkedQuestions;
 
-    case "basic":
+    case "basic": {
       return cap(
         shuffleQuestions(
-          buildQuestionPool(vocabulary, {
-            partOfSpeech,
-            verbGroup,
-            targetForms
-          })
+          buildBasicQuestionPool({ partOfSpeech, levels, verbGroups, verbGroup, targetForms })
         )
       );
+    }
 
     default:
       return assertNever(mode);

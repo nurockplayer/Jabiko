@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BOOKMARKS_KEY } from "../domain/bookmarks";
 import { buildAllKnownQuestions } from "../domain/sessionPools";
 import type { SentencePatternId } from "../domain/sentencePatterns";
-import type { Attempt, PracticeQuestion } from "../domain/types";
+import type { Attempt, JlptLevel, PracticeQuestion, VerbGroup } from "../domain/types";
 import {
   createPracticePoolSnapshot,
   initialLevelRange,
@@ -119,6 +119,49 @@ describe("usePracticeSession pool snapshot (#623)", () => {
     expect(n5Snapshot.examSection).toEqual({ level: "N5", promptLabel: "詞彙填空" });
   });
 
+  it("copies focused-practice level and verb-group arrays into the pass snapshot", () => {
+    const levels: JlptLevel[] = ["N3", "N4", "N5"];
+    const verbGroups: VerbGroup[] = ["godan", "ichidan"];
+    const snapshot = createPracticePoolSnapshot(
+      {
+        ...baseConfig,
+        filter: { levels, verbGroups },
+        targetForm: "meaning",
+        targetForms: ["meaning"]
+      },
+      liveInputs
+    );
+
+    expect(snapshot.levels).toEqual(["N3", "N4", "N5"]);
+    expect(snapshot.verbGroups).toEqual(["godan", "ichidan"]);
+    expect(snapshot.verbGroup).toBe("all");
+    expect(snapshot.levels).not.toBe(levels);
+    expect(snapshot.verbGroups).not.toBe(verbGroups);
+
+    levels.splice(0, levels.length, "N1");
+    verbGroups.splice(0, verbGroups.length, "irregular");
+
+    expect(snapshot.levels).toEqual(["N3", "N4", "N5"]);
+    expect(snapshot.verbGroups).toEqual(["godan", "ichidan"]);
+  });
+
+  it("preserves the legacy scalar in a snapshot when no explicit group array exists", () => {
+    const snapshot = createPracticePoolSnapshot(
+      {
+        ...baseConfig,
+        partOfSpeech: "mixed",
+        verbGroup: "ichidan",
+        filter: {},
+        targetForm: "meaning",
+        targetForms: ["meaning"]
+      },
+      liveInputs
+    );
+
+    expect(snapshot.verbGroups).toBeUndefined();
+    expect(snapshot.verbGroup).toBe("ichidan");
+  });
+
   // #679 — snapshot copy: the live inputs are captured by reference at pass
   // start; a later mutation of the caller's arrays must not corrupt the
   // stored pass (the hook hands in freshly-computed inputs each pass).
@@ -173,6 +216,242 @@ describe("usePracticeSession pool snapshot (#623)", () => {
     expect(result.current.bookmarksEmpty).toBe(true);
     expect(result.current.currentQuestion).toBeNull();
     expect(result.current.sessionTotal).toBe(0);
+  });
+});
+
+describe("usePracticeSession basic composable filters (#789)", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it("preserves a legacy scalar verb-group launch when no explicit filter is supplied", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          partOfSpeech: "verb",
+          verbGroup: "ichidan",
+          targetForm: "meaning"
+        }
+      })
+    );
+
+    expect(result.current.practiceFilter).toEqual({});
+    expect(result.current.selectedVerbGroups).toEqual(["ichidan"]);
+    expect(result.current.availableBasicLevels).toEqual(["N5"]);
+    expect(result.current.currentQuestion?.vocabulary.group).toBe("ichidan");
+  });
+
+  it("lets an explicit canonical filter override the legacy scalar launch field", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          filter: { verbGroups: ["godan"] },
+          partOfSpeech: "verb",
+          verbGroup: "ichidan",
+          targetForm: "meaning"
+        }
+      })
+    );
+
+    expect(result.current.selectedVerbGroups).toEqual(["godan"]);
+    expect(result.current.currentQuestion?.vocabulary.group).toBe("godan");
+  });
+
+  it("atomically prunes invalid selected levels when the part of speech changes", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          filter: { levels: ["N3", "N5"] },
+          partOfSpeech: "mixed",
+          verbGroup: "godan",
+          targetForm: "meaning"
+        }
+      })
+    );
+
+    expect(result.current.availableBasicLevels).toEqual(["N1", "N2", "N3", "N4", "N5"]);
+
+    act(() => result.current.handlePartOfSpeechChange("verb"));
+
+    expect(result.current.practiceFilter.levels).toEqual(["N5"]);
+    expect(result.current.availableBasicLevels).toEqual(["N5"]);
+    expect(result.current.currentQuestion?.vocabulary.level).toBe("N5");
+  });
+
+  it("clears an explicit verb filter in the same pass when leaving verb practice", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          filter: { levels: ["N5"], verbGroups: ["godan"] },
+          partOfSpeech: "verb",
+          targetForm: "meaning"
+        }
+      })
+    );
+
+    act(() => result.current.handlePartOfSpeechChange("noun"));
+
+    expect(result.current.practiceFilter.verbGroups).toBeUndefined();
+    expect(result.current.verbGroup).toBe("all");
+    expect(result.current.selectedVerbGroups).toBeUndefined();
+    expect(result.current.currentQuestion?.vocabulary.partOfSpeech).toBe("noun");
+  });
+
+  it("clears a newly invalid non-empty level selection but preserves an explicit empty one", () => {
+    const selected = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          filter: { levels: ["N3"] },
+          partOfSpeech: "mixed",
+          targetForm: "meaning"
+        }
+      })
+    );
+    const empty = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          filter: { levels: [] },
+          partOfSpeech: "mixed",
+          targetForm: "meaning"
+        }
+      })
+    );
+
+    act(() => selected.result.current.handlePartOfSpeechChange("verb"));
+    act(() => empty.result.current.handlePartOfSpeechChange("verb"));
+
+    expect(selected.result.current.practiceFilter.levels).toBeUndefined();
+    expect(selected.result.current.currentQuestion?.vocabulary.level).toBe("N5");
+    expect(empty.result.current.practiceFilter.levels).toEqual([]);
+    expect(empty.result.current.currentQuestion).toBeNull();
+  });
+
+  it("makes explicit group changes authoritative and keeps All coherent with the scalar", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          partOfSpeech: "verb",
+          verbGroup: "ichidan",
+          targetForm: "meaning"
+        }
+      })
+    );
+
+    act(() => result.current.handleVerbGroupsChange(["godan"]));
+
+    expect(result.current.verbGroup).toBe("all");
+    expect(result.current.practiceFilter.verbGroups).toEqual(["godan"]);
+    expect(result.current.selectedVerbGroups).toEqual(["godan"]);
+    expect(result.current.currentQuestion?.vocabulary.group).toBe("godan");
+
+    act(() => result.current.handleVerbGroupsChange(undefined));
+
+    expect(result.current.verbGroup).toBe("all");
+    expect(result.current.practiceFilter.verbGroups).toBeUndefined();
+    expect(result.current.selectedVerbGroups).toBeUndefined();
+  });
+
+  it("preserves basic filters across mode changes while clearing mode-specific filters", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          filter: {
+            levels: ["N5"],
+            verbGroups: ["godan"],
+            kanaScript: "katakana"
+          },
+          partOfSpeech: "verb",
+          targetForm: "meaning"
+        }
+      })
+    );
+
+    act(() => result.current.applyModePreset("kana"));
+
+    expect(result.current.practiceFilter).toEqual({
+      levels: ["N5"],
+      verbGroups: ["godan"]
+    });
+
+    act(() => result.current.applyModePreset("basic"));
+
+    expect(result.current.practiceFilter).toEqual({
+      levels: ["N5"],
+      verbGroups: ["godan"]
+    });
+    expect(result.current.currentQuestion?.vocabulary.level).toBe("N5");
+    expect(result.current.currentQuestion?.vocabulary.group).toBe("godan");
+  });
+
+  it("keeps an explicit empty filter as a zero-question pass", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          filter: { levels: [] },
+          partOfSpeech: "noun",
+          targetForm: "meaning"
+        }
+      })
+    );
+
+    expect(result.current.currentQuestion).toBeNull();
+    expect(result.current.sessionTotal).toBe(0);
+  });
+
+  it("starts a fresh pass and clears answer state when focused filters change", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          filter: { levels: ["N5"], verbGroups: ["godan"] },
+          partOfSpeech: "verb",
+          targetForm: "meaning"
+        }
+      })
+    );
+
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    act(() => result.current.nextQuestion());
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts).toHaveLength(2);
+    expect(result.current.questionIndex).toBe(1);
+    expect(result.current.feedback).not.toBeNull();
+    expect(result.current.handlePracticeFilterChange).toBeTypeOf("function");
+
+    act(() =>
+      result.current.handlePracticeFilterChange({
+        levels: ["N5"],
+        verbGroups: ["ichidan"]
+      })
+    );
+
+    expect(result.current.practiceFilter).toEqual({
+      levels: ["N5"],
+      verbGroups: ["ichidan"]
+    });
+    expect(result.current.attempts).toEqual([]);
+    expect(result.current.questionIndex).toBe(0);
+    expect(result.current.feedback).toBeNull();
+    expect(result.current.currentQuestion?.vocabulary.group).toBe("ichidan");
   });
 });
 
