@@ -44,9 +44,9 @@ describe("sentence-pattern overlays", () => {
       },
       {
         id: "pattern-n5-riyuu-001",
-        hintZh: "老師確認學生昨天缺席時的情況。",
-        hintEn: "A teacher checks what happened when a student was absent yesterday.",
-        hintJa: "先生が生徒の昨日の欠席について確認する。"
+        hintZh: "老師和學生正在交談。",
+        hintEn: "A teacher and student are talking.",
+        hintJa: "先生と生徒が話している。"
       },
       {
         id: "pattern-n5-riyuu-002",
@@ -80,9 +80,9 @@ describe("sentence-pattern overlays", () => {
       },
       {
         id: "pattern-n5-riyuu-007",
-        hintZh: "趕時間，決定搭車方式。",
-        hintEn: "Short on time — settling how to get there.",
-        hintJa: "時間がない。移動手段を決める。"
+        hintZh: "幾個人討論怎麼前往目的地。",
+        hintEn: "Some people discuss how to get to their destination.",
+        hintJa: "何人かで目的地への行き方について話す。"
       },
       {
         id: "pattern-n5-riyuu-008",

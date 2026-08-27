@@ -856,7 +856,7 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-001": {
-    "hintI18n": { "en": "A teacher checks what happened when a student was absent yesterday.", "ja": "先生が生徒の昨日の欠席について確認する。" },
+    "hintI18n": { "en": "A teacher and student are talking.", "ja": "先生と生徒が話している。" },
     "promptContextI18n": { "en": "\"You had a fever yesterday and didn't go to school, right? Why did you miss school?\" \"Because I had a fever.\"", "ja": "「昨日、熱がありましたね。学校へは行きませんでしたね。どうして学校を休みましたか。」「熱があったからです。」" },
     "explanationI18n": {
       "en": "The prompt states that the student had a fever yesterday and did not go to school, so answer 「どうして」 with 「ねつが あったからです」. 「ねつが なかったからです」 contradicts the known fever; 「がっこうへ いったからです」 contradicts not going and being absent; 「きょうは げんきだからです」 describes today and cannot explain yesterday's absence. All four options are complete, grammatical reason sentences, so the visible Japanese context decides the answer. ※やすみます = to take a day off.",
@@ -904,7 +904,7 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-007": {
-    "hintI18n": { "en": "Short on time — settling how to get there.", "ja": "時間がない。移動手段を決める。" },
+    "hintI18n": { "en": "Some people discuss how to get to their destination.", "ja": "何人かで目的地への行き方について話す。" },
     "promptContextI18n": { "en": "\"We have no time, so let's take a taxi.\"", "ja": "「時間がありませんから、タクシーで行きましょう。」" },
     "explanationI18n": {
       "en": "A mid-sentence reason takes 「から」: じかんが ありませんから = because there's no time, (so) let's taxi. 「まで」「を」「へ」 simply can't attach after ません — the sentence breaks. ※タクシー = taxi.",

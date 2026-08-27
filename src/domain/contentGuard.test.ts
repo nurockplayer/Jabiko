@@ -463,7 +463,7 @@ describe("sentence-pattern content guard", () => {
         id: "pattern-n5-riyuu-001",
         promptText:
           "「きのう、ねつが ありましたね。がっこうへは いきませんでしたね。どうして がっこうを やすみましたか。」「___。」",
-        hintZh: "老師確認學生昨天缺席時的情況。",
+        hintZh: "老師和學生正在交談。",
         expectedAnswer: "ねつが あったからです",
         options: [
           "ねつが あったからです",

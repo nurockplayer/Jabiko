@@ -887,7 +887,7 @@ const N5_RIYUU_ITEMS: SentencePatternItem[] = [
     patternId: "n5-riyuu",
     promptText:
       "「きのう、ねつが ありましたね。がっこうへは いきませんでしたね。どうして がっこうを やすみましたか。」「___。」",
-    hintZh: "老師確認學生昨天缺席時的情況。",
+    hintZh: "老師和學生正在交談。",
     promptContextZh:
       "「昨天發燒了吧，也沒有去學校。為什麼請假？」「因為發燒了。」",
     expectedAnswer: "ねつが あったからです",
@@ -973,7 +973,7 @@ const N5_RIYUU_ITEMS: SentencePatternItem[] = [
     id: "pattern-n5-riyuu-007",
     patternId: "n5-riyuu",
     promptText: "じかんが ありません___、タクシーで いきましょう。",
-    hintZh: "趕時間，決定搭車方式。",
+    hintZh: "幾個人討論怎麼前往目的地。",
     promptContextZh: "「沒時間了，搭計程車去吧。」",
     expectedAnswer: "から",
     options: ["から", "まで", "を", "へ"],
