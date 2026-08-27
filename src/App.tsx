@@ -102,8 +102,8 @@ const GrammarIndexPage = lazy(() =>
 const LegalPanel = lazy(() =>
   import("./components/LegalPanel").then((module) => ({ default: module.LegalPanel }))
 );
-// Stay.D's long-form conversion copy remains isolated from the eager Home
-// bundle. Home imports only its compact promotion card and shared essentials.
+// Stay.D's partnership page remains isolated from the eager Home bundle.
+// Home imports only the small editorial recommendation and shared essentials.
 const PartnersPage = lazy(() =>
   import("./components/PartnersPage").then((module) => ({ default: module.PartnersPage }))
 );

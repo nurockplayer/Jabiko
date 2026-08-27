@@ -16,6 +16,14 @@ export interface StayDVideoCopy {
   airbnbCta: string;
 }
 
+/** Short Home recommendation copy. Airbnb owns the property details; this
+ *  copy only explains why Stay.D fits Jabiko learners planning a Tokyo trip. */
+export interface StayDHomeRecommendationCopy {
+  kicker: string;
+  headline: string;
+  body: string;
+}
+
 /** Editorial extension copy for the /stay-d page (not listing content). */
 export interface StayDPageExtras {
   videoTitle: string;
@@ -94,6 +102,24 @@ export const STAY_D_EDITORIAL_COPY = {
     }
   }
 } satisfies Record<StayDLocale, StayDEditorialCopy>;
+
+export const STAY_D_HOME_RECOMMENDATION = {
+  "zh-Hant": {
+    kicker: "JABIKO 推薦 · 東京住宿",
+    headline: "在東京，來一趟真正用上學過日文的旅行。",
+    body: "想和家人朋友一起感受觀光景點之外的東京日常嗎？Jabiko 推薦 Stay.D，作為另一種更貼近生活的東京停留方式。"
+  },
+  ja: {
+    kicker: "JABIKOおすすめ · 東京ステイ",
+    headline: "東京で、学んだ日本語を使う旅へ。",
+    body: "家族や友人と、観光だけでは見えない東京の日常を楽しみたい人へ。Jabikoから Stay.D を紹介します。"
+  },
+  en: {
+    kicker: "JABIKO PICK · TOKYO STAY",
+    headline: "Put your Japanese to use in Tokyo.",
+    body: "For travelers who want to enjoy everyday Tokyo beyond sightseeing with family or friends, Jabiko recommends Stay.D as one way to stay closer to local life."
+  }
+} satisfies Record<StayDLocale, StayDHomeRecommendationCopy>;
 
 export function isStayDLocale(language: Language): language is StayDLocale {
   return (STAY_D_REQUIRED_LOCALES as readonly string[]).includes(language);

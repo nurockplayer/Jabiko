@@ -21,21 +21,22 @@ describe("navigation registry (#727)", () => {
     );
   });
 
-  // The zhHantOnly gate is still part of the registry contract (it kept the
-  // retired 文章 entry zh-Hant-only); no entry uses it today, so every locale
-  // sees the same resource list.
-  it("shows the same resources in every locale while no entry is gated", () => {
+  it("keeps the shared reference entries in every launched locale", () => {
     expect(NAVIGATION_REGISTRY.some((entry) => entry.zhHantOnly)).toBe(false);
     for (const locale of ["zh-Hant", "ja", "en"] as const) {
-      expect(resolveNavigation(staticRoute("home"), locale).resources.map((item) => item.id), locale)
-        .toEqual(["rules", "kanji", "kana", "about"]);
+      expect(
+        resolveNavigation(staticRoute("home"), locale).resources.map((item) => item.id).slice(-4),
+        locale
+      ).toEqual(["rules", "kanji", "kana", "about"]);
     }
   });
 
-  it("puts the partnership tab at the end of the primary row where Stay.D has copy", () => {
+  it("keeps primary navigation learning-only and exposes partnership with the resources", () => {
     for (const locale of ["zh-Hant", "ja", "en"] as const) {
       expect(resolveNavigation(staticRoute("home"), locale).primary.map((item) => item.id), locale)
-        .toEqual(["home", "learn", "challenge", "mock", "grammar", "stayD"]);
+        .toEqual(["home", "learn", "challenge", "mock", "grammar"]);
+      expect(resolveNavigation(staticRoute("home"), locale).resources.map((item) => item.id), locale)
+        .toEqual(["stayD", "rules", "kanji", "kana", "about"]);
     }
   });
 
@@ -43,12 +44,14 @@ describe("navigation registry (#727)", () => {
     for (const locale of ["ko", "vi", "th", "id", "my"] as const) {
       const nav = resolveNavigation(staticRoute("home"), locale);
       expect(nav.primary.some((item) => item.id === "stayD"), locale).toBe(false);
+      expect(nav.resources.some((item) => item.id === "stayD"), locale).toBe(false);
     }
   });
 
-  it("marks the partnership tab current on the /stay-d route", () => {
+  it("marks the partnership resource current on the /stay-d route", () => {
     const nav = resolveNavigation(staticRoute("stayD"), "zh-Hant");
-    expect(nav.primary.find((item) => item.id === "stayD")?.current).toBe(true);
+    expect(nav.resources.find((item) => item.id === "stayD")?.current).toBe(true);
+    expect(nav.resourcesCurrent).toBe(true);
   });
 
   it("resolves nested primary and resource ancestors", () => {
