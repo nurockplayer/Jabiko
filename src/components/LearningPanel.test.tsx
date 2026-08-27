@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { LearningPanel } from "./LearningPanel";
 import { learningBlocks } from "../domain/learningBlocks";
 import { FuriganaContext } from "./furiganaContext";
@@ -107,6 +108,46 @@ describe("LearningPanel mobile chapter bar (#608)", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(index.className).not.toContain("mobile-open");
     expect(screen.getByRole("heading", { level: 3 }).textContent).toBe(basicBlocks[2].title);
+  });
+});
+
+describe("LearningPanel chapter navigation (#787)", () => {
+  it("keeps the long chapter index to one tab stop and supports arrow navigation", () => {
+    renderPanel();
+    const chapterButtons = screen.getAllByRole("button", {
+      name: (name) => name.startsWith("查看：")
+    });
+
+    expect(chapterButtons[0]).toHaveAttribute("tabindex", "0");
+    expect(chapterButtons.slice(1).every((button) => button.tabIndex === -1)).toBe(true);
+
+    chapterButtons[0].focus();
+    fireEvent.keyDown(chapterButtons[0], { key: "ArrowDown" });
+
+    expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(basicBlocks[1].title);
+    expect(chapterButtons[1]).toHaveFocus();
+
+    fireEvent.keyDown(chapterButtons[1], { key: "ArrowUp" });
+    expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(basicBlocks[0].title);
+    expect(chapterButtons[0]).toHaveFocus();
+  });
+
+  it("moves keyboard focus from a chosen chapter into its content and primary action", async () => {
+    const user = userEvent.setup();
+    renderPanel();
+    const chapterButtons = screen.getAllByRole("button", {
+      name: (name) => name.startsWith("查看：")
+    });
+
+    chapterButtons[0].focus();
+    await user.keyboard("{ArrowDown}{Enter}");
+
+    const heading = screen.getByRole("heading", { level: 3 });
+    expect(heading).toHaveTextContent(basicBlocks[1].title);
+    expect(heading).toHaveFocus();
+
+    await user.tab();
+    expect(document.activeElement).toHaveClass("inline-drill-button");
   });
 });
 
