@@ -19,7 +19,8 @@ const base: ModePickerProps = {
   selectedForm: "reading",
   setTargetForm: vi.fn(),
   compatibleForms: ["reading", "meaning"],
-  isVerbCapable: true,
+  availableBasicLevels: ["N1", "N2", "N3", "N4", "N5"],
+  selectedVerbGroups: undefined,
   availableFocusOptions: [],
   focusSummary: "N1〜N5 漢字詞 · 選正確讀音（よみ）",
   reviewQueue: [],
@@ -37,6 +38,7 @@ const base: ModePickerProps = {
   handlePartOfSpeechChange: vi.fn(),
   handlePracticeFocusChange: vi.fn(),
   handlePracticeFilterChange: vi.fn(),
+  handleVerbGroupsChange: vi.fn(),
   applyModePreset: vi.fn(),
   handleLevelRangeChange: vi.fn(),
   resetSession: vi.fn()
@@ -70,13 +72,15 @@ describe("ModePicker vocab level-range picker (#668)", () => {
 });
 
 describe("ModePicker basic composable filters (#789)", () => {
-  it("renders compact accessible level and verb-group multi-selects", () => {
+  it("renders accessible level and verb-group multi-selects", () => {
     const { container } = renderPicker({
       practiceMode: "basic",
       showLevelRange: false,
       partOfSpeech: "verb",
+      availableBasicLevels: ["N5"],
+      selectedVerbGroups: ["godan", "ichidan"],
       practiceFilter: {
-        levels: ["N3", "N4", "N5"],
+        levels: ["N5"],
         verbGroups: ["godan", "ichidan"]
       }
     });
@@ -91,8 +95,6 @@ describe("ModePicker basic composable filters (#789)", () => {
       "N5"
     ]);
     expect(within(levels).getByRole("button", { name: "全部" })).toHaveAttribute("aria-pressed", "false");
-    expect(within(levels).getByRole("button", { name: "N3" })).toHaveAttribute("aria-pressed", "true");
-    expect(within(levels).getByRole("button", { name: "N4" })).toHaveAttribute("aria-pressed", "true");
     expect(within(levels).getByRole("button", { name: "N5" })).toHaveAttribute("aria-pressed", "true");
 
     const groups = screen.getByRole("group", { name: "動詞類別" });
@@ -114,10 +116,9 @@ describe("ModePicker basic composable filters (#789)", () => {
     renderPicker({
       practiceMode: "basic",
       showLevelRange: false,
-      partOfSpeech: "verb",
+      partOfSpeech: "noun",
       practiceFilter: {
-        levels: ["N3", "N5"],
-        verbGroups: ["godan", "ichidan"]
+        levels: ["N3", "N5"]
       },
       handlePracticeFilterChange
     });
@@ -129,41 +130,73 @@ describe("ModePicker basic composable filters (#789)", () => {
 
     expect(handlePracticeFilterChange).toHaveBeenCalledTimes(1);
     expect(handlePracticeFilterChange).toHaveBeenCalledWith({
-      levels: ["N3", "N4", "N5"],
-      verbGroups: ["godan", "ichidan"]
+      levels: ["N3", "N4", "N5"]
     });
   });
 
-  it("toggles multiple verb groups without collapsing to one scalar value", () => {
+  it("disables unsupported verb levels derived by the hook", async () => {
+    const user = userEvent.setup();
     const handlePracticeFilterChange = vi.fn();
+    renderPicker({
+      practiceMode: "basic",
+      showLevelRange: false,
+      partOfSpeech: "verb",
+      availableBasicLevels: ["N5"],
+      handlePracticeFilterChange
+    });
+
+    const levels = screen.getByRole("group", { name: "題庫範圍" });
+    for (const level of ["N1", "N2", "N3", "N4"]) {
+      expect(within(levels).getByRole("button", { name: level })).toBeDisabled();
+    }
+    expect(within(levels).getByRole("button", { name: "N5" })).toBeEnabled();
+
+    await user.click(within(levels).getByRole("button", { name: "N3" }));
+    expect(handlePracticeFilterChange).not.toHaveBeenCalled();
+  });
+
+  it("hides verb-group choices for mixed practice", () => {
+    renderPicker({
+      practiceMode: "basic",
+      showLevelRange: false,
+      partOfSpeech: "mixed",
+      selectedVerbGroups: ["godan"]
+    });
+
+    expect(screen.queryByRole("group", { name: "動詞類別" })).not.toBeInTheDocument();
+  });
+
+  it("toggles multiple verb groups without collapsing to one scalar value", () => {
+    const handleVerbGroupsChange = vi.fn();
     renderPicker({
       practiceMode: "basic",
       showLevelRange: false,
       partOfSpeech: "verb",
       practiceFilter: { levels: ["N5"], verbGroups: ["godan"] },
-      handlePracticeFilterChange
+      selectedVerbGroups: ["godan"],
+      handleVerbGroupsChange
     });
 
     const groups = screen.getByRole("group", { name: "動詞類別" });
     fireEvent.click(within(groups).getByRole("button", { name: "二類" }));
 
-    expect(handlePracticeFilterChange).toHaveBeenCalledWith({
-      levels: ["N5"],
-      verbGroups: ["godan", "ichidan"]
-    });
+    expect(handleVerbGroupsChange).toHaveBeenCalledWith(["godan", "ichidan"]);
   });
 
   it("uses All to remove each restriction without changing the other filter", () => {
     const handlePracticeFilterChange = vi.fn();
+    const handleVerbGroupsChange = vi.fn();
     renderPicker({
       practiceMode: "basic",
       showLevelRange: false,
       partOfSpeech: "verb",
       practiceFilter: {
-        levels: ["N3", "N4", "N5"],
+        levels: ["N5"],
         verbGroups: ["godan", "ichidan"]
       },
-      handlePracticeFilterChange
+      selectedVerbGroups: ["godan", "ichidan"],
+      handlePracticeFilterChange,
+      handleVerbGroupsChange
     });
 
     const levels = screen.getByRole("group", { name: "題庫範圍" });
@@ -175,27 +208,20 @@ describe("ModePicker basic composable filters (#789)", () => {
 
     const groups = screen.getByRole("group", { name: "動詞類別" });
     fireEvent.click(within(groups).getByRole("button", { name: "全部" }));
-    expect(handlePracticeFilterChange).toHaveBeenLastCalledWith({
-      levels: ["N3", "N4", "N5"],
-      verbGroups: undefined
-    });
+    expect(handleVerbGroupsChange).toHaveBeenLastCalledWith(undefined);
   });
 
-  it("keeps both compact multi-select rows available at a mobile viewport", () => {
-    const originalWidth = window.innerWidth;
-    Object.defineProperty(window, "innerWidth", { configurable: true, value: 360 });
-
+  it("keeps both multi-select rows and every control in the accessible DOM", () => {
     const { container } = renderPicker({
       practiceMode: "basic",
       showLevelRange: false,
       partOfSpeech: "verb",
+      availableBasicLevels: ["N5"],
       practiceFilter: {}
     });
 
     expect(container.querySelectorAll(".level-segmented")).toHaveLength(2);
     expect(screen.getByRole("group", { name: "題庫範圍" }).querySelectorAll("button")).toHaveLength(6);
     expect(screen.getByRole("group", { name: "動詞類別" }).querySelectorAll("button")).toHaveLength(4);
-
-    Object.defineProperty(window, "innerWidth", { configurable: true, value: originalWidth });
   });
 });

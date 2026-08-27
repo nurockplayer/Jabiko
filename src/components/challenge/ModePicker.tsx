@@ -58,7 +58,8 @@ export function ModePicker({
   selectedForm,
   setTargetForm,
   compatibleForms,
-  isVerbCapable,
+  availableBasicLevels,
+  selectedVerbGroups,
   availableFocusOptions,
   focusSummary,
   reviewQueue,
@@ -67,6 +68,7 @@ export function ModePicker({
   handlePartOfSpeechChange,
   handlePracticeFocusChange,
   handlePracticeFilterChange,
+  handleVerbGroupsChange,
   applyModePreset,
   handleLevelRangeChange,
   resetSession
@@ -81,7 +83,8 @@ export function ModePicker({
   | "selectedForm"
   | "setTargetForm"
   | "compatibleForms"
-  | "isVerbCapable"
+  | "availableBasicLevels"
+  | "selectedVerbGroups"
   | "availableFocusOptions"
   | "focusSummary"
   | "reviewQueue"
@@ -90,6 +93,7 @@ export function ModePicker({
   | "handlePartOfSpeechChange"
   | "handlePracticeFocusChange"
   | "handlePracticeFilterChange"
+  | "handleVerbGroupsChange"
   | "applyModePreset"
   | "handleLevelRangeChange"
   | "resetSession"
@@ -205,6 +209,7 @@ export function ModePicker({
                     type="button"
                     className={selected ? "selected" : ""}
                     aria-pressed={selected}
+                    disabled={!availableBasicLevels.includes(level)}
                     onClick={() =>
                       handlePracticeFilterChange({
                         ...practiceFilter,
@@ -237,17 +242,15 @@ export function ModePicker({
             </fieldset>
           ) : null}
 
-          {isVerbCapable ? (
+          {partOfSpeech === "verb" ? (
             <fieldset>
               <legend>{t.verbGroup}</legend>
               <div className="segmented level-segmented">
                 <button
                   type="button"
-                  className={practiceFilter.verbGroups === undefined ? "selected" : ""}
-                  aria-pressed={practiceFilter.verbGroups === undefined}
-                  onClick={() =>
-                    handlePracticeFilterChange({ ...practiceFilter, verbGroups: undefined })
-                  }
+                  className={selectedVerbGroups === undefined ? "selected" : ""}
+                  aria-pressed={selectedVerbGroups === undefined}
+                  onClick={() => handleVerbGroupsChange(undefined)}
                 >
                   {t.verbGroups.all}
                 </button>
@@ -255,17 +258,12 @@ export function ModePicker({
                   <button
                     key={option}
                     type="button"
-                    className={practiceFilter.verbGroups?.includes(option) ? "selected" : ""}
-                    aria-pressed={practiceFilter.verbGroups?.includes(option) ?? false}
+                    className={selectedVerbGroups?.includes(option) ? "selected" : ""}
+                    aria-pressed={selectedVerbGroups?.includes(option) ?? false}
                     onClick={() =>
-                      handlePracticeFilterChange({
-                        ...practiceFilter,
-                        verbGroups: toggleSelection(
-                          verbGroupOptions,
-                          practiceFilter.verbGroups,
-                          option
-                        )
-                      })
+                      handleVerbGroupsChange(
+                        toggleSelection(verbGroupOptions, selectedVerbGroups, option)
+                      )
                     }
                   >
                     {t.verbGroups[option]}

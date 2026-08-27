@@ -16,6 +16,7 @@ import {
   buildAllKnownQuestions,
   buildModeCounts,
   buildPracticeQuestions,
+  getAvailableBasicLevels,
   resolveBookmarkedQuestions,
   type PracticePoolOptions,
   uniqueForms
@@ -71,15 +72,11 @@ function copyPracticeFilter(filter: PracticeFilter): PracticeFilter {
   };
 }
 
-function legacyVerbGroupFilter(verbGroup: VerbGroup | "all"): PracticeFilter {
-  return verbGroup === "all" ? {} : { verbGroups: [verbGroup] };
-}
-
 function initialPracticeFilter(init: SessionInit | undefined): PracticeFilter {
   if (init?.filter !== undefined) {
     return copyPracticeFilter(init.filter);
   }
-  return legacyVerbGroupFilter(init?.verbGroup ?? "godan");
+  return {};
 }
 
 // Initial configuration the challenge view is launched with. App sets
@@ -209,6 +206,40 @@ export function resolveTargetForms(config: {
   return [...(focusOptions.find((option) => option.value === config.practiceFocus)?.targetForms ?? [selectedForm])];
 }
 
+function pruneUnavailableLevels(
+  levels: JlptLevel[] | undefined,
+  availableLevels: readonly JlptLevel[]
+): JlptLevel[] | undefined {
+  if (levels === undefined) return undefined;
+  if (levels.length === 0) return [];
+  const available = new Set(availableLevels);
+  const pruned = levels.filter((level) => available.has(level));
+  return pruned.length > 0 ? pruned : undefined;
+}
+
+function preparePracticeSessionConfig(
+  config: PracticeSessionConfig
+): PracticeSessionConfig {
+  const targetForms = resolveTargetForms(config);
+  const filter = copyPracticeFilter(config.filter);
+  if (config.mode !== "basic") return { ...config, filter, targetForms };
+
+  const availableLevels = getAvailableBasicLevels({
+    partOfSpeech: config.partOfSpeech,
+    verbGroups: filter.verbGroups,
+    verbGroup: config.verbGroup,
+    targetForms
+  });
+  return {
+    ...config,
+    filter: {
+      ...filter,
+      levels: pruneUnavailableLevels(filter.levels, availableLevels)
+    },
+    targetForms
+  };
+}
+
 function makeInitialConfig(
   init: SessionInit | undefined,
   targetLevel: LevelRange | null
@@ -223,7 +254,10 @@ function makeInitialConfig(
     levelRange: initialLevelRange(init, targetLevel),
     sessionLength: readSessionLength()
   };
-  return { ...config, targetForms: resolveTargetForms(config) };
+  return preparePracticeSessionConfig({
+    ...config,
+    targetForms: resolveTargetForms(config)
+  });
 }
 
 // Pure snapshot builder (#679): merges the static config with the live
@@ -243,10 +277,9 @@ export function createPracticePoolSnapshot(
     verbGroups:
       config.filter.verbGroups === undefined ? undefined : [...config.filter.verbGroups],
     partOfSpeech: config.partOfSpeech,
-    // PracticePoolOptions keeps the scalar for direct legacy callers. Once a
-    // canonical filter exists, its arrays are authoritative; an omitted group
-    // array means all groups rather than falling back to an unrelated scalar.
-    verbGroup: config.filter.verbGroups === undefined ? "all" : config.verbGroup,
+    // Explicit arrays are authoritative; without one, retain the scalar launch
+    // contract for legacy mixed/basic callers.
+    verbGroup: config.filter.verbGroups === undefined ? config.verbGroup : "all",
     targetForms: [...config.targetForms],
     levelRange: config.levelRange,
     sessionLength: config.sessionLength,
@@ -405,6 +438,25 @@ export function usePracticeSession({
   // the chosen word type / verb group / form), and "review" is dynamic
   // (the due count) so it's read from reviewQueue at render time.
   const modeCounts = useMemo(() => buildModeCounts(), []);
+  const selectedVerbGroups = useMemo(
+    () =>
+      practiceFilter.verbGroups === undefined
+        ? verbGroup === "all"
+          ? undefined
+          : [verbGroup]
+        : [...practiceFilter.verbGroups],
+    [practiceFilter.verbGroups, verbGroup]
+  );
+  const availableBasicLevels = useMemo(
+    () =>
+      getAvailableBasicLevels({
+        partOfSpeech,
+        verbGroups: practiceFilter.verbGroups,
+        verbGroup,
+        targetForms
+      }),
+    [partOfSpeech, practiceFilter.verbGroups, targetForms, verbGroup]
+  );
   const isVerbCapable = partOfSpeech === "verb" || partOfSpeech === "mixed";
   const availableFocusOptions = focusOptions.filter((option) => {
     if (option.verbOnly && !isVerbCapable) return false;
@@ -520,11 +572,7 @@ export function usePracticeSession({
   const updateConfig = (nextConfig: PracticeSessionConfig) => {
     // Resolve targetForms for the NEW config so a mode/focus/form change can
     // never carry a stale form set into the fresh pass (e.g. daily -> exam).
-    const next = {
-      ...nextConfig,
-      filter: copyPracticeFilter(nextConfig.filter),
-      targetForms: resolveTargetForms(nextConfig)
-    };
+    const next = preparePracticeSessionConfig(nextConfig);
     configRef.current = next;
     setConfig(next);
     return next;
@@ -555,7 +603,7 @@ export function usePracticeSession({
       verbGroup: next,
       filter: {
         ...configRef.current.filter,
-        verbGroups: next === "all" ? undefined : [next]
+        verbGroups: undefined
       }
     });
   const setTargetForm = (next: TargetForm) =>
@@ -571,10 +619,26 @@ export function usePracticeSession({
     startNewPass({ ...configRef.current, filter: nextFilter });
   };
 
+  const handleVerbGroupsChange = (nextVerbGroups: VerbGroup[] | undefined) => {
+    startNewPass({
+      ...configRef.current,
+      verbGroup: "all",
+      filter: {
+        ...configRef.current.filter,
+        verbGroups: nextVerbGroups === undefined ? undefined : [...nextVerbGroups]
+      }
+    });
+  };
+
   const handlePartOfSpeechChange = (nextPartOfSpeech: PartOfSpeech | "mixed") => {
+    const leavingVerbPractice = nextPartOfSpeech !== "verb";
     startNewPass({
       ...configRef.current,
       partOfSpeech: nextPartOfSpeech,
+      verbGroup: leavingVerbPractice ? "all" : configRef.current.verbGroup,
+      filter: leavingVerbPractice
+        ? { ...configRef.current.filter, verbGroups: undefined }
+        : configRef.current.filter,
       practiceFocus: "single",
       targetForm: nextPartOfSpeech === "verb" || nextPartOfSpeech === "mixed" ? "te" : "plainPresentNegative"
     });
@@ -599,10 +663,7 @@ export function usePracticeSession({
       ...configRef.current,
       mode: nextMode,
       levelRange: resolvedRange,
-      filter:
-        nextMode === "basic"
-          ? legacyVerbGroupFilter(configRef.current.verbGroup)
-          : {}
+      filter: {}
     });
   };
 
@@ -758,6 +819,8 @@ export function usePracticeSession({
     setPracticeFilter,
     compatibleForms,
     isVerbCapable,
+    availableBasicLevels,
+    selectedVerbGroups,
     availableFocusOptions,
     focusSummary,
     activeModeCopyKey,
@@ -782,6 +845,7 @@ export function usePracticeSession({
     handlePartOfSpeechChange,
     handlePracticeFocusChange,
     handlePracticeFilterChange,
+    handleVerbGroupsChange,
     applyModePreset,
     handleLevelRangeChange,
     handleSessionLengthChange,
