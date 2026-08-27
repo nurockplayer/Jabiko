@@ -134,8 +134,42 @@ describe("LearningPanel chapter navigation (#787)", () => {
     expect(tabs.slice(1).every((tab) => tab.getAttribute("aria-selected") === "false")).toBe(true);
 
     const panel = screen.getByRole("tabpanel");
+    expect(panel).toHaveAttribute("id", "active-chapter-panel");
+    for (const tab of tabs) {
+      expect(tab).toHaveAttribute("aria-controls", panel.id);
+      expect(document.getElementById(tab.getAttribute("aria-controls")!)).toBe(panel);
+    }
     expect(panel).toHaveAttribute("aria-labelledby", tabs[0].id);
     expect(document.getElementById(panel.getAttribute("aria-labelledby")!)).toBe(tabs[0]);
+  });
+
+  it("wraps arrow focus and selection at both ends of the vertical tablist", () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    renderPanel();
+    const tabs = screen.getAllByRole("tab", {
+      name: (name) => name.startsWith("查看：")
+    });
+    const firstTab = tabs[0];
+    const lastTab = tabs.at(-1)!;
+
+    firstTab.focus();
+    fireEvent.keyDown(firstTab, { key: "ArrowUp" });
+
+    expect(lastTab).toHaveFocus();
+    expect(lastTab).toHaveAttribute("aria-selected", "true");
+    expect(firstTab).toHaveAttribute("aria-selected", "false");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", lastTab.id);
+
+    fireEvent.keyDown(lastTab, { key: "ArrowDown" });
+
+    expect(firstTab).toHaveFocus();
+    expect(firstTab).toHaveAttribute("aria-selected", "true");
+    expect(lastTab).toHaveAttribute("aria-selected", "false");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", firstTab.id);
+    expect(scrollIntoView).toHaveBeenCalledTimes(2);
+    expect(scrollIntoView).toHaveBeenNthCalledWith(1, { block: "nearest" });
+    expect(scrollIntoView).toHaveBeenNthCalledWith(2, { block: "nearest" });
   });
 
   it("keeps an Arrow-navigated chapter visible within the bounded index", () => {

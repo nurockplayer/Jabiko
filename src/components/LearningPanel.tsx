@@ -130,8 +130,8 @@ export function LearningPanel({
 
   const handleChapterKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     let nextIndex: number | null = null;
-    if (event.key === "ArrowDown") nextIndex = Math.min(index + 1, blockCards.length - 1);
-    if (event.key === "ArrowUp") nextIndex = Math.max(index - 1, 0);
+    if (event.key === "ArrowDown") nextIndex = (index + 1) % blockCards.length;
+    if (event.key === "ArrowUp") nextIndex = (index - 1 + blockCards.length) % blockCards.length;
     if (nextIndex === null) return;
 
     event.preventDefault();
@@ -284,6 +284,7 @@ export function LearningPanel({
                       className={`chapter-list-button${block.id === active.id ? " selected" : ""}${complete ? " complete" : ""}`}
                       aria-label={t.chapterViewLabel(disp.title)}
                       aria-selected={block.id === active.id}
+                      aria-controls="active-chapter-panel"
                       ref={(button) => {
                         if (button) chapterButtonRefs.current.set(block.id, button);
                         else chapterButtonRefs.current.delete(block.id);
@@ -322,6 +323,7 @@ export function LearningPanel({
 
         <LearningFuriganaBoundary>
         <section
+          id="active-chapter-panel"
           className="chapter-content"
           role="tabpanel"
           aria-labelledby={`chapter-tab-${active.id}`}
