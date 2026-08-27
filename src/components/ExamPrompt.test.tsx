@@ -318,6 +318,40 @@ describe("ExamPrompt content localization (#400)", () => {
     expect(screen.queryByText("情境中文")).not.toBeInTheDocument();
   });
 
+  it("shows neutral localized hints for tsutsuaru instead of the answer-bearing context", async () => {
+    const user = userEvent.setup();
+    const question = examStyleQuestions.find((item) => item.id === "n2-grammar-tsutsuaru");
+    expect(question).toBeDefined();
+
+    const cases = [
+      {
+        language: "zh-Hant" as const,
+        hint: "留意這項氣溫趨勢橫跨了多長的時間。",
+        context: "數十年來，地球的平均氣溫一直持續上升。"
+      },
+      {
+        language: "ja" as const,
+        hint: "この気温の傾向がどれほど長い期間にわたるかに注目しましょう。",
+        context: "ここ数十年、地球の平均気温は一貫して上昇しつつあります。"
+      },
+      {
+        language: "en" as const,
+        hint: "Notice how long a period this temperature trend spans.",
+        context: "For the past several decades, the earth's average temperature has been rising steadily."
+      }
+    ];
+
+    for (const { language, hint, context } of cases) {
+      const { container, unmount } = render(
+        <ExamPrompt question={question!} language={language} />
+      );
+      await user.click(container.querySelector(".hint-toggle") as HTMLElement);
+      expect(screen.getByText(hint)).toBeInTheDocument();
+      expect(screen.queryByText(context)).not.toBeInTheDocument();
+      unmount();
+    }
+  });
+
   it("an empty-string hintZh suppresses the hint instead of leaking promptContextZh", () => {
     // Regression guard (Codex must-fix): a nullish -- not truthy -- check means
     // an authored empty hint is "no hint", NOT a fall-through to the

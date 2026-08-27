@@ -10,6 +10,32 @@ function findQuestion(items: PracticeQuestion[], id: string): PracticeQuestion {
 }
 
 describe("issue #783 grammar feedback regressions", () => {
+  it("locks the human-reviewed たとえ…だとて concessive correlation", () => {
+    const question = findQuestion(n1Items, "n1-grammar-tote-2");
+
+    expect(question.expectedAnswers).toEqual(["だとて"]);
+    expect(question.options).toEqual(["だとて", "とあって", "ゆえに", "とばかり"]);
+    expect(question.explanation).toContain("句首「たとえ」與「だとて」形成讓步呼應");
+    expect(question.explanation).toContain(
+      "「とあって」「ゆえに」都能表示原因，但不能與「たとえ」形成這個讓步呼應"
+    );
+    expect(question.explanation).not.toContain("因果矛盾");
+    expect(question.explanationI18n?.ja).toContain(
+      "文頭の「たとえ」と「だとて」が譲歩の呼応を作ります"
+    );
+    expect(question.explanationI18n?.ja).toContain(
+      "「とあって」「ゆえに」は原因を表せますが、「たとえ」とこの譲歩の呼応を作りません"
+    );
+    expect(question.explanationI18n?.ja).not.toContain("因果の矛盾");
+    expect(question.explanationI18n?.en).toContain(
+      "sentence-initial 「たとえ」 and 「だとて」 form a concessive correlation"
+    );
+    expect(question.explanationI18n?.en).toContain(
+      "「とあって」 and 「ゆえに」 can express a cause, but neither completes that concessive correlation"
+    );
+    expect(question.explanationI18n?.en).not.toMatch(/contradict/i);
+  });
+
   it("identifies わかってきた as the ta-form used before といったところだ", () => {
     const question = findQuestion(n1Items, "n1-grammar-toittatokoroda-2");
 
@@ -31,17 +57,41 @@ describe("issue #783 grammar feedback regressions", () => {
       "わかる必要はない"
     ]);
     expect(question.explanation).toContain("說話者直接陳述自己目前的理解程度");
-    expect(question.explanation).toContain("不只限於推斷他人");
+    expect(question.explanation).toContain("「わかっているわけがない」強烈否定理解的可能性");
+    expect(question.explanation).toContain(
+      "「わかるどころではない」表示根本不是能談理解的狀況"
+    );
+    expect(question.explanation).toContain("「わかる必要はない」表示沒有理解的必要");
+    expect(question.explanation).not.toContain("に違いない");
+    expect(question.explanation).not.toContain("ということだ");
     expect(question.explanationI18n?.ja).toContain(
       "話し手本人が現在の理解度を直接述べています"
     );
-    expect(question.explanationI18n?.ja).toContain("他人についての推量に限らず");
+    expect(question.explanationI18n?.ja).toContain(
+      "「わかっているわけがない」は理解している可能性を強く否定"
+    );
+    expect(question.explanationI18n?.ja).toContain(
+      "「わかるどころではない」は理解を問題にできる状況ではない"
+    );
+    expect(question.explanationI18n?.ja).toContain(
+      "「わかる必要はない」は理解の必要性を否定"
+    );
+    expect(question.explanationI18n?.ja).not.toContain("に違いない");
+    expect(question.explanationI18n?.ja).not.toContain("ということだ");
     expect(question.explanationI18n?.en).toContain(
       "the speaker directly states their current level of understanding"
     );
     expect(question.explanationI18n?.en).toContain(
-      "is not limited to inferences about other people"
+      "「わかっているわけがない」 strongly denies the possibility of understanding"
     );
+    expect(question.explanationI18n?.en).toContain(
+      "「わかるどころではない」 says the situation is nowhere near one in which understanding can be discussed"
+    );
+    expect(question.explanationI18n?.en).toContain(
+      "「わかる必要はない」 denies any need to understand"
+    );
+    expect(question.explanationI18n?.en).not.toContain("に違いない");
+    expect(question.explanationI18n?.en).not.toContain("ということだ");
   });
 
   it("does not offer に基づいて as a second defensible answer to に照らして", () => {

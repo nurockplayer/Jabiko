@@ -448,6 +448,8 @@ export const n2Items: PracticeQuestion[] = [
     promptText: "ここ数十年、地球の平均気温は一貫して上昇し ___ 。",
     promptContextZh: "數十年來，地球的平均氣溫一直持續上升。",
     promptContextI18n: { "ja": "ここ数十年、地球の平均気温は一貫して上昇しつつあります。", "en": "For the past several decades, the earth's average temperature has been rising steadily." },
+    hintZh: "留意這項氣溫趨勢橫跨了多長的時間。",
+    hintI18n: { "ja": "この気温の傾向がどれほど長い期間にわたるかに注目しましょう。", "en": "Notice how long a period this temperature trend spans." },
     expectedAnswer: "つつある",
     options: ["つつある", "かけている", "ながら", "ばかりだ"],
     explanation: "「Vます形語幹＋つつある」表示變化已開始且現在仍持續，屬於正式書面語。本句的「ここ数十年」「一貫して」明確指出上升是延續多年的趨勢，所以選「つつある」。「上昇しかけている」表示上升才剛開始或尚未完成，與已持續數十年的趨勢不合。「ながら」會形成尚未完結的同時／讓步從句。「ばかりだ」雖可表示單向變化，卻接辭書形，應為「上昇するばかりだ」，不能接在ます形語幹「上昇し」之後。",
