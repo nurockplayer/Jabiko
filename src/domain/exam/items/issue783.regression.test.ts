@@ -46,52 +46,41 @@ describe("issue #783 grammar feedback regressions", () => {
     );
   });
 
-  it("locks the human-reviewed direct self-assessment choices for といったところだ", () => {
+  it("requires a direct self-assessment instead of continuation-only elimination for といったところだ", () => {
     const question = findQuestion(n1Items, "n1-grammar-toittatokoroda-2");
 
+    expect(question.promptText).toBe(
+      "新しい仕事の内容を自分ではどの程度理解できているかと聞かれたが、正直なところ、ようやく半分 ___ 。"
+    );
+    expect(question.promptContextZh).toBe(
+      "被問到自己覺得目前理解新工作內容到什麼程度；老實說，也才好不容易懂了大約一半。"
+    );
+    expect(question.promptContextI18n?.ja).toBe(
+      "新しい仕事の内容を自分ではどの程度理解できているかと聞かれたが、正直なところ、ようやく半分わかってきたといったところだ。"
+    );
+    expect(question.promptContextI18n?.en).toBe(
+      "When asked how much of the new job I felt I currently understood, honestly, I'd only just gotten the hang of about half of it."
+    );
     expect(question.expectedAnswers).toEqual(["わかってきたといったところだ"]);
     expect(question.options).toEqual([
       "わかってきたといったところだ",
-      "わかっているわけがない",
-      "わかるどころではない",
-      "わかる必要はない"
+      "わかってきたことにしている",
+      "わかってきたことになっている",
+      "わかってきたと上司からは評価されている"
     ]);
-    expect(question.explanation).toContain("說話者直接陳述自己目前的理解程度");
-    expect(question.explanation).toContain("「わかっているわけがない」強烈否定理解的可能性");
-    expect(question.explanation).toContain(
-      "「わかるどころではない」表示根本不是能談理解的狀況"
-    );
-    expect(question.explanation).toContain("「わかる必要はない」表示沒有理解的必要");
-    expect(question.explanation).not.toContain("に違いない");
-    expect(question.explanation).not.toContain("ということだ");
-    expect(question.explanationI18n?.ja).toContain(
-      "話し手本人が現在の理解度を直接述べています"
-    );
-    expect(question.explanationI18n?.ja).toContain(
-      "「わかっているわけがない」は理解している可能性を強く否定"
-    );
-    expect(question.explanationI18n?.ja).toContain(
-      "「わかるどころではない」は理解を問題にできる状況ではない"
-    );
-    expect(question.explanationI18n?.ja).toContain(
-      "「わかる必要はない」は理解の必要性を否定"
-    );
-    expect(question.explanationI18n?.ja).not.toContain("に違いない");
-    expect(question.explanationI18n?.ja).not.toContain("ということだ");
-    expect(question.explanationI18n?.en).toContain(
-      "the speaker directly states their current level of understanding"
-    );
-    expect(question.explanationI18n?.en).toContain(
-      "「わかっているわけがない」 strongly denies the possibility of understanding"
-    );
-    expect(question.explanationI18n?.en).toContain(
-      "「わかるどころではない」 says the situation is nowhere near one in which understanding can be discussed"
-    );
-    expect(question.explanationI18n?.en).toContain(
-      "「わかる必要はない」 denies any need to understand"
-    );
-    expect(question.explanationI18n?.en).not.toContain("に違いない");
-    expect(question.explanationI18n?.en).not.toContain("ということだ");
+    expect(question.options?.every((option) => option.startsWith("わかってきた"))).toBe(true);
+    expect(question.explanation).toContain("自分ではどの程度");
+    expect(question.explanation).toContain("わかってきたことにしている");
+    expect(question.explanation).toContain("わかってきたことになっている");
+    expect(question.explanation).toContain("わかってきたと上司からは評価されている");
+    expect(question.explanationI18n?.ja).toContain("自分ではどの程度");
+    expect(question.explanationI18n?.ja).toContain("わかってきたことにしている");
+    expect(question.explanationI18n?.ja).toContain("わかってきたことになっている");
+    expect(question.explanationI18n?.ja).toContain("わかってきたと上司からは評価されている");
+    expect(question.explanationI18n?.en).toContain("self-assessment");
+    expect(question.explanationI18n?.en).toContain("わかってきたことにしている");
+    expect(question.explanationI18n?.en).toContain("わかってきたことになっている");
+    expect(question.explanationI18n?.en).toContain("わかってきたと上司からは評価されている");
   });
 
   it("does not offer に基づいて as a second defensible answer to に照らして", () => {
@@ -141,17 +130,25 @@ describe("issue #783 grammar feedback regressions", () => {
     expect(question.promptContextI18n?.en).toBe(
       "Far from finishing the homework, I haven't even done half of it."
     );
-    expect(question.explanation).toContain(
-      "本句並非已寫完作業，實際上甚至連一半都沒寫。"
+    expect(question.vocabulary.meaningZh).toBe(
+      "非但不是 A，反而 B；或不只 A，甚至連 B 也……"
     );
-    expect(question.explanationI18n?.ja).toContain(
-      "この文では宿題が終わったのではなく、実際には半分さえ終わっていません。"
+    expect(question.vocabulary.meaningI18n?.ja).toBe(
+      "AではなくむしろB／Aだけでなく、さらにBまで"
     );
+    expect(question.vocabulary.meaningI18n?.en).toBe(
+      "far from A, actually B; or not only A, but even B"
+    );
+    expect(question.explanation).toContain("本句的「AどころかB」否定 A");
+    expect(question.explanationI18n?.ja).toContain("この文の「AどころかB」はAを否定し");
     expect(question.explanationI18n?.en).toContain(
-      "Here the homework is not finished; in fact, not even half is done."
+      "In this sentence, 「A どころか B」 rejects A"
     );
-    expect(question.vocabulary.meaningI18n?.ja).not.toContain("Aはもちろん");
-    expect(question.explanationI18n?.ja).not.toContain("Aはもちろん");
+    expect(question.explanation).not.toContain("「A どころか B」會把 A 明確否定");
+    expect(question.explanationI18n?.ja).not.toContain("「AどころかB」はAをはっきり否定");
+    expect(question.explanationI18n?.en).not.toContain(
+      "「A どころか B」 explicitly rejects A"
+    );
     expect(question.hintZh).toBeTruthy();
     expect(question.hintI18n?.ja).toBeTruthy();
     expect(question.hintI18n?.en).toBeTruthy();
