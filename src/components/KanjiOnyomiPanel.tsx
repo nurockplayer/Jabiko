@@ -321,7 +321,7 @@ export function KanjiOnyomiPanel({
                 <li key={example.surface}>
                   <span className="kanji-example-surface">
                     {example.surface}
-                    <SpeakButton text={example.surface} language={language} />
+                    <SpeakButton text={example.reading} language={language} />
                   </span>
                   <span className="kanji-example-reading">{example.reading}</span>
                   <span className="kanji-example-mean">

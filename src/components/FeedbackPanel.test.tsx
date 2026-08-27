@@ -730,7 +730,10 @@ describe("FeedbackPanel answer-key TTS on reading questions", () => {
       }
     );
   });
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
 
   it("offers TTS for the correct reading once the question is answered", () => {
     const question = readingPool[0];
@@ -746,6 +749,8 @@ describe("FeedbackPanel answer-key TTS on reading questions", () => {
   });
 
   it("uses the canonical kana answer for the reported exam readings", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(Date.UTC(2400, 0, 1));
     const speak = vi.fn();
     vi.stubGlobal("speechSynthesis", {
       getVoices: () => [],
@@ -779,6 +784,7 @@ describe("FeedbackPanel answer-key TTS on reading questions", () => {
       );
       fireEvent.click(container.querySelector(".answer-key .speak-button")!);
       unmount();
+      vi.advanceTimersByTime(130);
       expect((speak.mock.calls.at(-1)![0] as { text: string }).text).toBe(reading);
     }
 

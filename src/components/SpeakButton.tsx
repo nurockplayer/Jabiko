@@ -14,6 +14,8 @@ let delayedSpeakTimer: ReturnType<typeof setTimeout> | null = null;
 let nextPlaybackId = 0;
 let activePlaybackId: number | null = null;
 let activeSynth: SpeechSynthesis | null = null;
+const CANCEL_COOLDOWN_MS = 130;
+let cancelCooldownUntil = 0;
 
 function stopKeepAlive() {
   if (keepAliveTimer !== null) {
@@ -27,6 +29,11 @@ function clearDelayedSpeak() {
     clearTimeout(delayedSpeakTimer);
     delayedSpeakTimer = null;
   }
+}
+
+function cancelSynthesis(synth: SpeechSynthesis) {
+  cancelCooldownUntil = Math.max(cancelCooldownUntil, Date.now() + CANCEL_COOLDOWN_MS);
+  synth.cancel();
 }
 
 function finishPlayback(playbackId: number) {
@@ -43,8 +50,9 @@ function cancelPlayback(playbackId?: number) {
   stopKeepAlive();
   const synth = activeSynth;
   activeSynth = null;
+  if (!synth) return;
   try {
-    synth?.cancel();
+    cancelSynthesis(synth);
   } catch {
     // An unavailable engine has the same fail-soft result as an unsupported API.
   }
@@ -123,15 +131,18 @@ export function SpeakButton({ text, language }: { text: string; language: Langua
 
       // The reported "缺失一小段" (clipped start) / 爆音: Chrome drops the
       // beginning of an utterance when speak() is called in the same tick as
-      // cancel(). So only cancel when something is actually playing, and give
-      // the engine a beat before the new utterance; when idle, speak now --
-      // no clip, no needless latency.
+      // cancel(). Each app cancellation creates a short global cooldown: a
+      // replacement request may replace the payload, but cannot call speak()
+      // before the engine has had that beat to settle.
       if (wasActive) {
-        synth.cancel();
+        cancelSynthesis(synth);
+      }
+      const remainingCooldown = Math.max(0, cancelCooldownUntil - Date.now());
+      if (remainingCooldown > 0) {
         delayedSpeakTimer = setTimeout(() => {
           delayedSpeakTimer = null;
           speak();
-        }, 130);
+        }, remainingCooldown);
       } else {
         speak();
       }

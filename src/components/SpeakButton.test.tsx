@@ -11,6 +11,7 @@ import { writeTtsRate } from "../lib/ttsRate";
 type MockSynth = {
   speaking: boolean;
   pending: boolean;
+  utterances: MockUtterance[];
   speak: ReturnType<typeof vi.fn>;
   cancel: ReturnType<typeof vi.fn>;
   pause: ReturnType<typeof vi.fn>;
@@ -18,37 +19,69 @@ type MockSynth = {
   getVoices: () => unknown[];
 };
 
-function setupSynth({ speaking = false } = {}): MockSynth {
+type MockUtterance = {
+  text: string;
+  lang: string;
+  rate: number;
+  voice: unknown;
+  emit: (type: "end" | "error") => void;
+};
+
+function setupSynth({ speaking = false, pending = false } = {}): MockSynth {
+  const utterances: MockUtterance[] = [];
+  class MockUtteranceImpl implements MockUtterance {
+    lang = "";
+    rate = 1;
+    voice: unknown = null;
+    private listeners = new Map<string, Set<() => void>>();
+
+    constructor(public text: string) {
+      utterances.push(this);
+    }
+
+    addEventListener(type: string, listener: () => void) {
+      const listeners = this.listeners.get(type) ?? new Set<() => void>();
+      listeners.add(listener);
+      this.listeners.set(type, listeners);
+    }
+
+    removeEventListener(type: string, listener: () => void) {
+      this.listeners.get(type)?.delete(listener);
+    }
+
+    emit(type: "end" | "error") {
+      for (const listener of this.listeners.get(type) ?? []) listener();
+    }
+  }
+
   const synth: MockSynth = {
     speaking,
-    pending: false,
-    speak: vi.fn(),
+    pending,
+    utterances,
+    speak: vi.fn(() => {
+      synth.speaking = true;
+      synth.pending = false;
+    }),
     cancel: vi.fn(function (this: MockSynth) {
       synth.speaking = false;
+      synth.pending = false;
     }),
     pause: vi.fn(),
     resume: vi.fn(),
     getVoices: () => []
   };
   (window as unknown as { speechSynthesis: MockSynth }).speechSynthesis = synth;
-  (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance =
-    class {
-      text: string;
-      lang = "";
-      rate = 1;
-      voice: unknown = null;
-      constructor(t: string) {
-        this.text = t;
-      }
-      addEventListener() {}
-      removeEventListener() {}
-    };
+  (window as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance = MockUtteranceImpl;
   return synth;
 }
 
 describe("SpeakButton", () => {
+  let now = Date.UTC(2300, 0, 1);
+
   beforeEach(() => {
     vi.useFakeTimers();
+    now += 1_000;
+    vi.setSystemTime(now);
   });
   afterEach(() => {
     vi.useRealTimers();
@@ -76,19 +109,25 @@ describe("SpeakButton", () => {
     expect(synth.speak).toHaveBeenCalledTimes(1);
   });
 
-  it("starts only the latest request when a second click arrives before a cancelled restart", () => {
+  it("waits through the cancellation cooldown and speaks only the latest rapid request", () => {
     const synth = setupSynth({ speaking: true });
-    render(<SpeakButton text="ねこ" language="zh-Hant" />);
-    const button = screen.getByRole("button");
+    render(
+      <>
+        <SpeakButton text="ねこ" language="zh-Hant" />
+        <SpeakButton text="いぬ" language="zh-Hant" />
+      </>
+    );
+    const [first, second] = screen.getAllByRole("button");
 
-    fireEvent.click(button);
-    // `cancel()` leaves the engine idle; a second user action before the
-    // anti-clipping delay must replace, not accompany, the deferred request.
-    fireEvent.click(button);
+    fireEvent.click(first);
+    fireEvent.click(second);
 
+    expect(synth.speak).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(129);
+    expect(synth.speak).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
     expect(synth.speak).toHaveBeenCalledTimes(1);
-    vi.advanceTimersByTime(200);
-    expect(synth.speak).toHaveBeenCalledTimes(1);
+    expect((synth.speak.mock.calls[0][0] as MockUtterance).text).toBe("いぬ");
   });
 
   it("cancels active playback when its owning button unmounts", () => {
@@ -142,7 +181,35 @@ describe("SpeakButton", () => {
       </>
     );
 
-    expect(synth.cancel).not.toHaveBeenCalled();
+    // The second button must hand off the active first utterance once. The
+    // first button's text cleanup must not add a second cancellation.
+    expect(synth.cancel).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the newer owner active when a cancelled utterance later ends", () => {
+    const synth = setupSynth({ speaking: false });
+    const { rerender } = render(
+      <>
+        <SpeakButton text="ねこ" language="zh-Hant" />
+        <SpeakButton text="いぬ" language="zh-Hant" />
+      </>
+    );
+    const [first, second] = screen.getAllByRole("button");
+    fireEvent.click(first);
+    fireEvent.click(second);
+    vi.advanceTimersByTime(130);
+
+    synth.utterances[0].emit("end");
+    rerender(
+      <>
+        <SpeakButton text="ねこ" language="zh-Hant" />
+        <SpeakButton text="うさぎ" language="zh-Hant" />
+      </>
+    );
+
+    // One cancel hands off the first utterance; the second proves the newer
+    // owner stayed active despite the stale first utterance's end event.
+    expect(synth.cancel).toHaveBeenCalledTimes(2);
   });
 
   it("does not cancel another button's playback when speech access fails", () => {
