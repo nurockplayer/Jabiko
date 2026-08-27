@@ -420,4 +420,72 @@ describe("sentence-pattern content guard", () => {
     }
     expect(offenders, `hintZh contains a banned phrase: ${offenders.join("; ")}`).toEqual([]);
   });
+
+  it("keeps every multiple-choice item structurally single-answer", () => {
+    const offenders = sentencePatternItems
+      .filter(
+        (item) =>
+          item.options.length !== 4 ||
+          new Set(item.options).size !== item.options.length ||
+          item.options.filter((option) => option === item.expectedAnswer).length !== 1
+      )
+      .map((item) => item.id);
+
+    expect(
+      offenders,
+      `pattern items without four distinct options and one declared answer: ${offenders.join(", ")}`
+    ).toEqual([]);
+  });
+
+  it("keeps answer-selecting polarity in the visible Japanese prompt, not the hint", () => {
+    const item = sentencePatternItems.find(
+      (candidate) => candidate.id === "pattern-n5-sonzai-007"
+    );
+
+    expect(item).toBeDefined();
+    expect(item?.promptText).toContain("いいえ");
+    expect(item?.hintZh).not.toMatch(/沒有|不在|出門/);
+  });
+
+  it("enforces the manually reviewed visible-context contracts", () => {
+    // Japanese semantic uniqueness cannot be inferred safely with string
+    // heuristics. These focused contracts record the visible facts and valid
+    // forms that were manually checked by substituting every offered option.
+    const reviews = [
+      {
+        id: "pattern-n5-sonzai-007",
+        expectedAnswer: "いません",
+        requiredPromptFragments: ["ねこ", "いますか", "いいえ", "いま"],
+        validDistractors: ["ありません", "います", "いました"]
+      },
+      {
+        id: "pattern-n5-riyuu-002",
+        expectedAnswer: "ですが",
+        requiredPromptFragments: ["やすみ", "しごと"],
+        validDistractors: ["だから", "なので", "ですから"]
+      },
+      {
+        id: "pattern-n5-riyuu-005",
+        expectedAnswer: "でも",
+        requiredPromptFragments: ["あめ", "さむい", "しごと", "いかなければなりません"],
+        validDistractors: ["だから", "それで", "そのため"]
+      }
+    ];
+
+    for (const review of reviews) {
+      const { id, expectedAnswer, requiredPromptFragments, validDistractors } = review;
+      const item = sentencePatternItems.find((candidate) => candidate.id === id);
+
+      expect(item, id).toBeDefined();
+      expect(item?.expectedAnswer, id).toBe(expectedAnswer);
+      expect(new Set(item?.options), id).toEqual(
+        new Set([expectedAnswer, ...validDistractors])
+      );
+      for (const fragment of requiredPromptFragments) {
+        expect(item?.promptText, `${id}: missing visible context "${fragment}"`).toContain(
+          fragment
+        );
+      }
+    }
+  });
 });

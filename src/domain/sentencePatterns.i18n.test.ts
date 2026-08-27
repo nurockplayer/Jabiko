@@ -31,4 +31,16 @@ describe("sentence-pattern overlays", () => {
     const q = buildSentencePatternPool().find((x) => x.id === "pattern-te-kudasai-001")!;
     expect(q.vocabulary.examples[0]?.meaningI18n?.en).toBe(q.promptContextI18n?.en);
   });
+
+  it("keeps the corrected absence cue out of every pre-answer hint locale", () => {
+    const q = buildSentencePatternPool().find(
+      (candidate) => candidate.id === "pattern-n5-sonzai-007"
+    );
+
+    expect(q).toBeDefined();
+    expect(q?.promptText).toContain("いいえ");
+    expect(q?.hintZh).not.toMatch(/沒有|不在|出門/);
+    expect(q?.hintI18n?.en).not.toMatch(/isn't home|went out/i);
+    expect(q?.hintI18n?.ja).not.toMatch(/いない|外に出/);
+  });
 });

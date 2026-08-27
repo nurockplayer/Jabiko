@@ -168,13 +168,13 @@ const N5_SONZAI_ITEMS: SentencePatternItem[] = [
   {
     id: "pattern-n5-sonzai-007",
     patternId: "n5-sonzai",
-    promptText: "いま、いえに ねこは ___。",
-    hintZh: "說現在家裡沒有貓（貓出門了）。",
+    promptText: "「ねこは いえに いますか。」「いいえ、いまは ___。」",
+    hintZh: "家人確認貓現在在哪裡。",
     promptContextZh: "「現在貓不在家。」",
     expectedAnswer: "いません",
     options: ["いません", "ありません", "います", "いました"],
     explanation:
-      "貓是動物 → 用います的否定「いません」。「ありません」是東西的否定；「いました」是過去，跟「いま（現在）」矛盾。提示說了貓不在，所以肯定的「います」也不對。"
+      "貓是動物，所以います的否定是「いません」。回答先說「いいえ」，而且問的是現在，日文題幹本身就鎖定現在否定。「ありません」是東西的否定；「います」跟「いいえ」矛盾；「いました」是過去，跟「いま」矛盾。"
   },
   {
     id: "pattern-n5-sonzai-008",
@@ -874,11 +874,10 @@ const N5_ONEGAI_ITEMS: SentencePatternItem[] = [
 
 // ===========================================================================
 // N5 pattern: n5-riyuu -- reasons and contrast: から・ので・が (#547).
-//   から and ので are near-interchangeable as reason markers, so they NEVER
-//   compete on meaning: the どうして item kills ので by form (〜のでです is
-//   not a sentence), the ので item tests noun attachment (なので vs だので
-//   vs なから -- pure form), and every other から/ので appearance is a dead
-//   foil by attachment or by contradiction, never a live semantic rival.
+//   から and ので are near-interchangeable as reason markers, so they never
+//   compete as semantic foils. Item 002 contrasts three well-formed reason
+//   connectors with ですが under an explicit day-off/work conflict; other
+//   から/ので appearances are blocked by attachment or visible context.
 // ===========================================================================
 const N5_RIYUU_ITEMS: SentencePatternItem[] = [
   {
@@ -895,13 +894,13 @@ const N5_RIYUU_ITEMS: SentencePatternItem[] = [
   {
     id: "pattern-n5-riyuu-002",
     patternId: "n5-riyuu",
-    promptText: "あしたは やすみ___、どこかへ いきませんか。",
-    hintZh: "說明天放假，順便約出門。",
-    promptContextZh: "「明天放假，要不要去哪走走？」",
-    expectedAnswer: "なので",
-    options: ["なので", "だので", "ので", "なから"],
+    promptText: "あしたは やすみ___、あさから しごとが あります。",
+    hintZh: "說明明天的行程安排。",
+    promptContextZh: "「明天雖然放假，但一早就有工作。」",
+    expectedAnswer: "ですが",
+    options: ["ですが", "だから", "なので", "ですから"],
     explanation:
-      "名詞接「ので」要先加な：やすみ＋な＋ので＝やすみなので。「だので」是錯接（だ和ので不能連用）；名詞直接接ので（×やすみので）也不行；「から」接名詞用だ（やすみだから），沒有「なから」這種形。※どこか＝某個地方。"
+      "放假卻一早有工作，前後是明確的轉折，所以用名詞＋「ですが」。「だから」「なので」「ですから」都是真實且接續正確的理由形式，但會把放假說成有工作的原因，和日文題幹顯示的關係不符。"
   },
   {
     id: "pattern-n5-riyuu-003",
@@ -928,13 +927,14 @@ const N5_RIYUU_ITEMS: SentencePatternItem[] = [
   {
     id: "pattern-n5-riyuu-005",
     patternId: "n5-riyuu",
-    promptText: "あめが ふって います。___、でかけます。",
-    hintZh: "雨照下，人照出門。",
-    promptContextZh: "「正在下雨。可是，還是要出門。」",
+    promptText:
+      "あめが ふって いて、そとは さむいです。___、しごとに いかなければなりません。",
+    hintZh: "說明上班前的天氣和安排。",
+    promptContextZh: "「正在下雨，外面也很冷。可是，我必須去上班。」",
     expectedAnswer: "でも",
-    options: ["でも", "だから", "そして", "それから"],
+    options: ["でも", "だから", "それで", "そのため"],
     explanation:
-      "前後方向相反（下雨→照樣出門）用「でも」＝可是。「だから（所以）」是順著因果，方向不對；「そして（而且）」「それから（然後）」是並列/接續，都表達不出「照樣」的轉折。※あめ＝雨、ふります＝（雨雪）下、でかけます＝出門。"
+      "下雨、寒冷都是出門的阻力，後句卻說必須去上班，前後明確相反，所以用「でも」。「だから」「それで」「そのため」都是真實的因果連接詞，但天氣並不是必須上班的原因。※そと＝外面。"
   },
   {
     id: "pattern-n5-riyuu-006",

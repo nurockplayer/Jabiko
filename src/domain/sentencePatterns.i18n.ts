@@ -333,16 +333,16 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
   },
   "pattern-n5-sonzai-007": {
     "hintI18n": {
-      "en": "Saying the cat isn't home right now (it went out).",
-      "ja": "今、猫が家にいないことを言う（外に出ている）。"
+      "en": "A family member checks the cat's current location.",
+      "ja": "家族が猫の今いる場所を確認する。"
     },
     "promptContextI18n": {
       "en": "\"The cat isn't home right now.\"",
       "ja": "「今、猫は家にいません。」"
     },
     "explanationI18n": {
-      "en": "A cat is an animal → the negative of います, 「いません」. 「ありません」 negates things; 「いました」 is past, contradicting 「いま」 (now). The hint says the cat is out, so affirmative 「います」 is wrong too.",
-      "ja": "猫は動物 → います の否定「いません」。「ありません」は物の否定。「いました」は過去で「いま」と矛盾。ヒントで猫はいないと言っているので肯定の「います」も違う。"
+      "en": "A cat is an animal, so the negative of います is 「いません」. The reply begins with 「いいえ」 and asks about now, so the Japanese prompt itself fixes present negative. 「ありません」 negates things; 「います」 contradicts 「いいえ」; 「いました」 is past and contradicts 「いま」.",
+      "ja": "猫は動物なので、います の否定は「いません」。答えは「いいえ」で始まり、今のことを聞いているため、日本語の問題文だけで現在の否定に決まる。「ありません」は物の否定、「います」は「いいえ」と矛盾し、「いました」は過去なので「いま」と矛盾する。"
     }
   },
   "pattern-n5-sonzai-008": {
@@ -864,11 +864,11 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-002": {
-    "hintI18n": { "en": "Tomorrow's a day off — suggest going somewhere.", "ja": "明日は休み。それを踏まえてどこかへ誘う。" },
-    "promptContextI18n": { "en": "\"Tomorrow's a day off, so shall we go somewhere?\"", "ja": "「明日は休みなので、どこかへ行きませんか。」" },
+    "hintI18n": { "en": "Describing tomorrow's schedule.", "ja": "明日の予定を説明する。" },
+    "promptContextI18n": { "en": "\"Tomorrow is a day off, but I have work from the morning.\"", "ja": "「明日は休みですが、朝から仕事があります。」" },
     "explanationI18n": {
-      "en": "A noun needs な before 「ので」: やすみ + な + ので = やすみなので. 「だので」 is a wrong attachment (だ and ので don't combine); a bare noun + ので (×やすみので) fails too; and から takes だ after a noun (やすみだから) — 「なから」 doesn't exist. ※どこか = somewhere.",
-      "ja": "名詞に「ので」を付けるときは な を挟む：やすみ＋な＋ので。「だので」は誤接続（だ と ので は連結できない）。名詞に直接 ので（×やすみので）も不可。から なら やすみだから——「なから」という形はない。"
+      "en": "A day off followed by work from the morning is an explicit contrast, so use noun + 「ですが」. 「だから」, 「なので」, and 「ですから」 are all real, correctly attached reason forms, but they would make the day off the reason for having work, which the Japanese context does not support.",
+      "ja": "休みなのに朝から仕事があるので、前後は明確な逆接。名詞＋「ですが」を使う。「だから」「なので」「ですから」はどれも実在する正しい理由の形だが、休みであることを仕事の原因にしてしまい、日本語の文脈に合わない。"
     }
   },
   "pattern-n5-riyuu-003": {
@@ -888,11 +888,11 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-005": {
-    "hintI18n": { "en": "Rain or no rain, you're heading out.", "ja": "雨は降っている。それでも出かける。" },
-    "promptContextI18n": { "en": "\"It's raining. But I'm going out anyway.\"", "ja": "「雨が降っています。でも、出かけます。」" },
+    "hintI18n": { "en": "Describing the weather and plans before work.", "ja": "出勤前の天気と予定を説明する。" },
+    "promptContextI18n": { "en": "\"It's raining and cold outside. But I have to go to work.\"", "ja": "「雨が降っていて、外は寒いです。でも、仕事に行かなければなりません。」" },
     "explanationI18n": {
-      "en": "When the two sentences pull in opposite directions (raining → going out anyway), use 「でも」 = but. 「だから」 (so) follows the causal grain — wrong direction; 「そして」 (and) and 「それから」 (and then) just line events up and can't express \"anyway\". ※あめ = rain, ふります = to fall (rain/snow), でかけます = to go out.",
-      "ja": "前後が逆方向（雨→それでも出かける）なら「でも」。「だから」は因果に沿う語で方向が逆。「そして」「それから」は並列・順接で、「それでも」の逆接は表せない。"
+      "en": "Rain and cold both discourage going out, but the next sentence says work is mandatory, so 「でも」 marks the explicit contrast. 「だから」, 「それで」, and 「そのため」 are all real causal connectors, but the weather does not cause the work obligation. ※そと = outside.",
+      "ja": "雨と寒さはどちらも外出の妨げなのに、後ろでは仕事に行く必要があると言っている。明確な逆接なので「でも」。「だから」「それで」「そのため」はどれも実在する因果の接続詞だが、天気は出勤義務の原因ではない。"
     }
   },
   "pattern-n5-riyuu-006": {
