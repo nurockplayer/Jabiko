@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LearningPanel } from "./LearningPanel";
@@ -29,6 +29,15 @@ function renderPanel(onOpenKana = vi.fn()) {
 }
 
 const basicBlocks = learningBlocks.filter((block) => block.group === "basic");
+const originalScrollIntoView = Element.prototype.scrollIntoView;
+
+afterEach(() => {
+  if (originalScrollIntoView) {
+    Element.prototype.scrollIntoView = originalScrollIntoView;
+  } else {
+    delete (Element.prototype as { scrollIntoView?: Element["scrollIntoView"] }).scrollIntoView;
+  }
+});
 
 function renderPanelWithFurigana(enabled: boolean) {
   return render(
@@ -112,6 +121,22 @@ describe("LearningPanel mobile chapter bar (#608)", () => {
 });
 
 describe("LearningPanel chapter navigation (#787)", () => {
+  it("keeps an Arrow-navigated chapter visible within the bounded index", () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    renderPanel();
+    const chapterButtons = screen.getAllByRole("button", {
+      name: (name) => name.startsWith("查看：")
+    });
+
+    chapterButtons[0].focus();
+    fireEvent.keyDown(chapterButtons[0], { key: "ArrowDown" });
+
+    expect(chapterButtons[1]).toHaveFocus();
+    expect(scrollIntoView).toHaveBeenCalledOnce();
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+  });
+
   it("keeps the long chapter index to one tab stop and supports arrow navigation", () => {
     renderPanel();
     const chapterButtons = screen.getAllByRole("button", {

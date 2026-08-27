@@ -101,7 +101,9 @@ export function LearningPanel({
     const focusTarget = pendingFocusTarget.current;
     pendingFocusTarget.current = null;
     if (focusTarget === "chapter") {
-      chapterButtonRefs.current.get(activeCard.block.id)?.focus({ preventScroll: true });
+      const chapterButton = chapterButtonRefs.current.get(activeCard.block.id);
+      chapterButton?.focus({ preventScroll: true });
+      chapterButton?.scrollIntoView?.({ block: "nearest" });
       return;
     }
     if (focusTarget === "content") {
@@ -113,7 +115,9 @@ export function LearningPanel({
   const selectChapter = (blockId: string, focusTarget: "chapter" | "content") => {
     if (blockId === activeCard.block.id) {
       if (focusTarget === "chapter") {
-        chapterButtonRefs.current.get(blockId)?.focus({ preventScroll: true });
+        const chapterButton = chapterButtonRefs.current.get(blockId);
+        chapterButton?.focus({ preventScroll: true });
+        chapterButton?.scrollIntoView?.({ block: "nearest" });
       } else {
         activeHeadingRef.current?.focus({ preventScroll: true });
         activeHeadingRef.current?.scrollIntoView?.({ block: "start" });
