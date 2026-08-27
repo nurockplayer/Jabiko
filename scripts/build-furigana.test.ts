@@ -10,6 +10,7 @@ import {
 import { buildQuestionPool } from "../src/domain/practice";
 import type { VocabularyItem } from "../src/domain/types";
 import { alignToken, kataToHira, tokensToSegments } from "../src/domain/furigana";
+import { furiganaExplanationData } from "../src/domain/furiganaExplanationData";
 
 const require = createRequire(import.meta.url);
 const DIC = path.join(path.dirname(require.resolve("kuromoji/package.json")), "dict");
@@ -125,6 +126,15 @@ describe("buildReadingSurfaceOverrides (#714)", () => {
     const first = build(questions);
     const second = build(questions);
     expect([...first]).toEqual([...second]);
+  });
+});
+
+describe("generated explanation reading overrides (#799)", () => {
+  it("reads 肯否 as こうひ instead of IPADIC's unknown-token split", () => {
+    expect(furiganaExplanationData["肯否や時間だけでは選べない"]?.slice(0, 2)).toEqual([
+      { t: "肯否", r: "こうひ" },
+      { t: "や" }
+    ]);
   });
 });
 
