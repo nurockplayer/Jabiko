@@ -361,6 +361,8 @@ export function HomePanel({
         </div>
       ) : null}
 
+      <StayDHomeRecommendation language={language} />
+
       <header className="home-hero">
         {/* Decorative hero -- the heading below carries the actual
             message, so alt is intentionally empty (avoids the screen
@@ -460,8 +462,6 @@ export function HomePanel({
           <ArrowRight aria-hidden="true" />
         </button>
       ) : null}
-
-      <StayDHomeRecommendation language={language} />
 
       {/* Names the entry-card grid as a self-serve section (a plain,
           non-anaphoric label -- no "or" -- so it can't dangle in any of the

@@ -436,16 +436,18 @@ describe("HomePanel continue banner i18n (#427)", () => {
 });
 
 describe("HomePanel promotion placement", () => {
-  it("places the Stay.D recommendation after the learner's next step and before self-serve practice", () => {
+  it("places the Stay.D recommendation after the primary learning controls and before the hero", () => {
     renderHome({ language: "zh-Hant", targetLevel: "n4n5" });
 
-    const nextStep = screen.getByRole("button", { name: /開始 N4＋N5 備考/ });
+    const dailyPractice = screen.getByRole("button", { name: /開始今日練習/ });
+    const levelControl = screen.getByRole("group", { name: "目標級別" });
     const recommendation = screen.getByRole("complementary", {
-      name: "JABIKO 推薦 · 東京住宿"
+      name: "JABIKO 推薦 · 合作夥伴"
     });
-    const practiceHeading = screen.getByRole("heading", { name: "自己挑一區練習" });
+    const heroHeading = screen.getByRole("heading", { name: "今天想練什麼？" });
 
-    expect(nextStep.compareDocumentPosition(recommendation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(recommendation.compareDocumentPosition(practiceHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(dailyPractice.compareDocumentPosition(levelControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(levelControl.compareDocumentPosition(recommendation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(recommendation.compareDocumentPosition(heroHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
