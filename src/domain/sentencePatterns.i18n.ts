@@ -891,8 +891,8 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     "hintI18n": { "en": "A friend asks about going out yesterday and today.", "ja": "友だちが昨日と今日の外出について聞く。" },
     "promptContextI18n": { "en": "\"Did you go out yesterday?\" \"No, I stayed home.\" \"It is raining today. Do you have an umbrella?\" \"No, I do not.\" \"Are you going out today?\" \"I do not have an umbrella. But I am going out.\"", "ja": "「昨日、出かけましたか。」「いいえ、家にいました。」「今日は雨が降っています。傘はありますか。」「いいえ、ありません。」「今日、出かけますか。」「傘はありません。でも、出かけます。」" },
     "explanationI18n": {
-      "en": "The respondent says that they stayed home yesterday and have no umbrella today, while the prompt also states that it is raining. The reply repeats the lack of an umbrella and contrasts it with going out, so only 「でも」 fits. 「かさは あります」 contradicts the respondent's answer; 「あめは ふって いません」 contradicts the rain; 「きのう でかけました」 contradicts staying home yesterday. The four complete, grammatical choices use only the lesson's 「でも／だから／そして／それから」 set, so the visible facts decide the answer. ※でかけます = to go out.",
-      "ja": "問題文は、昨日は家にいたこと、今日は雨が降っていること、傘がないことを明示している。傘がない事実を繰り返し、それでも出かけると対比するので、「でも」だけが合う。「かさは あります」は傘がないことと矛盾し、「あめは ふって いません」は雨を否定し、「きのう でかけました」は昨日家にいたことを否定する。四つの選択肢は本課の「でも／だから／そして／それから」だけを使った、文法的に成立する完全な文であり、日本語の既知の事実で判断する。"
+      "en": "The respondent says that they stayed home yesterday and have no umbrella today, while the prompt also states that it is raining. The reply repeats the lack of an umbrella and contrasts it with going out, so only 「でも」 fits. 「かさは あります」 contradicts the respondent's answer; both 「きのうは いえに いませんでした」 and 「きのう でかけました」 contradict the respondent's own immediately preceding statement that they stayed home yesterday. The four complete, grammatical choices use only the lesson's 「でも／だから／そして／それから」 set, so the visible facts decide the answer. ※でかけます = to go out.",
+      "ja": "問題文は、昨日は家にいたこと、今日は雨が降っていること、傘がないことを明示している。傘がない事実を繰り返し、それでも出かけると対比するので、「でも」だけが合う。「かさは あります」は傘がないことと矛盾し、「きのうは いえに いませんでした」と「きのう でかけました」はどちらも、回答者自身が直前に述べた「昨日は家にいた」という事実を否定する。四つの選択肢は本課の「でも／だから／そして／それから」だけを使った、文法的に成立する完全な文であり、日本語の既知の事実で判断する。"
     }
   },
   "pattern-n5-riyuu-006": {
