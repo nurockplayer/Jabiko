@@ -352,6 +352,66 @@ describe("ExamPrompt content localization (#400)", () => {
     }
   });
 
+  it.each([
+    {
+      id: "n2-order-yosoku-shigatai",
+      locales: [
+        {
+          language: "zh-Hant" as const,
+          hint: "先找出句子的中心敘述，再看其餘片段如何補充市場變化的程度。",
+          context: "市場變化快到連專家都難以預測。"
+        },
+        {
+          language: "ja" as const,
+          hint: "文の中心となる述べ方を見つけ、ほかの部分が市場の変化の程度をどう補うかに注目しましょう。",
+          context: "市場の変化は、専門家でさえ予測しがたいほど速いです。"
+        },
+        {
+          language: "en" as const,
+          hint: "Find the sentence's central statement, then see how the other fragments add detail about the degree of market change.",
+          context: "The market is changing so fast that even experts find it hard to predict."
+        }
+      ]
+    },
+    {
+      id: "n2-order-nishitagatte",
+      locales: [
+        {
+          language: "zh-Hant" as const,
+          hint: "先找出兩項變化，再判斷哪一項是另一項變化的背景。",
+          context: "隨著科技發展，生活變得便利。"
+        },
+        {
+          language: "ja" as const,
+          hint: "二つの変化を見つけ、どちらがもう一方の変化の背景になるかを考えましょう。",
+          context: "科学技術の発展にしたがって生活が便利になった。"
+        },
+        {
+          language: "en" as const,
+          hint: "Identify the two changes, then decide which one provides the background for the other.",
+          context: "As science and technology advance, life becomes more convenient."
+        }
+      ]
+    }
+  ])("shows a neutral localized word-order hint for $id instead of the full answer", async ({
+    id,
+    locales
+  }) => {
+    const user = userEvent.setup();
+    const question = examStyleQuestions.find((item) => item.id === id);
+    expect(question).toBeDefined();
+
+    for (const { language, hint, context } of locales) {
+      const { container, unmount } = render(
+        <ExamPrompt question={question!} language={language} />
+      );
+      await user.click(container.querySelector(".hint-toggle") as HTMLElement);
+      expect(screen.getByText(hint)).toBeInTheDocument();
+      expect(screen.queryByText(context)).not.toBeInTheDocument();
+      unmount();
+    }
+  });
+
   it("an empty-string hintZh suppresses the hint instead of leaking promptContextZh", () => {
     // Regression guard (Codex must-fix): a nullish -- not truthy -- check means
     // an authored empty hint is "no hint", NOT a fall-through to the

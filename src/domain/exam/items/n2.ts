@@ -173,6 +173,8 @@ export const n2Items: PracticeQuestion[] = [
     promptText: "［専門家でさえ / 予測しがたい / ほど / 市場の変化が / 速い］",
     promptContextZh: "市場變化快到連專家都難以預測。",
     promptContextI18n: { "ja": "市場の変化は、専門家でさえ予測しがたいほど速いです。", "en": "The market is changing so fast that even experts find it hard to predict." },
+    hintZh: "先找出句子的中心敘述，再看其餘片段如何補充市場變化的程度。",
+    hintI18n: { "ja": "文の中心となる述べ方を見つけ、ほかの部分が市場の変化の程度をどう補うかに注目しましょう。", "en": "Find the sentence's central statement, then see how the other fragments add detail about the degree of market change." },
     expectedAnswer: "専門家でさえ予測しがたいほど市場の変化が速い",
     options: [
       "専門家でさえ予測しがたいほど市場の変化が速い",
@@ -991,6 +993,8 @@ export const n2Items: PracticeQuestion[] = [
     promptText: "［科学技術の発展 / にしたがって / 生活が / 便利になった］",
     promptContextZh: "隨著科技發展，生活變得便利。",
     promptContextI18n: { "ja": "科学技術の発展にしたがって生活が便利になった。", "en": "As science and technology advance, life becomes more convenient." },
+    hintZh: "先找出兩項變化，再判斷哪一項是另一項變化的背景。",
+    hintI18n: { "ja": "二つの変化を見つけ、どちらがもう一方の変化の背景になるかを考えましょう。", "en": "Identify the two changes, then decide which one provides the background for the other." },
     expectedAnswer: "科学技術の発展にしたがって生活が便利になった",
     options: [
       "科学技術の発展にしたがって生活が便利になった",
