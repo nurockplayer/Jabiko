@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { afterEach, describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { LearningPanel } from "./LearningPanel";
 import { learningBlocks } from "../domain/learningBlocks";
 import { FuriganaContext } from "./furiganaContext";
@@ -28,6 +29,15 @@ function renderPanel(onOpenKana = vi.fn()) {
 }
 
 const basicBlocks = learningBlocks.filter((block) => block.group === "basic");
+const originalScrollIntoView = Element.prototype.scrollIntoView;
+
+afterEach(() => {
+  if (originalScrollIntoView) {
+    Element.prototype.scrollIntoView = originalScrollIntoView;
+  } else {
+    delete (Element.prototype as { scrollIntoView?: Element["scrollIntoView"] }).scrollIntoView;
+  }
+});
 
 function renderPanelWithFurigana(enabled: boolean) {
   return render(
@@ -90,7 +100,7 @@ describe("LearningPanel mobile chapter bar (#608)", () => {
   it("toggles the chapter index open and closes it again when a chapter is picked", () => {
     renderPanel();
     const toggle = screen.getByTestId("chapter-mobile-toggle");
-    const index = screen.getByLabelText("學習章節");
+    const index = screen.getByRole("complementary", { name: "學習章節" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(index.className).not.toContain("mobile-open");
 
@@ -100,7 +110,7 @@ describe("LearningPanel mobile chapter bar (#608)", () => {
 
     // Picking a chapter from the list selects it AND collapses the index so
     // the material is immediately in view.
-    const target = screen.getByRole("button", {
+    const target = screen.getByRole("tab", {
       name: (name) => name.includes(basicBlocks[2].title)
     });
     fireEvent.click(target);
@@ -110,12 +120,122 @@ describe("LearningPanel mobile chapter bar (#608)", () => {
   });
 });
 
+describe("LearningPanel chapter navigation (#787)", () => {
+  it("exposes the chapter rail as a labelled vertical tabs composite", () => {
+    renderPanel();
+
+    const tablist = screen.getByRole("tablist", { name: "學習章節" });
+    expect(tablist).toHaveAttribute("aria-orientation", "vertical");
+    const tabs = within(tablist).getAllByRole("tab");
+    expect(tabs).toHaveLength(basicBlocks.length);
+    expect(tabs[0]).toHaveAttribute("id", `chapter-tab-${basicBlocks[0].id}`);
+    expect(tabs[0]).toHaveAttribute("aria-selected", "true");
+    expect(tabs[0]).not.toHaveAttribute("aria-pressed");
+    expect(tabs.slice(1).every((tab) => tab.getAttribute("aria-selected") === "false")).toBe(true);
+
+    const panel = screen.getByRole("tabpanel");
+    expect(panel).toHaveAttribute("id", "active-chapter-panel");
+    for (const tab of tabs) {
+      expect(tab).toHaveAttribute("aria-controls", panel.id);
+      expect(document.getElementById(tab.getAttribute("aria-controls")!)).toBe(panel);
+    }
+    expect(panel).toHaveAttribute("aria-labelledby", tabs[0].id);
+    expect(document.getElementById(panel.getAttribute("aria-labelledby")!)).toBe(tabs[0]);
+  });
+
+  it("wraps arrow focus and selection at both ends of the vertical tablist", () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    renderPanel();
+    const tabs = screen.getAllByRole("tab", {
+      name: (name) => name.startsWith("查看：")
+    });
+    const firstTab = tabs[0];
+    const lastTab = tabs.at(-1)!;
+
+    firstTab.focus();
+    fireEvent.keyDown(firstTab, { key: "ArrowUp" });
+
+    expect(lastTab).toHaveFocus();
+    expect(lastTab).toHaveAttribute("aria-selected", "true");
+    expect(firstTab).toHaveAttribute("aria-selected", "false");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", lastTab.id);
+
+    fireEvent.keyDown(lastTab, { key: "ArrowDown" });
+
+    expect(firstTab).toHaveFocus();
+    expect(firstTab).toHaveAttribute("aria-selected", "true");
+    expect(lastTab).toHaveAttribute("aria-selected", "false");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", firstTab.id);
+    expect(scrollIntoView).toHaveBeenCalledTimes(2);
+    expect(scrollIntoView).toHaveBeenNthCalledWith(1, { block: "nearest" });
+    expect(scrollIntoView).toHaveBeenNthCalledWith(2, { block: "nearest" });
+  });
+
+  it("keeps an Arrow-navigated chapter visible within the bounded index", () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    renderPanel();
+    const chapterButtons = screen.getAllByRole("tab", {
+      name: (name) => name.startsWith("查看：")
+    });
+
+    chapterButtons[0].focus();
+    fireEvent.keyDown(chapterButtons[0], { key: "ArrowDown" });
+
+    expect(chapterButtons[1]).toHaveFocus();
+    expect(scrollIntoView).toHaveBeenCalledOnce();
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+  });
+
+  it("keeps the long chapter index to one tab stop and supports arrow navigation", () => {
+    renderPanel();
+    const chapterButtons = screen.getAllByRole("tab", {
+      name: (name) => name.startsWith("查看：")
+    });
+
+    expect(chapterButtons[0]).toHaveAttribute("tabindex", "0");
+    expect(chapterButtons.slice(1).every((button) => button.tabIndex === -1)).toBe(true);
+
+    chapterButtons[0].focus();
+    fireEvent.keyDown(chapterButtons[0], { key: "ArrowDown" });
+
+    expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(basicBlocks[1].title);
+    expect(chapterButtons[1]).toHaveFocus();
+    expect(chapterButtons[0]).toHaveAttribute("aria-selected", "false");
+    expect(chapterButtons[1]).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", chapterButtons[1].id);
+
+    fireEvent.keyDown(chapterButtons[1], { key: "ArrowUp" });
+    expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(basicBlocks[0].title);
+    expect(chapterButtons[0]).toHaveFocus();
+  });
+
+  it("moves keyboard focus from a chosen chapter into its content and primary action", async () => {
+    const user = userEvent.setup();
+    renderPanel();
+    const chapterButtons = screen.getAllByRole("tab", {
+      name: (name) => name.startsWith("查看：")
+    });
+
+    chapterButtons[0].focus();
+    await user.keyboard("{ArrowDown}{Enter}");
+
+    const heading = screen.getByRole("heading", { level: 3 });
+    expect(heading).toHaveTextContent(basicBlocks[1].title);
+    expect(heading).toHaveFocus();
+
+    await user.tab();
+    expect(document.activeElement).toHaveClass("inline-drill-button");
+  });
+});
+
 describe("LearningPanel furigana (#618)", () => {
   const target = learningBlocks.find((block) => block.id === "verb-types")!;
 
   function openTargetChapter() {
     fireEvent.click(
-      screen.getByRole("button", {
+      screen.getByRole("tab", {
         name: (name) => name.includes(target.title)
       })
     );

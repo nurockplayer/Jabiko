@@ -22,13 +22,11 @@
   display: none;
 }
 
-/* With the long chapter list, keep the detail panel in view as you scroll
-   the index rather than leaving it stranded above the fold. Cap it to the
-   viewport and let it scroll on its own: a sticky panel taller than the
-   screen pins its overflow out of reach until the page bottom (reported
-   as "content won't scroll" / "chapter drill only visible at the very
-   bottom"). */
-.chapter-content {
+/* The chapter index is intentionally the bounded desktop rail. Keeping its
+   74 entries out of page flow lets the selected lesson and drill use the
+   document scrollbar, instead of trapping them in a second full-height
+   scrollbar that is easy to miss. */
+.chapter-index {
   max-height: calc(100vh - 2rem);
   overflow-y: auto;
   position: sticky;

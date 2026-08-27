@@ -36,6 +36,9 @@
      and the sidebar intro copy is desktop-only. */
   .chapter-index {
     display: contents;
+    max-height: none;
+    overflow-y: visible;
+    position: static;
   }
 
   .chapter-index-copy {

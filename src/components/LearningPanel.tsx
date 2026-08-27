@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { AlertTriangle, ArrowRight, ChevronDown } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
@@ -93,6 +93,50 @@ export function LearningPanel({
   // logic field (id / drills / examDrill / requiredForms …) and only swaps the
   // Chinese display text, so it's safe to use for both rendering and handlers.
   const active = localizeLearningBlock(activeCard.block, language, overlays);
+  const chapterButtonRefs = useRef(new Map<string, HTMLButtonElement>());
+  const activeHeadingRef = useRef<HTMLHeadingElement>(null);
+  const pendingFocusTarget = useRef<"chapter" | "content" | null>(null);
+
+  useEffect(() => {
+    const focusTarget = pendingFocusTarget.current;
+    pendingFocusTarget.current = null;
+    if (focusTarget === "chapter") {
+      const chapterButton = chapterButtonRefs.current.get(activeCard.block.id);
+      chapterButton?.focus({ preventScroll: true });
+      chapterButton?.scrollIntoView?.({ block: "nearest" });
+      return;
+    }
+    if (focusTarget === "content") {
+      activeHeadingRef.current?.focus({ preventScroll: true });
+      activeHeadingRef.current?.scrollIntoView?.({ block: "start" });
+    }
+  }, [activeCard.block.id]);
+
+  const selectChapter = (blockId: string, focusTarget: "chapter" | "content") => {
+    if (blockId === activeCard.block.id) {
+      if (focusTarget === "chapter") {
+        const chapterButton = chapterButtonRefs.current.get(blockId);
+        chapterButton?.focus({ preventScroll: true });
+        chapterButton?.scrollIntoView?.({ block: "nearest" });
+      } else {
+        activeHeadingRef.current?.focus({ preventScroll: true });
+        activeHeadingRef.current?.scrollIntoView?.({ block: "start" });
+      }
+      return;
+    }
+    pendingFocusTarget.current = focusTarget;
+    setSelectedBlockId(blockId);
+  };
+
+  const handleChapterKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    let nextIndex: number | null = null;
+    if (event.key === "ArrowDown") nextIndex = (index + 1) % blockCards.length;
+    if (event.key === "ArrowUp") nextIndex = (index - 1 + blockCards.length) % blockCards.length;
+    if (nextIndex === null) return;
+
+    event.preventDefault();
+    selectChapter(blockCards[nextIndex].block.id, "chapter");
+  };
 
   // Group chapters by category so the rail reads as a few labelled sections
   // instead of one long flat list where every card repeats a coloured kicker
@@ -212,7 +256,12 @@ export function LearningPanel({
             <p>{t.chapterIntro}</p>
           </div>
 
-          <div className="chapter-list">
+          <div
+            className="chapter-list"
+            role="tablist"
+            aria-label={t.chapterIndexLabel}
+            aria-orientation="vertical"
+          >
             {chapterGroups.map(({ category, label, cards }) => (
               <div className="chapter-group" key={category}>
                 <p className="chapter-group-title">{label}</p>
@@ -229,12 +278,24 @@ export function LearningPanel({
                   return (
                     <button
                       key={block.id}
+                      id={`chapter-tab-${block.id}`}
                       type="button"
+                      role="tab"
                       className={`chapter-list-button${block.id === active.id ? " selected" : ""}${complete ? " complete" : ""}`}
                       aria-label={t.chapterViewLabel(disp.title)}
-                      aria-pressed={block.id === active.id}
+                      aria-selected={block.id === active.id}
+                      aria-controls="active-chapter-panel"
+                      ref={(button) => {
+                        if (button) chapterButtonRefs.current.set(block.id, button);
+                        else chapterButtonRefs.current.delete(block.id);
+                      }}
+                      tabIndex={block.id === active.id ? 0 : -1}
+                      onKeyDown={(event) => handleChapterKeyDown(
+                        event,
+                        blockCards.findIndex((card) => card.block.id === block.id)
+                      )}
                       onClick={() => {
-                        setSelectedBlockId(block.id);
+                        selectChapter(block.id, "content");
                         // Collapse the mobile index so the picked material is
                         // immediately in view (no-op visually on desktop).
                         setIndexOpen(false);
@@ -261,10 +322,15 @@ export function LearningPanel({
         </aside>
 
         <LearningFuriganaBoundary>
-        <section className="chapter-content" aria-labelledby="active-chapter-title">
+        <section
+          id="active-chapter-panel"
+          className="chapter-content"
+          role="tabpanel"
+          aria-labelledby={`chapter-tab-${active.id}`}
+        >
           <div className="chapter-content-head">
             <p className="eyebrow">{active.kicker ?? active.category}</p>
-            <h3 id="active-chapter-title">{active.title}</h3>
+            <h3 id="active-chapter-title" ref={activeHeadingRef} tabIndex={-1}>{active.title}</h3>
             <p>{active.explanation}</p>
             {active.subtitle ? (
               <div className="focus-formula" aria-label={t.chapterExampleLabel(active.title)}>
