@@ -420,4 +420,97 @@ describe("sentence-pattern content guard", () => {
     }
     expect(offenders, `hintZh contains a banned phrase: ${offenders.join("; ")}`).toEqual([]);
   });
+
+  it("keeps every multiple-choice item structurally single-answer", () => {
+    const offenders = sentencePatternItems
+      .filter(
+        (item) =>
+          item.options.length !== 4 ||
+          new Set(item.options).size !== item.options.length ||
+          item.options.filter((option) => option === item.expectedAnswer).length !== 1
+      )
+      .map((item) => item.id);
+
+    expect(
+      offenders,
+      `pattern items without four distinct options and one declared answer: ${offenders.join(", ")}`
+    ).toEqual([]);
+  });
+
+  it("keeps answer-selecting polarity in the visible Japanese prompt, not the hint", () => {
+    const item = sentencePatternItems.find(
+      (candidate) => candidate.id === "pattern-n5-sonzai-007"
+    );
+
+    expect(item).toBeDefined();
+    expect(item?.promptText).toContain("いいえ");
+    expect(item?.hintZh).not.toMatch(/沒有|不在|出門/);
+  });
+
+  it("locks the complete human-reviewed content for the reported items", () => {
+    // This is intentionally an exact authored-content lock, not a claim that
+    // code can understand Japanese semantics. Every prompt/options change here
+    // requires a human to substitute all four forms and repeat the review.
+    const reviews = [
+      {
+        id: "pattern-n5-sonzai-007",
+        promptText: "「ねこは いえに いますか。」「いいえ、いまは ___。」",
+        hintZh: "家人確認貓現在在哪裡。",
+        expectedAnswer: "いません",
+        options: ["いません", "ありません", "います", "いました"]
+      },
+      {
+        id: "pattern-n5-riyuu-001",
+        promptText:
+          "「きのう、ねつが ありましたね。がっこうへは いきませんでしたね。どうして がっこうを やすみましたか。」「___。」",
+        hintZh: "老師和學生正在交談。",
+        expectedAnswer: "ねつが あったからです",
+        options: [
+          "ねつが あったからです",
+          "ねつが なかったからです",
+          "がっこうへ いったからです",
+          "きょうは げんきだからです"
+        ]
+      },
+      {
+        id: "pattern-n5-riyuu-002",
+        promptText:
+          "「あしたは やすみです。いえに います。『ので』を つかって、ひとつの ぶんに してください。」「___。」",
+        hintZh: "老師請學生把兩句日文合成一句。",
+        expectedAnswer: "やすみなので、いえに います",
+        options: [
+          "やすみなので、いえに います",
+          "やすみので、いえに います",
+          "やすみだから、いえに います",
+          "やすみですから、いえに います"
+        ]
+      },
+      {
+        id: "pattern-n5-riyuu-005",
+        promptText:
+          "「きのう、でかけましたか。」「いいえ、いえに いました。」「きょうは あめが ふって います。かさは ありますか。」「いいえ、ありません。」「きょう、でかけますか。」「___。」",
+        hintZh: "朋友確認昨天與今天是否外出。",
+        expectedAnswer: "かさは ありません。でも、でかけます",
+        options: [
+          "かさは ありません。でも、でかけます",
+          "かさは あります。だから、でかけます",
+          "きのうは いえに いませんでした。そして、きょう でかけます",
+          "きのう でかけました。それから、きょうも でかけます"
+        ]
+      }
+    ];
+
+    const actual = reviews.map(({ id }) => {
+      const item = sentencePatternItems.find((candidate) => candidate.id === id);
+      return {
+        id,
+        promptText: item?.promptText,
+        hintZh: item?.hintZh,
+        expectedAnswer: item?.expectedAnswer,
+        options: item?.options
+      };
+    });
+
+    expect(actual).toEqual(reviews);
+  });
 });

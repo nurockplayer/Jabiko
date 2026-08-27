@@ -333,16 +333,16 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
   },
   "pattern-n5-sonzai-007": {
     "hintI18n": {
-      "en": "Saying the cat isn't home right now (it went out).",
-      "ja": "今、猫が家にいないことを言う（外に出ている）。"
+      "en": "A family member checks the cat's current location.",
+      "ja": "家族が猫の今いる場所を確認する。"
     },
     "promptContextI18n": {
       "en": "\"The cat isn't home right now.\"",
       "ja": "「今、猫は家にいません。」"
     },
     "explanationI18n": {
-      "en": "A cat is an animal → the negative of います, 「いません」. 「ありません」 negates things; 「いました」 is past, contradicting 「いま」 (now). The hint says the cat is out, so affirmative 「います」 is wrong too.",
-      "ja": "猫は動物 → います の否定「いません」。「ありません」は物の否定。「いました」は過去で「いま」と矛盾。ヒントで猫はいないと言っているので肯定の「います」も違う。"
+      "en": "A cat is an animal, so the negative of います is 「いません」. The reply begins with 「いいえ」 and asks about now, so the Japanese prompt itself fixes present negative. 「ありません」 negates things; 「います」 contradicts 「いいえ」; 「いました」 is past and contradicts 「いま」.",
+      "ja": "猫は動物なので、います の否定は「いません」。答えは「いいえ」で始まり、今のことを聞いているため、日本語の問題文だけで現在の否定に決まる。「ありません」は物の否定、「います」は「いいえ」と矛盾し、「いました」は過去なので「いま」と矛盾する。"
     }
   },
   "pattern-n5-sonzai-008": {
@@ -856,23 +856,23 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-001": {
-    "hintI18n": { "en": "Explaining why you missed school.", "ja": "学校を休んだわけを説明する。" },
-    "promptContextI18n": { "en": "\"Why did you miss school?\" \"Because I had a fever.\"", "ja": "「どうして学校を休みましたか。」「熱があったからです。」" },
+    "hintI18n": { "en": "A teacher and student are talking.", "ja": "先生と生徒が話している。" },
+    "promptContextI18n": { "en": "\"You had a fever yesterday and didn't go to school, right? Why did you miss school?\" \"Because I had a fever.\"", "ja": "「昨日、熱がありましたね。学校へは行きませんでしたね。どうして学校を休みましたか。」「熱があったからです。」" },
     "explanationI18n": {
-      "en": "Answering 「どうして」 (why) uses the fixed shape 「〜からです」: ねつが あったからです. 「ので」 can't attach directly to です (×のでです); 「が」 and 「まで」 don't connect either. ※やすみます = to take a day off.",
-      "ja": "「どうして」への答えは「〜からです」で固定：ねつが あったからです。「ので」は です に直接つながらない（×のでです）。「が」「まで」も接続できない。"
+      "en": "The prompt states that the student had a fever yesterday and did not go to school, so answer 「どうして」 with 「ねつが あったからです」. 「ねつが なかったからです」 contradicts the known fever; 「がっこうへ いったからです」 contradicts not going and being absent; 「きょうは げんきだからです」 describes today and cannot explain yesterday's absence. All four options are complete, grammatical reason sentences, so the visible Japanese context decides the answer. ※やすみます = to take a day off.",
+      "ja": "問題文は、昨日は熱があり、学校へ行かなかったと明示しているので、「どうして」には「ねつが あったからです」と答える。「ねつが なかったからです」は既知の発熱を否定し、「がっこうへ いったからです」は学校へ行かなかったこと・休んだことと矛盾する。「きょうは げんきだからです」は今日の状態で、昨日の欠席を説明できない。四つとも文法的に成立する完全な理由文なので、日本語の文脈で判断する。"
     }
   },
   "pattern-n5-riyuu-002": {
-    "hintI18n": { "en": "Tomorrow's a day off — suggest going somewhere.", "ja": "明日は休み。それを踏まえてどこかへ誘う。" },
-    "promptContextI18n": { "en": "\"Tomorrow's a day off, so shall we go somewhere?\"", "ja": "「明日は休みなので、どこかへ行きませんか。」" },
+    "hintI18n": { "en": "A teacher asks a student to combine two Japanese sentences.", "ja": "先生が生徒に、二つの日本語の文を一文にするよう言う。" },
+    "promptContextI18n": { "en": "\"Tomorrow is a day off. I will stay home. Use 「ので」 to make one sentence.\" \"Since it is a day off, I will stay home.\"", "ja": "「あしたは休みです。家にいます。『ので』を使って、一つの文にしてください。」「休みなので、家にいます。」" },
     "explanationI18n": {
-      "en": "A noun needs な before 「ので」: やすみ + な + ので = やすみなので. 「だので」 is a wrong attachment (だ and ので don't combine); a bare noun + ので (×やすみので) fails too; and から takes だ after a noun (やすみだから) — 「なから」 doesn't exist. ※どこか = somewhere.",
-      "ja": "名詞に「ので」を付けるときは な を挟む：やすみ＋な＋ので。「だので」は誤接続（だ と ので は連結できない）。名詞に直接 ので（×やすみので）も不可。から なら やすみだから——「なから」という形はない。"
+      "en": "The Japanese prompt explicitly says to combine the two statements with 「ので」. A noun such as 「やすみ」 must take 「な」 before 「ので」, so the answer is 「やすみなので、いえに います」. 「やすみので」 omits the required 「な」, a common attachment error. 「やすみだから」 and the more polite 「やすみですから」 are both grammatical ways to give the same reason, but they use 「から」 and therefore do not follow the visible 「ので」 instruction. Every option keeps the same time, state, and final clause; polarity or time cannot select the answer.",
+      "ja": "問題文は、二つの文を「ので」でつなぐよう日本語で明示している。名詞「やすみ」に「ので」を付けるときは「な」が必要なので、正解は「やすみなので、いえに います」。「やすみので」は必要な「な」が抜けた、よくある接続の誤り。「やすみだから」と、より丁寧な「やすみですから」はどちらも同じ理由を表す文として成立するが、「から」を使っているため、問題文の「ので」という指示に合わない。四つの選択肢は時間・状態・後件がすべて同じで、肯否や時間だけでは選べない。"
     }
   },
   "pattern-n5-riyuu-003": {
-    "hintI18n": { "en": "Japanese is hard — and fun all the same.", "ja": "日本語は難しい。それでも面白い、という話。" },
+    "hintI18n": { "en": "A learner shares their impressions of Japanese.", "ja": "学習者が日本語についての感想を話す。" },
     "promptContextI18n": { "en": "\"Japanese is difficult, but it's interesting.\"", "ja": "「日本語は難しいですが、面白いです。」" },
     "explanationI18n": {
       "en": "Sentence-medial 「が」 marks contrast = although ~, but ~: むずかしいですが、おもしろいです — used when the two halves point in opposite directions. 「を」「の」「に」 can't follow です. ※むずかしい = difficult, おもしろい = interesting.",
@@ -888,15 +888,15 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-005": {
-    "hintI18n": { "en": "Rain or no rain, you're heading out.", "ja": "雨は降っている。それでも出かける。" },
-    "promptContextI18n": { "en": "\"It's raining. But I'm going out anyway.\"", "ja": "「雨が降っています。でも、出かけます。」" },
+    "hintI18n": { "en": "A friend asks about going out yesterday and today.", "ja": "友だちが昨日と今日の外出について聞く。" },
+    "promptContextI18n": { "en": "\"Did you go out yesterday?\" \"No, I stayed home.\" \"It is raining today. Do you have an umbrella?\" \"No, I do not.\" \"Are you going out today?\" \"I do not have an umbrella. But I am going out.\"", "ja": "「昨日、出かけましたか。」「いいえ、家にいました。」「今日は雨が降っています。傘はありますか。」「いいえ、ありません。」「今日、出かけますか。」「傘はありません。でも、出かけます。」" },
     "explanationI18n": {
-      "en": "When the two sentences pull in opposite directions (raining → going out anyway), use 「でも」 = but. 「だから」 (so) follows the causal grain — wrong direction; 「そして」 (and) and 「それから」 (and then) just line events up and can't express \"anyway\". ※あめ = rain, ふります = to fall (rain/snow), でかけます = to go out.",
-      "ja": "前後が逆方向（雨→それでも出かける）なら「でも」。「だから」は因果に沿う語で方向が逆。「そして」「それから」は並列・順接で、「それでも」の逆接は表せない。"
+      "en": "The respondent says that they stayed home yesterday and have no umbrella today, while the prompt also states that it is raining. The reply repeats the lack of an umbrella and contrasts it with going out, so only 「でも」 fits. 「かさは あります」 contradicts the respondent's answer; both 「きのうは いえに いませんでした」 and 「きのう でかけました」 contradict the respondent's own immediately preceding statement that they stayed home yesterday. The four complete, grammatical choices use only the lesson's 「でも／だから／そして／それから」 set, so the visible facts decide the answer. ※でかけます = to go out.",
+      "ja": "問題文は、昨日は家にいたこと、今日は雨が降っていること、傘がないことを明示している。傘がない事実を繰り返し、それでも出かけると対比するので、「でも」だけが合う。「かさは あります」は傘がないことと矛盾し、「きのうは いえに いませんでした」と「きのう でかけました」はどちらも、回答者自身が直前に述べた「昨日は家にいた」という事実を否定する。四つの選択肢は本課の「でも／だから／そして／それから」だけを使った、文法的に成立する完全な文であり、日本語の既知の事実で判断する。"
     }
   },
   "pattern-n5-riyuu-006": {
-    "hintI18n": { "en": "Test tomorrow — tonight is for studying, no way around it.", "ja": "明日は試験。今晩は勉強するしかない。" },
+    "hintI18n": { "en": "A student talks about tomorrow's test and tonight's plans.", "ja": "学生が明日のテストと今晩の予定について話す。" },
     "promptContextI18n": { "en": "\"There's a test tomorrow. So I'll study tonight.\"", "ja": "「明日テストがあります。だから、今晩勉強します。」" },
     "explanationI18n": {
       "en": "Cause followed by its natural consequence takes 「だから」 = so. 「でも」「しかし」 mark contrast (a test, \"but\" studying? — wrong direction); 「まだ」 (still/yet) is an adverb and can't sit at the head of a sentence as a connector. ※テスト = test, こんばん = tonight.",
@@ -904,7 +904,7 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-007": {
-    "hintI18n": { "en": "Short on time — settling how to get there.", "ja": "時間がない。移動手段を決める。" },
+    "hintI18n": { "en": "Some people discuss how to get to their destination.", "ja": "何人かで目的地への行き方について話す。" },
     "promptContextI18n": { "en": "\"We have no time, so let's take a taxi.\"", "ja": "「時間がありませんから、タクシーで行きましょう。」" },
     "explanationI18n": {
       "en": "A mid-sentence reason takes 「から」: じかんが ありませんから = because there's no time, (so) let's taxi. 「まで」「を」「へ」 simply can't attach after ません — the sentence breaks. ※タクシー = taxi.",
@@ -912,7 +912,7 @@ export const sentencePatternI18n: Record<string, SentencePatternOverlay> = {
     }
   },
   "pattern-n5-riyuu-008": {
-    "hintI18n": { "en": "Curious what drives their Japanese study.", "ja": "日本語を勉強している動機を知りたい。" },
+    "hintI18n": { "en": "Two classmates talk about studying Japanese.", "ja": "クラスメート同士が日本語の勉強について話す。" },
     "promptContextI18n": { "en": "\"Why are you studying Japanese?\" \"Because I want to go to Japan.\"", "ja": "「どうして日本語を勉強していますか。」「日本へ行きたいですから。」" },
     "explanationI18n": {
       "en": "The reply is 「〜ですから」 (because ~), so the question must ask for a reason: 「どうして」 = why. 「いつ」 (when) and 「どこ」 (where) don't match an answer about motivation; 「なに」 asks for a thing — the sentence already has the object にほんごを. ※べんきょうします = to study, 〜たいです = want to ~.",

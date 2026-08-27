@@ -31,4 +31,128 @@ describe("sentence-pattern overlays", () => {
     const q = buildSentencePatternPool().find((x) => x.id === "pattern-te-kudasai-001")!;
     expect(q.vocabulary.examples[0]?.meaningI18n?.en).toBe(q.promptContextI18n?.en);
   });
+
+  it("locks neutral pre-answer hints for every human-reviewed locale", () => {
+    // Exact content lock: these hints were reviewed as situation-only context.
+    // They must not drift without repeating the semantic review of the prompt.
+    const reviews = [
+      {
+        id: "pattern-n5-sonzai-007",
+        hintZh: "家人確認貓現在在哪裡。",
+        hintEn: "A family member checks the cat's current location.",
+        hintJa: "家族が猫の今いる場所を確認する。"
+      },
+      {
+        id: "pattern-n5-riyuu-001",
+        hintZh: "老師和學生正在交談。",
+        hintEn: "A teacher and student are talking.",
+        hintJa: "先生と生徒が話している。"
+      },
+      {
+        id: "pattern-n5-riyuu-002",
+        hintZh: "老師請學生把兩句日文合成一句。",
+        hintEn: "A teacher asks a student to combine two Japanese sentences.",
+        hintJa: "先生が生徒に、二つの日本語の文を一文にするよう言う。"
+      },
+      {
+        id: "pattern-n5-riyuu-003",
+        hintZh: "學習者分享對日語的感想。",
+        hintEn: "A learner shares their impressions of Japanese.",
+        hintJa: "学習者が日本語についての感想を話す。"
+      },
+      {
+        id: "pattern-n5-riyuu-004",
+        hintZh: "向路人開口問路。",
+        hintEn: "Stopping a passerby to ask the way.",
+        hintJa: "道で人に声をかけて場所を聞く。"
+      },
+      {
+        id: "pattern-n5-riyuu-005",
+        hintZh: "朋友確認昨天與今天是否外出。",
+        hintEn: "A friend asks about going out yesterday and today.",
+        hintJa: "友だちが昨日と今日の外出について聞く。"
+      },
+      {
+        id: "pattern-n5-riyuu-006",
+        hintZh: "學生談明天的考試與今晚的安排。",
+        hintEn: "A student talks about tomorrow's test and tonight's plans.",
+        hintJa: "学生が明日のテストと今晩の予定について話す。"
+      },
+      {
+        id: "pattern-n5-riyuu-007",
+        hintZh: "幾個人討論怎麼前往目的地。",
+        hintEn: "Some people discuss how to get to their destination.",
+        hintJa: "何人かで目的地への行き方について話す。"
+      },
+      {
+        id: "pattern-n5-riyuu-008",
+        hintZh: "兩位同學聊學日語的事。",
+        hintEn: "Two classmates talk about studying Japanese.",
+        hintJa: "クラスメート同士が日本語の勉強について話す。"
+      }
+    ];
+
+    const pool = buildSentencePatternPool();
+    const actual = reviews.map(({ id }) => {
+      const q = pool.find((candidate) => candidate.id === id);
+      return {
+        id,
+        hintZh: q?.hintZh,
+        hintEn: q?.hintI18n?.en,
+        hintJa: q?.hintI18n?.ja
+      };
+    });
+
+    expect(actual).toEqual(reviews);
+  });
+
+  it("locks the complete localized noun + ので attachment review", () => {
+    // This exact lock records the human substitution review. The visible
+    // Japanese instruction makes the two grammatical から replies out of
+    // contract, while the shared continuation leaves the noun attachment as
+    // the deciding difference between なので and the learner error ので.
+    const q = buildSentencePatternPool().find(
+      (candidate) => candidate.id === "pattern-n5-riyuu-002"
+    );
+
+    expect({
+      promptText: q?.promptText,
+      hintZh: q?.hintZh,
+      promptContextZh: q?.promptContextZh,
+      explanationZh: q?.explanation,
+      expectedAnswer: q?.expectedAnswers[0],
+      options: q?.options,
+      hintEn: q?.hintI18n?.en,
+      hintJa: q?.hintI18n?.ja,
+      promptContextEn: q?.promptContextI18n?.en,
+      promptContextJa: q?.promptContextI18n?.ja,
+      explanationEn: q?.explanationI18n?.en,
+      explanationJa: q?.explanationI18n?.ja
+    }).toEqual({
+      promptText:
+        "「あしたは やすみです。いえに います。『ので』を つかって、ひとつの ぶんに してください。」「___。」",
+      hintZh: "老師請學生把兩句日文合成一句。",
+      promptContextZh:
+        "「明天放假。我會待在家。請使用『ので』合成一句話。」「因為放假，所以我會待在家。」",
+      explanationZh:
+        "題目用日文指定要用「ので」合併兩句；名詞「やすみ」接「ので」時必須加「な」，所以是「やすみなので、いえに います」。「やすみので」少了「な」，是常見的接續錯誤；「やすみだから」和較禮貌的「やすみですから」都是成立的理由說法，但都改用了「から」，不符合題目的「ので」指示。四個選項的時間、狀態與後句都相同，不能靠肯否或時間排除，必須判斷名詞接「ので」的形式。",
+      expectedAnswer: "やすみなので、いえに います",
+      options: [
+        "やすみなので、いえに います",
+        "やすみので、いえに います",
+        "やすみだから、いえに います",
+        "やすみですから、いえに います"
+      ],
+      hintEn: "A teacher asks a student to combine two Japanese sentences.",
+      hintJa: "先生が生徒に、二つの日本語の文を一文にするよう言う。",
+      promptContextEn:
+        '"Tomorrow is a day off. I will stay home. Use 「ので」 to make one sentence." "Since it is a day off, I will stay home."',
+      promptContextJa:
+        "「あしたは休みです。家にいます。『ので』を使って、一つの文にしてください。」「休みなので、家にいます。」",
+      explanationEn:
+        "The Japanese prompt explicitly says to combine the two statements with 「ので」. A noun such as 「やすみ」 must take 「な」 before 「ので」, so the answer is 「やすみなので、いえに います」. 「やすみので」 omits the required 「な」, a common attachment error. 「やすみだから」 and the more polite 「やすみですから」 are both grammatical ways to give the same reason, but they use 「から」 and therefore do not follow the visible 「ので」 instruction. Every option keeps the same time, state, and final clause; polarity or time cannot select the answer.",
+      explanationJa:
+        "問題文は、二つの文を「ので」でつなぐよう日本語で明示している。名詞「やすみ」に「ので」を付けるときは「な」が必要なので、正解は「やすみなので、いえに います」。「やすみので」は必要な「な」が抜けた、よくある接続の誤り。「やすみだから」と、より丁寧な「やすみですから」はどちらも同じ理由を表す文として成立するが、「から」を使っているため、問題文の「ので」という指示に合わない。四つの選択肢は時間・状態・後件がすべて同じで、肯否や時間だけでは選べない。"
+    });
+  });
 });
