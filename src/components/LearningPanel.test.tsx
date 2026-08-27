@@ -1,5 +1,5 @@
 import { afterEach, describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LearningPanel } from "./LearningPanel";
 import { learningBlocks } from "../domain/learningBlocks";
@@ -100,7 +100,7 @@ describe("LearningPanel mobile chapter bar (#608)", () => {
   it("toggles the chapter index open and closes it again when a chapter is picked", () => {
     renderPanel();
     const toggle = screen.getByTestId("chapter-mobile-toggle");
-    const index = screen.getByLabelText("學習章節");
+    const index = screen.getByRole("complementary", { name: "學習章節" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(index.className).not.toContain("mobile-open");
 
@@ -110,7 +110,7 @@ describe("LearningPanel mobile chapter bar (#608)", () => {
 
     // Picking a chapter from the list selects it AND collapses the index so
     // the material is immediately in view.
-    const target = screen.getByRole("button", {
+    const target = screen.getByRole("tab", {
       name: (name) => name.includes(basicBlocks[2].title)
     });
     fireEvent.click(target);
@@ -121,11 +121,28 @@ describe("LearningPanel mobile chapter bar (#608)", () => {
 });
 
 describe("LearningPanel chapter navigation (#787)", () => {
+  it("exposes the chapter rail as a labelled vertical tabs composite", () => {
+    renderPanel();
+
+    const tablist = screen.getByRole("tablist", { name: "學習章節" });
+    expect(tablist).toHaveAttribute("aria-orientation", "vertical");
+    const tabs = within(tablist).getAllByRole("tab");
+    expect(tabs).toHaveLength(basicBlocks.length);
+    expect(tabs[0]).toHaveAttribute("id", `chapter-tab-${basicBlocks[0].id}`);
+    expect(tabs[0]).toHaveAttribute("aria-selected", "true");
+    expect(tabs[0]).not.toHaveAttribute("aria-pressed");
+    expect(tabs.slice(1).every((tab) => tab.getAttribute("aria-selected") === "false")).toBe(true);
+
+    const panel = screen.getByRole("tabpanel");
+    expect(panel).toHaveAttribute("aria-labelledby", tabs[0].id);
+    expect(document.getElementById(panel.getAttribute("aria-labelledby")!)).toBe(tabs[0]);
+  });
+
   it("keeps an Arrow-navigated chapter visible within the bounded index", () => {
     const scrollIntoView = vi.fn();
     Element.prototype.scrollIntoView = scrollIntoView;
     renderPanel();
-    const chapterButtons = screen.getAllByRole("button", {
+    const chapterButtons = screen.getAllByRole("tab", {
       name: (name) => name.startsWith("查看：")
     });
 
@@ -139,7 +156,7 @@ describe("LearningPanel chapter navigation (#787)", () => {
 
   it("keeps the long chapter index to one tab stop and supports arrow navigation", () => {
     renderPanel();
-    const chapterButtons = screen.getAllByRole("button", {
+    const chapterButtons = screen.getAllByRole("tab", {
       name: (name) => name.startsWith("查看：")
     });
 
@@ -151,6 +168,9 @@ describe("LearningPanel chapter navigation (#787)", () => {
 
     expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(basicBlocks[1].title);
     expect(chapterButtons[1]).toHaveFocus();
+    expect(chapterButtons[0]).toHaveAttribute("aria-selected", "false");
+    expect(chapterButtons[1]).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", chapterButtons[1].id);
 
     fireEvent.keyDown(chapterButtons[1], { key: "ArrowUp" });
     expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(basicBlocks[0].title);
@@ -160,7 +180,7 @@ describe("LearningPanel chapter navigation (#787)", () => {
   it("moves keyboard focus from a chosen chapter into its content and primary action", async () => {
     const user = userEvent.setup();
     renderPanel();
-    const chapterButtons = screen.getAllByRole("button", {
+    const chapterButtons = screen.getAllByRole("tab", {
       name: (name) => name.startsWith("查看：")
     });
 
@@ -181,7 +201,7 @@ describe("LearningPanel furigana (#618)", () => {
 
   function openTargetChapter() {
     fireEvent.click(
-      screen.getByRole("button", {
+      screen.getByRole("tab", {
         name: (name) => name.includes(target.title)
       })
     );

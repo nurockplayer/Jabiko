@@ -364,19 +364,19 @@ describe("App", () => {
     expect(screen.getByText("あ a・い i・う u・え e・お o")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "練五十音認讀" })).toBeInTheDocument();
     // The former default chapter is still one click away with its content intact.
-    await user.click(screen.getByRole("button", { name: "查看：先分清楚く / に" }));
+    await user.click(screen.getByRole("tab", { name: "查看：先分清楚く / に" }));
     expect(screen.getByText("高い -> 高く")).toBeInTheDocument();
     expect(screen.getByText("静か -> 静かに")).toBeInTheDocument();
     expect(screen.getByText("学生 -> 学生に")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "練く/に修飾" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "查看：ない形家族" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "查看：ない形家族" })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "查看：動詞て形 / た形（一類音便重點）" })
+      screen.getByRole("tab", { name: "查看：動詞て形 / た形（一類音便重點）" })
     ).toBeInTheDocument();
     // 必要過去 is always clickable now (no lock UI); only the active
     // chapter's body content is rendered, so its examples should not
     // appear in the default view.
-    expect(screen.getByRole("button", { name: "查看：必要過去" })).toBeEnabled();
+    expect(screen.getByRole("tab", { name: "查看：必要過去" })).toBeEnabled();
     expect(screen.queryByText("学生 -> 学生にならなければならなかった")).not.toBeInTheDocument();
     expect(screen.queryByText("否定て形・ないで")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "開始挑戰" })).toBeInTheDocument();
@@ -388,7 +388,7 @@ describe("App", () => {
     render(<App />);
 
     await gotoLearn(user);
-    await user.click(screen.getByRole("button", { name: "查看：ない形家族" }));
+    await user.click(screen.getByRole("tab", { name: "查看：ない形家族" }));
 
     expect(screen.getByRole("heading", { name: "ない形家族" })).toBeInTheDocument();
     expect(screen.getAllByText("書かない -> 書かなかった").length).toBeGreaterThan(1);
@@ -415,7 +415,7 @@ describe("App", () => {
     render(<App />);
 
     await gotoLearn(user);
-    await user.click(screen.getByRole("button", { name: "查看：ない形家族" }));
+    await user.click(screen.getByRole("tab", { name: "查看：ない形家族" }));
     await user.click(screen.getByRole("button", { name: "練否定整理" }));
 
     expect(screen.getByText("練習重點")).toBeInTheDocument();
@@ -429,7 +429,7 @@ describe("App", () => {
     render(<App />);
 
     await gotoLearn(user);
-    await user.click(screen.getByRole("button", { name: "查看：先分清楚く / に" }));
+    await user.click(screen.getByRole("tab", { name: "查看：先分清楚く / に" }));
     await user.click(screen.getByRole("button", { name: "練な形容詞" }));
 
     expect(screen.getByRole("button", { name: "な形容詞" })).toHaveClass("selected");
@@ -442,7 +442,7 @@ describe("App", () => {
     render(<App />);
 
     await gotoLearn(user);
-    await user.click(screen.getByRole("button", { name: "查看：先分清楚く / に" }));
+    await user.click(screen.getByRole("tab", { name: "查看：先分清楚く / に" }));
     await user.click(screen.getByRole("button", { name: "練く/に修飾" }));
 
     expect(screen.getByRole("button", { name: "く/に修飾" })).toHaveClass("selected");
@@ -457,12 +457,12 @@ describe("App", () => {
 
     await gotoLearn(user);
     // The new chapters surface in the chapter list.
-    expect(screen.getByRole("button", { name: "查看：ます形" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "查看：可能形 (V られる)" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "查看：使役形 (V せる/させる)" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "查看：ます形" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "查看：可能形 (V られる)" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "查看：使役形 (V せる/させる)" })).toBeInTheDocument();
 
     // Open the ます chapter; its example formulas and drill button render.
-    await user.click(screen.getByRole("button", { name: "查看：ます形" }));
+    await user.click(screen.getByRole("tab", { name: "查看：ます形" }));
     expect(screen.getByText("書く → 書きます")).toBeInTheDocument();
     expect(screen.getByText("食べる → 食べます")).toBeInTheDocument();
 
@@ -479,14 +479,14 @@ describe("App", () => {
     await gotoLearn(user);
     // All four B2 chapters surface in the chapter list (smoke check).
     expect(
-      screen.getByRole("button", { name: "查看：てください / てもいい / てはいけない" })
+      screen.getByRole("tab", { name: "查看：てください / てもいい / てはいけない" })
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "查看：なくてもいい（不必）" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "查看：なくてもいい（不必）" })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "查看：てもらう / てくれる / てあげる" })
+      screen.getByRole("tab", { name: "查看：てもらう / てくれる / てあげる" })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "查看：と思う / と言う（引用・意見）" })
+      screen.getByRole("tab", { name: "查看：と思う / と言う（引用・意見）" })
     ).toBeInTheDocument();
 
     // For each new chapter, walk: open chapter → confirm an example
@@ -527,7 +527,7 @@ describe("App", () => {
     for (const { chapter, example, drill, form } of cases) {
       // Return to the learning view (idempotent if already there).
       await gotoLearn(user);
-      await user.click(screen.getByRole("button", { name: chapter }));
+      await user.click(screen.getByRole("tab", { name: chapter }));
       expect(screen.getByText(example)).toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: drill }));
@@ -574,7 +574,7 @@ describe("App", () => {
 
     for (const { chapter, drill, promptLabelFragment } of cases) {
       await gotoLearn(user);
-      await user.click(screen.getByRole("button", { name: chapter }));
+      await user.click(screen.getByRole("tab", { name: chapter }));
       await user.click(screen.getByRole("button", { name: drill }));
       // Challenge page: "句型練習" mode card is selected and the
       // question header includes the pattern label.
@@ -595,10 +595,10 @@ describe("App", () => {
 
     await gotoLearn(user);
 
-    const referenceChapter = screen.getByRole("button", { name: "查看：動詞三類怎麼分" });
+    const referenceChapter = screen.getByRole("tab", { name: "查看：動詞三類怎麼分" });
     expect(referenceChapter.textContent).toContain("參考");
 
-    const patternChapter = screen.getByRole("button", {
+    const patternChapter = screen.getByRole("tab", {
       name: "查看：てください / てもいい / てはいけない"
     });
     expect(patternChapter.textContent).not.toContain("參考");
@@ -619,7 +619,7 @@ describe("App", () => {
     render(<App />);
 
     await gotoLearn(user);
-    const obligationButton = screen.getByRole("button", { name: "查看：必要過去" });
+    const obligationButton = screen.getByRole("tab", { name: "查看：必要過去" });
     expect(obligationButton.textContent).toContain("建議先看");
     expect(obligationButton.textContent).toContain("先分清楚く / に");
     expect(obligationButton).toBeEnabled();
@@ -633,7 +633,7 @@ describe("App", () => {
     render(<App />);
 
     await gotoLearn(user);
-    await user.click(screen.getByRole("button", { name: "查看：必要過去" }));
+    await user.click(screen.getByRole("tab", { name: "查看：必要過去" }));
     await user.click(screen.getAllByRole("button", { name: "練必要過去" })[0]);
 
     expect(screen.getByRole("button", { name: "必要過去" })).toHaveClass("selected");

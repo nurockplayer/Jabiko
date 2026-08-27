@@ -256,7 +256,12 @@ export function LearningPanel({
             <p>{t.chapterIntro}</p>
           </div>
 
-          <div className="chapter-list">
+          <div
+            className="chapter-list"
+            role="tablist"
+            aria-label={t.chapterIndexLabel}
+            aria-orientation="vertical"
+          >
             {chapterGroups.map(({ category, label, cards }) => (
               <div className="chapter-group" key={category}>
                 <p className="chapter-group-title">{label}</p>
@@ -273,10 +278,12 @@ export function LearningPanel({
                   return (
                     <button
                       key={block.id}
+                      id={`chapter-tab-${block.id}`}
                       type="button"
+                      role="tab"
                       className={`chapter-list-button${block.id === active.id ? " selected" : ""}${complete ? " complete" : ""}`}
                       aria-label={t.chapterViewLabel(disp.title)}
-                      aria-pressed={block.id === active.id}
+                      aria-selected={block.id === active.id}
                       ref={(button) => {
                         if (button) chapterButtonRefs.current.set(block.id, button);
                         else chapterButtonRefs.current.delete(block.id);
@@ -314,7 +321,11 @@ export function LearningPanel({
         </aside>
 
         <LearningFuriganaBoundary>
-        <section className="chapter-content" aria-labelledby="active-chapter-title">
+        <section
+          className="chapter-content"
+          role="tabpanel"
+          aria-labelledby={`chapter-tab-${active.id}`}
+        >
           <div className="chapter-content-head">
             <p className="eyebrow">{active.kicker ?? active.category}</p>
             <h3 id="active-chapter-title" ref={activeHeadingRef} tabIndex={-1}>{active.title}</h3>
