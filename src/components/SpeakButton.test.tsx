@@ -101,6 +101,50 @@ describe("SpeakButton", () => {
     expect(synth.cancel).toHaveBeenCalledTimes(1);
   });
 
+  it("cancels its active utterance when the button text changes", () => {
+    const synth = setupSynth({ speaking: false });
+    const { rerender } = render(<SpeakButton text="ねこ" language="zh-Hant" />);
+
+    fireEvent.click(screen.getByRole("button"));
+    rerender(<SpeakButton text="いぬ" language="zh-Hant" />);
+
+    expect(synth.cancel).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears its pending restart when the button text changes", () => {
+    const synth = setupSynth({ speaking: true });
+    const { rerender } = render(<SpeakButton text="ねこ" language="zh-Hant" />);
+
+    fireEvent.click(screen.getByRole("button"));
+    rerender(<SpeakButton text="いぬ" language="zh-Hant" />);
+    vi.advanceTimersByTime(200);
+
+    expect(synth.cancel).toHaveBeenCalledTimes(2);
+    expect(synth.speak).not.toHaveBeenCalled();
+  });
+
+  it("does not cancel a newer button's playback when its own text changes", () => {
+    const synth = setupSynth({ speaking: false });
+    const { rerender } = render(
+      <>
+        <SpeakButton text="ねこ" language="zh-Hant" />
+        <SpeakButton text="いぬ" language="zh-Hant" />
+      </>
+    );
+    const [first, second] = screen.getAllByRole("button");
+    fireEvent.click(first);
+    fireEvent.click(second);
+
+    rerender(
+      <>
+        <SpeakButton text="うさぎ" language="zh-Hant" />
+        <SpeakButton text="いぬ" language="zh-Hant" />
+      </>
+    );
+
+    expect(synth.cancel).not.toHaveBeenCalled();
+  });
+
   it("does not cancel another button's playback when speech access fails", () => {
     const synth = setupSynth({ speaking: false });
     render(

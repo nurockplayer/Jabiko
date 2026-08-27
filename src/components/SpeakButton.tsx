@@ -72,13 +72,13 @@ export function SpeakButton({ text, language }: { text: string; language: Langua
   const playbackIdRef = useRef<number | null>(null);
 
   // SpeechSynthesis is document-global. If this button owns the active
-  // utterance, leaving its view also owns stopping it; another button's newer
-  // utterance is left alone.
+  // utterance, leaving its view or changing its payload owns stopping it;
+  // another button's newer utterance is left alone.
   useEffect(
     () => () => {
       if (playbackIdRef.current !== null) cancelPlayback(playbackIdRef.current);
     },
-    []
+    [text]
   );
 
   const supported =
