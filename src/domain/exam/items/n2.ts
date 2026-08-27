@@ -325,8 +325,8 @@ export const n2Items: PracticeQuestion[] = [
     hintI18n: { "ja": "話し手が宿題を現在どこまで進めたかを述べています。", "en": "The speaker states how far they have currently progressed with the homework." },
     expectedAnswer: "どころか",
     options: ["どころか", "ばかりか", "うえに", "に加えて"],
-    explanation: "本句的「AどころかB」否定 A，並用方向相反、差距更大的 B 強調實況：作業非但沒有寫完，甚至連一半都還沒做。「ばかりか」「うえに」「に加えて」都表示在 A 上同方向追加 B，因此不符合本句的反轉。",
-    explanationI18n: { "ja": "この文の「AどころかB」はAを否定し、反対方向でさらに隔たりの大きい実情Bを強調します。宿題は終わっておらず、まだ半分もやっていません。「ばかりか」「うえに」「に加えて」はAにBを同じ方向で付け加えるため、この文の反転には合いません。", "en": "In this sentence, 「A どころか B」 rejects A and emphasizes the opposite reality B, which is even further away: the homework is not finished, and not even half is done. 「ばかりか」, 「うえに」, and 「に加えて」 add B in the same direction as A, so they do not fit this sentence's reversal." },
+    explanation: "本句的「AどころかB」否定 A，並用方向相反、差距更大的 B 強調實況：作業非但沒有寫完，甚至連一半都還沒做。「ばかりか」「うえに」「に加えて」都先承認 A 成立，再追加 B；本句的 B 卻否定 A，因此不符合這個反轉。",
+    explanationI18n: { "ja": "この文の「AどころかB」はAを否定し、反対方向でさらに隔たりの大きい実情Bを強調します。宿題は終わっておらず、まだ半分もやっていません。「ばかりか」「うえに」「に加えて」はAが成立することを保ったままBを加えるのに対し、この文のBはAを否定するため、この反転には合いません。", "en": "In this sentence, 「A どころか B」 rejects A and emphasizes the opposite reality B, which is even further away: the homework is not finished, and not even half is done. 「ばかりか」, 「うえに」, and 「に加えて」 preserve A as true and add B, whereas B here negates A, so they do not fit this sentence's reversal." },
   }),
   examQuestion({
     id: "n2-grammar-mai",

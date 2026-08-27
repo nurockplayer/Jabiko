@@ -153,6 +153,11 @@ describe("issue #783 grammar feedback regressions", () => {
     expect(question.explanationI18n?.en).toContain(
       "In this sentence, 「A どころか B」 rejects A"
     );
+    expect(question.explanation).toContain("先承認 A 成立，再追加 B");
+    expect(question.explanationI18n?.ja).toContain(
+      "Aが成立することを保ったままBを加える"
+    );
+    expect(question.explanationI18n?.en).toContain("preserve A as true and add B");
     expect(question.explanation).not.toContain("「A どころか B」會把 A 明確否定");
     expect(question.explanationI18n?.ja).not.toContain("「AどころかB」はAをはっきり否定");
     expect(question.explanationI18n?.en).not.toContain(
