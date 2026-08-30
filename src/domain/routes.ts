@@ -63,7 +63,25 @@ export function parseRoute(pathname: string): AppRoute {
 /** Serialize App route state back to its canonical pathname. */
 export function serializeRoute(route: AppRoute): string {
   if (route.view === "grammar" && route.grammarSurface) {
-    return `${APP_VIEW_PATHS.grammar}/${encodeURIComponent(route.grammarSurface)}`;
+    const surface = /^[Nn][1-5]$/.test(route.grammarSurface)
+      ? route.grammarSurface.toLowerCase()
+      : route.grammarSurface;
+    return `${APP_VIEW_PATHS.grammar}/${encodeURIComponent(surface)}`;
   }
   return APP_VIEW_PATHS[route.view];
+}
+
+/**
+ * Whether pathname and route identify the same JLPT level hub even though the
+ * pathname still uses a legacy uppercase segment. App uses this to replace
+ * that history entry during canonicalization instead of creating a Back loop.
+ */
+export function isEquivalentGrammarLevelPath(pathname: string, route: AppRoute): boolean {
+  const current = parseRoute(pathname);
+  if (current.view !== "grammar" || route.view !== "grammar") return false;
+  if (!current.grammarSurface || !route.grammarSurface) return false;
+  if (!/^[Nn][1-5]$/.test(current.grammarSurface) || !/^[Nn][1-5]$/.test(route.grammarSurface)) {
+    return false;
+  }
+  return current.grammarSurface.toLowerCase() === route.grammarSurface.toLowerCase();
 }

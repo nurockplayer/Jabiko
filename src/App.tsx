@@ -53,6 +53,7 @@ import { kanjiDefaultLevel, type LevelRange } from "./domain/levelRange";
 import { trackEvent } from "./lib/analytics";
 import {
   grammarRoute,
+  isEquivalentGrammarLevelPath,
   parseRoute,
   serializeRoute,
   staticRoute,
@@ -163,7 +164,12 @@ export default function App() {
   useEffect(() => {
     const target = serializeRoute(route);
     if (window.location.pathname !== target) {
-      window.history.pushState({ view: route.view }, "", target);
+      const state = { view: route.view };
+      if (isEquivalentGrammarLevelPath(window.location.pathname, route)) {
+        window.history.replaceState(state, "", target);
+      } else {
+        window.history.pushState(state, "", target);
+      }
     }
   }, [route]);
 
