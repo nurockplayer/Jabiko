@@ -63,7 +63,10 @@ export function parseRoute(pathname: string): AppRoute {
 /** Serialize App route state back to its canonical pathname. */
 export function serializeRoute(route: AppRoute): string {
   if (route.view === "grammar" && route.grammarSurface) {
-    return `${APP_VIEW_PATHS.grammar}/${encodeURIComponent(route.grammarSurface)}`;
+    const surface = /^[Nn][1-5]$/.test(route.grammarSurface)
+      ? route.grammarSurface.toLowerCase()
+      : route.grammarSurface;
+    return `${APP_VIEW_PATHS.grammar}/${encodeURIComponent(surface)}`;
   }
   return APP_VIEW_PATHS[route.view];
 }

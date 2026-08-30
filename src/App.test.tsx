@@ -313,10 +313,9 @@ describe("App", () => {
 
       await user.click(screen.getByRole("button", { name: "瀏覽 N5" }));
       const breadcrumb = await screen.findByRole("navigation", { name: "目前位置" });
-      // In-app level navigation serializes the typed level (/grammar/N5);
-      // direct loads are lowercase (/grammar/n5). Both parse to the same route
-      // and render the identical Home > Grammar > N5 trail (#727 normalizes).
-      expect(window.location.pathname.toLowerCase()).toBe("/grammar/n5");
+      // In-app navigation uses the same lowercase canonical path as direct
+      // loads, sitemap, prerender, and SEO metadata (#805).
+      expect(window.location.pathname).toBe("/grammar/n5");
       expect(within(breadcrumb).getByRole("link", { name: "首頁" })).toHaveAttribute("href", "/");
       expect(within(breadcrumb).getByRole("link", { name: "文型" })).toHaveAttribute("href", "/grammar");
       expect(within(breadcrumb).getByText("N5")).toHaveAttribute("aria-current", "page");

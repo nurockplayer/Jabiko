@@ -47,6 +47,18 @@ describe("app route contract (#623)", () => {
     expect(parseRoute(serializeRoute(route))).toEqual(route);
   });
 
+  it("serializes JLPT grammar level hubs to their lowercase canonical paths (#805)", () => {
+    for (const level of ["N1", "N2", "N3", "N4", "N5"] as const) {
+      const canonicalPath = `/grammar/${level.toLowerCase()}`;
+      expect(serializeRoute(grammarRoute(level))).toBe(canonicalPath);
+      expect(serializeRoute(grammarRoute(level.toLowerCase()))).toBe(canonicalPath);
+    }
+  });
+
+  it("preserves non-level grammar surface spelling while serializing (#805)", () => {
+    expect(serializeRoute(grammarRoute("Nならでは"))).toBe("/grammar/N%E3%81%AA%E3%82%89%E3%81%A7%E3%81%AF");
+  });
+
   it("falls an unknown path back to the home route", () => {
     expect(parseRoute("/does-not-exist")).toEqual(staticRoute("home"));
   });
