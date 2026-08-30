@@ -74,6 +74,20 @@ describe("getMockExamBlueprint", () => {
       }
     }
   });
+
+  it("returns the mid-length reading subtitle for zh-Hant across N1-N5 (#804)", () => {
+    for (const level of ["N1", "N2", "N3", "N4", "N5"] as const) {
+      const section = getMockExamBlueprint(level).sections.find(({ id }) => id === "dokkai-mid");
+      expect(section).toBeDefined();
+      if (!section) {
+        throw new Error(`Missing dokkai-mid section for ${level}`);
+      }
+
+      const subtitle = sectionSubtitle(section, "zh-Hant");
+      expect(subtitle).toBe("中篇閱讀");
+      expect(subtitle).not.toBe("中文閱讀");
+    }
+  });
 });
 
 describe("N4 / N5 blueprints (#702)", () => {
