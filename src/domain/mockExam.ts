@@ -74,7 +74,7 @@ export const N2_BLUEPRINT: MockExamBlueprint = {
     { id: "bun-bunpou-2", labelJa: "文の文法 2（文の組み立て）", labelZh: "句子組合（★ 題）", labelEn: "Sentence assembly (★)", promptLabel: "語順組合", targetCount: 5 },
     { id: "bunshou-bunpou", labelJa: "文章の文法", labelZh: "文章脈絡填空", labelEn: "Passage cloze", promptLabel: "文章脈絡", targetCount: 5 },
     { id: "dokkai-short", labelJa: "内容理解（短文）", labelZh: "短文閱讀", labelEn: "Reading: short passages", promptLabel: "内容理解（短文）", targetCount: 5 },
-    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中文閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 9 },
+    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中篇閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 9 },
     { id: "togo", labelJa: "統合理解", labelZh: "綜合理解（雙文）", labelEn: "Integrated comprehension (two texts)", promptLabel: "統合理解", targetCount: 2 },
     { id: "shucho", labelJa: "主張理解（長文）", labelZh: "主張理解（長文）", labelEn: "Thesis comprehension (long passage)", promptLabel: "主張理解", targetCount: 3 },
     { id: "joho-kensaku", labelJa: "情報検索", labelZh: "資訊檢索", labelEn: "Information retrieval", promptLabel: "情報検索", targetCount: 2 }
@@ -93,7 +93,7 @@ export const N1_BLUEPRINT: MockExamBlueprint = {
     { id: "bun-bunpou-2", labelJa: "文の文法 2（文の組み立て）", labelZh: "句子組合（★ 題）", labelEn: "Sentence assembly (★)", promptLabel: "語順組合", targetCount: 5 },
     { id: "bunshou-bunpou", labelJa: "文章の文法", labelZh: "文章脈絡填空", labelEn: "Passage cloze", promptLabel: "文章脈絡", targetCount: 5 },
     { id: "dokkai-short", labelJa: "内容理解（短文）", labelZh: "短文閱讀", labelEn: "Reading: short passages", promptLabel: "内容理解（短文）", targetCount: 4 },
-    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中文閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 9 },
+    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中篇閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 9 },
     { id: "togo", labelJa: "統合理解", labelZh: "綜合理解（雙文）", labelEn: "Integrated comprehension (two texts)", promptLabel: "統合理解", targetCount: 2 },
     { id: "shucho", labelJa: "主張理解（長文）", labelZh: "主張理解（長文）", labelEn: "Thesis comprehension (long passage)", promptLabel: "主張理解", targetCount: 4 },
     { id: "joho-kensaku", labelJa: "情報検索", labelZh: "資訊檢索", labelEn: "Information retrieval", promptLabel: "情報検索", targetCount: 2 }
@@ -119,7 +119,7 @@ export const N3_BLUEPRINT: MockExamBlueprint = {
     { id: "bun-bunpou-2", labelJa: "文の文法 2（文の組み立て）", labelZh: "句子組合（★ 題）", labelEn: "Sentence assembly (★)", promptLabel: "語順組合", targetCount: 5 },
     { id: "bunshou-bunpou", labelJa: "文章の文法", labelZh: "文章脈絡填空", labelEn: "Passage cloze", promptLabel: "文章脈絡", targetCount: 5 },
     { id: "dokkai-short", labelJa: "内容理解（短文）", labelZh: "短文閱讀", labelEn: "Reading: short passages", promptLabel: "内容理解（短文）", targetCount: 4 },
-    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中文閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 6 },
+    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中篇閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 6 },
     { id: "dokkai-long", labelJa: "内容理解（長文）", labelZh: "長文閱讀", labelEn: "Reading: long passages", promptLabel: "内容理解（長文）", targetCount: 4 },
     { id: "joho-kensaku", labelJa: "情報検索", labelZh: "資訊檢索", labelEn: "Information retrieval", promptLabel: "情報検索", targetCount: 2 }
   ]
@@ -165,7 +165,7 @@ export const N4_BLUEPRINT: MockExamBlueprint = {
     { id: "bun-bunpou-2", labelJa: "文の文法 2（文の組み立て）", labelZh: "句子組合（★ 題）", labelEn: "Sentence assembly (★)", promptLabel: "語順組合", targetCount: 4 },
     { id: "bunshou-bunpou", labelJa: "文章の文法", labelZh: "文章脈絡填空", labelEn: "Passage cloze", promptLabel: "文章脈絡", targetCount: 4 },
     { id: "dokkai-short", labelJa: "内容理解（短文）", labelZh: "短文閱讀", labelEn: "Reading: short passages", promptLabel: "内容理解（短文）", targetCount: 3 },
-    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中文閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 3 },
+    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中篇閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 3 },
     { id: "joho-kensaku", labelJa: "情報検索", labelZh: "資訊檢索", labelEn: "Information retrieval", promptLabel: "情報検索", targetCount: 2 }
   ]
 };
@@ -182,7 +182,7 @@ export const N5_BLUEPRINT: MockExamBlueprint = {
     { id: "bun-bunpou-2", labelJa: "文の文法 2（文の組み立て）", labelZh: "句子組合（★ 題）", labelEn: "Sentence assembly (★)", promptLabel: "語順組合", targetCount: 4 },
     { id: "bunshou-bunpou", labelJa: "文章の文法", labelZh: "文章脈絡填空", labelEn: "Passage cloze", promptLabel: "文章脈絡", targetCount: 4 },
     { id: "dokkai-short", labelJa: "内容理解（短文）", labelZh: "短文閱讀", labelEn: "Reading: short passages", promptLabel: "内容理解（短文）", targetCount: 2 },
-    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中文閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 2 },
+    { id: "dokkai-mid", labelJa: "内容理解（中文）", labelZh: "中篇閱讀", labelEn: "Reading: mid-length passages", promptLabel: "内容理解（中文）", targetCount: 2 },
     { id: "joho-kensaku", labelJa: "情報検索", labelZh: "資訊檢索", labelEn: "Information retrieval", promptLabel: "情報検索", targetCount: 1 }
   ]
 };
