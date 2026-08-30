@@ -234,6 +234,23 @@ describe("App", () => {
       expect(screen.queryByText("回到文型一覽")).not.toBeInTheDocument();
     });
 
+    it("replaces a legacy uppercase grammar-level URL instead of adding a history entry (#805)", async () => {
+      await import("./components/GrammarIndexPage");
+      window.history.replaceState({}, "", "/grammar/N5");
+      const replaceState = vi.spyOn(window.history, "replaceState");
+      const pushState = vi.spyOn(window.history, "pushState");
+
+      try {
+        render(<App />);
+        await waitFor(() => expect(window.location.pathname).toBe("/grammar/n5"));
+        expect(replaceState).toHaveBeenCalledWith({ view: "grammar" }, "", "/grammar/n5");
+        expect(pushState).not.toHaveBeenCalled();
+      } finally {
+        replaceState.mockRestore();
+        pushState.mockRestore();
+      }
+    });
+
     it("direct-load /grammar/<surface>: current crumb is the surface with lang=ja", async () => {
       await import("./components/GrammarPointPage");
       const { allGrammarSurfaces } = await import("./domain/grammarPoints");
