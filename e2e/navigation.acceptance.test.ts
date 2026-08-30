@@ -30,6 +30,10 @@ function appNavigation(page: Page) {
   return page.getByRole("navigation", { name: navigationName });
 }
 
+function appShell(page: Page) {
+  return page.locator(".app-shell");
+}
+
 async function expectNoPageOverflow(page: Page, context: string) {
   const dimensions = await page.evaluate(() => ({
     contentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
@@ -45,12 +49,13 @@ async function expectRepresentativeRouteReady(
   page: Page,
   route: (typeof representativeRoutes)[number]
 ) {
+  const shell = appShell(page);
   const routeContent = {
-    "/": page.getByRole("region", { name: "首頁" }),
-    "/grammar/n5": page.getByRole("heading", { name: /JLPT N5/ }),
-    "/kana": page.getByRole("heading", { name: "五十音表" }),
-    "/privacy": page.getByRole("heading", { name: "隱私政策" }),
-    "/terms": page.getByRole("heading", { name: "使用條款" })
+    "/": shell.getByRole("region", { name: "首頁" }),
+    "/grammar/n5": shell.getByRole("heading", { name: /JLPT N5/ }),
+    "/kana": shell.getByRole("heading", { name: "五十音表" }),
+    "/privacy": shell.getByRole("heading", { name: "隱私政策" }),
+    "/terms": shell.getByRole("heading", { name: "使用條款" })
   } satisfies Record<(typeof representativeRoutes)[number], Locator>;
 
   await expect(routeContent[route]).toBeVisible();
