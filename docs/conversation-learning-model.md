@@ -376,7 +376,7 @@ The event lifecycle changes the conversational job even when the event identity 
 花火大会、今年どこか行きますか？
 ```
 
-Skill: `open` or `expand`.
+Skill: `open`.
 
 **After / medium / intermediate**
 
