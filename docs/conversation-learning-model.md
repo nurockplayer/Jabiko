@@ -151,7 +151,7 @@ Downstream domain/content work should use the following bounded identifiers unle
 | `open` | Open | Start an interaction or introduce a topic naturally. |
 | `react` | React | Show surprise, empathy, interest, acknowledgement, or another context-fitting response. |
 | `expand` | Follow up / expand | Ask or say something that develops what the partner just contributed. |
-| `share` | Share | Add relevant information about oneself or the situation so the partner has material to respond to. |
+| `share` | Share | Provide or add relevant information about oneself or the situation so the partner has material to respond to. |
 | `bounce` | Ask back / return the ball | Return conversational responsibility to the partner without turning the exchange into an interview. |
 | `transition` | Topic transition | Move from one topic to another with enough continuity to feel natural. |
 | `repair` | Repair / clarification | Ask for repetition, meaning, confirmation, or otherwise recover after not understanding. |
@@ -170,6 +170,47 @@ Downstream domain/content work should use the following bounded identifiers unle
 - Do not add a new skill ID merely because a new grammar form or vocabulary category appears.
 - Listening, pronunciation, speed, and memory pressure may affect difficulty without becoming conversation skills themselves.
 - Content authors should prefer the smallest combination that explains the learning job.
+- Every Conversation-first scenario must declare at least one primary canonical skill. If a task only tests whether a proposition was answered correctly and no canonical conversation behavior applies, it belongs in existing language/practice modes rather than this scenario system.
+
+### `Answer -> Add -> Ask` is not a second skill taxonomy
+
+`Answer -> Add -> Ask` is a **response-structure and feedback lens**. Its three terms are not canonical conversation-skill IDs, and downstream code must not add `answer`, `add`, or `ask` to the skill taxonomy solely because this teaching model exists.
+
+The canonical skill describes **what conversational behavior the learner is practicing**. `Answer`, `Add`, and `Ask` describe **how a particular response is composed**. A response-composition feature therefore maps to a canonical skill according to its conversational function:
+
+- **Answer** means the learner addresses what the partner or prompt asked. It is not a skill by itself. A personal or situational answer is normally `share`; a stance or preference can be `opinion`; an account of what happened can be `narrate`; an acknowledgement can be `react`; an acceptance, refusal, or proposal can be `negotiate`.
+- **Add** means the learner contributes relevant material beyond the minimum answer. It is `share` when adding learner/situational information and `expand` when developing what the partner contributed; it may also be realized through a more specific behavior such as `narrate` or `opinion`.
+- **Ask** means the learner uses a question as a continuation move. It is `bounce` when returning the ball or asking about the partner, `expand` when following up on the partner's contribution, `repair` when clarifying, or `open` when initiating a topic.
+
+Primary skills must describe the intended learning job, not mechanically mirror every response-composition feature. #813 may deterministically represent `Answer` / `Add` / `Ask` as feedback or composition features, but #812 should continue to use only the canonical skill IDs defined above.
+
+A simple direct answer can therefore be a valid Conversation-first move when it realizes a canonical behavior:
+
+```text
+Partner: 週末何しました？
+Learner: 家でゆっくりしました。
+Response feature: Answer
+Canonical skill: share
+```
+
+A fuller response may combine several composition features while still using the same bounded skill taxonomy:
+
+```text
+家でゆっくりしました。                    # Answer -> share
+最近ちょっと疲れてたので、Netflixを見てました。 # Add -> share
+○○さんは何してました？                  # Ask -> bounce
+```
+
+And the same `Ask` feature can map differently when its conversational function changes:
+
+```text
+Partner: 週末、鎌倉に行ってきたんですよ。
+Learner: どうでした？
+Response feature: Ask
+Canonical skill: expand
+```
+
+The teaching model is optional rather than a requirement that every good response contain all three features.
 
 ## Difficulty model
 
@@ -285,7 +326,7 @@ Partner: 週末何しました？
 Learner: 家でゆっくりしました。
 ```
 
-The response is understandable and correct, but the exercise may invite a retry that adds continuation material.
+The response is understandable and correct, but the exercise may invite a retry that adds continuation material. Under the mapping above, this direct personal answer exercises `share` and exhibits the `Answer` response feature.
 
 **Medium / intermediate**
 
