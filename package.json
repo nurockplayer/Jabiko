@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
+    "test:browser:navigation": "playwright test e2e/navigation.acceptance.spec.ts --project=chromium",
     "test:watch": "vitest",
     "verify": "node scripts/verify.mjs",
     "verify:dry-run": "node scripts/verify.mjs --dry-run",
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.62.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
