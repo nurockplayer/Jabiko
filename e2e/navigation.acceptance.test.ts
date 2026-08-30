@@ -12,6 +12,20 @@ const viewportMatrix = [
 
 const representativeRoutes = ["/", "/grammar/n5", "/kana", "/privacy", "/terms"] as const;
 
+const grammarN5Breadcrumb = {
+  labels: ["首頁", "文型", "N5"],
+  parentPaths: ["/", "/grammar"],
+  current: "N5",
+  currentCount: 1
+} as const;
+
+const kanaBreadcrumb = {
+  labels: ["首頁", "學習", "五十音表"],
+  parentPaths: ["/", "/learn"],
+  current: "五十音表",
+  currentCount: 1
+} as const;
+
 function appNavigation(page: Page) {
   return page.getByRole("navigation", { name: navigationName });
 }
@@ -71,6 +85,19 @@ async function breadcrumbSnapshot(page: Page) {
     current: (await breadcrumb.locator('[aria-current="page"]').textContent())?.trim() ?? "",
     currentCount: await breadcrumb.locator('[aria-current="page"]').count()
   };
+}
+
+async function expectDesktopResourceCurrent(page: Page, itemName: string) {
+  const trigger = appNavigation(page).getByRole("button", {
+    name: `資源（目前：${itemName}）`
+  });
+  await expect(trigger).toBeVisible();
+  await trigger.click();
+  await expect(page.getByRole("menuitem", { name: itemName })).toHaveAttribute(
+    "aria-current",
+    "page"
+  );
+  await page.keyboard.press("Escape");
 }
 
 for (const viewport of viewportMatrix) {
@@ -136,28 +163,31 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
     const cases = [
       {
         path: "/grammar/n5",
-        expected: {
-          labels: ["首頁", "文型", "N5"],
-          parentPaths: ["/", "/grammar"],
-          current: "N5",
-          currentCount: 1
-        },
+        expected: grammarN5Breadcrumb,
         navigate: async () => {
           await appNavigation(page).getByRole("button", { name: "文型" }).click();
           await page.getByRole("button", { name: "瀏覽 N5" }).click();
+        },
+        assertCurrent: async () => {
+          await expect(appNavigation(page).getByRole("button", { name: "文型" })).toHaveAttribute(
+            "aria-current",
+            "page"
+          );
         }
       },
       {
         path: "/kana",
-        expected: {
-          labels: ["首頁", "學習", "五十音表"],
-          parentPaths: ["/", "/learn"],
-          current: "五十音表",
-          currentCount: 1
-        },
+        expected: kanaBreadcrumb,
         navigate: async () => {
           await appNavigation(page).getByRole("button", { name: "資源" }).click();
           await page.getByRole("menuitem", { name: "五十音表" }).click();
+        },
+        assertCurrent: async () => {
+          await expect(appNavigation(page).getByRole("button", { name: "學習" })).toHaveAttribute(
+            "aria-current",
+            "page"
+          );
+          await expectDesktopResourceCurrent(page, "五十音表");
         }
       },
       {
@@ -170,6 +200,9 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
         },
         navigate: async () => {
           await page.getByRole("link", { name: "隱私政策" }).click();
+        },
+        assertCurrent: async () => {
+          await expectDesktopResourceCurrent(page, "關於");
         }
       },
       {
@@ -182,6 +215,9 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
         },
         navigate: async () => {
           await page.getByRole("link", { name: "使用條款" }).click();
+        },
+        assertCurrent: async () => {
+          await expectDesktopResourceCurrent(page, "關於");
         }
       }
     ] as const;
@@ -190,11 +226,13 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
       await page.goto(acceptanceCase.path);
       const direct = await breadcrumbSnapshot(page);
       expect(direct).toEqual(acceptanceCase.expected);
+      await acceptanceCase.assertCurrent();
 
       await page.goto("/");
       await acceptanceCase.navigate();
       await expect(page).toHaveURL(new RegExp(`${acceptanceCase.path}$`));
       expect(await breadcrumbSnapshot(page)).toEqual(direct);
+      await acceptanceCase.assertCurrent();
     }
   });
 
@@ -215,7 +253,9 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
       )
     ).toBe("same-document");
 
-    const newTabModifier: "Meta" | "Control" = process.platform === "darwin" ? "Meta" : "Control";
+    const newTabModifier: "Meta" | "Control" = await page.evaluate(() =>
+      navigator.platform.startsWith("Mac") ? "Meta" : "Control"
+    );
     for (const click of [
       () => grammarCrumb.click({ modifiers: [newTabModifier] }),
       () => grammarCrumb.click({ button: "middle" })
@@ -243,12 +283,7 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
       "aria-current",
       "page"
     );
-    expect(await breadcrumbSnapshot(page)).toEqual({
-      labels: ["首頁", "文型", "N5"],
-      parentPaths: ["/", "/grammar"],
-      current: "N5",
-      currentCount: 1
-    });
+    expect(await breadcrumbSnapshot(page)).toEqual(grammarN5Breadcrumb);
     await appNavigation(page).getByRole("button", { name: "資源" }).click();
     await expect(page.getByRole("menu").locator('[aria-current="page"]')).toHaveCount(0);
     await page.keyboard.press("Escape");
@@ -259,12 +294,7 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
       "aria-current",
       "page"
     );
-    expect(await breadcrumbSnapshot(page)).toEqual({
-      labels: ["首頁", "學習", "五十音表"],
-      parentPaths: ["/", "/learn"],
-      current: "五十音表",
-      currentCount: 1
-    });
+    expect(await breadcrumbSnapshot(page)).toEqual(kanaBreadcrumb);
     const resources = appNavigation(page).getByRole("button", { name: "資源（目前：五十音表）" });
     await resources.click();
     await expect(page.getByRole("menuitem", { name: "五十音表" })).toHaveAttribute(

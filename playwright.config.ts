@@ -2,15 +2,18 @@ import { defineConfig, devices } from "@playwright/test";
 
 const port = 4173;
 const baseURL = `http://127.0.0.1:${port}`;
+const isCI = Boolean(
+  (globalThis as { process?: { env?: { CI?: string } } }).process?.env?.CI
+);
 
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
-  forbidOnly: Boolean(process.env.CI),
+  forbidOnly: isCI,
   retries: 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: isCI ? 1 : undefined,
   reporter: [
-    [process.env.CI ? "line" : "list"],
+    [isCI ? "line" : "list"],
     ["html", { outputFolder: "playwright-report", open: "never" }]
   ],
   outputDir: "test-results",

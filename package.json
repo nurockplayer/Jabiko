@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
-    "test:browser:navigation": "playwright test e2e/navigation.acceptance.spec.ts --project=chromium",
+    "test:browser:navigation": "tsc --project tsconfig.playwright.json && playwright test e2e/navigation.acceptance.test.ts --project=chromium",
     "test:watch": "vitest",
     "verify": "node scripts/verify.mjs",
     "verify:dry-run": "node scripts/verify.mjs --dry-run",

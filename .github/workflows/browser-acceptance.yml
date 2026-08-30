@@ -1,4 +1,4 @@
-name: Browser acceptance
+name: Chromium navigation acceptance
 
 on:
   pull_request:
@@ -10,6 +10,23 @@ on:
       - "package.json"
       - "playwright.config.ts"
       - "pnpm-lock.yaml"
+      - "tsconfig.playwright.json"
+      - "src/App.tsx"
+      - "src/components/AppBreadcrumbs.tsx"
+      - "src/components/AppNavigation.tsx"
+      - "src/components/GrammarIndexPage.tsx"
+      - "src/components/HomePanel.tsx"
+      - "src/components/LegalLinks.tsx"
+      - "src/components/MoreMenu.tsx"
+      - "src/domain/breadcrumbs.ts"
+      - "src/domain/legalLabels.ts"
+      - "src/domain/navigation.ts"
+      - "src/domain/routes.ts"
+      - "src/i18n.ts"
+      - "src/locales/zh-Hant.ts"
+      - "src/styles/breadcrumbs.css"
+      - "src/styles/layout.css"
+      - "src/styles/responsive.css"
   push:
     branches:
       - main
@@ -19,6 +36,23 @@ on:
       - "package.json"
       - "playwright.config.ts"
       - "pnpm-lock.yaml"
+      - "tsconfig.playwright.json"
+      - "src/App.tsx"
+      - "src/components/AppBreadcrumbs.tsx"
+      - "src/components/AppNavigation.tsx"
+      - "src/components/GrammarIndexPage.tsx"
+      - "src/components/HomePanel.tsx"
+      - "src/components/LegalLinks.tsx"
+      - "src/components/MoreMenu.tsx"
+      - "src/domain/breadcrumbs.ts"
+      - "src/domain/legalLabels.ts"
+      - "src/domain/navigation.ts"
+      - "src/domain/routes.ts"
+      - "src/i18n.ts"
+      - "src/locales/zh-Hant.ts"
+      - "src/styles/breadcrumbs.css"
+      - "src/styles/layout.css"
+      - "src/styles/responsive.css"
   workflow_dispatch:
 
 permissions:
@@ -26,7 +60,7 @@ permissions:
 
 jobs:
   navigation:
-    name: Navigation browser acceptance
+    name: Chromium navigation acceptance
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
