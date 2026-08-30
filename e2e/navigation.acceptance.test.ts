@@ -41,6 +41,21 @@ async function expectNoPageOverflow(page: Page, context: string) {
   ).toBeLessThanOrEqual(dimensions.viewportWidth);
 }
 
+async function expectRepresentativeRouteReady(
+  page: Page,
+  route: (typeof representativeRoutes)[number]
+) {
+  const routeContent = {
+    "/": page.getByRole("region", { name: "首頁" }),
+    "/grammar/n5": page.getByRole("heading", { name: /JLPT N5/ }),
+    "/kana": page.getByRole("heading", { name: "五十音表" }),
+    "/privacy": page.getByRole("heading", { name: "隱私政策" }),
+    "/terms": page.getByRole("heading", { name: "使用條款" })
+  } satisfies Record<(typeof representativeRoutes)[number], Locator>;
+
+  await expect(routeContent[route]).toBeVisible();
+}
+
 async function openFoldedMenu(page: Page, triggerName: string) {
   const trigger = appNavigation(page).getByRole("button", { name: triggerName });
   await trigger.focus();
@@ -108,6 +123,7 @@ for (const viewport of viewportMatrix) {
       for (const route of representativeRoutes) {
         await page.goto(route);
         await expect(page).toHaveURL(new RegExp(`${route === "/" ? "/$" : `${route}$`}`));
+        await expectRepresentativeRouteReady(page, route);
         await expectNoPageOverflow(page, `${viewport.name} ${route}`);
       }
 
