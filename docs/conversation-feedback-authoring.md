@@ -15,7 +15,7 @@ Each `CuratedConversationResponse` needs:
 - one continuation category;
 - one register/context-fit category;
 - zero or more response-composition signals; and
-- optional developer-facing `authorRationale` by feedback dimension.
+- an `authorRationale` map by feedback dimension, which may be empty.
 
 `authorRationale` supports content review. It is not localized learner-facing copy and must not be
 rendered directly. A presentation layer must use the applicable localized content contract.

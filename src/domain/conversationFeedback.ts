@@ -100,6 +100,14 @@ export function evaluateCuratedConversationResponse<CanonicalSkillId extends str
       "Curated conversation feedback requires non-empty situation, relationship, and discourse context."
     );
   }
+  if (
+    response.feedback.languageQuality === "natural" &&
+    response.feedback.registerContextFit === "mismatch"
+  ) {
+    throw new Error(
+      "Natural conversation feedback requires register/context fit for the declared context."
+    );
+  }
 
   const attainedLanguageQuality = LANGUAGE_QUALITY_LEVEL[response.feedback.languageQuality];
 

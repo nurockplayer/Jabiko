@@ -187,6 +187,31 @@ describe("evaluateCuratedConversationResponse", () => {
     });
   });
 
+  it("rejects Natural feedback that contradicts the declared register/context fit", () => {
+    const contradictory = {
+      id: "natural-register-contradiction",
+      responseJapanese: "週末何してた？",
+      context: {
+        situation: "The learner opens a weekend topic with a teacher.",
+        relationship: "student speaking to a teacher",
+        discourse: "This is the first topic after class."
+      },
+      feedback: {
+        languageQuality: "natural",
+        continuation: "opens_thread",
+        registerContextFit: "mismatch",
+        composition: [{ feature: "ask", canonicalSkillId: "open" }],
+        authorRationale: {
+          register_context_fit: "The plain form is too familiar for the declared relationship."
+        }
+      }
+    } as const satisfies CuratedConversationResponse<"open">;
+
+    expect(() => evaluateCuratedConversationResponse(contradictory)).toThrow(
+      "Natural conversation feedback requires register/context fit for the declared context."
+    );
+  });
+
   it("can identify production that has not yet reached the understandable stage", () => {
     const response = {
       id: "not-yet-understandable",
