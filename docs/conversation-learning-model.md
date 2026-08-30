@@ -423,15 +423,18 @@ Jabiko should be able to teach the difference without claiming the richer exampl
 
 ### Imperfect production can still be useful
 
-The curriculum may distinguish:
+Naturalness is always relative to the declared situation, relationship, and discourse context. A `Natural` example is not globally better than every grammatically correct alternative; it shows wording that fits the specific interaction being taught.
+
+For example, given this explicit context:
 
 ```text
+Partner: 昨日、何してたんですか？
 Survival / understandable: 昨日、友達、飲みました。
 Correct: 昨日、友達と飲みに行きました。
-More natural in context: 昨日、友達と飲みに行ったんですよ。
+Natural for this explanatory context: 昨日、友達と飲みに行ってたんです。
 ```
 
-The learner should be encouraged to produce meaning first, then improve form and naturalness. This does not mean errors should be ignored; it means feedback should preserve the difference between communicative success and linguistic quality.
+The learner should be encouraged to produce meaning first, then improve form and context-sensitive naturalness. This does not mean errors should be ignored; it means feedback should preserve the difference between communicative success, linguistic quality, and pragmatic fit.
 
 ### Social fit is separate from grammar
 
