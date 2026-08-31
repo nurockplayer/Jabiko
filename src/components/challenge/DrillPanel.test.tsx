@@ -152,7 +152,9 @@ describe("DrillPanel", () => {
       />
     );
 
-    expect(screen.getByRole("textbox", { name: "輸入變化後的日文" })).toHaveValue("");
+    const nextPassInput = screen.getByRole("textbox", { name: "輸入變化後的日文" });
+    expect(nextPassInput).toHaveValue("");
+    expect(nextPassInput).toHaveFocus();
   });
 
   it("prevents IME composition Enter from submitting the recall form", () => {

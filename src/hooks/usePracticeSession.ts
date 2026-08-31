@@ -240,7 +240,11 @@ function preparePracticeSessionConfig(
 ): PracticeSessionConfig {
   const targetForms = resolveTargetForms(config);
   const filter = copyPracticeFilter(config.filter);
-  if (config.mode !== "basic") return { ...config, filter, targetForms };
+  const answerMode =
+    config.mode === "basic" && config.partOfSpeech === "verb"
+      ? config.answerMode
+      : "choice";
+  if (config.mode !== "basic") return { ...config, answerMode, filter, targetForms };
 
   const availableLevels = getAvailableBasicLevels({
     partOfSpeech: config.partOfSpeech,
@@ -250,6 +254,7 @@ function preparePracticeSessionConfig(
   });
   return {
     ...config,
+    answerMode,
     filter: {
       ...filter,
       levels: pruneUnavailableLevels(filter.levels, availableLevels)
@@ -664,7 +669,6 @@ export function usePracticeSession({
       filter: leavingVerbPractice
         ? { ...configRef.current.filter, verbGroups: undefined }
         : configRef.current.filter,
-      answerMode: leavingVerbPractice ? "choice" : configRef.current.answerMode,
       practiceFocus: "single",
       targetForm: nextPartOfSpeech === "verb" || nextPartOfSpeech === "mixed" ? "te" : "plainPresentNegative"
     });

@@ -135,7 +135,7 @@ export function DrillPanel({
     if (isRecallQuestion && currentQuestion && !feedback) {
       recallInputRef.current?.focus({ preventScroll: true });
     }
-  }, [currentQuestion, feedback, isRecallQuestion]);
+  }, [currentQuestion, feedback, isRecallQuestion, sessionSeed]);
 
   // Completion-screen copy: daily / review have their own wording; every
   // other (capped, #154) finite session uses the generic "這組完成" set.

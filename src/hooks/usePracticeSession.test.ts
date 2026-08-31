@@ -104,6 +104,28 @@ describe("core conjugation recall launch (#809)", () => {
     }
   );
 
+  it("returns to choice mode when verb recall changes to a non-basic pass", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          partOfSpeech: "verb",
+          targetForm: "te",
+          answerMode: "recall"
+        }
+      })
+    );
+    const previousSessionSeed = result.current.sessionSeed;
+
+    act(() => result.current.applyModePreset("review"));
+
+    expect(result.current.practiceMode).toBe("review");
+    expect(result.current.answerMode).toBe("choice");
+    expect(result.current.isRecallQuestion).toBe(false);
+    expect(result.current.sessionSeed).toBe(previousSessionSeed + 1);
+  });
+
   it("activates recall UI only for eligible generated conjugation questions", () => {
     const generated = renderHook(() =>
       usePracticeSession({
