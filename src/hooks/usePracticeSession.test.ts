@@ -9,7 +9,9 @@ import type { Attempt, JlptLevel, PracticeQuestion, VerbGroup } from "../domain/
 import {
   createPracticePoolSnapshot,
   initialLevelRange,
+  resolveTargetForms,
   type PracticeFilter,
+  type PracticeFocus,
   usePracticeSession
 } from "./usePracticeSession";
 
@@ -18,6 +20,19 @@ const baseHookArgs = {
   progressAttempts: [],
   recordAttempt: () => {}
 };
+
+describe("core conjugation recall launch (#809)", () => {
+  it("resolves the named quick-launch focus to the six core production forms", () => {
+    expect(
+      resolveTargetForms({
+        mode: "basic",
+        partOfSpeech: "verb",
+        targetForm: "te",
+        practiceFocus: "coreConjugation" as PracticeFocus
+      })
+    ).toEqual(["masu", "nai", "te", "ta", "potential", "volitional"]);
+  });
+});
 
 function makeAttempt(question: PracticeQuestion, isCorrect: boolean, timestamp: number): Attempt {
   return {
