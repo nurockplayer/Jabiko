@@ -1033,7 +1033,7 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: "書って" }));
 
     expect(screen.getByText("再想一下")).toBeInTheDocument();
-    expect(screen.getByText("正解：書いて")).toBeInTheDocument();
+    expect(screen.getByText("正解：書いて / かいて")).toBeInTheDocument();
     expect(screen.getByText(/一類動詞/)).toBeInTheDocument();
   });
 

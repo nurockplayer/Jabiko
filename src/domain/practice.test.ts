@@ -162,6 +162,51 @@ describe("buildQuestionPool", () => {
     expect(isRecallEligibleQuestion(cloze)).toBe(false);
   });
 
+  it("accepts both kanji and kana spellings for a generated conjugation answer", () => {
+    const question = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "all",
+      targetForms: ["te"]
+    }).find((candidate) => candidate.vocabulary.surface === "行く");
+
+    expect(question).toBeDefined();
+    expect(question!.expectedAnswers).toEqual(["行って", "いって"]);
+    expect(scoreAttempt(question!, "行って", 1000, 1200).isCorrect).toBe(true);
+    expect(scoreAttempt(question!, "いって", 1000, 1200)).toMatchObject({
+      questionId: "iku:te",
+      submittedAnswer: "いって",
+      isCorrect: true
+    });
+    expect(scoreAttempt(question!, "itte", 1000, 1200).isCorrect).toBe(false);
+  });
+
+  it("uses the inflected reading for irregular 来る answers", () => {
+    const question = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "all",
+      targetForms: ["te"]
+    }).find((candidate) => candidate.vocabulary.surface === "来る");
+
+    expect(question).toBeDefined();
+    expect(question!.expectedAnswers).toEqual(["来て", "きて"]);
+    expect(scoreAttempt(question!, "きて", 1000, 1200).isCorrect).toBe(true);
+  });
+
+  it.each([
+    ["食べる", "potential", "たべられる"],
+    ["勉強する", "potential", "べんきょうできる"]
+  ] as const)("accepts the authored reading conjugation for %s (%s)", (surface, targetForm, kana) => {
+    const question = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "all",
+      targetForms: [targetForm]
+    }).find((candidate) => candidate.vocabulary.surface === surface);
+
+    expect(question).toBeDefined();
+    expect(question!.expectedAnswers).toContain(kana);
+    expect(scoreAttempt(question!, kana, 1000, 1200).isCorrect).toBe(true);
+  });
+
   it.each([
     ["行く", "te", "行って"],
     ["食べる", "te", "食べて"],
@@ -216,7 +261,10 @@ describe("buildQuestionPool", () => {
     expect(questions.every((question) => question.vocabulary.partOfSpeech === "verb")).toBe(true);
     expect(questions.every((question) => question.vocabulary.group === "godan")).toBe(true);
     expect(questions.every((question) => question.targetForm === "te")).toBe(true);
-    expect(questions.find((question) => question.vocabulary.surface === "書く")?.expectedAnswers).toEqual(["書いて"]);
+    expect(questions.find((question) => question.vocabulary.surface === "書く")?.expectedAnswers).toEqual([
+      "書いて",
+      "かいて"
+    ]);
   });
 
   it("includes adjective questions only for adjective-compatible forms", () => {

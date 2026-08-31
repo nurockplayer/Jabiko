@@ -525,18 +525,19 @@ function ichidanEnding(targetForm: TargetForm): string {
 }
 
 function irregularAnswer(surface: string, targetForm: TargetForm): string {
-  if (surface === "来る") {
+  if (surface === "来る" || surface === "くる") {
+    const kanaOnly = surface === "くる";
     const forms: Partial<Record<TargetForm, string>> = {
-      masu: "来ます",
-      nai: "来ない",
-      te: "来て",
-      ta: "来た",
-      potential: "来られる",
-      volitional: "来よう",
-      conditional: "来れば",
-      causative: "来させる",
-      passive: "来られる",
-      desiderative: "来たい"
+      masu: kanaOnly ? "きます" : "来ます",
+      nai: kanaOnly ? "こない" : "来ない",
+      te: kanaOnly ? "きて" : "来て",
+      ta: kanaOnly ? "きた" : "来た",
+      potential: kanaOnly ? "こられる" : "来られる",
+      volitional: kanaOnly ? "こよう" : "来よう",
+      conditional: kanaOnly ? "くれば" : "来れば",
+      causative: kanaOnly ? "こさせる" : "来させる",
+      passive: kanaOnly ? "こられる" : "来られる",
+      desiderative: kanaOnly ? "きたい" : "来たい"
     };
     return forms[targetForm] ?? surface;
   }
@@ -565,12 +566,12 @@ function godanAnswer(surface: string, targetForm: TargetForm): string {
   const stem = surface.slice(0, -1);
   const ending = surface.slice(-1);
 
-  if (surface === "行く" && targetForm === "te") {
-    return "行って";
+  if ((surface === "行く" || surface === "いく") && targetForm === "te") {
+    return `${stem}って`;
   }
 
-  if (surface === "行く" && targetForm === "ta") {
-    return "行った";
+  if ((surface === "行く" || surface === "いく") && targetForm === "ta") {
+    return `${stem}った`;
   }
 
   const maps: Partial<Record<TargetForm, Record<string, string>>> = {

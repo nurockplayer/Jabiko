@@ -51,13 +51,35 @@ export function buildQuestionPool(vocabulary: VocabularyItem[], options: Questio
             id: `${item.id}:${targetForm}`,
             vocabulary: item,
             targetForm,
-            expectedAnswers: result.answers,
+            expectedAnswers: acceptedGeneratedAnswers(item, targetForm, result.answers),
             explanation: result.explanation,
             explanationI18n: result.explanationI18n
           };
         })
     )
     .filter(isMeaningfulQuestion);
+}
+
+function acceptedGeneratedAnswers(
+  item: VocabularyItem,
+  targetForm: TargetForm,
+  surfaceAnswers: string[]
+): string[] {
+  if (
+    item.partOfSpeech !== "verb" ||
+    targetForm === "dictionary" ||
+    targetForm === "plainPresentAffirmative" ||
+    targetForm === "reading" ||
+    targetForm === "meaning"
+  ) {
+    return surfaceAnswers;
+  }
+
+  // The vocabulary reading is an authored kana spelling, so running it
+  // through the same deterministic engine yields an explicit accepted answer
+  // without adding script conversion, fuzzy matching, or a parallel scorer.
+  const readingAnswers = conjugate({ ...item, surface: item.reading }, targetForm).answers;
+  return uniqueAnswers([...surfaceAnswers, ...readingAnswers]);
 }
 
 function isMeaningfulQuestion(question: PracticeQuestion): boolean {
