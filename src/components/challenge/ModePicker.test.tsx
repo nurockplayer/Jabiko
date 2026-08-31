@@ -95,7 +95,7 @@ describe("ModePicker basic composable filters (#789)", () => {
     expect(handleAnswerModeChange).toHaveBeenCalledWith("choice");
   });
 
-  it("does not expose newly added verb-only forms to adjective single-form practice", () => {
+  it("keeps the additional verb-practice forms out of adjective single-form practice", () => {
     renderPicker({
       practiceMode: "basic",
       showLevelRange: false,

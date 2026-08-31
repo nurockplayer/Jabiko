@@ -43,7 +43,7 @@ const formOptions: TargetForm[] = [
   "plainPastNegative"
 ];
 
-const newlyExposedVerbFormOptions = new Set<TargetForm>(["conditional", "desiderative"]);
+const verbPracticeAdditionalFormOptions = new Set<TargetForm>(["conditional", "desiderative"]);
 
 // The left-hand controls column of the challenge workspace: the mode /
 // 備考 preset picker, the (vocab-only) level-range segmented control, the
@@ -316,7 +316,7 @@ export function ModePicker({
                   .filter(
                     (form) =>
                       compatibleForms.includes(form) &&
-                      (partOfSpeech === "verb" || !newlyExposedVerbFormOptions.has(form))
+                      (partOfSpeech === "verb" || !verbPracticeAdditionalFormOptions.has(form))
                   )
                   .map((form) => (
                     <option key={form} value={form}>
