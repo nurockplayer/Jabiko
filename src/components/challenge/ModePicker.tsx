@@ -43,6 +43,8 @@ const formOptions: TargetForm[] = [
   "plainPastNegative"
 ];
 
+const newlyExposedVerbFormOptions = new Set<TargetForm>(["conditional", "desiderative"]);
+
 // The left-hand controls column of the challenge workspace: the mode /
 // 備考 preset picker, the (vocab-only) level-range segmented control, the
 // basic-mode setup controls (word type / focus / verb group / target
@@ -311,7 +313,11 @@ export function ModePicker({
                 }}
               >
                 {formOptions
-                  .filter((form) => compatibleForms.includes(form))
+                  .filter(
+                    (form) =>
+                      compatibleForms.includes(form) &&
+                      (partOfSpeech === "verb" || !newlyExposedVerbFormOptions.has(form))
+                  )
                   .map((form) => (
                     <option key={form} value={form}>
                       {t.targetForms[form]}

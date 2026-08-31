@@ -95,6 +95,22 @@ describe("ModePicker basic composable filters (#789)", () => {
     expect(handleAnswerModeChange).toHaveBeenCalledWith("choice");
   });
 
+  it("does not expose newly added verb-only forms to adjective single-form practice", () => {
+    renderPicker({
+      practiceMode: "basic",
+      showLevelRange: false,
+      partOfSpeech: "i_adjective",
+      selectedForm: "plainPresentNegative",
+      compatibleForms: ["conditional", "plainPresentNegative"]
+    });
+
+    const form = screen.getByRole("combobox", { name: "目標形" });
+    expect(within(form).queryByRole("option", { name: "假定形・ば" })).not.toBeInTheDocument();
+    expect(
+      within(form).getByRole("option", { name: "普通形・非過去否定" })
+    ).toBeInTheDocument();
+  });
+
   it("renders accessible level and verb-group multi-selects", () => {
     const { container } = renderPicker({
       practiceMode: "basic",
