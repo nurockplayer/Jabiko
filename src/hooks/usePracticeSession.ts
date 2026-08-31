@@ -664,6 +664,7 @@ export function usePracticeSession({
       filter: leavingVerbPractice
         ? { ...configRef.current.filter, verbGroups: undefined }
         : configRef.current.filter,
+      answerMode: leavingVerbPractice ? "choice" : configRef.current.answerMode,
       practiceFocus: "single",
       targetForm: nextPartOfSpeech === "verb" || nextPartOfSpeech === "mixed" ? "te" : "plainPresentNegative"
     });

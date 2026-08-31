@@ -254,7 +254,7 @@ export function DrillPanel({
               <label htmlFor="recall-answer">{t.recallAnswerLabel}</label>
               <div className="recall-answer-row">
                 <input
-                  key={currentQuestion.id}
+                  key={`${sessionSeed}:${currentQuestion.id}`}
                   ref={recallInputRef}
                   id="recall-answer"
                   name="recallAnswer"

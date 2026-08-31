@@ -79,6 +79,31 @@ describe("core conjugation recall launch (#809)", () => {
     expect(result.current.feedback).toBeNull();
   });
 
+  it.each(["mixed", "noun"] as const)(
+    "returns to choice mode when verb recall changes to %s practice",
+    (nextPartOfSpeech) => {
+      const { result } = renderHook(() =>
+        usePracticeSession({
+          ...baseHookArgs,
+          init: {
+            mode: "basic",
+            partOfSpeech: "verb",
+            targetForm: "te",
+            answerMode: "recall"
+          }
+        })
+      );
+      const previousSessionSeed = result.current.sessionSeed;
+
+      act(() => result.current.handlePartOfSpeechChange(nextPartOfSpeech));
+
+      expect(result.current.partOfSpeech).toBe(nextPartOfSpeech);
+      expect(result.current.answerMode).toBe("choice");
+      expect(result.current.isRecallQuestion).toBe(false);
+      expect(result.current.sessionSeed).toBe(previousSessionSeed + 1);
+    }
+  );
+
   it("activates recall UI only for eligible generated conjugation questions", () => {
     const generated = renderHook(() =>
       usePracticeSession({

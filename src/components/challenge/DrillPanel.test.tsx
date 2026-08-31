@@ -130,6 +130,31 @@ describe("DrillPanel", () => {
     expect(handleChoiceSubmit).toHaveBeenCalledWith("書いて");
   });
 
+  it("starts each pass with an empty recall field when the first question is unchanged", () => {
+    const { rerender } = render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        sessionSeed={3}
+      />
+    );
+    fireEvent.change(screen.getByRole("textbox", { name: "輸入變化後的日文" }), {
+      target: { value: "書いて" }
+    });
+
+    rerender(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        sessionSeed={4}
+      />
+    );
+
+    expect(screen.getByRole("textbox", { name: "輸入變化後的日文" })).toHaveValue("");
+  });
+
   it("prevents IME composition Enter from submitting the recall form", () => {
     const handleChoiceSubmit = vi.fn();
     render(
