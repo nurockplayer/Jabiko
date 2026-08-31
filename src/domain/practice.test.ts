@@ -8,6 +8,7 @@ import {
   buildQuestionPool,
   getMistakeQuestions,
   getReviewQueue,
+  isRecallEligibleQuestion,
   readingSimilarity,
   reduceAdjacentClusters,
   scoreAttempt,
@@ -144,6 +145,66 @@ describe("buildExamQuestionPool", () => {
 });
 
 describe("buildQuestionPool", () => {
+  it("identifies only generated verb-conjugation questions as recall eligible", () => {
+    const generated = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "all",
+      targetForms: ["te", "reading", "meaning"]
+    });
+    const conjugation = generated.find((question) => question.targetForm === "te");
+    const reading = generated.find((question) => question.targetForm === "reading");
+    const cloze = buildClozeQuestionPool(clozeSentences, vocabulary)[0];
+
+    expect(conjugation).toBeDefined();
+    expect(reading).toBeDefined();
+    expect(isRecallEligibleQuestion(conjugation!)).toBe(true);
+    expect(isRecallEligibleQuestion(reading!)).toBe(false);
+    expect(isRecallEligibleQuestion(cloze)).toBe(false);
+  });
+
+  it.each([
+    ["行く", "te", "行って"],
+    ["食べる", "te", "食べて"],
+    ["する", "potential", "できる"],
+    ["来る", "volitional", "来よう"],
+    ["書く", "conditional", "書けば"]
+  ] as const)(
+    "keeps the authoritative engine answer for %s in single-form recall (%s)",
+    (surface, targetForm, expected) => {
+      const question = buildQuestionPool(vocabulary, {
+        partOfSpeech: "verb",
+        verbGroup: "all",
+        targetForms: [targetForm]
+      }).find((candidate) => candidate.vocabulary.surface === surface);
+
+      expect(question).toBeDefined();
+      expect(question!.expectedAnswers).toContain(expected);
+      expect(scoreAttempt(question!, expected, 1000, 1200)).toMatchObject({
+        questionId: question!.id,
+        submittedAnswer: expected,
+        isCorrect: true
+      });
+    }
+  );
+
+  it("routes a typed recall miss through the existing question identity and review queue", () => {
+    const question = buildQuestionPool(vocabulary, {
+      partOfSpeech: "verb",
+      verbGroup: "all",
+      targetForms: ["te"]
+    }).find((candidate) => candidate.vocabulary.surface === "行く");
+
+    expect(question).toBeDefined();
+    const miss = scoreAttempt(question!, "行きて", 1000, 1200);
+
+    expect(miss).toMatchObject({
+      questionId: "iku:te",
+      submittedAnswer: "行きて",
+      isCorrect: false
+    });
+    expect(getReviewQueue([miss], [question!])).toEqual([question]);
+  });
+
   it("filters questions by part of speech, verb group, and selected forms", () => {
     const questions = buildQuestionPool(vocabulary, {
       partOfSpeech: "verb",

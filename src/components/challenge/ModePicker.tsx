@@ -31,8 +31,10 @@ const formOptions: TargetForm[] = [
   "masu",
   "potential",
   "volitional",
+  "conditional",
   "causative",
   "passive",
+  "desiderative",
   "reading",
   "meaning",
   "plainPresentAffirmative",
@@ -52,6 +54,7 @@ export function ModePicker({
   partOfSpeech,
   practiceFilter,
   practiceFocus,
+  answerMode,
   practiceMode,
   levelRange,
   showLevelRange,
@@ -67,6 +70,7 @@ export function ModePicker({
   modeCounts,
   handlePartOfSpeechChange,
   handlePracticeFocusChange,
+  handleAnswerModeChange,
   handlePracticeFilterChange,
   handleVerbGroupsChange,
   applyModePreset,
@@ -77,6 +81,7 @@ export function ModePicker({
   | "partOfSpeech"
   | "practiceFilter"
   | "practiceFocus"
+  | "answerMode"
   | "practiceMode"
   | "levelRange"
   | "showLevelRange"
@@ -92,6 +97,7 @@ export function ModePicker({
   | "modeCounts"
   | "handlePartOfSpeechChange"
   | "handlePracticeFocusChange"
+  | "handleAnswerModeChange"
   | "handlePracticeFilterChange"
   | "handleVerbGroupsChange"
   | "applyModePreset"
@@ -187,6 +193,27 @@ export function ModePicker({
               ))}
             </div>
           </fieldset>
+
+          {partOfSpeech === "verb" &&
+          (practiceFocus !== "single" ||
+            (selectedForm !== "reading" && selectedForm !== "meaning")) ? (
+            <fieldset>
+              <legend>{t.answerMode}</legend>
+              <div className="segmented">
+                {(["choice", "recall"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    className={answerMode === mode ? "selected" : ""}
+                    aria-pressed={answerMode === mode}
+                    onClick={() => handleAnswerModeChange(mode)}
+                  >
+                    {t.answerModes[mode]}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          ) : null}
 
           <fieldset>
             <legend>{t.levelRange}</legend>

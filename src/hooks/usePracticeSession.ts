@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { ADJECTIVE_FORMS, VERB_FORMS } from "../domain/conjugation";
+import { ADJECTIVE_FORMS, normalizeAnswer, VERB_FORMS } from "../domain/conjugation";
 import { VOCAB_LEVEL_RANGE_OPTIONS, type LevelRange } from "../domain/levelRange";
 import { examPresetForRange, type ModeCopyKey, type PracticeMode } from "../domain/practiceMode";
 import type { KanaScript } from "../domain/kana";
@@ -9,6 +9,7 @@ import {
   buildChoiceOptions,
   getMistakeQuestions,
   getReviewQueue,
+  isRecallEligibleQuestion,
   scoreAttempt,
   selectQuestion
 } from "../domain/practice";
@@ -46,7 +47,15 @@ function readSessionLength(): number | null {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_SESSION_LENGTH;
 }
 
-export type PracticeFocus = "single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast";
+export type PracticeFocus =
+  | "single"
+  | "coreConjugation"
+  | "teTa"
+  | "negative"
+  | "plain"
+  | "adverbial"
+  | "obligationPast";
+export type PracticeAnswerMode = "choice" | "recall";
 // Re-exported (the canonical type now lives in domain/practiceMode) so the
 // many `import { PracticeMode } from "../hooks/usePracticeSession"` sites keep working.
 export type { PracticeMode };
@@ -90,6 +99,7 @@ export type SessionInit = {
   partOfSpeech?: PartOfSpeech | "mixed";
   verbGroup?: VerbGroup | "all";
   practiceFocus?: PracticeFocus;
+  answerMode?: PracticeAnswerMode;
   targetForm?: TargetForm;
   // JLPT level range for the exam (綜合) + vocab (単字) pools; default all.
   levelRange?: LevelRange;
@@ -103,7 +113,9 @@ type LivePracticePoolInputs = Pick<
 // One immutable set of pool-building inputs for the active pass. Live
 // progress and bookmark changes are intentionally captured only when a
 // mode/config change or explicit reset starts a new pass.
-type PracticePoolSnapshot = Readonly<PracticePoolOptions>;
+type PracticePoolSnapshot = Readonly<
+  PracticePoolOptions & Pick<PracticeSessionConfig, "answerMode">
+>;
 
 // The static half of a pass snapshot: every knob that defines the pool
 // (mode / filters / word type / form / range / length) plus the resolved
@@ -116,6 +128,7 @@ export type PracticeSessionConfig = {
   partOfSpeech: PartOfSpeech | "mixed";
   verbGroup: VerbGroup | "all";
   practiceFocus: PracticeFocus;
+  answerMode: PracticeAnswerMode;
   targetForm: TargetForm;
   levelRange: LevelRange;
   sessionLength: number | null;
@@ -143,6 +156,11 @@ export function initialLevelRange(
 
 const focusOptions: Array<{ value: PracticeFocus; targetForms: TargetForm[]; verbOnly?: boolean }> = [
   { value: "single", targetForms: [] },
+  {
+    value: "coreConjugation",
+    targetForms: ["masu", "nai", "te", "ta", "potential", "volitional"],
+    verbOnly: true
+  },
   { value: "teTa", targetForms: ["te", "ta"], verbOnly: true },
   { value: "negative", targetForms: ["nai", "negativeTe", "negativeContinuative", "plainPastNegative"] },
   {
@@ -250,6 +268,7 @@ function makeInitialConfig(
     partOfSpeech: init?.partOfSpeech ?? "verb",
     verbGroup: init?.verbGroup ?? "godan",
     practiceFocus: init?.practiceFocus ?? "single",
+    answerMode: init?.answerMode ?? "choice",
     targetForm: init?.targetForm ?? "te",
     levelRange: initialLevelRange(init, targetLevel),
     sessionLength: readSessionLength()
@@ -270,6 +289,7 @@ export function createPracticePoolSnapshot(
 ): PracticePoolSnapshot {
   return {
     mode: config.mode,
+    answerMode: config.answerMode,
     examSection: config.filter.examSection,
     patternIds: config.filter.patternIds,
     kanaScript: config.filter.kanaScript,
@@ -484,6 +504,7 @@ export function usePracticeSession({
   const [poolSnapshot, setPoolSnapshot] = useState<PracticePoolSnapshot>(() =>
     createPracticePoolSnapshot(config, { reviewQueue, bookmarkedQuestions, attemptedIds })
   );
+  const answerMode = poolSnapshot.answerMode;
 
   const questions = useMemo(() => buildPracticeQuestions(poolSnapshot), [poolSnapshot]);
   // Review and 今日練習 are FINITE passes over a snapshot: walk each item
@@ -499,6 +520,10 @@ export function usePracticeSession({
   const currentQuestion = isFinitePass
     ? questions[questionIndex] ?? null
     : selectQuestion(questions, questionIndex);
+  const isRecallQuestion =
+    answerMode === "recall" &&
+    currentQuestion !== null &&
+    isRecallEligibleQuestion(currentQuestion);
   const reviewEmpty = isReviewFocus && questions.length === 0;
   const bookmarksEmpty = isBookmarksFocus && questions.length === 0;
   const sessionExhausted =
@@ -648,6 +673,11 @@ export function usePracticeSession({
     startNewPass({ ...configRef.current, practiceFocus: nextFocus });
   };
 
+  const handleAnswerModeChange = (nextMode: PracticeAnswerMode) => {
+    if (nextMode === configRef.current.answerMode) return;
+    startNewPass({ ...configRef.current, answerMode: nextMode });
+  };
+
   // The mode picker lists the exam pool as three side-by-side presets
   // (綜合 / N1 備考 / N2 備考), so picking one sets BOTH the mode and its
   // level range at once. Non-exam presets pass "all" (a no-op for the
@@ -691,7 +721,7 @@ export function usePracticeSession({
   // gain; the effect re-binds on every render as-is, which is correct.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleChoiceSubmit = (choice: string) => {
-    if (!currentQuestion || feedback) {
+    if (!currentQuestion || feedback || normalizeAnswer(choice).length === 0) {
       return;
     }
 
@@ -773,7 +803,7 @@ export function usePracticeSession({
   // (Enter/Space-to-advance after feedback stays on handleDrillKeyDown,
   // which works because the next button is auto-focused once answered.)
   useEffect(() => {
-    if (!currentQuestion || feedback) {
+    if (!currentQuestion || feedback || isRecallQuestion) {
       return;
     }
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
@@ -797,13 +827,14 @@ export function usePracticeSession({
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [currentQuestion, feedback, choiceOptions, handleChoiceSubmit]);
+  }, [currentQuestion, feedback, isRecallQuestion, choiceOptions, handleChoiceSubmit]);
 
   return {
     partOfSpeech,
     verbGroup,
     practiceFilter,
     practiceFocus,
+    answerMode,
     practiceMode,
     levelRange,
     showLevelRange,
@@ -835,6 +866,7 @@ export function usePracticeSession({
     onToggleBookmark,
     modeCounts,
     currentQuestion,
+    isRecallQuestion,
     reviewEmpty,
     bookmarksEmpty,
     sessionExhausted,
@@ -849,6 +881,7 @@ export function usePracticeSession({
     startedAtRef,
     handlePartOfSpeechChange,
     handlePracticeFocusChange,
+    handleAnswerModeChange,
     handlePracticeFilterChange,
     handleVerbGroupsChange,
     applyModePreset,

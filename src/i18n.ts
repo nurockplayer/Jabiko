@@ -125,6 +125,8 @@ export type Copy = {
   homeBannerContinueSub: string;
   homeDailyMain: string;
   homeDailySub: string;
+  homeConjugationMain: string;
+  homeConjugationSub: string;
   homeStatsLabel: string;
   homeStatsAttempts: string;
   homeStatsAccuracy: string;
@@ -342,6 +344,8 @@ export type Copy = {
   };
   ttsRateCustom: string;
   practiceFocus: string;
+  answerMode: string;
+  answerModes: Record<"choice" | "recall", string>;
   verbGroup: string;
   targetForm: string;
   answered: string;
@@ -363,6 +367,10 @@ export type Copy = {
   questionNumber: (value: number) => string;
   questionProgress: (value: number, total: number) => string;
   answerOptions: string;
+  recallAnswerLabel: string;
+  recallAnswerPlaceholder: string;
+  recallSubmit: string;
+  recallKeyboardHint: string;
   revealAnswer: string;
   nextQuestion: string;
   emptyState: string;
@@ -494,7 +502,10 @@ export type Copy = {
   deleteHistoryError: string;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
-  focusOptions: Record<"single" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast", string>;
+  focusOptions: Record<
+    "single" | "coreConjugation" | "teTa" | "negative" | "plain" | "adverbial" | "obligationPast",
+    string
+  >;
   targetForms: Record<TargetForm, string>;
   lessonCardFocus: string[];
 };

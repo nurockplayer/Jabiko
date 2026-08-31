@@ -64,6 +64,17 @@ function isMeaningfulQuestion(question: PracticeQuestion): boolean {
   return question.expectedAnswers.some((answer) => answer !== question.vocabulary.surface);
 }
 
+export function isRecallEligibleQuestion(question: PracticeQuestion): boolean {
+  return (
+    question.vocabulary.partOfSpeech === "verb" &&
+    question.targetForm !== "reading" &&
+    question.targetForm !== "meaning" &&
+    question.promptText === undefined &&
+    question.options === undefined &&
+    question.id === `${question.vocabulary.id}:${question.targetForm}`
+  );
+}
+
 export function scoreAttempt(
   question: PracticeQuestion,
   submittedAnswer: string,

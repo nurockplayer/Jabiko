@@ -324,3 +324,53 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
     );
   });
 });
+
+for (const viewport of [
+  { name: "desktop", width: 1280, height: 844 },
+  { name: "mobile", width: 390, height: 844 }
+] as const) {
+  test.describe(`conjugation recall at ${viewport.name}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } });
+
+    test("supports the keyboard-only quick drill without horizontal overflow", async ({ page }) => {
+      await page.goto("/");
+      const launcher = page.getByRole("button", { name: /動詞變化/ });
+      await launcher.focus();
+      await launcher.press("Enter");
+
+      const drill = page.getByRole("region", { name: "目前題目" });
+      const input = page.getByRole("textbox", { name: "輸入變化後的日文" });
+      await expect(drill).toBeVisible();
+      await expect(input).toBeFocused();
+      await expect(page.locator(".recall-answer-row")).toHaveCSS("display", "grid");
+      await expectNoPageOverflow(page, `${viewport.name} recall question`);
+
+      if (viewport.name === "mobile") {
+        const [inputBox, submitBox] = await Promise.all([
+          input.boundingBox(),
+          page.getByRole("button", { name: "送出答案" }).boundingBox()
+        ]);
+        expect(inputBox).not.toBeNull();
+        expect(submitBox).not.toBeNull();
+        expect(submitBox!.y).toBeGreaterThan(inputBox!.y);
+      }
+
+      const firstQuestionId = await drill.getAttribute("data-question-id");
+      await input.fill("行きて");
+      await input.press("Enter");
+
+      await expect(drill).toHaveAttribute("data-result", "wrong");
+      await expect(drill).toHaveAttribute("data-selected", "行きて");
+      await expect(page.getByRole("heading", { name: "再想一下" })).toBeVisible();
+      const next = page.getByRole("button", { name: "下一題" });
+      await expect(next).toBeFocused();
+      await expectNoPageOverflow(page, `${viewport.name} recall feedback`);
+
+      await next.press("Enter");
+      await expect(input).toBeFocused();
+      await expect(drill).toHaveAttribute("data-result", "unanswered");
+      expect(await drill.getAttribute("data-question-id")).not.toBe(firstQuestionId);
+      await expectNoPageOverflow(page, `${viewport.name} next recall question`);
+    });
+  });
+}

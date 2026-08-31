@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import { useEffect, useRef, type ComponentType } from "react";
 import { ArrowRight, Eye, GraduationCap, MessageSquare, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
@@ -74,6 +74,7 @@ export function DrillPanel({
   attempts,
   practiceMode,
   currentQuestion,
+  isRecallQuestion,
   reviewEmpty,
   bookmarksEmpty,
   sessionExhausted,
@@ -102,6 +103,7 @@ export function DrillPanel({
   | "attempts"
   | "practiceMode"
   | "currentQuestion"
+  | "isRecallQuestion"
   | "reviewEmpty"
   | "bookmarksEmpty"
   | "sessionExhausted"
@@ -127,6 +129,13 @@ export function DrillPanel({
   onOpenFeedback?: () => void;
 }) {
   const t = copy[language];
+  const recallInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isRecallQuestion && currentQuestion && !feedback) {
+      recallInputRef.current?.focus({ preventScroll: true });
+    }
+  }, [currentQuestion, feedback, isRecallQuestion]);
 
   // Completion-screen copy: daily / review have their own wording; every
   // other (capped, #154) finite session uses the generic "這組完成" set.
@@ -233,6 +242,43 @@ export function DrillPanel({
             />
           ) : null}
 
+          {isRecallQuestion ? (
+            <form
+              className="recall-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const answer = new FormData(event.currentTarget).get("recallAnswer");
+                if (typeof answer === "string") handleChoiceSubmit(answer);
+              }}
+            >
+              <label htmlFor="recall-answer">{t.recallAnswerLabel}</label>
+              <div className="recall-answer-row">
+                <input
+                  key={currentQuestion.id}
+                  ref={recallInputRef}
+                  id="recall-answer"
+                  name="recallAnswer"
+                  type="text"
+                  lang="ja"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder={t.recallAnswerPlaceholder}
+                  disabled={Boolean(feedback)}
+                  onKeyDown={(event) => {
+                    if (
+                      event.key === "Enter" &&
+                      (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229)
+                    ) {
+                      event.preventDefault();
+                    }
+                  }}
+                />
+                <button type="submit" className="next-button" disabled={Boolean(feedback)}>
+                  {t.recallSubmit}
+                </button>
+              </div>
+            </form>
+          ) : (
           <div className="choice-grid" aria-label={t.answerOptions}>
             {choiceOptions.map((choice) => {
               // Expose selection + result as DOM data attributes for AI /
@@ -273,8 +319,11 @@ export function DrillPanel({
               );
             })}
           </div>
+          )}
 
-          {!feedback ? <p className="kbd-hint">{t.keyboardHint}</p> : null}
+          {!feedback ? (
+            <p className="kbd-hint">{isRecallQuestion ? t.recallKeyboardHint : t.keyboardHint}</p>
+          ) : null}
 
           <div className="action-row">
             <button className="ghost-button" type="button" onClick={revealAnswer} disabled={Boolean(feedback)}>

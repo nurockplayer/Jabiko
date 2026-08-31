@@ -99,6 +99,7 @@ export function HomePanel({
   onStartVocab,
   onStartBookmarks,
   onStartDaily,
+  onStartConjugation,
   onStartExamPreset,
   targetLevel,
   onChooseLevel
@@ -114,6 +115,7 @@ export function HomePanel({
   // Starts the starred-questions pass (#470) from the new bookmarks card.
   onStartBookmarks: () => void;
   onStartDaily: () => void;
+  onStartConjugation: () => void;
   // Launches the 綜合/備考 exam session for a band -- the 下一步 banner's
   // target for non-starter learners (level-aware funnel).
   onStartExamPreset: (range: LevelRange) => void;
@@ -311,6 +313,19 @@ export function HomePanel({
         <span className="home-banner-text">
           <strong>{t.homeDailyMain}</strong>
           <small>{t.homeDailySub}</small>
+        </span>
+        <ArrowRight aria-hidden="true" />
+      </button>
+
+      <button
+        type="button"
+        className="home-conjugation-launch"
+        onClick={onStartConjugation}
+      >
+        <Sparkles aria-hidden="true" />
+        <span>
+          <strong>{t.homeConjugationMain}</strong>
+          <small>{t.homeConjugationSub}</small>
         </span>
         <ArrowRight aria-hidden="true" />
       </button>
