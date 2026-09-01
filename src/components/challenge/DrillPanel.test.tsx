@@ -36,6 +36,7 @@ const baseProps = {
   attempts: [] as Attempt[],
   practiceMode: "basic" as const,
   currentQuestion: question as PracticeQuestion | null,
+  isRecallQuestion: false,
   reviewEmpty: false,
   bookmarksEmpty: false,
   sessionExhausted: false,
@@ -105,6 +106,76 @@ function renderDone(opts: {
 }
 
 describe("DrillPanel", () => {
+  it("renders, focuses, and submits a semantic recall field instead of choice options", () => {
+    const handleChoiceSubmit = vi.fn();
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        handleChoiceSubmit={handleChoiceSubmit}
+      />
+    );
+
+    const input = screen.getByRole("textbox", { name: "輸入變化後的日文" });
+    expect(input).toHaveFocus();
+    expect(input).toHaveAttribute("lang", "ja");
+    expect(screen.getByRole("button", { name: "送出答案" })).toHaveAttribute(
+      "type",
+      "submit"
+    );
+    expect(screen.queryByRole("group", { name: "答案選項" })).not.toBeInTheDocument();
+    fireEvent.change(input, { target: { value: "書いて" } });
+    fireEvent.click(screen.getByRole("button", { name: "送出答案" }));
+    expect(handleChoiceSubmit).toHaveBeenCalledWith("書いて");
+  });
+
+  it("starts each pass with an empty recall field when the first question is unchanged", () => {
+    const { rerender } = render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        sessionSeed={3}
+      />
+    );
+    fireEvent.change(screen.getByRole("textbox", { name: "輸入變化後的日文" }), {
+      target: { value: "書いて" }
+    });
+
+    rerender(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        sessionSeed={4}
+      />
+    );
+
+    const nextPassInput = screen.getByRole("textbox", { name: "輸入變化後的日文" });
+    expect(nextPassInput).toHaveValue("");
+    expect(nextPassInput).toHaveFocus();
+  });
+
+  it("prevents IME composition Enter from submitting the recall form", () => {
+    const handleChoiceSubmit = vi.fn();
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        handleChoiceSubmit={handleChoiceSubmit}
+      />
+    );
+    const input = screen.getByRole("textbox", { name: "輸入變化後的日文" });
+    fireEvent.change(input, { target: { value: "書い" } });
+
+    const allowed = fireEvent.keyDown(input, { key: "Enter", isComposing: true });
+
+    expect(allowed).toBe(false);
+    expect(handleChoiceSubmit).not.toHaveBeenCalled();
+  });
+
   it("sends the canonical kana payload for each reported vocabulary reading", () => {
     vi.useFakeTimers();
     speechTestNow += 1_000;

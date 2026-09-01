@@ -13,6 +13,7 @@ const base: ModePickerProps = {
   partOfSpeech: "mixed",
   practiceFilter: {},
   practiceFocus: "single",
+  answerMode: "choice",
   practiceMode: "vocab",
   levelRange: "all",
   showLevelRange: true,
@@ -37,6 +38,7 @@ const base: ModePickerProps = {
   },
   handlePartOfSpeechChange: vi.fn(),
   handlePracticeFocusChange: vi.fn(),
+  handleAnswerModeChange: vi.fn(),
   handlePracticeFilterChange: vi.fn(),
   handleVerbGroupsChange: vi.fn(),
   applyModePreset: vi.fn(),
@@ -72,6 +74,43 @@ describe("ModePicker vocab level-range picker (#668)", () => {
 });
 
 describe("ModePicker basic composable filters (#789)", () => {
+  it("offers recall for a single meaningful verb form and starts a new answer-mode pass", () => {
+    const handleAnswerModeChange = vi.fn();
+    renderPicker({
+      practiceMode: "basic",
+      showLevelRange: false,
+      partOfSpeech: "verb",
+      selectedForm: "conditional",
+      compatibleForms: ["conditional", "reading", "meaning"],
+      answerMode: "recall",
+      handleAnswerModeChange
+    });
+
+    const answerMode = screen.getByRole("group", { name: "答題方式" });
+    expect(within(answerMode).getByRole("button", { name: "自己輸入" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    fireEvent.click(within(answerMode).getByRole("button", { name: "選項" }));
+    expect(handleAnswerModeChange).toHaveBeenCalledWith("choice");
+  });
+
+  it("keeps the additional verb-practice forms out of adjective single-form practice", () => {
+    renderPicker({
+      practiceMode: "basic",
+      showLevelRange: false,
+      partOfSpeech: "i_adjective",
+      selectedForm: "plainPresentNegative",
+      compatibleForms: ["conditional", "plainPresentNegative"]
+    });
+
+    const form = screen.getByRole("combobox", { name: "目標形" });
+    expect(within(form).queryByRole("option", { name: "假定形・ば" })).not.toBeInTheDocument();
+    expect(
+      within(form).getByRole("option", { name: "普通形・非過去否定" })
+    ).toBeInTheDocument();
+  });
+
   it("renders accessible level and verb-group multi-selects", () => {
     const { container } = renderPicker({
       practiceMode: "basic",

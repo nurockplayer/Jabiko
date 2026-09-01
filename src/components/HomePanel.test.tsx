@@ -31,6 +31,7 @@ function renderHome(overrides: Partial<Parameters<typeof HomePanel>[0]> = {}) {
     onStartVocab: noop,
     onStartBookmarks: vi.fn(),
     onStartDaily: vi.fn(),
+    onStartConjugation: vi.fn(),
     onStartExamPreset: vi.fn(),
     targetLevel: null,
     onChooseLevel: vi.fn(),
@@ -269,6 +270,14 @@ describe("HomePanel feedback entry", () => {
 // lightweight reference quick-links row, and the 挑戰 card copy now matches
 // the three-group mode picker instead of the retired "四種模式" list.
 describe("HomePanel section grid refresh", () => {
+  it("offers one compact first-class verb-conjugation launcher", () => {
+    const props = renderHome();
+
+    fireEvent.click(screen.getByRole("button", { name: /動詞變化/ }));
+
+    expect(props.onStartConjugation).toHaveBeenCalledTimes(1);
+  });
+
   it("offers a bookmarks card that starts the starred-questions pass", () => {
     localStorage.setItem("jabiko:bookmarks", JSON.stringify(["q-1", "q-2"]));
     const props = renderHome();
