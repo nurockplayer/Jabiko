@@ -23,22 +23,33 @@ export function useAuth() {
       .then((client) => {
         if (!client || !active) return;
 
+        // Do not trust the user object from getSession() as an authorization
+        // decision. getUser() validates the access token with Supabase Auth and
+        // gives this hook a server-confirmed identity for account-backed data.
         client.auth
-          .getSession()
-          .then(({ data: { session }, error: err }) => {
+          .getUser()
+          .then(({ data: { user }, error: err }) => {
+            if (!active) return;
             if (err) {
-              console.error("Supabase getSession error:", err);
+              console.error("Supabase getUser error:", err);
+              setUser(null);
               setError("sessionFetchFailed");
+              return;
             }
-            setUser(session?.user ?? null);
+            setUser(user ?? null);
+            setError(null);
           })
           .catch((e: unknown) => {
-            console.error("Supabase getSession exception:", e);
+            console.error("Supabase getUser exception:", e);
+            if (!active) return;
+            setUser(null);
+            setError("sessionFetchFailed");
           });
 
         const {
           data: { subscription }
         } = client.auth.onAuthStateChange((_event, session) => {
+          if (!active) return;
           setUser(session?.user ?? null);
           setError(null); // clear errors on successful auth change
         });
@@ -46,6 +57,9 @@ export function useAuth() {
       })
       .catch((e: unknown) => {
         console.error("Supabase load error:", e);
+        if (!active) return;
+        setUser(null);
+        setError("sessionFetchFailed");
       });
 
     return () => {
