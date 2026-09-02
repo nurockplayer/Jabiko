@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
-// ?raw import (typed via vite/client), same trick as staticPages.test.ts.
-import css from "./feedback.css?raw";
+
+// The app tsconfig has browser-only types (no @types/node), so reach fs via a
+// computed dynamic specifier — same trick as FocusBreakLayout.test.ts. (This
+// test originally used a `?raw` import, which resolves to an empty stub under
+// the test runner — and no vitest project included src/styles anyway, so the
+// guard silently never ran.)
+const nodeFsSpecifier = ["node", "fs"].join(":");
+const { readFileSync } = (await import(/* @vite-ignore */ nodeFsSpecifier)) as {
+  readFileSync: (path: URL, encoding: "utf8") => string;
+};
+const css = readFileSync(new URL("./feedback.css", import.meta.url), "utf8");
 
 describe("choice-option layout (#652)", () => {
   it("wraps long furigana option sentences (flex-wrap) instead of overflowing", () => {
