@@ -135,6 +135,7 @@ export const zhHant: Copy = {
   homeStatsStreak: "連續天數",
   homeStatsDue: "待複習",
   homeStatsMastered: "已熟練",
+  homeStatsPoints: "累積點數",
   homeLevelLabel: "各級正答率",
   homeLevelAnswered: (count) => `${count} 題`,
   homeTrendTitle: "每日練習量",

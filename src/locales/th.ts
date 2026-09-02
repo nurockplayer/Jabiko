@@ -136,6 +136,7 @@ export const th: Copy = {
   homeStatsStreak: "จำนวนวันต่อเนื่อง",
   homeStatsDue: "รอทบทวน",
   homeStatsMastered: "เชี่ยวชาญแล้ว",
+  homeStatsPoints: "คะแนนสะสม",
   homeLevelLabel: "อัตราตอบถูกแต่ละระดับ",
   homeLevelAnswered: (count) => `${count} ข้อ`,
   homeTrendTitle: "ปริมาณฝึกรายวัน",

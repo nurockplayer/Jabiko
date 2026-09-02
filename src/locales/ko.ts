@@ -135,6 +135,7 @@ export const ko: Copy = {
   homeStatsStreak: "연속 일수",
   homeStatsDue: "복습 예정",
   homeStatsMastered: "마스터함",
+  homeStatsPoints: "획득 포인트",
   homeLevelLabel: "레벨별 정답률",
   homeLevelAnswered: (count) => `${count}문제 풀이`,
   homeTrendTitle: "일일 연습량",
