@@ -475,6 +475,12 @@ describe("HomePanel points cell (points economy foundation)", () => {
     expect(within(cell as HTMLElement).getByText("2")).toBeInTheDocument();
   });
 
+  it("marks the points tile with the accent class (the strip's focal number)", () => {
+    renderHome({ progressAttempts: [sampleAttempt] });
+    const cell = screen.getByText("累積點數").closest(".home-stats-cell");
+    expect(cell).toHaveClass("home-stats-cell-points");
+  });
+
   it("wrong answers earn nothing (points cell stays at zero)", () => {
     renderHome({ progressAttempts: [{ ...sampleAttempt, isCorrect: false }] });
     const cell = screen.getByText("累積點數").closest(".home-stats-cell");
