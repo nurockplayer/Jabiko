@@ -32,7 +32,21 @@ const batch2Items = new Map([
   ["n2-syn-terekusai", "照れくさい"]
 ]);
 
-const expectedItems = new Map([...batch1Items, ...batch2Items]);
+// Batch 3: 私立恵比寿中学 / TEAM SHACHI, second pass over the same songs.
+const batch3Items = new Map([
+  ["n1-syn-kadode", "門出"],
+  ["n1-syn-ryuutoudabi", "竜頭蛇尾"],
+  ["n1-syn-toriko", "虜"],
+  ["n1-syn-itooshii", "愛おしい"],
+  ["n2-syn-hankagai", "繁華街"],
+  ["n2-syn-tadoritsuku", "辿り着く"],
+  ["n2-syn-ikinuku", "生き抜く"],
+  ["n2-syn-kizamikomu", "刻み込む"],
+  ["n3-syn-dakishimeru", "抱きしめる"],
+  ["n3-syn-oikakeru", "追いかける"]
+]);
+
+const expectedItems = new Map([...batch1Items, ...batch2Items, ...batch3Items]);
 
 const allItems: PracticeQuestion[] = [...n1Items, ...n2Items, ...n3Items];
 
