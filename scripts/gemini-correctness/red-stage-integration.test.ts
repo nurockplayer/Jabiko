@@ -184,7 +184,10 @@ describe("runGuardedTargetedVitest", () => {
   });
 });
 
-describe("runRedStage integration", () => {
+// These cases spawn real git / vitest subprocesses, so wall time tracks
+// machine load; the default 5s per-test timeout flakes when the full suite
+// runs in parallel. 30s is headroom, not a behavioural change.
+describe("runRedStage integration", { timeout: 30_000 }, () => {
   beforeEach(() => initializeFixture());
   afterEach(() => {
     fs.rmSync(fixtureRoot, { recursive: true, force: true });

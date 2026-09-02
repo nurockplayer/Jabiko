@@ -593,7 +593,7 @@ export function HomePanel({
             {/* Points economy foundation: 1 point per correct answer, derived
                 from the same attempt history as the other tiles (points.ts).
                 A future shop spends against this via a separate spend ledger. */}
-            <div className="home-stats-cell">
+            <div className="home-stats-cell home-stats-cell-points">
               <strong>{computeEarnedPoints(progressAttempts)}</strong>
               <small>{t.homeStatsPoints}</small>
             </div>

@@ -679,6 +679,12 @@
   letter-spacing: 0.02em;
 }
 
+/* The points tile is the strip's one focal number (the balance a future shop
+   spends); every other tile stays in --ink so the accent reads. */
+.home-stats-cell-points strong {
+  color: var(--vermilion);
+}
+
 /* ── Home dashboard v1 (#243) ──────────────────────────────────────────
    Lightweight progress visuals layered into the existing .home-progress
    section: an overall-accuracy ring + per-level bars (one row) and a daily
@@ -698,8 +704,9 @@
   letter-spacing: 0.02em;
 }
 
-/* The merged lifetime+SRS metric strip carries 5 cells; auto-fit keeps them
-   even and wraps gracefully on narrow screens (vs the fixed 3-col default). */
+/* The merged lifetime+SRS+points metric strip carries 6 cells; auto-fit keeps
+   them even and wraps gracefully on narrow screens (vs the fixed 3-col
+   default). */
 .home-stats-strip.is-wrap {
   grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
 }
@@ -713,6 +720,23 @@
   background: var(--paper);
   border: 1px solid var(--rule);
   border-radius: var(--radius-lg);
+}
+
+/* Density pass: on wide screens the two self-contained chart cards (practice
+   trend + type strength) share one row; the title, metric strip and overview
+   row keep full width. Narrow screens keep the flex column above. */
+@media (min-width: 900px) {
+  .home-progress {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .home-progress-title,
+  .home-stats-strip,
+  .home-overview-row {
+    grid-column: 1 / -1;
+  }
 }
 
 /* Accuracy ring */
