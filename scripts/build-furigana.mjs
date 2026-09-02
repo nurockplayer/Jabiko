@@ -183,7 +183,12 @@ async function main() {
       // read いりまじる.
       入り混じって: "いりまじって",
       入り混じる: "いりまじる",
-      入り混じり: "いりまじり"
+      入り混じり: "いりまじり",
+      // kuromoji reads the 愛 of 愛おしい as あい; the word is いとおしい.
+      愛おしい: "いとおしい",
+      愛おしく: "いとおしく",
+      愛おしかった: "いとおしかった",
+      愛おしさ: "いとおしさ"
     };
 
     // #714: standalone reading-drill surfaces keep their vocabulary reading,
