@@ -460,3 +460,25 @@ describe("HomePanel promotion placement", () => {
     expect(recommendation.compareDocumentPosition(heroHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
+
+describe("HomePanel points cell (points economy foundation)", () => {
+  it("shows total earned points -- one per correct attempt -- in the stats strip", () => {
+    renderHome({
+      progressAttempts: [
+        sampleAttempt,
+        { ...sampleAttempt, isCorrect: false, timestamp: 2 },
+        { ...sampleAttempt, isCorrect: true, timestamp: 3 }
+      ]
+    });
+    const cell = screen.getByText("累積點數").closest(".home-stats-cell");
+    expect(cell).not.toBeNull();
+    expect(within(cell as HTMLElement).getByText("2")).toBeInTheDocument();
+  });
+
+  it("wrong answers earn nothing (points cell stays at zero)", () => {
+    renderHome({ progressAttempts: [{ ...sampleAttempt, isCorrect: false }] });
+    const cell = screen.getByText("累積點數").closest(".home-stats-cell");
+    expect(cell).not.toBeNull();
+    expect(within(cell as HTMLElement).getByText("0")).toBeInTheDocument();
+  });
+});

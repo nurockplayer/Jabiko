@@ -135,6 +135,7 @@ export const en: Copy = {
   homeStatsStreak: "Day streak",
   homeStatsDue: "Due for review",
   homeStatsMastered: "Mastered",
+  homeStatsPoints: "Points earned",
   homeLevelLabel: "Accuracy by level",
   homeLevelAnswered: (count) => `${count} answered`,
   homeTrendTitle: "Daily practice volume",

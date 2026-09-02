@@ -135,6 +135,7 @@ export const vi: Copy = {
   homeStatsStreak: "Chuỗi ngày liên tiếp",
   homeStatsDue: "Đến hạn ôn",
   homeStatsMastered: "Đã thành thạo",
+  homeStatsPoints: "Điểm thưởng",
   homeLevelLabel: "Độ chính xác theo cấp độ",
   homeLevelAnswered: (count) => `Đã trả lời ${count} câu`,
   homeTrendTitle: "Lượng luyện tập hằng ngày",

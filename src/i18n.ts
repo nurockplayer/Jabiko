@@ -135,6 +135,8 @@ export type Copy = {
   homeStatsStreak: string;
   homeStatsDue: string;
   homeStatsMastered: string;
+  /** Stats-strip label for total earned points (1 per correct answer; src/domain/points.ts). */
+  homeStatsPoints: string;
   homeLevelLabel: string;
   homeLevelAnswered: (count: number) => string;
   homeTrendTitle: string;

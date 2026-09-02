@@ -135,6 +135,7 @@ export const my: Copy = {
   homeStatsStreak: "ဆက်တိုက်ရက်",
   homeStatsDue: "ပြန်လေ့ကျင့်ရန်",
   homeStatsMastered: "ကျွမ်းကျင်ပြီး",
+  homeStatsPoints: "စုဆောင်းပွိုင့်",
   homeLevelLabel: "အဆင့်အလိုက် မှန်ကန်မှု",
   homeLevelAnswered: (count) => `${count} ဖြေဆိုပြီး`,
   homeTrendTitle: "နေ့စဉ် လေ့ကျင့်မှု ပမာဏ",

@@ -136,6 +136,7 @@ export const ja: Copy = {
   homeStatsStreak: "連続日数",
   homeStatsDue: "復習待ち",
   homeStatsMastered: "習得済み",
+  homeStatsPoints: "獲得ポイント",
   homeLevelLabel: "レベル別正答率",
   homeLevelAnswered: (count) => `${count} 問`,
   homeTrendTitle: "日々の練習量",

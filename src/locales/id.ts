@@ -135,6 +135,7 @@ export const id: Copy = {
   homeStatsStreak: "Hari beruntun",
   homeStatsDue: "Perlu diulang",
   homeStatsMastered: "Sudah dikuasai",
+  homeStatsPoints: "Poin terkumpul",
   homeLevelLabel: "Akurasi tiap level",
   homeLevelAnswered: (count) => `${count} soal`,
   homeTrendTitle: "Jumlah latihan harian",
