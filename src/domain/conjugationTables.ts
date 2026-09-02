@@ -34,7 +34,7 @@ export interface ConjugationTable {
 }
 
 /** The translatable text layer of a table (#427) -- everything but the id. */
-export type ConjugationTableText = Pick<
+type ConjugationTableText = Pick<
   ConjugationTable,
   "title" | "caption" | "columns" | "rows" | "pitfalls"
 >;

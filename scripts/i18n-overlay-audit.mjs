@@ -87,12 +87,6 @@ export function parseTypeScriptFile(filePath) {
   return ts.createSourceFile(filePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
 }
 
-/** Fall back to a SourceFile from raw text (used in tests / dry-runs where the
- *  file may not exist on disk). */
-export function parseTypeScriptSource(text, fileName = "inline.ts") {
-  return ts.createSourceFile(fileName, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
-}
-
 // ---------------------------------------------------------------------------
 // Locale registry parsing (src/i18n.ts)
 // ---------------------------------------------------------------------------

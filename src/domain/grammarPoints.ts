@@ -11,10 +11,10 @@ import type { JlptLevel, LocalizedText, PracticeQuestion } from "./types";
 import { examStyleQuestions } from "./examBlocks";
 import { grammarNotes, type GrammarNote } from "./grammarNotes";
 
-export type GrammarPointExample = { ja: string; zh: string; zhI18n?: LocalizedText };
+type GrammarPointExample = { ja: string; zh: string; zhI18n?: LocalizedText };
 
 /** One usage note with its per-locale overlay, so the page can pickLocalized. */
-export type GrammarPointExplanation = { zh: string; i18n?: LocalizedText };
+type GrammarPointExplanation = { zh: string; i18n?: LocalizedText };
 
 export type GrammarPoint = {
   /** The grammar-point surface; also the route id (`/grammar/<surface>`). */

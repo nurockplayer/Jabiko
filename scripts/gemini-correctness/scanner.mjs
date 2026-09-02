@@ -29,7 +29,7 @@ export function normalizeRepositoryPath(filePath) {
 // ---------------------------------------------------------------------------
 // validateScanOptions — rejects invalid or over-limit parameters
 // ---------------------------------------------------------------------------
-export function validateScanOptions({
+function validateScanOptions({
   maxFiles = DEFAULT_MAX_FILES,
   maxBytesPerFile = DEFAULT_MAX_BYTES_PER_FILE,
   maxTotalBytes = DEFAULT_MAX_TOTAL_BYTES

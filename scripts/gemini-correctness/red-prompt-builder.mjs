@@ -5,7 +5,7 @@
 import path from "node:path";
 import ts from "typescript";
 
-export const MAX_RED_PROMPT_CHARS = 300_000;
+const MAX_RED_PROMPT_CHARS = 300_000;
 
 const EXISTING_TEST_RE = /\.test\.tsx?$/;
 const IMPORT_EXTENSIONS = [".ts", ".tsx", ".mjs"];

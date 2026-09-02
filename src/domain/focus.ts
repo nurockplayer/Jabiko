@@ -16,12 +16,12 @@ export const MS_PER_MINUTE = 60_000;
 const MS_PER_DAY = 86_400_000;
 
 // UI / config bounds (simple custom durations; no preset system in v1).
-export const DEFAULT_FOCUS_MINUTES = 25;
-export const DEFAULT_BREAK_MINUTES = 5;
-export const MIN_FOCUS_MINUTES = 1;
-export const MAX_FOCUS_MINUTES = 120;
-export const MIN_BREAK_MINUTES = 1;
-export const MAX_BREAK_MINUTES = 60;
+const DEFAULT_FOCUS_MINUTES = 25;
+const DEFAULT_BREAK_MINUTES = 5;
+const MIN_FOCUS_MINUTES = 1;
+const MAX_FOCUS_MINUTES = 120;
+const MIN_BREAK_MINUTES = 1;
+const MAX_BREAK_MINUTES = 60;
 // Completed-focus day buckets are retained for today and yesterday only (the
 // Break surface only reports "today's accumulated focus time"); anything older
 // is pruned on write so the store cannot grow unbounded.
@@ -56,7 +56,7 @@ export interface FocusSessionState {
 }
 
 /** Completed focus time (ms) bucketed by UTC day index (stats.ts convention). */
-export type FocusDayTotals = Record<string, number>;
+type FocusDayTotals = Record<string, number>;
 
 export interface FocusPersistedState {
   config: FocusConfig;

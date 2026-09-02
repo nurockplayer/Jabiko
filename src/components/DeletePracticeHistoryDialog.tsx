@@ -21,7 +21,7 @@ import type { HistoryDeletionStatus } from "../hooks/useProgressAttempts";
 // A single instance is shared by the desktop heading-auth entry and the mobile
 // 更多 menu; the caller owns the single returnFocusRef.
 
-export type DeletePracticeHistoryCopy = {
+type DeletePracticeHistoryCopy = {
   title: string;
   description: string;
   confirmLabel: string;

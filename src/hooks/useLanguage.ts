@@ -29,7 +29,7 @@ function languageForTag(tag: string | undefined): Language | null {
   return code && isSupportedLanguage(code) ? code : null;
 }
 
-export function languageFromSearch(search: string): Language | null {
+function languageFromSearch(search: string): Language | null {
   const raw = new URLSearchParams(search).get("lang");
   if (!raw) return null;
   if (isSupportedLanguage(raw)) return raw;

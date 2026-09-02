@@ -84,7 +84,7 @@ function isJabikoProductionHost(uri) {
 }
 
 /** True when a single stream is a jabiko.app / www.jabiko.app production web stream. */
-export function isProductionWebStream(stream) {
+function isProductionWebStream(stream) {
   return (
     stream?.type === "WEB_DATA_STREAM" &&
     isJabikoProductionHost(stream.webStreamData?.defaultUri ?? "")

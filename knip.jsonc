@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  // Dead-code scanner config (run via `pnpm dlx knip`). Entries listed here are
+  // reachable outside the import graph, so knip must not report them as unused.
+  "entry": [
+    // Default entries (kept explicit because "entry" overrides the defaults).
+    "src/main.tsx",
+    "vite.config.ts",
+    // Manual CLI documented in CLAUDE.md's exam content pipeline
+    // (`node scripts/import-exam-items.mjs <file> --dry-run`).
+    "scripts/import-exam-items.mjs",
+    // Exec'd by the ops/analytics/bin/* bash wrappers, not imported.
+    "ops/analytics/src/cli/*.mjs",
+    // Directory entrypoint guard for `node --test ops/analytics/test/` on
+    // Node 22+ (see its header comment); CI invokes the glob form instead.
+    "ops/analytics/test/index.js"
+  ]
+}

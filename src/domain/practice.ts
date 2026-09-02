@@ -18,7 +18,7 @@ import type {
   VocabularyItem
 } from "./types";
 
-export const CHOICE_COUNT = 4;
+const CHOICE_COUNT = 4;
 
 // How many of the most-similar candidates form the pool we sample
 // distractors from. Strict top-(CHOICE_COUNT-1) converges: questions

@@ -10,7 +10,7 @@ import type { LocaleCode } from "./types";
  * Only the Chinese prose is localized. The Japanese example sentences
  * (`examples[].ja`), the point `surface`, and `jlptLevel` are never overlaid.
  */
-export type GrammarNoteText = {
+type GrammarNoteText = {
   meaningZh?: string;
   formation?: string;
   usageZh?: string;

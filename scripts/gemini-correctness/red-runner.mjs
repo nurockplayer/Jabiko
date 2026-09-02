@@ -7,7 +7,7 @@ import path from "node:path";
 import { spawn as nodeSpawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-export const TARGETED_TEST_TIMEOUT_MS = 60_000;
+const TARGETED_TEST_TIMEOUT_MS = 60_000;
 const MAX_REPORT_BYTES = 2 * 1024 * 1024;
 const PROCESS_GUARD_PATH = fileURLToPath(
   new URL("./red-process-guard.mjs", import.meta.url)

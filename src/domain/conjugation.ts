@@ -400,8 +400,6 @@ const YOI_DERIVED_ADJECTIVES = new Set([
   "頭がいい"
 ]);
 
-export const VOCAB_FORMS: TargetForm[] = ["reading", "meaning"];
-
 export function conjugate(item: VocabularyItem, targetForm: TargetForm): ConjugationResult {
   // Displayed glosses prefer the per-locale translation; the zh source is the
   // graceful fallback until vocab meaningI18n data lands. Answer logic never

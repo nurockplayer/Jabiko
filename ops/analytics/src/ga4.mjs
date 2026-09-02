@@ -133,7 +133,7 @@ async function refreshUserOAuth(credential) {
   return data.access_token;
 }
 
-export async function getGoogleAccessToken({ credential }) {
+async function getGoogleAccessToken({ credential }) {
   if (!credential) return null;
   if (credential.type === "access-token") return credential.token;
   if (credential.type === "service-account") return exchangeServiceAccount(credential);
