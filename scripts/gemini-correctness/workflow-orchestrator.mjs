@@ -56,7 +56,7 @@ const REQUIRED_ADAPTERS = [
   "clock"
 ];
 
-export const WORKFLOW_STATUS = Object.freeze({
+const WORKFLOW_STATUS = Object.freeze({
   OFF_SKIP: "off-skip",
   OPEN_PR_BLOCKED: "open-pr-blocked",
   BASELINE_BLOCKED: "baseline-blocked",

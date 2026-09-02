@@ -45,27 +45,9 @@ const stroke = {
   strokeLinejoin: "round" as const
 };
 
-/** Daruma with one eye painted in -- the Japanese "goal achieved" motif.
- *  Used on completion screens. */
-export function DarumaSpot({ size = 76, className }: SpotProps) {
-  return (
-    <svg {...svgProps(size, className)}>
-      <path
-        {...stroke}
-        d="M50 14 C30 14 23 40 25 56 C27 78 42 90 50 90 C58 90 73 78 75 56 C77 40 70 14 50 14 Z"
-        fill="var(--vermilion)"
-      />
-      <ellipse {...stroke} cx="50" cy="48" rx="20" ry="23" fill="var(--paper)" />
-      <circle cx="42" cy="46" r="4" fill="currentColor" />
-      <circle cx="58" cy="46" r="4" fill="none" stroke="currentColor" strokeWidth="2" />
-      <path {...stroke} d="M43 62 Q50 67 57 62" fill="none" />
-    </svg>
-  );
-}
-
 /** Daruma with BOTH eyes painted in (両目 = 開眼) plus a spark -- the
  *  "wish fulfilled" payoff. Reserved for a flawless (100%) session so the
- *  second eye stays meaningful. Mirrors DarumaSpot's outline exactly. */
+ *  second eye stays meaningful. */
 export function DarumaDoneSpot({ size = 76, className }: SpotProps) {
   return (
     <svg {...svgProps(size, className)}>

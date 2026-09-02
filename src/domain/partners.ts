@@ -8,7 +8,7 @@ import {
 } from "./stayD";
 
 /** One partner's card copy in one locale. */
-export interface PartnerCopy {
+interface PartnerCopy {
   /** Small label above the name, e.g. the category of the partnership. */
   kicker: string;
   /** Headline of the card -- what is being recommended. */
@@ -19,7 +19,7 @@ export interface PartnerCopy {
   cta: string;
 }
 
-export interface PartnerVideo {
+interface PartnerVideo {
   copy: Partial<Record<LocaleCode, StayDVideoCopy>>;
   triggerPlacement: "stay-d-video";
   linkPlacement: "stay-d-video-airbnb";

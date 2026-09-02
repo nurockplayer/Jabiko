@@ -16,7 +16,7 @@ import { readStored, writeStored } from "./safeStorage";
 // safeStorage abstraction (blocked storage reads back as "no marker" and a
 // failed write reports failure to the caller instead of throwing).
 
-export const DELETION_MARKER_PREFIX = "jabiko.attempt-history-delete-pending";
+const DELETION_MARKER_PREFIX = "jabiko.attempt-history-delete-pending";
 
 /** Fixed per-user storage key for the pending-deletion marker. */
 export function deletionMarkerKey(userId: string): string {

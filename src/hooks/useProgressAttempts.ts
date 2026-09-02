@@ -24,7 +24,7 @@ const attemptStore = createAttemptStore();
 //   syncing -- a login merge is in flight
 //   synced  -- the last login merge completed (writes are best-effort after)
 //   error   -- the last login merge failed; local was left untouched
-export type SyncStatus = "idle" | "syncing" | "synced" | "error";
+type SyncStatus = "idle" | "syncing" | "synced" | "error";
 
 // The terminal outcome of a single login-sync generation, keyed to the user
 // whose merge it belongs to. React state stores ONLY the latest completed

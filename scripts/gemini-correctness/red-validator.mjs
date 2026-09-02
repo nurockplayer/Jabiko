@@ -13,8 +13,8 @@ import {
 } from "./policy.mjs";
 import { redactForOutput } from "./discover.mjs";
 
-export const MAX_REGRESSION_TEST_LINES = 250;
-export const MAX_REGRESSION_TEST_BYTES = 64 * 1024;
+const MAX_REGRESSION_TEST_LINES = 250;
+const MAX_REGRESSION_TEST_BYTES = 64 * 1024;
 
 const CANDIDATE_KEYS = [
   "schemaVersion",

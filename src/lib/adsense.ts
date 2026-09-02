@@ -35,7 +35,7 @@ interface TcfData {
 
 type TcfCallback = (tcData: TcfData, success: boolean) => void;
 
-export type TcfApi = (
+type TcfApi = (
   command: "addEventListener" | "removeEventListener",
   version: 2,
   callback: TcfCallback,
