@@ -588,6 +588,25 @@ describe("conversation session definition validation", () => {
     ]);
     expect(unbound.errors.map((error) => error.code)).toContain("unbound_learner_step");
   });
+
+  it("rejects a reachable response example without its own authored binding", () => {
+    const partial = validateConversationSessionDefinitions([
+      definitionWithResponses(weekendShortDefinition, [weekendBriefBinding])
+    ]);
+
+    expect(partial.valid).toBe(false);
+    expect(partial.errors).toContainEqual({
+      code: "unbound_response_example",
+      scenarioId: "weekend-short",
+      stepId: "weekend-response",
+      referenceId: "weekend-rich"
+    });
+    expect(() =>
+      createConversationSession([
+        definitionWithResponses(weekendShortDefinition, [weekendBriefBinding])
+      ])
+    ).toThrow();
+  });
 });
 
 describe("conversation session runtime", () => {

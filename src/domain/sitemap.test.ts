@@ -38,7 +38,7 @@ describe("sitemap.xml drift guard (#479)", () => {
   });
 
   it("includes the core static routes + the grammar index", () => {
-    for (const route of ["/", "/learn", "/challenge", "/mock", "/kanji", "/kana", "/rules", "/grammar", "/about", "/privacy", "/terms", "/stay-d"]) {
+    for (const route of ["/", "/learn", "/challenge", "/mock", "/kanji", "/kana", "/rules", "/grammar", "/about", "/privacy", "/terms", "/stay-d", "/conversation"]) {
       expect(sitemapXml).toContain(`<loc>https://jabiko.app${route}</loc>`);
     }
   });
@@ -61,7 +61,7 @@ describe("sitemap grammar level hubs and lastmod (#584-B)", () => {
 
 
   it("omits lastmod for static routes that have no reliable content date", () => {
-    for (const route of ["/", "/learn", "/challenge", "/mock", "/kanji", "/kana", "/rules", "/grammar", "/about", "/privacy", "/terms"]) {
+    for (const route of ["/", "/learn", "/challenge", "/mock", "/kanji", "/kana", "/rules", "/grammar", "/about", "/privacy", "/terms", "/conversation"]) {
       const block = urlBlockFor(`https://jabiko.app${route}`);
       expect(block, route).toBeDefined();
       expect(block!, `${route} should not contain <lastmod>`).not.toContain("<lastmod>");

@@ -124,6 +124,7 @@ const NAV_LINKS: ReadonlyArray<{ href: string; label: string }> = [
   { href: "/kanji", label: "漢字音讀" },
   { href: "/grammar", label: "文型資料庫" },
   { href: "/challenge", label: "題庫練習" },
+  { href: "/conversation", label: "日常會話" },
   { href: "/mock", label: "題型練習" },
   { href: "/about", label: "關於" },
   { href: "/privacy", label: "隱私政策" },
@@ -208,6 +209,7 @@ function homeBody(): string {
     `<li><a href="/grammar">JLPT 文型資料庫</a>：${grammarPatterns.length} 個文型的意思、接續與例句</li>`,
     `<li><a href="/learn">分章學習</a>：動詞變化到常用句型，一章一章打底</li>`,
     `<li><a href="/challenge">題庫練習</a>：N1〜N5 綜合題庫、備考模式與弱點複習</li>`,
+    `<li><a href="/conversation">日常會話</a>：短／中／長的生活情境接話練習與人工整理回饋</li>`,
     `<li><a href="/mock">題型練習</a>：照 JLPT 官方題型分區逐區攻略</li>`,
     `<li><a href="/kanji">漢字音讀速查</a>、<a href="/rules">規則速查表</a></li>`
   ].join("");
@@ -330,6 +332,7 @@ export function buildStaticPages(): StaticPage[] {
   }
   push("stayD", VIEW_SEO.stayD.path, partnersBody());
   push("kana", "/kana", kanaBody());
+  push("conversation", VIEW_SEO.conversation.path, simpleViewBody("conversation"));
   push("grammar", "/grammar", grammarIndexBody());
   for (const level of LEVELS) {
     push("grammar", `/grammar/${level.toLowerCase()}`, grammarIndexBody(level), level.toLowerCase());

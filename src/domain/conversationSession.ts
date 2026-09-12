@@ -35,6 +35,7 @@ export type ConversationSessionDefinitionErrorCode =
   | "invalid_feedback_context"
   | "duplicate_binding"
   | "duplicate_feedback_id"
+  | "unbound_response_example"
   | "unbound_learner_step";
 
 export interface ConversationSessionDefinitionError {
@@ -96,6 +97,7 @@ export function validateConversationSessionDefinitions(
     const stepsById = new Map(scenario.steps.map((step) => [step.id, step]));
     const reachableStepIds = collectReachableStepIds(scenario);
     const boundStepIds = new Set<string>();
+    const boundResponseKeys = new Set<string>();
 
     for (const binding of definition.responses) {
       const step = stepsById.get(binding.stepId);
@@ -151,6 +153,7 @@ export function validateConversationSessionDefinitions(
       }
 
       const bindingKey = `${scenario.id}::${step.id}::${example.id}`;
+      boundResponseKeys.add(`${step.id}::${example.id}`);
       if (seenBindings.has(bindingKey)) {
         errors.push({
           code: "duplicate_binding",
@@ -193,8 +196,18 @@ export function validateConversationSessionDefinitions(
     }
 
     for (const stepId of reachableStepIds) {
-      if (stepsById.get(stepId)?.kind !== "learner_response") continue;
-      if (!boundStepIds.has(stepId)) {
+      const step = stepsById.get(stepId);
+      if (step?.kind !== "learner_response") continue;
+      for (const example of step.responseExamples) {
+        if (boundResponseKeys.has(`${step.id}::${example.id}`)) continue;
+        errors.push({
+          code: "unbound_response_example",
+          scenarioId: scenario.id,
+          stepId: step.id,
+          referenceId: example.id
+        });
+      }
+      if (!boundStepIds.has(step.id)) {
         errors.push({
           code: "unbound_learner_step",
           scenarioId: scenario.id,

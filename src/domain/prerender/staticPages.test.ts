@@ -114,10 +114,19 @@ describe("buildStaticPages", () => {
       "/privacy",
       "/terms",
       "/stay-d",
-      "/grammar"
+      "/grammar",
+      "/conversation"
     ]) {
       expect(byPath.has(route), route).toBe(true);
     }
+  });
+
+  it("prerenders the Small Talk conversation route with its own metadata", () => {
+    const page = byPath.get("/conversation");
+    expect(page).toBeDefined();
+    expect(page!.title).toContain("日常會話");
+    expect(page!.canonical).toBe("https://jabiko.app/conversation");
+    expect(page!.bodyHtml).toContain("日常會話練習室");
   });
 
   it("prerenders editorial Stay.D copy and a crawler-visible Airbnb link", () => {
