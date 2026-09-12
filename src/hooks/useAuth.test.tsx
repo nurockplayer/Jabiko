@@ -192,6 +192,87 @@ describe("useAuth", () => {
     expect(result.current.user).toBe(validatedUser);
   });
 
+  it("keeps a validated user while same-account events revalidate", async () => {
+    const signedInValidation = deferred<UserResult>();
+    const refreshValidation = deferred<UserResult>();
+    const user = makeUser("validated-user");
+    getSession.mockResolvedValue(sessionResult(makeSession(user)));
+    getUser
+      .mockResolvedValueOnce(userResult(user))
+      .mockReturnValueOnce(signedInValidation.promise)
+      .mockReturnValueOnce(refreshValidation.promise);
+
+    const { result } = renderHook(() => useAuth());
+    await waitFor(() => expect(result.current.user).toBe(user));
+
+    act(() => {
+      emit("SIGNED_IN", makeSession(user));
+    });
+    expect(result.current.user).toBe(user);
+    await waitFor(() => expect(getUser).toHaveBeenCalledTimes(2));
+
+    await act(async () => {
+      signedInValidation.resolve(userResult(user));
+    });
+    expect(result.current.user).toBe(user);
+
+    act(() => {
+      emit("TOKEN_REFRESHED", makeSession(user));
+    });
+    expect(result.current.user).toBe(user);
+    await waitFor(() => expect(getUser).toHaveBeenCalledTimes(3));
+
+    await act(async () => {
+      refreshValidation.resolve(userResult(user));
+    });
+    expect(result.current.user).toBe(user);
+    expect(result.current.error).toBeNull();
+  });
+
+  it("clears a validated user while a different account validates", async () => {
+    const validation = deferred<UserResult>();
+    const currentUser = makeUser("current-user");
+    const nextUser = makeUser("next-user");
+    getSession.mockResolvedValue(sessionResult(makeSession(currentUser)));
+    getUser.mockResolvedValueOnce(userResult(currentUser)).mockReturnValueOnce(validation.promise);
+
+    const { result } = renderHook(() => useAuth());
+    await waitFor(() => expect(result.current.user).toBe(currentUser));
+
+    act(() => {
+      emit("SIGNED_IN", makeSession(nextUser));
+    });
+    expect(result.current.user).toBeNull();
+    await waitFor(() => expect(getUser).toHaveBeenCalledTimes(2));
+
+    await act(async () => {
+      validation.resolve(userResult(nextUser));
+    });
+    expect(result.current.user).toBe(nextUser);
+  });
+
+  it("clears a validated user when current revalidation fails", async () => {
+    const validation = deferred<UserResult>();
+    const user = makeUser("validated-user");
+    getSession.mockResolvedValue(sessionResult(makeSession(user)));
+    getUser.mockResolvedValueOnce(userResult(user)).mockReturnValueOnce(validation.promise);
+
+    const { result } = renderHook(() => useAuth());
+    await waitFor(() => expect(result.current.user).toBe(user));
+
+    act(() => {
+      emit("TOKEN_REFRESHED", makeSession(user));
+    });
+    expect(result.current.user).toBe(user);
+    await waitFor(() => expect(getUser).toHaveBeenCalledTimes(2));
+
+    await act(async () => {
+      validation.resolve(userResult(null, authError("token expired")));
+    });
+    expect(result.current.user).toBeNull();
+    expect(result.current.error).toBe("sessionFetchFailed");
+  });
+
   it("keeps a sign-out event when an older restoration validates later", async () => {
     const validation = deferred<UserResult>();
     getSession.mockResolvedValue(sessionResult(makeSession(makeUser("persisted-user"))));
