@@ -24,6 +24,30 @@ export function useAuth() {
       .then((client) => {
         if (!client || !active) return;
 
+        // Auth event payloads can come from storage during SDK startup. Do not
+        // publish their user object until Auth has validated the access token.
+        const validateUser = (eventVersion: number) => {
+          client.auth
+            .getUser()
+            .then(({ data: { user }, error: userError }) => {
+              if (!active || eventVersion !== authEventVersion) return;
+              if (userError) {
+                console.error("Supabase getUser error:", userError);
+                setUser(null);
+                setError("sessionFetchFailed");
+                return;
+              }
+              setUser(user ?? null);
+              setError(null);
+            })
+            .catch((e: unknown) => {
+              console.error("Supabase getUser exception:", e);
+              if (!active || eventVersion !== authEventVersion) return;
+              setUser(null);
+              setError("sessionFetchFailed");
+            });
+        };
+
         // INITIAL_SESSION reflects locally persisted auth state. Ignore that
         // event here because restored identities are validated below before
         // they are exposed to account-backed features.
@@ -32,8 +56,14 @@ export function useAuth() {
         } = client.auth.onAuthStateChange((event, session) => {
           if (!active || event === "INITIAL_SESSION") return;
           authEventVersion += 1;
-          setUser(session?.user ?? null);
-          setError(null); // clear errors on successful auth change
+          if (!session) {
+            setUser(null);
+            setError(null);
+            return;
+          }
+          setUser(null);
+          setError(null);
+          validateUser(authEventVersion);
         });
         unsubscribe = () => subscription.unsubscribe();
 
@@ -59,25 +89,7 @@ export function useAuth() {
               return;
             }
 
-            client.auth
-              .getUser()
-              .then(({ data: { user }, error: userError }) => {
-                if (!restorationIsCurrent()) return;
-                if (userError) {
-                  console.error("Supabase getUser error:", userError);
-                  setUser(null);
-                  setError("sessionFetchFailed");
-                  return;
-                }
-                setUser(user ?? null);
-                setError(null);
-              })
-              .catch((e: unknown) => {
-                console.error("Supabase getUser exception:", e);
-                if (!restorationIsCurrent()) return;
-                setUser(null);
-                setError("sessionFetchFailed");
-              });
+            validateUser(restorationEventVersion);
           })
           .catch((e: unknown) => {
             console.error("Supabase getSession exception:", e);

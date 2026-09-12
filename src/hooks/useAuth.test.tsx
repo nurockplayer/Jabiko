@@ -165,6 +165,33 @@ describe("useAuth", () => {
     expect(result.current.user).toBe(validatedUser);
   });
 
+  it("does not trust the storage-backed SIGNED_IN emitted before INITIAL_SESSION", async () => {
+    const validation = deferred<UserResult>();
+    const storedUser = makeUser("stored-user");
+    const validatedUser = makeUser("validated-user");
+    const session = deferred<SessionResult>();
+    getSession.mockReturnValue(session.promise);
+    getUser.mockReturnValue(validation.promise);
+
+    const { result } = renderHook(() => useAuth());
+    await waitFor(() => expect(getSession).toHaveBeenCalledTimes(1));
+
+    // This is the installed SDK's startup sequence: recovery publishes its
+    // storage payload as SIGNED_IN before the subscription gets INITIAL_SESSION.
+    act(() => {
+      emit("SIGNED_IN", makeSession(storedUser));
+      emit("INITIAL_SESSION", makeSession(storedUser));
+    });
+
+    expect(result.current.user).toBeNull();
+    await waitFor(() => expect(getUser).toHaveBeenCalledTimes(1));
+
+    await act(async () => {
+      validation.resolve(userResult(validatedUser));
+    });
+    expect(result.current.user).toBe(validatedUser);
+  });
+
   it("keeps a sign-out event when an older restoration validates later", async () => {
     const validation = deferred<UserResult>();
     getSession.mockResolvedValue(sessionResult(makeSession(makeUser("persisted-user"))));
@@ -184,11 +211,31 @@ describe("useAuth", () => {
     expect(result.current.error).toBeNull();
   });
 
-  it("keeps a sign-in event when an older restoration validates later", async () => {
+  it("keeps a sign-out event when an older restoration rejects later", async () => {
     const validation = deferred<UserResult>();
-    const signedInUser = makeUser("new-user");
     getSession.mockResolvedValue(sessionResult(makeSession(makeUser("persisted-user"))));
     getUser.mockReturnValue(validation.promise);
+
+    const { result } = renderHook(() => useAuth());
+    await waitFor(() => expect(getUser).toHaveBeenCalledTimes(1));
+
+    act(() => {
+      emit("SIGNED_OUT", null);
+    });
+    await act(async () => {
+      validation.reject(new Error("stale validation failed"));
+    });
+
+    expect(result.current.user).toBeNull();
+    expect(result.current.error).toBeNull();
+  });
+
+  it("keeps a sign-in event when an older restoration validates later", async () => {
+    const oldValidation = deferred<UserResult>();
+    const newValidation = deferred<UserResult>();
+    const signedInUser = makeUser("new-user");
+    getSession.mockResolvedValue(sessionResult(makeSession(makeUser("persisted-user"))));
+    getUser.mockReturnValueOnce(oldValidation.promise).mockReturnValueOnce(newValidation.promise);
 
     const { result } = renderHook(() => useAuth());
     await waitFor(() => expect(getUser).toHaveBeenCalledTimes(1));
@@ -197,7 +244,13 @@ describe("useAuth", () => {
       emit("SIGNED_IN", makeSession(signedInUser));
     });
     await act(async () => {
-      validation.resolve(userResult(makeUser("persisted-user")));
+      oldValidation.resolve(userResult(makeUser("persisted-user")));
+    });
+
+    expect(result.current.user).toBeNull();
+    await waitFor(() => expect(getUser).toHaveBeenCalledTimes(2));
+    await act(async () => {
+      newValidation.resolve(userResult(signedInUser));
     });
 
     expect(result.current.user).toBe(signedInUser);
