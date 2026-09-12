@@ -18,6 +18,7 @@ export function useAuth() {
 
     let active = true;
     let unsubscribe: (() => void) | undefined;
+    let authEventVersion = 0;
 
     getSupabase()
       .then((client) => {
@@ -30,10 +31,14 @@ export function useAuth() {
           data: { subscription }
         } = client.auth.onAuthStateChange((event, session) => {
           if (!active || event === "INITIAL_SESSION") return;
+          authEventVersion += 1;
           setUser(session?.user ?? null);
           setError(null); // clear errors on successful auth change
         });
         unsubscribe = () => subscription.unsubscribe();
+
+        const restorationEventVersion = authEventVersion;
+        const restorationIsCurrent = () => active && restorationEventVersion === authEventVersion;
 
         // A missing session is the normal signed-out state: Jabiko does not
         // require login. If a persisted session exists, do not trust its user
@@ -41,7 +46,7 @@ export function useAuth() {
         client.auth
           .getSession()
           .then(({ data: { session }, error: sessionError }) => {
-            if (!active) return;
+            if (!restorationIsCurrent()) return;
             if (sessionError) {
               console.error("Supabase getSession error:", sessionError);
               setUser(null);
@@ -57,7 +62,7 @@ export function useAuth() {
             client.auth
               .getUser()
               .then(({ data: { user }, error: userError }) => {
-                if (!active) return;
+                if (!restorationIsCurrent()) return;
                 if (userError) {
                   console.error("Supabase getUser error:", userError);
                   setUser(null);
@@ -69,14 +74,14 @@ export function useAuth() {
               })
               .catch((e: unknown) => {
                 console.error("Supabase getUser exception:", e);
-                if (!active) return;
+                if (!restorationIsCurrent()) return;
                 setUser(null);
                 setError("sessionFetchFailed");
               });
           })
           .catch((e: unknown) => {
             console.error("Supabase getSession exception:", e);
-            if (!active) return;
+            if (!restorationIsCurrent()) return;
             setUser(null);
             setError("sessionFetchFailed");
           });
