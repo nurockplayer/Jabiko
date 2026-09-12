@@ -128,7 +128,8 @@ export interface ConversationScenarioValidationError {
     | "invalid_skill_reference"
     | "broken_start_step_reference"
     | "broken_step_reference"
-    | "broken_default_branch_reference";
+    | "broken_default_branch_reference"
+    | "non_terminating_reachable_path";
   scenarioId?: string;
   stepId?: string;
   referenceId?: string;
@@ -164,6 +165,8 @@ export function validateConversationScenarios(
   const scenarioIds = new Set<string>();
 
   for (const scenario of scenarios) {
+    let hasBrokenGraphStructure = false;
+
     if (scenarioIds.has(scenario.id)) {
       errors.push({ code: "duplicate_scenario_id", scenarioId: scenario.id });
     } else {
@@ -187,6 +190,7 @@ export function validateConversationScenarios(
     const stepIds = new Set<string>();
     for (const step of scenario.steps) {
       if (stepIds.has(step.id)) {
+        hasBrokenGraphStructure = true;
         errors.push({
           code: "duplicate_step_id",
           scenarioId: scenario.id,
@@ -198,6 +202,7 @@ export function validateConversationScenarios(
     }
 
     if (!stepIds.has(scenario.startStepId)) {
+      hasBrokenGraphStructure = true;
       errors.push({
         code: "broken_start_step_reference",
         scenarioId: scenario.id,
@@ -207,6 +212,7 @@ export function validateConversationScenarios(
 
     for (const step of scenario.steps) {
       if (step.kind === "partner_line" && !stepIds.has(step.nextStepId)) {
+        hasBrokenGraphStructure = true;
         errors.push({
           code: "broken_step_reference",
           scenarioId: scenario.id,
@@ -233,6 +239,7 @@ export function validateConversationScenarios(
         const branchIds = new Set<string>();
         for (const branch of step.branches) {
           if (branchIds.has(branch.id)) {
+            hasBrokenGraphStructure = true;
             errors.push({
               code: "duplicate_branch_id",
               scenarioId: scenario.id,
@@ -244,6 +251,7 @@ export function validateConversationScenarios(
           }
 
           if (!stepIds.has(branch.nextStepId)) {
+            hasBrokenGraphStructure = true;
             errors.push({
               code: "broken_step_reference",
               scenarioId: scenario.id,
@@ -254,6 +262,7 @@ export function validateConversationScenarios(
         }
 
         if (step.defaultBranchId != null && !branchIds.has(step.defaultBranchId)) {
+          hasBrokenGraphStructure = true;
           errors.push({
             code: "broken_default_branch_reference",
             scenarioId: scenario.id,
@@ -261,6 +270,80 @@ export function validateConversationScenarios(
             referenceId: step.defaultBranchId,
           });
         }
+      }
+    }
+
+    if (!hasBrokenGraphStructure) {
+      const stepsById = new Map(scenario.steps.map((step) => [step.id, step]));
+      const reachableStepIds = new Set<string>();
+      const pendingStepIds = [scenario.startStepId];
+
+      while (pendingStepIds.length > 0) {
+        const stepId = pendingStepIds.pop()!;
+        if (reachableStepIds.has(stepId)) continue;
+        reachableStepIds.add(stepId);
+
+        const step = stepsById.get(stepId)!;
+        if (step.kind === "partner_line") {
+          pendingStepIds.push(step.nextStepId);
+        } else if (step.kind === "learner_response") {
+          pendingStepIds.push(...step.branches.map((branch) => branch.nextStepId));
+        }
+      }
+
+      const transitionIds = (step: ConversationStep): readonly string[] => {
+        if (step.kind === "partner_line") return [step.nextStepId];
+        if (step.kind === "learner_response") return step.branches.map((branch) => branch.nextStepId);
+        return [];
+      };
+
+      const visitState = new Map<string, "visiting" | "visited">();
+      let hasReachableCycle = false;
+      const visit = (stepId: string): void => {
+        if (hasReachableCycle) return;
+        const state = visitState.get(stepId);
+        if (state === "visiting") {
+          hasReachableCycle = true;
+          return;
+        }
+        if (state === "visited") return;
+
+        visitState.set(stepId, "visiting");
+        for (const nextStepId of transitionIds(stepsById.get(stepId)!)) {
+          visit(nextStepId);
+        }
+        visitState.set(stepId, "visited");
+      };
+      visit(scenario.startStepId);
+
+      const stepIdsReachingCompletion = new Set<string>();
+      const predecessors = new Map<string, string[]>();
+      for (const stepId of reachableStepIds) {
+        const step = stepsById.get(stepId)!;
+        if (step.kind === "completion") stepIdsReachingCompletion.add(stepId);
+        for (const nextStepId of transitionIds(step)) {
+          const entries = predecessors.get(nextStepId) ?? [];
+          entries.push(stepId);
+          predecessors.set(nextStepId, entries);
+        }
+      }
+
+      const completionQueue = [...stepIdsReachingCompletion];
+      while (completionQueue.length > 0) {
+        const stepId = completionQueue.pop()!;
+        for (const predecessorId of predecessors.get(stepId) ?? []) {
+          if (!stepIdsReachingCompletion.has(predecessorId)) {
+            stepIdsReachingCompletion.add(predecessorId);
+            completionQueue.push(predecessorId);
+          }
+        }
+      }
+
+      if (
+        hasReachableCycle ||
+        [...reachableStepIds].some((stepId) => !stepIdsReachingCompletion.has(stepId))
+      ) {
+        errors.push({ code: "non_terminating_reachable_path", scenarioId: scenario.id });
       }
     }
   }

@@ -578,6 +578,89 @@ describe("conversation scenario contract", () => {
     ]);
   });
 
+  it("rejects every reachable authored route that can fail to terminate at completion", () => {
+    const closedCycle = createScenario("closed-cycle", "short");
+    closedCycle.steps = [
+      {
+        id: "partner-arrives",
+        kind: "partner_line",
+        japanese: "今日も暑いですね。",
+        nextStepId: "learner-opens",
+      },
+      {
+        id: "learner-opens",
+        kind: "partner_line",
+        japanese: "本当ですね。",
+        nextStepId: "partner-arrives",
+      },
+      closedCycle.steps[2]!,
+    ];
+
+    const cycleWithExit = createScenario("cycle-with-exit", "short");
+    cycleWithExit.steps = [
+      {
+        id: "partner-arrives",
+        kind: "partner_line",
+        japanese: "今日も暑いですね。",
+        nextStepId: "learner-opens",
+      },
+      {
+        id: "learner-opens",
+        kind: "learner_response",
+        prompt: { textZh: "選擇回應。" },
+        responseExamples: [],
+        branches: [
+          { id: "repeat", nextStepId: "partner-arrives" },
+          { id: "finish", nextStepId: "complete" },
+        ],
+        defaultBranchId: "finish",
+      },
+      cycleWithExit.steps[2]!,
+    ];
+
+    const noCompletion = createScenario("no-completion", "short");
+    noCompletion.steps = [
+      {
+        id: "partner-arrives",
+        kind: "partner_line",
+        japanese: "今日も暑いですね。",
+        nextStepId: "learner-opens",
+      },
+      {
+        id: "learner-opens",
+        kind: "learner_response",
+        prompt: { textZh: "選擇回應。" },
+        responseExamples: [],
+        branches: [],
+      },
+      noCompletion.steps[2]!,
+    ];
+
+    expect(validateConversationScenarios([closedCycle, cycleWithExit, noCompletion])).toMatchObject({
+      valid: false,
+      errors: [
+        { code: "non_terminating_reachable_path", scenarioId: "closed-cycle" },
+        { code: "non_terminating_reachable_path", scenarioId: "cycle-with-exit" },
+        { code: "non_terminating_reachable_path", scenarioId: "no-completion" },
+      ],
+    });
+  });
+
+  it("limits the termination invariant to steps reachable from the start", () => {
+    const scenario = createScenario("unreachable-cycle", "short");
+    scenario.steps = [
+      ...scenario.steps,
+      {
+        id: "unused-loop",
+        kind: "partner_line",
+        japanese: "まだ続けましょう。",
+        nextStepId: "unused-loop",
+      },
+    ];
+
+    expect(validateConversationScenarios([scenario])).toEqual({ valid: true, errors: [] });
+  });
+
   it("requires at least one primary canonical skill", () => {
     const scenario = { ...createScenario("no-primary-skill", "short"), primarySkills: [] };
 
