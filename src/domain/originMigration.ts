@@ -32,7 +32,7 @@ export const MIGRATION_MESSAGE_PAYLOAD = "jabiko:migration-payload";
 /** Local-only bookkeeping keys — never migrated themselves. */
 export const MIGRATED_FLAG_KEY = "jabiko:migrated";
 export const MIGRATION_ATTEMPTS_KEY = "jabiko:migrationAttempts";
-export const MIGRATION_MAX_ATTEMPTS = 5;
+const MIGRATION_MAX_ATTEMPTS = 5;
 
 // Exact app keys that may cross origins. Mirrored by hand in
 // public/migration-bridge.html (plain JS can't import TS) — the

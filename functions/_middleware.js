@@ -38,7 +38,7 @@ export function redirectTargetFor(url) {
  *  or null to serve the response as-is. Only /assets/* is guarded, and only
  *  when the "asset" came back as HTML (= the SPA fallback, never a real
  *  build file). */
-export function guardedAssetResponse(pathname, response) {
+function guardedAssetResponse(pathname, response) {
   if (!pathname.startsWith(ASSETS_PREFIX)) return null;
   const type = response.headers.get("content-type") || "";
   if (!type.includes("text/html")) return null;

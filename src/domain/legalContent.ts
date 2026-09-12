@@ -3,7 +3,7 @@ import { legalLabelsFor, type LegalPageLabels } from "./legalLabels";
 
 export type LegalPageKind = "privacy" | "terms";
 
-export interface LegalSection {
+interface LegalSection {
   title: string;
   paragraphs?: readonly string[];
   items?: readonly string[];

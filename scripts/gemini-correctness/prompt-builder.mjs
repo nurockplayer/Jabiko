@@ -9,9 +9,9 @@
 // =============================================================================
 
 export const MAX_TOTAL_CHARS = 500_000;
-export const MAX_PROJECT_RULES_CHARS = 100_000;
+const MAX_PROJECT_RULES_CHARS = 100_000;
 export const DEFAULT_MODEL = "gemini-2.5-flash";
-export const PROJECT_RULES_TRUNCATION_MARKER =
+const PROJECT_RULES_TRUNCATION_MARKER =
   "[Project rules omitted because they exceed the 100000-character limit]";
 
 const MAX_COMMIT_SHA_CHARS = 128;

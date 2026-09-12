@@ -164,6 +164,51 @@ select:disabled {
   color: var(--field-disabled-text);
 }
 
+.recall-form {
+  margin-top: 1rem;
+  min-width: 0;
+}
+
+.recall-form label {
+  color: var(--label-text);
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 800;
+  margin-bottom: 0.45rem;
+}
+
+.recall-answer-row {
+  align-items: stretch;
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.recall-answer-row input {
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.08rem;
+  min-height: 3rem;
+  min-width: 0;
+  padding: 0.68rem 0.8rem;
+  width: 100%;
+}
+
+.recall-answer-row input:focus-visible {
+  box-shadow: 0 0 0 4px var(--focus-fill);
+  outline: 3px solid var(--focus-outline);
+  outline-offset: 2px;
+}
+
+.recall-answer-row input:disabled {
+  background: var(--field-disabled-bg);
+  color: var(--field-disabled-text);
+}
+
 .focus-summary {
   background: var(--summary-bg);
   border: 1px solid var(--summary-border);

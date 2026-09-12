@@ -8,6 +8,10 @@ import { pickLocalized } from "./localizedContent";
  * panel's chunk — never the eager bundle. Only `meaningZh` is overlaid; the
  * readings (on/kun, kana) are Japanese and never touched. Populated by the
  * study-content translation pass (#400).
+ *
+ * @public — kept exported: scripts/i18n-overlay-audit.mjs and
+ * scripts/check-i18n-coverage.mjs resolve this record from the source by name,
+ * mirroring the other `*.i18n.ts` overlay exports.
  */
 export const kanjiMeaningI18n: Record<string, LocalizedText> = {
   "安": {

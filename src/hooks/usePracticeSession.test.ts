@@ -1,6 +1,6 @@
 import { createElement, StrictMode } from "react";
 import type { ReactNode } from "react";
-import { act, renderHook } from "@testing-library/react";
+import { act, fireEvent, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BOOKMARKS_KEY } from "../domain/bookmarks";
 import { buildAllKnownQuestions } from "../domain/sessionPools";
@@ -9,7 +9,9 @@ import type { Attempt, JlptLevel, PracticeQuestion, VerbGroup } from "../domain/
 import {
   createPracticePoolSnapshot,
   initialLevelRange,
+  resolveTargetForms,
   type PracticeFilter,
+  type PracticeFocus,
   usePracticeSession
 } from "./usePracticeSession";
 
@@ -18,6 +20,246 @@ const baseHookArgs = {
   progressAttempts: [],
   recordAttempt: () => {}
 };
+
+describe("core conjugation recall launch (#809)", () => {
+  it("resolves the named quick-launch focus to the six core production forms", () => {
+    expect(
+      resolveTargetForms({
+        mode: "basic",
+        partOfSpeech: "verb",
+        targetForm: "te",
+        practiceFocus: "coreConjugation" as PracticeFocus
+      })
+    ).toEqual(["masu", "nai", "te", "ta", "potential", "volitional"]);
+  });
+
+  it("starts basic verb recall across all verb groups from the quick-launch config", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          partOfSpeech: "verb",
+          verbGroup: "all",
+          practiceFocus: "coreConjugation",
+          answerMode: "recall"
+        }
+      })
+    );
+
+    expect(result.current.practiceMode).toBe("basic");
+    expect(result.current.partOfSpeech).toBe("verb");
+    expect(result.current.selectedVerbGroups).toBeUndefined();
+    expect((result.current as typeof result.current & { answerMode?: string }).answerMode).toBe(
+      "recall"
+    );
+  });
+
+  it("starts a new pass when the learner explicitly changes answer mode", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: { mode: "basic", partOfSpeech: "verb", targetForm: "te" }
+      })
+    );
+    act(() => result.current.handleChoiceSubmit(result.current.choiceOptions[0]));
+    expect(result.current.attempts).toHaveLength(1);
+
+    act(() =>
+      (
+        result.current as typeof result.current & {
+          handleAnswerModeChange?: (mode: "choice" | "recall") => void;
+        }
+      ).handleAnswerModeChange!("recall")
+    );
+
+    expect(result.current.answerMode).toBe("recall");
+    expect(result.current.attempts).toEqual([]);
+    expect(result.current.questionIndex).toBe(0);
+    expect(result.current.feedback).toBeNull();
+  });
+
+  it.each(["mixed", "noun"] as const)(
+    "returns to choice mode when verb recall changes to %s practice",
+    (nextPartOfSpeech) => {
+      const { result } = renderHook(() =>
+        usePracticeSession({
+          ...baseHookArgs,
+          init: {
+            mode: "basic",
+            partOfSpeech: "verb",
+            targetForm: "te",
+            answerMode: "recall"
+          }
+        })
+      );
+      const previousSessionSeed = result.current.sessionSeed;
+
+      act(() => result.current.handlePartOfSpeechChange(nextPartOfSpeech));
+
+      expect(result.current.partOfSpeech).toBe(nextPartOfSpeech);
+      expect(result.current.answerMode).toBe("choice");
+      expect(result.current.isRecallQuestion).toBe(false);
+      expect(result.current.sessionSeed).toBe(previousSessionSeed + 1);
+    }
+  );
+
+  it("returns to choice mode when verb recall changes to a non-basic pass", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          partOfSpeech: "verb",
+          targetForm: "te",
+          answerMode: "recall"
+        }
+      })
+    );
+    const previousSessionSeed = result.current.sessionSeed;
+
+    act(() => result.current.applyModePreset("review"));
+
+    expect(result.current.practiceMode).toBe("review");
+    expect(result.current.answerMode).toBe("choice");
+    expect(result.current.isRecallQuestion).toBe(false);
+    expect(result.current.sessionSeed).toBe(previousSessionSeed + 1);
+  });
+
+  it("activates recall UI only for eligible generated conjugation questions", () => {
+    const generated = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          partOfSpeech: "verb",
+          verbGroup: "all",
+          practiceFocus: "coreConjugation",
+          answerMode: "recall"
+        }
+      })
+    );
+    const curated = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: { mode: "cloze", answerMode: "recall" }
+      })
+    );
+
+    expect(
+      (generated.result.current as typeof generated.result.current & { isRecallQuestion?: boolean })
+        .isRecallQuestion
+    ).toBe(true);
+    expect(
+      (curated.result.current as typeof curated.result.current & { isRecallQuestion?: boolean })
+        .isRecallQuestion
+    ).toBe(false);
+  });
+
+  it("does not create an attempt for an empty recall submission", () => {
+    const recordAttempt = vi.fn();
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        recordAttempt,
+        init: {
+          mode: "basic",
+          partOfSpeech: "verb",
+          targetForm: "te",
+          answerMode: "recall"
+        }
+      })
+    );
+
+    act(() => result.current.handleChoiceSubmit("\u3000"));
+
+    expect(result.current.attempts).toEqual([]);
+    expect(recordAttempt).not.toHaveBeenCalled();
+    expect(result.current.feedback).toBeNull();
+  });
+
+  it("does not let the global numeric shortcut submit a hidden choice in recall mode", () => {
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        init: {
+          mode: "basic",
+          partOfSpeech: "verb",
+          targetForm: "te",
+          answerMode: "recall"
+        }
+      })
+    );
+
+    fireEvent.keyDown(document, { key: "1" });
+
+    expect(result.current.isRecallQuestion).toBe(true);
+    expect(result.current.attempts).toEqual([]);
+    expect(result.current.feedback).toBeNull();
+  });
+
+  it("scores a normalized typed answer through the existing attempt pipeline", () => {
+    const recordAttempt = vi.fn();
+    const { result } = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        recordAttempt,
+        init: {
+          mode: "basic",
+          partOfSpeech: "verb",
+          targetForm: "te",
+          answerMode: "recall"
+        }
+      })
+    );
+    const accepted = result.current.currentQuestion!.expectedAnswers[0];
+    const submitted = `\u3000${accepted}。\u3000`;
+
+    act(() => result.current.handleChoiceSubmit(submitted));
+
+    expect(result.current.feedback).toMatchObject({
+      status: "correct",
+      submittedAnswer: submitted
+    });
+    expect(result.current.attempts[0]).toMatchObject({
+      questionId: result.current.currentQuestion!.id,
+      submittedAnswer: submitted,
+      isCorrect: true
+    });
+    expect(recordAttempt).toHaveBeenCalledWith(result.current.attempts[0]);
+  });
+
+  it("preserves a wrong typed answer and Reveal Answer remains a miss", () => {
+    const typedRecords: Attempt[] = [];
+    const typed = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        recordAttempt: (attempt) => typedRecords.push(attempt),
+        init: { mode: "basic", partOfSpeech: "verb", targetForm: "te", answerMode: "recall" }
+      })
+    );
+
+    act(() => typed.result.current.handleChoiceSubmit("行きて"));
+    expect(typed.result.current.feedback).toMatchObject({
+      status: "incorrect",
+      submittedAnswer: "行きて"
+    });
+    expect(typedRecords[0]).toMatchObject({ submittedAnswer: "行きて", isCorrect: false });
+
+    const revealedRecords: Attempt[] = [];
+    const revealed = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        recordAttempt: (attempt) => revealedRecords.push(attempt),
+        init: { mode: "basic", partOfSpeech: "verb", targetForm: "te", answerMode: "recall" }
+      })
+    );
+    act(() => revealed.result.current.revealAnswer());
+
+    expect(revealed.result.current.feedback?.status).toBe("revealed");
+    expect(revealedRecords[0]).toMatchObject({ submittedAnswer: "(revealed)", isCorrect: false });
+  });
+});
 
 function makeAttempt(question: PracticeQuestion, isCorrect: boolean, timestamp: number): Attempt {
   return {
@@ -47,6 +289,7 @@ describe("usePracticeSession pool snapshot (#623)", () => {
     partOfSpeech: "verb" as const,
     verbGroup: "all" as const,
     practiceFocus: "single" as const,
+    answerMode: "choice" as const,
     targetForm: "te" as const,
     targetForms: ["te" as const],
     levelRange: "all" as const,
@@ -94,6 +337,15 @@ describe("usePracticeSession pool snapshot (#623)", () => {
     expect(snapshot.bookmarkedQuestions).toEqual([q]);
     expect(snapshot.attemptedIds?.has("x")).toBe(true);
     expect(snapshot.kanaScript).toBeUndefined();
+  });
+
+  it("captures the answer mode in the immutable pass snapshot", () => {
+    const snapshot = createPracticePoolSnapshot(
+      { ...baseConfig, answerMode: "recall" } as typeof baseConfig & { answerMode: "recall" },
+      liveInputs
+    );
+
+    expect((snapshot as typeof snapshot & { answerMode?: string }).answerMode).toBe("recall");
   });
 
   it("carries an N4/N5 mock-section filter through the snapshot (#703)", () => {

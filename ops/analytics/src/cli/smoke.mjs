@@ -34,7 +34,7 @@ import * as report from "../report.mjs";
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const REQUIRED_EVENT_COUNTS = Object.freeze({ page_view: 2, promo_click: 7 });
 
-export function summarizeRealtimeEvents(rows) {
+function summarizeRealtimeEvents(rows) {
   const counts = new Map();
   for (const row of rows) {
     if (!row?.eventName) continue;
@@ -88,7 +88,7 @@ export async function acquireBaseline({ fetchRealtime, maxAttempts = 3, now = Da
   throw lastError ?? new Error("baseline acquisition failed");
 }
 
-export function realtimeSignalReached(counts) {
+function realtimeSignalReached(counts) {
   return Object.entries(REQUIRED_EVENT_COUNTS).every(
     ([eventName, minimum]) => (counts.get(eventName) ?? 0) >= minimum
   );
@@ -100,7 +100,7 @@ export function realtimeSignalReached(counts) {
  * arrived after the baseline, so expiry of pre-baseline events out of the
  * rolling 30-minute window cannot subtract from the guided interaction.
  */
-export function summarizeRecentEvents(rows, maxAgeMinutes) {
+function summarizeRecentEvents(rows, maxAgeMinutes) {
   const counts = new Map();
   for (const row of rows) {
     if (!row?.eventName) continue;
@@ -112,7 +112,7 @@ export function summarizeRecentEvents(rows, maxAgeMinutes) {
 }
 
 /** Sum eventCount per eventName from the baseline rows' minutesAgo=0 bucket. */
-export function baselineRecentCounts(baselineRows) {
+function baselineRecentCounts(baselineRows) {
   const counts = new Map();
   for (const row of baselineRows) {
     if (!row?.eventName) continue;

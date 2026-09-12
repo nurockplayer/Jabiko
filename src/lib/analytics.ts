@@ -17,16 +17,16 @@ export type AnalyticsEventName =
   | "focus_cycle_completed"
   | "focus_ended";
 
-export interface PageViewPayload {
+interface PageViewPayload {
   view: string;
   locale: LocaleCode;
 }
-export interface PracticeStartedPayload {
+interface PracticeStartedPayload {
   source: PracticeMode;
   levelRange?: LevelRange;
   locale: LocaleCode;
 }
-export interface AnswerSubmittedPayload {
+interface AnswerSubmittedPayload {
   source: PracticeMode;
   level: JlptLevel | "all";
   // questionType reuses PracticeMode (a coarse, content-free label) — never
@@ -36,31 +36,31 @@ export interface AnswerSubmittedPayload {
   isCorrect: boolean;
   locale: LocaleCode;
 }
-export interface PracticeCompletedPayload {
+interface PracticeCompletedPayload {
   source: PracticeMode;
   level: JlptLevel | "all";
   totalQuestions: number;
   correctCount: number;
   locale: LocaleCode;
 }
-export interface StudyPageViewedPayload {
+interface StudyPageViewedPayload {
   surface: string;
   locale: LocaleCode;
 }
-export interface LevelChangedPayload {
+interface LevelChangedPayload {
   scope: "global" | "session";
   levelRange: LevelRange;
   locale: LocaleCode;
 }
-export interface LocaleChangedPayload {
+interface LocaleChangedPayload {
   from: LocaleCode;
   to: LocaleCode;
 }
-export interface WeakReviewStartedPayload {
+interface WeakReviewStartedPayload {
   dueCount: number;
   locale: LocaleCode;
 }
-export interface ArticleViewedPayload {
+interface ArticleViewedPayload {
   slug: string;
 }
 // Outbound promotion click (#745). promoId and placement are bounded to
@@ -68,25 +68,22 @@ export interface ArticleViewedPayload {
 // cannot pass the analytics boundary at compile time. action distinguishes a
 // direct Airbnb CTA from a video-trigger interaction. Extend the unions below
 // when a new approved promotion or placement lands.
-export const PROMO_IDENTIFIERS = ["stay-d"] as const satisfies readonly string[];
-export type PromoIdentifier = (typeof PROMO_IDENTIFIERS)[number];
+export type PromoIdentifier = "stay-d";
 
 // Stable Stay.D funnel interaction placements frozen by #744 (#745 analytics
 // boundary). Each value identifies a distinct user-facing funnel interaction,
 // not a raw URL, surface slug, or free-form copy. #744 wires exactly these
 // values when the Stay.D UI lands; adding a new funnel step extends the union.
-export const PROMO_PLACEMENTS = [
-  "home-airbnb",
-  "home-video",
-  "home-video-airbnb",
-  "stay-d-hero-airbnb",
-  "stay-d-video",
-  "stay-d-video-airbnb",
-  "stay-d-final-airbnb"
-] as const satisfies readonly string[];
-export type PromoPlacement = (typeof PROMO_PLACEMENTS)[number];
+export type PromoPlacement =
+  | "home-airbnb"
+  | "home-video"
+  | "home-video-airbnb"
+  | "stay-d-hero-airbnb"
+  | "stay-d-video"
+  | "stay-d-video-airbnb"
+  | "stay-d-final-airbnb";
 
-export interface PromoClickPayload {
+interface PromoClickPayload {
   promoId: PromoIdentifier;
   action: "airbnb" | "video";
   placement: PromoPlacement;
@@ -98,16 +95,16 @@ export interface PromoClickPayload {
 // study content. focus_started fires on a Focus run start (and each next
 // cycle), focus_cycle_completed when a focus phase folds into the break, and
 // focus_ended when the learner ends Focus Mode.
-export interface FocusStartedPayload {
+interface FocusStartedPayload {
   focusMin: number;
   breakMin: number;
   locale: LocaleCode;
 }
-export interface FocusCycleCompletedPayload {
+interface FocusCycleCompletedPayload {
   durationMin: number;
   locale: LocaleCode;
 }
-export interface FocusEndedPayload {
+interface FocusEndedPayload {
   cycles: number;
   locale: LocaleCode;
 }
@@ -168,9 +165,7 @@ function sanitizePayload<K extends AnalyticsEventName>(
 
 let testOverride: boolean | undefined = undefined;
 
-export type AnalyticsEnabledState = "on" | "off" | "test";
-
-export function isAnalyticsEnabled(): boolean {
+function isAnalyticsEnabled(): boolean {
   if (testOverride !== undefined) return testOverride;
   return IS_PROD && ZARAZ_ENABLED_FLAG === "true";
 }

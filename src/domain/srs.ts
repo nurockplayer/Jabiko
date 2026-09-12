@@ -48,10 +48,6 @@ function attemptKey(attempt: Attempt): string {
   return attempt.questionId ?? `${attempt.vocabularyId}:${attempt.targetForm}`;
 }
 
-function questionMatchesKey(question: PracticeQuestion, key: string): boolean {
-  return question.id === key || `${question.vocabulary.id}:${question.targetForm}` === key;
-}
-
 /**
  * Replay attempts in chronological order to derive each item's current state.
  * Pure: takes attempts, returns a map. box === 0 marks a currently-unresolved
@@ -122,6 +118,3 @@ export function countMistakes(attempts: Attempt[]): number {
   }
   return count;
 }
-
-// Re-export so callers don't need to know the helper exists.
-export { questionMatchesKey };

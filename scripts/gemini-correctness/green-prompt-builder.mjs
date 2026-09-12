@@ -15,7 +15,7 @@
 import path from "node:path";
 import ts from "typescript";
 
-export const MAX_GREEN_PROMPT_CHARS = 300_000;
+const MAX_GREEN_PROMPT_CHARS = 300_000;
 const IMPORT_EXTENSIONS = [".ts", ".tsx", ".mjs"];
 
 function normalize(filePath) {

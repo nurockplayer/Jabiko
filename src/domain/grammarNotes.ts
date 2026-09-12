@@ -12,7 +12,7 @@
 // error). Explanations are original rewrites, not copied from textbooks.
 import type { JlptLevel } from "./types";
 
-export type GrammarNoteExample = { ja: string; zh: string };
+type GrammarNoteExample = { ja: string; zh: string };
 
 export type GrammarNote = {
   /** Grammar-point surface; matches the exam item's `vocabulary.surface`. */

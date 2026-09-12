@@ -29,7 +29,7 @@ export const STARTER_CATEGORIES = [
   "kosoado"
 ] as const;
 
-export type StarterCategory = (typeof STARTER_CATEGORIES)[number];
+type StarterCategory = (typeof STARTER_CATEGORIES)[number];
 
 type StarterSpec = [
   id: string,

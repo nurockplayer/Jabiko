@@ -31,6 +31,7 @@ function renderHome(overrides: Partial<Parameters<typeof HomePanel>[0]> = {}) {
     onStartVocab: noop,
     onStartBookmarks: vi.fn(),
     onStartDaily: vi.fn(),
+    onStartConjugation: vi.fn(),
     onStartExamPreset: vi.fn(),
     targetLevel: null,
     onChooseLevel: vi.fn(),
@@ -269,6 +270,14 @@ describe("HomePanel feedback entry", () => {
 // lightweight reference quick-links row, and the 挑戰 card copy now matches
 // the three-group mode picker instead of the retired "四種模式" list.
 describe("HomePanel section grid refresh", () => {
+  it("offers one compact first-class verb-conjugation launcher", () => {
+    const props = renderHome();
+
+    fireEvent.click(screen.getByRole("button", { name: /動詞變化/ }));
+
+    expect(props.onStartConjugation).toHaveBeenCalledTimes(1);
+  });
+
   it("offers a bookmarks card that starts the starred-questions pass", () => {
     localStorage.setItem("jabiko:bookmarks", JSON.stringify(["q-1", "q-2"]));
     const props = renderHome();
@@ -449,5 +458,33 @@ describe("HomePanel promotion placement", () => {
     expect(dailyPractice.compareDocumentPosition(levelControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(levelControl.compareDocumentPosition(recommendation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(recommendation.compareDocumentPosition(heroHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+});
+
+describe("HomePanel points cell (points economy foundation)", () => {
+  it("shows total earned points -- one per correct attempt -- in the stats strip", () => {
+    renderHome({
+      progressAttempts: [
+        sampleAttempt,
+        { ...sampleAttempt, isCorrect: false, timestamp: 2 },
+        { ...sampleAttempt, isCorrect: true, timestamp: 3 }
+      ]
+    });
+    const cell = screen.getByText("累積點數").closest(".home-stats-cell");
+    expect(cell).not.toBeNull();
+    expect(within(cell as HTMLElement).getByText("2")).toBeInTheDocument();
+  });
+
+  it("marks the points tile with the accent class (the strip's focal number)", () => {
+    renderHome({ progressAttempts: [sampleAttempt] });
+    const cell = screen.getByText("累積點數").closest(".home-stats-cell");
+    expect(cell).toHaveClass("home-stats-cell-points");
+  });
+
+  it("wrong answers earn nothing (points cell stays at zero)", () => {
+    renderHome({ progressAttempts: [{ ...sampleAttempt, isCorrect: false }] });
+    const cell = screen.getByText("累積點數").closest(".home-stats-cell");
+    expect(cell).not.toBeNull();
+    expect(within(cell as HTMLElement).getByText("0")).toBeInTheDocument();
   });
 });

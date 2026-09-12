@@ -9,7 +9,7 @@ export type LearningBlockDrillPreset = {
   targetForm: TargetForm;
 };
 
-export type LearningBlockDrill = {
+type LearningBlockDrill = {
   /**
    * Key into the i18n `copy[language]` object pointing at the button label
    * (e.g. "drillAdverbial"). Kept as a plain string so the schema doesn't
@@ -19,22 +19,22 @@ export type LearningBlockDrill = {
   preset: LearningBlockDrillPreset;
 };
 
-export type LearningBlockPatternDrill = {
+type LearningBlockPatternDrill = {
   labelKey: string;
   patternIds: SentencePatternId[];
 };
 
-export type LearningBlockKanaDrill = {
+type LearningBlockKanaDrill = {
   labelKey: string;
   /** Which gojuon script the recognition drill covers (#533). */
   script: KanaScript;
 };
 
-export type LearningBlockStarterDrill = {
+type LearningBlockStarterDrill = {
   labelKey: string;
 };
 
-export type LearningBlockExamDrill = {
+type LearningBlockExamDrill = {
   labelKey: string;
   /** JLPT level whose exam pool to drill (matches the 模擬考 section launch). */
   level: "N1" | "N2" | "N3";

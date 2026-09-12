@@ -134,7 +134,7 @@ const LEVELS: JlptLevel[] = ["N5", "N4", "N3", "N2", "N1"];
 
 /** Navigable surface for a pattern: the leading 〜/～ is stripped, matching
  *  how the app's grammar index links (onOpenPattern) and the sitemap. */
-export function navigableSurface(pattern: string): string {
+function navigableSurface(pattern: string): string {
   return pattern.replace(/^[〜～]/, "");
 }
 
