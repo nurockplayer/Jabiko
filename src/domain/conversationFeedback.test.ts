@@ -1,12 +1,26 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   createCuratedConversationFeedbackEvaluator,
   evaluateCuratedConversationResponse,
   toConversationFeedbackAnalytics,
   type CuratedConversationResponse
 } from "./conversationFeedback";
+import type { ConversationSkillId } from "./conversationScenario";
 
 describe("evaluateCuratedConversationResponse", () => {
+  it("accepts only canonical conversation skill IDs in the public feedback contract", () => {
+    type ValidSpecificSkill = CuratedConversationResponse<"share" | "expand">;
+
+    // @ts-expect-error -- misspelled canonical skill IDs must be rejected.
+    type MisspelledSkill = CuratedConversationResponse<"expnad">;
+    // @ts-expect-error -- response-composition features are not conversation skill IDs.
+    type CompositionFeatureAsSkill = CuratedConversationResponse<"ask">;
+
+    expectTypeOf<ValidSpecificSkill>().toMatchTypeOf<
+      CuratedConversationResponse<"share" | "expand">
+    >();
+  });
+
   it("preserves an understandable message while identifying grammar that still needs work", () => {
     const response = {
       id: "weekend-understandable-01",
@@ -95,7 +109,9 @@ describe("evaluateCuratedConversationResponse", () => {
           }
         }
       }
-    ] as const satisfies readonly CuratedConversationResponse<string>[];
+    ] as const satisfies readonly CuratedConversationResponse<
+      "react" | "expand" | "share"
+    >[];
 
     expect(cases.map(evaluateCuratedConversationResponse)).toMatchObject([
       { continuationQuality: "dead_end", dimensions: { continuation: "needs_work" } },
@@ -235,7 +251,7 @@ describe("evaluateCuratedConversationResponse", () => {
           understandable: "The partner cannot recover what happened from the fragment."
         }
       }
-    } as const satisfies CuratedConversationResponse<string>;
+    } as const satisfies CuratedConversationResponse<ConversationSkillId>;
 
     expect(evaluateCuratedConversationResponse(response).dimensions).toMatchObject({
       understandable: "needs_work",

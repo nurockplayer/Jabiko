@@ -1,3 +1,5 @@
+import type { ConversationSkillId } from "./conversationScenario";
+
 export const CONVERSATION_FEEDBACK_DIMENSIONS = [
   "understandable",
   "correct",
@@ -30,12 +32,12 @@ export interface ConversationFeedbackContext {
   discourse: string;
 }
 
-export interface ConversationCompositionSignal<CanonicalSkillId extends string> {
+export interface ConversationCompositionSignal<CanonicalSkillId extends ConversationSkillId> {
   feature: ConversationCompositionFeature;
   canonicalSkillId: CanonicalSkillId;
 }
 
-export interface CuratedConversationResponse<CanonicalSkillId extends string> {
+export interface CuratedConversationResponse<CanonicalSkillId extends ConversationSkillId> {
   id: string;
   responseJapanese: string;
   context: ConversationFeedbackContext;
@@ -49,7 +51,7 @@ export interface CuratedConversationResponse<CanonicalSkillId extends string> {
 }
 
 export interface ConversationFeedbackResult<
-  CanonicalSkillId extends string,
+  CanonicalSkillId extends ConversationSkillId,
   Source extends ConversationFeedbackSource = ConversationFeedbackSource
 > {
   source: Source;
@@ -78,7 +80,7 @@ export interface ConversationFeedbackAnalytics {
 
 export interface ConversationFeedbackEvaluator<
   Input,
-  CanonicalSkillId extends string,
+  CanonicalSkillId extends ConversationSkillId,
   Source extends ConversationFeedbackSource = ConversationFeedbackSource
 > {
   evaluate(input: Input): Promise<ConversationFeedbackResult<CanonicalSkillId, Source>>;
@@ -91,7 +93,7 @@ const LANGUAGE_QUALITY_LEVEL = {
   natural: 3
 } as const satisfies Record<ConversationLanguageQuality, number>;
 
-export function evaluateCuratedConversationResponse<CanonicalSkillId extends string>(
+export function evaluateCuratedConversationResponse<CanonicalSkillId extends ConversationSkillId>(
   response: CuratedConversationResponse<CanonicalSkillId>
 ): ConversationFeedbackResult<CanonicalSkillId, "curated"> {
   const { situation, relationship, discourse } = response.context;
@@ -123,7 +125,7 @@ export function evaluateCuratedConversationResponse<CanonicalSkillId extends str
   };
 }
 
-export function toConversationFeedbackAnalytics<CanonicalSkillId extends string>(
+export function toConversationFeedbackAnalytics<CanonicalSkillId extends ConversationSkillId>(
   feedback: ConversationFeedbackResult<CanonicalSkillId>
 ): ConversationFeedbackAnalytics {
   const presentFeatures = new Set(
@@ -146,7 +148,9 @@ export function toConversationFeedbackAnalytics<CanonicalSkillId extends string>
   };
 }
 
-export function createCuratedConversationFeedbackEvaluator<CanonicalSkillId extends string>():
+export function createCuratedConversationFeedbackEvaluator<
+  CanonicalSkillId extends ConversationSkillId
+>():
   ConversationFeedbackEvaluator<
     CuratedConversationResponse<CanonicalSkillId>,
     CanonicalSkillId,

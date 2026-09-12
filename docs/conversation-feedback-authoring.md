@@ -69,8 +69,8 @@ Each feature references the canonical skill that expresses its function in this 
 - an `ask` that returns responsibility to the partner can reference `bounce`; and
 - an `ask` that requests clarification can reference `repair`.
 
-The type is generic over the canonical skill ID so the scenario contract can supply that bounded
-type without this module duplicating it.
+The type is generic over the canonical skill ID imported from the scenario contract, so it remains
+bounded without this module duplicating the skill taxonomy.
 
 ## Determinism, analytics, and future evaluation
 
