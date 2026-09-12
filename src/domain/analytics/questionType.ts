@@ -11,7 +11,7 @@
 import type { Attempt } from "../types";
 
 /** Exam-item question types, in display order (matches the id 2nd segment). */
-export const EXAM_QUESTION_TYPES = [
+const EXAM_QUESTION_TYPES = [
   "grammar",
   "vocab",
   "kanji",
@@ -23,7 +23,7 @@ export const EXAM_QUESTION_TYPES = [
   "text"
 ] as const;
 
-export type ExamQuestionType = (typeof EXAM_QUESTION_TYPES)[number];
+type ExamQuestionType = (typeof EXAM_QUESTION_TYPES)[number];
 
 /** All buckets: the 9 exam types, then the non-exam practice modes. */
 export type QuestionType = ExamQuestionType | "cloze" | "pattern" | "basic";

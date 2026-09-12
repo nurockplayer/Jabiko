@@ -25,7 +25,7 @@ export interface StayDHomeRecommendationCopy {
 }
 
 /** Editorial extension copy for the /stay-d page (not listing content). */
-export interface StayDPageExtras {
+interface StayDPageExtras {
   videoTitle: string;
   videoIntro: string;
   finalTitle: string;

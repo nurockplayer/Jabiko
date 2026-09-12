@@ -793,6 +793,15 @@ export default function App() {
             )
           }
           onStartDaily={() => openChallenge({ mode: "daily" })}
+          onStartConjugation={() =>
+            openChallenge({
+              mode: "basic",
+              partOfSpeech: "verb",
+              verbGroup: "all",
+              practiceFocus: "coreConjugation",
+              answerMode: "recall"
+            })
+          }
           onStartExamPreset={(range) => openChallenge({ mode: "exam", levelRange: range })}
           targetLevel={targetLevel}
           onChooseLevel={handleChooseLevel}

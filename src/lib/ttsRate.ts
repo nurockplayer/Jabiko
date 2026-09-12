@@ -28,8 +28,6 @@ export const TTS_RATE_PRESETS = [
   { id: "slower", rate: 0.5 }
 ] as const;
 
-export type TtsRatePresetId = (typeof TTS_RATE_PRESETS)[number]["id"];
-
 // Coerce any number into the safe range; non-finite input falls back to the
 // default rather than clamping (NaN/Infinity aren't a meaningful speed).
 export function clampTtsRate(rate: number): number {

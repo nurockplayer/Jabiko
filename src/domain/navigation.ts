@@ -2,7 +2,7 @@ import type { LocaleCode } from "./types";
 import type { AppRoute, AppView } from "./routes";
 import { STAY_D_REQUIRED_LOCALES } from "./stayD";
 
-export type NavigationGroup = "primary" | "resource";
+type NavigationGroup = "primary" | "resource";
 export type NavigationId =
   | "home"
   | "learn"

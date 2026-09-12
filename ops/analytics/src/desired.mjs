@@ -20,7 +20,7 @@ export const GA4_COMPONENT = desiredJson.ga4.component;
 export const GA4_DIMENSIONS = desiredJson.ga4.customDimensions;
 
 // Analytics clients forbidden by #745 ("no second analytics stack").
-export const FORBIDDEN_ANALYTICS_COMPONENTS = new Set([
+const FORBIDDEN_ANALYTICS_COMPONENTS = new Set([
   "gtag",
   "google-tag-manager",
   "google-analytics-3",
