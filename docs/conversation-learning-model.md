@@ -423,7 +423,7 @@ Jabiko should be able to teach the difference without claiming the richer exampl
 
 ### Imperfect production can still be useful
 
-Naturalness is always relative to the declared situation, relationship, and discourse context. A `Natural` example is not globally better than every grammatically correct alternative; it shows wording that fits the specific interaction being taught.
+Naturalness is always relative to the declared situation and discourse function. A `Natural` example is not globally better than every grammatically correct alternative; it shows wording that fits the specific interaction being taught. Relationship/register fit is judged separately.
 
 For example, given this explicit context:
 

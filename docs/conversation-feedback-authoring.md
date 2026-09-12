@@ -34,7 +34,7 @@ The stable stages are cumulative:
 | `not_understandable` | The intended meaning is not reasonably recoverable. |
 | `understandable` | Meaning is recoverable, but grammar or wording still needs work. |
 | `correct` | Grammar and wording are acceptable for the task, but contextual naturalness can improve. |
-| `natural` | The wording is natural for the declared situation, relationship, and discourse context. |
+| `natural` | The wording is natural for the declared situation and discourse context. Relationship/register fit is judged separately. |
 
 Never annotate `natural` without enough context to justify it. The same Japanese response may be
 `natural` in one discourse context and `correct` in another. `natural` is not a context-free rank
