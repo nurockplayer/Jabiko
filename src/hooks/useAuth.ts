@@ -18,34 +18,100 @@ export function useAuth() {
 
     let active = true;
     let unsubscribe: (() => void) | undefined;
+    let authEventVersion = 0;
+    let validatedUserId: string | null = null;
 
     getSupabase()
       .then((client) => {
         if (!client || !active) return;
 
+        // Auth event payloads can come from storage during SDK startup. Do not
+        // publish their user object until Auth has validated the access token.
+        const validateUser = (eventVersion: number) => {
+          client.auth
+            .getUser()
+            .then(({ data: { user }, error: userError }) => {
+              if (!active || eventVersion !== authEventVersion) return;
+              if (userError) {
+                console.error("Supabase getUser error:", userError);
+                validatedUserId = null;
+                setUser(null);
+                setError("sessionFetchFailed");
+                return;
+              }
+              validatedUserId = user?.id ?? null;
+              setUser(user ?? null);
+              setError(null);
+            })
+            .catch((e: unknown) => {
+              console.error("Supabase getUser exception:", e);
+              if (!active || eventVersion !== authEventVersion) return;
+              validatedUserId = null;
+              setUser(null);
+              setError("sessionFetchFailed");
+            });
+        };
+
+        // INITIAL_SESSION reflects locally persisted auth state. Ignore that
+        // event here because restored identities are validated below before
+        // they are exposed to account-backed features.
+        const {
+          data: { subscription }
+        } = client.auth.onAuthStateChange((event, session) => {
+          if (!active || event === "INITIAL_SESSION") return;
+          authEventVersion += 1;
+          if (!session) {
+            validatedUserId = null;
+            setUser(null);
+            setError(null);
+            return;
+          }
+          if (session.user.id !== validatedUserId) setUser(null);
+          setError(null);
+          validateUser(authEventVersion);
+        });
+        unsubscribe = () => subscription.unsubscribe();
+
+        const restorationEventVersion = authEventVersion;
+        const restorationIsCurrent = () => active && restorationEventVersion === authEventVersion;
+
+        // A missing session is the normal signed-out state: Jabiko does not
+        // require login. If a persisted session exists, do not trust its user
+        // object for authorization. Ask Supabase Auth to validate it first.
         client.auth
           .getSession()
-          .then(({ data: { session }, error: err }) => {
-            if (err) {
-              console.error("Supabase getSession error:", err);
+          .then(({ data: { session }, error: sessionError }) => {
+            if (!restorationIsCurrent()) return;
+            if (sessionError) {
+              console.error("Supabase getSession error:", sessionError);
+              validatedUserId = null;
+              setUser(null);
               setError("sessionFetchFailed");
+              return;
             }
-            setUser(session?.user ?? null);
+            if (!session) {
+              validatedUserId = null;
+              setUser(null);
+              setError(null);
+              return;
+            }
+
+            validateUser(restorationEventVersion);
           })
           .catch((e: unknown) => {
             console.error("Supabase getSession exception:", e);
+            if (!restorationIsCurrent()) return;
+            validatedUserId = null;
+            setUser(null);
+            setError("sessionFetchFailed");
           });
-
-        const {
-          data: { subscription }
-        } = client.auth.onAuthStateChange((_event, session) => {
-          setUser(session?.user ?? null);
-          setError(null); // clear errors on successful auth change
-        });
-        unsubscribe = () => subscription.unsubscribe();
       })
       .catch((e: unknown) => {
         console.error("Supabase load error:", e);
+        if (!active) return;
+        validatedUserId = null;
+        setUser(null);
+        setError("sessionFetchFailed");
       });
 
     return () => {
