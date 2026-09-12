@@ -16,6 +16,8 @@ describe("evaluateCuratedConversationResponse", () => {
     // @ts-expect-error -- response-composition features are not conversation skill IDs.
     type CompositionFeatureAsSkill = CuratedConversationResponse<"ask">;
 
+    void (undefined as unknown as MisspelledSkill);
+    void (undefined as unknown as CompositionFeatureAsSkill);
     expectTypeOf<ValidSpecificSkill>().toMatchTypeOf<
       CuratedConversationResponse<"share" | "expand">
     >();
