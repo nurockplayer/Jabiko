@@ -4,6 +4,11 @@ Status: canonical product/curriculum contract for Issues #810–#818.
 
 This document defines what Jabiko means by conversation-first Japanese learning. It is intentionally a product and curriculum contract, not a runtime implementation plan.
 
+The future Jabiko Life product boundary is documented separately in
+[`jabiko-life-product-boundary.md`](jabiko-life-product-boundary.md). Jabiko
+Life reuses this conversation-learning kernel; its world framing and
+contextual training transitions must not redefine this contract.
+
 ## Product job
 
 Jabiko should help a learner **keep a real Japanese conversation going**.

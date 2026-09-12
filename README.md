@@ -71,6 +71,9 @@ Concrete work is tracked in [GitHub Issues](https://github.com/nurockplayer/Jabi
 The backlog intentionally keeps only scoped, independently verifiable work;
 broader ideas are opened when there is a current product need.
 
+The separate-product boundary for the future conversation-driven Jabiko Life
+is recorded in [`docs/jabiko-life-product-boundary.md`](docs/jabiko-life-product-boundary.md).
+
 ## Ownership, privacy & terms
 
 Built by **花雪 (HanaYukii)**. The mascot ジャビ子 is Jabiko's own.
