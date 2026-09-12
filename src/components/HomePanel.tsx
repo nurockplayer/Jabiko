@@ -7,6 +7,7 @@ import { isLearningBlockComplete, learningBlocks } from "../domain/learningBlock
 import { localizeLearningBlock, type LearningBlockOverlays } from "../domain/learningBlockText";
 import { CONTENT_STATS } from "../domain/contentStats";
 import { computeProgressStats } from "../domain/stats";
+import { computeEarnedPoints } from "../domain/points";
 import { computeActivityTrend } from "../domain/analytics/trend";
 import { computeErrorsByQuestionType } from "../domain/analytics/weakness";
 import { AccuracyRing } from "./dashboard/AccuracyRing";
@@ -99,6 +100,7 @@ export function HomePanel({
   onStartVocab,
   onStartBookmarks,
   onStartDaily,
+  onStartConjugation,
   onStartExamPreset,
   targetLevel,
   onChooseLevel
@@ -114,6 +116,7 @@ export function HomePanel({
   // Starts the starred-questions pass (#470) from the new bookmarks card.
   onStartBookmarks: () => void;
   onStartDaily: () => void;
+  onStartConjugation: () => void;
   // Launches the 綜合/備考 exam session for a band -- the 下一步 banner's
   // target for non-starter learners (level-aware funnel).
   onStartExamPreset: (range: LevelRange) => void;
@@ -311,6 +314,19 @@ export function HomePanel({
         <span className="home-banner-text">
           <strong>{t.homeDailyMain}</strong>
           <small>{t.homeDailySub}</small>
+        </span>
+        <ArrowRight aria-hidden="true" />
+      </button>
+
+      <button
+        type="button"
+        className="home-conjugation-launch"
+        onClick={onStartConjugation}
+      >
+        <Sparkles aria-hidden="true" />
+        <span>
+          <strong>{t.homeConjugationMain}</strong>
+          <small>{t.homeConjugationSub}</small>
         </span>
         <ArrowRight aria-hidden="true" />
       </button>
@@ -573,6 +589,13 @@ export function HomePanel({
             <div className="home-stats-cell">
               <strong>{progress.masteredCount}</strong>
               <small>{t.homeStatsMastered}</small>
+            </div>
+            {/* Points economy foundation: 1 point per correct answer, derived
+                from the same attempt history as the other tiles (points.ts).
+                A future shop spends against this via a separate spend ledger. */}
+            <div className="home-stats-cell home-stats-cell-points">
+              <strong>{computeEarnedPoints(progressAttempts)}</strong>
+              <small>{t.homeStatsPoints}</small>
             </div>
           </div>
 

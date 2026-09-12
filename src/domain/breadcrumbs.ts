@@ -17,7 +17,7 @@ export interface BreadcrumbLabels {
   terms: string;
 }
 
-export interface BreadcrumbCrumb {
+interface BreadcrumbCrumb {
   /**
    * Canonical route this crumb navigates to. `null` marks the current
    * (non-clickable) crumb, which carries `aria-current="page"`.

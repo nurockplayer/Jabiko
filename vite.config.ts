@@ -84,6 +84,10 @@ export default defineConfig({
           include: [
             "src/domain/**/*.test.ts",
             "src/domain/**/*.test.mjs",
+            // CSS contract tests: plain text assertions over the stylesheet
+            // source (node env; no pattern covered src/styles before, which
+            // silently orphaned feedback.test.ts).
+            "src/styles/**/*.test.ts",
             "functions/**/*.test.mjs",
             "scripts/**/*.test.ts"
           ],

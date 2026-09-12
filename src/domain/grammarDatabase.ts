@@ -6,7 +6,7 @@
 // 台詞例句如有不確定，以 `confidence` 如實標記，不偽造 verified 資料。
 import type { JlptLevel, ExampleSentence } from "./types";
 
-export type GrammarImportance = "must_know" | "high_frequency" | "understand" | "reference";
+type GrammarImportance = "must_know" | "high_frequency" | "understand" | "reference";
 
 export interface MediaLineExample {
   sourceType: "drama" | "anime" | "movie" | "other";

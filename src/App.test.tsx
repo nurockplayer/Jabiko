@@ -5,6 +5,7 @@ import App from "./App";
 import type { Attempt } from "./domain/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import appSource from "./App.tsx?raw";
+import homePanelSource from "./components/HomePanel.tsx?raw";
 
 // #693: controlled auth + deletion-protocol seams for the account-entry
 // integration tests. Default OFF: every existing test keeps running the REAL
@@ -141,6 +142,62 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: /今天想練什麼/ })).toBeInTheDocument();
     // Chapter index belongs to Learn view; not visible on Home.
     expect(screen.queryByRole("heading", { name: "一章一章解鎖" })).not.toBeInTheDocument();
+  });
+
+  it("launches the compact conjugation recall session with the intended fixed scope", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /動詞變化/ }));
+
+    expect(await screen.findByRole("textbox", { name: "輸入變化後的日文" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: /^基礎變化/ })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByRole("button", { name: "核心動詞變化" })).toHaveClass("selected");
+    expect(
+      within(screen.getByRole("group", { name: "動詞類別" })).getByRole("button", {
+        name: "全部"
+      })
+    ).toHaveAttribute("aria-pressed", "true");
+    expect(
+      within(screen.getByRole("group", { name: "答題方式" })).getByRole("button", {
+        name: "自己輸入"
+      })
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("keeps the conjugation launcher on the existing lazy Challenge boundary", () => {
+    expect(appSource).toMatch(/const ChallengePanel = lazy\(\(\) =>/);
+    expect(homePanelSource).not.toMatch(/from ["']\.\.\/domain\/sessionPools["']/);
+    expect(homePanelSource).not.toMatch(/from ["']\.\.\/hooks\/usePracticeSession["']/);
+    expect(homePanelSource).not.toMatch(/from ["']\.\/ChallengePanel["']/);
+  });
+
+  it("supports the recall keyboard rhythm and preserves a wrong typed answer", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /動詞變化/ }));
+
+    const drill = await screen.findByRole("region", { name: "目前題目" });
+    const firstQuestionId = drill.getAttribute("data-question-id");
+    const input = screen.getByRole("textbox", { name: "輸入變化後的日文" });
+    await user.type(input, "行きて");
+    await user.keyboard("{Enter}");
+
+    expect(drill).toHaveAttribute("data-result", "wrong");
+    expect(drill).toHaveAttribute("data-selected", "行きて");
+    expect(screen.getByText("行きて")).toBeInTheDocument();
+    expect(input).toBeDisabled();
+    expect(screen.getByRole("button", { name: "下一題" })).toHaveFocus();
+
+    await user.keyboard("{Enter}");
+
+    const nextInput = screen.getByRole("textbox", { name: "輸入變化後的日文" });
+    expect(nextInput).toHaveFocus();
+    expect(drill).toHaveAttribute("data-result", "unanswered");
+    expect(drill.getAttribute("data-question-id")).not.toBe(firstQuestionId);
   });
 
   it("reaches the partnership page from Resources and lazy-loads its route", async () => {
@@ -976,7 +1033,7 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: "書って" }));
 
     expect(screen.getByText("再想一下")).toBeInTheDocument();
-    expect(screen.getByText("正解：書いて")).toBeInTheDocument();
+    expect(screen.getByText("正解：書いて / かいて")).toBeInTheDocument();
     expect(screen.getByText(/一類動詞/)).toBeInTheDocument();
   });
 

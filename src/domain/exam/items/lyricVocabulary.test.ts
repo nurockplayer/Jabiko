@@ -4,7 +4,8 @@ import { n1Items } from "./n1";
 import { n2Items } from "./n2";
 import { n3Items } from "./n3";
 
-const expectedItems = new Map([
+// Batch 1 (#779): SWEET STEADY.
+const batch1Items = new Map([
   ["n1-syn-toritsukurou", "取り繕う"],
   ["n2-syn-kokorogaodoru", "心が躍る"],
   ["n1-vocab-kakikesu", "掻き消す"],
@@ -16,6 +17,36 @@ const expectedItems = new Map([
   ["n2-syn-tairin", "大輪"],
   ["n3-vocab-kazaritsukeru", "飾り付ける"]
 ]);
+
+// Batch 2: 私立恵比寿中学 / TEAM SHACHI.
+const batch2Items = new Map([
+  ["n1-syn-tsumeato", "爪痕を残す"],
+  ["n1-syn-soumatou", "走馬灯のように"],
+  ["n1-syn-nishikiwokazaru", "錦を飾る"],
+  ["n1-syn-rounyakunannyo", "老若男女"],
+  ["n1-syn-icchoura", "一張羅"],
+  ["n2-syn-karamawari", "空回りする"],
+  ["n2-syn-waraitobasu", "笑い飛ばす"],
+  ["n2-syn-munewoharu", "胸を張る"],
+  ["n2-syn-tekagen", "手加減する"],
+  ["n2-syn-terekusai", "照れくさい"]
+]);
+
+// Batch 3: 私立恵比寿中学 / TEAM SHACHI, second pass over the same songs.
+const batch3Items = new Map([
+  ["n1-syn-kadode", "門出"],
+  ["n1-syn-ryuutoudabi", "竜頭蛇尾"],
+  ["n1-syn-toriko", "虜"],
+  ["n1-syn-itooshii", "愛おしい"],
+  ["n2-syn-hankagai", "繁華街"],
+  ["n2-syn-tadoritsuku", "辿り着く"],
+  ["n2-syn-ikinuku", "生き抜く"],
+  ["n2-syn-kizamikomu", "刻み込む"],
+  ["n3-syn-dakishimeru", "抱きしめる"],
+  ["n3-syn-oikakeru", "追いかける"]
+]);
+
+const expectedItems = new Map([...batch1Items, ...batch2Items, ...batch3Items]);
 
 const allItems: PracticeQuestion[] = [...n1Items, ...n2Items, ...n3Items];
 

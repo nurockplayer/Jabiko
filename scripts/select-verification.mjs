@@ -24,7 +24,7 @@
 // ---------------------------------------------------------------------------
 // Level ordering
 // ---------------------------------------------------------------------------
-export const LEVEL_RANK = { L0: 0, L1: 1, L2: 2, L3: 3 };
+const LEVEL_RANK = { L0: 0, L1: 1, L2: 2, L3: 3 };
 
 // ---------------------------------------------------------------------------
 // Small explicit rule table. Each entry: { id, level, match, commands, tests,
@@ -47,7 +47,7 @@ const SUBSET_OF_TEST = new Set(["check:exam"]);
 // therefore must also run at L3. Conservative superset used when changed paths
 // are unknowable. check:readings is excluded by design (reference-only, always
 // exits 0).
-export const ALL_NON_TEST_PATH_GATES = ["check:i18n"];
+const ALL_NON_TEST_PATH_GATES = ["check:i18n"];
 
 // Production source categories: L1 leaf surfaces + L2 path-gated surfaces.
 // A changed file in one of these with no existing affected test is an
@@ -238,7 +238,7 @@ const RULE_BY_ID = Object.fromEntries(RULES.map((r) => [r.id, r]));
 // Known direct integration tests for important shared surfaces. Deliberately
 // small and auditable (not a dependency graph). Extend as surfaces grow.
 // ---------------------------------------------------------------------------
-export const DEFAULT_EXTRA_TESTS = {
+const DEFAULT_EXTRA_TESTS = {
   "src/domain/grammarDatabase.ts": [
     "src/domain/grammarIndex.test.ts",
     "src/domain/sitemap.test.ts"

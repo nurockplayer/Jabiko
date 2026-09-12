@@ -178,7 +178,17 @@ async function main() {
       普通盛り: "ふつうもり",
       小盛り: "こもり",
       真正面: "ましょうめん",
-      雨音: "あまおと"
+      雨音: "あまおと",
+      // kuromoji splits 入り混じる as 入(はい)+り+混(ま)じる; the compound is
+      // read いりまじる.
+      入り混じって: "いりまじって",
+      入り混じる: "いりまじる",
+      入り混じり: "いりまじり",
+      // kuromoji reads the 愛 of 愛おしい as あい; the word is いとおしい.
+      愛おしい: "いとおしい",
+      愛おしく: "いとおしく",
+      愛おしかった: "いとおしかった",
+      愛おしさ: "いとおしさ"
     };
 
     // #714: standalone reading-drill surfaces keep their vocabulary reading,
