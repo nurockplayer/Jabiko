@@ -32,7 +32,8 @@ import {
   BrushSpot,
   SpeechSpot,
   ExamPaperSpot,
-  TargetSpot
+  TargetSpot,
+  TeaCupSpot
 } from "../illustrations";
 
 // Content-volume snapshot rendered above the entry cards. The exam /
@@ -110,7 +111,9 @@ export function HomePanel({
   reviewCount: number;
   // 2026-07 grid refresh: the picker block also links the reference views
   // (grammar / kanji / rules / kana) via the quick-links row below the cards.
-  onNavigate: (target: "learn" | "challenge" | "mock" | "grammar" | "kanji" | "rules" | "kana") => void;
+  onNavigate: (
+    target: "learn" | "challenge" | "mock" | "grammar" | "kanji" | "rules" | "kana" | "conversation"
+  ) => void;
   onStartReview: () => void;
   onStartVocab: () => void;
   // Starts the starred-questions pass (#470) from the new bookmarks card.
@@ -542,6 +545,20 @@ export function HomePanel({
               : t.homeCardBookmarksSubEmpty}
           </p>
           <span className="home-card-meta">{t.homeCardBookmarksMeta}</span>
+          <ArrowRight className="home-card-arrow" aria-hidden="true" />
+        </button>
+        {/* #814 Small Talk Lab: a separate short-conversation practice path
+            (everyday scenes, curated feedback) -- deliberately NOT another
+            JLPT card, so it sits after the exam-oriented grid entries. */}
+        <button
+          type="button"
+          className="home-card home-card-conversation"
+          onClick={() => onNavigate("conversation")}
+        >
+          <TeaCupSpot className="home-card-spot" />
+          <h2>{t.homeCardConversationTitle}</h2>
+          <p>{t.homeCardConversationSub}</p>
+          <span className="home-card-meta">{t.homeCardConversationMeta}</span>
           <ArrowRight className="home-card-arrow" aria-hidden="true" />
         </button>
       </div>

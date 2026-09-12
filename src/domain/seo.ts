@@ -91,6 +91,12 @@ export const VIEW_SEO: Record<AppView, PageSeo> = {
     description:
       "JLPT N5–N1 文型一覽：全部文型、接續規則、用法與例句。支援搜尋、等級瀏覽與影視例句篩選——JLPT 文法攻略。",
     path: APP_VIEW_PATHS.grammar
+  },
+  conversation: {
+    title: "日常會話練習室 · 短句日語對話 · Jabiko",
+    description:
+      "用簡短的日常情境練習日語接話：短／中／長三種對話、人工整理的回饋與多個可選回應，離線即時、不呼叫 AI。",
+    path: APP_VIEW_PATHS.conversation
   }
 };
 

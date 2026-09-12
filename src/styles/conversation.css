@@ -1,0 +1,206 @@
+/* Small Talk Lab (#814): the curated short-conversation practice runtime.
+   Presentation only -- the panel state machine lives in
+   src/domain/conversationSession.ts. Focus visibility comes from the global
+   button:focus-visible rule in challenge.css. */
+.conversation-panel {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0 auto;
+  max-width: 44rem;
+}
+
+.conversation-title {
+  margin: 0 0 0.35rem;
+}
+
+.conversation-intro {
+  color: var(--muted);
+  margin: 0;
+}
+
+.conversation-intro-body,
+.conversation-run {
+  display: grid;
+  gap: 1rem;
+}
+
+.conversation-scenes {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.conversation-scene {
+  background: var(--paper);
+  border: 1px solid var(--button-border);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  text-align: left;
+}
+
+.conversation-scene[aria-pressed="true"] {
+  border-color: var(--teal);
+  box-shadow: inset 0 0 0 1px var(--teal);
+}
+
+.conversation-scene-length {
+  color: var(--teal-dark);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
+.conversation-brief {
+  border-left: 3px solid var(--teal);
+  display: grid;
+  gap: 0.5rem;
+  padding-left: 0.9rem;
+}
+
+.conversation-brief p {
+  margin: 0;
+}
+
+.conversation-brief-instruction {
+  color: var(--muted);
+}
+
+.conversation-turn {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.1rem 1.2rem;
+}
+
+.conversation-partner-label,
+.conversation-choose-label {
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.conversation-partner-line {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.conversation-prompt {
+  margin: 0;
+}
+
+.conversation-responses {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.conversation-response {
+  background: var(--paper);
+  border: 1px solid var(--button-border);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.8rem 0.9rem;
+  text-align: left;
+}
+
+.conversation-response small {
+  color: var(--muted);
+}
+
+.conversation-section-title {
+  margin: 0;
+}
+
+.conversation-response-echo {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.conversation-dimensions {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.conversation-dimension {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: space-between;
+}
+
+.conversation-dimension dt {
+  color: var(--label-text);
+}
+
+.conversation-dimension dd {
+  margin: 0;
+}
+
+.conversation-dimension dd[data-status="met"] {
+  color: var(--teal-dark);
+}
+
+.conversation-dimension dd[data-status="needs_work"] {
+  color: var(--danger);
+}
+
+.conversation-composition {
+  margin: 0;
+}
+
+.conversation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.conversation-primary,
+.conversation-secondary {
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  padding: 0.6rem 1.1rem;
+}
+
+.conversation-primary {
+  background: var(--teal);
+  border: 1px solid var(--teal);
+  color: #fffaf0;
+}
+
+.conversation-feedback.is-dead-end .conversation-primary {
+  background: var(--vermilion);
+  border-color: var(--vermilion);
+  color: #172126;
+}
+
+.conversation-secondary {
+  background: transparent;
+  border: 1px solid var(--button-border);
+  color: var(--ink);
+}
+
+.conversation-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.conversation-summary-title {
+  margin: 0;
+}
+
+.conversation-summary-body {
+  margin: 0.3rem 0 0;
+}
+
+.conversation-footer {
+  display: flex;
+  justify-content: flex-end;
+}

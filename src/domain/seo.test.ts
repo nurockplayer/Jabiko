@@ -14,7 +14,8 @@ const VIEWS: Exclude<AppView, "grammar">[] = [
   "about",
   "privacy",
   "terms",
-  "stayD"
+  "stayD",
+  "conversation"
 ];
 
 describe("seo", () => {

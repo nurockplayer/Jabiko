@@ -61,6 +61,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://jabiko.app/conversation</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://jabiko.app/grammar/n5</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
