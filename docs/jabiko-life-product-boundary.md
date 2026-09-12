@@ -8,6 +8,9 @@ conversation-driven game product. It does not redefine the conversation
 curriculum in [`conversation-learning-model.md`](conversation-learning-model.md)
 or Issues #811–#819.
 
+The Issue #832 design prototype and visual-language handoff are documented in
+[`design/world-training/README.md`](design/world-training/README.md).
+
 ## Fixed decisions
 
 ### Two products first
