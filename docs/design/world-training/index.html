@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jabiko World / Training — design prototype</title>
+  <link rel="stylesheet" href="./prototype.css">
+</head>
+<body>
+  <aside class="author-toolbar" aria-label="Prototype authoring controls">
+    <span class="author-kicker">DESIGN PROTOTYPE · NOT PRODUCT UI</span>
+    <label>Screen <select id="screen-select">
+      <option value="entry">Entry</option><option value="world">World / Today</option>
+      <option value="conversation">Conversation</option><option value="feedback">Feedback / Replay</option>
+      <option value="handoff">Training handoff</option><option value="training">Training home</option>
+    </select></label>
+    <label>State <select id="state-select">
+      <option value="returning">Returning learner</option><option value="unfinished">Unfinished conversation</option>
+      <option value="completed">Completed day</option><option value="seasonless">No seasonal item</option>
+      <option value="loading">Loading</option><option value="error">Error</option><option value="offline">Offline</option>
+    </select></label>
+    <span class="author-note">Selectors document states only; no login, persistence, or AI is implemented.</span>
+  </aside>
+  <main id="app" data-screen="entry" data-state="returning"></main>
+  <!-- This prototype is intentionally file://-compatible: prototype.js has no imports. -->
+  <script src="./prototype.js"></script>
+</body>
+</html>

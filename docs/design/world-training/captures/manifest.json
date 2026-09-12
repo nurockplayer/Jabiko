@@ -1,0 +1,30 @@
+{
+  "status": "success",
+  "generatedBy": "capture.mjs",
+  "viewports": [
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "screens": [
+    "entry",
+    "world",
+    "conversation",
+    "feedback",
+    "handoff",
+    "training"
+  ],
+  "captures": 12,
+  "supplementalCaptures": [
+    "conversation-mobile-actions.png",
+    "training-mobile-destinations.png"
+  ],
+  "pageErrors": []
+}
