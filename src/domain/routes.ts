@@ -12,7 +12,8 @@ export const APP_VIEW_PATHS = {
   privacy: "/privacy",
   terms: "/terms",
   stayD: "/stay-d",
-  grammar: "/grammar"
+  grammar: "/grammar",
+  conversation: "/conversation"
 } as const;
 
 export type AppView = keyof typeof APP_VIEW_PATHS;

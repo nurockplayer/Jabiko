@@ -77,6 +77,14 @@ const ChallengePanel = lazy(() =>
 const MockExamPanel = lazy(() =>
   import("./components/MockExamPanel").then((module) => ({ default: module.MockExamPanel }))
 );
+// Small Talk Lab (#814): curated conversation scenarios + feedback live in
+// this lazy chunk, so neither the fixture content nor the session engine
+// enters the eager App/home bundle.
+const ConversationPanel = lazy(() =>
+  import("./components/ConversationPanel").then((module) => ({
+    default: module.ConversationPanel
+  }))
+);
 // 漢字音読み 速查 also pulls the vocab data (for example words), so it's
 // lazy too -- imported directly from its module, not the barrel.
 const KanjiOnyomiPanel = lazy(() =>
@@ -879,6 +887,10 @@ export default function App() {
             onPractice={() => openChallenge({ mode: "daily" })}
             onNavigate={(surface) => setRoute(grammarRoute(surface))}
           />
+        </Suspense>
+      ) : appView === "conversation" ? (
+        <Suspense fallback={<PanelFallback label={t.loading} />}>
+          <ConversationPanel language={language} />
         </Suspense>
       ) : (
         <Suspense fallback={<PanelFallback label={t.loading} />}>

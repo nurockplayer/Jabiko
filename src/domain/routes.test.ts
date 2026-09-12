@@ -37,6 +37,12 @@ describe("app route contract (#623)", () => {
     expect(parseRoute("/stay-d")).toEqual(staticRoute("stayD"));
   });
 
+  it("treats /conversation as a normal public app route (#814)", () => {
+    expect(APP_VIEW_PATHS.conversation).toBe("/conversation");
+    expect(parseRoute("/conversation")).toEqual(staticRoute("conversation"));
+    expect(serializeRoute(staticRoute("conversation"))).toBe("/conversation");
+  });
+
   it("round-trips an encoded grammar surface", () => {
     const route: AppRoute = {
       view: "grammar",
