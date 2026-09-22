@@ -221,6 +221,44 @@ describe("App", () => {
     );
   });
 
+  it("opens the Small Talk Lab from the home card and lazy-loads its route (#814)", async () => {
+    expect(appSource).toMatch(/const ConversationPanel = lazy\(\(\) =>/);
+    expect(appSource).toContain('import("./components/ConversationPanel")');
+
+    localStorage.setItem("jabiko.lang", "zh-Hant");
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /日常會話/ }));
+
+    // First cold import of the conversation chunk; give it the same bounded
+    // warm-up window as the other lazy routes.
+    await screen.findByRole(
+      "heading",
+      { name: "日常會話練習室", level: 2 },
+      { timeout: 15000 }
+    );
+    expect(window.location.pathname).toBe("/conversation");
+  });
+
+  it("deep-links /conversation and restores home on browser back/forward (#814)", async () => {
+    window.history.replaceState({}, "", "/conversation");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    render(<App />);
+
+    await screen.findByRole(
+      "heading",
+      { name: "日常會話練習室", level: 2 },
+      { timeout: 15000 }
+    );
+
+    window.history.replaceState({}, "", "/");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    await waitFor(() => expect(window.location.pathname).toBe("/"));
+    expect(
+      screen.queryByRole("heading", { name: "日常會話練習室" })
+    ).not.toBeInTheDocument();
+  });
+
   it("marks the active nav tab with aria-current=page and moves it on navigation", async () => {
     const user = userEvent.setup();
     render(<App />);

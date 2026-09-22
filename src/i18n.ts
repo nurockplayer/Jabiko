@@ -2,6 +2,12 @@ import type { LocaleCode, PartOfSpeech, TargetForm, VerbGroup } from "./domain/t
 import type { QuestionType } from "./domain/analytics/questionType";
 import type { ModeCopyKey, ModeGroupId } from "./domain/practiceMode";
 import type { AuthErrorCode } from "./hooks/useAuth";
+import type {
+  ConversationCompositionFeature,
+  ConversationFeedbackDimension,
+  ConversationFeedbackStatus
+} from "./domain/conversationFeedback";
+import type { ConversationLength } from "./domain/conversationScenario";
 
 // Single source of truth for the locale code union lives in the domain layer
 // (src/domain/types.ts) so content overlays can reference it too; `Language`
@@ -502,6 +508,40 @@ export type Copy = {
   deleteHistorySuccess: string;
   /** Retryable error shown inside the dialog when a delete fails. */
   deleteHistoryError: string;
+  // ---- Small Talk Lab (#814) -----------------------------------------------
+  /** Panel heading for the curated short-conversation practice runtime. */
+  conversationTitle: string;
+  conversationIntro: string;
+  conversationStart: string;
+  conversationContinue: string;
+  /** Label for the offer to redo a response that ended the conversation. */
+  conversationRetry: string;
+  conversationReset: string;
+  conversationChangeScenario: string;
+  conversationPartnerLabel: string;
+  conversationLearnerRole: string;
+  conversationPartnerRole: string;
+  conversationRelationship: string;
+  /** Localized labels for authored role IDs; custom roles retain their supplied text. */
+  conversationRoles: Readonly<Record<string, string>>;
+  conversationChooseResponse: string;
+  conversationFeedbackTitle: string;
+  conversationCompleteTitle: string;
+  conversationSummaryTitle: string;
+  /** Label for the Answer/Add/Ask moves recorded during the run. */
+  conversationPracticedLabel: string;
+  /**
+   * Honesty note: the runtime is deterministic curated feedback with no AI
+   * grading and no audio playback.
+   */
+  conversationCuratedNote: string;
+  conversationLengths: Record<ConversationLength, string>;
+  conversationDimensions: Record<ConversationFeedbackDimension, string>;
+  conversationStatus: Record<ConversationFeedbackStatus, string>;
+  conversationComposition: Record<ConversationCompositionFeature, string>;
+  homeCardConversationTitle: string;
+  homeCardConversationSub: string;
+  homeCardConversationMeta: string;
   partOfSpeech: Record<PartOfSpeech | "mixed", string>;
   verbGroups: Record<VerbGroup | "all", string>;
   focusOptions: Record<

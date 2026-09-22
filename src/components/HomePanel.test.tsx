@@ -488,3 +488,17 @@ describe("HomePanel points cell (points economy foundation)", () => {
     expect(within(cell as HTMLElement).getByText("0")).toBeInTheDocument();
   });
 });
+
+// #814: the Small Talk Lab is a separate short-conversation practice path --
+// not a JLPT challenge card, and not a global recommendation.
+describe("HomePanel small talk entry (#814)", () => {
+  it("offers a curated small-talk card that opens the conversation route", () => {
+    const props = renderHome();
+    const card = screen.getByRole("button", { name: /日常會話/ });
+
+    expect(card).toHaveTextContent(copy["zh-Hant"].homeCardConversationSub);
+    expect(card).toHaveTextContent(copy["zh-Hant"].homeCardConversationMeta);
+    fireEvent.click(card);
+    expect(props.onNavigate).toHaveBeenCalledWith("conversation");
+  });
+});

@@ -12,6 +12,54 @@ const viewportMatrix = [
 
 const representativeRoutes = ["/", "/grammar/n5", "/kana", "/privacy", "/terms"] as const;
 
+for (const width of [390, 1280]) {
+  test.describe(`conversation keyboard flow at ${width}px`, () => {
+    test.use({ viewport: { width, height: 844 } });
+
+    test("keeps feedback, retry and completion reachable without restarting the tab order", async ({ page }) => {
+      await page.goto("/conversation");
+      const shortScene = page.getByRole("button", { name: /^短/ });
+      await shortScene.focus();
+      await shortScene.press("Enter");
+      await expectNoPageOverflow(page, "conversation brief");
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+      await expect(page.getByRole("button", { name: "開始這個情境" })).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(page.getByText("電車、遅れてるみたいですね。")).toBeFocused();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Enter");
+      await expect(page.getByText("選一個回應", { exact: true })).toBeFocused();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("heading", { name: "回饋" })).toBeFocused();
+      await expectNoPageOverflow(page, "conversation feedback");
+      await page.keyboard.press("Tab");
+      await expect(page.getByRole("button", { name: "換個說法再試一次" })).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(page.getByText("選一個回應", { exact: true })).toBeFocused();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("heading", { name: "回饋" })).toBeFocused();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+      await expect(page.getByRole("button", { name: "繼續", exact: true })).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("heading", { name: "完成", exact: true })).toBeFocused();
+      await expectNoPageOverflow(page, "conversation completion");
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+      await expect(page.getByRole("button", { name: "換情境", exact: true }).first()).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("heading", { name: "日常會話練習室" })).toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(shortScene).toBeFocused();
+    });
+  });
+}
+
 const grammarN5Breadcrumb = {
   labels: ["首頁", "文型", "N5"],
   parentPaths: ["/", "/grammar"],
