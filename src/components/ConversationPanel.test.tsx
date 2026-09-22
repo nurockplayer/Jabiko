@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { ConversationPanel } from "./ConversationPanel";
 import { copy } from "../i18n";
+import { conversationSessionDefinitions } from "../domain/conversationFixtures";
 
 const t = copy["zh-Hant"];
 
@@ -27,6 +28,41 @@ async function reachResponses(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("ConversationPanel fixture selection (#814)", () => {
+  it.each([
+    ["zh-Hant", "你的角色", "對方的角色", "關係與語氣"],
+    ["ja", "あなたの役割", "相手の役割", "関係と言葉遣い"],
+    ["en", "Your role", "Partner's role", "Relationship and register"]
+  ] as const)("shows roles and localized relationship before starting in %s", async (
+    language, learnerLabel, partnerLabel, contextLabel
+  ) => {
+    const user = userEvent.setup();
+    const definition = conversationSessionDefinitions[0];
+    const relationship = {
+      ...definition.scenario.relationship,
+      learnerRole: "visitor",
+      partnerRole: "host"
+    };
+    render(<ConversationPanel language={language} definitions={[{
+      ...definition,
+      scenario: { ...definition.scenario, relationship }
+    }]} />);
+    await user.click(screen.getByRole("button", {
+      name: new RegExp(`^${copy[language].conversationLengths.short}`)
+    }));
+
+    expect(screen.getByText(learnerLabel).nextElementSibling).toHaveTextContent("visitor");
+    expect(screen.getByText(partnerLabel).nextElementSibling).toHaveTextContent("host");
+    const expectedContext = language === "zh-Hant"
+      ? relationship.context.textZh
+      : relationship.context.textI18n![language]!;
+    expect(screen.getByText(contextLabel).nextElementSibling).toHaveTextContent(expectedContext);
+    if (language !== "zh-Hant") {
+      expect(screen.queryByText(relationship.context.textZh)).not.toBeInTheDocument();
+    }
+    expect(screen.getByRole("button", { name: copy[language].conversationStart })).toBeInTheDocument();
+    expect(screen.queryByText("電車、遅れてるみたいですね。")).not.toBeInTheDocument();
+  });
+
   it("offers exactly the three fixtures labelled short / medium / long", () => {
     renderPanel();
     for (const label of [

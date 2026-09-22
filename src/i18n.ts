@@ -519,6 +519,9 @@ export type Copy = {
   conversationReset: string;
   conversationChangeScenario: string;
   conversationPartnerLabel: string;
+  conversationLearnerRole: string;
+  conversationPartnerRole: string;
+  conversationRelationship: string;
   conversationChooseResponse: string;
   conversationFeedbackTitle: string;
   conversationCompleteTitle: string;

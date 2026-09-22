@@ -308,6 +308,16 @@ export function ConversationPanel({
 
           {state.scenario ? (
             <article className="conversation-brief">
+              <dl>
+                <dt>{t.conversationLearnerRole}</dt>
+                <dd>{state.scenario.relationship.learnerRole}</dd>
+                <dt>{t.conversationPartnerRole}</dt>
+                <dd>{state.scenario.relationship.partnerRole}</dd>
+                <dt>{t.conversationRelationship}</dt>
+                <dd lang={language === "ja" ? "ja" : undefined}>
+                  {localizeConversationLearnerText(state.scenario.relationship.context, language)}
+                </dd>
+              </dl>
               <p lang={language === "ja" ? "ja" : undefined}>
                 {localizeConversationLearnerText(state.scenario.objective, language)}
               </p>
