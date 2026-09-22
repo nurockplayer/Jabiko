@@ -529,6 +529,7 @@ export const zhHant: Copy = {
   conversationLearnerRole: "你的角色",
   conversationPartnerRole: "對方的角色",
   conversationRelationship: "關係與語氣",
+  conversationRoles: { coworker: "同事", participant: "活動參加者" },
   conversationChooseResponse: "選一個回應",
   conversationFeedbackTitle: "回饋",
   conversationCompleteTitle: "完成",

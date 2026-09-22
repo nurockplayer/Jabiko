@@ -530,6 +530,7 @@ export const my: Copy = {
   conversationLearnerRole: "သင့်အခန်းကဏ္ဍ",
   conversationPartnerRole: "စကားပြောဖက်၏ အခန်းကဏ္ဍ",
   conversationRelationship: "ဆက်ဆံရေးနှင့် စကားပြောဟန်",
+  conversationRoles: { coworker: "လုပ်ဖော်ကိုင်ဖက်", participant: "ပါဝင်သူ" },
   conversationChooseResponse: "အဖြေ ရွေးရန်",
   conversationFeedbackTitle: "တုံ့ပြန်ချက်",
   conversationCompleteTitle: "ပြီးဆုံး",

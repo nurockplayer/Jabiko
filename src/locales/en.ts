@@ -530,6 +530,7 @@ export const en: Copy = {
   conversationLearnerRole: "Your role",
   conversationPartnerRole: "Partner's role",
   conversationRelationship: "Relationship and register",
+  conversationRoles: { coworker: "coworker", participant: "participant" },
   conversationChooseResponse: "Choose a response",
   conversationFeedbackTitle: "Feedback",
   conversationCompleteTitle: "Complete",

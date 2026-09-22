@@ -530,6 +530,7 @@ export const id: Copy = {
   conversationLearnerRole: "Peran Anda",
   conversationPartnerRole: "Peran lawan bicara",
   conversationRelationship: "Hubungan dan ragam bahasa",
+  conversationRoles: { coworker: "rekan kerja", participant: "peserta" },
   conversationChooseResponse: "Pilih balasan",
   conversationFeedbackTitle: "Umpan balik",
   conversationCompleteTitle: "Selesai",

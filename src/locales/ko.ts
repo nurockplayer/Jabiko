@@ -530,6 +530,7 @@ export const ko: Copy = {
   conversationLearnerRole: "내 역할",
   conversationPartnerRole: "상대방의 역할",
   conversationRelationship: "관계와 말투",
+  conversationRoles: { coworker: "동료", participant: "참가자" },
   conversationChooseResponse: "대답 고르기",
   conversationFeedbackTitle: "피드백",
   conversationCompleteTitle: "완료",

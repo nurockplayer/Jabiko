@@ -30,6 +30,9 @@ export function ConversationPanel({
   definitions?: readonly ConversationSessionDefinition[];
 }) {
   const t = copy[language];
+  const roleLabel = (role: string) => Object.hasOwn(t.conversationRoles, role)
+    ? t.conversationRoles[role]
+    : role;
   // The session is a mutable engine instance; React state mirrors its
   // snapshot after every action so the panel re-renders deterministically.
   const session = useMemo(() => createConversationSession(definitions), [definitions]);
@@ -310,9 +313,9 @@ export function ConversationPanel({
             <article className="conversation-brief">
               <dl>
                 <dt>{t.conversationLearnerRole}</dt>
-                <dd>{state.scenario.relationship.learnerRole}</dd>
+                <dd>{roleLabel(state.scenario.relationship.learnerRole)}</dd>
                 <dt>{t.conversationPartnerRole}</dt>
-                <dd>{state.scenario.relationship.partnerRole}</dd>
+                <dd>{roleLabel(state.scenario.relationship.partnerRole)}</dd>
                 <dt>{t.conversationRelationship}</dt>
                 <dd lang={language === "ja" ? "ja" : undefined}>
                   {localizeConversationLearnerText(state.scenario.relationship.context, language)}

@@ -531,6 +531,7 @@ export const th: Copy = {
   conversationLearnerRole: "บทบาทของคุณ",
   conversationPartnerRole: "บทบาทของคู่สนทนา",
   conversationRelationship: "ความสัมพันธ์และระดับภาษา",
+  conversationRoles: { coworker: "เพื่อนร่วมงาน", participant: "ผู้เข้าร่วม" },
   conversationChooseResponse: "เลือกคำตอบ",
   conversationFeedbackTitle: "คำติชม",
   conversationCompleteTitle: "เสร็จสิ้น",

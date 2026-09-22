@@ -530,6 +530,7 @@ export const vi: Copy = {
   conversationLearnerRole: "Vai trò của bạn",
   conversationPartnerRole: "Vai trò của người đối thoại",
   conversationRelationship: "Mối quan hệ và cách xưng hô",
+  conversationRoles: { coworker: "đồng nghiệp", participant: "người tham gia" },
   conversationChooseResponse: "Chọn câu đáp",
   conversationFeedbackTitle: "Phản hồi",
   conversationCompleteTitle: "Hoàn thành",

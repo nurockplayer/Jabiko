@@ -537,6 +537,7 @@ export const ja: Copy = {
   conversationLearnerRole: "あなたの役割",
   conversationPartnerRole: "相手の役割",
   conversationRelationship: "関係と言葉遣い",
+  conversationRoles: { coworker: "同僚", participant: "参加者" },
   conversationChooseResponse: "返事を選ぶ",
   conversationFeedbackTitle: "フィードバック",
   conversationCompleteTitle: "完了",

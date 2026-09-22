@@ -522,6 +522,8 @@ export type Copy = {
   conversationLearnerRole: string;
   conversationPartnerRole: string;
   conversationRelationship: string;
+  /** Localized labels for authored role IDs; custom roles retain their supplied text. */
+  conversationRoles: Readonly<Record<string, string>>;
   conversationChooseResponse: string;
   conversationFeedbackTitle: string;
   conversationCompleteTitle: string;

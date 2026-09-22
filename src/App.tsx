@@ -253,10 +253,10 @@ export default function App() {
   // Service-worker update lifecycle (#327): toast when a new build is ready,
   // plus safe-window auto apply — a pending update installs itself when the
   // tab is hidden or the view changes, but NEVER mid-practice (challenge /
-  // mock own live question sets a reload would wipe), where the toast stays
+  // mock / conversation own live session state a reload would wipe), where the toast stays
   // the only path.
   const { needRefresh, updateApp } = usePwaUpdate(
-    appView === "challenge" || appView === "mock" ? null : appView
+    appView === "challenge" || appView === "mock" || appView === "conversation" ? null : appView
   );
 
   const { theme, toggleTheme } = useTheme();

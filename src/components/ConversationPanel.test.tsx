@@ -29,6 +29,28 @@ async function reachResponses(user: ReturnType<typeof userEvent.setup>) {
 
 describe("ConversationPanel fixture selection (#814)", () => {
   it.each([
+    ["zh-Hant", "同事", "活動參加者"],
+    ["ja", "同僚", "参加者"],
+    ["en", "coworker", "participant"]
+  ] as const)("localizes authored role values and updates them when selecting another scene in %s", async (
+    language, coworker, participant
+  ) => {
+    const user = renderPanel(language);
+    await user.click(screen.getByRole("button", {
+      name: new RegExp(`^${copy[language].conversationLengths.short}`)
+    }));
+    expect(screen.getAllByText(coworker, { exact: true })).toHaveLength(2);
+    await user.click(screen.getByRole("button", {
+      name: new RegExp(`^${copy[language].conversationLengths.long}`)
+    }));
+    expect(screen.getAllByText(participant, { exact: true })).toHaveLength(2);
+    expect(screen.queryByText(coworker, { exact: true })).not.toBeInTheDocument();
+    if (language !== "en") {
+      expect(screen.queryByText("participant", { exact: true })).not.toBeInTheDocument();
+    }
+  });
+
+  it.each([
     ["zh-Hant", "你的角色", "對方的角色", "關係與語氣"],
     ["ja", "あなたの役割", "相手の役割", "関係と言葉遣い"],
     ["en", "Your role", "Partner's role", "Relationship and register"]
