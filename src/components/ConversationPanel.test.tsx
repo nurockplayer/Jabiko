@@ -108,6 +108,41 @@ describe("ConversationPanel fixture selection (#814)", () => {
 });
 
 describe("ConversationPanel short fixture (#814)", () => {
+  it("keeps keyboard focus in the current stage through feedback, retry and completion", async () => {
+    const user = renderPanel();
+    await startScenario(user, t.conversationLengths.short);
+    await reachResponses(user);
+    const response = screen.getByRole("button", { name: "そうですね。" });
+    response.focus();
+    await user.keyboard("{Enter}");
+
+    expect(screen.getByRole("heading", { name: t.conversationFeedbackTitle })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: t.conversationRetry })).toHaveFocus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByText(t.conversationChooseResponse)).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "そうですね。" })).toHaveFocus();
+    await user.tab();
+    await user.keyboard("{Enter}");
+    expect(screen.getByRole("heading", { name: t.conversationFeedbackTitle })).toHaveFocus();
+    await user.tab();
+    await user.tab();
+    expect(screen.getByRole("button", { name: t.conversationContinue })).toHaveFocus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByRole("heading", { name: t.conversationCompleteTitle })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: t.conversationReset })).toHaveFocus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByText("電車、遅れてるみたいですね。")).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: t.conversationContinue })).toHaveFocus();
+    await user.click(screen.getByRole("button", { name: t.conversationChangeScenario }));
+    expect(screen.getByRole("heading", { name: t.conversationTitle })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: new RegExp(`^${t.conversationLengths.short}`) })).toHaveFocus();
+  });
+
   it("shows curated feedback for a dead_end response and does not silently complete", async () => {
     const user = renderPanel();
     await startScenario(user, t.conversationLengths.short);

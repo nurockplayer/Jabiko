@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CONVERSATION_FEEDBACK_DIMENSIONS,
   type ConversationFeedbackResult
@@ -30,6 +30,10 @@ export function ConversationPanel({
   definitions?: readonly ConversationSessionDefinition[];
 }) {
   const t = copy[language];
+  const stageRef = useRef<HTMLElement | null>(null);
+  const focusStage = useCallback((node: HTMLElement | null) => {
+    stageRef.current = node;
+  }, []);
   const roleLabel = (role: string) => Object.hasOwn(t.conversationRoles, role)
     ? t.conversationRoles[role]
     : role;
@@ -37,6 +41,11 @@ export function ConversationPanel({
   // snapshot after every action so the panel re-renders deterministically.
   const session = useMemo(() => createConversationSession(definitions), [definitions]);
   const [state, setState] = useState<ConversationSessionState>(() => session.getState());
+  // Focus the new stage's reading cue even when React reuses its DOM node.
+  // Locale or other same-stage rerenders must not steal focus from its actions.
+  useEffect(() => {
+    stageRef.current?.focus();
+  }, [state.phase, state.step?.id]);
   // Mirror the engine snapshot after each action. When the engine lands on a
   // partner line, remember it so the following learner_response step can show
   // the line it answers without re-walking the scenario graph.
@@ -106,7 +115,7 @@ export function ConversationPanel({
     return (
       <>
         <p className="conversation-partner-label">{t.conversationPartnerLabel}</p>
-        <p className="conversation-partner-line" lang="ja">
+        <p ref={focusStage} tabIndex={-1} className="conversation-partner-line" lang="ja">
           {state.step.japanese}
         </p>
       </>
@@ -126,7 +135,9 @@ export function ConversationPanel({
       <div
         className={`conversation-turn conversation-feedback${deadEnd ? " is-dead-end" : ""}`}
       >
-        <h3 className="conversation-section-title">{t.conversationFeedbackTitle}</h3>
+        <h3 ref={focusStage} tabIndex={-1} className="conversation-section-title">
+          {t.conversationFeedbackTitle}
+        </h3>
         {selectedExample ? (
           <p className="conversation-response-echo" lang="ja">
             {selectedExample.japanese}
@@ -177,7 +188,9 @@ export function ConversationPanel({
 
     return (
       <div className="conversation-turn conversation-complete">
-        <h3 className="conversation-section-title">{t.conversationCompleteTitle}</h3>
+        <h3 ref={focusStage} tabIndex={-1} className="conversation-section-title">
+          {t.conversationCompleteTitle}
+        </h3>
         {completionStep ? (
           <p className="conversation-complete-summary">
             <span lang={language === "ja" ? "ja" : undefined}>
@@ -242,7 +255,9 @@ export function ConversationPanel({
               {localizeConversationLearnerText(state.step.prompt, language)}
             </span>
           </p>
-          <p className="conversation-choose-label">{t.conversationChooseResponse}</p>
+          <p ref={focusStage} tabIndex={-1} className="conversation-choose-label">
+            {t.conversationChooseResponse}
+          </p>
           <div className="conversation-responses">
             {state.step.responseExamples.map((example) => (
               <button
@@ -278,7 +293,13 @@ export function ConversationPanel({
   return (
     <section className="conversation-panel" aria-label={t.conversationTitle}>
       <header className="conversation-header">
-        <h2 className="conversation-title">{t.conversationTitle}</h2>
+        <h2
+          ref={state.phase === "intro" ? focusStage : undefined}
+          tabIndex={-1}
+          className="conversation-title"
+        >
+          {t.conversationTitle}
+        </h2>
         <p className="conversation-intro">{t.conversationIntro}</p>
       </header>
 
