@@ -346,6 +346,20 @@ describe("game world domain", () => {
     expect(applyCompletedConversationSession(world, world.initialState, "missing-moment", makeCompletedSession()).applied).toBe(false);
   });
 
+  it("rejects a bound scenario graph that the conversation runtime cannot start", () => {
+    const world = createWorld();
+    const brokenScenario = { ...shortScenario, startStepId: "missing-step" };
+    const invalidWorld = {
+      ...world,
+      scenarios: [brokenScenario, mediumScenario]
+    };
+
+    expect(validateGameWorld(invalidWorld).errors).toContainEqual({
+      code: "invalid_bound_scenario_graph",
+      entityId: shortScenario.id
+    });
+  });
+
   it("fails closed when a later world state contradicts completed or outcome facts", () => {
     const world = createWorld();
     const completed = applyCompletedConversationSession(world, world.initialState, "station-meet", makeCompletedSession()).state;
@@ -421,6 +435,38 @@ describe("game world domain", () => {
     expect(validateGameWorld(impossibleArc).errors).toContainEqual({ code: "unreachable_arc_completion" });
   });
 
+  it("rejects a legal choice that permanently strands the finite arc", () => {
+    const world = createWorld();
+    const strandedWorld: GameWorldDefinition = {
+      ...world,
+      moments: [
+        {
+          ...world.moments[0],
+          conditionalOutcomes: [],
+          onCompletion: {
+            unlockLocationIds: [],
+            unlockMomentIds: [],
+            relationshipStageUpdates: [{ npcId: "aki", relationshipStageId: "aki-familiar" }]
+          }
+        },
+        {
+          ...world.moments[1],
+          locationId: "station",
+          relationshipStageId: "aki-new",
+          availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [] },
+          completesArc: true
+        }
+      ],
+      initialState: {
+        ...world.initialState,
+        unlockedMomentIds: ["station-meet", "cafe-chat"]
+      },
+      entryMomentIds: ["station-meet", "cafe-chat"]
+    };
+
+    expect(validateGameWorld(strandedWorld).errors).toContainEqual({ code: "stranded_arc_state" });
+  });
+
   it("recognizes two compatible outcomes from one completed response", () => {
     const world = createWorld();
     const first = world.moments[0];
@@ -429,7 +475,6 @@ describe("game world domain", () => {
       moments: [
         {
           ...first,
-          onCompletion: { ...first.onCompletion, unlockMomentIds: [] },
           conditionalOutcomes: [
             { ...first.conditionalOutcomes[0], unlockMomentIds: ["cafe-chat"] },
             {
@@ -439,11 +484,11 @@ describe("game world domain", () => {
             }
           ]
         },
-        { ...world.moments[1], completesArc: false },
+        world.moments[1],
         {
           ...world.moments[2],
           availability: {
-            requiredCompletedMomentIds: ["station-meet", "cafe-chat"],
+            requiredCompletedMomentIds: ["station-meet"],
             requiredRelationshipStageIds: ["aki-familiar"]
           }
         }
@@ -451,6 +496,12 @@ describe("game world domain", () => {
     };
 
     expect(validateGameWorld(bothRequired)).toEqual({ valid: true, errors: [] });
+    const result = applyCompletedConversationSession(bothRequired, bothRequired.initialState, "station-meet", makeCompletedSession());
+    expect(result.applied).toBe(true);
+    expect(result.state.outcomeReferences).toEqual([
+      { momentId: "station-meet", outcomeId: "enrich-the-thread" },
+      { momentId: "station-meet", outcomeId: "enrich-more" }
+    ]);
   });
 
   it("rejects conditional outcomes that require different response steps", () => {

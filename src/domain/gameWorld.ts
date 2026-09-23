@@ -1,4 +1,4 @@
-import { localizeConversationLearnerText, type ConversationLearnerText, type ConversationScenario } from "./conversationScenario";
+import { localizeConversationLearnerText, validateConversationScenarios, type ConversationLearnerText, type ConversationScenario } from "./conversationScenario";
 import type { ConversationContinuationQuality } from "./conversationFeedback";
 import type { LocaleCode } from "./types";
 import type { ConversationSessionState } from "./conversationSession";
@@ -98,13 +98,16 @@ export type GameWorldValidationErrorCode =
   | "invalid_location_reference"
   | "invalid_npc_reference"
   | "invalid_scenario_reference"
+  | "invalid_bound_scenario_graph"
   | "invalid_moment_reference"
   | "invalid_outcome_reference"
   | "invalid_response_step_reference"
   | "invalid_relationship_transition"
   | "contradictory_initial_state"
   | "unsatisfiable_moment_precondition"
-  | "unreachable_arc_completion";
+  | "unreachable_arc_completion"
+  | "stranded_arc_state"
+  | "state_budget_exceeded";
 
 export interface GameWorldValidationError {
   code: GameWorldValidationErrorCode;
@@ -280,9 +283,12 @@ function validateInitialState(world: GameWorldDefinition, errors: GameWorldValid
 
 function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorldValidationError[]): void {
   const reachableMomentIds = new Set<string>();
-  let reachableArcCompletion = false;
   const pending: GameWorldState[] = [world.initialState];
   const visited = new Set<string>();
+  const outgoing = new Map<string, Set<string>>();
+  const terminal = new Set<string>();
+  const completingMomentIds = new Set(world.moments.filter(({ completesArc }) => completesArc).map(({ id }) => id));
+  const stagesById = new Map(world.relationshipStages.map((stage) => [stage.id, stage]));
   // Keep this proof bounded to the authored finite arc. If the state graph grows beyond this cap,
   // unvisited moments remain unproven and therefore fail validation conservatively.
   const stateBudget = Math.max(64, world.moments.length * world.moments.length * 4);
@@ -322,15 +328,38 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
     const key = stateKey(state);
     if (visited.has(key)) continue;
     visited.add(key);
+    if (state.completedMomentIds.some((id) => completingMomentIds.has(id))) {
+      terminal.add(key);
+      continue;
+    }
 
     for (const moment of selectAvailableWorldMoments(world, state)) {
-      if (hasContradictoryRelationshipPreconditions(moment, new Map(world.relationshipStages.map((stage) => [stage.id, stage])))) continue;
+      if (hasContradictoryRelationshipPreconditions(moment, stagesById)) continue;
       reachableMomentIds.add(moment.id);
-      if (moment.completesArc) reachableArcCompletion = true;
-      pending.push(transition(state, moment));
-      if (moment.conditionalOutcomes.length > 0) {
-        pending.push(transition(state, moment, moment.conditionalOutcomes));
+      const qualities: readonly ConversationContinuationQuality[] = ["dead_end", "opens_thread", "enriches_thread"];
+      const successors = outgoing.get(key) ?? new Set<string>();
+      outgoing.set(key, successors);
+      for (const quality of qualities) {
+        const outcomes = moment.conditionalOutcomes.filter(({ responseRequirement }) =>
+          CONTINUATION_RANK[quality] >= CONTINUATION_RANK[responseRequirement.minimumContinuationQuality]
+        );
+        const next = transition(state, moment, outcomes);
+        successors.add(stateKey(next));
+        pending.push(next);
       }
+    }
+  }
+
+  if (pending.length > 0) errors.push({ code: "state_budget_exceeded" });
+
+  const canReachTerminal = new Set(terminal);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const [source, targets] of outgoing) {
+      if (canReachTerminal.has(source) || ![...targets].some((target) => canReachTerminal.has(target))) continue;
+      canReachTerminal.add(source);
+      changed = true;
     }
   }
 
@@ -339,7 +368,8 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
       errors.push({ code: "unsatisfiable_moment_precondition", entityId: moment.id });
     }
   }
-  if (!reachableArcCompletion) errors.push({ code: "unreachable_arc_completion" });
+  if (terminal.size === 0) errors.push({ code: "unreachable_arc_completion" });
+  if ([...visited].some((key) => !canReachTerminal.has(key))) errors.push({ code: "stranded_arc_state" });
 }
 
 export function validateGameWorld(world: GameWorldDefinition): GameWorldValidationResult {
@@ -355,6 +385,12 @@ export function validateGameWorld(world: GameWorldDefinition): GameWorldValidati
   const reachableStepsByScenarioId = new Map(
     world.scenarios.map((scenario) => [scenario.id, collectReachableScenarioStepIds(scenario)])
   );
+  const boundScenarioIds = new Set(world.moments.map(({ scenarioId }) => scenarioId));
+  const invalidBoundScenarioIds = new Set(
+    validateConversationScenarios(world.scenarios.filter(({ id }) => boundScenarioIds.has(id)))
+      .errors.map(({ scenarioId }) => scenarioId)
+  );
+  for (const id of invalidBoundScenarioIds) errors.push({ code: "invalid_bound_scenario_graph", entityId: id });
 
   for (const npc of world.npcs) {
     if (hasDuplicates(npc.relationshipStageIds)) errors.push({ code: "invalid_relationship_stage", entityId: npc.id });
