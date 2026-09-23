@@ -87,9 +87,9 @@ export const schoolWorkConversationDefinitions: readonly ConversationSessionDefi
         interactionPressure: "low"
       },
       objective: learnerText(
-        "用簡短、體貼的方式回應同學最近很忙的狀況。先讓對方感到被理解，不要急著替對方安排做法。",
-        "最近忙しいという相手の話に、短く思いやりをもって反応しましょう。まず理解を示し、相手のやり方を決めつけたり助言を急いだりしないようにします。",
-        "Respond briefly and considerately to your classmate's busy week. Show that you understand without suggesting what they should do."
+        "用簡短、體貼的方式回應同學最近很忙的狀況，讓對方感到被理解，也留一點空間讓對方自行決定是否多說。不要急著替對方安排做法。",
+        "最近忙しいという相手の話に、短く思いやりをもって反応しましょう。理解を示し、相手が話を続けたければ話せる余地を残します。助言を急ぐ必要はありません。",
+        "Respond briefly and considerately to your classmate's busy week. Show understanding and leave room for them to say more if they choose; you do not need to suggest what they should do."
       ),
       instruction: learnerText(
         "挑一句符合你平常說話方式的回應即可；不必追問或提出解決方法。",
@@ -116,31 +116,31 @@ export const schoolWorkConversationDefinitions: readonly ConversationSessionDefi
             {
               id: "schoolwork-short-busy-empathy",
               kind: "suggested",
-              japanese: "それは大変ですね。今週を無事に乗り切れるといいですね。",
+              japanese: "それは大変ですね。授業とアルバイトが続くと、ゆっくりできる時間も少なそうですね。",
               explanation: learnerText(
-                "先承認對方同時面對課業與打工不容易，再表達關心，沒有替對方決定該怎麼做。",
-                "授業とアルバイトが重なって大変だと受け止め、相手を気遣っています。どうすべきかを決めつけていません。",
-                "You recognize that juggling classes and work is hard and express care without telling them what to do."
+                "先同理課業與打工並行的辛苦，再提到可能較少有空休息，讓對方可以自行補充近況。",
+                "授業とアルバイトを両立する大変さに共感し、休む時間も少なそうだと気遣っています。相手が詳しく話す余地を残し、助言はしていません。",
+                "You empathize with the effort of balancing classes and work and show concern about having little time to rest, leaving room for the classmate to elaborate without giving advice."
               )
             },
             {
               id: "schoolwork-short-busy-understanding",
               kind: "accepted",
-              japanese: "授業とアルバイトの両方があると、忙しくなりますよね。",
+              japanese: "授業とアルバイトを両立しているんですね。忙しくなるのも無理ないですよ。",
               explanation: learnerText(
-                "簡單重述對方的處境並表示理解。這種短回應在閒聊中自然，也留給對方自行決定是否多說。",
-                "相手の状況を短く受け止め、理解を示しています。自然な返事で、相手が話を続けるかどうかを選べます。",
-                "You briefly acknowledge their situation. This natural response lets them choose whether to say more."
+                "肯定課業與打工同時進行確實忙碌，讓對方感受到理解，也可自行決定是否多說。",
+                "授業とアルバイトの両立が忙しいのは自然だと受け止めています。理解を示す返事なので、相手が望めば話を続けられます。",
+                "You validate that balancing classes and work is demanding, showing understanding while letting the classmate decide whether to say more."
               )
             },
             {
-              id: "schoolwork-short-busy-kind-wish",
+              id: "schoolwork-short-busy-week-observation",
               kind: "accepted",
-              japanese: "そうなんですね。少しでも落ち着ける時間があるといいですね。",
+              japanese: "今週は予定が詰まっているんですね。毎日あっという間に過ぎそうですね。",
               explanation: learnerText(
-                "溫和地回應對方的忙碌，並祝願對方能有片刻喘息；沒有把關心變成指示。",
-                "忙しさを穏やかに受け止め、少しでも落ち着ける時間があるよう願っています。指示や助言にはなっていません。",
-                "You acknowledge the busy period gently and wish them a little breathing room without turning concern into instructions."
+                "留意到對方本週行程緊湊，輕輕回應這種忙碌可能讓每天一下子就過去，留下分享細節的空間。",
+                "今週の予定が詰まっていることを受け止め、毎日があっという間に過ぎそうだと共感しています。相手が望めば近況を付け加えられる返事です。",
+                "You notice that their week is packed and empathize that the days may fly by, leaving room for them to share more if they choose."
               )
             }
           ],
@@ -162,17 +162,17 @@ export const schoolWorkConversationDefinitions: readonly ConversationSessionDefi
         stepId: "schoolwork-short-busy-response",
         responseExampleId: "schoolwork-short-busy-empathy",
         branchId: "schoolwork-short-busy-finish",
-        responseJapanese: "それは大変ですね。今週を無事に乗り切れるといいですね。",
+        responseJapanese: "それは大変ですね。授業とアルバイトが続くと、ゆっくりできる時間も少なそうですね。",
         situation: "A classmate says classes and a part-time job overlap this week and feel busy.",
         relationship: "Classmates of similar age who chat casually; friendly polite Japanese fits.",
-        discourse: "The learner recognizes the strain and offers a kind wish without prescribing a solution.",
+        discourse: "The learner empathizes with balancing classes and work and shows concern about limited time to rest, leaving room for the classmate to elaborate.",
         languageQuality: "natural",
-        continuation: "dead_end",
+        continuation: "opens_thread",
         registerContextFit: "fits",
         composition: [{ feature: "answer", canonicalSkillId: "react" }],
         authorRationale: {
-          natural: "The acknowledgement and brief well-wish are idiomatic in a familiar classmate conversation.",
-          continuation: "A kind close is a complete response for this short reaction objective; no follow-up is needed.",
+          natural: "The acknowledgement and short reflection are idiomatic in a familiar classmate conversation.",
+          continuation: "The empathic observation leaves room for the classmate to add more about their schedule if they wish; no question is required.",
           register_context_fit: "The polite, warm wording suits classmates who are on friendly terms."
         }
       }),
@@ -180,35 +180,35 @@ export const schoolWorkConversationDefinitions: readonly ConversationSessionDefi
         stepId: "schoolwork-short-busy-response",
         responseExampleId: "schoolwork-short-busy-understanding",
         branchId: "schoolwork-short-busy-finish",
-        responseJapanese: "授業とアルバイトの両方があると、忙しくなりますよね。",
+        responseJapanese: "授業とアルバイトを両立しているんですね。忙しくなるのも無理ないですよ。",
         situation: "A classmate says classes and a part-time job overlap this week and feel busy.",
         relationship: "Classmates of similar age who chat casually; friendly polite Japanese fits.",
-        discourse: "The learner paraphrases the pressure and expresses understanding without probing or advising.",
+        discourse: "The learner validates that balancing school and work feels busy, showing understanding while leaving the classmate room to continue.",
         languageQuality: "natural",
-        continuation: "dead_end",
+        continuation: "opens_thread",
         registerContextFit: "fits",
         composition: [{ feature: "answer", canonicalSkillId: "react" }],
         authorRationale: {
-          natural: "A concise restatement with ですよね is a natural empathic response here.",
-          continuation: "A caring acknowledgment can end this short exchange naturally; the learner does not need to ask a follow-up.",
+          natural: "A brief validation that balancing both commitments is demanding sounds natural between familiar classmates.",
+          continuation: "The validation shows understanding and leaves the classmate room to add more; the learner does not need to ask a follow-up.",
           register_context_fit: "The familiar but polite register matches the classmates' relationship."
         }
       }),
       schoolWorkBinding({
         stepId: "schoolwork-short-busy-response",
-        responseExampleId: "schoolwork-short-busy-kind-wish",
+        responseExampleId: "schoolwork-short-busy-week-observation",
         branchId: "schoolwork-short-busy-finish",
-        responseJapanese: "そうなんですね。少しでも落ち着ける時間があるといいですね。",
+        responseJapanese: "今週は予定が詰まっているんですね。毎日あっという間に過ぎそうですね。",
         situation: "A classmate says classes and a part-time job overlap this week and feel busy.",
         relationship: "Classmates of similar age who chat casually; friendly polite Japanese fits.",
-        discourse: "The learner acknowledges the situation and voices a gentle wish for some relief.",
+        discourse: "The learner empathizes with the pace of a packed week, leaving the classmate room to add details if they want.",
         languageQuality: "natural",
-        continuation: "dead_end",
+        continuation: "opens_thread",
         registerContextFit: "fits",
         composition: [{ feature: "answer", canonicalSkillId: "react" }],
         authorRationale: {
-          natural: "This gentle well-wish is a natural way to acknowledge a classmate's pressure.",
-          continuation: "A gentle well-wish is a valid close for this short reaction objective, without asking the partner to continue.",
+          natural: "The brief observation is a natural response to hearing that a classmate has been busy.",
+          continuation: "The observation leaves room for the classmate to elaborate on their week without requiring a question.",
           register_context_fit: "The tone is warm without presuming an unusually close relationship."
         }
       })

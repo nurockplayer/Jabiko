@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ConversationLearnerText } from "../conversationScenario";
+import { evaluateCuratedConversationResponse } from "../conversationFeedback";
 import { validateConversationSessionDefinitions } from "../conversationSession";
 import { weatherConversationDefinitions } from "./weather";
 import { weekendConversationDefinitions } from "./weekend";
@@ -71,7 +72,9 @@ describe("school and work busyness conversation content", () => {
     expect(short).toBeDefined();
     if (short == null) return;
     expect(short.scenario.primarySkills).toContain("react");
-    expect(short.scenario.objective.textI18n?.en).toContain("without suggesting what they should do");
+    expect(short.scenario.objective.textI18n?.en).toContain("leave room for them to say more if they choose");
+    expect(short.scenario.objective.textI18n?.en).toContain("do not need to suggest what they should do");
+    expect(short.scenario.instruction.textI18n?.en).toContain("do not need to ask more questions");
     expect(short.scenario.relationship.context.textZh).toMatch(/年齡相仿/);
     const learnerStep = short.scenario.steps.find((step) => step.kind === "learner_response");
     expect(learnerStep?.kind).toBe("learner_response");
@@ -83,9 +86,20 @@ describe("school and work busyness conversation content", () => {
     }
     const bindings = responseBindingsForLength("short");
     expect(bindings).toHaveLength(3);
+    for (const [index, binding] of bindings.entries()) {
+      const example = learnerStep.responseExamples[index];
+      expect(example).toBeDefined();
+      expect(binding.feedback.responseJapanese).toBe(example?.japanese);
+      expect(binding.feedback.feedback.continuation).toBe("opens_thread");
+      expect(binding.feedback.feedback.authorRationale?.continuation).toMatch(/room|space|余地/);
+    }
+  });
+
+  it("accepts each short caring reaction as leaving room for the partner to continue", () => {
+    const bindings = responseBindingsForLength("short");
+    expect(bindings).toHaveLength(3);
     for (const binding of bindings) {
-      expect(binding.feedback.feedback.continuation).toBe("dead_end");
-      expect(binding.feedback.feedback.authorRationale?.continuation).toMatch(/caring|care|kind|close/i);
+      expect(evaluateCuratedConversationResponse(binding.feedback).dimensions.continuation).toBe("met");
     }
   });
 
