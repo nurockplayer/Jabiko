@@ -482,14 +482,14 @@ export const weatherConversationDefinitions: readonly ConversationSessionDefinit
         interactionPressure: "normal"
       },
       objective: learnerText(
-        "先用一段生活經驗談夏天的作息，再談舒適與電費等取捨，最後自然轉到氣候與居住偏好，並留一個問題讓對方接話。",
-        "夏の生活習慣を短く語り、過ごしやすさと電気代などのバランスについて話した後、気候や住む場所の好みに自然につなげます。最後に相手へ話題を返しましょう。",
-        "Tell a brief summer routine, discuss trade-offs such as comfort and electricity use, then transition to climate and living preferences while leaving the partner room to continue."
+        "先敘述一段夏天的生活經驗，再談舒適與電費等取捨，最後自然轉到氣候與居住偏好，並留一個問題讓對方接話。",
+        "夏の経験を一つ短く語り、過ごしやすさと電気代などのバランスについて話した後、気候や住む場所の好みに自然につなげます。最後に相手へ話題を返しましょう。",
+        "Recount a brief summer experience, discuss trade-offs such as comfort and electricity use, then transition to climate and living preferences while leaving the partner room to continue."
       ),
       instruction: learnerText(
-        "依序完成幾個來回：分享一段經驗、說明自己的取捨，再回應對方不同的偏好。可以改變話題方向，但要讓前後有關聯；不必使用艱深的天氣詞彙。",
-        "経験を一つ話し、自分なりのバランスを伝え、相手の異なる好みにも応じましょう。話題を移しても、前後のつながりを示します。難しい天気の語彙は必要ありません。",
-        "Complete several exchanges: share an experience, explain your trade-off, and respond to a different preference. You may shift topics when you make the connection clear; advanced weather vocabulary is not needed."
+        "依序完成幾個來回：分享一段經驗、說明自己的取捨，再回應對方的偏好。可以贊同或提出不同想法；改變話題時要讓前後有關聯。不必使用艱深的天氣詞彙。",
+        "経験を一つ話し、自分なりのバランスを伝え、相手の好みを受け止めて自分の考えを伝えましょう。賛成しても違う意見でもかまいません。話題を移す時はつながりを示します。難しい天気の語彙は必要ありません。",
+        "Complete several exchanges: share an experience, explain your trade-off, and respond to the partner's preference. You may agree or differ; make any topic shift clear. Advanced weather vocabulary is not needed."
       ),
       startStepId: "weather-long-summer-opening",
       steps: [
@@ -503,19 +503,19 @@ export const weatherConversationDefinitions: readonly ConversationSessionDefinit
           id: "weather-long-summer-routine",
           kind: "learner_response",
           prompt: learnerText(
-            "先接住對方的經驗，再分享一段自己夏天回家或通勤時的實際做法。",
-            "相手の経験を受け止めてから、夏の帰宅や通勤で自分がしていることを短く話しましょう。",
-            "Acknowledge the partner's experience, then briefly narrate what you do on a summer commute or after getting home."
+            "先接住對方的經驗，再分享一次自己夏天回家或外出時的經歷。",
+            "相手の経験を受け止めてから、夏の帰宅や外出で経験したことを一つ短く話しましょう。",
+            "Acknowledge the partner's experience, then briefly narrate one summer commute or outing."
           ),
           responseExamples: [
             {
               id: "weather-long-routine-evening",
               kind: "suggested",
-              japanese: "そうなんですよね。私は日が落ちてから帰ることが多いんですが、それでも駅から歩くと汗をかきます。帰ったらまず水を飲んで少し休みます。",
+              japanese: "そうなんですよね。先週、講座の帰りに駅から歩いたんですが、日が落ちていても汗をかきました。帰ってから水を飲んで、しばらく休みました。",
               explanation: learnerText(
-                "簡短敘述通勤時的情況，再說到回家後的習慣，讓下一個問題有生活經驗可以接。",
-                "通勤中の様子を簡単に語り、帰宅後の習慣も加えています。次のやりとりにつながる具体的な経験があります。",
-                "You briefly describe the commute and add an after-work habit, giving the next exchange a concrete personal experience to build on."
+                "按順序敘述上週下課後走回家的經過和結果，讓對方有具體經驗可以接話。",
+                "先週の帰り道で何が起き、その後どうしたかを順に話しています。相手が拾える具体的な経験があります。",
+                "You recount what happened on the walk home last week and what you did afterward, giving the partner a concrete experience to pick up."
               )
             },
             {
@@ -534,7 +534,7 @@ export const weatherConversationDefinitions: readonly ConversationSessionDefinit
         {
           id: "weather-long-cooling-cost",
           kind: "partner_line",
-          japanese: "日が落ちてからでも暑いですよね。冷房を使う時間も増えますし、電気代もちょっと気になります。",
+          japanese: "夏は、外も部屋も暑くて疲れますよね。冷房を使う時間も増えますし、電気代もちょっと気になります。",
           nextStepId: "weather-long-cooling-choice"
         },
         {
@@ -572,22 +572,22 @@ export const weatherConversationDefinitions: readonly ConversationSessionDefinit
         {
           id: "weather-long-climate",
           kind: "partner_line",
-          japanese: "ほんと、人によって違いますね。私は冬より夏の暑さの方が苦手です。住む場所を選べるなら、少し涼しい地域もいいなと思います。",
+          japanese: "冷房の使い方って悩みますよね。私は冬より夏の暑さの方が苦手です。住む場所を選べるなら、少し涼しい地域もいいなと思います。",
           nextStepId: "weather-long-place-preference"
         },
         {
           id: "weather-long-place-preference",
           kind: "learner_response",
           prompt: learnerText(
-            "回應對方不同的偏好，說明自己喜歡的氣候或生活環境，再把話題自然交還給對方。",
-            "相手と違う好みに応じ、自分が好きな気候や暮らしやすい環境を説明してから、自然に相手へ話題を返しましょう。",
-            "Respond to the partner's different preference, explain what climate or living environment you like, then naturally return the topic."
+            "回應對方的偏好，說明自己喜歡的氣候或生活環境，再把話題自然交還給對方。你可以贊同，也可以提出不同看法。",
+            "相手の好みを受けて、自分が好きな気候や暮らしやすい環境を説明し、自然に話題を返しましょう。賛成しても、違う考えを伝えてもかまいません。",
+            "Respond to the partner's preference, explain what climate or living environment you like, then return the topic. You may agree or offer a different view."
           ),
           responseExamples: [
             {
               id: "weather-long-preference-commute",
               kind: "suggested",
-              japanese: "そうなんですね。私は冬の寒さが苦手なので、今くらい暖かい方が過ごしやすいです。でも通勤を考えると、朝晩が涼しい場所にも惹かれます。住む場所を選ぶなら、気候以外に何を大切にしますか？",
+              japanese: "そうなんですね。私は冬の寒さが苦手なので、暑すぎなければ暖かい地域の方が過ごしやすいです。でも通勤を考えると、朝晩が涼しい場所にも惹かれます。住む場所を選ぶなら、気候以外に何を大切にしますか？",
               explanation: learnerText(
                 "先接受對方的想法，再說明自己的理由和另一個考量，最後問對方更重視什麼，完成自然的話題轉換。",
                 "相手の考えを受け止め、自分の理由と別の観点を加えています。最後に相手が大切にすることを聞き、自然に話題を広げています。",
@@ -599,9 +599,19 @@ export const weatherConversationDefinitions: readonly ConversationSessionDefinit
               kind: "accepted",
               japanese: "私は季節の変化がある方が好きなので、夏が少し暑くても今の地域が合っています。とはいえ、通勤しやすさも大事ですよね。どんな環境が理想ですか？",
               explanation: learnerText(
-                "從不同的偏好談到季節和通勤環境，既能表達自己的看法，也留出空間讓對方說明理想生活。",
-                "違う好みから季節や通勤環境の話へ移っています。自分の意見を伝えつつ、相手が理想の暮らしを話せる余地もあります。",
-                "You move from differing preferences to seasons and commuting, sharing your view while leaving room for the partner to describe an ideal setting."
+                "從自己的偏好談到季節和通勤環境，既能表達看法，也留出空間讓對方說明理想生活。",
+                "季節の好みから通勤環境の話へ移っています。自分の意見を伝えつつ、相手が理想の暮らしを話せる余地もあります。",
+                "You move from your own preference to seasons and commuting, leaving room for the partner to describe an ideal setting."
+              )
+            },
+            {
+              id: "weather-long-preference-agree",
+              kind: "accepted",
+              japanese: "そうですね。私も夏の暑さが苦手なので、少し涼しい地域に住めたらいいなと思います。ただ、通いやすさも大事ですよね。住む場所を選ぶなら、気候以外に何を重視しますか？",
+              explanation: learnerText(
+                "先贊同對方，再補充通勤考量，並問對方還重視什麼。贊同也能讓話題繼續。",
+                "相手に賛成してから通いやすさという別の観点を加え、さらに大切な条件を聞いています。賛成からも会話を広げられます。",
+                "You agree, add commuting as another consideration, and ask what else matters. Agreement can also move the conversation forward."
               )
             }
           ],
@@ -623,10 +633,10 @@ export const weatherConversationDefinitions: readonly ConversationSessionDefinit
         stepId: "weather-long-summer-routine",
         responseExampleId: "weather-long-routine-evening",
         branchId: "weather-long-after-routine",
-        responseJapanese: "そうなんですよね。私は日が落ちてから帰ることが多いんですが、それでも駅から歩くと汗をかきます。帰ったらまず水を飲んで少し休みます。",
+        responseJapanese: "そうなんですよね。先週、講座の帰りに駅から歩いたんですが、日が落ちていても汗をかきました。帰ってから水を飲んで、しばらく休みました。",
         situation: "Two familiar participants leave an evening class after the partner mentions shifting their walk to avoid the strongest daytime heat.",
         relationship: "Peers who have met several times at a community class, using friendly polite Japanese.",
-        discourse: "The learner narrates a commute and a small after-work routine connected to the partner's experience.",
+        discourse: "The learner narrates one recent walk home and what happened after arriving, connected to the partner's experience.",
         languageQuality: "natural",
         continuation: "opens_thread",
         registerContextFit: "fits",
@@ -634,7 +644,7 @@ export const weatherConversationDefinitions: readonly ConversationSessionDefinit
           { feature: "answer", canonicalSkillId: "react" },
           { feature: "add", canonicalSkillId: "narrate" }
         ],
-        authorRationale: { continuation: "The brief routine gives the partner material to ask about without requiring an elaborate story." }
+        authorRationale: { continuation: "The brief sequence of walk, heat, and rest gives the partner concrete details to ask about." }
       }),
       weatherBinding({
         stepId: "weather-long-summer-routine",
@@ -691,7 +701,7 @@ export const weatherConversationDefinitions: readonly ConversationSessionDefinit
         stepId: "weather-long-place-preference",
         responseExampleId: "weather-long-preference-commute",
         branchId: "weather-long-finish",
-        responseJapanese: "そうなんですね。私は冬の寒さが苦手なので、今くらい暖かい方が過ごしやすいです。でも通勤を考えると、朝晩が涼しい場所にも惹かれます。住む場所を選ぶなら、気候以外に何を大切にしますか？",
+        responseJapanese: "そうなんですね。私は冬の寒さが苦手なので、暑すぎなければ暖かい地域の方が過ごしやすいです。でも通勤を考えると、朝晩が涼しい場所にも惹かれます。住む場所を選ぶなら、気候以外に何を大切にしますか？",
         situation: "The partner prefers a cooler region because summer heat bothers them more than winter cold.",
         relationship: "Peers who have met several times at a community class, using friendly polite Japanese.",
         discourse: "The learner accepts the different preference, explains two personal considerations, and asks about the partner's priorities.",
@@ -722,6 +732,24 @@ export const weatherConversationDefinitions: readonly ConversationSessionDefinit
           { feature: "ask", canonicalSkillId: "bounce" }
         ],
         authorRationale: { continuation: "The learner can disagree about climate preferences while maintaining rapport and returning the turn." }
+      }),
+      weatherBinding({
+        stepId: "weather-long-place-preference",
+        responseExampleId: "weather-long-preference-agree",
+        branchId: "weather-long-finish",
+        responseJapanese: "そうですね。私も夏の暑さが苦手なので、少し涼しい地域に住めたらいいなと思います。ただ、通いやすさも大事ですよね。住む場所を選ぶなら、気候以外に何を重視しますか？",
+        situation: "The partner prefers a cooler region because summer heat bothers them more than winter cold.",
+        relationship: "Peers who have met several times at a community class, using friendly polite Japanese.",
+        discourse: "The learner agrees about preferring cooler weather, adds commuting as another consideration, and asks about other priorities.",
+        languageQuality: "natural",
+        continuation: "enriches_thread",
+        registerContextFit: "fits",
+        composition: [
+          { feature: "answer", canonicalSkillId: "opinion" },
+          { feature: "add", canonicalSkillId: "transition" },
+          { feature: "ask", canonicalSkillId: "bounce" }
+        ],
+        authorRationale: { continuation: "Agreement plus a new practical consideration keeps the exchange open without requiring disagreement." }
       })
     ]
   }

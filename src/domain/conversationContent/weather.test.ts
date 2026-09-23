@@ -94,4 +94,25 @@ describe("weather conversation content", () => {
     ]);
     expect(new Set(stableIds).size).toBe(stableIds.length);
   });
+
+  it("makes the long narrative concrete and permits agreement on climate preferences", () => {
+    const long = weatherConversationDefinitions.find(({ scenario }) => scenario.length === "long")!;
+    const opening = long.scenario.steps.find(({ id }) => id === "weather-long-summer-routine");
+    expect(opening?.kind).toBe("learner_response");
+    if (opening?.kind !== "learner_response") return;
+    expect(opening.responseExamples.find(({ id }) => id === "weather-long-routine-evening")?.japanese)
+      .toMatch(/先週|この前|昨日/);
+
+    const transition = long.scenario.steps.find(({ id }) => id === "weather-long-climate");
+    expect(transition?.kind).toBe("partner_line");
+    if (transition?.kind === "partner_line") expect(transition.japanese).not.toContain("ほんと、人によって違いますね");
+
+    const final = long.scenario.steps.find(({ id }) => id === "weather-long-place-preference");
+    expect(final?.kind).toBe("learner_response");
+    if (final?.kind !== "learner_response") return;
+    expect(final.prompt.textZh).not.toContain("不同的偏好");
+    expect(long.scenario.instruction.textZh).not.toContain("不同的偏好");
+    expect(final.responseExamples.map(({ id }) => id)).toContain("weather-long-preference-agree");
+    expect(long.responses.some(({ responseExampleId }) => responseExampleId === "weather-long-preference-agree")).toBe(true);
+  });
 });
