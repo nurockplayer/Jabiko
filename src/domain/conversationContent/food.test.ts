@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ConversationLearnerText, ConversationLearnerResponseStep } from "../conversationScenario";
 import { resolveConversationNextStep } from "../conversationScenario";
+import { evaluateCuratedConversationResponse } from "../conversationFeedback";
 import { validateConversationSessionDefinitions } from "../conversationSession";
 import { weatherConversationDefinitions } from "./weather";
 import { weekendConversationDefinitions } from "./weekend";
@@ -189,5 +190,24 @@ describe("food, lunch, and restaurant conversation content", () => {
     expect(timeFitExample?.japanese).not.toContain("会議に戻る");
     const timeFitBinding = definition.responses.find(({ responseExampleId }) => responseExampleId === timeFitExample?.id);
     expect(timeFitBinding?.feedback.responseJapanese).toBe(timeFitExample?.japanese);
+  });
+
+  it("counts both final lunch confirmations as continuing through the future ramen invitation", () => {
+    const definition = foodConversationDefinitions.find(({ scenario }) => scenario.length === "long");
+    expect(definition).toBeDefined();
+    if (!definition) return;
+
+    const confirmation = responseStep(definition, "food-long-lunch-confirmation-response");
+    expect(confirmation.responseExamples.map(({ id }) => id)).toEqual([
+      "food-long-lunch-confirm-thanks",
+      "food-long-lunch-confirm-agree"
+    ]);
+    for (const example of confirmation.responseExamples) {
+      const binding = definition.responses.find(({ responseExampleId }) => responseExampleId === example.id);
+      expect(binding).toBeDefined();
+      if (binding) {
+        expect(evaluateCuratedConversationResponse(binding.feedback).dimensions.continuation).toBe("met");
+      }
+    }
   });
 });

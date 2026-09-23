@@ -706,7 +706,7 @@ export const foodConversationDefinitions: readonly ConversationSessionDefinition
         relationship: "Friendly senior and junior coworkers; a warm, respectful confirmation fits.",
         discourse: "The learner thanks the senior, confirms today's plan, and looks forward to ramen another time.",
         languageQuality: "natural",
-        continuation: "dead_end",
+        continuation: "opens_thread",
         registerContextFit: "fits",
         composition: [
           { feature: "answer", canonicalSkillId: "react" },
@@ -714,7 +714,7 @@ export const foodConversationDefinitions: readonly ConversationSessionDefinition
         ],
         authorRationale: {
           natural: "The thanks and brief recap make the agreed plan clear.",
-          continuation: "This confirms the plan and naturally completes the negotiation.",
+          continuation: "Looking forward to ramen next time leaves the future lunch invitation open.",
           register_context_fit: "The learner remains warm and respectful toward the senior coworker."
         }
       }),
@@ -727,7 +727,7 @@ export const foodConversationDefinitions: readonly ConversationSessionDefinition
         relationship: "Friendly senior and junior coworkers; a warm, respectful confirmation fits.",
         discourse: "The learner accepts the cafeteria plan, confirms the timing works, and looks forward to ramen another day.",
         languageQuality: "natural",
-        continuation: "dead_end",
+        continuation: "opens_thread",
         registerContextFit: "fits",
         composition: [
           { feature: "answer", canonicalSkillId: "react" },
@@ -735,7 +735,7 @@ export const foodConversationDefinitions: readonly ConversationSessionDefinition
         ],
         authorRationale: {
           natural: "助かります acknowledges the accommodation and the rest confirms the shared plan.",
-          continuation: "The learner closes the decision while leaving the future invitation welcome.",
+          continuation: "Accepting another ramen outing keeps the future lunch invitation open.",
           register_context_fit: "ご一緒させてください and お願いします show suitable respect without excessive distance."
         }
       })
