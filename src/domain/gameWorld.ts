@@ -1,7 +1,7 @@
-import { localizeConversationLearnerText, validateConversationScenarios, type ConversationLearnerText, type ConversationScenario } from "./conversationScenario";
-import type { ConversationContinuationQuality } from "./conversationFeedback";
+import { evaluateCuratedConversationResponse, type ConversationContinuationQuality } from "./conversationFeedback";
+import { localizeConversationLearnerText, type ConversationLearnerText, type ConversationScenario } from "./conversationScenario";
 import type { LocaleCode } from "./types";
-import type { ConversationSessionState } from "./conversationSession";
+import { validateConversationSessionDefinitions, type ConversationSessionDefinition, type ConversationSessionState } from "./conversationSession";
 
 export type GameLocationCategory = "home" | "school" | "transit" | "food" | "community" | "other";
 
@@ -80,7 +80,7 @@ export interface GameWorldDefinition {
   locations: readonly GameLocation[];
   npcs: readonly NpcProfile[];
   relationshipStages: readonly RelationshipStage[];
-  scenarios: readonly ConversationScenario[];
+  sessionDefinitions: readonly ConversationSessionDefinition[];
   moments: readonly WorldMoment[];
   initialState: GameWorldState;
   entryMomentIds: readonly string[];
@@ -281,6 +281,78 @@ function validateInitialState(world: GameWorldDefinition, errors: GameWorldValid
   for (const npcId of Object.keys(state.relationshipStages)) if (!npcs.has(npcId)) bad(npcId);
 }
 
+interface PossibleMomentOutcomeSets {
+  outcomes: readonly (readonly GameWorldConditionalOutcome[])[];
+  stateBudgetExceeded: boolean;
+}
+
+function getPossibleMomentOutcomeSets(
+  world: GameWorldDefinition,
+  moment: WorldMoment,
+  stateBudget: number
+): PossibleMomentOutcomeSets {
+  if (moment.conditionalOutcomes.length === 0) return { outcomes: [[]], stateBudgetExceeded: false };
+  const requirementStepId = moment.conditionalOutcomes[0].responseRequirement.stepId;
+  const definition = world.sessionDefinitions.find(({ scenario }) => scenario.id === moment.scenarioId);
+  const scenario = definition?.scenario;
+  if (definition == null || scenario == null) {
+    return { outcomes: [], stateBudgetExceeded: false };
+  }
+
+  const stepsById = new Map(scenario.steps.map((step) => [step.id, step]));
+  const bindingsByStepId = new Map<string, ConversationSessionDefinition["responses"][number][]>();
+  for (const binding of definition.responses) {
+    const bindings = bindingsByStepId.get(binding.stepId) ?? [];
+    bindings.push(binding);
+    bindingsByStepId.set(binding.stepId, bindings);
+  }
+
+  const pending: { stepId: string; requirementQuality?: ConversationContinuationQuality }[] = [
+    { stepId: scenario.startStepId }
+  ];
+  const visited = new Set<string>();
+  const outcomeSets = new Map<string, readonly GameWorldConditionalOutcome[]>();
+  while (pending.length > 0) {
+    const current = pending.pop();
+    if (current == null) continue;
+    const pathKey = JSON.stringify([current.stepId, current.requirementQuality ?? null]);
+    if (visited.has(pathKey)) continue;
+    if (visited.size >= stateBudget) return { outcomes: [...outcomeSets.values()], stateBudgetExceeded: true };
+    visited.add(pathKey);
+
+    const step = stepsById.get(current.stepId);
+    if (step == null) continue;
+    if (step.kind === "completion") {
+      const quality = current.requirementQuality;
+      const outcomes = quality == null ? [] : moment.conditionalOutcomes.filter(({ responseRequirement }) =>
+        CONTINUATION_RANK[quality] >= CONTINUATION_RANK[responseRequirement.minimumContinuationQuality]
+      );
+      outcomeSets.set(JSON.stringify(outcomes.map(({ id }) => id).sort()), outcomes);
+      continue;
+    }
+    if (step.kind === "partner_line") {
+      pending.push({ stepId: step.nextStepId, requirementQuality: current.requirementQuality });
+      continue;
+    }
+
+    for (const binding of bindingsByStepId.get(step.id) ?? []) {
+      const branch = step.branches.find(({ id }) => id === binding.branchId);
+      if (branch == null) continue;
+      try {
+        const quality = evaluateCuratedConversationResponse(binding.feedback).continuationQuality;
+        pending.push({
+          stepId: branch.nextStepId,
+          requirementQuality: step.id === requirementStepId ? quality : current.requirementQuality
+        });
+      } catch {
+        // Invalid feedback is rejected by session-definition validation; exclude it from feasible traces.
+      }
+    }
+  }
+
+  return { outcomes: [...outcomeSets.values()], stateBudgetExceeded: false };
+}
+
 function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorldValidationError[]): void {
   const reachableMomentIds = new Set<string>();
   const pending: GameWorldState[] = [world.initialState];
@@ -292,6 +364,10 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
   // Keep this proof bounded to the authored finite arc. If the state graph grows beyond this cap,
   // unvisited moments remain unproven and therefore fail validation conservatively.
   const stateBudget = Math.max(64, world.moments.length * world.moments.length * 4);
+  const possibleOutcomesByMoment = new Map(world.moments.map((moment) => [
+    moment.id,
+    getPossibleMomentOutcomeSets(world, moment, stateBudget)
+  ]));
 
   const stateKey = (state: GameWorldState): string => JSON.stringify({
     completed: [...state.completedMomentIds].sort(),
@@ -336,13 +412,9 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
     for (const moment of selectAvailableWorldMoments(world, state)) {
       if (hasContradictoryRelationshipPreconditions(moment, stagesById)) continue;
       reachableMomentIds.add(moment.id);
-      const qualities: readonly ConversationContinuationQuality[] = ["dead_end", "opens_thread", "enriches_thread"];
       const successors = outgoing.get(key) ?? new Set<string>();
       outgoing.set(key, successors);
-      for (const quality of qualities) {
-        const outcomes = moment.conditionalOutcomes.filter(({ responseRequirement }) =>
-          CONTINUATION_RANK[quality] >= CONTINUATION_RANK[responseRequirement.minimumContinuationQuality]
-        );
+      for (const outcomes of possibleOutcomesByMoment.get(moment.id)?.outcomes ?? [[]]) {
         const next = transition(state, moment, outcomes);
         successors.add(stateKey(next));
         pending.push(next);
@@ -350,7 +422,10 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
     }
   }
 
-  if (pending.length > 0) errors.push({ code: "state_budget_exceeded" });
+  if (
+    pending.length > 0 ||
+    [...possibleOutcomesByMoment.values()].some(({ stateBudgetExceeded }) => stateBudgetExceeded)
+  ) errors.push({ code: "state_budget_exceeded" });
 
   const canReachTerminal = new Set(terminal);
   let changed = true;
@@ -377,19 +452,21 @@ export function validateGameWorld(world: GameWorldDefinition): GameWorldValidati
   const locationIds = uniqueIds(world.locations, "duplicate_location_id", errors);
   const npcIds = uniqueIds(world.npcs, "duplicate_npc_id", errors);
   const stageIds = uniqueIds(world.relationshipStages, "duplicate_relationship_stage_id", errors);
-  const scenarioIds = uniqueIds(world.scenarios, "duplicate_scenario_id", errors);
+  const scenarioIds = uniqueIds(world.sessionDefinitions.map(({ scenario }) => scenario), "duplicate_scenario_id", errors);
   const momentIds = uniqueIds(world.moments, "duplicate_moment_id", errors);
   const npcsById = new Map(world.npcs.map((npc) => [npc.id, npc]));
   const stagesById = new Map(world.relationshipStages.map((stage) => [stage.id, stage]));
-  const scenariosById = new Map(world.scenarios.map((scenario) => [scenario.id, scenario]));
+  const scenariosById = new Map(world.sessionDefinitions.map(({ scenario }) => [scenario.id, scenario]));
   const reachableStepsByScenarioId = new Map(
-    world.scenarios.map((scenario) => [scenario.id, collectReachableScenarioStepIds(scenario)])
+    world.sessionDefinitions.map(({ scenario }) => [scenario.id, collectReachableScenarioStepIds(scenario)])
   );
   const boundScenarioIds = new Set(world.moments.map(({ scenarioId }) => scenarioId));
-  const invalidBoundScenarioIds = new Set(
-    validateConversationScenarios(world.scenarios.filter(({ id }) => boundScenarioIds.has(id)))
-      .errors.map(({ scenarioId }) => scenarioId)
+  const invalidSessionDefinitions = validateConversationSessionDefinitions(
+    world.sessionDefinitions.filter(({ scenario }) => boundScenarioIds.has(scenario.id))
   );
+  const invalidBoundScenarioIds = new Set(invalidSessionDefinitions.errors.flatMap(({ scenarioId }) =>
+    scenarioId != null && boundScenarioIds.has(scenarioId) ? [scenarioId] : []
+  ));
   for (const id of invalidBoundScenarioIds) errors.push({ code: "invalid_bound_scenario_graph", entityId: id });
 
   for (const npc of world.npcs) {
@@ -465,13 +542,76 @@ export function validateGameWorld(world: GameWorldDefinition): GameWorldValidati
   return { valid: errors.length === 0, errors };
 }
 
+function replayCompletedSession(
+  definition: ConversationSessionDefinition,
+  session: ConversationSessionState
+): ReadonlyMap<string, ConversationContinuationQuality> | null {
+  const { scenario } = definition;
+  const summary = session.summary;
+  if (
+    summary == null ||
+    !Array.isArray(summary.responses) ||
+    session.phase !== "complete" ||
+    session.scenario?.id !== scenario.id ||
+    summary.scenarioId !== scenario.id ||
+    summary.length !== scenario.length ||
+    session.step?.kind !== "completion"
+  ) return null;
+
+  const stepsById = new Map(scenario.steps.map((step) => [step.id, step]));
+  const responsesByKey = new Map(definition.responses.map((binding) => [
+    `${binding.stepId}::${binding.responseExampleId}`,
+    binding
+  ]));
+  const qualities = new Map<string, ConversationContinuationQuality>();
+  let stepId: string | undefined = scenario.startStepId;
+  let responseIndex = 0;
+  const visited = new Set<string>();
+
+  while (stepId != null && !visited.has(stepId)) {
+    visited.add(stepId);
+    const step = stepsById.get(stepId);
+    if (step == null) return null;
+    if (step.kind === "completion") {
+      return responseIndex === summary.responses.length && session.step.id === step.id
+        ? qualities
+        : null;
+    }
+    if (step.kind === "partner_line") {
+      stepId = step.nextStepId;
+      continue;
+    }
+
+    const record = summary.responses[responseIndex];
+    if (
+      record == null ||
+      typeof record.stepId !== "string" ||
+      typeof record.responseExampleId !== "string" ||
+      record.stepId !== step.id ||
+      record.feedback == null ||
+      typeof record.feedback !== "object"
+    ) return null;
+    responseIndex += 1;
+    const binding = responsesByKey.get(`${record.stepId}::${record.responseExampleId}`);
+    if (binding == null || record.feedback.source !== "curated") return null;
+    const trustedFeedback = evaluateCuratedConversationResponse(binding.feedback);
+    if (
+      record.feedback.responseId !== trustedFeedback.responseId ||
+      record.feedback.continuationQuality !== trustedFeedback.continuationQuality
+    ) return null;
+    qualities.set(step.id, trustedFeedback.continuationQuality);
+    stepId = step.branches.find(({ id }) => id === binding.branchId)?.nextStepId;
+    if (stepId == null) return null;
+  }
+  return null;
+}
+
 function isResponseRequirementMet(
   requirement: GameWorldResponseRequirement,
-  session: ConversationSessionState
+  qualities: ReadonlyMap<string, ConversationContinuationQuality>
 ): boolean {
-  const record = session.summary?.responses.find(({ stepId }) => stepId === requirement.stepId);
-  if (record == null || record.feedback.source !== "curated") return false;
-  return CONTINUATION_RANK[record.feedback.continuationQuality] >= CONTINUATION_RANK[requirement.minimumContinuationQuality];
+  const quality = qualities.get(requirement.stepId);
+  return quality != null && CONTINUATION_RANK[quality] >= CONTINUATION_RANK[requirement.minimumContinuationQuality];
 }
 
 function addUnique(values: readonly string[], additions: readonly string[]): string[] {
@@ -510,26 +650,19 @@ export function applyCompletedConversationSession(
   if (session.phase !== "complete" || session.summary == null || session.scenario == null) {
     return { applied: false, state, reason: "incomplete_session" };
   }
-  const boundScenario = world.scenarios.find(({ id }) => id === moment.scenarioId);
-  const isCuratedAndBound = boundScenario != null &&
-    session.summary.length === boundScenario.length &&
-    session.summary.responses.every((record) => {
-      const step = boundScenario.steps.find(({ id }) => id === record.stepId);
-      return step?.kind === "learner_response" &&
-        step.responseExamples.some(({ id }) => id === record.responseExampleId) &&
-        record.feedback.source === "curated";
-    });
-  if (!isCuratedAndBound) return { applied: false, state, reason: "rejected_session" };
+  const definition = world.sessionDefinitions.find(({ scenario }) => scenario.id === moment.scenarioId);
   if (session.scenario.id !== moment.scenarioId || session.summary.scenarioId !== moment.scenarioId) {
     return { applied: false, state, reason: "scenario_mismatch" };
   }
+  const trustedQualities = definition == null ? null : replayCompletedSession(definition, session);
+  if (trustedQualities == null) return { applied: false, state, reason: "rejected_session" };
 
   const relationshipStages = { ...state.relationshipStages };
   for (const update of moment.onCompletion.relationshipStageUpdates) {
     relationshipStages[update.npcId] = update.relationshipStageId;
   }
   const matchedOutcomes = moment.conditionalOutcomes.filter(({ responseRequirement }) =>
-    isResponseRequirementMet(responseRequirement, session)
+    isResponseRequirementMet(responseRequirement, trustedQualities)
   );
   const newlyUnlockedMoments = [
     ...moment.onCompletion.unlockMomentIds,

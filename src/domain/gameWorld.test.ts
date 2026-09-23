@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { ConversationFeedbackResult } from "./conversationFeedback";
+import { evaluateCuratedConversationResponse, type CuratedConversationResponse } from "./conversationFeedback";
 import type { ConversationScenario } from "./conversationScenario";
 import type {
   ConversationSessionResponseRecord,
-  ConversationSessionState,
-  ConversationSessionSummary
+  ConversationSessionState
 } from "./conversationSession";
+import { createConversationSession, type ConversationSessionDefinition } from "./conversationSession";
 import {
   applyCompletedConversationSession,
   getAvailableWorldMoments,
@@ -104,7 +104,7 @@ function createWorld(): GameWorldDefinition {
       { id: "aki-familiar", npcId: "aki", order: 1, context: learnerText("已經聊過幾次。") },
       { id: "ren-new", npcId: "ren", order: 0, context: learnerText("剛認識。") }
     ],
-    scenarios: [shortScenario, mediumScenario],
+    sessionDefinitions: [makeSessionDefinition(shortScenario), makeSessionDefinition(mediumScenario)],
     moments: [
       {
         id: "station-meet",
@@ -163,37 +163,93 @@ function createWorld(): GameWorldDefinition {
   };
 }
 
-const continuationFeedback = (quality: "dead_end" | "opens_thread" | "enriches_thread") => ({
-  source: "curated",
-  responseId: `feedback-${quality}`,
+const continuationFeedback = (
+  responseId: string,
+  responseJapanese: string,
+  quality: "dead_end" | "opens_thread" | "enriches_thread"
+) => evaluateCuratedConversationResponse({
+  id: responseId,
+  responseJapanese,
   context: { situation: "At a station.", relationship: "Classmates.", discourse: "The learner responds." },
-  languageQuality: "natural",
-  continuationQuality: quality,
-  registerContextFit: "fits",
-  dimensions: {
-    understandable: "met",
-    correct: "met",
-    natural: "met",
-    continuation: quality === "dead_end" ? "needs_work" : "met",
-    register_context_fit: "met"
-  },
-  composition: [],
-  authorRationale: {}
-} satisfies ConversationFeedbackResult<"open", "curated">);
+  feedback: { languageQuality: "natural", continuation: quality, registerContextFit: "fits", composition: [], authorRationale: {} }
+} satisfies CuratedConversationResponse<"open">);
+
+function makeSessionDefinition(
+  scenario: ConversationScenario,
+  qualities: Readonly<Record<string, "dead_end" | "opens_thread" | "enriches_thread">> = {},
+  branchIds: Readonly<Record<string, string>> = {}
+): ConversationSessionDefinition {
+  return {
+    scenario,
+    responses: scenario.steps.flatMap((step) => step.kind === "learner_response"
+      ? step.responseExamples.map((example) => ({
+        stepId: step.id,
+        responseExampleId: example.id,
+        branchId: branchIds[example.id] ?? (example.id === "opening" ? "continue" : "finish"),
+        feedback: {
+          id: `feedback-${scenario.id}-${example.id}`,
+          responseJapanese: example.japanese,
+          context: { situation: "At a station.", relationship: "Classmates.", discourse: "The learner responds." },
+          feedback: {
+            languageQuality: "natural",
+            continuation: qualities[example.id] ?? "enriches_thread",
+            registerContextFit: "fits",
+            composition: [],
+            authorRationale: {}
+          }
+        } satisfies CuratedConversationResponse<"open">
+      }))
+      : [])
+  };
+}
+
+function makeDefinitionWithDeadEndAndOpeningAlternative(): ConversationSessionDefinition {
+  const scenario: ConversationScenario = {
+    ...shortScenario,
+    steps: shortScenario.steps.map((step) => step.id === "opening-response" && step.kind === "learner_response"
+      ? {
+        ...step,
+        responseExamples: [...step.responseExamples, { id: "opening-rich", kind: "accepted", japanese: "本当ですね。" }]
+      }
+      : step)
+  };
+  return makeSessionDefinition(scenario, { opening: "dead_end" }, { "opening-rich": "continue" });
+}
+
+function responseRecord(
+  stepId: string,
+  exampleId: string,
+  quality: "dead_end" | "opens_thread" | "enriches_thread"
+): ConversationSessionResponseRecord {
+  return {
+    stepId,
+    responseExampleId: exampleId,
+    feedback: continuationFeedback(`feedback-${shortScenario.id}-${exampleId}`, exampleId === "opening" ? "こんにちは。" : "そうですね。", quality)
+  };
+}
+
+function withResponseRecords(
+  session: ConversationSessionState,
+  responses: readonly ConversationSessionResponseRecord[]
+): ConversationSessionState {
+  return { ...session, summary: { ...session.summary!, responses } };
+}
 
 function makeCompletedSession(
   scenarioId = shortScenario.id,
-  records: readonly ConversationSessionResponseRecord[] = [
-    { stepId: "opening-response", responseExampleId: "opening", feedback: continuationFeedback("enriches_thread") }
-  ]
+  responseExampleIds: readonly string[] = ["opening", "follow-up"],
+  qualities: Readonly<Record<string, "dead_end" | "opens_thread" | "enriches_thread">> = {}
 ): ConversationSessionState {
-  const summary: ConversationSessionSummary = {
-    scenarioId,
-    length: "short",
-    skillsPracticed: ["open"],
-    responses: records
-  };
-  return { phase: "complete", scenario: shortScenario, step: null, feedback: null, summary };
+  const scenario = scenarioId === mediumScenario.id ? mediumScenario : shortScenario;
+  const definition = makeSessionDefinition(scenario, qualities);
+  const session = createConversationSession([definition]);
+  session.select(scenario.id);
+  session.start();
+  for (const responseExampleId of responseExampleIds) {
+    if (session.getState().step?.kind !== "learner_response") throw new Error("Expected learner response step.");
+    if (session.submitResponse(responseExampleId) == null || !session.continue()) throw new Error("Could not advance test session.");
+  }
+  return session.getState();
 }
 
 describe("game world domain", () => {
@@ -229,11 +285,10 @@ describe("game world domain", () => {
   });
 
   it("does not aggregate continuation quality from a different response step", () => {
-    const world = createWorld();
-    const session = makeCompletedSession(shortScenario.id, [
-      { stepId: "follow-up-response", responseExampleId: "follow-up", feedback: continuationFeedback("enriches_thread") },
-      { stepId: "opening-response", responseExampleId: "opening", feedback: continuationFeedback("dead_end") }
-    ]);
+    const base = createWorld();
+    const definition = makeDefinitionWithDeadEndAndOpeningAlternative();
+    const world = { ...base, sessionDefinitions: [definition, base.sessionDefinitions[1]] };
+    const session = makeCompletedSession(shortScenario.id, ["opening", "follow-up"], { opening: "dead_end" });
     const result = applyCompletedConversationSession(world, world.initialState, "station-meet", session);
     expect(result.state.unlockedMomentIds).toContain("cafe-chat");
     expect(result.state.unlockedMomentIds).not.toContain("richer-chat");
@@ -284,7 +339,7 @@ describe("game world domain", () => {
     };
     const unreachableStep = {
       ...world,
-      scenarios: [scenarioWithOrphanResponse, mediumScenario],
+      sessionDefinitions: [makeSessionDefinition(scenarioWithOrphanResponse), world.sessionDefinitions[1]],
       moments: world.moments.map((moment) => moment.id === "station-meet"
         ? { ...moment, conditionalOutcomes: [{ ...moment.conditionalOutcomes[0], responseRequirement: { ...moment.conditionalOutcomes[0].responseRequirement, stepId: "orphan-response" } }] }
         : moment)
@@ -351,7 +406,7 @@ describe("game world domain", () => {
     const brokenScenario = { ...shortScenario, startStepId: "missing-step" };
     const invalidWorld = {
       ...world,
-      scenarios: [brokenScenario, mediumScenario]
+      sessionDefinitions: [makeSessionDefinition(brokenScenario), world.sessionDefinitions[1]]
     };
 
     expect(validateGameWorld(invalidWorld).errors).toContainEqual({
@@ -401,6 +456,81 @@ describe("game world domain", () => {
       code: "unsatisfiable_moment_precondition",
       entityId: "cafe-chat"
     });
+  });
+
+  it("rejects an arc that can only unlock through continuation quality absent from every trusted answer", () => {
+    const base = createWorld();
+    const definition = makeSessionDefinition(shortScenario, { opening: "dead_end", "follow-up": "dead_end" });
+    const world: GameWorldDefinition = {
+      ...base,
+      sessionDefinitions: [definition, base.sessionDefinitions[1]],
+      moments: [
+        {
+          ...base.moments[0],
+          onCompletion: { unlockLocationIds: ["cafe"], unlockMomentIds: [], relationshipStageUpdates: [{ npcId: "aki", relationshipStageId: "aki-familiar" }] },
+          conditionalOutcomes: [{
+            id: "quality-gate",
+            responseRequirement: { stepId: "opening-response", minimumContinuationQuality: "opens_thread" },
+            unlockMomentIds: ["richer-chat"]
+          }]
+        },
+        base.moments[2]
+      ]
+    };
+
+    expect(validateGameWorld(world).errors).toContainEqual({ code: "unreachable_arc_completion" });
+  });
+
+  it("does not invent an impossible dead-end choice that strands an arc with trusted opening answers", () => {
+    const base = createWorld();
+    const definition = makeSessionDefinition(shortScenario, { opening: "opens_thread", "follow-up": "opens_thread" });
+    const world: GameWorldDefinition = {
+      ...base,
+      sessionDefinitions: [definition, base.sessionDefinitions[1]],
+      moments: [
+        {
+          ...base.moments[0],
+          onCompletion: { unlockLocationIds: ["cafe"], unlockMomentIds: [], relationshipStageUpdates: [{ npcId: "aki", relationshipStageId: "aki-familiar" }] },
+          conditionalOutcomes: [{
+            id: "quality-gate",
+            responseRequirement: { stepId: "opening-response", minimumContinuationQuality: "opens_thread" },
+            unlockMomentIds: ["richer-chat"]
+          }]
+        },
+        base.moments[2]
+      ]
+    };
+
+    expect(validateGameWorld(world)).toEqual({ valid: true, errors: [] });
+  });
+
+  it("counts a trusted finish branch that skips the conditional response step", () => {
+    const base = createWorld();
+    const scenario: ConversationScenario = {
+      ...shortScenario,
+      steps: shortScenario.steps.map((step) => step.id === "opening-response" && step.kind === "learner_response"
+        ? { ...step, responseExamples: [...step.responseExamples, { id: "opening-direct", kind: "accepted", japanese: "そうですね。" }] }
+        : step)
+    };
+    const definition = makeSessionDefinition(scenario, { "follow-up": "opens_thread" });
+    const world: GameWorldDefinition = {
+      ...base,
+      sessionDefinitions: [definition, base.sessionDefinitions[1]],
+      moments: [
+        {
+          ...base.moments[0],
+          onCompletion: { unlockLocationIds: ["cafe"], unlockMomentIds: [], relationshipStageUpdates: [{ npcId: "aki", relationshipStageId: "aki-familiar" }] },
+          conditionalOutcomes: [{
+            id: "follow-up-gate",
+            responseRequirement: { stepId: "follow-up-response", minimumContinuationQuality: "opens_thread" },
+            unlockMomentIds: ["richer-chat"]
+          }]
+        },
+        base.moments[2]
+      ]
+    };
+
+    expect(validateGameWorld(world).errors).toContainEqual({ code: "stranded_arc_state" });
   });
 
   it("rejects a final moment whose required relationship stage was replaced by its prerequisite", () => {
@@ -548,16 +678,17 @@ describe("game world domain", () => {
   it("does not publish a world transition for incomplete, mismatched, or rejected sessions", () => {
     const world = createWorld();
     const incomplete = { ...makeCompletedSession(), phase: "interaction", summary: null } satisfies ConversationSessionState;
-    const mismatched = makeCompletedSession("another-scenario");
-    const curatedSession = makeCompletedSession();
+    const validSession = makeCompletedSession();
+    const mismatched = { ...validSession, summary: { ...validSession.summary!, scenarioId: "another-scenario" } };
+    const curatedSession = validSession;
     const rejectedSummary = {
       ...curatedSession.summary!,
-      responses: [{
-        stepId: "opening-response",
-        responseExampleId: "opening",
-        feedback: { ...continuationFeedback("enriches_thread"), source: "bounded_ai" }
-      }]
-    };
+        responses: [{
+          stepId: "opening-response",
+          responseExampleId: "opening",
+          feedback: { ...responseRecord("opening-response", "opening", "enriches_thread").feedback, source: "bounded_ai" }
+        }]
+      };
     const rejected = { ...curatedSession, summary: rejectedSummary } as unknown as ConversationSessionState;
     expect(applyCompletedConversationSession(world, world.initialState, "station-meet", incomplete).applied).toBe(false);
     expect(applyCompletedConversationSession(world, world.initialState, "station-meet", mismatched).applied).toBe(false);
@@ -566,12 +697,108 @@ describe("game world domain", () => {
       state: world.initialState,
       reason: "rejected_session"
     });
-    const deadEnd = makeCompletedSession(shortScenario.id, [
-      { stepId: "opening-response", responseExampleId: "opening", feedback: continuationFeedback("dead_end") }
-    ]);
-    const deadEndResult = applyCompletedConversationSession(world, world.initialState, "station-meet", deadEnd);
+    const deadEndWorld = {
+      ...world,
+      sessionDefinitions: [makeDefinitionWithDeadEndAndOpeningAlternative(), world.sessionDefinitions[1]]
+    };
+    const deadEnd = makeCompletedSession(shortScenario.id, ["opening", "follow-up"], { opening: "dead_end" });
+    const deadEndResult = applyCompletedConversationSession(deadEndWorld, deadEndWorld.initialState, "station-meet", deadEnd);
     expect(deadEndResult.state.unlockedMomentIds).toContain("cafe-chat");
     expect(deadEndResult.state.unlockedMomentIds).not.toContain("richer-chat");
+  });
+
+  it("rejects empty, duplicate, and unreachable response traces", () => {
+    const world = createWorld();
+    const valid = makeCompletedSession();
+    const emptyTrace = withResponseRecords(valid, []);
+    const opening = responseRecord("opening-response", "opening", "enriches_thread");
+    const followup = responseRecord("follow-up-response", "follow-up", "enriches_thread");
+    const duplicateTrace = withResponseRecords(valid, [opening, opening]);
+    const unreachableTrace = withResponseRecords(valid, [followup, opening]);
+
+    for (const session of [emptyTrace, duplicateTrace, unreachableTrace]) {
+      expect(applyCompletedConversationSession(world, world.initialState, "station-meet", session)).toEqual({
+        applied: false,
+        state: world.initialState,
+        reason: "rejected_session"
+      });
+    }
+  });
+
+  it("replays a real completed session through the trusted response-to-branch binding", () => {
+    const base = createWorld();
+    const finishOnOpening = makeSessionDefinition(shortScenario, {}, { opening: "finish" });
+    const world = { ...base, sessionDefinitions: [finishOnOpening, base.sessionDefinitions[1]] };
+    const runtime = createConversationSession([finishOnOpening]);
+    expect(runtime.select(shortScenario.id)).toBe(true);
+    expect(runtime.start()).toBe(true);
+    expect(runtime.submitResponse("opening")).not.toBeNull();
+    expect(runtime.continue()).toBe(true);
+    const completed = runtime.getState();
+    expect(completed.phase).toBe("complete");
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", completed).applied).toBe(true);
+
+    const impossibleFollowup = withResponseRecords(completed, [
+      ...completed.summary!.responses,
+      responseRecord("follow-up-response", "follow-up", "enriches_thread")
+    ]);
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", impossibleFollowup)).toEqual({
+      applied: false,
+      state: world.initialState,
+      reason: "rejected_session"
+    });
+  });
+
+  it("does not let supplied feedback raise trusted continuation quality", () => {
+    const base = createWorld();
+    const definition = makeDefinitionWithDeadEndAndOpeningAlternative();
+    const world = { ...base, sessionDefinitions: [definition, base.sessionDefinitions[1]] };
+    const completed = makeCompletedSession(shortScenario.id, ["opening", "follow-up"], { opening: "dead_end" });
+    const inflated = withResponseRecords(completed, completed.summary!.responses.map((record) =>
+      record.stepId === "opening-response"
+        ? { ...record, feedback: { ...record.feedback, continuationQuality: "enriches_thread" } }
+        : record
+    ));
+
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", inflated)).toEqual({
+      applied: false,
+      state: world.initialState,
+      reason: "rejected_session"
+    });
+  });
+
+  it("allows an empty trace when the trusted scenario completes without a learner response", () => {
+    const base = createWorld();
+    const scenario: ConversationScenario = {
+      ...shortScenario,
+      id: "partner-only",
+      startStepId: "partner-opening",
+      steps: [
+        { id: "partner-opening", kind: "partner_line", japanese: "こんにちは。", nextStepId: "partner-only-complete" },
+        { id: "partner-only-complete", kind: "completion", summary: { textZh: "完成。" } }
+      ]
+    };
+    const definition = makeSessionDefinition(scenario);
+    const world = {
+      ...base,
+      sessionDefinitions: [definition, base.sessionDefinitions[1]],
+      moments: base.moments.map((moment) => moment.id === "station-meet"
+        ? {
+          ...moment,
+          scenarioId: scenario.id,
+          conditionalOutcomes: [],
+          onCompletion: { ...moment.onCompletion, unlockMomentIds: [...moment.onCompletion.unlockMomentIds, "richer-chat"] }
+        }
+        : moment)
+    };
+    const runtime = createConversationSession([definition]);
+    runtime.select(scenario.id);
+    runtime.start();
+    expect(runtime.advance()).toBe(true);
+    const completed = runtime.getState();
+    expect(completed.summary?.responses).toEqual([]);
+    expect(validateGameWorld(world)).toEqual({ valid: true, errors: [] });
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", completed).applied).toBe(true);
   });
 
   it("localizes authored learner text through the existing localization fallback", () => {
