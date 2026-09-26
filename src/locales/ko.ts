@@ -521,6 +521,9 @@ export const ko: Copy = {
   conversationTitle: "일상 회화 연습실",
   conversationIntro:
     "짧은 일상 상황에서 대화를 이어 가는 연습을 합니다. 길이를 고르고 상황에 맞는 대답을 선택한 뒤, 사람이 정리한 피드백을 봅니다.",
+  conversationSeasonalTitle: "Timely seasonal topics",
+  conversationSeasonalEmpty: "No seasonal topic is ready to introduce right now. Choose an everyday scene instead.",
+  conversationSeasonalPhases: { now: "Now", comingSoon: "Coming soon", recent: "Recent" },
   conversationStart: "이 상황 시작",
   conversationContinue: "계속",
   conversationRetry: "다른 표현으로 다시",

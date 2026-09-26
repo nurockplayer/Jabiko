@@ -522,6 +522,9 @@ export const th: Copy = {
   conversationTitle: "ห้องฝึกบทสนทนาประจำวัน",
   conversationIntro:
     "ฝึกต่อบทสนทนาสั้น ๆ ในชีวิตประจำวัน เลือกความยาว เลือกคำตอบที่เข้ากับสถานการณ์ แล้วอ่านคำติชมที่คนเรียบเรียงไว้",
+  conversationSeasonalTitle: "Timely seasonal topics",
+  conversationSeasonalEmpty: "No seasonal topic is ready to introduce right now. Choose an everyday scene instead.",
+  conversationSeasonalPhases: { now: "Now", comingSoon: "Coming soon", recent: "Recent" },
   conversationStart: "เริ่มสถานการณ์นี้",
   conversationContinue: "ต่อ",
   conversationRetry: "ลองพูดอีกแบบ",

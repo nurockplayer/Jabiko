@@ -512,6 +512,9 @@ export type Copy = {
   /** Panel heading for the curated short-conversation practice runtime. */
   conversationTitle: string;
   conversationIntro: string;
+  conversationSeasonalTitle: string;
+  conversationSeasonalEmpty: string;
+  conversationSeasonalPhases: { now: string; comingSoon: string; recent: string };
   conversationStart: string;
   conversationContinue: string;
   /** Label for the offer to redo a response that ended the conversation. */

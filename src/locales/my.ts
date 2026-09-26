@@ -521,6 +521,9 @@ export const my: Copy = {
   conversationTitle: "နေ့စဉ်စကားပြော လေ့ကျင့်ခန်း",
   conversationIntro:
     "တိုတောင်းသော နေ့စဉ်အခြေအနေတွင် စကားဆက်ပြောသည့် လေ့ကျင့်ခန်း။ အရှည်ကို ရွေးပြီး အခြေအနေနှင့်ကိုက်သော အဖြေကို ရွေးကာ လူဖြင့်စီစစ်ထားသော တုံ့ပြန်ချက်ကို ဖတ်ပါ။",
+  conversationSeasonalTitle: "Timely seasonal topics",
+  conversationSeasonalEmpty: "No seasonal topic is ready to introduce right now. Choose an everyday scene instead.",
+  conversationSeasonalPhases: { now: "Now", comingSoon: "Coming soon", recent: "Recent" },
   conversationStart: "ဤအခြေအနေ စတင်ရန်",
   conversationContinue: "ဆက်လုပ်ရန်",
   conversationRetry: "အပြောအဆို ပြောင်း၍ ထပ်စမ်းရန်",

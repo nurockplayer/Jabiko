@@ -521,6 +521,9 @@ export const vi: Copy = {
   conversationTitle: "Phòng luyện hội thoại hằng ngày",
   conversationIntro:
     "Luyện nối tiếp một đoạn hội thoại ngắn thường ngày: chọn độ dài, chọn câu đáp hợp tình huống, rồi đọc phản hồi do người biên soạn.",
+  conversationSeasonalTitle: "Timely seasonal topics",
+  conversationSeasonalEmpty: "No seasonal topic is ready to introduce right now. Choose an everyday scene instead.",
+  conversationSeasonalPhases: { now: "Now", comingSoon: "Coming soon", recent: "Recent" },
   conversationStart: "Bắt đầu tình huống này",
   conversationContinue: "Tiếp tục",
   conversationRetry: "Thử cách nói khác",

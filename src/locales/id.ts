@@ -521,6 +521,9 @@ export const id: Copy = {
   conversationTitle: "Ruang Percakapan Sehari-hari",
   conversationIntro:
     "Latih percakapan singkat sehari-hari: pilih panjangnya, pilih balasan yang cocok untuk situasinya, lalu baca umpan balik yang sudah disusun.",
+  conversationSeasonalTitle: "Timely seasonal topics",
+  conversationSeasonalEmpty: "No seasonal topic is ready to introduce right now. Choose an everyday scene instead.",
+  conversationSeasonalPhases: { now: "Now", comingSoon: "Coming soon", recent: "Recent" },
   conversationStart: "Mulai situasi ini",
   conversationContinue: "Lanjut",
   conversationRetry: "Coba dengan ungkapan lain",

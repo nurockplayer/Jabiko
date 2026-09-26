@@ -23,10 +23,7 @@ for (const width of [390, 1280]) {
       await productionScene.press("Enter");
       await expectNoPageOverflow(page, "conversation brief");
       const startScene = page.getByRole("button", { name: "開始這個情境" });
-      for (let tabCount = 0; tabCount < 24; tabCount += 1) {
-        if (await startScene.evaluate((element) => element === document.activeElement)) break;
-        await page.keyboard.press("Tab");
-      }
+      await page.keyboard.press("Tab");
       await expect(startScene).toBeFocused();
       await page.keyboard.press("Enter");
       await expect(page.getByText("今朝は気持ちのいい天気ですね。通勤中も少し楽です。")).toBeFocused();
@@ -59,8 +56,30 @@ for (const width of [390, 1280]) {
       await expect(page.getByRole("button", { name: "換情境", exact: true }).first()).toBeFocused();
       await page.keyboard.press("Enter");
       await expect(page.getByRole("heading", { name: "日常會話練習室" })).toBeFocused();
-      for (let tabCount = 0; tabCount < 4; tabCount += 1) await page.keyboard.press("Tab");
+      for (let tabCount = 0; tabCount < 64; tabCount += 1) {
+        if (await productionScene.evaluate((element) => element === document.activeElement)) break;
+        await page.keyboard.press("Tab");
+      }
       await expect(productionScene).toBeFocused();
+    });
+
+    test("launches a timely seasonal card into the focused brief at a deterministic date", async ({ page }) => {
+      await page.clock.install({ time: new Date("2026-12-31T14:30:00.000Z") });
+      await page.addInitScript(() => localStorage.setItem("jabiko.lang", "zh-Hant"));
+      await page.goto("/conversation");
+
+      const seasonalCard = page.getByRole("button", { name: /大晦日與年末回顧/ });
+      await expect(seasonalCard).toBeVisible();
+      await expectNoPageOverflow(page, "seasonal conversation choices");
+      await seasonalCard.focus();
+      await page.keyboard.press("Enter");
+      const start = page.getByRole("button", { name: "開始這個情境" });
+      await expect(start).toBeVisible();
+      await page.keyboard.press("Tab");
+      await expect(start).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(page.getByText("今日はこのあと、家で静かに過ごすつもりです。")).toBeVisible();
+      await expectNoPageOverflow(page, "seasonal conversation brief and first turn");
     });
   });
 }

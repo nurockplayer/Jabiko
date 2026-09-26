@@ -5,6 +5,11 @@ import {
 } from "../domain/conversationFeedback";
 import { conversationCatalogDefinitions } from "../domain/conversationContent/catalog";
 import {
+  seasonalConversationDefinitions,
+  seasonalConversationFamilies
+} from "../domain/seasonalConversationContent/catalog";
+import { getSeasonalConversationDiscoveryCards } from "../domain/seasonalConversationDiscovery";
+import {
   localizeConversationLearnerText,
   type ConversationSkillId
 } from "../domain/conversationScenario";
@@ -22,15 +27,21 @@ import { copy, type Language } from "../i18n";
 // infers feedback from ids/text. The catalog is imported here (not in the eager
 // barrel/App), and App React.lazy's this component, so conversation content
 // stays out of the initial bundle.
-export function ConversationPanel({
-  language,
-  definitions = conversationCatalogDefinitions
-}: {
+const productionSessionDefinitions = [
+  ...conversationCatalogDefinitions,
+  ...seasonalConversationDefinitions
+];
+
+export function ConversationPanel({ language, definitions, referenceInstant }: {
   language: Language;
   definitions?: readonly ConversationSessionDefinition[];
+  /** Stable time seam for deterministic discovery tests. */
+  referenceInstant?: Date;
 }) {
   const t = copy[language];
   const stageRef = useRef<HTMLElement | null>(null);
+  const briefRef = useRef<HTMLElement | null>(null);
+  const [browseInstant, setBrowseInstant] = useState(() => referenceInstant ?? new Date());
   const focusStage = useCallback((node: HTMLElement | null) => {
     stageRef.current = node;
   }, []);
@@ -39,13 +50,30 @@ export function ConversationPanel({
     : role;
   // The session is a mutable engine instance; React state mirrors its
   // snapshot after every action so the panel re-renders deterministically.
-  const session = useMemo(() => createConversationSession(definitions), [definitions]);
+  const sessionDefinitions = definitions ?? productionSessionDefinitions;
+  const chooserDefinitions = definitions ?? conversationCatalogDefinitions;
+  const session = useMemo(() => createConversationSession(sessionDefinitions), [sessionDefinitions]);
   const [state, setState] = useState<ConversationSessionState>(() => session.getState());
+  const scenarioId = state.scenario?.id;
+  const discoveryCards = definitions === undefined
+    ? getSeasonalConversationDiscoveryCards(
+        seasonalConversationFamilies,
+        referenceInstant ?? browseInstant
+      )
+    : [];
+  const selectedSeasonalFamily = definitions !== undefined || state.scenario?.seasonalAssociation == null
+    ? undefined
+    : seasonalConversationFamilies.find(
+        ({ event }) => event.id === state.scenario?.seasonalAssociation?.eventId
+      );
   // Focus the new stage's reading cue even when React reuses its DOM node.
   // Locale or other same-stage rerenders must not steal focus from its actions.
   useEffect(() => {
     stageRef.current?.focus();
   }, [state.phase, state.step?.id]);
+  useEffect(() => {
+    if (state.phase === "intro" && scenarioId !== undefined) briefRef.current?.focus();
+  }, [state.phase, scenarioId]);
   // Mirror the engine snapshot after each action. When the engine lands on a
   // partner line, remember it so the following learner_response step can show
   // the line it answers without re-walking the scenario graph.
@@ -96,6 +124,7 @@ export function ConversationPanel({
   };
   const handleChangeScenario = () => {
     session.reset();
+    if (referenceInstant === undefined) setBrowseInstant(new Date());
     setPartnerLine(null);
     setSelectedResponseId(null);
     sync();
@@ -305,8 +334,34 @@ export function ConversationPanel({
 
       {state.phase === "intro" ? (
         <div className="conversation-intro-body">
+          {definitions === undefined ? (
+            <section className="conversation-seasonal-discovery" aria-labelledby="conversation-seasonal-title">
+              <h3 id="conversation-seasonal-title">{t.conversationSeasonalTitle}</h3>
+              {discoveryCards.length > 0 ? (
+                <div className="conversation-seasonal-cards">
+                  {discoveryCards.map((card) => (
+                    <button
+                      key={card.eventId}
+                      type="button"
+                      className="conversation-seasonal-card"
+                      aria-pressed={state.scenario?.id === card.scenarioId}
+                      onClick={() => handleSelect(card.scenarioId)}
+                    >
+                      <span className="conversation-seasonal-phase">
+                        {t.conversationSeasonalPhases[card.phase === "now" ? "now" : card.phase === "recent" ? "recent" : "comingSoon"]}
+                      </span>
+                      <strong>{localizeConversationLearnerText(card.title, language)}</strong>
+                      <span>{localizeConversationLearnerText(card.note, language)}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="conversation-seasonal-empty">{t.conversationSeasonalEmpty}</p>
+              )}
+            </section>
+          ) : null}
           <div className="conversation-scenes">
-            {definitions.map(({ scenario }) => {
+            {chooserDefinitions.map(({ scenario }) => {
               const selected = state.scenario?.id === scenario.id;
               return (
                 <button
@@ -331,7 +386,13 @@ export function ConversationPanel({
           </div>
 
           {state.scenario ? (
-            <article className="conversation-brief">
+            <article ref={briefRef} tabIndex={-1} className="conversation-brief">
+              {selectedSeasonalFamily ? (
+                <div className="conversation-brief-seasonal">
+                  <strong>{localizeConversationLearnerText(selectedSeasonalFamily.title, language)}</strong>
+                  <p>{localizeConversationLearnerText(selectedSeasonalFamily.note, language)}</p>
+                </div>
+              ) : null}
               <dl>
                 <dt>{t.conversationLearnerRole}</dt>
                 <dd>{roleLabel(state.scenario.relationship.learnerRole)}</dd>

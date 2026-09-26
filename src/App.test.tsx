@@ -6,6 +6,7 @@ import type { Attempt } from "./domain/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import appSource from "./App.tsx?raw";
 import homePanelSource from "./components/HomePanel.tsx?raw";
+import conversationPanelSource from "./components/ConversationPanel.tsx?raw";
 
 // #693: controlled auth + deletion-protocol seams for the account-entry
 // integration tests. Default OFF: every existing test keeps running the REAL
@@ -224,6 +225,8 @@ describe("App", () => {
   it("opens the Small Talk Lab from the home card and lazy-loads its route (#814)", async () => {
     expect(appSource).toMatch(/const ConversationPanel = lazy\(\(\) =>/);
     expect(appSource).toContain('import("./components/ConversationPanel")');
+    expect(conversationPanelSource).toContain("seasonalConversationFamilies");
+    expect(appSource).not.toMatch(/seasonalConversation(Content|Discovery)/);
 
     localStorage.setItem("jabiko.lang", "zh-Hant");
     const user = userEvent.setup();
