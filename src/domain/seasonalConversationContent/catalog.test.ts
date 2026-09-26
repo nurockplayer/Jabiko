@@ -52,6 +52,39 @@ function learnerResponseSteps(definition: ReturnType<typeof definitionById>) {
   return definition.scenario.steps.filter((step) => step.kind === "learner_response");
 }
 
+function completeSessionSelectingPath(
+  definition: ReturnType<typeof definitionById>,
+  selectedResponseIds: readonly string[]
+) {
+  const session = createConversationSession([definition]);
+  if (!session.select(definition.scenario.id) || !session.start()) {
+    throw new Error(`Could not start ${definition.scenario.id}`);
+  }
+
+  let learnerTurn = 0;
+  let guard = 0;
+  while (session.getState().phase !== "complete" && guard < 40) {
+    guard += 1;
+    const state = session.getState();
+    if (state.step?.kind === "partner_line") {
+      if (!session.advance()) throw new Error(`Could not advance ${state.step.id}`);
+      continue;
+    }
+    if (state.step?.kind !== "learner_response") break;
+    const responseId = selectedResponseIds[learnerTurn];
+    learnerTurn += 1;
+    const example = state.step.responseExamples.find(({ id }) => id === responseId);
+    if (!example) throw new Error(`Missing selected response ${responseId} at ${state.step.id}`);
+    if (!session.submitResponse(example.id) || !session.continue()) {
+      throw new Error(`Could not complete response ${example.id}`);
+    }
+  }
+  if (session.getState().phase !== "complete" || learnerTurn !== selectedResponseIds.length) {
+    throw new Error(`Selected path did not complete: ${definition.scenario.id}`);
+  }
+  return session;
+}
+
 function completeSessionSelectingResponse(
   definition: ReturnType<typeof definitionById>,
   targetResponseId: string
@@ -86,6 +119,105 @@ function completeSessionSelectingResponse(
 }
 
 describe("seasonal conversation catalog", () => {
+  it("keeps New Year after task copy true on all eight completed paths", () => {
+    const definition = definitionById("seasonal-new-year-after");
+    const pathIds = ["a", "b"] as const;
+    for (const first of pathIds) {
+      for (const second of pathIds) {
+        for (const third of pathIds) {
+          const session = completeSessionSelectingPath(definition, [
+            `seasonal-new-year-after-turn-1-${first}`,
+            `seasonal-new-year-after-turn-2-${second}`,
+            `seasonal-new-year-after-turn-3-${third}`
+          ]);
+          expect(session.getState().phase).toBe("complete");
+        }
+      }
+    }
+
+    expect(definition.scenario.objective).toEqual({
+      textZh: "敘述一段安靜休息的經驗，回應對方的休息偏好，再連結到平日短暫休息方式。",
+      textI18n: {
+        ja: "静かに休んだ経験を話し、相手の休み方の好みに応じて、普段の短い休み方へ話をつなげましょう。",
+        en: "Narrate a quiet break, respond to the partner's rest preference, and bridge to a brief everyday rest routine."
+      }
+    });
+    expect(definition.scenario.instruction).toEqual({
+      textZh: "說明自己的休息安排，回應對方的偏好，再分享適合自己的短暫休息方式。",
+      textI18n: {
+        ja: "自分がどう休んだかを話し、相手の好みに応じて、自分に合う短い休み方を話しましょう。",
+        en: "Describe how you rested, respond to the partner's preference, and share a brief routine that suits you."
+      }
+    });
+    const completion = definition.scenario.steps.find(({ kind }) => kind === "completion");
+    if (!completion || completion.kind !== "completion") throw new Error("New Year after completion is missing");
+    expect(completion.summary).toEqual({
+      textZh: "你敘述了自己的年始經驗、回應對方的休息偏好，也連結到適合平日的短暫休息方式。",
+      textI18n: {
+        ja: "年始の経験を話し、相手の休み方の好みに応じながら、普段の忙しい週に合う休み方へ話をつなげられました。",
+        en: "You narrated your New Year experience, responded to the partner's rest preference, and bridged to a brief routine for a busy week."
+      }
+    });
+    const secondPrompt = learnerResponseSteps(definition)[1]?.prompt;
+    if (!secondPrompt) throw new Error("New Year after second prompt is missing");
+    expect(secondPrompt.textI18n?.en).toBe(
+      "Respond to the partner enjoying walks but preferring to avoid crowds, and share a similar or different preference."
+    );
+  });
+
+  it("keeps School Year after task copy true on all four completed paths", () => {
+    const definition = definitionById("seasonal-school-year-start-after");
+    for (const first of ["a", "b"] as const) {
+      for (const second of ["a", "b"] as const) {
+        const session = completeSessionSelectingPath(definition, [
+          `seasonal-school-year-start-after-turn-1-${first}`,
+          `seasonal-school-year-start-after-turn-2-${second}`
+        ]);
+        expect(session.getState().phase).toBe("complete");
+      }
+    }
+
+    expect(definition.scenario.objective).toEqual({
+      textZh: "回顧自己的一項學習調整，詢問對方的做法，再回應對方的方法。",
+      textI18n: {
+        ja: "自分が試した勉強の工夫を話し、相手の工夫を尋ねて、その方法にも応じましょう。",
+        en: "Describe one study adjustment you tried, ask about the partner's method, and respond to that method."
+      }
+    });
+    expect(definition.scenario.instruction).toEqual({
+      textZh: "談自己試過的調整，不把個人經驗當成通用建議。",
+      textI18n: {
+        ja: "自分が試した工夫を話し、個人の経験を誰にでも当てはまる助言にしないようにしましょう。",
+        en: "Describe your own attempt without presenting it as universal advice."
+      }
+    });
+  });
+
+  it("keeps Culture Day after first prompt true on all eight completed paths", () => {
+    const definition = definitionById("seasonal-culture-day-after");
+    for (const first of ["a", "b"] as const) {
+      for (const second of ["a", "b"] as const) {
+        for (const third of ["a", "b"] as const) {
+          const session = completeSessionSelectingPath(definition, [
+            `seasonal-culture-day-after-turn-1-${first}`,
+            `seasonal-culture-day-after-turn-2-${second}`,
+            `seasonal-culture-day-after-turn-3-${third}`
+          ]);
+          expect(session.getState().phase).toBe("complete");
+        }
+      }
+    }
+
+    const firstPrompt = learnerResponseSteps(definition)[0]?.prompt;
+    if (!firstPrompt) throw new Error("Culture Day after first prompt is missing");
+    expect(firstPrompt).toEqual({
+      textZh: "分享自己對作品的看法；也可以詢問對方注意到的細節。",
+      textI18n: {
+        ja: "作品をどう受け取ったか話しましょう。相手が気になった点を尋ねてもかまいません。",
+        en: "Share your view of the work; you may also ask which detail caught the partner's attention."
+      }
+    });
+  });
   it("credits New Year active turn one at the selected response and completed session", () => {
     const definition = definitionById("seasonal-new-year-active");
     const { session, targetFeedback } = completeSessionSelectingResponse(
@@ -585,7 +717,7 @@ describe("seasonal conversation catalog", () => {
     }
   });
 
-  it("keeps advertised conversational jobs true on every selectable response path", () => {
+  it("keeps explicit English question prompts compatible with selectable choices", () => {
     const mismatches: string[] = [];
     for (const definition of seasonalConversationDefinitions) {
       const responseSteps = learnerResponseSteps(definition);
@@ -598,10 +730,11 @@ describe("seasonal conversation catalog", () => {
         definition.scenario.steps.find((step) => step.kind === "completion")?.summary
       ].filter((value): value is ConversationLearnerText => value !== undefined);
       const promptCopy = responseSteps.map(({ prompt }) => ({ prompt, step: responseSteps.find((item) => item.prompt === prompt) }));
+      // This narrow English cue check supports known optional phrasing; human path review determines task semantics.
       for (const text of phaseCopy) {
         const english = text.textI18n?.en ?? "";
         const promisesQuestion = /\b(?:ask|invite)\b|return the (?:turn|question)/i.test(english);
-        const explicitlyOptional = /\b(?:optionally|may ask|if appropriate|can ask|if it feels natural|if they wish)\b/i.test(english);
+        const explicitlyOptional = /\b(?:optionally|may (?:also )?ask|if appropriate|can ask|if it feels natural|if they wish)\b/i.test(english);
         if (promisesQuestion && !explicitlyOptional) {
           if (!guaranteedQuestion) mismatches.push(`${definition.scenario.id}: ${english}`);
         }
@@ -609,7 +742,7 @@ describe("seasonal conversation catalog", () => {
       for (const { prompt, step } of promptCopy) {
         const english = prompt.textI18n?.en ?? "";
         const promisesQuestion = /\b(?:ask|invite)\b|return the (?:turn|question)/i.test(english);
-        const explicitlyOptional = /\b(?:optionally|may ask|if appropriate|can ask|if it feels natural|if they wish)\b/i.test(english);
+        const explicitlyOptional = /\b(?:optionally|may (?:also )?ask|if appropriate|can ask|if it feels natural|if they wish)\b/i.test(english);
         if (promisesQuestion && !explicitlyOptional &&
           !step?.responseExamples.every(({ japanese }) => /[?？]/.test(japanese))) {
           mismatches.push(`${definition.scenario.id}: ${english}`);
