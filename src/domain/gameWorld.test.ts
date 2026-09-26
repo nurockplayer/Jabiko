@@ -12,6 +12,7 @@ import {
   localizeGameWorldText,
   validateGameWorld,
   type GameWorldDefinition,
+  type RelationshipStage,
   type WorldMoment
 } from "./gameWorld";
 
@@ -161,6 +162,38 @@ function createWorld(): GameWorldDefinition {
       outcomeReferences: []
     },
     entryMomentIds: ["station-meet"]
+  };
+}
+
+function createWorldWithAuthoredStationPrologue(): GameWorldDefinition {
+  const world = createWorld();
+  const alternateCompletion: WorldMoment = {
+    id: "alternate-completion",
+    locationId: "station",
+    npcId: "ren",
+    relationshipStageId: "ren-new",
+    scenarioId: mediumScenario.id,
+    objective: learnerText("別の道から物語を終える。"),
+    availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [] },
+    onCompletion: {
+      unlockLocationIds: ["cafe"],
+      unlockMomentIds: ["cafe-chat", "richer-chat"],
+      relationshipStageUpdates: []
+    },
+    conditionalOutcomes: [],
+    completesArc: true
+  };
+  return {
+    ...world,
+    moments: [...world.moments, alternateCompletion],
+    initialState: {
+      completedMomentIds: ["station-meet"],
+      relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+      unlockedLocationIds: ["station", "cafe"],
+      unlockedMomentIds: ["station-meet", "cafe-chat", "richer-chat", "alternate-completion"],
+      outcomeReferences: [{ momentId: "station-meet", outcomeId: "enrich-the-thread" }]
+    },
+    entryMomentIds: []
   };
 }
 
@@ -493,6 +526,131 @@ describe("game world domain", () => {
       entryMomentIds: []
     };
     expect(validateGameWorld(noConditionalOutcomeWorld)).toEqual({ valid: true, errors: [] });
+  });
+
+  it.each([
+    ["ordinary location unlock", (world: GameWorldDefinition) => ({
+      ...world,
+      initialState: { ...world.initialState, unlockedLocationIds: ["station"] }
+    })],
+    ["ordinary moment unlock", (world: GameWorldDefinition) => ({
+      ...world,
+      initialState: {
+        ...world.initialState,
+        unlockedMomentIds: world.initialState.unlockedMomentIds.filter((id) => id !== "cafe-chat")
+      }
+    })],
+    ["conditional moment unlock", (world: GameWorldDefinition) => ({
+      ...world,
+      initialState: {
+        ...world.initialState,
+        unlockedMomentIds: world.initialState.unlockedMomentIds.filter((id) => id !== "richer-chat")
+      }
+    })]
+  ] as const)("rejects an initial completed moment missing its %s", (_effect, makeWorld) => {
+    const world = makeWorld(createWorldWithAuthoredStationPrologue());
+    expect(validateGameWorld(world).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects an initial relationship stage below a completed moment update", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const initialState = {
+      ...world.initialState,
+      relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-new" }
+    };
+    const moments = world.moments.map((moment) => ["cafe-chat", "richer-chat"].includes(moment.id)
+      ? {
+        ...moment,
+        relationshipStageId: "aki-new",
+        availability: { ...moment.availability, requiredRelationshipStageIds: [] }
+      }
+      : moment);
+
+    expect(validateGameWorld({ ...world, initialState, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects a different relationship stage at the same order as a completed update", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const stages = [...world.relationshipStages, {
+      id: "aki-familiar-alias",
+      npcId: "aki",
+      order: 1,
+      context: learnerText("同じ段階の別名。")
+    }];
+    const npcs = world.npcs.map((npc) => npc.id === "aki"
+      ? { ...npc, relationshipStageIds: [...npc.relationshipStageIds, "aki-familiar-alias"] }
+      : npc);
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? { ...moment, onCompletion: {
+        ...moment.onCompletion,
+        relationshipStageUpdates: [{ npcId: "aki", relationshipStageId: "aki-familiar-alias" }]
+      } }
+      : moment);
+
+    expect(validateGameWorld({ ...world, npcs, relationshipStages: stages, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("accepts exact or later initial stages and adds no floor for a moment without an update", () => {
+    const exactWorld = createWorldWithAuthoredStationPrologue();
+    expect(validateGameWorld(exactWorld)).toEqual({ valid: true, errors: [] });
+
+    const laterStage: RelationshipStage = {
+      id: "aki-close",
+      npcId: "aki",
+      order: 2,
+      context: learnerText("さらに親しい。")
+    };
+    const laterWorld: GameWorldDefinition = {
+      ...exactWorld,
+      npcs: exactWorld.npcs.map((npc) => npc.id === "aki"
+        ? { ...npc, relationshipStageIds: [...npc.relationshipStageIds, laterStage.id] }
+        : npc),
+      relationshipStages: [...exactWorld.relationshipStages, laterStage],
+      moments: exactWorld.moments.map((moment) => ["cafe-chat", "richer-chat"].includes(moment.id)
+        ? {
+          ...moment,
+          relationshipStageId: laterStage.id,
+          availability: { ...moment.availability, requiredRelationshipStageIds: [laterStage.id] }
+        }
+        : moment),
+      initialState: {
+        ...exactWorld.initialState,
+        relationshipStages: { ...exactWorld.initialState.relationshipStages, aki: laterStage.id }
+      }
+    };
+    expect(validateGameWorld(laterWorld)).toEqual({ valid: true, errors: [] });
+
+    const base = createWorld();
+    const noUpdatePrologue: WorldMoment = {
+      id: "no-update-prologue",
+      locationId: "station",
+      npcId: "aki",
+      relationshipStageId: "aki-familiar",
+      scenarioId: mediumScenario.id,
+      objective: learnerText("段階更新のない導入。"),
+      availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [] },
+      onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+      conditionalOutcomes: []
+    };
+    const noUpdateWorld: GameWorldDefinition = {
+      ...base,
+      moments: [...base.moments, noUpdatePrologue],
+      initialState: {
+        ...base.initialState,
+        completedMomentIds: [noUpdatePrologue.id],
+        unlockedMomentIds: [...base.initialState.unlockedMomentIds, noUpdatePrologue.id]
+      }
+    };
+    expect(validateGameWorld(noUpdateWorld)).toEqual({ valid: true, errors: [] });
   });
 
   it("compares outcome references as unambiguous identifier pairs", () => {

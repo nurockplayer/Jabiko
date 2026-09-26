@@ -393,24 +393,55 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
   // Keep this proof bounded to the authored finite arc. If the state graph grows beyond this cap,
   // unvisited moments remain unproven and therefore fail validation conservatively.
   const stateBudget = Math.max(64, world.moments.length * world.moments.length * 4);
+  const locations = new Set(world.locations.map(({ id }) => id));
+  const momentsById = new Map(world.moments.map((moment) => [moment.id, moment]));
+  const initiallyUnlockedLocations = new Set(world.initialState.unlockedLocationIds);
+  const initiallyUnlockedMoments = new Set(world.initialState.unlockedMomentIds);
   const possibleOutcomesByMoment = new Map(world.moments.map((moment) => [
     moment.id,
     getPossibleMomentOutcomeSets(world, moment)
   ]));
 
   for (const momentId of world.initialState.completedMomentIds) {
+    const moment = momentsById.get(momentId);
+    if (moment == null) continue;
+    let contradictory = false;
+    if (moment.onCompletion.unlockLocationIds.some((id) => locations.has(id) && !initiallyUnlockedLocations.has(id))) {
+      contradictory = true;
+    }
+    if (moment.onCompletion.unlockMomentIds.some((id) => momentsById.has(id) && !initiallyUnlockedMoments.has(id))) {
+      contradictory = true;
+    }
+    for (const update of moment.onCompletion.relationshipStageUpdates) {
+      const currentStage = stagesById.get(world.initialState.relationshipStages[update.npcId]);
+      const targetStage = stagesById.get(update.relationshipStageId);
+      if (
+        currentStage != null &&
+        targetStage != null &&
+        currentStage.id !== targetStage.id &&
+        currentStage.order <= targetStage.order
+      ) contradictory = true;
+    }
+
     const possibleOutcomes = possibleOutcomesByMoment.get(momentId);
-    if (possibleOutcomes == null || possibleOutcomes.stateBudgetExceeded) continue;
-    const initialOutcomeIds = world.initialState.outcomeReferences
-      .filter(({ momentId: referenceMomentId }) => referenceMomentId === momentId)
-      .map(({ outcomeId }) => outcomeId)
-      .sort();
-    const hasFeasibleInitialOutcomeSet = possibleOutcomes.outcomes.some((outcomes) => {
-      const possibleOutcomeIds = outcomes.map(({ id }) => id).sort();
-      return initialOutcomeIds.length === possibleOutcomeIds.length &&
-        initialOutcomeIds.every((outcomeId, index) => outcomeId === possibleOutcomeIds[index]);
-    });
-    if (!hasFeasibleInitialOutcomeSet) {
+    if (possibleOutcomes != null && !possibleOutcomes.stateBudgetExceeded) {
+      const initialOutcomeIds = world.initialState.outcomeReferences
+        .filter(({ momentId: referenceMomentId }) => referenceMomentId === momentId)
+        .map(({ outcomeId }) => outcomeId)
+        .sort();
+      const matchingOutcomeSet = possibleOutcomes.outcomes.find((outcomes) => {
+        const possibleOutcomeIds = outcomes.map(({ id }) => id).sort();
+        return initialOutcomeIds.length === possibleOutcomeIds.length &&
+          initialOutcomeIds.every((outcomeId, index) => outcomeId === possibleOutcomeIds[index]);
+      });
+      if (matchingOutcomeSet == null) {
+        contradictory = true;
+      } else if (matchingOutcomeSet.some((outcome) =>
+        outcome.unlockMomentIds.some((id) => momentsById.has(id) && !initiallyUnlockedMoments.has(id)))) {
+        contradictory = true;
+      }
+    }
+    if (contradictory) {
       errors.push({ code: "contradictory_initial_state", referenceId: momentId });
     }
   }
