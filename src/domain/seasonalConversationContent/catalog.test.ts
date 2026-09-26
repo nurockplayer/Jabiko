@@ -380,6 +380,65 @@ describe("seasonal conversation catalog", () => {
     expect(session.getState().summary?.skillsPracticed).not.toContain("expand");
   });
 
+  it("keeps Coffee Day before task copy truthful on all four completed paths", () => {
+    const definition = definitionById("seasonal-coffee-day-before");
+    expect(definition.scenario.objective).toEqual({
+      textZh: "分享自己的飲品偏好，並依對方的偏好接續討論菜單。",
+      textI18n: {
+        ja: "自分の飲み物の好みを話し、相手の好みに応じてメニューの話を続けましょう。",
+        en: "Share your drink preference and continue the menu discussion in response to the partner's preference."
+      }
+    });
+    const completion = definition.scenario.steps.find(({ kind }) => kind === "completion");
+    if (!completion || completion.kind !== "completion") {
+      throw new Error("Coffee Day before completion is missing");
+    }
+    expect(completion.summary).toEqual({
+      textZh: "你分享了飲品偏好，也回應對方的偏好繼續討論菜單。",
+      textI18n: {
+        ja: "自分の飲み物の好みを話し、相手の好みに応じてメニューの話を続けられました。",
+        en: "You shared your drink preference and continued the menu discussion in response to the partner's preference."
+      }
+    });
+
+    const paths = [
+      ["seasonal-coffee-day-before-turn-1-a", "seasonal-coffee-day-before-turn-2-a"],
+      ["seasonal-coffee-day-before-turn-1-a", "seasonal-coffee-day-before-turn-2-b"],
+      ["seasonal-coffee-day-before-turn-1-b", "seasonal-coffee-day-before-turn-2-a"],
+      ["seasonal-coffee-day-before-turn-1-b", "seasonal-coffee-day-before-turn-2-b"]
+    ] as const;
+
+    for (const selectedResponseIds of paths) {
+      const session = createConversationSession([definition]);
+      expect(session.select(definition.scenario.id)).toBe(true);
+      expect(session.start()).toBe(true);
+      let learnerTurn = 0;
+      let guard = 0;
+      while (session.getState().phase !== "complete" && guard < 40) {
+        guard += 1;
+        const state = session.getState();
+        if (state.step?.kind === "partner_line") {
+          expect(session.advance()).toBe(true);
+          continue;
+        }
+        if (state.step?.kind !== "learner_response") break;
+        const selectedId = selectedResponseIds[learnerTurn];
+        learnerTurn += 1;
+        const example = state.step.responseExamples.find(({ id }) => id === selectedId);
+        if (!example) throw new Error(`Missing Coffee Day branch ${selectedId} at ${state.step.id}`);
+        expect(session.submitResponse(example.id)).not.toBeNull();
+        expect(session.continue()).toBe(true);
+      }
+
+      expect(session.getState().phase).toBe("complete");
+      expect(learnerTurn).toBe(2);
+      if (selectedResponseIds[0] === "seasonal-coffee-day-before-turn-1-b" &&
+          selectedResponseIds[1] === "seasonal-coffee-day-before-turn-2-b") {
+        expect(session.getState().summary?.skillsPracticed).not.toContain("negotiate");
+      }
+    }
+  });
+
   it("contains thirteen fixed, sourced anchors and all three phases", () => {
     expect(seasonalConversationFamilies).toHaveLength(13);
     expect(seasonalConversationEvents).toHaveLength(13);
