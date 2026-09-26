@@ -34,7 +34,7 @@ it("preserves an active conversation across background updates and applies the u
   const user = userEvent.setup();
   render(<App />);
   await screen.findByRole("heading", { name: "日常會話練習室", level: 2 }, { timeout: 15000 });
-  await user.click(screen.getByRole("button", { name: /^短/ }));
+  await user.click(screen.getByRole("button", { name: /月台上的電子看板/ }));
   await user.click(screen.getByRole("button", { name: "開始這個情境" }));
 
   act(() => sw.options.onNeedRefresh?.());

@@ -18,16 +18,18 @@ for (const width of [390, 1280]) {
 
     test("keeps feedback, retry and completion reachable without restarting the tab order", async ({ page }) => {
       await page.goto("/conversation");
-      const shortScene = page.getByRole("button", { name: /^短/ });
-      await shortScene.focus();
-      await shortScene.press("Enter");
+      const productionScene = page.getByRole("button", { name: /早上通勤時/ });
+      await productionScene.focus();
+      await productionScene.press("Enter");
       await expectNoPageOverflow(page, "conversation brief");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Tab");
-      await expect(page.getByRole("button", { name: "開始這個情境" })).toBeFocused();
+      const startScene = page.getByRole("button", { name: "開始這個情境" });
+      for (let tabCount = 0; tabCount < 24; tabCount += 1) {
+        if (await startScene.evaluate((element) => element === document.activeElement)) break;
+        await page.keyboard.press("Tab");
+      }
+      await expect(startScene).toBeFocused();
       await page.keyboard.press("Enter");
-      await expect(page.getByText("電車、遅れてるみたいですね。")).toBeFocused();
+      await expect(page.getByText("今朝は気持ちのいい天気ですね。通勤中も少し楽です。")).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
       await expect(page.getByText("選一個回應", { exact: true })).toBeFocused();
@@ -47,6 +49,9 @@ for (const width of [390, 1280]) {
       await page.keyboard.press("Tab");
       await expect(page.getByRole("button", { name: "繼續", exact: true })).toBeFocused();
       await page.keyboard.press("Enter");
+      await expect(page.getByText("普段は桜町駅からこの路線に乗っています。この時間は車内も落ち着いていて、通勤しやすいですね。")).toBeFocused();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Enter");
       await expect(page.getByRole("heading", { name: "完成", exact: true })).toBeFocused();
       await expectNoPageOverflow(page, "conversation completion");
       await page.keyboard.press("Tab");
@@ -54,8 +59,8 @@ for (const width of [390, 1280]) {
       await expect(page.getByRole("button", { name: "換情境", exact: true }).first()).toBeFocused();
       await page.keyboard.press("Enter");
       await expect(page.getByRole("heading", { name: "日常會話練習室" })).toBeFocused();
-      await page.keyboard.press("Tab");
-      await expect(shortScene).toBeFocused();
+      for (let tabCount = 0; tabCount < 4; tabCount += 1) await page.keyboard.press("Tab");
+      await expect(productionScene).toBeFocused();
     });
   });
 }
