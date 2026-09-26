@@ -247,4 +247,23 @@ describe("selectRelevantSeasonalEvents", () => {
       { futureDays: Number.MAX_SAFE_INTEGER }
     )).toThrow(RangeError);
   });
+
+  it("resolves year-zero one-off dates while keeping the adjacent AD year correct", () => {
+    const yearZeroEvent = oneOffEvent("year-zero", "0000-01-01");
+    const adYearOneEvent = oneOffEvent("ad-year-one", "0001-01-01");
+
+    expect(selectRelevantSeasonalEvents([yearZeroEvent], new Date("0000-01-01T12:00:00Z")))
+      .toMatchObject([{ eventId: "year-zero", phase: "active", occurrenceStart: "0000-01-01" }]);
+    expect(selectRelevantSeasonalEvents([adYearOneEvent], new Date("0001-01-01T12:00:00Z")))
+      .toMatchObject([{ eventId: "ad-year-one", phase: "active", occurrenceStart: "0001-01-01" }]);
+
+    expect(selectRelevantSeasonalEvents(
+      [annualEvent("annual-year-zero", 1, 1)],
+      new Date("0000-01-01T12:00:00Z")
+    )).toMatchObject([{ eventId: "annual-year-zero", phase: "active", occurrenceStart: "0000-01-01" }]);
+    expect(selectRelevantSeasonalEvents(
+      [annualEvent("annual-ad-year-one", 1, 1)],
+      new Date("0001-01-01T12:00:00Z")
+    )).toMatchObject([{ eventId: "annual-ad-year-one", phase: "active", occurrenceStart: "0001-01-01" }]);
+  });
 });

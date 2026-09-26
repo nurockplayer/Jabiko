@@ -171,6 +171,8 @@ function getCalendarDate(instant: Date, timeZone: string): { iso: string; year: 
   try {
     parts = new Intl.DateTimeFormat("en-US", {
       timeZone,
+      calendar: "gregory",
+      era: "short",
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -180,7 +182,8 @@ function getCalendarDate(instant: Date, timeZone: string): { iso: string; year: 
   }
 
   const values = new Map(parts.map(({ type, value }) => [type, value]));
-  const year = Number(values.get("year"));
+  const displayYear = Number(values.get("year"));
+  const year = values.get("era") === "BC" ? 1 - displayYear : displayYear;
   const month = Number(values.get("month"));
   const day = Number(values.get("day"));
   return { iso: formatIsoDate(year, month, day), year };
