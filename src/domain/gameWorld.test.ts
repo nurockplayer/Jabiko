@@ -298,6 +298,77 @@ describe("game world domain", () => {
     expect(validateGameWorld(createWorld())).toEqual({ valid: true, errors: [] });
   });
 
+  it("bounds conditional scenario traversal by graph size, not world moment count", () => {
+    const base = createWorld();
+    const stepCount = 65;
+    const scenario: ConversationScenario = {
+      ...shortScenario,
+      length: "long",
+      startStepId: "step-0",
+      steps: [
+        ...Array.from({ length: stepCount }, (_, index) => ({
+          id: `step-${index}`,
+          kind: "learner_response" as const,
+          prompt: { textZh: `回答第 ${index + 1} 句。` },
+          responseExamples: [{ id: `example-${index}`, kind: "suggested" as const, japanese: "こんにちは。" }],
+          branches: [{ id: "go", nextStepId: index + 1 === stepCount ? "complete" : `step-${index + 1}` }]
+        })),
+        { id: "complete", kind: "completion" as const, summary: { textZh: "完成對話。" } }
+      ]
+    };
+    const branchIds = Object.fromEntries(Array.from({ length: stepCount }, (_, index) => [`example-${index}`, "go"]));
+    const definition = makeSessionDefinition(scenario, {}, branchIds);
+    const world: GameWorldDefinition = {
+      ...base,
+      sessionDefinitions: [definition, base.sessionDefinitions[1]],
+      moments: base.moments.map((moment) => moment.id === "station-meet"
+        ? {
+          ...moment,
+          conditionalOutcomes: moment.conditionalOutcomes.map((outcome) => ({
+            ...outcome,
+            responseRequirement: { ...outcome.responseRequirement, stepId: `step-${stepCount - 1}` }
+          }))
+        }
+        : moment)
+    };
+
+    const runtime = createConversationSession(world.sessionDefinitions);
+    runtime.select(scenario.id);
+    runtime.start();
+    for (let index = 0; index < stepCount; index += 1) {
+      expect(runtime.submitResponse(`example-${index}`)).not.toBeNull();
+      expect(runtime.continue()).toBe(true);
+    }
+    const completed = runtime.getState();
+    expect(completed.phase).toBe("complete");
+    expect(validateGameWorld(world)).toEqual({ valid: true, errors: [] });
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", completed).applied).toBe(true);
+  });
+
+  it("counts only unique world states at the finite reachability budget", () => {
+    const makeIndependentWorld = (count: number): GameWorldDefinition => {
+      const base = createWorld();
+      const template = base.moments[0];
+      const moments = Array.from({ length: count }, (_, index): WorldMoment => ({
+        ...template,
+        id: `independent-${index}`,
+        availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [] },
+        onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+        conditionalOutcomes: [],
+        completesArc: index === 0
+      }));
+      return {
+        ...base,
+        moments,
+        initialState: { ...base.initialState, unlockedMomentIds: moments.map(({ id }) => id) },
+        entryMomentIds: []
+      };
+    };
+
+    expect(validateGameWorld(makeIndependentWorld(8))).toEqual({ valid: true, errors: [] });
+    expect(validateGameWorld(makeIndependentWorld(9)).errors).toContainEqual({ code: "state_budget_exceeded" });
+  });
+
   it("allows the entry list to omit other initially available moments", () => {
     const world = addInitialEntryMoment({
       id: "unlisted-initial-moment",

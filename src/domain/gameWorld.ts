@@ -317,8 +317,7 @@ interface PossibleMomentOutcomeSets {
 
 function getPossibleMomentOutcomeSets(
   world: GameWorldDefinition,
-  moment: WorldMoment,
-  stateBudget: number
+  moment: WorldMoment
 ): PossibleMomentOutcomeSets {
   if (moment.conditionalOutcomes.length === 0) return { outcomes: [[]], stateBudgetExceeded: false };
   const requirementStepId = moment.conditionalOutcomes[0].responseRequirement.stepId;
@@ -339,6 +338,7 @@ function getPossibleMomentOutcomeSets(
   const pending: { stepId: string; requirementQuality?: ConversationContinuationQuality }[] = [
     { stepId: scenario.startStepId }
   ];
+  const scenarioStateBudget = scenario.steps.length * (1 + Object.keys(CONTINUATION_RANK).length);
   const visited = new Set<string>();
   const outcomeSets = new Map<string, readonly GameWorldConditionalOutcome[]>();
   while (pending.length > 0) {
@@ -346,7 +346,7 @@ function getPossibleMomentOutcomeSets(
     if (current == null) continue;
     const pathKey = JSON.stringify([current.stepId, current.requirementQuality ?? null]);
     if (visited.has(pathKey)) continue;
-    if (visited.size >= stateBudget) return { outcomes: [...outcomeSets.values()], stateBudgetExceeded: true };
+    if (visited.size >= scenarioStateBudget) return { outcomes: [...outcomeSets.values()], stateBudgetExceeded: true };
     visited.add(pathKey);
 
     const step = stepsById.get(current.stepId);
@@ -395,7 +395,7 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
   const stateBudget = Math.max(64, world.moments.length * world.moments.length * 4);
   const possibleOutcomesByMoment = new Map(world.moments.map((moment) => [
     moment.id,
-    getPossibleMomentOutcomeSets(world, moment, stateBudget)
+    getPossibleMomentOutcomeSets(world, moment)
   ]));
 
   const transition = (
@@ -419,11 +419,16 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
     )
   });
 
-  while (pending.length > 0 && visited.size < stateBudget) {
+  let stateBudgetExceeded = false;
+  while (pending.length > 0) {
     const state = pending.pop();
     if (state == null) continue;
     const key = canonicalStateKey(state);
     if (visited.has(key)) continue;
+    if (visited.size >= stateBudget) {
+      stateBudgetExceeded = true;
+      break;
+    }
     visited.add(key);
     if (state.completedMomentIds.some((id) => completingMomentIds.has(id))) {
       terminal.add(key);
@@ -443,7 +448,7 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
   }
 
   if (
-    pending.length > 0 ||
+    stateBudgetExceeded ||
     [...possibleOutcomesByMoment.values()].some(({ stateBudgetExceeded }) => stateBudgetExceeded)
   ) errors.push({ code: "state_budget_exceeded" });
 
