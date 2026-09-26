@@ -407,6 +407,7 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
     const moment = momentsById.get(momentId);
     if (moment == null) continue;
     let contradictory = false;
+    if (hasContradictoryRelationshipPreconditions(moment, stagesById)) contradictory = true;
     if (!initiallyUnlockedLocations.has(moment.locationId)) contradictory = true;
     if (moment.availability.requiredCompletedMomentIds.includes(moment.id)) contradictory = true;
     if (moment.availability.requiredCompletedMomentIds.some((id) => !initiallyCompletedMoments.has(id))) {

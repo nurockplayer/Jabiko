@@ -473,6 +473,47 @@ describe("game world domain", () => {
     });
   });
 
+  it("rejects a completed moment whose own stage conflicts with an exact same-NPC prerequisite", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? {
+        ...moment,
+        availability: { ...moment.availability, requiredRelationshipStageIds: ["aki-familiar"] }
+      }
+      : moment);
+
+    expect(validateGameWorld({ ...world, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects incompatible cross-NPC exact prerequisites despite a higher initial stage", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const prologue: WorldMoment = {
+      id: "cross-incompatible-prologue",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: mediumScenario.id,
+      objective: learnerText("両立しない別人物の関係前提を持つ導入。"),
+      availability: {
+        requiredCompletedMomentIds: [],
+        requiredRelationshipStageIds: ["aki-new", "aki-familiar"]
+      },
+      onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+      conditionalOutcomes: []
+    };
+    const initialState = {
+      ...world.initialState,
+      completedMomentIds: [...world.initialState.completedMomentIds, prologue.id],
+      unlockedMomentIds: [...world.initialState.unlockedMomentIds, prologue.id]
+    };
+
+    expect(validateGameWorld({ ...world, moments: [...world.moments, prologue], initialState }).errors)
+      .toContainEqual({ code: "contradictory_initial_state", referenceId: prologue.id });
+  });
+
   it("allows distinct authored prologues with mutual completion prerequisites", () => {
     const world = createWorldWithAuthoredStationPrologue();
     const makePrologue = (id: string, prerequisiteId: string): WorldMoment => ({
