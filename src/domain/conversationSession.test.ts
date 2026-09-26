@@ -607,6 +607,68 @@ describe("conversation session definition validation", () => {
       ])
     ).toThrow();
   });
+
+  it("keeps response bindings distinct when identifiers contain the binding delimiter", () => {
+    const [firstBinding, secondBinding, thirdBinding] = weekendMediumDefinition.responses;
+    const collisionScenario: ConversationScenario = {
+      ...weekendMediumScenario,
+      steps: weekendMediumScenario.steps.map((step) => {
+        if (step.kind === "partner_line") {
+          const nextStepId = step.nextStepId === "medium-response-1"
+            ? "a"
+            : step.nextStepId === "medium-response-2" ? "a::b" : step.nextStepId;
+          return { ...step, nextStepId };
+        }
+        if (step.kind !== "learner_response") return step;
+        if (step.id === "medium-response-1") {
+          return {
+            ...step,
+            id: "a",
+            responseExamples: step.responseExamples.map((example) => ({ ...example, id: "b::c" }))
+          };
+        }
+        if (step.id === "medium-response-2") {
+          return {
+            ...step,
+            id: "a::b",
+            responseExamples: [
+              { id: "c", kind: "accepted", japanese: "追加の未結合例です。" },
+              ...step.responseExamples.map((example) => ({ ...example, id: "other" }))
+            ]
+          };
+        }
+        return step;
+      })
+    };
+    const unboundCollision: ConversationSessionDefinition = {
+      scenario: collisionScenario,
+      responses: [
+        { ...firstBinding, stepId: "a", responseExampleId: "b::c" },
+        { ...secondBinding, stepId: "a::b", responseExampleId: "other" },
+        thirdBinding
+      ]
+    };
+    const targetBinding: ConversationSessionResponseBinding = {
+      ...secondBinding,
+      stepId: "a::b",
+      responseExampleId: "c",
+      feedback: { ...secondBinding.feedback, id: "medium-collision-feedback", responseJapanese: "追加の未結合例です。" }
+    };
+
+    const missing = validateConversationSessionDefinitions([unboundCollision]);
+    expect(missing.valid).toBe(false);
+    expect(missing.errors).toContainEqual({
+      code: "unbound_response_example",
+      scenarioId: collisionScenario.id,
+      stepId: "a::b",
+      referenceId: "c"
+    });
+    expect(() => createConversationSession([unboundCollision])).toThrow();
+    expect(validateConversationSessionDefinitions([{
+      ...unboundCollision,
+      responses: [...unboundCollision.responses, targetBinding]
+    }])).toEqual({ valid: true, errors: [] });
+  });
 });
 
 describe("conversation session runtime", () => {

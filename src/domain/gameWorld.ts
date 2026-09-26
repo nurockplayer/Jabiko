@@ -590,7 +590,7 @@ function replayCompletedSession(
 
   const stepsById = new Map(scenario.steps.map((step) => [step.id, step]));
   const responsesByKey = new Map(definition.responses.map((binding) => [
-    `${binding.stepId}::${binding.responseExampleId}`,
+    JSON.stringify([binding.stepId, binding.responseExampleId]),
     binding
   ]));
   const qualities = new Map<string, ConversationContinuationQuality>();
@@ -622,8 +622,13 @@ function replayCompletedSession(
       typeof record.feedback !== "object"
     ) return null;
     responseIndex += 1;
-    const binding = responsesByKey.get(`${record.stepId}::${record.responseExampleId}`);
-    if (binding == null || record.feedback.source !== "curated") return null;
+    const binding = responsesByKey.get(JSON.stringify([record.stepId, record.responseExampleId]));
+    if (
+      binding == null ||
+      binding.stepId !== record.stepId ||
+      binding.responseExampleId !== record.responseExampleId ||
+      record.feedback.source !== "curated"
+    ) return null;
     const trustedFeedback = evaluateCuratedConversationResponse(binding.feedback);
     if (
       record.feedback.responseId !== trustedFeedback.responseId ||

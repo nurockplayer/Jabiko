@@ -940,6 +940,88 @@ describe("game world domain", () => {
     });
   });
 
+  it("does not replay a trace through colliding step/example identifiers", () => {
+    const world = createWorld();
+    const collisionScenario: ConversationScenario = {
+      ...shortScenario,
+      startStepId: "a",
+      steps: [
+        {
+          id: "a",
+          kind: "learner_response",
+          prompt: { textZh: "回應第一句。" },
+          responseExamples: [{ id: "b::c", kind: "suggested", japanese: "こんにちは。" }],
+          branches: [{ id: "go", nextStepId: "a::b" }]
+        },
+        {
+          id: "a::b",
+          kind: "learner_response",
+          prompt: { textZh: "補充一句。" },
+          responseExamples: [
+            { id: "c", kind: "accepted", japanese: "別の未結合例です。" },
+            { id: "bound", kind: "accepted", japanese: "そうですね。" }
+          ],
+          branches: [{ id: "go", nextStepId: "complete" }]
+        },
+        { id: "complete", kind: "completion", summary: { textZh: "對話完成。" } }
+      ]
+    };
+    const generatedDefinition = makeSessionDefinition(
+      collisionScenario,
+      { "b::c": "enriches_thread", c: "dead_end", bound: "dead_end" },
+      { "b::c": "go", c: "go", bound: "go" }
+    );
+    const collisionDefinition = {
+      ...generatedDefinition,
+      responses: [
+        ...generatedDefinition.responses.filter(({ responseExampleId }) => responseExampleId === "c"),
+        ...generatedDefinition.responses.filter(({ responseExampleId }) => responseExampleId !== "c")
+      ]
+    };
+    const collisionWorld: GameWorldDefinition = {
+      ...world,
+      sessionDefinitions: [collisionDefinition, world.sessionDefinitions[1]],
+      moments: world.moments.map((moment) => moment.id === "station-meet"
+        ? {
+          ...moment,
+          conditionalOutcomes: moment.conditionalOutcomes.map((outcome) => ({
+            ...outcome,
+            responseRequirement: { ...outcome.responseRequirement, stepId: "a" }
+          }))
+        }
+        : moment)
+    };
+    const runtime = createConversationSession(collisionWorld.sessionDefinitions);
+    runtime.select(shortScenario.id);
+    runtime.start();
+    expect(runtime.submitResponse("b::c")).not.toBeNull();
+    expect(runtime.continue()).toBe(true);
+    expect(runtime.getState().step?.id).toBe("a::b");
+    expect(runtime.submitResponse("c")).not.toBeNull();
+    expect(runtime.continue()).toBe(true);
+    const validRuntimeSession = runtime.getState();
+    const records = validRuntimeSession.summary?.responses;
+    expect(records).toHaveLength(2);
+    const forgedSession = withResponseRecords(validRuntimeSession, [
+      records![0],
+      { ...records![1], feedback: records![0].feedback }
+    ]);
+
+    expect(validateGameWorld(collisionWorld)).toEqual({ valid: true, errors: [] });
+    expect(applyCompletedConversationSession(
+      collisionWorld,
+      collisionWorld.initialState,
+      "station-meet",
+      validRuntimeSession
+    ).applied).toBe(true);
+    expect(applyCompletedConversationSession(
+      collisionWorld,
+      collisionWorld.initialState,
+      "station-meet",
+      forgedSession
+    )).toMatchObject({ applied: false, reason: "rejected_session" });
+  });
+
   it("preserves unrelated NPC and location state while applying one transition", () => {
     const world = createWorld();
     const before = structuredClone(world.initialState);

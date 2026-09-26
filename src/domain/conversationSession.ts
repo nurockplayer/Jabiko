@@ -50,6 +50,14 @@ export interface ConversationSessionDefinitionValidation {
   errors: ConversationSessionDefinitionError[];
 }
 
+function responseBindingKey(stepId: string, responseExampleId: string): string {
+  return JSON.stringify([stepId, responseExampleId]);
+}
+
+function scenarioResponseBindingKey(scenarioId: string, stepId: string, responseExampleId: string): string {
+  return JSON.stringify([scenarioId, stepId, responseExampleId]);
+}
+
 function collectReachableStepIds(scenario: ConversationScenario): Set<string> {
   const stepsById = new Map(scenario.steps.map((step) => [step.id, step]));
   const reachableStepIds = new Set<string>();
@@ -152,8 +160,8 @@ export function validateConversationSessionDefinitions(
         });
       }
 
-      const bindingKey = `${scenario.id}::${step.id}::${example.id}`;
-      boundResponseKeys.add(`${step.id}::${example.id}`);
+      const bindingKey = scenarioResponseBindingKey(scenario.id, step.id, example.id);
+      boundResponseKeys.add(responseBindingKey(step.id, example.id));
       if (seenBindings.has(bindingKey)) {
         errors.push({
           code: "duplicate_binding",
@@ -199,7 +207,7 @@ export function validateConversationSessionDefinitions(
       const step = stepsById.get(stepId);
       if (step?.kind !== "learner_response") continue;
       for (const example of step.responseExamples) {
-        if (boundResponseKeys.has(`${step.id}::${example.id}`)) continue;
+        if (boundResponseKeys.has(responseBindingKey(step.id, example.id))) continue;
         errors.push({
           code: "unbound_response_example",
           scenarioId: scenario.id,
