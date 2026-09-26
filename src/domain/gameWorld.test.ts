@@ -1,0 +1,1754 @@
+import { describe, expect, it } from "vitest";
+import { evaluateCuratedConversationResponse, type CuratedConversationResponse } from "./conversationFeedback";
+import type { ConversationScenario } from "./conversationScenario";
+import type {
+  ConversationSessionResponseRecord,
+  ConversationSessionState
+} from "./conversationSession";
+import { createConversationSession, type ConversationSessionDefinition } from "./conversationSession";
+import {
+  applyCompletedConversationSession,
+  getAvailableWorldMoments,
+  localizeGameWorldText,
+  validateGameWorld,
+  type GameWorldDefinition,
+  type RelationshipStage,
+  type WorldMoment
+} from "./gameWorld";
+
+const shortScenario: ConversationScenario = {
+  id: "station-greeting",
+  topic: "weekend",
+  world: "everyday-life",
+  situation: { textZh: "車站遇到熟人。", textI18n: { en: "Meeting someone at the station.", ja: "駅で知り合いに会う。" } },
+  relationship: {
+    learnerRole: "acquaintance",
+    partnerRole: "classmate",
+    context: { textZh: "剛開始熟悉的同學。", textI18n: { en: "A classmate the learner is getting to know.", ja: "知り合い始めたクラスメート。" } }
+  },
+  length: "short",
+  primarySkills: ["open"],
+  difficulty: {
+    linguisticComplexity: "basic",
+    partnerSupport: "supportive",
+    relationshipDistance: "neutral",
+    topicDepth: "concrete",
+    interactionPressure: "low"
+  },
+  objective: { textZh: "自然地開始對話。" },
+  instruction: { textZh: "回應對方的問候。" },
+  startStepId: "opening-response",
+  steps: [
+    {
+      id: "opening-response",
+      kind: "learner_response",
+      prompt: { textZh: "回應對方。" },
+      responseExamples: [{ id: "opening", kind: "suggested", japanese: "こんにちは。" }],
+      branches: [
+        { id: "finish", nextStepId: "complete" },
+        { id: "continue", nextStepId: "follow-up-response" }
+      ]
+    },
+    {
+      id: "follow-up-response",
+      kind: "learner_response",
+      prompt: { textZh: "再補充一句。" },
+      responseExamples: [{ id: "follow-up", kind: "accepted", japanese: "そうですね。" }],
+      branches: [{ id: "finish", nextStepId: "complete" }]
+    },
+    { id: "complete", kind: "completion", summary: { textZh: "對話完成。" } }
+  ]
+};
+
+const mediumScenario: ConversationScenario = {
+  ...shortScenario,
+  id: "cafe-follow-up",
+  length: "medium",
+  primarySkills: ["share", "bounce"],
+  relationship: {
+    ...shortScenario.relationship,
+    context: { textZh: "幾次聊天後熟悉的同學。", textI18n: { en: "A classmate familiar after several chats.", ja: "何度か話して親しくなったクラスメート。" } }
+  }
+};
+
+function learnerText(textZh: string) {
+  return { textZh, textI18n: { en: "English text.", ja: "日本語のテキスト。" } };
+}
+
+function createWorld(): GameWorldDefinition {
+  return {
+    id: "first-day",
+    locations: [
+      { id: "station", name: learnerText("車站"), description: learnerText("附近的車站。"), category: "transit" },
+      { id: "cafe", name: learnerText("咖啡店"), description: learnerText("安靜的咖啡店。"), category: "food" },
+      { id: "park", name: learnerText("公園"), description: learnerText("安靜的公園。"), category: "community" }
+    ],
+    npcs: [
+      {
+        id: "aki",
+        displayName: learnerText("あき"),
+        presentation: learnerText("在車站遇到的同學。"),
+        role: "classmate",
+        defaultRelationshipContext: learnerText("剛認識的同學。"),
+        relationshipStageIds: ["aki-new", "aki-familiar"]
+      },
+      {
+        id: "ren",
+        displayName: learnerText("れん"),
+        presentation: learnerText("常去咖啡店的同學。"),
+        role: "classmate",
+        defaultRelationshipContext: learnerText("同一個社團的同學。"),
+        relationshipStageIds: ["ren-new"]
+      }
+    ],
+    relationshipStages: [
+      { id: "aki-new", npcId: "aki", order: 0, context: learnerText("剛認識。") },
+      { id: "aki-familiar", npcId: "aki", order: 1, context: learnerText("已經聊過幾次。") },
+      { id: "ren-new", npcId: "ren", order: 0, context: learnerText("剛認識。") }
+    ],
+    sessionDefinitions: [makeSessionDefinition(shortScenario), makeSessionDefinition(mediumScenario)],
+    moments: [
+      {
+        id: "station-meet",
+        locationId: "station",
+        npcId: "aki",
+        relationshipStageId: "aki-new",
+        scenarioId: shortScenario.id,
+        objective: learnerText("和あき打招呼。"),
+        availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [] },
+        onCompletion: {
+          unlockLocationIds: ["cafe"],
+          unlockMomentIds: ["cafe-chat"],
+          relationshipStageUpdates: [{ npcId: "aki", relationshipStageId: "aki-familiar" }]
+        },
+        conditionalOutcomes: [
+          {
+            id: "enrich-the-thread",
+            responseRequirement: { stepId: "opening-response", minimumContinuationQuality: "opens_thread" },
+            unlockMomentIds: ["richer-chat"]
+          }
+        ]
+      },
+      {
+        id: "cafe-chat",
+        locationId: "cafe",
+        npcId: "aki",
+        relationshipStageId: "aki-familiar",
+        scenarioId: mediumScenario.id,
+        objective: learnerText("週末の話を続ける。"),
+        availability: { requiredCompletedMomentIds: ["station-meet"], requiredRelationshipStageIds: ["aki-familiar"] },
+        onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+        conditionalOutcomes: [],
+        completesArc: true
+      },
+      {
+        id: "richer-chat",
+        locationId: "cafe",
+        npcId: "aki",
+        relationshipStageId: "aki-familiar",
+        scenarioId: mediumScenario.id,
+        objective: learnerText("話題をさらに広げる。"),
+        availability: { requiredCompletedMomentIds: ["station-meet"], requiredRelationshipStageIds: ["aki-familiar"] },
+        onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+        conditionalOutcomes: [],
+        completesArc: true
+      }
+    ],
+    initialState: {
+      completedMomentIds: [],
+      relationshipStages: { aki: "aki-new", ren: "ren-new" },
+      unlockedLocationIds: ["station"],
+      unlockedMomentIds: ["station-meet"],
+      outcomeReferences: []
+    },
+    entryMomentIds: ["station-meet"]
+  };
+}
+
+function createWorldWithAuthoredStationPrologue(): GameWorldDefinition {
+  const world = createWorld();
+  const alternateCompletion: WorldMoment = {
+    id: "alternate-completion",
+    locationId: "station",
+    npcId: "ren",
+    relationshipStageId: "ren-new",
+    scenarioId: mediumScenario.id,
+    objective: learnerText("別の道から物語を終える。"),
+    availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [] },
+    onCompletion: {
+      unlockLocationIds: ["cafe"],
+      unlockMomentIds: ["cafe-chat", "richer-chat"],
+      relationshipStageUpdates: []
+    },
+    conditionalOutcomes: [],
+    completesArc: true
+  };
+  return {
+    ...world,
+    moments: [...world.moments, alternateCompletion],
+    initialState: {
+      completedMomentIds: ["station-meet"],
+      relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+      unlockedLocationIds: ["station", "cafe"],
+      unlockedMomentIds: ["station-meet", "cafe-chat", "richer-chat", "alternate-completion"],
+      outcomeReferences: [{ momentId: "station-meet", outcomeId: "enrich-the-thread" }]
+    },
+    entryMomentIds: []
+  };
+}
+
+function addInitialEntryMoment(
+  overrides: Partial<WorldMoment> & Pick<WorldMoment, "id" | "locationId" | "npcId" | "relationshipStageId" | "scenarioId">,
+  advertised = true,
+  initiallyUnlockLocation = true
+): GameWorldDefinition {
+  const world = createWorld();
+  const moment: WorldMoment = {
+    ...world.moments[1],
+    ...overrides,
+    objective: learnerText("新しい場面を始める。"),
+    availability: overrides.availability ?? { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [] },
+    onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+    conditionalOutcomes: [],
+    completesArc: true
+  };
+  const firstMoment = world.moments[0];
+  return {
+    ...world,
+    moments: [
+      {
+        ...firstMoment,
+        onCompletion: {
+          ...firstMoment.onCompletion,
+          unlockMomentIds: [...firstMoment.onCompletion.unlockMomentIds, moment.id]
+        }
+      },
+      ...world.moments.slice(1),
+      moment
+    ],
+    initialState: {
+      ...world.initialState,
+      unlockedLocationIds: overrides.locationId === "cafe" && initiallyUnlockLocation
+        ? [...world.initialState.unlockedLocationIds, "cafe"]
+        : world.initialState.unlockedLocationIds,
+      unlockedMomentIds: [...world.initialState.unlockedMomentIds, moment.id]
+    },
+    entryMomentIds: advertised ? [...world.entryMomentIds, moment.id] : world.entryMomentIds
+  };
+}
+
+const continuationFeedback = (
+  responseId: string,
+  responseJapanese: string,
+  quality: "dead_end" | "opens_thread" | "enriches_thread"
+) => evaluateCuratedConversationResponse({
+  id: responseId,
+  responseJapanese,
+  context: { situation: "At a station.", relationship: "Classmates.", discourse: "The learner responds." },
+  feedback: { languageQuality: "natural", continuation: quality, registerContextFit: "fits", composition: [], authorRationale: {} }
+} satisfies CuratedConversationResponse<"open">);
+
+function makeSessionDefinition(
+  scenario: ConversationScenario,
+  qualities: Readonly<Record<string, "dead_end" | "opens_thread" | "enriches_thread">> = {},
+  branchIds: Readonly<Record<string, string>> = {}
+): ConversationSessionDefinition {
+  return {
+    scenario,
+    responses: scenario.steps.flatMap((step) => step.kind === "learner_response"
+      ? step.responseExamples.map((example) => ({
+        stepId: step.id,
+        responseExampleId: example.id,
+        branchId: branchIds[example.id] ?? (example.id === "opening" ? "continue" : "finish"),
+        feedback: {
+          id: `feedback-${scenario.id}-${example.id}`,
+          responseJapanese: example.japanese,
+          context: { situation: "At a station.", relationship: "Classmates.", discourse: "The learner responds." },
+          feedback: {
+            languageQuality: "natural",
+            continuation: qualities[example.id] ?? "enriches_thread",
+            registerContextFit: "fits",
+            composition: [],
+            authorRationale: {}
+          }
+        } satisfies CuratedConversationResponse<"open">
+      }))
+      : [])
+  };
+}
+
+function makeDefinitionWithDeadEndAndOpeningAlternative(): ConversationSessionDefinition {
+  const scenario: ConversationScenario = {
+    ...shortScenario,
+    steps: shortScenario.steps.map((step) => step.id === "opening-response" && step.kind === "learner_response"
+      ? {
+        ...step,
+        responseExamples: [...step.responseExamples, { id: "opening-rich", kind: "accepted", japanese: "本当ですね。" }]
+      }
+      : step)
+  };
+  return makeSessionDefinition(scenario, { opening: "dead_end" }, { "opening-rich": "continue" });
+}
+
+function responseRecord(
+  stepId: string,
+  exampleId: string,
+  quality: "dead_end" | "opens_thread" | "enriches_thread"
+): ConversationSessionResponseRecord {
+  return {
+    stepId,
+    responseExampleId: exampleId,
+    feedback: continuationFeedback(`feedback-${shortScenario.id}-${exampleId}`, exampleId === "opening" ? "こんにちは。" : "そうですね。", quality)
+  };
+}
+
+function withResponseRecords(
+  session: ConversationSessionState,
+  responses: readonly ConversationSessionResponseRecord[]
+): ConversationSessionState {
+  return { ...session, summary: { ...session.summary!, responses } };
+}
+
+function makeCompletedSession(
+  scenarioId = shortScenario.id,
+  responseExampleIds: readonly string[] = ["opening", "follow-up"],
+  qualities: Readonly<Record<string, "dead_end" | "opens_thread" | "enriches_thread">> = {}
+): ConversationSessionState {
+  const scenario = scenarioId === mediumScenario.id ? mediumScenario : shortScenario;
+  const definition = makeSessionDefinition(scenario, qualities);
+  const session = createConversationSession([definition]);
+  session.select(scenario.id);
+  session.start();
+  for (const responseExampleId of responseExampleIds) {
+    if (session.getState().step?.kind !== "learner_response") throw new Error("Expected learner response step.");
+    if (session.submitResponse(responseExampleId) == null || !session.continue()) throw new Error("Could not advance test session.");
+  }
+  return session.getState();
+}
+
+describe("game world domain", () => {
+  it("validates a finite world with two locations, two NPCs, and short/medium scenario bindings", () => {
+    expect(validateGameWorld(createWorld())).toEqual({ valid: true, errors: [] });
+  });
+
+  it("bounds conditional scenario traversal by graph size, not world moment count", () => {
+    const base = createWorld();
+    const stepCount = 65;
+    const scenario: ConversationScenario = {
+      ...shortScenario,
+      length: "long",
+      startStepId: "step-0",
+      steps: [
+        ...Array.from({ length: stepCount }, (_, index) => ({
+          id: `step-${index}`,
+          kind: "learner_response" as const,
+          prompt: { textZh: `回答第 ${index + 1} 句。` },
+          responseExamples: [{ id: `example-${index}`, kind: "suggested" as const, japanese: "こんにちは。" }],
+          branches: [{ id: "go", nextStepId: index + 1 === stepCount ? "complete" : `step-${index + 1}` }]
+        })),
+        { id: "complete", kind: "completion" as const, summary: { textZh: "完成對話。" } }
+      ]
+    };
+    const branchIds = Object.fromEntries(Array.from({ length: stepCount }, (_, index) => [`example-${index}`, "go"]));
+    const definition = makeSessionDefinition(scenario, {}, branchIds);
+    const world: GameWorldDefinition = {
+      ...base,
+      sessionDefinitions: [definition, base.sessionDefinitions[1]],
+      moments: base.moments.map((moment) => moment.id === "station-meet"
+        ? {
+          ...moment,
+          conditionalOutcomes: moment.conditionalOutcomes.map((outcome) => ({
+            ...outcome,
+            responseRequirement: { ...outcome.responseRequirement, stepId: `step-${stepCount - 1}` }
+          }))
+        }
+        : moment)
+    };
+
+    const runtime = createConversationSession(world.sessionDefinitions);
+    runtime.select(scenario.id);
+    runtime.start();
+    for (let index = 0; index < stepCount; index += 1) {
+      expect(runtime.submitResponse(`example-${index}`)).not.toBeNull();
+      expect(runtime.continue()).toBe(true);
+    }
+    const completed = runtime.getState();
+    expect(completed.phase).toBe("complete");
+    expect(validateGameWorld(world)).toEqual({ valid: true, errors: [] });
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", completed).applied).toBe(true);
+  });
+
+  it("counts only unique world states at the finite reachability budget", () => {
+    const makeIndependentWorld = (count: number): GameWorldDefinition => {
+      const base = createWorld();
+      const template = base.moments[0];
+      const moments = Array.from({ length: count }, (_, index): WorldMoment => ({
+        ...template,
+        id: `independent-${index}`,
+        availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [] },
+        onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+        conditionalOutcomes: [],
+        completesArc: index === 0
+      }));
+      return {
+        ...base,
+        moments,
+        initialState: { ...base.initialState, unlockedMomentIds: moments.map(({ id }) => id) },
+        entryMomentIds: []
+      };
+    };
+
+    expect(validateGameWorld(makeIndependentWorld(8))).toEqual({ valid: true, errors: [] });
+    expect(validateGameWorld(makeIndependentWorld(9)).errors).toContainEqual({ code: "state_budget_exceeded" });
+  });
+
+  it("allows the entry list to omit other initially available moments", () => {
+    const world = addInitialEntryMoment({
+      id: "unlisted-initial-moment",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: shortScenario.id
+    }, false);
+
+    expect(validateGameWorld(world)).toEqual({ valid: true, errors: [] });
+    expect(world.entryMomentIds).not.toContain("unlisted-initial-moment");
+    expect(getAvailableWorldMoments(world, world.initialState).map(({ id }) => id))
+      .toContain("unlisted-initial-moment");
+  });
+
+  it("rejects a structurally valid state with a fabricated conditional unlock", () => {
+    const world = createWorld();
+    const reachableEnrichedState = applyCompletedConversationSession(
+      world,
+      world.initialState,
+      "station-meet",
+      makeCompletedSession()
+    );
+    expect(reachableEnrichedState.applied).toBe(true);
+
+    const fabricated = {
+      ...reachableEnrichedState.state,
+      outcomeReferences: []
+    };
+    expect(getAvailableWorldMoments(world, fabricated)).toEqual([]);
+    expect(applyCompletedConversationSession(
+      world,
+      fabricated,
+      "richer-chat",
+      makeCompletedSession(mediumScenario.id)
+    )).toEqual({ applied: false, state: fabricated, reason: "invalid_state" });
+  });
+
+  it("accepts a valid authored initial state with a pre-completed prologue moment", () => {
+    const world = createWorld();
+    const prologueWorld: GameWorldDefinition = {
+      ...world,
+      initialState: {
+        ...world.initialState,
+        completedMomentIds: ["station-meet"],
+        relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: ["station-meet", "cafe-chat", "richer-chat"],
+        outcomeReferences: [{ momentId: "station-meet", outcomeId: "enrich-the-thread" }]
+      },
+      entryMomentIds: []
+    };
+
+    expect(validateGameWorld(prologueWorld)).toEqual({ valid: true, errors: [] });
+  });
+
+  it("rejects an initially completed moment that requires itself", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? {
+        ...moment,
+        availability: { ...moment.availability, requiredCompletedMomentIds: [moment.id] }
+      }
+      : moment);
+
+    expect(validateGameWorld({ ...world, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects a completed moment whose own stage conflicts with an exact same-NPC prerequisite", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? {
+        ...moment,
+        availability: { ...moment.availability, requiredRelationshipStageIds: ["aki-familiar"] }
+      }
+      : moment);
+
+    expect(validateGameWorld({ ...world, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects incompatible cross-NPC exact prerequisites despite a higher initial stage", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const prologue: WorldMoment = {
+      id: "cross-incompatible-prologue",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: mediumScenario.id,
+      objective: learnerText("両立しない別人物の関係前提を持つ導入。"),
+      availability: {
+        requiredCompletedMomentIds: [],
+        requiredRelationshipStageIds: ["aki-new", "aki-familiar"]
+      },
+      onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+      conditionalOutcomes: []
+    };
+    const initialState = {
+      ...world.initialState,
+      completedMomentIds: [...world.initialState.completedMomentIds, prologue.id],
+      unlockedMomentIds: [...world.initialState.unlockedMomentIds, prologue.id]
+    };
+
+    expect(validateGameWorld({ ...world, moments: [...world.moments, prologue], initialState }).errors)
+      .toContainEqual({ code: "contradictory_initial_state", referenceId: prologue.id });
+  });
+
+  it("allows distinct authored prologues with mutual completion prerequisites", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const makePrologue = (id: string, prerequisiteId: string): WorldMoment => ({
+      id,
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: mediumScenario.id,
+      objective: learnerText("相互前提を持つ導入。"),
+      availability: { requiredCompletedMomentIds: [prerequisiteId], requiredRelationshipStageIds: [] },
+      onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+      conditionalOutcomes: []
+    });
+    const cycleA = makePrologue("mutual-prologue-a", "mutual-prologue-b");
+    const cycleB = makePrologue("mutual-prologue-b", "mutual-prologue-a");
+    const initialState = {
+      ...world.initialState,
+      completedMomentIds: [...world.initialState.completedMomentIds, cycleA.id, cycleB.id],
+      unlockedMomentIds: [...world.initialState.unlockedMomentIds, cycleA.id, cycleB.id]
+    };
+
+    expect(validateGameWorld({ ...world, moments: [...world.moments, cycleA, cycleB], initialState }))
+      .toEqual({ valid: true, errors: [] });
+  });
+
+  it("still rejects an ordinary uncompleted moment that requires itself", () => {
+    const world = addInitialEntryMoment({
+      id: "ordinary-self-prerequisite",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: shortScenario.id,
+      availability: { requiredCompletedMomentIds: ["ordinary-self-prerequisite"], requiredRelationshipStageIds: [] }
+    });
+
+    expect(validateGameWorld(world).errors).toContainEqual({
+      code: "unsatisfiable_moment_precondition",
+      entityId: "ordinary-self-prerequisite"
+    });
+  });
+
+  it("rejects initial outcome sets that cannot come from trusted session results", () => {
+    const world = createWorld();
+    const makePrologue = (
+      definition: ConversationSessionDefinition,
+      outcomeReferences: GameWorldDefinition["initialState"]["outcomeReferences"]
+    ): GameWorldDefinition => ({
+      ...world,
+      sessionDefinitions: [definition, world.sessionDefinitions[1]],
+      initialState: {
+        ...world.initialState,
+        completedMomentIds: ["station-meet"],
+        relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: ["station-meet", "cafe-chat", "richer-chat"],
+        outcomeReferences
+      },
+      entryMomentIds: []
+    });
+    const impossibleOutcome = makePrologue(
+      makeSessionDefinition(shortScenario, { opening: "dead_end", "follow-up": "dead_end" }),
+      [{ momentId: "station-meet", outcomeId: "enrich-the-thread" }]
+    );
+    expect(validateGameWorld(impossibleOutcome).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("requires mandatory conditional outcomes in a completed initial moment", () => {
+    const world = createWorld();
+    const missingMandatoryOutcome: GameWorldDefinition = {
+      ...world,
+      sessionDefinitions: [makeSessionDefinition(shortScenario, { opening: "opens_thread" }), world.sessionDefinitions[1]],
+      initialState: {
+        ...world.initialState,
+        completedMomentIds: ["station-meet"],
+        relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: ["station-meet", "cafe-chat", "richer-chat"],
+        outcomeReferences: []
+      },
+      entryMomentIds: []
+    };
+    expect(validateGameWorld(missingMandatoryOutcome).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+
+  });
+
+  it("accepts a completed initial moment with no conditional outcomes", () => {
+    const world = createWorld();
+    const noConditionalOutcomeWorld: GameWorldDefinition = {
+      ...world,
+      moments: world.moments
+        .filter(({ id }) => id !== "richer-chat")
+        .map((moment) => moment.id === "station-meet" ? { ...moment, conditionalOutcomes: [] } : moment),
+      initialState: {
+        ...world.initialState,
+        completedMomentIds: ["station-meet"],
+        relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: ["station-meet", "cafe-chat"],
+        outcomeReferences: []
+      },
+      entryMomentIds: []
+    };
+    expect(validateGameWorld(noConditionalOutcomeWorld)).toEqual({ valid: true, errors: [] });
+  });
+
+  it.each([
+    ["ordinary location unlock", (world: GameWorldDefinition) => ({
+      ...world,
+      initialState: { ...world.initialState, unlockedLocationIds: ["station"] }
+    })],
+    ["ordinary moment unlock", (world: GameWorldDefinition) => ({
+      ...world,
+      initialState: {
+        ...world.initialState,
+        unlockedMomentIds: world.initialState.unlockedMomentIds.filter((id) => id !== "cafe-chat")
+      }
+    })],
+    ["conditional moment unlock", (world: GameWorldDefinition) => ({
+      ...world,
+      initialState: {
+        ...world.initialState,
+        unlockedMomentIds: world.initialState.unlockedMomentIds.filter((id) => id !== "richer-chat")
+      }
+    })]
+  ] as const)("rejects an initial completed moment missing its %s", (_effect, makeWorld) => {
+    const world = makeWorld(createWorldWithAuthoredStationPrologue());
+    expect(validateGameWorld(world).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects an initial relationship stage below a completed moment update", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const initialState = {
+      ...world.initialState,
+      relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-new" }
+    };
+    const moments = world.moments.map((moment) => ["cafe-chat", "richer-chat"].includes(moment.id)
+      ? {
+        ...moment,
+        relationshipStageId: "aki-new",
+        availability: { ...moment.availability, requiredRelationshipStageIds: [] }
+      }
+      : moment);
+
+    expect(validateGameWorld({ ...world, initialState, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects a different relationship stage at the same order as a completed update", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const stages = [...world.relationshipStages, {
+      id: "aki-familiar-alias",
+      npcId: "aki",
+      order: 1,
+      context: learnerText("同じ段階の別名。")
+    }];
+    const npcs = world.npcs.map((npc) => npc.id === "aki"
+      ? { ...npc, relationshipStageIds: [...npc.relationshipStageIds, "aki-familiar-alias"] }
+      : npc);
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? { ...moment, onCompletion: {
+        ...moment.onCompletion,
+        relationshipStageUpdates: [{ npcId: "aki", relationshipStageId: "aki-familiar-alias" }]
+      } }
+      : moment);
+
+    expect(validateGameWorld({ ...world, npcs, relationshipStages: stages, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects a completed moment whose own location is not initially unlocked", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? { ...moment, locationId: "park" }
+      : moment);
+
+    expect(validateGameWorld({ ...world, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects an initially completed moment with an unmet completion prerequisite", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? {
+        ...moment,
+        availability: { ...moment.availability, requiredCompletedMomentIds: ["cafe-chat"] }
+      }
+      : moment);
+
+    expect(validateGameWorld({ ...world, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects a completed moment whose own relationship input is below its declared stage", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const initialState = {
+      ...world.initialState,
+      relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-new" }
+    };
+    const moments = world.moments.map((moment) => {
+      if (moment.id === "station-meet") return {
+        ...moment,
+        relationshipStageId: "aki-familiar",
+        onCompletion: { ...moment.onCompletion, relationshipStageUpdates: [] }
+      };
+      if (["cafe-chat", "richer-chat"].includes(moment.id)) return {
+        ...moment,
+        relationshipStageId: "aki-new",
+        availability: { ...moment.availability, requiredRelationshipStageIds: [] }
+      };
+      return moment;
+    });
+
+    expect(validateGameWorld({ ...world, initialState, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects a completed moment's own relationship stage when an equal-order ID differs", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const aliasStage: RelationshipStage = {
+      id: "aki-familiar-alias",
+      npcId: "aki",
+      order: 1,
+      context: learnerText("同じ段階の別名。")
+    };
+    const npcs = world.npcs.map((npc) => npc.id === "aki"
+      ? { ...npc, relationshipStageIds: [...npc.relationshipStageIds, aliasStage.id] }
+      : npc);
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? {
+        ...moment,
+        relationshipStageId: aliasStage.id,
+        onCompletion: { ...moment.onCompletion, relationshipStageUpdates: [] }
+      }
+      : moment);
+
+    expect(validateGameWorld({ ...world, npcs, relationshipStages: [...world.relationshipStages, aliasStage], moments }).errors)
+      .toContainEqual({ code: "contradictory_initial_state", referenceId: "station-meet" });
+  });
+
+  it("rejects an unmet cross-NPC relationship prerequisite on a completed moment", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const initialState = {
+      ...world.initialState,
+      completedMomentIds: [...world.initialState.completedMomentIds, "cross-npc-prologue"],
+      relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-new" },
+      unlockedMomentIds: [...world.initialState.unlockedMomentIds, "cross-npc-prologue"]
+    };
+    const prologue: WorldMoment = {
+      id: "cross-npc-prologue",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: mediumScenario.id,
+      objective: learnerText("別の人物の関係段階が必要な導入。"),
+      availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: ["aki-familiar"] },
+      onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+      conditionalOutcomes: []
+    };
+    const moments = world.moments.map((moment) => {
+      if (moment.id === "station-meet") return {
+        ...moment,
+        relationshipStageId: "aki-new",
+        onCompletion: { ...moment.onCompletion, relationshipStageUpdates: [] }
+      };
+      if (["cafe-chat", "richer-chat"].includes(moment.id)) return {
+        ...moment,
+        relationshipStageId: "aki-new",
+        availability: { ...moment.availability, requiredRelationshipStageIds: [] }
+      };
+      return moment;
+    });
+
+    expect(validateGameWorld({ ...world, initialState, moments: [...moments, prologue] }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: prologue.id
+    });
+  });
+
+  it("rejects a cross-NPC prerequisite with an equal-order but different stage ID", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const aliasStage: RelationshipStage = {
+      id: "aki-familiar-alias",
+      npcId: "aki",
+      order: 1,
+      context: learnerText("同じ段階の別名。")
+    };
+    const prologue: WorldMoment = {
+      id: "cross-npc-prologue",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: mediumScenario.id,
+      objective: learnerText("同じ段階の別IDが必要な導入。"),
+      availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [aliasStage.id] },
+      onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+      conditionalOutcomes: []
+    };
+    const npcs = world.npcs.map((npc) => npc.id === "aki"
+      ? { ...npc, relationshipStageIds: [...npc.relationshipStageIds, aliasStage.id] }
+      : npc);
+    const initialState = {
+      ...world.initialState,
+      completedMomentIds: [...world.initialState.completedMomentIds, prologue.id],
+      unlockedMomentIds: [...world.initialState.unlockedMomentIds, prologue.id]
+    };
+
+    expect(validateGameWorld({
+      ...world,
+      npcs,
+      relationshipStages: [...world.relationshipStages, aliasStage],
+      moments: [...world.moments, prologue],
+      initialState
+    }).errors).toContainEqual({ code: "contradictory_initial_state", referenceId: prologue.id });
+  });
+
+  it("accepts exact or later initial stages and validates no-update moments by their input", () => {
+    const exactWorld = createWorldWithAuthoredStationPrologue();
+    expect(validateGameWorld(exactWorld)).toEqual({ valid: true, errors: [] });
+
+    const laterStage: RelationshipStage = {
+      id: "aki-close",
+      npcId: "aki",
+      order: 2,
+      context: learnerText("さらに親しい。")
+    };
+    const laterWorld: GameWorldDefinition = {
+      ...exactWorld,
+      npcs: exactWorld.npcs.map((npc) => npc.id === "aki"
+        ? { ...npc, relationshipStageIds: [...npc.relationshipStageIds, laterStage.id] }
+        : npc),
+      relationshipStages: [...exactWorld.relationshipStages, laterStage],
+      moments: exactWorld.moments.map((moment) => ["cafe-chat", "richer-chat"].includes(moment.id)
+        ? {
+          ...moment,
+          relationshipStageId: laterStage.id,
+          availability: { ...moment.availability, requiredRelationshipStageIds: [laterStage.id] }
+        }
+        : moment),
+      initialState: {
+        ...exactWorld.initialState,
+        relationshipStages: { ...exactWorld.initialState.relationshipStages, aki: laterStage.id }
+      }
+    };
+    expect(validateGameWorld(laterWorld)).toEqual({ valid: true, errors: [] });
+
+    const base = createWorld();
+    const noUpdatePrologue: WorldMoment = {
+      id: "no-update-prologue",
+      locationId: "station",
+      npcId: "aki",
+      relationshipStageId: "aki-familiar",
+      scenarioId: mediumScenario.id,
+      objective: learnerText("段階更新のない導入。"),
+      availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [] },
+      onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+      conditionalOutcomes: []
+    };
+    const noUpdateWorld: GameWorldDefinition = {
+      ...base,
+      moments: [...base.moments, noUpdatePrologue],
+      initialState: {
+        ...base.initialState,
+        completedMomentIds: [noUpdatePrologue.id],
+        unlockedMomentIds: [...base.initialState.unlockedMomentIds, noUpdatePrologue.id]
+      }
+    };
+    expect(validateGameWorld(noUpdateWorld).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: noUpdatePrologue.id
+    });
+
+    const noUpdateMatchingInput: GameWorldDefinition = {
+      ...noUpdateWorld,
+      moments: noUpdateWorld.moments.map((moment) => moment.id === noUpdatePrologue.id
+        ? { ...moment, relationshipStageId: "aki-new" }
+        : moment)
+    };
+    expect(validateGameWorld(noUpdateMatchingInput)).toEqual({ valid: true, errors: [] });
+  });
+
+  it("compares outcome references as unambiguous identifier pairs", () => {
+    const world = createWorld();
+    const collisionScenario: ConversationScenario = {
+      ...shortScenario,
+      steps: shortScenario.steps.map((step) => step.id === "opening-response" && step.kind === "learner_response"
+        ? {
+          ...step,
+          responseExamples: [
+            ...step.responseExamples,
+            { id: "opens-only", kind: "accepted", japanese: "本当ですね。" },
+            { id: "dead-only", kind: "accepted", japanese: "そうですか。" }
+          ]
+        }
+        : step)
+    };
+    const collisionDefinition = makeSessionDefinition(collisionScenario, {
+      opening: "enriches_thread",
+      "opens-only": "opens_thread",
+      "dead-only": "dead_end"
+    });
+    const originalStation = world.moments.find(({ id }) => id === "station-meet");
+    if (originalStation == null) throw new Error("Expected station-meet moment.");
+    const station: WorldMoment = {
+      ...originalStation,
+      conditionalOutcomes: originalStation.conditionalOutcomes.map((outcome) => ({ ...outcome, id: "enrich-the:thread" }))
+    };
+    const collisionMomentId = "station-meet:enrich-the";
+    const collisionMoment: WorldMoment = {
+      ...station,
+      id: collisionMomentId,
+      conditionalOutcomes: station.conditionalOutcomes.map((outcome) => ({
+        ...outcome,
+        id: "thread",
+        responseRequirement: { ...outcome.responseRequirement, minimumContinuationQuality: "enriches_thread" }
+      }))
+    };
+    const collisionWorld: GameWorldDefinition = {
+      ...world,
+      sessionDefinitions: [collisionDefinition, world.sessionDefinitions[1]],
+      moments: [...world.moments.filter(({ id }) => id !== station.id), station, collisionMoment],
+      initialState: {
+        ...world.initialState,
+        completedMomentIds: ["station-meet", collisionMomentId],
+        relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: [...world.initialState.unlockedMomentIds, "cafe-chat", "richer-chat", collisionMomentId],
+        outcomeReferences: [{ momentId: "station-meet", outcomeId: "enrich-the:thread" }]
+      },
+      entryMomentIds: []
+    };
+    const collidingButUnreachable = {
+      ...collisionWorld.initialState,
+      outcomeReferences: [{ momentId: collisionMomentId, outcomeId: "thread" }]
+    };
+
+    expect(validateGameWorld(collisionWorld)).toEqual({ valid: true, errors: [] });
+    expect(getAvailableWorldMoments(collisionWorld, collidingButUnreachable)).toEqual([]);
+    expect(applyCompletedConversationSession(
+      collisionWorld,
+      collidingButUnreachable,
+      "cafe-chat",
+      makeCompletedSession(mediumScenario.id)
+    )).toMatchObject({ applied: false, reason: "invalid_state" });
+
+    const distinctReferencesWorld: GameWorldDefinition = {
+      ...collisionWorld,
+      initialState: {
+        ...collisionWorld.initialState,
+        outcomeReferences: [
+          { momentId: "station-meet", outcomeId: "enrich-the:thread" },
+          { momentId: collisionMomentId, outcomeId: "thread" }
+        ]
+      }
+    };
+    expect(validateGameWorld(distinctReferencesWorld)).toEqual({ valid: true, errors: [] });
+  });
+
+  it("accepts a reordered legal state and preserves legal transitions after arc completion", () => {
+    const world = createWorld();
+    const afterStation = applyCompletedConversationSession(world, world.initialState, "station-meet", makeCompletedSession()).state;
+    const afterCafe = applyCompletedConversationSession(
+      world,
+      afterStation,
+      "cafe-chat",
+      makeCompletedSession(mediumScenario.id)
+    );
+    expect(afterCafe.applied).toBe(true);
+    expect(afterCafe.state.completedMomentIds).toContain("cafe-chat");
+
+    const reordered = {
+      ...afterStation,
+      completedMomentIds: [...afterStation.completedMomentIds].reverse(),
+      relationshipStages: Object.fromEntries(Object.entries(afterStation.relationshipStages).reverse()),
+      unlockedLocationIds: [...afterStation.unlockedLocationIds].reverse(),
+      unlockedMomentIds: [...afterStation.unlockedMomentIds].reverse(),
+      outcomeReferences: [...afterStation.outcomeReferences].reverse()
+    };
+    expect(getAvailableWorldMoments(world, reordered)).toEqual(getAvailableWorldMoments(world, afterStation));
+    expect(applyCompletedConversationSession(
+      world,
+      afterCafe.state,
+      "richer-chat",
+      makeCompletedSession(mediumScenario.id)
+    ).applied).toBe(true);
+  });
+
+  it("admits reordered facts with canonically equivalent but distinct identifiers", () => {
+    const world = createWorld();
+    const composed = "é";
+    const decomposed = "e\u0301";
+    const npcId = (id: string): string => id === "aki" ? composed : decomposed;
+    const station = world.moments.find(({ id }) => id === "station-meet");
+    if (station == null) throw new Error("Expected station-meet moment.");
+
+    const remappedStation: WorldMoment = {
+      ...station,
+      id: composed,
+      npcId: composed,
+      onCompletion: {
+        ...station.onCompletion,
+        relationshipStageUpdates: station.onCompletion.relationshipStageUpdates.map((update) => ({
+          ...update,
+          npcId: npcId(update.npcId)
+        }))
+      }
+    };
+    const duplicatePrologue: WorldMoment = { ...remappedStation, id: decomposed };
+    const reorderedWorld: GameWorldDefinition = {
+      ...world,
+      npcs: world.npcs.map((npc) => ({ ...npc, id: npcId(npc.id) })),
+      relationshipStages: world.relationshipStages.map((stage) => ({ ...stage, npcId: npcId(stage.npcId) })),
+      moments: [
+        remappedStation,
+        duplicatePrologue,
+        ...world.moments.filter(({ id }) => id !== "station-meet").map((moment) => ({
+          ...moment,
+          npcId: npcId(moment.npcId),
+          availability: {
+            ...moment.availability,
+            requiredCompletedMomentIds: moment.availability.requiredCompletedMomentIds.map((id) =>
+              id === "station-meet" ? composed : id)
+          }
+        }))
+      ],
+      initialState: {
+        completedMomentIds: [composed, decomposed],
+        relationshipStages: { [composed]: "aki-familiar", [decomposed]: "ren-new" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: [composed, decomposed, "cafe-chat", "richer-chat"],
+        outcomeReferences: [
+          { momentId: composed, outcomeId: "enrich-the-thread" },
+          { momentId: decomposed, outcomeId: "enrich-the-thread" }
+        ]
+      },
+      entryMomentIds: []
+    };
+    const reorderedState = {
+      ...reorderedWorld.initialState,
+      relationshipStages: Object.fromEntries(Object.entries(reorderedWorld.initialState.relationshipStages).reverse()),
+      outcomeReferences: [...reorderedWorld.initialState.outcomeReferences].reverse()
+    };
+
+    expect(composed.localeCompare(decomposed)).toBe(0);
+    expect(validateGameWorld(reorderedWorld)).toEqual({ valid: true, errors: [] });
+    expect(getAvailableWorldMoments(reorderedWorld, reorderedState).map(({ id }) => id))
+      .toEqual(getAvailableWorldMoments(reorderedWorld, reorderedWorld.initialState).map(({ id }) => id));
+    expect(applyCompletedConversationSession(
+      reorderedWorld,
+      reorderedState,
+      "cafe-chat",
+      makeCompletedSession(mediumScenario.id)
+    ).applied).toBe(true);
+  });
+
+  it.each([
+    ["a locked location", addInitialEntryMoment({
+      id: "locked-location-entry",
+      locationId: "cafe",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: shortScenario.id
+    }, true, false)],
+    ["an unmet relationship stage", addInitialEntryMoment({
+      id: "unmet-relationship-entry",
+      locationId: "station",
+      npcId: "aki",
+      relationshipStageId: "aki-familiar",
+      scenarioId: mediumScenario.id,
+      availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: ["aki-familiar"] }
+    })],
+    ["an unmet completion prerequisite", addInitialEntryMoment({
+      id: "unmet-completion-entry",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: shortScenario.id,
+      availability: { requiredCompletedMomentIds: ["station-meet"], requiredRelationshipStageIds: [] }
+    })]
+  ] as const)("rejects an entry that is unavailable from the initial state because of %s", (_reason, world) => {
+    const initialState = structuredClone(world.initialState);
+    expect(validateGameWorld(world).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: world.entryMomentIds.at(-1)!
+    });
+    expect(world.initialState).toEqual(initialState);
+  });
+
+  it("selects the same available moments deterministically from the same state", () => {
+    const world = createWorld();
+    const first = getAvailableWorldMoments(world, world.initialState);
+    expect(getAvailableWorldMoments(world, world.initialState)).toEqual(first);
+    expect(first.map(({ id }) => id)).toEqual(["station-meet"]);
+  });
+
+  it("unlocks the next moment and updates the matching relationship after a completed session", () => {
+    const world = createWorld();
+    const result = applyCompletedConversationSession(world, world.initialState, "station-meet", makeCompletedSession());
+    expect(result).toMatchObject({
+      applied: true,
+      state: {
+        completedMomentIds: ["station-meet"],
+        unlockedMomentIds: expect.arrayContaining(["station-meet", "cafe-chat"]),
+        relationshipStages: { aki: "aki-familiar", ren: "ren-new" }
+      }
+    });
+  });
+
+  it("opens a richer follow-up only from the named response step's structured continuation outcome", () => {
+    const world = createWorld();
+    const result = applyCompletedConversationSession(world, world.initialState, "station-meet", makeCompletedSession());
+    expect(result.state.unlockedMomentIds).toContain("richer-chat");
+    expect(result.state.outcomeReferences).toContainEqual({ momentId: "station-meet", outcomeId: "enrich-the-thread" });
+  });
+
+  it("does not aggregate continuation quality from a different response step", () => {
+    const base = createWorld();
+    const definition = makeDefinitionWithDeadEndAndOpeningAlternative();
+    const world = { ...base, sessionDefinitions: [definition, base.sessionDefinitions[1]] };
+    const session = makeCompletedSession(shortScenario.id, ["opening", "follow-up"], { opening: "dead_end" });
+    const result = applyCompletedConversationSession(world, world.initialState, "station-meet", session);
+    expect(result.state.unlockedMomentIds).toContain("cafe-chat");
+    expect(result.state.unlockedMomentIds).not.toContain("richer-chat");
+    expect(result.state.outcomeReferences).toEqual([]);
+  });
+
+  it("uses a relationship stage to expose a new scenario/context for the same NPC", () => {
+    const world = createWorld();
+    const next = applyCompletedConversationSession(world, world.initialState, "station-meet", makeCompletedSession()).state;
+    expect(getAvailableWorldMoments(world, next).map(({ scenarioId }) => scenarioId)).toContain("cafe-follow-up");
+  });
+
+  it("rejects invalid references in the authored world graph", () => {
+    const world = createWorld();
+    const missingScenario = {
+      ...world,
+      moments: world.moments.map((moment) => moment.id === "station-meet"
+        ? { ...moment, scenarioId: "missing-scenario" }
+        : moment)
+    };
+    expect(getAvailableWorldMoments(missingScenario, world.initialState)).toEqual([]);
+    const invalid = {
+      ...world,
+      moments: world.moments.map((moment) => moment.id === "station-meet" ? { ...moment, locationId: "missing" } : moment)
+    };
+    expect(validateGameWorld(invalid).valid).toBe(false);
+    const invalidStep = {
+      ...world,
+      moments: world.moments.map((moment) => moment.id === "station-meet"
+        ? { ...moment, conditionalOutcomes: [{ ...moment.conditionalOutcomes[0], responseRequirement: { ...moment.conditionalOutcomes[0].responseRequirement, stepId: "missing-step" } }] }
+        : moment)
+    };
+    expect(validateGameWorld(invalidStep).errors).toContainEqual({
+      code: "invalid_response_step_reference",
+      entityId: "station-meet",
+      referenceId: "missing-step"
+    });
+
+    const scenarioWithOrphanResponse: ConversationScenario = {
+      ...shortScenario,
+      steps: [...shortScenario.steps, {
+        id: "orphan-response",
+        kind: "learner_response",
+        prompt: { textZh: "這一步無法到達。" },
+        responseExamples: [{ id: "orphan-example", kind: "suggested", japanese: "はい。" }],
+        branches: [{ id: "finish", nextStepId: "complete" }]
+      }]
+    };
+    const unreachableStep = {
+      ...world,
+      sessionDefinitions: [makeSessionDefinition(scenarioWithOrphanResponse), world.sessionDefinitions[1]],
+      moments: world.moments.map((moment) => moment.id === "station-meet"
+        ? { ...moment, conditionalOutcomes: [{ ...moment.conditionalOutcomes[0], responseRequirement: { ...moment.conditionalOutcomes[0].responseRequirement, stepId: "orphan-response" } }] }
+        : moment)
+    };
+    expect(validateGameWorld(unreachableStep).errors).toContainEqual({
+      code: "invalid_response_step_reference",
+      entityId: "station-meet",
+      referenceId: "orphan-response"
+    });
+
+    const duplicateOutcomeReference = {
+      ...world,
+      initialState: {
+        ...world.initialState,
+        outcomeReferences: [
+          { momentId: "station-meet", outcomeId: "enrich-the-thread" },
+          { momentId: "station-meet", outcomeId: "enrich-the-thread" }
+        ]
+      }
+    };
+    expect(validateGameWorld(duplicateOutcomeReference).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "duplicate-initial-fact"
+    });
+    const unknownOutcomeReference = {
+      ...world,
+      initialState: {
+        ...world.initialState,
+        outcomeReferences: [{ momentId: "station-meet", outcomeId: "missing-outcome" }]
+      }
+    };
+    expect(validateGameWorld(unknownOutcomeReference).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet:missing-outcome"
+    });
+    const outcomeWithoutCompletedMoment = {
+      ...world,
+      initialState: {
+        ...world.initialState,
+        outcomeReferences: [{ momentId: "station-meet", outcomeId: "enrich-the-thread" }]
+      }
+    };
+    expect(validateGameWorld(outcomeWithoutCompletedMoment).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet:enrich-the-thread"
+    });
+    const completedButLocked = {
+      ...world,
+      initialState: {
+        ...world.initialState,
+        completedMomentIds: ["station-meet"],
+        unlockedMomentIds: []
+      }
+    };
+    expect(validateGameWorld(completedButLocked).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+    expect(applyCompletedConversationSession(world, world.initialState, "missing-moment", makeCompletedSession()).applied).toBe(false);
+  });
+
+  it("rejects a bound scenario graph that the conversation runtime cannot start", () => {
+    const world = createWorld();
+    const brokenScenario = { ...shortScenario, startStepId: "missing-step" };
+    const invalidWorld = {
+      ...world,
+      sessionDefinitions: [makeSessionDefinition(brokenScenario), world.sessionDefinitions[1]]
+    };
+
+    expect(validateGameWorld(invalidWorld).errors).toContainEqual({
+      code: "invalid_bound_scenario_graph",
+      entityId: shortScenario.id
+    });
+  });
+
+  it("fails closed when a later world state contradicts completed or outcome facts", () => {
+    const world = createWorld();
+    const completed = applyCompletedConversationSession(world, world.initialState, "station-meet", makeCompletedSession()).state;
+    const lockedCompletion = {
+      ...completed,
+      unlockedMomentIds: completed.unlockedMomentIds.filter((id) => id !== "station-meet")
+    };
+    const orphanedOutcome = {
+      ...world.initialState,
+      outcomeReferences: [{ momentId: "station-meet", outcomeId: "enrich-the-thread" }]
+    };
+
+    expect(getAvailableWorldMoments(world, lockedCompletion)).toEqual([]);
+    expect(applyCompletedConversationSession(world, lockedCompletion, "cafe-chat", makeCompletedSession()).reason).toBe("invalid_state");
+    expect(getAvailableWorldMoments(world, orphanedOutcome)).toEqual([]);
+    expect(applyCompletedConversationSession(world, orphanedOutcome, "station-meet", makeCompletedSession()).reason).toBe("invalid_state");
+  });
+
+  it("rejects moments requiring conflicting relationship stages for one NPC", () => {
+    const world = createWorld();
+    const conflictingStages = {
+      ...world,
+      moments: world.moments.map((moment) => moment.id === "cafe-chat"
+        ? { ...moment, availability: { ...moment.availability, requiredRelationshipStageIds: ["aki-new", "aki-familiar"] } }
+        : moment)
+    };
+    expect(validateGameWorld(conflictingStages).errors).toContainEqual({
+      code: "unsatisfiable_moment_precondition",
+      entityId: "cafe-chat"
+    });
+
+    const conflictsWithMomentStage = {
+      ...world,
+      moments: world.moments.map((moment) => moment.id === "cafe-chat"
+        ? { ...moment, availability: { ...moment.availability, requiredRelationshipStageIds: ["aki-new"] } }
+        : moment)
+    };
+    expect(validateGameWorld(conflictsWithMomentStage).errors).toContainEqual({
+      code: "unsatisfiable_moment_precondition",
+      entityId: "cafe-chat"
+    });
+  });
+
+  it("rejects an arc that can only unlock through continuation quality absent from every trusted answer", () => {
+    const base = createWorld();
+    const definition = makeSessionDefinition(shortScenario, { opening: "dead_end", "follow-up": "dead_end" });
+    const world: GameWorldDefinition = {
+      ...base,
+      sessionDefinitions: [definition, base.sessionDefinitions[1]],
+      moments: [
+        {
+          ...base.moments[0],
+          onCompletion: { unlockLocationIds: ["cafe"], unlockMomentIds: [], relationshipStageUpdates: [{ npcId: "aki", relationshipStageId: "aki-familiar" }] },
+          conditionalOutcomes: [{
+            id: "quality-gate",
+            responseRequirement: { stepId: "opening-response", minimumContinuationQuality: "opens_thread" },
+            unlockMomentIds: ["richer-chat"]
+          }]
+        },
+        base.moments[2]
+      ]
+    };
+
+    expect(validateGameWorld(world).errors).toContainEqual({ code: "unreachable_arc_completion" });
+  });
+
+  it("does not invent an impossible dead-end choice that strands an arc with trusted opening answers", () => {
+    const base = createWorld();
+    const definition = makeSessionDefinition(shortScenario, { opening: "opens_thread", "follow-up": "opens_thread" });
+    const world: GameWorldDefinition = {
+      ...base,
+      sessionDefinitions: [definition, base.sessionDefinitions[1]],
+      moments: [
+        {
+          ...base.moments[0],
+          onCompletion: { unlockLocationIds: ["cafe"], unlockMomentIds: [], relationshipStageUpdates: [{ npcId: "aki", relationshipStageId: "aki-familiar" }] },
+          conditionalOutcomes: [{
+            id: "quality-gate",
+            responseRequirement: { stepId: "opening-response", minimumContinuationQuality: "opens_thread" },
+            unlockMomentIds: ["richer-chat"]
+          }]
+        },
+        base.moments[2]
+      ]
+    };
+
+    expect(validateGameWorld(world)).toEqual({ valid: true, errors: [] });
+  });
+
+  it("counts a trusted finish branch that skips the conditional response step", () => {
+    const base = createWorld();
+    const scenario: ConversationScenario = {
+      ...shortScenario,
+      steps: shortScenario.steps.map((step) => step.id === "opening-response" && step.kind === "learner_response"
+        ? { ...step, responseExamples: [...step.responseExamples, { id: "opening-direct", kind: "accepted", japanese: "そうですね。" }] }
+        : step)
+    };
+    const definition = makeSessionDefinition(scenario, { "follow-up": "opens_thread" });
+    const world: GameWorldDefinition = {
+      ...base,
+      sessionDefinitions: [definition, base.sessionDefinitions[1]],
+      moments: [
+        {
+          ...base.moments[0],
+          onCompletion: { unlockLocationIds: ["cafe"], unlockMomentIds: [], relationshipStageUpdates: [{ npcId: "aki", relationshipStageId: "aki-familiar" }] },
+          conditionalOutcomes: [{
+            id: "follow-up-gate",
+            responseRequirement: { stepId: "follow-up-response", minimumContinuationQuality: "opens_thread" },
+            unlockMomentIds: ["richer-chat"]
+          }]
+        },
+        base.moments[2]
+      ]
+    };
+
+    expect(validateGameWorld(world).errors).toContainEqual({ code: "stranded_arc_state" });
+  });
+
+  it("rejects a final moment whose required relationship stage was replaced by its prerequisite", () => {
+    const world = createWorld();
+    const impossibleArc: GameWorldDefinition = {
+      ...world,
+      moments: [
+        {
+          ...world.moments[0],
+          conditionalOutcomes: [],
+          onCompletion: {
+            ...world.moments[0].onCompletion,
+            unlockMomentIds: ["cafe-chat"]
+          }
+        },
+        {
+          ...world.moments[1],
+          relationshipStageId: "aki-new",
+          availability: {
+            requiredCompletedMomentIds: ["station-meet"],
+            requiredRelationshipStageIds: []
+          },
+          completesArc: true
+        }
+      ]
+    };
+
+    expect(validateGameWorld(impossibleArc).errors).toContainEqual({
+      code: "unsatisfiable_moment_precondition",
+      entityId: "cafe-chat"
+    });
+    expect(validateGameWorld(impossibleArc).errors).toContainEqual({ code: "unreachable_arc_completion" });
+  });
+
+  it("rejects a legal choice that permanently strands the finite arc", () => {
+    const world = createWorld();
+    const strandedWorld: GameWorldDefinition = {
+      ...world,
+      moments: [
+        {
+          ...world.moments[0],
+          conditionalOutcomes: [],
+          onCompletion: {
+            unlockLocationIds: [],
+            unlockMomentIds: [],
+            relationshipStageUpdates: [{ npcId: "aki", relationshipStageId: "aki-familiar" }]
+          }
+        },
+        {
+          ...world.moments[1],
+          locationId: "station",
+          relationshipStageId: "aki-new",
+          availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [] },
+          completesArc: true
+        }
+      ],
+      initialState: {
+        ...world.initialState,
+        unlockedMomentIds: ["station-meet", "cafe-chat"]
+      },
+      entryMomentIds: ["station-meet", "cafe-chat"]
+    };
+
+    expect(validateGameWorld(strandedWorld).errors).toContainEqual({ code: "stranded_arc_state" });
+  });
+
+  it("recognizes two compatible outcomes from one completed response", () => {
+    const world = createWorld();
+    const first = world.moments[0];
+    const bothRequired: GameWorldDefinition = {
+      ...world,
+      moments: [
+        {
+          ...first,
+          conditionalOutcomes: [
+            { ...first.conditionalOutcomes[0], unlockMomentIds: ["cafe-chat"] },
+            {
+              id: "enrich-more",
+              responseRequirement: { stepId: "opening-response", minimumContinuationQuality: "enriches_thread" },
+              unlockMomentIds: ["richer-chat"]
+            }
+          ]
+        },
+        world.moments[1],
+        {
+          ...world.moments[2],
+          availability: {
+            requiredCompletedMomentIds: ["station-meet"],
+            requiredRelationshipStageIds: ["aki-familiar"]
+          }
+        }
+      ]
+    };
+
+    expect(validateGameWorld(bothRequired)).toEqual({ valid: true, errors: [] });
+    const result = applyCompletedConversationSession(bothRequired, bothRequired.initialState, "station-meet", makeCompletedSession());
+    expect(result.applied).toBe(true);
+    expect(result.state.outcomeReferences).toEqual([
+      { momentId: "station-meet", outcomeId: "enrich-the-thread" },
+      { momentId: "station-meet", outcomeId: "enrich-more" }
+    ]);
+  });
+
+  it("rejects conditional outcomes that require different response steps", () => {
+    const world = createWorld();
+    const mixedSteps: GameWorldDefinition = {
+      ...world,
+      moments: world.moments.map((moment) => moment.id === "station-meet"
+        ? {
+          ...moment,
+          conditionalOutcomes: [
+            ...moment.conditionalOutcomes,
+            {
+              id: "later-step",
+              responseRequirement: { stepId: "follow-up-response", minimumContinuationQuality: "opens_thread" },
+              unlockMomentIds: ["cafe-chat"]
+            }
+          ]
+        }
+        : moment)
+    };
+
+    expect(validateGameWorld(mixedSteps).errors).toContainEqual({
+      code: "incompatible_outcome_steps",
+      entityId: "station-meet"
+    });
+  });
+
+  it("does not replay a trace through colliding step/example identifiers", () => {
+    const world = createWorld();
+    const collisionScenario: ConversationScenario = {
+      ...shortScenario,
+      startStepId: "a",
+      steps: [
+        {
+          id: "a",
+          kind: "learner_response",
+          prompt: { textZh: "回應第一句。" },
+          responseExamples: [{ id: "b::c", kind: "suggested", japanese: "こんにちは。" }],
+          branches: [{ id: "go", nextStepId: "a::b" }]
+        },
+        {
+          id: "a::b",
+          kind: "learner_response",
+          prompt: { textZh: "補充一句。" },
+          responseExamples: [
+            { id: "c", kind: "accepted", japanese: "別の未結合例です。" },
+            { id: "bound", kind: "accepted", japanese: "そうですね。" }
+          ],
+          branches: [{ id: "go", nextStepId: "complete" }]
+        },
+        { id: "complete", kind: "completion", summary: { textZh: "對話完成。" } }
+      ]
+    };
+    const generatedDefinition = makeSessionDefinition(
+      collisionScenario,
+      { "b::c": "enriches_thread", c: "dead_end", bound: "dead_end" },
+      { "b::c": "go", c: "go", bound: "go" }
+    );
+    const collisionDefinition = {
+      ...generatedDefinition,
+      responses: [
+        ...generatedDefinition.responses.filter(({ responseExampleId }) => responseExampleId === "c"),
+        ...generatedDefinition.responses.filter(({ responseExampleId }) => responseExampleId !== "c")
+      ]
+    };
+    const collisionWorld: GameWorldDefinition = {
+      ...world,
+      sessionDefinitions: [collisionDefinition, world.sessionDefinitions[1]],
+      moments: world.moments.map((moment) => moment.id === "station-meet"
+        ? {
+          ...moment,
+          conditionalOutcomes: moment.conditionalOutcomes.map((outcome) => ({
+            ...outcome,
+            responseRequirement: { ...outcome.responseRequirement, stepId: "a" }
+          }))
+        }
+        : moment)
+    };
+    const runtime = createConversationSession(collisionWorld.sessionDefinitions);
+    runtime.select(shortScenario.id);
+    runtime.start();
+    expect(runtime.submitResponse("b::c")).not.toBeNull();
+    expect(runtime.continue()).toBe(true);
+    expect(runtime.getState().step?.id).toBe("a::b");
+    expect(runtime.submitResponse("c")).not.toBeNull();
+    expect(runtime.continue()).toBe(true);
+    const validRuntimeSession = runtime.getState();
+    const records = validRuntimeSession.summary?.responses;
+    expect(records).toHaveLength(2);
+    const forgedSession = withResponseRecords(validRuntimeSession, [
+      records![0],
+      { ...records![1], feedback: records![0].feedback }
+    ]);
+
+    expect(validateGameWorld(collisionWorld)).toEqual({ valid: true, errors: [] });
+    expect(applyCompletedConversationSession(
+      collisionWorld,
+      collisionWorld.initialState,
+      "station-meet",
+      validRuntimeSession
+    ).applied).toBe(true);
+    expect(applyCompletedConversationSession(
+      collisionWorld,
+      collisionWorld.initialState,
+      "station-meet",
+      forgedSession
+    )).toMatchObject({ applied: false, reason: "rejected_session" });
+  });
+
+  it("preserves unrelated NPC and location state while applying one transition", () => {
+    const world = createWorld();
+    const before = structuredClone(world.initialState);
+    const result = applyCompletedConversationSession(world, world.initialState, "station-meet", makeCompletedSession());
+    expect(result.state.relationshipStages.ren).toBe(before.relationshipStages.ren);
+    expect(result.state.unlockedLocationIds).not.toContain("park");
+    expect(world.initialState).toEqual(before);
+  });
+
+  it("produces an identical state for repeated application of the same completed session", () => {
+    const world = createWorld();
+    const first = applyCompletedConversationSession(world, world.initialState, "station-meet", makeCompletedSession());
+    const repeated = applyCompletedConversationSession(world, world.initialState, "station-meet", makeCompletedSession());
+    expect(repeated).toEqual(first);
+  });
+
+  it("does not publish a world transition for incomplete, mismatched, or rejected sessions", () => {
+    const world = createWorld();
+    const incomplete = { ...makeCompletedSession(), phase: "interaction", summary: null } satisfies ConversationSessionState;
+    const validSession = makeCompletedSession();
+    const mismatched = { ...validSession, summary: { ...validSession.summary!, scenarioId: "another-scenario" } };
+    const curatedSession = validSession;
+    const rejectedSummary = {
+      ...curatedSession.summary!,
+        responses: [{
+          stepId: "opening-response",
+          responseExampleId: "opening",
+          feedback: { ...responseRecord("opening-response", "opening", "enriches_thread").feedback, source: "bounded_ai" }
+        }]
+      };
+    const rejected = { ...curatedSession, summary: rejectedSummary } as unknown as ConversationSessionState;
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", incomplete).applied).toBe(false);
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", mismatched).applied).toBe(false);
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", rejected)).toEqual({
+      applied: false,
+      state: world.initialState,
+      reason: "rejected_session"
+    });
+    const deadEndWorld = {
+      ...world,
+      sessionDefinitions: [makeDefinitionWithDeadEndAndOpeningAlternative(), world.sessionDefinitions[1]]
+    };
+    const deadEnd = makeCompletedSession(shortScenario.id, ["opening", "follow-up"], { opening: "dead_end" });
+    const deadEndResult = applyCompletedConversationSession(deadEndWorld, deadEndWorld.initialState, "station-meet", deadEnd);
+    expect(deadEndResult.state.unlockedMomentIds).toContain("cafe-chat");
+    expect(deadEndResult.state.unlockedMomentIds).not.toContain("richer-chat");
+  });
+
+  it("rejects empty, duplicate, and unreachable response traces", () => {
+    const world = createWorld();
+    const valid = makeCompletedSession();
+    const emptyTrace = withResponseRecords(valid, []);
+    const opening = responseRecord("opening-response", "opening", "enriches_thread");
+    const followup = responseRecord("follow-up-response", "follow-up", "enriches_thread");
+    const duplicateTrace = withResponseRecords(valid, [opening, opening]);
+    const unreachableTrace = withResponseRecords(valid, [followup, opening]);
+
+    for (const session of [emptyTrace, duplicateTrace, unreachableTrace]) {
+      expect(applyCompletedConversationSession(world, world.initialState, "station-meet", session)).toEqual({
+        applied: false,
+        state: world.initialState,
+        reason: "rejected_session"
+      });
+    }
+  });
+
+  it("replays a real completed session through the trusted response-to-branch binding", () => {
+    const base = createWorld();
+    const finishOnOpening = makeSessionDefinition(shortScenario, {}, { opening: "finish" });
+    const world = { ...base, sessionDefinitions: [finishOnOpening, base.sessionDefinitions[1]] };
+    const runtime = createConversationSession([finishOnOpening]);
+    expect(runtime.select(shortScenario.id)).toBe(true);
+    expect(runtime.start()).toBe(true);
+    expect(runtime.submitResponse("opening")).not.toBeNull();
+    expect(runtime.continue()).toBe(true);
+    const completed = runtime.getState();
+    expect(completed.phase).toBe("complete");
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", completed).applied).toBe(true);
+
+    const impossibleFollowup = withResponseRecords(completed, [
+      ...completed.summary!.responses,
+      responseRecord("follow-up-response", "follow-up", "enriches_thread")
+    ]);
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", impossibleFollowup)).toEqual({
+      applied: false,
+      state: world.initialState,
+      reason: "rejected_session"
+    });
+  });
+
+  it("does not let supplied feedback raise trusted continuation quality", () => {
+    const base = createWorld();
+    const definition = makeDefinitionWithDeadEndAndOpeningAlternative();
+    const world = { ...base, sessionDefinitions: [definition, base.sessionDefinitions[1]] };
+    const completed = makeCompletedSession(shortScenario.id, ["opening", "follow-up"], { opening: "dead_end" });
+    const inflated = withResponseRecords(completed, completed.summary!.responses.map((record) =>
+      record.stepId === "opening-response"
+        ? { ...record, feedback: { ...record.feedback, continuationQuality: "enriches_thread" } }
+        : record
+    ));
+
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", inflated)).toEqual({
+      applied: false,
+      state: world.initialState,
+      reason: "rejected_session"
+    });
+  });
+
+  it("allows an empty trace when the trusted scenario completes without a learner response", () => {
+    const base = createWorld();
+    const scenario: ConversationScenario = {
+      ...shortScenario,
+      id: "partner-only",
+      startStepId: "partner-opening",
+      steps: [
+        { id: "partner-opening", kind: "partner_line", japanese: "こんにちは。", nextStepId: "partner-only-complete" },
+        { id: "partner-only-complete", kind: "completion", summary: { textZh: "完成。" } }
+      ]
+    };
+    const definition = makeSessionDefinition(scenario);
+    const world = {
+      ...base,
+      sessionDefinitions: [definition, base.sessionDefinitions[1]],
+      moments: base.moments.map((moment) => moment.id === "station-meet"
+        ? {
+          ...moment,
+          scenarioId: scenario.id,
+          conditionalOutcomes: [],
+          onCompletion: { ...moment.onCompletion, unlockMomentIds: [...moment.onCompletion.unlockMomentIds, "richer-chat"] }
+        }
+        : moment)
+    };
+    const runtime = createConversationSession([definition]);
+    runtime.select(scenario.id);
+    runtime.start();
+    expect(runtime.advance()).toBe(true);
+    const completed = runtime.getState();
+    expect(completed.summary?.responses).toEqual([]);
+    expect(validateGameWorld(world)).toEqual({ valid: true, errors: [] });
+    expect(applyCompletedConversationSession(world, world.initialState, "station-meet", completed).applied).toBe(true);
+  });
+
+  it("localizes authored learner text through the existing localization fallback", () => {
+    const text = { textZh: "車站", textI18n: { en: "Station", ja: "駅" } };
+    expect(localizeGameWorldText(text, "en")).toBe("Station");
+    expect(localizeGameWorldText(text, "th")).toBe("車站");
+  });
+});
