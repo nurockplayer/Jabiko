@@ -200,4 +200,51 @@ describe("selectRelevantSeasonalEvents", () => {
 
     expect(selectRelevantSeasonalEvents([event], new Date("2026-09-23T03:00:00Z"))).toHaveLength(0);
   });
+
+  it.each(["pastDays", "futureDays", "imminentDays"] as const)(
+    "accepts the maximum relevance window for %s",
+    (field) => {
+      expect(() => selectRelevantSeasonalEvents([], new Date("2026-09-23T03:00:00Z"), { [field]: 3660 }))
+        .not.toThrow();
+    }
+  );
+
+  it("accepts the maximum future window while resolving an annual event", () => {
+    const event = annualEvent("annual-at-window-cap", 9, 23);
+
+    expect(selectRelevantSeasonalEvents(
+      [event],
+      new Date("2026-09-23T03:00:00Z"),
+      { futureDays: 3660 }
+    )).toMatchObject([{ eventId: "annual-at-window-cap", phase: "active" }]);
+  });
+
+  it.each(["pastDays", "futureDays", "imminentDays"] as const)(
+    "rejects relevance windows above the maximum for %s",
+    (field) => {
+      expect(() => selectRelevantSeasonalEvents([], new Date("2026-09-23T03:00:00Z"), { [field]: 3661 }))
+        .toThrow(RangeError);
+    }
+  );
+
+  it.each([
+    ["NaN", Number.NaN],
+    ["Infinity", Number.POSITIVE_INFINITY],
+    ["negative", -1],
+    ["fractional", 1.5],
+    ["unsafe integer", Number.MAX_SAFE_INTEGER + 1],
+  ] as const)("rejects %s relevance windows for every field", (_description, value) => {
+    for (const field of ["pastDays", "futureDays", "imminentDays"] as const) {
+      expect(() => selectRelevantSeasonalEvents([], new Date("2026-09-23T03:00:00Z"), { [field]: value }))
+        .toThrow(RangeError);
+    }
+  });
+
+  it("rejects a safe integer relevance window that would make annual iteration unbounded", () => {
+    expect(() => selectRelevantSeasonalEvents(
+      [annualEvent("annual", 9, 23)],
+      new Date("2026-09-23T03:00:00Z"),
+      { futureDays: Number.MAX_SAFE_INTEGER }
+    )).toThrow(RangeError);
+  });
 });

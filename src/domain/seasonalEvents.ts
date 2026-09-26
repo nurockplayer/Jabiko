@@ -4,6 +4,8 @@ export const DEFAULT_SEASONAL_RELEVANCE_WINDOW = {
   imminentDays: 7,
 } as const;
 
+export const MAX_SEASONAL_RELEVANCE_DAYS = 3660;
+
 export const DEFAULT_SEASONAL_TIME_ZONE = "Asia/Tokyo";
 
 export type SeasonalEventCategory =
@@ -136,8 +138,8 @@ export function selectRelevantSeasonalEvents(
 
 function validateWindow(window: SeasonalRelevanceWindow): void {
   for (const [name, value] of Object.entries(window)) {
-    if (!Number.isSafeInteger(value) || value < 0) {
-      throw new RangeError(`${name} must be a non-negative safe integer`);
+    if (!Number.isFinite(value) || !Number.isSafeInteger(value) || value < 0 || value > MAX_SEASONAL_RELEVANCE_DAYS) {
+      throw new RangeError(`${name} must be a finite non-negative safe integer no greater than ${MAX_SEASONAL_RELEVANCE_DAYS}`);
     }
   }
 }
