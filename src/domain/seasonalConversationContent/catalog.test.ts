@@ -312,6 +312,74 @@ describe("seasonal conversation catalog", () => {
       .toEqual([["answer", "share"], ["add", "react"]]);
   });
 
+  it("uses a concrete recent attempt and result for School Year after narration credit", () => {
+    const definition = definitionById("seasonal-school-year-start-after");
+    const authoredAttempt = "先日、予定が重なったので、復習を一問だけにしてみました。短くしたら取りかかりやすかったです。あなたはどう調整していますか？";
+    const response = learnerResponseSteps(definition)
+      .flatMap(({ responseExamples }) => responseExamples)
+      .find(({ id }) => id === "seasonal-school-year-start-after-turn-1-b");
+
+    // This human-reviewed full utterance is a content fixture, not a tense or keyword classifier.
+    expect(response?.japanese).toBe(authoredAttempt);
+
+    const { session, targetFeedback } = completeSessionSelectingResponse(
+      definition,
+      "seasonal-school-year-start-after-turn-1-b"
+    );
+    expect(targetFeedback?.composition).toContainEqual({ feature: "add", canonicalSkillId: "narrate" });
+    expect(session.getState().summary?.skillsPracticed).toContain("narrate");
+  });
+
+  it("makes the Time Day before response address the schedule reminder question", () => {
+    const definition = definitionById("seasonal-time-day-before");
+    const response = learnerResponseSteps(definition)[0]?.responseExamples.find(({ id }) =>
+      id === "seasonal-time-day-before-turn-1-a"
+    );
+
+    // Keep the reviewed Japanese fixture explicit; a word-presence check would not prove it answers this question.
+    expect(response?.japanese).toBe("私は前の日に予定をメモしています。どんな方法が使いやすいですか？");
+  });
+
+  it("credits the selected Coffee Day proposal path in immediate feedback and completion", () => {
+    const definition = definitionById("seasonal-coffee-day-before");
+    const selectedResponseIds = [
+      "seasonal-coffee-day-before-turn-1-b",
+      "seasonal-coffee-day-before-turn-2-a"
+    ];
+    const session = createConversationSession([definition]);
+    expect(session.select(definition.scenario.id)).toBe(true);
+    expect(session.start()).toBe(true);
+
+    let targetFeedback: ReturnType<typeof session.submitResponse> = null;
+    let learnerTurn = 0;
+    let guard = 0;
+    while (session.getState().phase !== "complete" && guard < 40) {
+      guard += 1;
+      const state = session.getState();
+      if (state.step?.kind === "partner_line") {
+        expect(session.advance()).toBe(true);
+        continue;
+      }
+      if (state.step?.kind !== "learner_response") break;
+      const selectedId = selectedResponseIds[learnerTurn];
+      learnerTurn += 1;
+      const example = state.step.responseExamples.find(({ id }) => id === selectedId);
+      if (!example) throw new Error(`Missing explicitly selected Coffee Day branch at ${state.step.id}`);
+      const feedback = session.submitResponse(example.id);
+      expect(feedback, example.id).not.toBeNull();
+      if (example.id === "seasonal-coffee-day-before-turn-2-a") targetFeedback = feedback;
+      expect(session.continue()).toBe(true);
+    }
+
+    expect(session.getState().phase).toBe("complete");
+    expect(targetFeedback?.composition).toEqual([
+      { feature: "answer", canonicalSkillId: "react" },
+      { feature: "add", canonicalSkillId: "negotiate" }
+    ]);
+    expect(session.getState().summary?.skillsPracticed).toContain("negotiate");
+    expect(session.getState().summary?.skillsPracticed).not.toContain("expand");
+  });
+
   it("contains thirteen fixed, sourced anchors and all three phases", () => {
     expect(seasonalConversationFamilies).toHaveLength(13);
     expect(seasonalConversationEvents).toHaveLength(13);
