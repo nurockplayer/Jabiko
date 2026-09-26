@@ -42,6 +42,16 @@ function allLearnerTexts(
   ]);
 }
 
+function definitionById(id: string) {
+  const definition = seasonalConversationDefinitions.find(({ scenario }) => scenario.id === id);
+  if (!definition) throw new Error(`Missing seasonal definition: ${id}`);
+  return definition;
+}
+
+function learnerResponseSteps(definition: ReturnType<typeof definitionById>) {
+  return definition.scenario.steps.filter((step) => step.kind === "learner_response");
+}
+
 describe("seasonal conversation catalog", () => {
   it("contains thirteen fixed, sourced anchors and all three phases", () => {
     expect(seasonalConversationFamilies).toHaveLength(13);
@@ -165,8 +175,8 @@ describe("seasonal conversation catalog", () => {
     const yearEndResponses = yearEndAfter.scenario.steps.flatMap((step) =>
       step.kind === "learner_response" ? step.responseExamples.map(({ japanese }) => japanese) : []
     );
-    expect(yearEndResponses.some((line) => line.includes("去年撮った写真"))).toBe(true);
-    expect(yearEndResponses.some((line) => line.includes("今年撮った写真"))).toBe(false);
+    expect(yearEndResponses.some((line) => line.includes("前年に撮った写真"))).toBe(true);
+    expect(yearEndResponses.some((line) => line.includes("今年撮った写真") || line.includes("去年撮った写真"))).toBe(false);
   });
 
   it("uses distinct authored medium and deeper long learning arcs", () => {
@@ -187,6 +197,73 @@ describe("seasonal conversation catalog", () => {
         expect(responseSteps.map((step) => step.prompt.textZh).join(" ")).toMatch(/理由|原因|経験|考え|目標|選択|忙碌|多種看法/);
       }
     }
+  });
+
+  it("keeps advertised conversational jobs true on every selectable response path", () => {
+    const mismatches: string[] = [];
+    for (const definition of seasonalConversationDefinitions) {
+      const responseSteps = learnerResponseSteps(definition);
+      const guaranteedQuestion = responseSteps.some((step) =>
+        step.responseExamples.every(({ japanese }) => /[?？]/.test(japanese))
+      );
+      const phaseCopy = [
+        definition.scenario.objective,
+        definition.scenario.instruction,
+        definition.scenario.steps.find((step) => step.kind === "completion")?.summary
+      ].filter((value): value is ConversationLearnerText => value !== undefined);
+      const promptCopy = responseSteps.map(({ prompt }) => ({ prompt, step: responseSteps.find((item) => item.prompt === prompt) }));
+      for (const text of phaseCopy) {
+        const english = text.textI18n?.en ?? "";
+        const promisesQuestion = /\b(?:ask|invite)\b|return the (?:turn|question)/i.test(english);
+        const explicitlyOptional = /\b(?:optionally|may ask|if appropriate|can ask|if it feels natural|if they wish)\b/i.test(english);
+        if (promisesQuestion && !explicitlyOptional) {
+          if (!guaranteedQuestion) mismatches.push(`${definition.scenario.id}: ${english}`);
+        }
+      }
+      for (const { prompt, step } of promptCopy) {
+        const english = prompt.textI18n?.en ?? "";
+        const promisesQuestion = /\b(?:ask|invite)\b|return the (?:turn|question)/i.test(english);
+        const explicitlyOptional = /\b(?:optionally|may ask|if appropriate|can ask|if it feels natural|if they wish)\b/i.test(english);
+        if (promisesQuestion && !explicitlyOptional &&
+          !step?.responseExamples.every(({ japanese }) => /[?？]/.test(japanese))) {
+          mismatches.push(`${definition.scenario.id}: ${english}`);
+        }
+      }
+    }
+    expect(mismatches).toEqual([]);
+  });
+
+  it("preserves the reviewed medium reciprocity and honest response credit", () => {
+    const childrenAfter = definitionById("seasonal-childrens-day-after");
+    const childrenSteps = learnerResponseSteps(childrenAfter);
+    expect(childrenSteps).toHaveLength(2);
+    expect(childrenSteps[1]?.prompt.textI18n?.en).toMatch(/compare/i);
+    expect(childrenSteps[1]?.responseExamples.map(({ japanese }) => japanese).join(" "))
+      .toMatch(/公園|川沿い/);
+
+    const newYearAfter = definitionById("seasonal-new-year-after");
+    const finalLearnerStep = learnerResponseSteps(newYearAfter).at(-1);
+    if (!finalLearnerStep) throw new Error("New Year recent response is missing");
+    for (const example of finalLearnerStep.responseExamples) {
+      const binding = newYearAfter.responses.find(({ responseExampleId }) => responseExampleId === example.id);
+      if (!binding) throw new Error(`Missing response binding: ${example.id}`);
+      const skills = binding.feedback.feedback.composition.map(({ canonicalSkillId }) => canonicalSkillId);
+      expect(skills, example.japanese).not.toContain("narrate");
+    }
+
+    const coffeeAfter = definitionById("seasonal-coffee-day-after");
+    const coffeeResponses = learnerResponseSteps(coffeeAfter);
+    expect(coffeeResponses[1]?.prompt.textI18n?.en).toMatch(/ordering alike|same order/i);
+    expect(coffeeResponses[1]?.prompt.textI18n?.ja).toMatch(/同じ飲み物|同じもの/);
+    expect(coffeeResponses[1]?.prompt.textZh).toMatch(/相同飲品|相同|一樣/);
+
+    const yearEndBefore = definitionById("seasonal-new-years-eve-before");
+    const yearEndOptions = learnerResponseSteps(yearEndBefore).flatMap(({ responseExamples }) =>
+      responseExamples.map(({ japanese }) => japanese)
+    );
+    expect(yearEndOptions.join(" ")).toMatch(/30分|短い時間/);
+    expect(yearEndOptions.join(" ")).toMatch(/カフェ/);
+    expect(yearEndBefore.scenario.objective.textI18n?.en).toMatch(/negotiate/i);
   });
 
   it("keeps all seasonal and evergreen IDs, response bindings, and graph references valid together", () => {
