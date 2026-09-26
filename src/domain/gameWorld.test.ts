@@ -458,6 +458,62 @@ describe("game world domain", () => {
     expect(validateGameWorld(prologueWorld)).toEqual({ valid: true, errors: [] });
   });
 
+  it("rejects an initially completed moment that requires itself", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? {
+        ...moment,
+        availability: { ...moment.availability, requiredCompletedMomentIds: [moment.id] }
+      }
+      : moment);
+
+    expect(validateGameWorld({ ...world, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("allows distinct authored prologues with mutual completion prerequisites", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const makePrologue = (id: string, prerequisiteId: string): WorldMoment => ({
+      id,
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: mediumScenario.id,
+      objective: learnerText("相互前提を持つ導入。"),
+      availability: { requiredCompletedMomentIds: [prerequisiteId], requiredRelationshipStageIds: [] },
+      onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+      conditionalOutcomes: []
+    });
+    const cycleA = makePrologue("mutual-prologue-a", "mutual-prologue-b");
+    const cycleB = makePrologue("mutual-prologue-b", "mutual-prologue-a");
+    const initialState = {
+      ...world.initialState,
+      completedMomentIds: [...world.initialState.completedMomentIds, cycleA.id, cycleB.id],
+      unlockedMomentIds: [...world.initialState.unlockedMomentIds, cycleA.id, cycleB.id]
+    };
+
+    expect(validateGameWorld({ ...world, moments: [...world.moments, cycleA, cycleB], initialState }))
+      .toEqual({ valid: true, errors: [] });
+  });
+
+  it("still rejects an ordinary uncompleted moment that requires itself", () => {
+    const world = addInitialEntryMoment({
+      id: "ordinary-self-prerequisite",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: shortScenario.id,
+      availability: { requiredCompletedMomentIds: ["ordinary-self-prerequisite"], requiredRelationshipStageIds: [] }
+    });
+
+    expect(validateGameWorld(world).errors).toContainEqual({
+      code: "unsatisfiable_moment_precondition",
+      entityId: "ordinary-self-prerequisite"
+    });
+  });
+
   it("rejects initial outcome sets that cannot come from trusted session results", () => {
     const world = createWorld();
     const makePrologue = (
