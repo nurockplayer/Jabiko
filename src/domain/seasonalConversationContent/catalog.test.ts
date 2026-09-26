@@ -233,6 +233,85 @@ describe("seasonal conversation catalog", () => {
     expect(mismatches).toEqual([]);
   });
 
+  it("keeps localized completion claims and response credit truthful on every branch", () => {
+    const completion = (id: string) => {
+      const step = definitionById(id).scenario.steps.find((candidate) => candidate.kind === "completion");
+      if (!step || step.kind !== "completion") throw new Error(`Missing completion: ${id}`);
+      return step.summary;
+    };
+    const hinaCompletion = completion("seasonal-hinamatsuri-active");
+    expect(hinaCompletion.textZh).not.toMatch(/詢問|邀請|聽了對方/);
+    expect(hinaCompletion.textI18n?.ja).not.toMatch(/尋ね|聞け|招き/);
+
+    const yearEndCompletion = completion("seasonal-new-years-eve-after");
+    expect(yearEndCompletion.textZh).not.toMatch(/邀請|聽取|聽了對方/);
+    expect(yearEndCompletion.textI18n?.ja).not.toMatch(/聞け|尋ね|招き/);
+
+    const cultureAfter = definitionById("seasonal-culture-day-after");
+    const cultureLastStep = learnerResponseSteps(cultureAfter).at(-1);
+    if (!cultureLastStep) throw new Error("Culture Day final response is missing");
+    for (const example of cultureLastStep.responseExamples) {
+      const binding = cultureAfter.responses.find(({ responseExampleId }) => responseExampleId === example.id);
+      if (!binding) throw new Error(`Missing response binding: ${example.id}`);
+      expect(binding.feedback.feedback.composition.map(({ canonicalSkillId }) => canonicalSkillId), example.japanese)
+        .not.toContain("narrate");
+    }
+    expect(completion("seasonal-culture-day-after").textZh).not.toMatch(/敘述了|敘述/);
+    expect(completion("seasonal-culture-day-after").textI18n?.ja).not.toMatch(/語りました|話しました/);
+    expect(completion("seasonal-culture-day-after").textI18n?.en).not.toMatch(/narrated/i);
+
+    const coffeeAfter = definitionById("seasonal-coffee-day-after");
+    expect(coffeeAfter.scenario.objective.textZh).not.toMatch(/敘述/);
+    expect(coffeeAfter.scenario.objective.textI18n?.ja).not.toMatch(/経験を話し/);
+    expect(coffeeAfter.scenario.objective.textI18n?.en).not.toMatch(/narrate/i);
+    const coffeeCompletion = completion("seasonal-coffee-day-after");
+    expect(coffeeCompletion.textZh).not.toMatch(/敘述/);
+    expect(coffeeCompletion.textI18n?.ja).not.toMatch(/飲み物を選んだ経験を話し/);
+    expect(coffeeCompletion.textI18n?.en).not.toMatch(/narrated/i);
+
+    expect(definitionById("seasonal-tanabata-active").scenario.difficulty)
+      .toMatchObject({ relationshipDistance: "neutral", topicDepth: "concrete" });
+    expect(definitionById("seasonal-disaster-prevention-day-active").scenario.difficulty)
+      .toMatchObject({ relationshipDistance: "neutral", topicDepth: "concrete" });
+  });
+
+  it("keeps remaining launched prompts, instructions, and bounded contexts aligned with choices", () => {
+    const responsePrompts = (id: string) => learnerResponseSteps(definitionById(id))
+      .map((step) => step.prompt);
+    const newYearEveBeforePrompts = responsePrompts("seasonal-new-years-eve-before");
+    expect(newYearEveBeforePrompts[1]?.textZh).toMatch(/[\u4e00-\u9fff]/);
+    expect(newYearEveBeforePrompts[1]?.textZh).not.toMatch(/[\u3040-\u30ff]/);
+
+    expect(responsePrompts("seasonal-new-year-after")[0]?.textI18n?.ja)
+      .toMatch(/経験を話し/);
+    expect(responsePrompts("seasonal-new-year-after")[0]?.textI18n?.ja)
+      .not.toMatch(/経験を聞き/);
+
+    for (const prompt of responsePrompts("seasonal-hinamatsuri-active")) {
+      expect(prompt.textZh).not.toMatch(/邀請對方|詢問對方/);
+    }
+    for (const id of ["seasonal-mountain-day-before", "seasonal-labour-thanksgiving-day-before"]) {
+      for (const prompt of responsePrompts(id)) {
+        expect(prompt.textZh).not.toMatch(/詢問對方。|問問對方。|把問題交回對方|把話題交回去/);
+        expect(prompt.textI18n?.ja).not.toMatch(/相手にも尋ねましょう|相手に聞き返しましょう|相手にも尋ね返しましょう/);
+      }
+    }
+
+    const coffeeAfter = definitionById("seasonal-coffee-day-after");
+    expect(coffeeAfter.scenario.objective.textZh).not.toMatch(/選擇的經驗|敘述.*選擇/);
+    for (const prompt of responsePrompts("seasonal-coffee-day-after")) {
+      expect(prompt.textZh).not.toMatch(/詢問.*是否適合|確認.*對方/);
+      expect(prompt.textI18n?.ja).not.toMatch(/合うか尋ね|相手に合うか聞/);
+      expect(prompt.textI18n?.en).not.toMatch(/check whether.*suits/i);
+    }
+    const cultureAfter = definitionById("seasonal-culture-day-after");
+    expect(cultureAfter.scenario.instruction.textZh).not.toMatch(/印象改變/);
+    expect(cultureAfter.scenario.instruction.textI18n?.ja).not.toMatch(/印象が変わった理由/);
+
+    expect(definitionById("seasonal-disaster-prevention-day-before").scenario.situation.textZh)
+      .not.toMatch(/下週公布/);
+  });
+
   it("preserves the reviewed medium reciprocity and honest response credit", () => {
     const childrenAfter = definitionById("seasonal-childrens-day-after");
     const childrenSteps = learnerResponseSteps(childrenAfter);
