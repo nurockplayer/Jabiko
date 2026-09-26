@@ -52,7 +52,219 @@ function learnerResponseSteps(definition: ReturnType<typeof definitionById>) {
   return definition.scenario.steps.filter((step) => step.kind === "learner_response");
 }
 
+function completeSessionSelectingResponse(
+  definition: ReturnType<typeof definitionById>,
+  targetResponseId: string
+) {
+  const session = createConversationSession([definition]);
+  if (!session.select(definition.scenario.id) || !session.start()) {
+    throw new Error(`Could not start ${definition.scenario.id}`);
+  }
+
+  let targetFeedback: ReturnType<typeof session.submitResponse> = null;
+  let guard = 0;
+  while (session.getState().phase !== "complete" && guard < 40) {
+    guard += 1;
+    const state = session.getState();
+    if (state.step?.kind === "partner_line") {
+      if (!session.advance()) throw new Error(`Could not advance ${state.step.id}`);
+      continue;
+    }
+    if (state.step?.kind !== "learner_response") break;
+    const example = state.step.responseExamples.find(({ id }) => id === targetResponseId) ??
+      state.step.responseExamples[0];
+    if (!example) throw new Error(`Missing response at ${state.step.id}`);
+    const feedback = session.submitResponse(example.id);
+    if (!feedback) throw new Error(`Could not submit ${example.id}`);
+    if (example.id === targetResponseId) targetFeedback = feedback;
+    if (!session.continue()) throw new Error(`Could not continue after ${example.id}`);
+  }
+  if (session.getState().phase !== "complete") {
+    throw new Error(`Session did not complete: ${definition.scenario.id}`);
+  }
+  return { session, targetFeedback };
+}
+
 describe("seasonal conversation catalog", () => {
+  it("credits New Year active turn one at the selected response and completed session", () => {
+    const definition = definitionById("seasonal-new-year-active");
+    const { session, targetFeedback } = completeSessionSelectingResponse(
+      definition,
+      "seasonal-new-year-active-turn-1-a"
+    );
+
+    expect(targetFeedback?.composition).toEqual([
+      { feature: "answer", canonicalSkillId: "react" },
+      { feature: "add", canonicalSkillId: "share" },
+      { feature: "ask", canonicalSkillId: "bounce" }
+    ]);
+    expect(session.getState().summary?.skillsPracticed)
+      .toEqual(expect.arrayContaining(["react", "share", "bounce"]));
+  });
+
+  it("credits Culture Day active's personal observation and optional follow-up", () => {
+    const definition = definitionById("seasonal-culture-day-active");
+    const { session, targetFeedback } = completeSessionSelectingResponse(
+      definition,
+      "seasonal-culture-day-active-turn-1-a"
+    );
+
+    expect(targetFeedback?.composition).toEqual([
+      { feature: "answer", canonicalSkillId: "share" },
+      { feature: "ask", canonicalSkillId: "expand" }
+    ]);
+    expect(session.getState().summary?.skillsPracticed)
+      .toEqual(expect.arrayContaining(["share", "expand"]));
+  });
+
+  it("makes Disaster Day after's personal notice observation explicit on both paths", () => {
+    const definition = definitionById("seasonal-disaster-prevention-day-after");
+    const responseStep = learnerResponseSteps(definition)[0];
+    if (!responseStep) throw new Error("Disaster Day after response is missing");
+    const observation = responseStep.responseExamples.find(({ id }) =>
+      id === "seasonal-disaster-prevention-day-after-turn-1-b"
+    );
+    if (!observation) throw new Error("Disaster Day after observation path is missing");
+    expect(observation.japanese).toContain(
+      "私が見た案内では、場所の欄がすぐ目に入りました。"
+    );
+
+    const { session, targetFeedback } = completeSessionSelectingResponse(
+      definition,
+      observation.id
+    );
+    expect(targetFeedback?.composition.map(({ canonicalSkillId }) => canonicalSkillId))
+      .toContain("share");
+    expect(session.getState().summary?.skillsPracticed).toContain("share");
+  });
+
+  it("credits proposal-only turns without share and preserves actual preference sharing", () => {
+    const proposalOnlyIds = [
+      "seasonal-tanabata-after-turn-2-a",
+      "seasonal-tanabata-after-turn-2-b",
+      "seasonal-tanabata-after-turn-3-a",
+      "seasonal-new-years-eve-before-turn-1-a",
+      "seasonal-new-years-eve-before-turn-1-b",
+      "seasonal-new-years-eve-before-turn-2-a",
+      "seasonal-new-years-eve-before-turn-2-b",
+      "seasonal-coffee-day-after-turn-3-b"
+    ];
+
+    for (const responseId of proposalOnlyIds) {
+      const definition = seasonalConversationDefinitions.find(({ responses }) =>
+        responses.some(({ responseExampleId }) => responseExampleId === responseId)
+      );
+      if (!definition) throw new Error(`Missing proposal response: ${responseId}`);
+      const { session, targetFeedback } = completeSessionSelectingResponse(definition, responseId);
+      expect(targetFeedback?.composition.map(({ canonicalSkillId }) => canonicalSkillId), responseId)
+        .toContain("negotiate");
+      expect(targetFeedback?.composition.map(({ canonicalSkillId }) => canonicalSkillId), responseId)
+        .not.toContain("share");
+      if (responseId === "seasonal-coffee-day-after-turn-3-b") {
+        expect(targetFeedback?.composition.map(({ canonicalSkillId }) => canonicalSkillId))
+          .toContain("opinion");
+      }
+      if (responseId.startsWith("seasonal-new-years-eve-before")) {
+        expect(targetFeedback?.composition.map(({ feature }) => feature), responseId)
+          .not.toContain("ask");
+        expect(session.getState().summary?.skillsPracticed, responseId).not.toContain("share");
+      }
+    }
+
+    const coffeePreference = completeSessionSelectingResponse(
+      definitionById("seasonal-coffee-day-before"),
+      "seasonal-coffee-day-before-turn-1-a"
+    );
+    expect(coffeePreference.targetFeedback?.composition.map(({ canonicalSkillId }) => canonicalSkillId))
+      .toContain("share");
+  });
+
+  it("keeps every localized prompt and completion honest to the selectable branch", () => {
+    const prompt = (scenarioId: string, index = 0) => {
+      const step = learnerResponseSteps(definitionById(scenarioId))[index];
+      if (!step) throw new Error(`Missing response prompt: ${scenarioId} ${index}`);
+      return step.prompt;
+    };
+    const completion = (scenarioId: string) => {
+      const step = definitionById(scenarioId).scenario.steps.find(({ kind }) => kind === "completion");
+      if (!step || step.kind !== "completion") throw new Error(`Missing completion: ${scenarioId}`);
+      return step.summary;
+    };
+
+    const hinaPrompt = prompt("seasonal-hinamatsuri-active");
+    expect(hinaPrompt.textZh).toMatch(/回應.*可見細節/);
+    expect(hinaPrompt.textZh).toMatch(/談展示的另一個部分/);
+    expect(hinaPrompt.textI18n?.ja).toMatch(/見える特徴に応じ.*展示の別の部分/);
+    expect(hinaPrompt.textI18n?.en).toMatch(/you.*(?:share|add|mention|describe)/i);
+    expect(hinaPrompt.textI18n?.en).not.toMatch(/partner may add/i);
+
+    const tanabataBeforePrompt = prompt("seasonal-tanabata-before");
+    expect(tanabataBeforePrompt.textZh).toMatch(/小目標由自己選擇/);
+    expect(tanabataBeforePrompt.textI18n?.ja).toMatch(/目標を話すかどうかは自分で選/);
+    expect(tanabataBeforePrompt.textI18n?.en).toMatch(/sharing a small goal is optional/i);
+    const tanabataInstruction = definitionById("seasonal-tanabata-before").scenario.instruction;
+    expect(tanabataInstruction.textZh).not.toMatch(/不分享.*告訴|不必分享.*告訴/);
+    expect(tanabataInstruction.textI18n?.ja).not.toMatch(/共有しなくてもよいと伝え/);
+    expect(tanabataInstruction.textI18n?.en).not.toMatch(/tell.*(?:private|not to share)/i);
+    expect(completion("seasonal-tanabata-before").textZh).not.toMatch(/分享了.*目標/);
+    expect(completion("seasonal-tanabata-before").textI18n?.ja).not.toMatch(/目標を話し/);
+    expect(completion("seasonal-tanabata-before").textI18n?.en).not.toMatch(/shared an optional goal/i);
+
+    const tanabataActivePrompt = prompt("seasonal-tanabata-active");
+    expect(tanabataActivePrompt.textZh).toMatch(/可以分享.*也可以問/);
+    expect(tanabataActivePrompt.textI18n?.ja).toMatch(/工夫を話すか、関連することを一つ尋ね/);
+    expect(tanabataActivePrompt.textI18n?.en).toMatch(/with an idea or a focused reflection question/i);
+
+    const mountainPrompt = prompt("seasonal-mountain-day-after");
+    expect(mountainPrompt.textZh).not.toMatch(/景色細節/);
+    expect(mountainPrompt.textI18n?.ja).not.toMatch(/景色のことを一つ/);
+    expect(mountainPrompt.textI18n?.en).toMatch(/setting/i);
+
+    const coffeeBeforePrompt = prompt("seasonal-coffee-day-before");
+    expect(coffeeBeforePrompt.textZh).toMatch(/或/);
+    expect(coffeeBeforePrompt.textI18n?.ja).toMatch(/提案するか、相手の好みを尋ね/);
+    expect(coffeeBeforePrompt.textI18n?.en).toMatch(/\bor\b/i);
+
+    const yearEndPrompt = prompt("seasonal-new-years-eve-after");
+    expect(yearEndPrompt.textZh).toMatch(/可(?:以)?補充回憶|可選/);
+    expect(yearEndPrompt.textI18n?.ja).toMatch(/任意|聞くかどうかは自由|聞いてもよい/);
+    expect(yearEndPrompt.textI18n?.ja).not.toMatch(/相手も.*聞きましょう/);
+    expect(yearEndPrompt.textI18n?.en).toMatch(/may.*memory|if they wish/i);
+  });
+
+  it("does not require a specific desk-relative direction for the Time Day clarification", () => {
+    const prompt = (scenarioId: string, index = 0) => {
+      const step = learnerResponseSteps(definitionById(scenarioId))[index];
+      if (!step) throw new Error(`Missing response prompt: ${scenarioId} ${index}`);
+      return step.prompt;
+    };
+
+    const timeClarification = prompt("seasonal-time-day-after");
+    expect(timeClarification.textZh).not.toMatch(/桌子右側/);
+    expect(timeClarification.textZh).toMatch(/位置|放置/);
+  });
+
+  it("allows either an observation or focused follow-up in the Culture Day continuation", () => {
+    const prompt = learnerResponseSteps(definitionById("seasonal-culture-day-after"))[1]?.prompt;
+    if (!prompt) throw new Error("Culture Day follow-up prompt is missing");
+    expect(prompt.textZh).toMatch(/或.*(?:追問|詢問)|也可以.*問/);
+    expect(prompt.textI18n?.ja).toMatch(/話すか.*尋ね/);
+    expect(prompt.textI18n?.en).toMatch(/or.*(?:ask|follow-up)|(?:ask|follow-up).*optional/i);
+  });
+
+  it("does not require different experience in the New Year after preference response", () => {
+    const prompt = learnerResponseSteps(definitionById("seasonal-new-year-after"))[1]?.prompt;
+    if (!prompt) throw new Error("New Year after follow-up prompt is missing");
+    expect(prompt.textZh).not.toMatch(/分享不同經驗/);
+    expect(prompt.textZh).toMatch(/回應|理解|偏好/);
+  });
+
+  it("keeps the Culture Day before follow-up optional in Traditional Chinese", () => {
+    const prompt = learnerResponseSteps(definitionById("seasonal-culture-day-before"))[0]?.prompt;
+    if (!prompt) throw new Error("Culture Day before prompt is missing");
+    expect(prompt.textZh).toMatch(/可選|如果.*願意|必要時/);
+  });
+
   it("credits reaction and sharing for both Foundation Day active alternatives through completion", () => {
     const definition = definitionById("seasonal-foundation-day-active");
     const responseStep = learnerResponseSteps(definition)[0];
