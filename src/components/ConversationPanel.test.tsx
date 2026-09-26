@@ -1,9 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ConversationPanel } from "./ConversationPanel";
 import { copy } from "../i18n";
+import * as seasonalDiscovery from "../domain/seasonalConversationDiscovery";
 import { conversationSessionDefinitions } from "../domain/conversationFixtures";
+import { seasonalConversationDefinitions } from "../domain/seasonalConversationContent/catalog";
 import { commuteConversationDefinitions } from "../domain/conversationContent/commute";
 import { foodConversationDefinitions } from "../domain/conversationContent/food";
 import { hobbiesConversationDefinitions } from "../domain/conversationContent/hobbies";
@@ -34,11 +36,105 @@ async function reachResponses(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("ConversationPanel fixture selection (#814)", () => {
-  it("uses the full 21-scene production and fixture catalog by default", () => {
-    render(<ConversationPanel language="zh-Hant" />);
+  it("keeps the 21 evergreen choices separate from the bounded timely cards", () => {
+    render(<ConversationPanel language="zh-Hant" referenceInstant={new Date("2026-12-31T14:30:00.000Z")} />);
 
-    expect(screen.getAllByRole("button")).toHaveLength(21);
+    expect(screen.getAllByRole("button", { name: /^(短|中|長)/ })).toHaveLength(21);
     expect(screen.getByRole("button", { name: /早上通勤時/ })).toBeInTheDocument();
+    expect(screen.getByText("大晦日與年末回顧")).toBeInTheDocument();
+  });
+
+  it("launches the selected seasonal phase through the existing brief and session engine", async () => {
+    const user = userEvent.setup();
+    const referenceInstant = new Date("2026-12-31T14:30:00.000Z");
+    render(<ConversationPanel language="zh-Hant" referenceInstant={referenceInstant} />);
+
+    const title = screen.getByText("大晦日與年末回顧");
+    const card = title.closest("button");
+    expect(card).not.toBeNull();
+    await user.click(card!);
+    const brief = screen.getByRole("article");
+    expect(brief).toHaveFocus();
+    expect(brief).toHaveTextContent("12月31日是年末文化學習錨點；守歲、外出或參拜都不是必要安排。");
+    const start = screen.getByRole("button", { name: copy["zh-Hant"].conversationStart });
+    await user.tab();
+    expect(start).toHaveFocus();
+    expect(screen.getByText(/回應對方想安靜休息/)).toBeInTheDocument();
+    await user.click(start);
+    await user.click(screen.getByRole("button", { name: copy["zh-Hant"].conversationContinue }));
+    await user.click(screen.getByRole("button", { name: "落ち着いて過ごせそうですね。私は帰って、少し早めに休みます。" }));
+    expect(screen.getByRole("heading", { name: copy["zh-Hant"].conversationFeedbackTitle })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: copy["zh-Hant"].conversationContinue }));
+    expect(screen.getByRole("heading", { name: copy["zh-Hant"].conversationCompleteTitle })).toBeInTheDocument();
+  });
+
+  it.each([
+    ["zh-Hant", "大晦日與年末回顧"],
+    ["ja", "大晦日と年末の振り返り"],
+    ["en", "New Year's Eve and a year-end reflection"]
+  ] as const)("localizes the timely card and preserves its active session across locale/date rerenders in %s", async (language, expectedTitle) => {
+    const user = userEvent.setup();
+    const view = render(<ConversationPanel language={language} referenceInstant={new Date("2026-12-31T14:30:00.000Z")} />);
+    expect(screen.getByText(expectedTitle)).toBeInTheDocument();
+    if (language !== "zh-Hant") {
+      expect(screen.queryByText("大晦日與年末回顧")).not.toBeInTheDocument();
+    }
+    const card = screen.getByText(expectedTitle).closest("button");
+    expect(card).not.toBeNull();
+    await user.click(card!);
+    if (language === "ja") {
+      expect(screen.getByRole("article")).toHaveTextContent("12月31日は年末文化を学ぶ目印です。夜更かしや外出、参拝は必須ではありません。");
+    }
+    await user.click(screen.getByRole("button", { name: copy[language].conversationStart }));
+    expect(screen.getByText("今日はこのあと、家で静かに過ごすつもりです。")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: copy[language].conversationContinue }));
+    await user.click(screen.getByRole("button", { name: "落ち着いて過ごせそうですね。私は帰って、少し早めに休みます。" }));
+    expect(screen.getByText("落ち着いて過ごせそうですね。私は帰って、少し早めに休みます。")).toBeInTheDocument();
+    await user.tab();
+    await user.tab();
+    const nextTurn = screen.getByRole("button", { name: copy[language].conversationContinue });
+    expect(nextTurn).toHaveFocus();
+
+    view.rerender(<ConversationPanel language={language === "ja" ? "en" : "ja"} referenceInstant={new Date("2027-01-20T00:00:00.000Z")} />);
+
+    expect(screen.getByText("落ち着いて過ごせそうですね。私は帰って、少し早めに休みます。")).toBeInTheDocument();
+    expect(screen.getByRole("button", {
+      name: copy[language === "ja" ? "en" : "ja"].conversationContinue
+    })).toHaveFocus();
+    expect(screen.queryByText(expectedTitle)).not.toBeInTheDocument();
+  });
+
+  it("keeps explicitly injected empty definitions finite and omits production seasonal cards", () => {
+    const { container } = render(<ConversationPanel language="zh-Hant" definitions={[]} referenceInstant={new Date("2026-12-31T14:30:00.000Z")} />);
+
+    expect(screen.queryByText("大晦日與年末回顧")).not.toBeInTheDocument();
+    expect(container.querySelectorAll("button")).toHaveLength(0);
+  });
+
+  it("does not add production seasonal context to an injected seasonal-associated definition", async () => {
+    const user = userEvent.setup();
+    const definition = seasonalConversationDefinitions[0];
+    expect(definition).toBeDefined();
+    render(<ConversationPanel language="ja" definitions={[definition!]} />);
+
+    await user.click(screen.getByRole("button", { name: new RegExp(`^${copy.ja.conversationLengths[definition!.scenario.length]}`) }));
+    expect(screen.getByRole("article").querySelector(".conversation-brief-seasonal")).toBeNull();
+    expect(screen.queryByText("今話しやすい季節の話題")).not.toBeInTheDocument();
+  });
+
+  it("shows the localized seasonal-empty fallback while preserving operable evergreen choices", async () => {
+    const user = userEvent.setup();
+    const discovery = vi.spyOn(seasonalDiscovery, "getSeasonalConversationDiscoveryCards").mockReturnValue([]);
+    render(<ConversationPanel language="ja" referenceInstant={new Date("2026-12-31T14:30:00.000Z")} />);
+
+    expect(discovery).toHaveBeenCalled();
+    expect(screen.getByText("今すぐ紹介できる季節の話題はありません。いつもの話題から選べます。")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /^(短|中|長)/ })).toHaveLength(21);
+    await user.click(screen.getAllByRole("button").find((button) => button.classList.contains("conversation-scene"))!);
+    expect(screen.getByRole("article")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: copy.ja.conversationStart }));
+    expect(screen.getByRole("button", { name: copy.ja.conversationContinue })).toBeInTheDocument();
+    discovery.mockRestore();
   });
 
   it("runs an authored production scene through its curated completion", async () => {

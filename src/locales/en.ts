@@ -521,6 +521,9 @@ export const en: Copy = {
   conversationTitle: "Small Talk Lab",
   conversationIntro:
     "Practise keeping a short everyday conversation going: pick a length, choose a response that fits the scene, and read the curated feedback.",
+  conversationSeasonalTitle: "Timely seasonal topics",
+  conversationSeasonalEmpty: "No seasonal topic is ready to introduce right now. Choose an everyday scene instead.",
+  conversationSeasonalPhases: { now: "Now", comingSoon: "Coming soon", recent: "Recent" },
   conversationStart: "Start this scene",
   conversationContinue: "Continue",
   conversationRetry: "Try a different phrasing",
