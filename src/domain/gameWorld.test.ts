@@ -599,7 +599,159 @@ describe("game world domain", () => {
     });
   });
 
-  it("accepts exact or later initial stages and adds no floor for a moment without an update", () => {
+  it("rejects a completed moment whose own location is not initially unlocked", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? { ...moment, locationId: "park" }
+      : moment);
+
+    expect(validateGameWorld({ ...world, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects an initially completed moment with an unmet completion prerequisite", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? {
+        ...moment,
+        availability: { ...moment.availability, requiredCompletedMomentIds: ["cafe-chat"] }
+      }
+      : moment);
+
+    expect(validateGameWorld({ ...world, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects a completed moment whose own relationship input is below its declared stage", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const initialState = {
+      ...world.initialState,
+      relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-new" }
+    };
+    const moments = world.moments.map((moment) => {
+      if (moment.id === "station-meet") return {
+        ...moment,
+        relationshipStageId: "aki-familiar",
+        onCompletion: { ...moment.onCompletion, relationshipStageUpdates: [] }
+      };
+      if (["cafe-chat", "richer-chat"].includes(moment.id)) return {
+        ...moment,
+        relationshipStageId: "aki-new",
+        availability: { ...moment.availability, requiredRelationshipStageIds: [] }
+      };
+      return moment;
+    });
+
+    expect(validateGameWorld({ ...world, initialState, moments }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("rejects a completed moment's own relationship stage when an equal-order ID differs", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const aliasStage: RelationshipStage = {
+      id: "aki-familiar-alias",
+      npcId: "aki",
+      order: 1,
+      context: learnerText("同じ段階の別名。")
+    };
+    const npcs = world.npcs.map((npc) => npc.id === "aki"
+      ? { ...npc, relationshipStageIds: [...npc.relationshipStageIds, aliasStage.id] }
+      : npc);
+    const moments = world.moments.map((moment) => moment.id === "station-meet"
+      ? {
+        ...moment,
+        relationshipStageId: aliasStage.id,
+        onCompletion: { ...moment.onCompletion, relationshipStageUpdates: [] }
+      }
+      : moment);
+
+    expect(validateGameWorld({ ...world, npcs, relationshipStages: [...world.relationshipStages, aliasStage], moments }).errors)
+      .toContainEqual({ code: "contradictory_initial_state", referenceId: "station-meet" });
+  });
+
+  it("rejects an unmet cross-NPC relationship prerequisite on a completed moment", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const initialState = {
+      ...world.initialState,
+      completedMomentIds: [...world.initialState.completedMomentIds, "cross-npc-prologue"],
+      relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-new" },
+      unlockedMomentIds: [...world.initialState.unlockedMomentIds, "cross-npc-prologue"]
+    };
+    const prologue: WorldMoment = {
+      id: "cross-npc-prologue",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: mediumScenario.id,
+      objective: learnerText("別の人物の関係段階が必要な導入。"),
+      availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: ["aki-familiar"] },
+      onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+      conditionalOutcomes: []
+    };
+    const moments = world.moments.map((moment) => {
+      if (moment.id === "station-meet") return {
+        ...moment,
+        relationshipStageId: "aki-new",
+        onCompletion: { ...moment.onCompletion, relationshipStageUpdates: [] }
+      };
+      if (["cafe-chat", "richer-chat"].includes(moment.id)) return {
+        ...moment,
+        relationshipStageId: "aki-new",
+        availability: { ...moment.availability, requiredRelationshipStageIds: [] }
+      };
+      return moment;
+    });
+
+    expect(validateGameWorld({ ...world, initialState, moments: [...moments, prologue] }).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: prologue.id
+    });
+  });
+
+  it("rejects a cross-NPC prerequisite with an equal-order but different stage ID", () => {
+    const world = createWorldWithAuthoredStationPrologue();
+    const aliasStage: RelationshipStage = {
+      id: "aki-familiar-alias",
+      npcId: "aki",
+      order: 1,
+      context: learnerText("同じ段階の別名。")
+    };
+    const prologue: WorldMoment = {
+      id: "cross-npc-prologue",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: mediumScenario.id,
+      objective: learnerText("同じ段階の別IDが必要な導入。"),
+      availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [aliasStage.id] },
+      onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+      conditionalOutcomes: []
+    };
+    const npcs = world.npcs.map((npc) => npc.id === "aki"
+      ? { ...npc, relationshipStageIds: [...npc.relationshipStageIds, aliasStage.id] }
+      : npc);
+    const initialState = {
+      ...world.initialState,
+      completedMomentIds: [...world.initialState.completedMomentIds, prologue.id],
+      unlockedMomentIds: [...world.initialState.unlockedMomentIds, prologue.id]
+    };
+
+    expect(validateGameWorld({
+      ...world,
+      npcs,
+      relationshipStages: [...world.relationshipStages, aliasStage],
+      moments: [...world.moments, prologue],
+      initialState
+    }).errors).toContainEqual({ code: "contradictory_initial_state", referenceId: prologue.id });
+  });
+
+  it("accepts exact or later initial stages and validates no-update moments by their input", () => {
     const exactWorld = createWorldWithAuthoredStationPrologue();
     expect(validateGameWorld(exactWorld)).toEqual({ valid: true, errors: [] });
 
@@ -650,7 +802,18 @@ describe("game world domain", () => {
         unlockedMomentIds: [...base.initialState.unlockedMomentIds, noUpdatePrologue.id]
       }
     };
-    expect(validateGameWorld(noUpdateWorld)).toEqual({ valid: true, errors: [] });
+    expect(validateGameWorld(noUpdateWorld).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: noUpdatePrologue.id
+    });
+
+    const noUpdateMatchingInput: GameWorldDefinition = {
+      ...noUpdateWorld,
+      moments: noUpdateWorld.moments.map((moment) => moment.id === noUpdatePrologue.id
+        ? { ...moment, relationshipStageId: "aki-new" }
+        : moment)
+    };
+    expect(validateGameWorld(noUpdateMatchingInput)).toEqual({ valid: true, errors: [] });
   });
 
   it("compares outcome references as unambiguous identifier pairs", () => {

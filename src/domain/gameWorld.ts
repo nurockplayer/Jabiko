@@ -395,6 +395,7 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
   const stateBudget = Math.max(64, world.moments.length * world.moments.length * 4);
   const locations = new Set(world.locations.map(({ id }) => id));
   const momentsById = new Map(world.moments.map((moment) => [moment.id, moment]));
+  const initiallyCompletedMoments = new Set(world.initialState.completedMomentIds);
   const initiallyUnlockedLocations = new Set(world.initialState.unlockedLocationIds);
   const initiallyUnlockedMoments = new Set(world.initialState.unlockedMomentIds);
   const possibleOutcomesByMoment = new Map(world.moments.map((moment) => [
@@ -406,6 +407,20 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
     const moment = momentsById.get(momentId);
     if (moment == null) continue;
     let contradictory = false;
+    if (!initiallyUnlockedLocations.has(moment.locationId)) contradictory = true;
+    if (moment.availability.requiredCompletedMomentIds.some((id) => !initiallyCompletedMoments.has(id))) {
+      contradictory = true;
+    }
+    for (const requiredStageId of [moment.relationshipStageId, ...moment.availability.requiredRelationshipStageIds]) {
+      const requiredStage = stagesById.get(requiredStageId);
+      if (requiredStage == null) continue;
+      const currentStage = stagesById.get(world.initialState.relationshipStages[requiredStage.npcId]);
+      if (
+        currentStage != null &&
+        currentStage.id !== requiredStage.id &&
+        currentStage.order <= requiredStage.order
+      ) contradictory = true;
+    }
     if (moment.onCompletion.unlockLocationIds.some((id) => locations.has(id) && !initiallyUnlockedLocations.has(id))) {
       contradictory = true;
     }
