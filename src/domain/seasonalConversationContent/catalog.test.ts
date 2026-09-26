@@ -53,6 +53,53 @@ function learnerResponseSteps(definition: ReturnType<typeof definitionById>) {
 }
 
 describe("seasonal conversation catalog", () => {
+  it("credits reaction and sharing for both Foundation Day active alternatives through completion", () => {
+    const definition = definitionById("seasonal-foundation-day-active");
+    const responseStep = learnerResponseSteps(definition)[0];
+    if (!responseStep) throw new Error("Foundation Day active response is missing");
+
+    for (const example of responseStep.responseExamples) {
+      const session = createConversationSession([definition]);
+      expect(session.select(definition.scenario.id)).toBe(true);
+      expect(session.start()).toBe(true);
+      if (session.getState().step?.kind === "partner_line") {
+        expect(session.advance()).toBe(true);
+      }
+      expect(session.getState().step?.kind).toBe("learner_response");
+
+      const feedback = session.submitResponse(example.id);
+      expect(feedback, example.id).not.toBeNull();
+      expect(feedback?.composition.map(({ canonicalSkillId }) => canonicalSkillId), example.id)
+        .toEqual(expect.arrayContaining(["react", "share"]));
+      expect(session.continue(), example.id).toBe(true);
+      expect(session.getState().phase, example.id).toBe("complete");
+      expect(session.getState().summary?.skillsPracticed, example.id)
+        .toEqual(expect.arrayContaining(["react", "share"]));
+    }
+  });
+
+  it("credits the accepted invitation, menu, and memory moves by their actual function", () => {
+    const compositionFor = (scenarioId: string, responseExampleId: string) => {
+      const definition = definitionById(scenarioId);
+      const binding = definition.responses.find((candidate) => candidate.responseExampleId === responseExampleId);
+      if (!binding) throw new Error(`Missing response binding: ${responseExampleId}`);
+      return binding.feedback.feedback.composition.map(({ feature, canonicalSkillId }) => [feature, canonicalSkillId]);
+    };
+
+    expect(definitionById("seasonal-hinamatsuri-before").scenario.primarySkills)
+      .toEqual(["share", "negotiate"]);
+    expect(compositionFor("seasonal-hinamatsuri-before", "seasonal-hinamatsuri-before-turn-1-a"))
+      .toEqual([["answer", "share"], ["add", "negotiate"]]);
+    expect(compositionFor("seasonal-hinamatsuri-before", "seasonal-hinamatsuri-before-turn-1-b"))
+      .toEqual([["answer", "negotiate"]]);
+    expect(compositionFor("seasonal-coffee-day-before", "seasonal-coffee-day-before-turn-2-b"))
+      .toEqual([["answer", "expand"], ["add", "share"]]);
+    expect(compositionFor("seasonal-coffee-day-after", "seasonal-coffee-day-after-turn-1-b"))
+      .toEqual([["answer", "share"], ["add", "negotiate"]]);
+    expect(compositionFor("seasonal-new-years-eve-after", "seasonal-new-years-eve-after-turn-1-b"))
+      .toEqual([["answer", "share"], ["add", "react"]]);
+  });
+
   it("contains thirteen fixed, sourced anchors and all three phases", () => {
     expect(seasonalConversationFamilies).toHaveLength(13);
     expect(seasonalConversationEvents).toHaveLength(13);
