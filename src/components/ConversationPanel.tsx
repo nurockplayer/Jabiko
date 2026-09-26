@@ -3,7 +3,7 @@ import {
   CONVERSATION_FEEDBACK_DIMENSIONS,
   type ConversationFeedbackResult
 } from "../domain/conversationFeedback";
-import { conversationSessionDefinitions } from "../domain/conversationFixtures";
+import { conversationCatalogDefinitions } from "../domain/conversationContent/catalog";
 import {
   localizeConversationLearnerText,
   type ConversationSkillId
@@ -16,15 +16,15 @@ import {
 import { copy, type Language } from "../i18n";
 
 // Small Talk Lab runtime (#814): drives the finite conversation kernel
-// (createConversationSession) over the explicit curated fixture definitions.
+// (createConversationSession) over the explicit curated conversation catalog.
 // The panel owns presentation only -- every transition, branch and feedback
 // value comes from the engine; nothing here re-derives scenario flow or
-// infers feedback from ids/text. The fixture module is imported here (not in
-// the eager barrel/App), and App React.lazy's this component, so the curated
-// conversation content stays out of the initial bundle.
+// infers feedback from ids/text. The catalog is imported here (not in the eager
+// barrel/App), and App React.lazy's this component, so conversation content
+// stays out of the initial bundle.
 export function ConversationPanel({
   language,
-  definitions = conversationSessionDefinitions
+  definitions = conversationCatalogDefinitions
 }: {
   language: Language;
   definitions?: readonly ConversationSessionDefinition[];
