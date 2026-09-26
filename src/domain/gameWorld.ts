@@ -398,6 +398,23 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
     getPossibleMomentOutcomeSets(world, moment)
   ]));
 
+  for (const momentId of world.initialState.completedMomentIds) {
+    const possibleOutcomes = possibleOutcomesByMoment.get(momentId);
+    if (possibleOutcomes == null || possibleOutcomes.stateBudgetExceeded) continue;
+    const initialOutcomeIds = world.initialState.outcomeReferences
+      .filter(({ momentId: referenceMomentId }) => referenceMomentId === momentId)
+      .map(({ outcomeId }) => outcomeId)
+      .sort();
+    const hasFeasibleInitialOutcomeSet = possibleOutcomes.outcomes.some((outcomes) => {
+      const possibleOutcomeIds = outcomes.map(({ id }) => id).sort();
+      return initialOutcomeIds.length === possibleOutcomeIds.length &&
+        initialOutcomeIds.every((outcomeId, index) => outcomeId === possibleOutcomeIds[index]);
+    });
+    if (!hasFeasibleInitialOutcomeSet) {
+      errors.push({ code: "contradictory_initial_state", referenceId: momentId });
+    }
+  }
+
   const transition = (
     state: GameWorldState,
     moment: WorldMoment,

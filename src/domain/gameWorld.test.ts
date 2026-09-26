@@ -425,8 +425,96 @@ describe("game world domain", () => {
     expect(validateGameWorld(prologueWorld)).toEqual({ valid: true, errors: [] });
   });
 
+  it("rejects initial outcome sets that cannot come from trusted session results", () => {
+    const world = createWorld();
+    const makePrologue = (
+      definition: ConversationSessionDefinition,
+      outcomeReferences: GameWorldDefinition["initialState"]["outcomeReferences"]
+    ): GameWorldDefinition => ({
+      ...world,
+      sessionDefinitions: [definition, world.sessionDefinitions[1]],
+      initialState: {
+        ...world.initialState,
+        completedMomentIds: ["station-meet"],
+        relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: ["station-meet", "cafe-chat", "richer-chat"],
+        outcomeReferences
+      },
+      entryMomentIds: []
+    });
+    const impossibleOutcome = makePrologue(
+      makeSessionDefinition(shortScenario, { opening: "dead_end", "follow-up": "dead_end" }),
+      [{ momentId: "station-meet", outcomeId: "enrich-the-thread" }]
+    );
+    expect(validateGameWorld(impossibleOutcome).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+  });
+
+  it("requires mandatory conditional outcomes in a completed initial moment", () => {
+    const world = createWorld();
+    const missingMandatoryOutcome: GameWorldDefinition = {
+      ...world,
+      sessionDefinitions: [makeSessionDefinition(shortScenario, { opening: "opens_thread" }), world.sessionDefinitions[1]],
+      initialState: {
+        ...world.initialState,
+        completedMomentIds: ["station-meet"],
+        relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: ["station-meet", "cafe-chat", "richer-chat"],
+        outcomeReferences: []
+      },
+      entryMomentIds: []
+    };
+    expect(validateGameWorld(missingMandatoryOutcome).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: "station-meet"
+    });
+
+  });
+
+  it("accepts a completed initial moment with no conditional outcomes", () => {
+    const world = createWorld();
+    const noConditionalOutcomeWorld: GameWorldDefinition = {
+      ...world,
+      moments: world.moments
+        .filter(({ id }) => id !== "richer-chat")
+        .map((moment) => moment.id === "station-meet" ? { ...moment, conditionalOutcomes: [] } : moment),
+      initialState: {
+        ...world.initialState,
+        completedMomentIds: ["station-meet"],
+        relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: ["station-meet", "cafe-chat"],
+        outcomeReferences: []
+      },
+      entryMomentIds: []
+    };
+    expect(validateGameWorld(noConditionalOutcomeWorld)).toEqual({ valid: true, errors: [] });
+  });
+
   it("compares outcome references as unambiguous identifier pairs", () => {
     const world = createWorld();
+    const collisionScenario: ConversationScenario = {
+      ...shortScenario,
+      steps: shortScenario.steps.map((step) => step.id === "opening-response" && step.kind === "learner_response"
+        ? {
+          ...step,
+          responseExamples: [
+            ...step.responseExamples,
+            { id: "opens-only", kind: "accepted", japanese: "本当ですね。" },
+            { id: "dead-only", kind: "accepted", japanese: "そうですか。" }
+          ]
+        }
+        : step)
+    };
+    const collisionDefinition = makeSessionDefinition(collisionScenario, {
+      opening: "enriches_thread",
+      "opens-only": "opens_thread",
+      "dead-only": "dead_end"
+    });
     const originalStation = world.moments.find(({ id }) => id === "station-meet");
     if (originalStation == null) throw new Error("Expected station-meet moment.");
     const station: WorldMoment = {
@@ -437,10 +525,15 @@ describe("game world domain", () => {
     const collisionMoment: WorldMoment = {
       ...station,
       id: collisionMomentId,
-      conditionalOutcomes: station.conditionalOutcomes.map((outcome) => ({ ...outcome, id: "thread" }))
+      conditionalOutcomes: station.conditionalOutcomes.map((outcome) => ({
+        ...outcome,
+        id: "thread",
+        responseRequirement: { ...outcome.responseRequirement, minimumContinuationQuality: "enriches_thread" }
+      }))
     };
     const collisionWorld: GameWorldDefinition = {
       ...world,
+      sessionDefinitions: [collisionDefinition, world.sessionDefinitions[1]],
       moments: [...world.moments.filter(({ id }) => id !== station.id), station, collisionMoment],
       initialState: {
         ...world.initialState,
