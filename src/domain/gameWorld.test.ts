@@ -11,7 +11,8 @@ import {
   getAvailableWorldMoments,
   localizeGameWorldText,
   validateGameWorld,
-  type GameWorldDefinition
+  type GameWorldDefinition,
+  type WorldMoment
 } from "./gameWorld";
 
 const shortScenario: ConversationScenario = {
@@ -163,6 +164,46 @@ function createWorld(): GameWorldDefinition {
   };
 }
 
+function addInitialEntryMoment(
+  overrides: Partial<WorldMoment> & Pick<WorldMoment, "id" | "locationId" | "npcId" | "relationshipStageId" | "scenarioId">,
+  advertised = true,
+  initiallyUnlockLocation = true
+): GameWorldDefinition {
+  const world = createWorld();
+  const moment: WorldMoment = {
+    ...world.moments[1],
+    ...overrides,
+    objective: learnerText("新しい場面を始める。"),
+    availability: overrides.availability ?? { requiredCompletedMomentIds: [], requiredRelationshipStageIds: [] },
+    onCompletion: { unlockLocationIds: [], unlockMomentIds: [], relationshipStageUpdates: [] },
+    conditionalOutcomes: [],
+    completesArc: true
+  };
+  const firstMoment = world.moments[0];
+  return {
+    ...world,
+    moments: [
+      {
+        ...firstMoment,
+        onCompletion: {
+          ...firstMoment.onCompletion,
+          unlockMomentIds: [...firstMoment.onCompletion.unlockMomentIds, moment.id]
+        }
+      },
+      ...world.moments.slice(1),
+      moment
+    ],
+    initialState: {
+      ...world.initialState,
+      unlockedLocationIds: overrides.locationId === "cafe" && initiallyUnlockLocation
+        ? [...world.initialState.unlockedLocationIds, "cafe"]
+        : world.initialState.unlockedLocationIds,
+      unlockedMomentIds: [...world.initialState.unlockedMomentIds, moment.id]
+    },
+    entryMomentIds: advertised ? [...world.entryMomentIds, moment.id] : world.entryMomentIds
+  };
+}
+
 const continuationFeedback = (
   responseId: string,
   responseJapanese: string,
@@ -255,6 +296,54 @@ function makeCompletedSession(
 describe("game world domain", () => {
   it("validates a finite world with two locations, two NPCs, and short/medium scenario bindings", () => {
     expect(validateGameWorld(createWorld())).toEqual({ valid: true, errors: [] });
+  });
+
+  it("allows the entry list to omit other initially available moments", () => {
+    const world = addInitialEntryMoment({
+      id: "unlisted-initial-moment",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: shortScenario.id
+    }, false);
+
+    expect(validateGameWorld(world)).toEqual({ valid: true, errors: [] });
+    expect(world.entryMomentIds).not.toContain("unlisted-initial-moment");
+    expect(getAvailableWorldMoments(world, world.initialState).map(({ id }) => id))
+      .toContain("unlisted-initial-moment");
+  });
+
+  it.each([
+    ["a locked location", addInitialEntryMoment({
+      id: "locked-location-entry",
+      locationId: "cafe",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: shortScenario.id
+    }, true, false)],
+    ["an unmet relationship stage", addInitialEntryMoment({
+      id: "unmet-relationship-entry",
+      locationId: "station",
+      npcId: "aki",
+      relationshipStageId: "aki-familiar",
+      scenarioId: mediumScenario.id,
+      availability: { requiredCompletedMomentIds: [], requiredRelationshipStageIds: ["aki-familiar"] }
+    })],
+    ["an unmet completion prerequisite", addInitialEntryMoment({
+      id: "unmet-completion-entry",
+      locationId: "station",
+      npcId: "ren",
+      relationshipStageId: "ren-new",
+      scenarioId: shortScenario.id,
+      availability: { requiredCompletedMomentIds: ["station-meet"], requiredRelationshipStageIds: [] }
+    })]
+  ] as const)("rejects an entry that is unavailable from the initial state because of %s", (_reason, world) => {
+    const initialState = structuredClone(world.initialState);
+    expect(validateGameWorld(world).errors).toContainEqual({
+      code: "contradictory_initial_state",
+      referenceId: world.entryMomentIds.at(-1)!
+    });
+    expect(world.initialState).toEqual(initialState);
   });
 
   it("selects the same available moments deterministically from the same state", () => {

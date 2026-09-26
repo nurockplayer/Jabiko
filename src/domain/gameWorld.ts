@@ -279,6 +279,13 @@ function validateInitialState(world: GameWorldDefinition, errors: GameWorldValid
     if (stage == null || stage.npcId !== npc.id || !npc.relationshipStageIds.includes(stageId)) bad(`${npc.id}:${stageId ?? "missing"}`);
   }
   for (const npcId of Object.keys(state.relationshipStages)) if (!npcs.has(npcId)) bad(npcId);
+
+  if (isValidWorldState(world, state)) {
+    for (const id of world.entryMomentIds) {
+      const moment = momentsById.get(id);
+      if (moment != null && !isMomentAvailable(world, moment, state)) bad(id);
+    }
+  }
 }
 
 interface PossibleMomentOutcomeSets {
