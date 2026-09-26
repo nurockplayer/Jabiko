@@ -437,6 +437,74 @@ describe("game world domain", () => {
     ).applied).toBe(true);
   });
 
+  it("admits reordered facts with canonically equivalent but distinct identifiers", () => {
+    const world = createWorld();
+    const composed = "é";
+    const decomposed = "e\u0301";
+    const npcId = (id: string): string => id === "aki" ? composed : decomposed;
+    const station = world.moments.find(({ id }) => id === "station-meet");
+    if (station == null) throw new Error("Expected station-meet moment.");
+
+    const remappedStation: WorldMoment = {
+      ...station,
+      id: composed,
+      npcId: composed,
+      onCompletion: {
+        ...station.onCompletion,
+        relationshipStageUpdates: station.onCompletion.relationshipStageUpdates.map((update) => ({
+          ...update,
+          npcId: npcId(update.npcId)
+        }))
+      }
+    };
+    const duplicatePrologue: WorldMoment = { ...remappedStation, id: decomposed };
+    const reorderedWorld: GameWorldDefinition = {
+      ...world,
+      npcs: world.npcs.map((npc) => ({ ...npc, id: npcId(npc.id) })),
+      relationshipStages: world.relationshipStages.map((stage) => ({ ...stage, npcId: npcId(stage.npcId) })),
+      moments: [
+        remappedStation,
+        duplicatePrologue,
+        ...world.moments.filter(({ id }) => id !== "station-meet").map((moment) => ({
+          ...moment,
+          npcId: npcId(moment.npcId),
+          availability: {
+            ...moment.availability,
+            requiredCompletedMomentIds: moment.availability.requiredCompletedMomentIds.map((id) =>
+              id === "station-meet" ? composed : id)
+          }
+        }))
+      ],
+      initialState: {
+        completedMomentIds: [composed, decomposed],
+        relationshipStages: { [composed]: "aki-familiar", [decomposed]: "ren-new" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: [composed, decomposed, "cafe-chat", "richer-chat"],
+        outcomeReferences: [
+          { momentId: composed, outcomeId: "enrich-the-thread" },
+          { momentId: decomposed, outcomeId: "enrich-the-thread" }
+        ]
+      },
+      entryMomentIds: []
+    };
+    const reorderedState = {
+      ...reorderedWorld.initialState,
+      relationshipStages: Object.fromEntries(Object.entries(reorderedWorld.initialState.relationshipStages).reverse()),
+      outcomeReferences: [...reorderedWorld.initialState.outcomeReferences].reverse()
+    };
+
+    expect(composed.localeCompare(decomposed)).toBe(0);
+    expect(validateGameWorld(reorderedWorld)).toEqual({ valid: true, errors: [] });
+    expect(getAvailableWorldMoments(reorderedWorld, reorderedState).map(({ id }) => id))
+      .toEqual(getAvailableWorldMoments(reorderedWorld, reorderedWorld.initialState).map(({ id }) => id));
+    expect(applyCompletedConversationSession(
+      reorderedWorld,
+      reorderedState,
+      "cafe-chat",
+      makeCompletedSession(mediumScenario.id)
+    ).applied).toBe(true);
+  });
+
   it.each([
     ["a locked location", addInitialEntryMoment({
       id: "locked-location-entry",

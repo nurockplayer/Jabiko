@@ -134,6 +134,10 @@ function outcomeReferenceKey(momentId: string, outcomeId: string): string {
   return JSON.stringify([momentId, outcomeId]);
 }
 
+function compareExactStrings(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
 function collectReachableScenarioStepIds(scenario: ConversationScenario): Set<string> {
   const stepsById = new Map(scenario.steps.map((step) => [step.id, step]));
   const reachable = new Set<string>();
@@ -236,13 +240,13 @@ function selectAvailableWorldMoments(
 function canonicalStateKey(state: GameWorldState): string {
   return JSON.stringify({
     completed: [...state.completedMomentIds].sort(),
-    relationships: Object.entries(state.relationshipStages).sort(([left], [right]) => left.localeCompare(right)),
+    relationships: Object.entries(state.relationshipStages).sort(([left], [right]) => compareExactStrings(left, right)),
     locations: [...state.unlockedLocationIds].sort(),
     moments: [...state.unlockedMomentIds].sort(),
     outcomes: state.outcomeReferences
       .map(({ momentId, outcomeId }) => [momentId, outcomeId] as const)
       .sort(([leftMoment, leftOutcome], [rightMoment, rightOutcome]) =>
-        leftMoment.localeCompare(rightMoment) || leftOutcome.localeCompare(rightOutcome))
+        compareExactStrings(leftMoment, rightMoment) || compareExactStrings(leftOutcome, rightOutcome))
   });
 }
 
