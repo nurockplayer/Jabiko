@@ -130,6 +130,10 @@ function hasDuplicates(values: readonly string[]): boolean {
   return new Set(values).size !== values.length;
 }
 
+function outcomeReferenceKey(momentId: string, outcomeId: string): string {
+  return JSON.stringify([momentId, outcomeId]);
+}
+
 function collectReachableScenarioStepIds(scenario: ConversationScenario): Set<string> {
   const stepsById = new Map(scenario.steps.map((step) => [step.id, step]));
   const reachable = new Set<string>();
@@ -198,7 +202,7 @@ function isValidWorldState(world: GameWorldDefinition, state: GameWorldState): b
     hasDuplicates(state.completedMomentIds) ||
     hasDuplicates(state.unlockedMomentIds) ||
     hasDuplicates(state.unlockedLocationIds) ||
-    hasDuplicates(state.outcomeReferences.map(({ momentId, outcomeId }) => `${momentId}:${outcomeId}`)) ||
+    hasDuplicates(state.outcomeReferences.map(({ momentId, outcomeId }) => outcomeReferenceKey(momentId, outcomeId))) ||
     Object.keys(state.relationshipStages).length !== npcIds.size ||
     Object.keys(state.relationshipStages).some((id) => !npcIds.has(id)) ||
     state.completedMomentIds.some((id) => !momentsById.has(id)) ||
@@ -229,11 +233,25 @@ function selectAvailableWorldMoments(
   return world.moments.filter((moment) => isMomentAvailable(world, moment, state));
 }
 
+function canonicalStateKey(state: GameWorldState): string {
+  return JSON.stringify({
+    completed: [...state.completedMomentIds].sort(),
+    relationships: Object.entries(state.relationshipStages).sort(([left], [right]) => left.localeCompare(right)),
+    locations: [...state.unlockedLocationIds].sort(),
+    moments: [...state.unlockedMomentIds].sort(),
+    outcomes: state.outcomeReferences
+      .map(({ momentId, outcomeId }) => [momentId, outcomeId] as const)
+      .sort(([leftMoment, leftOutcome], [rightMoment, rightOutcome]) =>
+        leftMoment.localeCompare(rightMoment) || leftOutcome.localeCompare(rightOutcome))
+  });
+}
+
 export function getAvailableWorldMoments(
   world: GameWorldDefinition,
   state: GameWorldState
 ): readonly WorldMoment[] {
-  if (!validateGameWorld(world).valid) return [];
+  const analysis = analyzeGameWorld(world);
+  if (!analysis.valid || !isValidWorldState(world, state) || !analysis.reachableStateKeys.has(canonicalStateKey(state))) return [];
   return selectAvailableWorldMoments(world, state);
 }
 
@@ -252,7 +270,7 @@ function validateInitialState(world: GameWorldDefinition, errors: GameWorldValid
     hasDuplicates(state.completedMomentIds) ||
     hasDuplicates(state.unlockedLocationIds) ||
     hasDuplicates(state.unlockedMomentIds) ||
-    hasDuplicates(state.outcomeReferences.map(({ momentId, outcomeId }) => `${momentId}:${outcomeId}`)) ||
+    hasDuplicates(state.outcomeReferences.map(({ momentId, outcomeId }) => outcomeReferenceKey(momentId, outcomeId))) ||
     hasDuplicates(world.entryMomentIds)
   ) bad("duplicate-initial-fact");
 
@@ -360,8 +378,8 @@ function getPossibleMomentOutcomeSets(
   return { outcomes: [...outcomeSets.values()], stateBudgetExceeded: false };
 }
 
-function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorldValidationError[]): void {
-  const reachableMomentIds = new Set<string>();
+function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorldValidationError[]): ReadonlySet<string> {
+  const reachableMomentIds = new Set(world.initialState.completedMomentIds);
   const pending: GameWorldState[] = [world.initialState];
   const visited = new Set<string>();
   const outgoing = new Map<string, Set<string>>();
@@ -375,14 +393,6 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
     moment.id,
     getPossibleMomentOutcomeSets(world, moment, stateBudget)
   ]));
-
-  const stateKey = (state: GameWorldState): string => JSON.stringify({
-    completed: [...state.completedMomentIds].sort(),
-    relationships: Object.entries(state.relationshipStages).sort(([left], [right]) => left.localeCompare(right)),
-    locations: [...state.unlockedLocationIds].sort(),
-    moments: [...state.unlockedMomentIds].sort(),
-    outcomes: state.outcomeReferences.map(({ momentId, outcomeId }) => `${momentId}:${outcomeId}`).sort()
-  });
 
   const transition = (
     state: GameWorldState,
@@ -408,12 +418,11 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
   while (pending.length > 0 && visited.size < stateBudget) {
     const state = pending.pop();
     if (state == null) continue;
-    const key = stateKey(state);
+    const key = canonicalStateKey(state);
     if (visited.has(key)) continue;
     visited.add(key);
     if (state.completedMomentIds.some((id) => completingMomentIds.has(id))) {
       terminal.add(key);
-      continue;
     }
 
     for (const moment of selectAvailableWorldMoments(world, state)) {
@@ -423,7 +432,7 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
       outgoing.set(key, successors);
       for (const outcomes of possibleOutcomesByMoment.get(moment.id)?.outcomes ?? [[]]) {
         const next = transition(state, moment, outcomes);
-        successors.add(stateKey(next));
+        successors.add(canonicalStateKey(next));
         pending.push(next);
       }
     }
@@ -452,9 +461,14 @@ function validateFiniteReachability(world: GameWorldDefinition, errors: GameWorl
   }
   if (terminal.size === 0) errors.push({ code: "unreachable_arc_completion" });
   if ([...visited].some((key) => !canReachTerminal.has(key))) errors.push({ code: "stranded_arc_state" });
+  return visited;
 }
 
-export function validateGameWorld(world: GameWorldDefinition): GameWorldValidationResult {
+interface GameWorldAnalysis extends GameWorldValidationResult {
+  reachableStateKeys: ReadonlySet<string>;
+}
+
+function analyzeGameWorld(world: GameWorldDefinition): GameWorldAnalysis {
   const errors: GameWorldValidationError[] = [];
   const locationIds = uniqueIds(world.locations, "duplicate_location_id", errors);
   const npcIds = uniqueIds(world.npcs, "duplicate_npc_id", errors);
@@ -545,8 +559,13 @@ export function validateGameWorld(world: GameWorldDefinition): GameWorldValidati
   }
 
   validateInitialState(world, errors);
-  validateFiniteReachability(world, errors);
-  return { valid: errors.length === 0, errors };
+  const reachableStateKeys = validateFiniteReachability(world, errors);
+  return { valid: errors.length === 0, errors, reachableStateKeys };
+}
+
+export function validateGameWorld(world: GameWorldDefinition): GameWorldValidationResult {
+  const { valid, errors } = analyzeGameWorld(world);
+  return { valid, errors };
 }
 
 function replayCompletedSession(
@@ -648,8 +667,11 @@ export function applyCompletedConversationSession(
   momentId: string,
   session: ConversationSessionState
 ): GameWorldTransitionResult {
-  if (!validateGameWorld(world).valid) return { applied: false, state, reason: "invalid_world" };
-  if (!isValidWorldState(world, state)) return { applied: false, state, reason: "invalid_state" };
+  const analysis = analyzeGameWorld(world);
+  if (!analysis.valid) return { applied: false, state, reason: "invalid_world" };
+  if (!isValidWorldState(world, state) || !analysis.reachableStateKeys.has(canonicalStateKey(state))) {
+    return { applied: false, state, reason: "invalid_state" };
+  }
   const moment = world.moments.find(({ id }) => id === momentId);
   if (moment == null) return { applied: false, state, reason: "unknown_moment" };
   if (state.completedMomentIds.includes(momentId)) return { applied: false, state, reason: "unavailable_moment" };

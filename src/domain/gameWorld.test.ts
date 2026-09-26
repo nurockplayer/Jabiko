@@ -313,6 +313,130 @@ describe("game world domain", () => {
       .toContain("unlisted-initial-moment");
   });
 
+  it("rejects a structurally valid state with a fabricated conditional unlock", () => {
+    const world = createWorld();
+    const reachableEnrichedState = applyCompletedConversationSession(
+      world,
+      world.initialState,
+      "station-meet",
+      makeCompletedSession()
+    );
+    expect(reachableEnrichedState.applied).toBe(true);
+
+    const fabricated = {
+      ...reachableEnrichedState.state,
+      outcomeReferences: []
+    };
+    expect(getAvailableWorldMoments(world, fabricated)).toEqual([]);
+    expect(applyCompletedConversationSession(
+      world,
+      fabricated,
+      "richer-chat",
+      makeCompletedSession(mediumScenario.id)
+    )).toEqual({ applied: false, state: fabricated, reason: "invalid_state" });
+  });
+
+  it("accepts a valid authored initial state with a pre-completed prologue moment", () => {
+    const world = createWorld();
+    const prologueWorld: GameWorldDefinition = {
+      ...world,
+      initialState: {
+        ...world.initialState,
+        completedMomentIds: ["station-meet"],
+        relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: ["station-meet", "cafe-chat", "richer-chat"],
+        outcomeReferences: [{ momentId: "station-meet", outcomeId: "enrich-the-thread" }]
+      },
+      entryMomentIds: []
+    };
+
+    expect(validateGameWorld(prologueWorld)).toEqual({ valid: true, errors: [] });
+  });
+
+  it("compares outcome references as unambiguous identifier pairs", () => {
+    const world = createWorld();
+    const originalStation = world.moments.find(({ id }) => id === "station-meet");
+    if (originalStation == null) throw new Error("Expected station-meet moment.");
+    const station: WorldMoment = {
+      ...originalStation,
+      conditionalOutcomes: originalStation.conditionalOutcomes.map((outcome) => ({ ...outcome, id: "enrich-the:thread" }))
+    };
+    const collisionMomentId = "station-meet:enrich-the";
+    const collisionMoment: WorldMoment = {
+      ...station,
+      id: collisionMomentId,
+      conditionalOutcomes: station.conditionalOutcomes.map((outcome) => ({ ...outcome, id: "thread" }))
+    };
+    const collisionWorld: GameWorldDefinition = {
+      ...world,
+      moments: [...world.moments.filter(({ id }) => id !== station.id), station, collisionMoment],
+      initialState: {
+        ...world.initialState,
+        completedMomentIds: ["station-meet", collisionMomentId],
+        relationshipStages: { ...world.initialState.relationshipStages, aki: "aki-familiar" },
+        unlockedLocationIds: ["station", "cafe"],
+        unlockedMomentIds: [...world.initialState.unlockedMomentIds, "cafe-chat", "richer-chat", collisionMomentId],
+        outcomeReferences: [{ momentId: "station-meet", outcomeId: "enrich-the:thread" }]
+      },
+      entryMomentIds: []
+    };
+    const collidingButUnreachable = {
+      ...collisionWorld.initialState,
+      outcomeReferences: [{ momentId: collisionMomentId, outcomeId: "thread" }]
+    };
+
+    expect(validateGameWorld(collisionWorld)).toEqual({ valid: true, errors: [] });
+    expect(getAvailableWorldMoments(collisionWorld, collidingButUnreachable)).toEqual([]);
+    expect(applyCompletedConversationSession(
+      collisionWorld,
+      collidingButUnreachable,
+      "cafe-chat",
+      makeCompletedSession(mediumScenario.id)
+    )).toMatchObject({ applied: false, reason: "invalid_state" });
+
+    const distinctReferencesWorld: GameWorldDefinition = {
+      ...collisionWorld,
+      initialState: {
+        ...collisionWorld.initialState,
+        outcomeReferences: [
+          { momentId: "station-meet", outcomeId: "enrich-the:thread" },
+          { momentId: collisionMomentId, outcomeId: "thread" }
+        ]
+      }
+    };
+    expect(validateGameWorld(distinctReferencesWorld)).toEqual({ valid: true, errors: [] });
+  });
+
+  it("accepts a reordered legal state and preserves legal transitions after arc completion", () => {
+    const world = createWorld();
+    const afterStation = applyCompletedConversationSession(world, world.initialState, "station-meet", makeCompletedSession()).state;
+    const afterCafe = applyCompletedConversationSession(
+      world,
+      afterStation,
+      "cafe-chat",
+      makeCompletedSession(mediumScenario.id)
+    );
+    expect(afterCafe.applied).toBe(true);
+    expect(afterCafe.state.completedMomentIds).toContain("cafe-chat");
+
+    const reordered = {
+      ...afterStation,
+      completedMomentIds: [...afterStation.completedMomentIds].reverse(),
+      relationshipStages: Object.fromEntries(Object.entries(afterStation.relationshipStages).reverse()),
+      unlockedLocationIds: [...afterStation.unlockedLocationIds].reverse(),
+      unlockedMomentIds: [...afterStation.unlockedMomentIds].reverse(),
+      outcomeReferences: [...afterStation.outcomeReferences].reverse()
+    };
+    expect(getAvailableWorldMoments(world, reordered)).toEqual(getAvailableWorldMoments(world, afterStation));
+    expect(applyCompletedConversationSession(
+      world,
+      afterCafe.state,
+      "richer-chat",
+      makeCompletedSession(mediumScenario.id)
+    ).applied).toBe(true);
+  });
+
   it.each([
     ["a locked location", addInitialEntryMoment({
       id: "locked-location-entry",
