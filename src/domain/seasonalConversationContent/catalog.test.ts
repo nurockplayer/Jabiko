@@ -175,8 +175,8 @@ describe("seasonal conversation catalog", () => {
     const yearEndResponses = yearEndAfter.scenario.steps.flatMap((step) =>
       step.kind === "learner_response" ? step.responseExamples.map(({ japanese }) => japanese) : []
     );
-    expect(yearEndResponses.some((line) => line.includes("前年に撮った写真"))).toBe(true);
-    expect(yearEndResponses.some((line) => line.includes("今年撮った写真") || line.includes("去年撮った写真"))).toBe(false);
+    expect(yearEndResponses.some((line) => line.includes("去年"))).toBe(true);
+    expect(yearEndResponses.some((line) => line.includes("今年撮った写真"))).toBe(false);
   });
 
   it("uses distinct authored medium and deeper long learning arcs", () => {
@@ -312,6 +312,182 @@ describe("seasonal conversation catalog", () => {
       .not.toMatch(/下週公布/);
   });
 
+  it("keeps shared continuations and learning jobs compatible with every selected response", () => {
+    const firstPartnerLine = (id: string) => definitionById(id).scenario.steps
+      .find((step) => step.kind === "partner_line")?.japanese ?? "";
+    const foundationActive = firstPartnerLine("seasonal-foundation-day-active");
+    expect(foundationActive).toMatch(/この後/);
+    expect(foundationActive).toMatch(/家で過ごす/);
+
+    const foundationAfter = definitionById("seasonal-foundation-day-after").scenario.objective;
+    expect(foundationAfter.textZh).toMatch(/散步.*具體細節/);
+    expect(foundationAfter.textI18n?.ja).toMatch(/散歩.*具体的なこと/);
+    expect(foundationAfter.textI18n?.en).toMatch(/walk.*concrete follow-up/i);
+
+    const newYearAfter = definitionById("seasonal-new-year-after");
+    const newYearFirstAnswer = learnerResponseSteps(newYearAfter)[0]?.responseExamples[0]?.japanese ?? "";
+    expect(newYearFirstAnswer).toMatch(/外に出なかった|外には出ず/);
+
+    const childrenAfter = definitionById("seasonal-childrens-day-after");
+    const childrenSteps = learnerResponseSteps(childrenAfter);
+    const childrenSharedContinuation = childrenAfter.scenario.steps
+      .find((step) => step.id === "seasonal-childrens-day-after-partner-2");
+    if (!childrenSharedContinuation || childrenSharedContinuation.kind !== "partner_line") {
+      throw new Error("Children's Day shared continuation is missing");
+    }
+    expect(childrenSharedContinuation.japanese).toMatch(/風/);
+    expect(childrenSharedContinuation.japanese).toMatch(/こいのぼり/);
+    const childrenFirst = childrenSteps[0];
+    const childrenQuestion = childrenFirst?.responseExamples[0];
+    if (!childrenFirst || !childrenQuestion) throw new Error("Children's Day first response is missing");
+    const childrenQuestionBinding = childrenAfter.responses.find(({ responseExampleId }) => responseExampleId === childrenQuestion.id);
+    expect(childrenQuestionBinding?.feedback.feedback.composition).toContainEqual({ feature: "ask", canonicalSkillId: "expand" });
+    const childrenFinal = childrenSteps.at(-1);
+    if (!childrenFinal) throw new Error("Children's Day final response is missing");
+    for (const example of childrenFinal.responseExamples) {
+      expect(example.japanese).toContain("公園");
+      expect(example.japanese).toContain("川沿い");
+    }
+
+    const disasterBefore = definitionById("seasonal-disaster-prevention-day-before");
+    expect(disasterBefore.scenario.objective.textZh).toMatch(/時間.*地點|地點.*時間/);
+    expect(disasterBefore.scenario.objective.textI18n?.ja).toMatch(/時刻.*場所|場所.*時刻/);
+    expect(disasterBefore.scenario.objective.textI18n?.en).toMatch(/time or meeting place/i);
+    const disasterActive = definitionById("seasonal-disaster-prevention-day-active");
+    expect(disasterActive.scenario.situation.textZh).toMatch(/集合地點/);
+    expect(disasterActive.scenario.situation.textI18n?.ja).toMatch(/集合場所/);
+
+    expect(definitionById("seasonal-tanabata-after").scenario.difficulty.relationshipDistance).toBe("familiar");
+
+    const cultureActive = definitionById("seasonal-culture-day-active");
+    expect(cultureActive.scenario.primarySkills).not.toContain("bounce");
+    for (const [field, label] of [
+      [cultureActive.scenario.objective, "objective"],
+      [cultureActive.scenario.instruction, "instruction"]
+    ] as const) {
+      expect(field.textZh, label).toMatch(/可選|任意|由自己決定/);
+      expect(field.textI18n?.ja, label).toMatch(/任意|必要なら/);
+      expect(field.textI18n?.en, label).toMatch(/optional|may/i);
+    }
+
+    const cultureAfter = definitionById("seasonal-culture-day-after");
+    const cultureSteps = learnerResponseSteps(cultureAfter);
+    const cultureFirstQuestion = cultureSteps[0]?.responseExamples[0];
+    if (!cultureFirstQuestion) throw new Error("Culture Day first response is missing");
+    const cultureFirstBinding = cultureAfter.responses.find(({ responseExampleId }) => responseExampleId === cultureFirstQuestion.id);
+    expect(cultureFirstBinding?.feedback.feedback.composition).toContainEqual({ feature: "ask", canonicalSkillId: "expand" });
+    const cultureSharedContinuation = cultureAfter.scenario.steps
+      .find((step) => step.id === "seasonal-culture-day-after-partner-3");
+    if (!cultureSharedContinuation || cultureSharedContinuation.kind !== "partner_line") {
+      throw new Error("Culture Day shared continuation is missing");
+    }
+    expect(cultureSharedContinuation.japanese).toMatch(/形/);
+    expect(cultureSharedContinuation.japanese).toMatch(/余白/);
+    expect(cultureSharedContinuation.japanese).toMatch(/友人/);
+
+    const yearEndAfter = definitionById("seasonal-new-years-eve-after");
+    const yearEndFirst = learnerResponseSteps(yearEndAfter)[0]?.responseExamples[0]?.japanese ?? "";
+    expect(yearEndFirst).toContain("去年");
+    expect(yearEndFirst).not.toContain("前年");
+    const coffeeLines = learnerResponseSteps(definitionById("seasonal-coffee-day-after"))
+      .flatMap((step) => step.responseExamples.map(({ japanese }) => japanese));
+    expect(coffeeLines.some((line) => line.includes("両方が選びやすいメニュー"))).toBe(false);
+    const labourLines = learnerResponseSteps(definitionById("seasonal-labour-thanksgiving-day-after"))
+      .flatMap((step) => step.responseExamples.map(({ japanese }) => japanese));
+    expect(labourLines.some((line) => line.includes("短くても休むと変わりますね"))).toBe(false);
+
+    const coffeeBeforeContinuation = definitionById("seasonal-coffee-day-before").scenario.steps
+      .find((step) => step.id === "seasonal-coffee-day-before-partner-2");
+    if (!coffeeBeforeContinuation || coffeeBeforeContinuation.kind !== "partner_line") {
+      throw new Error("Coffee Day shared continuation is missing");
+    }
+    expect(coffeeBeforeContinuation.japanese).toMatch(/温かい/);
+  });
+
+  it("credits explicit fit checks while keeping question-shaped proposals as negotiation", () => {
+    const compositionFor = (scenarioId: string, japanese: string) => {
+      const definition = definitionById(scenarioId);
+      const example = learnerResponseSteps(definition)
+        .flatMap((step) => step.responseExamples)
+        .find((candidate) => candidate.japanese === japanese);
+      if (!example) throw new Error(`Missing authored response in ${scenarioId}: ${japanese}`);
+      const binding = definition.responses.find(({ responseExampleId }) => responseExampleId === example.id);
+      if (!binding) throw new Error(`Missing authored response binding: ${example.id}`);
+      return binding.feedback.feedback.composition;
+    };
+
+    for (const [scenarioId, japanese] of [
+      ["seasonal-tanabata-after", "以前は毎日読む目標にしましたが、忙しい日にできないと、続けること自体をあきらめそうになりました。そこで時間のある日に数ページ読む形に変えました。毎日の記録より、読む時間を楽しめるほうを大切にしました。決まった曜日だけにする方法は合いそうですか？"],
+      ["seasonal-tanabata-after", "予定どおりにできないと目標が負担になるので、忙しい日は休み、余裕のある日に戻る形にしました。回数は減っても、長く続けられるほうが自分には現実的でした。短い時間だけ続ける方法は合いそうですか？"],
+      ["seasonal-coffee-day-after", "飲み物の種類が多いと、好みが違っても選べるので重視したいです。お茶も選びやすいですか？"]
+    ] as const) {
+      expect(compositionFor(scenarioId, japanese)).toContainEqual({ feature: "ask", canonicalSkillId: "expand" });
+    }
+
+    for (const [scenarioId, japanese] of [
+      ["seasonal-coffee-day-before", "私はミルクを入れたコーヒーが好きですが、今日はお茶もよさそうです。コーヒー以外のメニューも見てみませんか？"],
+      ["seasonal-tanabata-after", "できる日に短く、という形が合いそうですね。最初に一章だけと決めると、忙しい日に量を調整しやすいかもしれません。試してみませんか？"],
+      ["seasonal-tanabata-after", "いいですね。始めた日に、読んだところを一行だけメモするのはどうですか？"],
+      ["seasonal-new-years-eve-before", "その過ごし方もよさそうですね。もし別の日に会いたくなったら、空いている時間に短く話すのはどうですか？"]
+    ] as const) {
+      const composition = compositionFor(scenarioId, japanese);
+      expect(composition).toContainEqual({ feature: "add", canonicalSkillId: "negotiate" });
+      expect(composition.some(({ feature }) => feature === "ask")).toBe(false);
+    }
+  });
+
+  it("keeps late-stage shared lines and year-window copy compatible with every branch", () => {
+    const cultureAfter = definitionById("seasonal-culture-day-after");
+    const cultureContinuation = cultureAfter.scenario.steps.find(
+      (step) => step.id === "seasonal-culture-day-after-partner-3"
+    );
+    if (!cultureContinuation || cultureContinuation.kind !== "partner_line") {
+      throw new Error("Culture Day partner continuation is missing");
+    }
+    expect(cultureContinuation.japanese).toMatch(/作品の端.*形が特に印象/);
+    expect(cultureContinuation.japanese).toMatch(/余白との位置関係/);
+    expect(cultureContinuation.japanese).not.toMatch(/余白に目を向けたのも面白い/);
+
+    const childrenAfter = definitionById("seasonal-childrens-day-after");
+    for (const [field, label] of [
+      [childrenAfter.scenario.objective, "objective"],
+      [learnerResponseSteps(childrenAfter)[0]?.prompt, "turn-one prompt"]
+    ] as const) {
+      if (!field) throw new Error(`Children's Day ${label} is missing`);
+      expect(field.textZh, label).toMatch(/比較|回應.*觀察/);
+      expect(field.textI18n?.ja, label).toMatch(/比べ|応じ/);
+      expect(field.textI18n?.en, label).toMatch(/compare|respond/i);
+      expect(field.textZh, label).not.toMatch(/回憶自己的觀察/);
+      expect(field.textI18n?.ja, label).not.toMatch(/自分の観察を振り返り/);
+      expect(field.textI18n?.en, label).not.toMatch(/recall your observation/i);
+    }
+    const childrenFirstA = learnerResponseSteps(childrenAfter)[0]?.responseExamples[0];
+    if (!childrenFirstA) throw new Error("Children's Day first option is missing");
+    const childrenFirstBinding = childrenAfter.responses.find(({ responseExampleId }) => responseExampleId === childrenFirstA.id);
+    expect(childrenFirstBinding?.feedback.feedback.composition).toContainEqual({ feature: "add", canonicalSkillId: "share" });
+    expect(childrenFirstBinding?.feedback.feedback.composition).toContainEqual({ feature: "ask", canonicalSkillId: "expand" });
+
+    const newYearAfter = definitionById("seasonal-new-year-after");
+    expect(newYearAfter.scenario.situation.textZh).toMatch(/在家休息|短暫散步/);
+    expect(newYearAfter.scenario.situation.textI18n?.ja).toMatch(/家で休|短い散歩/);
+    expect(newYearAfter.scenario.situation.textI18n?.en).toMatch(/stay home|short walk/i);
+    expect(newYearAfter.scenario.situation.textZh).not.toMatch(/一人在家.*另一人/);
+    expect(newYearAfter.scenario.situation.textI18n?.ja).not.toMatch(/一人は家.*もう一人/);
+    expect(newYearAfter.scenario.situation.textI18n?.en).not.toMatch(/one stayed home while the other/i);
+
+    const yearEndEvent = seasonalConversationEvents.find(({ id }) => id === "new-years-eve");
+    if (!yearEndEvent) throw new Error("New Year's Eve event is missing");
+    const jan10 = selectRelevantSeasonalEvents(
+      [yearEndEvent],
+      new Date("2027-01-10T12:00:00+09:00")
+    )[0];
+    expect(jan10?.phase).toBe("recent");
+    const yearEndAfter = definitionById("seasonal-new-years-eve-after");
+    const yearEndResponses = learnerResponseSteps(yearEndAfter).flatMap((step) => step.responseExamples.map(({ japanese }) => japanese));
+    expect(yearEndResponses.some((line) => line.includes("去年撮った写真"))).toBe(true);
+    expect(yearEndResponses.some((line) => line.includes("今年撮った写真"))).toBe(false);
+  });
+
   it("preserves the reviewed medium reciprocity and honest response credit", () => {
     const childrenAfter = definitionById("seasonal-childrens-day-after");
     const childrenSteps = learnerResponseSteps(childrenAfter);
@@ -435,4 +611,5 @@ describe("seasonal conversation catalog", () => {
       }
     }
   });
+
 });
