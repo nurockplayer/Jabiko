@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shu-ire SI-1 · Learn chapter (/learn)</title>
+<link rel="stylesheet" href="shu-ire.css">
+<style>
+  /* Board-local layout for the Learn surface (DESIGN.md §7.5). */
+  .toc h2 { margin-top: 20px; }
+  .toc h2:first-child { margin-top: 0; }
+  .toc ol { display: grid; }
+  .toc a { display: grid; grid-template-columns: 1fr 18px; gap: 6px; align-items: center; padding: 7px 8px 7px 10px; color: var(--si-text-secondary); text-decoration: none; border-left: 2px solid transparent; font-size: 14px; line-height: 20px; }
+  .toc a:hover { color: var(--si-text-primary); background: var(--si-action-secondary-hover); }
+  .toc a[aria-current="page"] { color: var(--si-text-primary); font-weight: 700; border-left-color: var(--si-border-strong); }
+  .toc .si-mark { width: 16px; height: 16px; }
+  .chapter-head { padding-bottom: 20px; border-bottom: 1px solid var(--si-border-strong); }
+  .chapter-head h1 { margin-top: 6px; }
+  .chapter-head .sub { margin-top: 8px; font-family: var(--si-font-mincho); font-size: 20px; line-height: 30px; color: var(--si-text-secondary); }
+  .explain { margin-top: 24px; font-size: 16px; line-height: 28px; max-width: 40em; }
+  .examples { margin-top: 32px; border-top: 1px solid var(--si-border-subtle); }
+  .examples li { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto; gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--si-border-subtle); }
+  .examples .ja { font-family: var(--si-font-mincho); font-size: 20px; line-height: 32px; }
+  .examples .note { font-size: 14px; line-height: 22px; color: var(--si-text-secondary); }
+  .pitfalls { margin-top: 32px; padding: 16px 20px; background: var(--si-surface-inset); border-radius: 7px; }
+  .pitfalls ol { display: grid; gap: 8px; margin-top: 8px; }
+  .pitfalls li { position: relative; padding-left: 30px; font-size: 15px; line-height: 24px; }
+  .pitfalls li .n { position: absolute; left: 0; top: 2px; display: inline-grid; place-items: center; width: 20px; height: 20px; border: 1.5px solid var(--si-border-control); border-radius: 50%; font-size: 11px; line-height: 1; color: var(--si-text-secondary); font-variant-numeric: tabular-nums; }
+  .chapter-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
+  .toc-button { display: none; }
+  @media (max-width: 1023px) {
+    .toc-button { display: inline-flex; margin-bottom: 16px; }
+    .examples li { grid-template-columns: 1fr auto; }
+    .examples .note { grid-column: 1; }
+  }
+  @media (max-width: 599px) {
+    .chapter-actions .si-btn { flex: 1 1 100%; }
+    .examples .ja { font-size: 18px; line-height: 30px; }
+  }
+</style>
+</head>
+<body>
+<div class="si-app">
+  <div id="topbar"></div>
+  <main class="si-main">
+    <div class="si-sheet-layout" style="padding-top:32px">
+      <nav class="si-margin si-margin-left toc" aria-label="章節目錄">
+        <h2>入門</h2>
+        <ol>
+          <li><a href="#">五十音・平假名<i data-mark="o"></i></a></li>
+          <li><a href="#">五十音・片假名<i data-mark="o"></i></a></li>
+          <li><a href="#">基礎詞彙<i data-mark="o"></i></a></li>
+          <li><a href="#">基本句 AはBです<i data-mark="o"></i></a></li>
+          <li><a href="#" aria-current="page">助詞入門 は・を・に・が<span></span></a></li>
+        </ol>
+        <h2>N5 文法</h2>
+        <ol>
+          <li><a href="#">存在句 あります・います<span></span></a></li>
+          <li><a href="#">位置詞與この・その<span></span></a></li>
+          <li><a href="#">助詞II へ・で・と・や<span></span></a></li>
+          <li><a href="#">助詞III の・も・か・から〜まで<span></span></a></li>
+          <li><a href="#">比較 より・ほうが・いちばん<span></span></a></li>
+          <li><a href="#">好惡與能力 〜が すき・できる<span></span></a></li>
+        </ol>
+        <p class="si-meta" style="margin-top:12px">已完成 4 / 48 章</p>
+      </nav>
+
+      <article>
+        <button class="si-btn toc-button" type="button" aria-haspopup="dialog"><i data-icon="menu"></i>章節目錄 · 4 / 48</button>
+        <header class="chapter-head">
+          <p class="si-kicker">入門 · 第 4 課</p>
+          <h1 class="si-display">助詞入門 は・を・に・が</h1>
+          <p class="sub" lang="ja">わたしは みずを のみます</p>
+        </header>
+        <p class="explain">助詞是黏在名詞後面的小字，負責說明「這個名詞在句子裡做什麼」。最先要認得的四個：は＝主題（這句在談誰）、を＝動作的對象（吃什麼、喝什麼）、に＝目的地或時間點（去哪裡）、が＝第一次登場的主語（有什麼、誰做）。再加上場所的で（在哪裡做）和一起的と（和誰），日常句子就都拼得起來了。</p>
+
+        <h2 class="si-kicker" style="margin-top:32px">例句</h2>
+        <ul class="examples" style="margin-top:8px">
+          <li><span class="ja" lang="ja">わたしは みずを のみます</span><span class="note">は主題＋を對象：我喝水</span><button class="si-iconbtn" type="button" aria-label="朗讀：わたしは みずを のみます"><i data-icon="speaker"></i></button></li>
+          <li><span class="ja" lang="ja">がっこうに いきます</span><span class="note">に目的地：去學校</span><button class="si-iconbtn" type="button" aria-label="朗讀：がっこうに いきます"><i data-icon="speaker"></i></button></li>
+          <li><span class="ja" lang="ja">そこに いぬが います</span><span class="note">が登場：那裡有狗</span><button class="si-iconbtn" type="button" aria-label="朗讀：そこに いぬが います"><i data-icon="speaker"></i></button></li>
+          <li><span class="ja" lang="ja">だれが きますか</span><span class="note">疑問詞主語只能用が</span><button class="si-iconbtn" type="button" aria-label="朗讀：だれが きますか"><i data-icon="speaker"></i></button></li>
+          <li><span class="ja" lang="ja">いえで たべます</span><span class="note">で動作場所：在家吃</span><button class="si-iconbtn" type="button" aria-label="朗讀：いえで たべます"><i data-icon="speaker"></i></button></li>
+          <li><span class="ja" lang="ja">ともだちと はなします</span><span class="note">と一起：和朋友聊</span><button class="si-iconbtn" type="button" aria-label="朗讀：ともだちと はなします"><i data-icon="speaker"></i></button></li>
+        </ul>
+
+        <section class="pitfalls" aria-labelledby="pit-title">
+          <h2 id="pit-title" class="si-kicker">常見陷阱</h2>
+          <ol>
+            <li><span class="n" aria-hidden="true">1</span>「在某處做動作」用で、「存在於某處／去某處」用に：<span lang="ja">いえで たべます</span> vs <span lang="ja">いえに います</span></li>
+            <li><span class="n" aria-hidden="true">2</span>疑問詞（だれ・なに）當主語只能接が，不能接は</li>
+            <li><span class="n" aria-hidden="true">3</span>を 只用來標動作對象；現代日文裡讀音和 お 相同</li>
+          </ol>
+        </section>
+
+        <div class="chapter-actions">
+          <a class="si-btn si-btn-primary si-btn-large" href="session.html">練這一章：助詞句型<i data-icon="arrow"></i></a>
+          <a class="si-btn si-btn-large" href="#">下一章：存在句 あります・います</a>
+        </div>
+      </article>
+
+      <aside class="si-margin si-margin-right" aria-label="這一章">
+        <section>
+          <h2>建議先看</h2>
+          <p><a href="#">基本句 AはBです</a> <i data-mark="o"></i></p>
+        </section>
+        <section>
+          <h2>完成條件</h2>
+          <p>在這一章的句型練習答對一題，就會在目錄標上 〇。</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <div id="bottombar"></div>
+</div>
+<script type="module">
+  import { applyTheme, bottombar, hydrate, topbar } from "./harness.js";
+  applyTheme();
+  document.getElementById("topbar").outerHTML = topbar("learn");
+  document.getElementById("bottombar").outerHTML = bottombar("learn");
+  hydrate();
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shu-ire SI-1 · Grammar (/grammar, /grammar/n3, /grammar/:surface)</title>
+<link rel="stylesheet" href="shu-ire.css">
+<style>
+  /* Board-local layout for the Grammar surfaces (DESIGN.md §7.6). */
+  .crumbs { display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px; line-height: 20px; color: var(--si-text-secondary); margin-bottom: 12px; }
+  .crumbs a { color: var(--si-text-secondary); }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 16px 0 8px; }
+  .filters .si-search { flex: 1 1 320px; }
+  .entries { margin-top: 16px; }
+  .entry-row { display: grid; grid-template-columns: minmax(10em, 14em) 1fr auto; gap: 4px 24px; align-items: baseline; padding: 14px 4px; color: var(--si-text-primary); text-decoration: none; }
+  .entry-row:hover { background: var(--si-action-secondary-hover); }
+  .entry-row .pat { font-family: var(--si-font-mincho); font-size: 20px; line-height: 30px; font-weight: 600; }
+  .entry-row .mean { font-size: 15px; line-height: 24px; }
+  .entry-row .form { grid-column: 2; font-family: var(--si-font-gothic-ja); font-size: 13px; line-height: 20px; color: var(--si-text-tertiary); }
+  .entry-row .imp { grid-column: 3; grid-row: 1; font-size: 12px; color: var(--si-text-secondary); white-space: nowrap; }
+  .entry-row .imp.hf { font-weight: 700; color: var(--si-text-primary); }
+  .count { font-size: 13px; color: var(--si-text-tertiary); font-variant-numeric: tabular-nums; }
+  .point-head { display: grid; gap: 6px; padding-bottom: 20px; border-bottom: 1px solid var(--si-border-strong); }
+  .point-head .row { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .point-head .lv { padding: 0 8px; border: 1px solid var(--si-border-strong); border-radius: 4px; font-size: 13px; line-height: 22px; font-weight: 700; }
+  .point-head .meaning { font-size: 20px; line-height: 30px; font-weight: 600; }
+  .point-head .meaning-ja { font-family: var(--si-font-mincho); font-size: 16px; line-height: 26px; color: var(--si-text-secondary); }
+  dl.formation { display: grid; grid-template-columns: 6em 1fr; gap: 8px 16px; margin-top: 24px; font-size: 15px; line-height: 24px; }
+  dl.formation dt { color: var(--si-text-secondary); font-size: 13px; }
+  dl.formation dd { font-family: var(--si-font-gothic-ja); }
+  .ex-list { margin-top: 8px; border-top: 1px solid var(--si-border-subtle); }
+  .ex-list li { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; padding: 14px 0; border-bottom: 1px solid var(--si-border-subtle); }
+  .ex-list .ja { font-family: var(--si-font-mincho); font-size: 22px; line-height: 36px; }
+  .ex-list .zh { grid-column: 1; font-size: 14px; line-height: 22px; color: var(--si-text-secondary); }
+  .ex-list .si-iconbtn { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+  .pager { display: flex; justify-content: space-between; gap: 8px; margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--si-border-subtle); }
+  .pager a { display: grid; gap: 2px; text-decoration: none; color: var(--si-text-primary); padding: 8px; border-radius: 7px; }
+  .pager a:hover { background: var(--si-action-secondary-hover); }
+  .pager small { font-size: 12px; color: var(--si-text-secondary); }
+  .pager .pat { font-family: var(--si-font-mincho); font-size: 18px; }
+  .pager a:last-child { text-align: right; }
+  @media (max-width: 599px) {
+    .entry-row { grid-template-columns: 1fr auto; padding: 12px 0; }
+    .entry-row .mean, .entry-row .form { grid-column: 1; }
+    .entry-row .imp { grid-column: 2; }
+    dl.formation { grid-template-columns: 1fr; gap: 2px; }
+    dl.formation dd + dt { margin-top: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="si-app">
+  <div id="topbar"></div>
+  <main class="si-main">
+    <!-- ================= /grammar/n3 level hub ================= -->
+    <div class="si-page" data-state="index">
+      <div class="si-column">
+        <nav class="si-crumbs crumbs" aria-label="麵包屑"><a href="#">文型資料庫</a><span aria-hidden="true">›</span><span aria-current="page">N3</span></nav>
+        <h1 class="si-display">JLPT N3 文型</h1>
+        <div class="si-segment" role="group" aria-label="等級" style="margin-top:16px;min-width:min(360px,100%)"><button type="button">N5</button><button type="button">N4</button><button type="button" aria-pressed="true">N3</button><button type="button">N2</button><button type="button">N1</button></div>
+        <div class="filters">
+          <div class="si-search"><i data-icon="search"></i><input class="si-input" type="search" placeholder="搜尋文型、中文解釋、關鍵字…" aria-label="搜尋文型"></div>
+          <button class="si-toggle" type="button" aria-pressed="false">有影視例句</button>
+          <div class="si-segment" role="group" aria-label="重要度"><button type="button">全部</button><button type="button" aria-pressed="true">高頻</button><button type="button">理解即可</button></div>
+        </div>
+        <p class="count" role="status">高頻 · 18 個文型</p>
+        <ul class="si-index entries">
+          <li><a class="entry-row" href="grammar.html?state=point"><span class="pat" lang="ja">〜に違いない</span><span class="mean">一定是～、肯定～</span><span class="imp hf">高頻</span><span class="form" lang="ja">動詞・形容詞普通形＋に違いない；名詞＋に違いない</span></a></li>
+          <li><a class="entry-row" href="#"><span class="pat" lang="ja">〜ばかり</span><span class="mean">只～、光～；滿是～</span><span class="imp hf">高頻</span><span class="form" lang="ja">動詞て形＋ばかり；名詞＋ばかり</span></a></li>
+          <li><a class="entry-row" href="#"><span class="pat" lang="ja">〜かわりに</span><span class="mean">代替～；作為交換～</span><span class="imp hf">高頻</span><span class="form" lang="ja">名詞＋の＋かわりに；動詞辭書形＋かわりに</span></a></li>
+          <li><a class="entry-row" href="#"><span class="pat" lang="ja">〜に関して</span><span class="mean">關於～</span><span class="imp hf">高頻</span><span class="form" lang="ja">名詞＋に関して</span></a></li>
+          <li><a class="entry-row" href="#"><span class="pat" lang="ja">〜に対して</span><span class="mean">對於～；相對於～</span><span class="imp hf">高頻</span><span class="form" lang="ja">名詞＋に対して</span></a></li>
+          <li><a class="entry-row" href="#"><span class="pat" lang="ja">〜にとって</span><span class="mean">對～來說（從～的立場看）</span><span class="imp hf">高頻</span><span class="form" lang="ja">名詞＋にとって</span></a></li>
+          <li><a class="entry-row" href="#"><span class="pat" lang="ja">〜しかない</span><span class="mean">只能～、除了～別無選擇</span><span class="imp hf">高頻</span><span class="form" lang="ja">動詞辭書形＋しかない</span></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ================= /grammar/:surface entry ================= -->
+    <div class="si-sheet-layout" data-state="point" style="padding-top:32px">
+      <aside class="si-margin si-margin-left" aria-label="同級文型">
+        <section>
+          <h2>N3 文型（依資料庫順序）</h2>
+          <ul class="si-mistakes">
+            <li><a href="#" lang="ja">〜というと</a></li>
+            <li><a href="#" lang="ja">〜とおりに</a></li>
+            <li><span lang="ja" style="font-weight:700;color:var(--si-text-primary)" aria-current="page">〜に違いない</span></li>
+            <li><a href="#" lang="ja">〜しかない</a></li>
+            <li><a href="#" lang="ja">〜として</a></li>
+          </ul>
+        </section>
+      </aside>
+      <article>
+        <nav class="si-crumbs crumbs" aria-label="麵包屑"><a href="#">文型資料庫</a><span aria-hidden="true">›</span><a href="grammar.html">N3</a><span aria-hidden="true">›</span><span aria-current="page" lang="ja">〜に違いない</span></nav>
+        <header class="point-head">
+          <div class="row"><h1 class="si-headword" lang="ja">〜に違いない</h1><span class="lv">N3</span><span class="si-status-word">高頻</span></div>
+          <p class="meaning">一定是～、肯定～</p>
+          <p class="meaning-ja" lang="ja">〜に決まっている／強い推測</p>
+        </header>
+        <dl class="formation">
+          <dt>接續</dt><dd lang="ja">動詞・形容詞普通形＋に違いない；名詞＋に違いない</dd>
+        </dl>
+        <p class="si-meta" style="margin-top:6px">接續與中文解釋僅在繁體中文介面顯示（語言隔離規則）；其他語言顯示 <span lang="ja">meaningJa</span> 與 i18n 覆寫內容。</p>
+        <h2 class="si-kicker" style="margin-top:32px">例句</h2>
+        <ul class="ex-list">
+          <li><span class="ja" lang="ja">あの人は日本人に違いない。</span><span class="zh">那個人一定是日本人。</span><button class="si-iconbtn" type="button" aria-label="朗讀例句"><i data-icon="speaker"></i></button></li>
+        </ul>
+        <section style="margin-top:32px;padding:16px 20px;background:var(--si-surface-inset);border-radius:7px" aria-labelledby="mistake-title">
+          <h2 id="mistake-title" class="si-kicker">常見錯誤</h2>
+          <p style="margin-top:6px">只有筆記資料中有「常見錯誤」的文型才顯示這一段；沒有資料就整段不出現，不顯示空白框。</p>
+        </section>
+        <nav class="pager" aria-label="上一個與下一個文型">
+          <a href="#"><small>上一個</small><span class="pat" lang="ja">〜とおりに</span></a>
+          <a href="#"><small>下一個</small><span class="pat" lang="ja">〜しかない</span></a>
+        </nav>
+      </article>
+      <aside class="si-margin si-margin-right" aria-label="相關">
+        <section>
+          <h2>相關文型</h2>
+          <p><a href="#" lang="ja">〜はずだ</a><br><span class="si-meta">應該～（依據推論）</span></p>
+        </section>
+        <section>
+          <h2>影視例句</h2>
+          <p>有 mediaExamples 時列在這裡；此文型目前沒有。</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <div id="bottombar"></div>
+</div>
+<script type="module">
+  import { applyTheme, bottombar, hydrate, showState, topbar } from "./harness.js";
+  applyTheme();
+  document.getElementById("topbar").outerHTML = topbar("grammar");
+  document.getElementById("bottombar").outerHTML = bottombar("reference");
+  showState("index");
+  hydrate();
+</script>
+</body>
+</html>

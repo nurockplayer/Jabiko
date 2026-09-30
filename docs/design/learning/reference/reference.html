@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shu-ire SI-1 · Reference (/kanji, mobile reference sheet)</title>
+<link rel="stylesheet" href="shu-ire.css">
+<style>
+  /* Board-local layout for the Reference surfaces (DESIGN.md §7.7). */
+  .kanji-head { display: grid; gap: 12px; }
+  .kanji-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+  .kanji-tools .si-search { flex: 1 1 320px; }
+  .group-head { display: flex; align-items: baseline; gap: 10px; margin: 32px 0 10px; }
+  .group-head h2 { font-family: var(--si-font-mincho); font-size: 24px; line-height: 32px; font-weight: 600; }
+  .group-head .si-meta:last-child { margin-left: auto; }
+  .si-cell dl { display: grid; grid-template-columns: auto 1fr; gap: 0 6px; }
+  .si-cell dt { color: var(--si-text-tertiary); }
+  .si-cell dd { font-family: var(--si-font-gothic-ja); color: var(--si-text-primary); }
+  .si-cell .words { margin-top: 2px; color: var(--si-text-secondary); }
+  .more { margin-top: 16px; width: 100%; }
+  .ref-list .si-index-name .ja { font-family: var(--si-font-mincho); font-weight: 500; margin-left: 8px; font-size: 15px; color: var(--si-text-tertiary); }
+  @media (max-width: 599px) { .si-lattice { grid-template-columns: repeat(3, 1fr); } .si-cell { min-height: 104px; padding: 8px; } .si-cell .si-cell-kanji { font-size: 30px; line-height: 40px; } }
+</style>
+</head>
+<body>
+<div class="si-app">
+  <div id="topbar"></div>
+  <main class="si-main">
+    <div class="si-page">
+      <div class="kanji-head">
+        <p class="si-kicker">資料 · 漢字音讀</p>
+        <h1 class="si-display">依音讀找同音漢字</h1>
+        <p class="si-secondary">確認讀音、分清濁音；選一個漢字看例詞。</p>
+        <div class="kanji-tools">
+          <div class="si-search"><i data-icon="search"></i><input class="si-input" type="search" placeholder="搜尋漢字、讀音、意思" aria-label="搜尋漢字"></div>
+          <div class="si-segment" role="group" aria-label="讀音類型"><button type="button" aria-pressed="true">音讀</button><button type="button">訓讀</button></div>
+          <div class="si-segment" role="group" aria-label="等級"><button type="button" aria-pressed="true">全部</button><button type="button">N5</button><button type="button">N4</button><button type="button">N3</button><button type="button">N2</button><button type="button">N1</button></div>
+        </div>
+        <p class="si-kbd-hint">小技巧：用 <span class="si-kbd">←</span> <span class="si-kbd">→</span> 連續切換漢字</p>
+      </div>
+
+      <div class="group-head"><h2 lang="ja">こう</h2><span class="si-meta">音讀み</span><span class="si-meta">23 字</span></div>
+      <ul class="si-lattice" aria-label="音讀 こう 的漢字">
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">校</span><dl><dt>音</dt><dd lang="ja">こう</dd></dl><span class="words">學校</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">考</span><dl><dt>音</dt><dd lang="ja">こう</dd><dt>訓</dt><dd lang="ja">かんがえる</dd></dl><span class="words">思考、考慮</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">行</span><dl><dt>音</dt><dd lang="ja">こう・ぎょう</dd><dt>訓</dt><dd lang="ja">いく・おこなう</dd></dl><span class="words">去、進行</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">高</span><dl><dt>音</dt><dd lang="ja">こう</dd><dt>訓</dt><dd lang="ja">たかい</dd></dl><span class="words">高、貴</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">向</span><dl><dt>音</dt><dd lang="ja">こう</dd><dt>訓</dt><dd lang="ja">むく・むける</dd></dl><span class="words">朝向、方向</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">工</span><dl><dt>音</dt><dd lang="ja">こう・く</dd></dl><span class="words">工作、工藝</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">興</span><dl><dt>音</dt><dd lang="ja">こう・きょう</dd><dt>訓</dt><dd lang="ja">おこる</dd></dl><span class="words">興起、興趣</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">交</span><dl><dt>音</dt><dd lang="ja">こう</dd><dt>訓</dt><dd lang="ja">まじわる</dd></dl><span class="words">交往、交叉</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">公</span><dl><dt>音</dt><dd lang="ja">こう</dd><dt>訓</dt><dd lang="ja">おおやけ</dd></dl><span class="words">公共、公開</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">効</span><dl><dt>音</dt><dd lang="ja">こう</dd><dt>訓</dt><dd lang="ja">きく</dd></dl><span class="words">效果、有效</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">康</span><dl><dt>音</dt><dd lang="ja">こう</dd></dl><span class="words">健康、安康</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">硬</span><dl><dt>音</dt><dd lang="ja">こう</dd><dt>訓</dt><dd lang="ja">かたい</dd></dl><span class="words">硬、僵硬</span></button></li>
+      </ul>
+
+      <div class="group-head"><h2 lang="ja">き</h2><span class="si-meta">音讀み</span><span class="si-meta">16 字</span></div>
+      <ul class="si-lattice" aria-label="音讀 き 的漢字">
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">帰</span><dl><dt>音</dt><dd lang="ja">き</dd><dt>訓</dt><dd lang="ja">かえる</dd></dl><span class="words">回家、返回</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">気</span><dl><dt>音</dt><dd lang="ja">き・け</dd></dl><span class="words">氣、精神</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">起</span><dl><dt>音</dt><dd lang="ja">き</dd><dt>訓</dt><dd lang="ja">おきる</dd></dl><span class="words">起床、發生</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">希</span><dl><dt>音</dt><dd lang="ja">き</dd></dl><span class="words">希望、稀少</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">記</span><dl><dt>音</dt><dd lang="ja">き</dd><dt>訓</dt><dd lang="ja">しるす</dd></dl><span class="words">記錄、記載</span></button></li>
+        <li><button class="si-cell" type="button"><span class="si-cell-kanji" lang="ja">危</span><dl><dt>音</dt><dd lang="ja">き</dd><dt>訓</dt><dd lang="ja">あぶない</dd></dl><span class="words">危險</span></button></li>
+      </ul>
+      <button class="si-btn more" type="button">載入更多（還有 618 字）</button>
+    </div>
+  </main>
+
+  <!-- ======== Mobile reference sheet (tab 資料) ======== -->
+  <div data-state="sheet">
+    <div class="si-scrim" aria-hidden="true"></div>
+    <div class="si-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="ref-title">
+      <div class="si-sheet-grip" aria-hidden="true"></div>
+      <h2 id="ref-title" class="si-title">資料</h2>
+      <ul class="si-index ref-list" style="margin-top:12px">
+        <li><a class="si-index-row" href="grammar.html"><span class="si-index-name">文型資料庫<span class="ja" lang="ja">文型</span></span><span class="si-index-desc">N5〜N1 文型、接續與例句</span><span class="si-index-meta"><i data-icon="arrow"></i></span></a></li>
+        <li><a class="si-index-row" href="reference.html" aria-current="page"><span class="si-index-name">漢字音讀<span class="ja" lang="ja">音読み</span></span><span class="si-index-desc">依音讀找同音漢字</span><span class="si-index-meta"><i data-icon="arrow"></i></span></a></li>
+        <li><a class="si-index-row" href="#"><span class="si-index-name">活用速查表<span class="ja" lang="ja">活用</span></span><span class="si-index-desc">動詞・形容詞各形變化</span><span class="si-index-meta"><i data-icon="arrow"></i></span></a></li>
+        <li><a class="si-index-row" href="#"><span class="si-index-name">五十音表<span class="ja" lang="ja">かな</span></span><span class="si-index-desc">平假名・片假名</span><span class="si-index-meta"><i data-icon="arrow"></i></span></a></li>
+      </ul>
+      <button class="si-btn" type="button" style="width:100%;margin-top:16px">關閉</button>
+    </div>
+  </div>
+  <div id="bottombar"></div>
+</div>
+<script type="module">
+  import { applyTheme, bottombar, hydrate, showState, topbar } from "./harness.js";
+  applyTheme();
+  document.getElementById("topbar").outerHTML = topbar("reference");
+  document.getElementById("bottombar").outerHTML = bottombar("reference");
+  showState("page");
+  hydrate();
+</script>
+</body>
+</html>

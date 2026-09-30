@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shu-ire SI-1 · Figma index cover</title>
+<link rel="stylesheet" href="shu-ire.css">
+<style>
+  /* Cover frame for the Figma file's "00 Index" page (DESIGN.md §0, README). */
+  .cover { max-width: 1216px; margin: 0 auto; padding: 64px 24px 96px; }
+  .cover > header { display: grid; grid-template-columns: 1fr auto; gap: 16px 48px; align-items: end; padding-bottom: 32px; border-bottom: 1px solid var(--si-border-strong); }
+  .lockup { display: flex; align-items: center; gap: 16px; }
+  .lockup svg { width: 56px; height: 56px; }
+  .lockup h1 { font-size: 40px; line-height: 48px; font-weight: 700; }
+  .lockup .ja { font-family: var(--si-font-mincho); font-size: 24px; color: var(--si-text-secondary); margin-left: 8px; font-weight: 400; }
+  .status { display: grid; gap: 4px; justify-items: end; text-align: right; }
+  .status .badge { padding: 2px 10px; border: 1.5px solid var(--si-mark-ink); border-radius: 4px; color: var(--si-mark-ink); font-weight: 700; font-size: 14px; line-height: 22px; }
+  .thesis { margin-top: 32px; font-family: var(--si-font-mincho); font-size: 28px; line-height: 44px; }
+  .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; margin-top: 48px; }
+  .cols h2 { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.04em; color: var(--si-text-secondary); padding-bottom: 8px; border-bottom: 1px solid var(--si-border-strong); margin-bottom: 12px; }
+  .cols li { padding: 8px 0; border-bottom: 1px solid var(--si-border-subtle); font-size: 15px; line-height: 22px; }
+  .cols li b { font-weight: 600; }
+  .cols li span { display: block; font-size: 13px; line-height: 20px; color: var(--si-text-secondary); }
+  .inks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+  .ink { display: grid; grid-template-columns: 48px 1fr; gap: 16px; align-items: center; }
+  .ink i { display: block; width: 48px; height: 48px; border-radius: 50%; }
+  .ink b { display: block; font-size: 17px; line-height: 24px; }
+  .ink span { font-size: 14px; line-height: 20px; color: var(--si-text-secondary); }
+  .foot { margin-top: 48px; font-size: 13px; line-height: 20px; color: var(--si-text-tertiary); }
+</style>
+</head>
+<body>
+<main class="cover">
+  <header>
+    <div class="lockup"><span id="mark"></span><h1>Jabiko Learning<span class="ja" lang="ja">朱入れ</span></h1></div>
+    <div class="status"><span class="badge">SI-1 · CANDIDATE</span><span class="si-meta">Pending fresh independent review · PR #849</span></div>
+  </header>
+  <p class="thesis">The page is the learner's; the red ink is Jabiko's.</p>
+
+  <div class="inks">
+    <div class="ink"><i style="background:var(--si-text-primary)"></i><div><b>Sumi · ink</b><span>Text, structure and every command</span></div></div>
+    <div class="ink"><i style="background:var(--si-learner-mark)"></i><div><b>Ai · the learner's hand</b><span>Chosen answer, focus, pressed toggles, links</span></div></div>
+    <div class="ink"><i style="background:var(--si-mark-ink)"></i><div><b>Shu · the marker's hand</b><span>〇 × △ 花丸, scores, review due, points</span></div></div>
+  </div>
+
+  <div class="cols">
+    <section>
+      <h2>THIS FILE IS CANONICAL FOR</h2>
+      <ul>
+        <li><b>Visual presentation</b><span>Hierarchy, spacing, typography, component states, responsive layouts of every SI-1 surface</span></li>
+        <li><b>Frame status</b><span>“SI-1 CANDIDATE” until independent review; “SI-1 APPROVED” after</span></li>
+        <li><b>Editable source</b><span>Frames are editable layers imported from the reference harness through the qualified bridge v0.0.22</span></li>
+      </ul>
+    </section>
+    <section>
+      <h2>THE REPOSITORY IS CANONICAL FOR</h2>
+      <ul>
+        <li><b>tokens.json</b><span>Exact color, type, space, geometry and motion values (this file has no variables yet)</span></li>
+        <li><b>DESIGN.md · DECISIONS.md</b><span>Behavior, accessibility, localization rules and rationale</span></li>
+        <li><b>figma-registry.json</b><span>Node IDs, readback and export hashes, source-render diffs</span></li>
+      </ul>
+    </section>
+    <section>
+      <h2>PAGES</h2>
+      <ul>
+        <li><b>01 Foundations</b><span>Roles (light, dark), marks, type, controls, option states</span></li>
+        <li><b>10 Today · 20 Practice session</b><span>Returning / first run; every answer and session state</span></li>
+        <li><b>30 Sets · 40 Learn · Grammar · Reference</b><span>Set switcher, JLPT sections, chapter, entries, kanji lattice</span></li>
+        <li><b>50 Small Talk · 60 Shell &amp; System</b><span>Script run and feedback; menu, dialogs, focus, errors</span></li>
+      </ul>
+    </section>
+  </div>
+  <p class="foot">Source: nurockplayer/Jabiko docs/design/learning (Shu-ire SI-1). Foundation: Tachiko Sheet #71 canonical system (file ouZ5nm77N0WneqAsLhzqnL), consumed as a snapshot; no runtime coupling. Fonts in this file use Figma's Noto Serif JP / Noto Sans JP / Noto Sans TC / Inter, the documented fallbacks of the SI-1 system stacks.</p>
+</main>
+<script type="module">
+  import { BRAND_MARK, applyTheme } from "./harness.js";
+  applyTheme();
+  document.documentElement.lang = "en";
+  document.getElementById("mark").outerHTML = BRAND_MARK;
+</script>
+</body>
+</html>

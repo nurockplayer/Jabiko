@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shu-ire SI-1 · Review index</title>
+<link rel="stylesheet" href="shu-ire.css">
+<style>
+  .board { max-width: 1216px; margin: 0 auto; padding: 40px 24px 96px; }
+  .board > header { display: grid; gap: 8px; padding-bottom: 24px; border-bottom: 1px solid var(--si-border-strong); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; margin-top: 16px; }
+  figure { display: grid; gap: 8px; }
+  figure img { width: 100%; height: 180px; object-fit: cover; object-position: top; border: 1px solid var(--si-border-subtle); }
+  figcaption { font-size: 13px; line-height: 18px; }
+  figcaption a { font-weight: 600; }
+  h2 { margin-top: 40px; }
+</style>
+</head>
+<body>
+<main class="board">
+  <header>
+    <p class="si-kicker">JABIKO LEARNING · SHU-IRE 朱入れ · SI-1</p>
+    <h1 class="si-display">Review index</h1>
+    <p class="si-secondary">Every reference board state with its committed render. Open a board to inspect it live; append <code>&amp;theme=dark</code> or <code>&amp;lang=en</code> (session) to switch. Serve this directory with <code>node docs/design/learning/tools/verify.mjs</code>'s static server or any static server so modules and <code>../tokens.json</code> load.</p>
+  </header>
+  <div id="sections"></div>
+</main>
+<script type="module">
+  const report = await (await fetch("../verification/report.json")).json();
+  const groups = new Map();
+  for (const c of report.captures) {
+    const file = c.board.split("?")[0];
+    if (!groups.has(file)) groups.set(file, []);
+    groups.get(file).push(c);
+  }
+  const host = document.getElementById("sections");
+  for (const [file, caps] of groups) {
+    const section = document.createElement("section");
+    section.innerHTML = `<h2 class="si-section">${file}</h2><div class="grid">${caps.map((c) => `
+      <figure><a href="../${c.file}"><img src="../${c.file}" alt="Render of ${c.board} at ${c.viewport}${c.mode !== "default" ? ` (${c.mode})` : ""}" loading="lazy"></a>
+      <figcaption><a href="${c.board}">${c.board}</a><br><span class="si-meta">${c.viewport}${c.fullPage ? " · full page" : ""}${c.mode !== "default" ? ` · ${c.mode} colors` : ""}</span></figcaption></figure>`).join("")}</div>`;
+    host.append(section);
+  }
+</script>
+</body>
+</html>
