@@ -73,6 +73,8 @@ broader ideas are opened when there is a current product need.
 
 The separate-product boundary for the future conversation-driven Jabiko Life
 is recorded in [`docs/jabiko-life-product-boundary.md`](docs/jabiko-life-product-boundary.md).
+The Jabiko Learning visual and interaction design authority (Shu-ire) lives in
+[`docs/design/learning/`](docs/design/learning/README.md).
 
 ## Ownership, privacy & terms
 

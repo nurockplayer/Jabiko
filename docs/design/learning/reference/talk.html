@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shu-ire SI-1 · Small Talk (/conversation)</title>
+<link rel="stylesheet" href="shu-ire.css">
+<style>
+  /* Board-local layout for the Small Talk surfaces (DESIGN.md §7.8). */
+  .talk-intro { display: grid; grid-template-columns: minmax(0, 680px) 360px; gap: 48px; justify-content: center; }
+  .talk-intro > header { grid-column: 1 / -1; display: grid; gap: 8px; max-width: 680px; }
+  .len-head { display: flex; align-items: baseline; gap: 10px; margin: 32px 0 8px; }
+  .len-head h2 { font-size: 17px; line-height: 24px; font-weight: 700; }
+  .len-head .si-meta { color: var(--si-text-secondary); }
+  .scene-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: baseline; width: 100%; min-height: 56px; padding: 14px 4px; border: 0; background: transparent; text-align: left; font-size: 15px; line-height: 24px; color: var(--si-text-primary); }
+  .scene-row:hover { background: var(--si-action-secondary-hover); }
+  .scene-row[aria-pressed="true"] { background: var(--si-learner-tint); box-shadow: inset 3px 0 0 var(--si-learner-mark); padding-left: 12px; }
+  .scene-row .who { font-size: 13px; line-height: 20px; color: var(--si-text-secondary); }
+  .scene-row .si-index-meta { grid-row: 1 / span 2; grid-column: 2; align-self: center; }
+  .season { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 16px; align-items: baseline; padding: 14px 4px; }
+  .season .phase { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; padding: 0 6px; border: 1px solid var(--si-border-strong); border-radius: 4px; line-height: 18px; }
+  .season .name { font-size: 17px; line-height: 24px; font-weight: 600; }
+  .season .desc { grid-column: 2; font-size: 14px; line-height: 20px; color: var(--si-text-secondary); }
+  .brief { position: sticky; top: 80px; padding: 20px; border: 1px solid var(--si-border-control); border-radius: 10px; }
+  .brief h2 { font-size: 20px; line-height: 28px; font-weight: 700; }
+  .brief dl { display: grid; gap: 12px; margin-top: 16px; }
+  .brief dt { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.04em; color: var(--si-text-secondary); }
+  .brief dd { font-size: 15px; line-height: 24px; margin-top: 2px; }
+  .brief .si-btn { width: 100%; margin-top: 20px; }
+  .brief .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  /* Run: a script (台本), not chat bubbles. */
+  .run { max-width: 680px; margin: 0 auto; }
+  .run-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--si-border-strong); }
+  .situation { margin-top: 16px; font-size: 15px; line-height: 24px; color: var(--si-text-secondary); }
+  .script { margin-top: 24px; display: grid; gap: 16px; }
+  .line { display: grid; grid-template-columns: 5.5em 1fr; gap: 16px; align-items: baseline; }
+  .line .spk { font-size: 13px; line-height: 20px; font-weight: 600; color: var(--si-text-secondary); text-align: right; }
+  .line .ja { font-family: var(--si-font-mincho); font-size: 24px; line-height: 40px; }
+  .line.you .ja { color: var(--si-learner-mark); }
+  .line .play { margin-left: 4px; vertical-align: middle; }
+  .task { margin: 28px 0 12px; padding-top: 16px; border-top: 1px solid var(--si-border-subtle); }
+  .task p { font-size: 15px; line-height: 24px; }
+  .responses .si-option { font-family: var(--si-font-gothic-ja); font-size: 17px; line-height: 28px; }
+  .dims { display: grid; margin-top: 12px; border-top: 1px solid var(--si-border-subtle); }
+  .dims > div { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--si-border-subtle); }
+  .dims dt { font-size: 15px; line-height: 24px; }
+  .dims dd { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--si-mark-ink); }
+  .dims dd .si-mark { width: 20px; height: 20px; }
+  .dims dd.met { color: var(--si-text-primary); font-weight: 600; }
+  .dims dd.met .si-mark { color: var(--si-mark-ink); }
+  .compose { display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .compose .step { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--si-border-subtle); border-radius: 999px; font-size: 14px; line-height: 20px; color: var(--si-text-secondary); }
+  .compose .step[data-on] { border-color: var(--si-text-primary); color: var(--si-text-primary); font-weight: 600; }
+  .compose .step .dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid currentColor; }
+  .compose .step[data-on] .dot { background: currentColor; }
+  .compose .sep { color: var(--si-text-tertiary); }
+  .coach { margin-top: 16px; padding: 12px 16px; border-left: 2px solid var(--si-mark-ink); background: var(--si-mark-tint); font-size: 15px; line-height: 24px; }
+  .run-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--si-border-subtle); }
+  .curated { margin-top: 16px; font-size: 12px; line-height: 16px; color: var(--si-text-tertiary); }
+  @media (max-width: 1023px) {
+    .talk-intro { grid-template-columns: minmax(0, 680px); }
+    .brief { position: static; }
+  }
+  @media (max-width: 599px) {
+    .line { grid-template-columns: 1fr; gap: 2px; }
+    .line .spk { text-align: left; }
+    .line .ja { font-size: 22px; line-height: 36px; }
+    .run-foot { flex-wrap: wrap; }
+    .run-foot .si-btn { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="si-app">
+  <div id="topbar"></div>
+  <main class="si-main">
+    <!-- ================= Intro: seasonal + scenes + brief ================= -->
+    <div class="si-page" data-state="intro">
+      <div class="talk-intro">
+        <header>
+          <p class="si-kicker">會話 · SMALL TALK</p>
+          <h1 class="si-display">把話接下去</h1>
+          <p class="si-secondary">選一個生活情境，挑一句最能讓對話繼續的回應，再看人工整理的回饋。</p>
+        </header>
+        <div>
+          <section aria-labelledby="season-title">
+            <div class="len-head"><h2 id="season-title">最近適合聊的季節話題</h2></div>
+            <ul class="si-index">
+              <li class="season"><span class="phase">即將到來</span><span class="name">咖啡日與飲品選擇</span><span class="si-meta">10月1日</span><span class="desc">飲品偏好因人而異，很好開話題。</span></li>
+            </ul>
+          </section>
+          <section aria-labelledby="short-title">
+            <div class="len-head"><h2 id="short-title">短</h2><span class="si-meta">反應、追問、結束 · 1〜2 句</span></div>
+            <ul class="si-index">
+              <li><button class="scene-row" type="button" aria-pressed="true"><span>月台上的電子看板顯示電車誤點，站在旁邊的同事也抬起頭看到了。</span><span class="who">同事 · 通勤</span><span class="si-index-meta">短</span></button></li>
+              <li><button class="scene-row" type="button" aria-pressed="false"><span>早上通勤時，你和一位常遇見的同事搭上同一班車。對方簡單提到今天的天氣。</span><span class="who">同事 · 天氣</span><span class="si-index-meta">短</span></button></li>
+            </ul>
+          </section>
+          <section aria-labelledby="mid-title">
+            <div class="len-head"><h2 id="mid-title">中</h2><span class="si-meta">延續一個話題數回合</span></div>
+            <ul class="si-index">
+              <li><button class="scene-row" type="button" aria-pressed="false"><span>中午前，隔壁座位的同事轉過頭來問起午餐。</span><span class="who">同事 · 午餐</span><span class="si-index-meta">中</span></button></li>
+            </ul>
+          </section>
+          <section aria-labelledby="long-title">
+            <div class="len-head"><h2 id="long-title">長</h2><span class="si-meta">敘事、意見、協商</span></div>
+            <ul class="si-index">
+              <li><button class="scene-row" type="button" aria-pressed="false"><span>在語言交換活動的桌邊，你和一位初次見面的人單獨聊了起來。</span><span class="who">初次見面 · 興趣</span><span class="si-index-meta">長</span></button></li>
+            </ul>
+          </section>
+        </div>
+        <aside>
+          <article class="brief" aria-labelledby="brief-title" tabindex="-1">
+            <p class="si-kicker">短 · 通勤</p>
+            <h2 id="brief-title">通勤</h2>
+            <dl>
+              <div><dt>情境</dt><dd>月台上的電子看板顯示電車誤點，站在旁邊的同事也抬起頭看到了。</dd></div>
+              <div><dt>你的角色 / 對方</dt><dd>同事 / 同事</dd></div>
+              <div><dt>關係與語氣</dt><dd>每天早上一起搭車通勤、說話輕鬆但使用です・ます的同事。</dd></div>
+              <div><dt>這次要練</dt><dd>聽到對方的狀況時先反應，再用一句話追問，讓對話當場就能接下去。</dd></div>
+            </dl>
+            <a class="si-btn si-btn-primary si-btn-large" href="talk.html?state=respond">開始這個情境<i data-icon="arrow"></i></a>
+          </article>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ================= Run: respond / feedback / complete ================= -->
+    <div class="si-page" data-state="respond feedback complete">
+      <section class="run" aria-labelledby="run-title">
+        <div class="run-head"><h1 id="run-title" class="si-title">通勤</h1><span class="si-meta">短 · 同事 / 同事</span></div>
+        <p class="situation">月台上的電子看板顯示電車誤點，站在旁邊的同事也抬起頭看到了。</p>
+        <div class="script" role="log" aria-label="對話">
+          <p class="line"><span class="spk">同事</span><span><span class="ja" lang="ja">電車、遅れてるみたいですね。</span><button class="si-iconbtn play" type="button" aria-label="朗讀這一句"><i data-icon="speaker"></i></button></span></p>
+          <p class="line you" data-state="feedback complete"><span class="spk">你</span><span class="ja" lang="ja">そうですね。</span></p>
+        </div>
+
+        <div data-state="respond">
+          <div class="task">
+            <p class="si-kicker">你的回應</p>
+            <p style="margin-top:4px">選一個回應：先讓對方知道你在聽，再讓他願意多說一點。</p>
+          </div>
+          <div class="si-options responses" aria-label="回應選項">
+            <button class="si-option" type="button" lang="ja"><span class="si-bubble" aria-hidden="true"></span><span class="si-option-text">そうですね。</span></button>
+            <button class="si-option" type="button" lang="ja" data-demo="focus"><span class="si-bubble" aria-hidden="true"></span><span class="si-option-text">あ、本当ですね。何かあったんですか？</span></button>
+          </div>
+        </div>
+
+        <section data-state="feedback" aria-labelledby="fb-title" aria-live="polite">
+          <div class="task"><h2 id="fb-title" class="si-kicker" tabindex="-1">回饋</h2></div>
+          <dl class="dims">
+            <div><dt>可理解</dt><dd class="met"><i data-mark="o"></i>達成</dd></div>
+            <div><dt>正確</dt><dd class="met"><i data-mark="o"></i>達成</dd></div>
+            <div><dt>自然</dt><dd class="met"><i data-mark="o"></i>達成</dd></div>
+            <div><dt>對話延續</dt><dd><i data-mark="tri" data-draw></i>再加強</dd></div>
+            <div><dt>場合與關係</dt><dd class="met"><i data-mark="o"></i>達成</dd></div>
+          </dl>
+          <div class="compose" aria-label="這句回應包含">
+            <span class="step" data-on><span class="dot"></span>回答</span><span class="sep" aria-hidden="true">→</span>
+            <span class="step"><span class="dot"></span>補充</span><span class="sep" aria-hidden="true">→</span>
+            <span class="step"><span class="dot"></span>提問</span>
+          </div>
+          <div class="run-foot">
+            <button class="si-btn si-btn-primary si-btn-large" type="button"><i data-icon="refresh"></i>換個說法再試一次</button>
+            <button class="si-btn si-btn-large" type="button">繼續<i data-icon="arrow"></i></button>
+          </div>
+        </section>
+
+        <section data-state="complete" aria-labelledby="done-title">
+          <div class="task"><h2 id="done-title" class="si-section" tabindex="-1">完成</h2></div>
+          <p>完成短對話的反應與追問練習。</p>
+          <p class="si-kicker" style="margin-top:16px">這次練到的回應方式</p>
+          <div class="compose"><span class="step" data-on><span class="dot"></span>回答</span><span class="sep" aria-hidden="true">→</span><span class="step"><span class="dot"></span>補充</span><span class="sep" aria-hidden="true">→</span><span class="step" data-on><span class="dot"></span>提問</span></div>
+          <div class="run-foot">
+            <button class="si-btn si-btn-primary si-btn-large" type="button"><i data-icon="refresh"></i>再練一次</button>
+            <a class="si-btn si-btn-large" href="talk.html">換情境</a>
+          </div>
+        </section>
+
+        <div class="run-foot" data-state="respond"><span></span><a class="si-btn si-btn-ghost" href="talk.html">換情境</a></div>
+        <p class="curated">回饋由人工編輯，離線即時顯示；沒有 AI 評分，也沒有語音辨識。</p>
+      </section>
+    </div>
+  </main>
+  <div id="bottombar"></div>
+</div>
+<script type="module">
+  import { applyTheme, bottombar, hydrate, showState, topbar } from "./harness.js";
+  applyTheme();
+  const state = showState("intro");
+  if (state === "intro") {
+    document.getElementById("topbar").outerHTML = topbar("talk");
+    document.getElementById("bottombar").outerHTML = bottombar("talk");
+  } else {
+    // A running scene is a session surface: exit + title + tools, no tab bar.
+    document.getElementById("topbar").outerHTML = `<header class="si-session-bar">
+      <div style="display:flex;align-items:center;gap:4px;min-width:0"><a class="si-iconbtn" href="talk.html" aria-label="離開這個情境，回到會話"><i data-icon="close"></i></a><span class="si-session-set" style="pointer-events:none"><span>會話 · 短</span></span></div>
+      <div></div>
+      <div class="si-session-tools"><button class="si-toggle" type="button" aria-pressed="false"><span class="si-furi-glyph" lang="ja">ふ</span><span class="tool-label">振假名</span></button><button class="si-iconbtn" type="button" aria-label="選單與設定"><i data-icon="menu"></i></button></div>
+    </header>`;
+    document.getElementById("bottombar").remove();
+  }
+  hydrate();
+</script>
+</body>
+</html>

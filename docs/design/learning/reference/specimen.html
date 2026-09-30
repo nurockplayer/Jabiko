@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shu-ire SI-1 · Foundations specimen</title>
+<link rel="stylesheet" href="shu-ire.css">
+<style>
+  .board { max-width: 1216px; margin: 0 auto; padding: 40px 24px 96px; }
+  .board > header { display: grid; gap: 8px; padding-bottom: 24px; border-bottom: 1px solid var(--si-border-strong); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .sw { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--si-border-subtle); font-size: 13px; line-height: 18px; }
+  .sw i { display: block; width: 40px; height: 28px; border-radius: 4px; border: 1px solid var(--si-border-subtle); }
+  .sw code { font-size: 12px; color: var(--si-text-tertiary); }
+  .spec-h { margin: 48px 0 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .cap { font-size: 12px; line-height: 16px; color: var(--si-text-tertiary); margin-top: 6px; }
+  .marks { display: flex; gap: 40px; align-items: flex-end; }
+  .marks figure { display: grid; justify-items: center; gap: 8px; }
+  .marks .si-mark { width: 56px; height: 56px; }
+  .ramp > div { display: grid; grid-template-columns: 160px 1fr; gap: 16px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--si-border-subtle); }
+  .ramp code { font-size: 12px; color: var(--si-text-tertiary); }
+  @media (max-width: 800px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main class="board">
+  <header>
+    <p class="si-kicker">JABIKO LEARNING · SHU-IRE 朱入れ · SI-1</p>
+    <h1 class="si-display">Foundations specimen</h1>
+    <p class="si-secondary">Three inks with three jobs: <strong>sumi</strong> for structure and commands, <strong>ai</strong> for the learner's own hand (choice, focus, links), <strong>shu</strong> for evaluation only (marks, scores). Protected state colors are Tachiko's, unchanged.</p>
+  </header>
+
+  <h2 class="si-section spec-h">Color roles</h2>
+  <div class="grid2" id="swatches"></div>
+
+  <h2 class="si-section spec-h">Verdict marks (evaluation layer)</h2>
+  <div class="marks">
+    <figure><i data-mark="o"></i><figcaption class="si-label">〇 正解 · correct</figcaption></figure>
+    <figure><i data-mark="x"></i><figcaption class="si-label">× 答錯 · incorrect</figcaption></figure>
+    <figure><i data-mark="dashed-o"></i><figcaption class="si-label">答案 · revealed</figcaption></figure>
+    <figure><i data-mark="tri"></i><figcaption class="si-label">△ 再加強 · needs work</figcaption></figure>
+    <figure><i data-mark="hana"></i><figcaption class="si-label">花丸 · perfect set</figcaption></figure>
+  </div>
+  <p class="cap">Marks are never the only signal: each is paired with its text label. They use mark.ink and draw in over 260ms; reduced motion renders them complete.</p>
+
+  <h2 class="si-section spec-h">Type roles</h2>
+  <div class="ramp">
+    <div><code>ui.display 28/36</code><span class="si-display" lang="zh-Hant">今天的練習</span></div>
+    <div><code>ui.section 20/28</code><span class="si-section" lang="zh-Hant">備考題庫</span></div>
+    <div><code>ui.title 17/24</code><span class="si-title" lang="zh-Hant">N3 備考 · 綜合題</span></div>
+    <div><code>ui.body 15/24</code><span class="si-body" lang="zh-Hant">「都」在此讀「つ」、「合」濁化讀「ごう」，故「都合」＝つごう。</span></div>
+    <div><code>ui.label 14/20</code><span class="si-label" lang="zh-Hant">下一題</span></div>
+    <div><code>ui.meta 12/16</code><span class="si-meta" lang="zh-Hant">664 題 · 已完成 12 / 48 章</span></div>
+    <div><code>ja.headword 48/60 Mincho</code><span class="si-headword" lang="ja">都合</span></div>
+    <div><code>ja.prompt 26/44 Mincho</code><span class="si-prompt" lang="ja">今日はちょっと<u>都合</u>が悪いので、また今度にしてください。</span></div>
+    <div><code>ja.prompt + ruby</code><span class="si-prompt" lang="ja"><ruby>今日<rt>きょう</rt></ruby>はちょっと<ruby>都合<rt>つごう</rt></ruby>が<ruby>悪<rt>わる</rt></ruby>いので、また<ruby>今度<rt>こんど</rt></ruby>にしてください。</span></div>
+    <div><code>ja.option 20/30 Mincho</code><span class="si-ja-mincho" style="font-size:20px;line-height:30px" lang="ja">つごう　とごう　つこう　とこう</span></div>
+    <div><code>ja.body 17/30 Gothic</code><span class="si-ja-body" lang="ja">考えれば考えるほどわからなくなってきた。</span></div>
+  </div>
+
+  <h2 class="si-section spec-h">Controls (Tachiko grammar, Jabiko values)</h2>
+  <div class="grid3">
+    <div>
+      <p class="si-kicker">PRIMARY</p>
+      <div class="row" style="margin-top:8px">
+        <button class="si-btn si-btn-primary" type="button">下一題</button>
+        <button class="si-btn si-btn-primary" type="button" data-demo="hover">Hover</button>
+        <button class="si-btn si-btn-primary" type="button" data-demo="pressed">Pressed</button>
+        <button class="si-btn si-btn-primary" type="button" data-demo="focus">Focus</button>
+        <button class="si-btn si-btn-primary" type="button" disabled>Disabled</button>
+      </div>
+    </div>
+    <div>
+      <p class="si-kicker">SECONDARY · GHOST</p>
+      <div class="row" style="margin-top:8px">
+        <button class="si-btn" type="button"><i data-icon="eye"></i>看答案</button>
+        <button class="si-btn" type="button" data-demo="pressed">Pressed</button>
+        <button class="si-btn" type="button" data-demo="focus">Focus</button>
+        <button class="si-btn si-btn-ghost" type="button">Ghost</button>
+        <button class="si-btn" type="button" data-busy="true" aria-busy="true"><i data-icon="clock"></i>同步中…</button>
+      </div>
+    </div>
+    <div>
+      <p class="si-kicker">TOGGLE · SEGMENT</p>
+      <div class="row" style="margin-top:8px">
+        <button class="si-toggle" type="button" aria-pressed="false"><span class="si-furi-glyph" lang="ja">ふ</span>振假名<span class="si-toggle-state">關</span></button>
+        <button class="si-toggle" type="button" aria-pressed="true"><span class="si-furi-glyph" lang="ja">ふ</span>振假名<span class="si-toggle-state">開</span></button>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <div class="si-segment" role="group" aria-label="Level"><button type="button">N1</button><button type="button">N2</button><button type="button" aria-pressed="true">N3</button><button type="button">N4</button><button type="button">N5</button></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="si-section spec-h">Answer option states</h2>
+  <div class="grid3">
+    <div>
+      <div class="si-options"><button class="si-option" type="button" lang="ja"><span class="si-bubble">1</span><span class="si-option-text">つごう</span></button></div>
+      <p class="cap">Rest</p>
+    </div>
+    <div>
+      <div class="si-options"><button class="si-option" type="button" lang="ja" data-demo="hover"><span class="si-bubble">1</span><span class="si-option-text">つごう</span></button></div>
+      <p class="cap">Hover (pointer only)</p>
+    </div>
+    <div>
+      <div class="si-options"><button class="si-option" type="button" lang="ja" data-demo="focus"><span class="si-bubble">1</span><span class="si-option-text">つごう</span></button></div>
+      <p class="cap">Keyboard focus — 3px ai ring, 2px clearance</p>
+    </div>
+    <div>
+      <div class="si-options"><button class="si-option" type="button" lang="ja" aria-disabled="true" data-selected="true" data-result="correct"><span class="si-bubble">1</span><i data-mark="o" class="si-verdict"></i><span class="si-option-text">つごう</span><span class="si-option-tag"><i data-mark="o"></i> 正解</span></button></div>
+      <p class="cap">Chosen + correct: ai pencil fill, shu circle</p>
+    </div>
+    <div>
+      <div class="si-options"><button class="si-option" type="button" lang="ja" aria-disabled="true" data-selected="true" data-result="wrong"><span class="si-bubble">2</span><span class="si-option-text">とごう</span><span class="si-option-tag"><i data-mark="x"></i> 你的答案</span></button></div>
+      <p class="cap">Chosen + wrong: ai fill kept, labelled shu ×; shu circles only ever point at the correct answer</p>
+    </div>
+    <div>
+      <div class="si-options"><button class="si-option" type="button" lang="ja" aria-disabled="true" data-result="target"><span class="si-bubble">1</span><i data-mark="o" class="si-verdict"></i><span class="si-option-text">つごう</span><span class="si-option-tag">正解</span></button></div>
+      <p class="cap">Correct answer after a miss: shu circle, labelled</p>
+    </div>
+  </div>
+
+  <h2 class="si-section spec-h">Protected state notices (Tachiko, unchanged)</h2>
+  <div class="grid2">
+    <div style="display:grid;gap:8px">
+      <p class="si-notice si-notice-warning" role="status"><i data-icon="warning"></i><span>離線中：作答會先存在這台裝置，恢復連線後再同步。</span></p>
+      <p class="si-notice si-notice-error" role="alert"><i data-icon="error"></i><span>回報沒有送出，你寫的內容還在。</span><button class="si-btn si-notice-action" type="button">再試一次</button></p>
+      <p class="si-notice si-notice-success" role="status"><i data-icon="check"></i><span>已同步 1,065 筆作答紀錄。</span></p>
+      <p class="si-notice si-notice-neutral"><i data-icon="clock"></i><span>準備題目中…</span></p>
+    </div>
+    <div>
+      <p class="si-body si-secondary">A wrong answer is not an error. Learning verdicts never use the error/warning notice family; system states never use shu marks.</p>
+    </div>
+  </div>
+</main>
+<script type="module">
+  import { applyTheme, hydrate } from "./harness.js";
+  applyTheme();
+  const roles = await (await fetch("../tokens.json")).json();
+  const theme = document.documentElement.dataset.theme;
+  const host = document.getElementById("swatches");
+  const entries = Object.entries(roles.color[theme]);
+  const half = Math.ceil(entries.length / 2);
+  for (const chunk of [entries.slice(0, half), entries.slice(half)]) {
+    const col = document.createElement("div");
+    col.innerHTML = chunk.map(([role, v]) => `<div class="sw"><i style="background:${v.value}"></i><span>${role}</span><code>${v.value}</code></div>`).join("");
+    host.append(col);
+  }
+  hydrate();
+</script>
+</body>
+</html>

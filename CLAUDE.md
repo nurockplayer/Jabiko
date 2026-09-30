@@ -35,6 +35,7 @@ These documents still contain Traditional Chinese and are migrated on touch (a c
 - `src/domain/contentGuard.test.ts` is the correctness gate for item content
 - Before modifying any domain file, read its corresponding `.test.ts` to understand expected behavior
 - Before adding/modifying exam items, read [`docs/item-quality-rubric.md`](docs/item-quality-rubric.md) (item-quality rubric: unique correct answer, distractors, no leaks, format)
+- Before changing Jabiko Learning UI presentation (styles, shell, navigation, surfaces), read [`docs/design/learning/README.md`](docs/design/learning/README.md) — the Shu-ire design authority; implement it rather than redesigning in code
 
 ## Verification Ladder (L0–L3, issue #760)
 

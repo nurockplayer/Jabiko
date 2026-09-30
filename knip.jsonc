@@ -11,6 +11,10 @@
     "scripts/import-exam-items.mjs",
     // Exec'd by the ops/analytics/bin/* bash wrappers, not imported.
     "ops/analytics/src/cli/*.mjs",
+    // Design-authority tooling (docs/design/learning); run by hand, and the
+    // reference harness is loaded by the static boards, not imported by src/.
+    "docs/design/learning/tools/*.mjs",
+    "docs/design/learning/reference/harness.js",
     // Directory entrypoint guard for `node --test ops/analytics/test/` on
     // Node 22+ (see its header comment); CI invokes the glob form instead.
     "ops/analytics/test/index.js"

@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shu-ire SI-1 · Practice session (/challenge)</title>
+<link rel="stylesheet" href="shu-ire.css">
+<style>
+  /* Board-local layout for the Session surface (DESIGN.md §7.2). */
+  [data-l] { display: none; }
+  :root[lang="zh-Hant"] [data-l="zh-Hant"], :root[lang="en"] [data-l="en"] { display: revert; }
+  .bar-left { display: flex; align-items: center; gap: 4px; min-width: 0; }
+  .bar-center { display: flex; justify-content: center; min-width: 0; }
+  .progress-line { display: none; }
+  .complete { max-width: 560px; margin: 24px auto 0; text-align: center; }
+  .complete .big { display: inline-flex; align-items: center; gap: 16px; margin: 16px 0 8px; }
+  .complete .big .si-mark { width: 72px; height: 72px; }
+  .complete .big .score { font-size: 56px; line-height: 64px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .complete .big .score b { color: var(--si-mark-ink); }
+  .complete .big .score span { color: var(--si-text-tertiary); font-weight: 500; font-size: 32px; }
+  .complete .hana .si-mark { width: 120px; height: 120px; }
+  .complete h2 { font-size: 24px; line-height: 32px; font-weight: 700; }
+  .complete p.si-secondary { margin-top: 8px; }
+  .complete .si-tally { max-width: 360px; margin: 24px auto 0; text-align: center; }
+  .complete .si-actions { justify-content: center; }
+  .complete .missed { margin: 24px auto 0; max-width: 420px; text-align: left; }
+  .complete .missed li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--si-border-subtle); font-size: 14px; }
+  .share { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 24px; font-size: 13px; color: var(--si-text-secondary); }
+  .watermark { margin-top: 16px; font-size: 12px; color: var(--si-text-tertiary); letter-spacing: 0.08em; }
+  .hana-label { display: inline-block; margin-top: 4px; padding: 0 8px; border: 1.5px solid var(--si-mark-ink); border-radius: 4px; color: var(--si-mark-ink); font-weight: 700; font-size: 13px; line-height: 22px; }
+  .placeholder { display: grid; gap: 14px; margin-top: 28px; }
+  .placeholder i { display: block; height: 14px; border-radius: 2px; background: var(--si-surface-inset); }
+  .placeholder i:nth-child(1) { width: 38%; }
+  .placeholder i:nth-child(2) { width: 92%; height: 28px; }
+  .placeholder i:nth-child(3) { width: 70%; height: 28px; }
+  .placeholder .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .placeholder .opts i { width: auto; height: 56px; border-radius: 7px; }
+  .recall-row { display: flex; gap: 8px; margin-top: 8px; }
+  .recall-row .si-input { font-family: var(--si-font-gothic-ja); font-size: 20px; min-height: 52px; }
+  .target-form { display: inline-flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 15px; }
+  .target-form b { padding: 0 8px; border: 1px solid var(--si-border-strong); border-radius: 4px; font-weight: 700; }
+  @media (max-width: 1023px) {
+    .ledger-wide { display: none !important; }
+    .progress-line { display: block; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--si-border-subtle); }
+    .progress-line span { display: block; height: 100%; background: var(--si-text-primary); }
+    .si-session-bar { position: sticky; }
+  }
+  @media (max-width: 599px) {
+    .si-session-bar { grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px; padding: 0 8px; }
+    .tool-label { display: none; }
+    .complete .big .score { font-size: 44px; line-height: 52px; }
+  }
+</style>
+</head>
+<body>
+<div class="si-app">
+  <header class="si-session-bar">
+    <div class="bar-left">
+      <a class="si-iconbtn" href="today.html" aria-label="離開練習，回到今日"><i data-icon="close"></i></a>
+      <button class="si-session-set" type="button" aria-haspopup="dialog"><span><span data-l="zh-Hant">今日練習</span><span data-l="en">Today's set</span></span><i data-icon="chevron"></i></button>
+    </div>
+    <div class="bar-center">
+      <div class="si-ledger" aria-label="進度">
+        <span class="si-ledger-ticks ledger-wide" id="ticks" aria-hidden="true"></span>
+        <span class="si-num" id="progress-text">7 / 20</span>
+      </div>
+    </div>
+    <div class="si-session-tools">
+      <button class="si-toggle" type="button" aria-pressed="false"><span class="si-furi-glyph" lang="ja">ふ</span><span class="tool-label"><span data-l="zh-Hant">振假名</span><span data-l="en">Furigana</span></span></button>
+      <button class="si-iconbtn" type="button" aria-label="本次設定：題數與語速" aria-haspopup="dialog"><i data-icon="sliders"></i></button>
+      <button class="si-iconbtn" type="button" aria-label="選單與設定" aria-haspopup="menu"><i data-icon="menu"></i></button>
+    </div>
+    <span class="progress-line" aria-hidden="true"><span id="progress-fill" style="width:30%"></span></span>
+  </header>
+
+  <main class="si-main" id="main">
+    <div class="si-sheet-layout">
+      <aside class="si-margin si-margin-left" aria-label="這一組">
+        <section>
+          <h2><span data-l="zh-Hant">這一組</span><span data-l="en">This set</span></h2>
+          <p class="si-title" style="color:var(--si-text-primary)"><span data-l="zh-Hant">今日練習</span><span data-l="en">Today's set</span></p>
+          <p style="margin-top:4px"><span data-l="zh-Hant">複習優先，再混合文法・語順・漢字読み一輪。目標 N3・N4。</span><span data-l="en">Review first, then a mixed round of grammar, word order and kanji readings. Target N3–N4.</span></p>
+          <div style="display:grid;gap:8px;margin-top:16px;justify-items:start">
+            <button class="si-btn" type="button"><span data-l="zh-Hant">換一組</span><span data-l="en">Change set</span></button>
+            <button class="si-btn si-btn-ghost" type="button"><i data-icon="refresh"></i><span data-l="zh-Hant">重設本次</span><span data-l="en">Restart</span></button>
+          </div>
+        </section>
+      </aside>
+
+      <div class="sheet-col">
+        <!-- ================= Active question (all answer states) ================= -->
+        <section class="si-sheet" aria-labelledby="q-type" data-state="q correct wrong revealed" id="drill"
+          data-question-id="n3-kanji-tsugou" data-question-type="漢字読み">
+          <div class="si-q-head">
+            <h1 class="si-q-type" id="q-type"><span data-l="zh-Hant">問題</span><span data-l="en">Question</span><span class="si-ja" lang="ja">漢字読み</span></h1>
+          </div>
+          <p class="si-q-instruction"><span data-l="zh-Hant">選出底線詞語的正確讀音。</span><span data-l="en">Choose the correct reading of the underlined word.</span></p>
+          <p class="si-q-prompt si-prompt" lang="ja">今日はちょっと<u>都合</u>が悪いので、また今度にしてください。</p>
+          <div class="si-q-aids">
+            <button class="si-btn si-btn-ghost" type="button" aria-label="播放這一句"><i data-icon="speaker"></i><span data-l="zh-Hant">朗讀</span><span data-l="en">Listen</span></button>
+            <button class="si-btn si-btn-ghost" type="button" aria-expanded="false" data-state="q"><i data-icon="eye"></i><span data-l="zh-Hant">提示</span><span data-l="en">Hint</span></button>
+            <p class="si-secondary" data-state="correct wrong revealed" style="align-self:center"><span data-l="zh-Hant">今天有點不方便，請改約下次。</span><span data-l="en">Today isn't very convenient for me, so please make it another time.</span></p>
+          </div>
+
+          <div class="si-options" data-layout="grid" id="options" aria-label="選項">
+            <button class="si-option" type="button" lang="ja" data-opt="1"><span class="si-bubble">1</span><span class="si-option-text">つごう</span></button>
+            <button class="si-option" type="button" lang="ja" data-opt="2"><span class="si-bubble">2</span><span class="si-option-text">とごう</span></button>
+            <button class="si-option" type="button" lang="ja" data-opt="3"><span class="si-bubble">3</span><span class="si-option-text">つこう</span></button>
+            <button class="si-option" type="button" lang="ja" data-opt="4"><span class="si-bubble">4</span><span class="si-option-text">とこう</span></button>
+          </div>
+          <p class="si-kbd-hint" data-state="q"><span data-l="zh-Hant">鍵盤：<span class="si-kbd">1</span>–<span class="si-kbd">4</span> 選答 · <span class="si-kbd">Enter</span> 下一題</span><span data-l="en">Keyboard: <span class="si-kbd">1</span>–<span class="si-kbd">4</span> to answer · <span class="si-kbd">Enter</span> next</span></p>
+
+          <!-- Feedback: lands directly under the marked options (DECISIONS D-07). -->
+          <section class="si-feedback" aria-live="polite" data-state="correct wrong revealed" aria-labelledby="verdict">
+            <div class="si-verdict-line" id="verdict">
+              <span class="si-mark-label" data-state="correct"><i data-mark="o" data-draw></i><span data-l="zh-Hant">正解</span><span data-l="en">Correct</span></span>
+              <span class="si-mark-label" data-state="wrong"><i data-mark="x" data-draw></i><span data-l="zh-Hant">答錯</span><span data-l="en">Not quite</span></span>
+              <span class="si-mark-label" data-state="revealed"><i data-mark="dashed-o"></i><span data-l="zh-Hant">答案</span><span data-l="en">Answer shown</span></span>
+              <span class="si-verdict-answer" data-state="wrong revealed"><span data-l="zh-Hant">正解：</span><span data-l="en">Answer: </span><span class="si-ja" lang="ja">つごう</span></span>
+              <span class="si-level-tag">N3</span>
+            </div>
+            <p class="si-explain">
+              <span data-l="zh-Hant">「都」在此讀「つ」、「合」濁化讀「ごう」，故「都合」＝つごう（情況、方便與否）。「とごう」誤把「都」讀成「と」；「つこう」漏掉「合」的濁音；「とこう」兩處都錯。</span>
+              <span data-l="en">Here 「都」 is read 「つ」 and 「合」 voices to 「ごう」, so 「都合」＝つごう (circumstances; convenience). 「とごう」 wrongly reads 「都」 as 「と」; 「つこう」 drops the voicing on 「合」; 「とこう」 gets both wrong.</span>
+            </p>
+            <dl class="si-gloss">
+              <dt><span data-l="zh-Hant">其他選項讀起來是</span><span data-l="en">What the other options read as</span></dt>
+              <dd><span class="si-ja" lang="ja">とごう</span> — <span data-l="zh-Hant">沒有這個詞</span><span data-l="en">not a word</span></dd>
+              <dd><span class="si-ja" lang="ja">つこう</span> — <span data-l="zh-Hant">沒有這個詞</span><span data-l="en">not a word</span></dd>
+              <dd><span class="si-ja" lang="ja">とこう</span> — <span class="si-ja" lang="ja">渡航</span></dd>
+            </dl>
+            <div class="si-feedback-tools">
+              <button class="si-btn" type="button" aria-pressed="false"><i data-icon="bookmark"></i><span data-l="zh-Hant">收藏此題</span><span data-l="en">Bookmark</span></button>
+              <button class="si-btn si-btn-ghost" type="button"><i data-icon="flag"></i><span data-l="zh-Hant">回報此題</span><span data-l="en">Report a problem</span></button>
+            </div>
+          </section>
+
+          <div class="si-actions">
+            <button class="si-btn" type="button" id="reveal"><i data-icon="eye"></i><span data-l="zh-Hant">看答案</span><span data-l="en">Show answer</span></button>
+            <button class="si-btn si-btn-primary" type="button"><span data-l="zh-Hant">下一題</span><span data-l="en">Next</span><i data-icon="arrow"></i></button>
+          </div>
+        </section>
+
+        <!-- ================= Typed recall (basic conjugation) ================= -->
+        <section class="si-sheet" aria-labelledby="r-type" data-state="recall">
+          <div class="si-q-head">
+            <h1 class="si-q-type" id="r-type">問題<span class="si-ja" lang="ja">動詞の活用</span></h1>
+          </div>
+          <div class="si-q-headword-block">
+            <span class="si-pos">動詞 II 類 · <span lang="ja">たべる</span></span>
+            <span class="si-headword" lang="ja">食べる</span>
+            <span class="target-form">改成 <b lang="ja">て形</b></span>
+          </div>
+          <form>
+            <label class="si-label" for="recall">輸入答案（平假名）</label>
+            <div class="recall-row">
+              <input class="si-input" id="recall" lang="ja" autocomplete="off" spellcheck="false" placeholder="請輸入答案">
+              <button class="si-btn si-btn-primary" type="submit" style="min-height:52px">送出</button>
+            </div>
+            <p class="si-kbd-hint"><span class="si-kbd">Enter</span> 送出 · 選字中的 Enter 只會確定選字，不會送出</p>
+          </form>
+          <div class="si-actions">
+            <button class="si-btn" type="button"><i data-icon="eye"></i>看答案</button>
+            <button class="si-btn si-btn-primary" type="button">下一題<i data-icon="arrow"></i></button>
+          </div>
+        </section>
+
+        <!-- ================= Loading ================= -->
+        <section class="si-sheet" data-state="loading" aria-busy="true" aria-labelledby="loading-title">
+          <div class="si-q-head"><h1 class="si-q-type" id="loading-title">今日練習</h1><span class="si-q-no">—</span></div>
+          <p class="si-notice si-notice-neutral" role="status" style="margin-top:20px"><i data-icon="clock"></i><span>準備題目中…</span></p>
+          <div class="placeholder" aria-hidden="true"><i></i><i></i><i></i><div class="opts"><i></i><i></i><i></i><i></i></div></div>
+        </section>
+
+        <!-- ================= Load error ================= -->
+        <section class="si-sheet" data-state="error" aria-labelledby="err-title">
+          <div class="si-q-head"><h1 class="si-q-type" id="err-title">今日練習</h1><span class="si-q-no">—</span></div>
+          <p class="si-notice si-notice-error" role="alert" style="margin-top:20px"><i data-icon="error"></i><span>題目沒有載入完成，可能是網路中斷或版本剛更新。你的作答紀錄都還在。</span></p>
+          <div class="si-actions" style="justify-content:flex-start"><button class="si-btn si-btn-primary" type="button"><i data-icon="refresh"></i>重新載入</button><a class="si-btn" href="today.html">回到今日</a></div>
+        </section>
+
+        <!-- ================= Review queue empty ================= -->
+        <section class="si-sheet" data-state="empty" aria-labelledby="empty-title">
+          <div class="si-q-head"><h1 class="si-q-type" id="empty-title">弱點複習</h1><span class="si-q-no">0 題</span></div>
+          <div class="complete">
+            <h2 style="margin-top:24px">目前沒有待複習的錯題。</h2>
+            <p class="si-secondary">答錯的題目會自動排進這裡；答對一次就移出。</p>
+            <div class="si-actions"><button class="si-btn si-btn-primary" type="button">去綜合題庫練習<i data-icon="arrow"></i></button><a class="si-btn" href="today.html">回到今日</a></div>
+          </div>
+        </section>
+
+        <!-- ================= Set complete ================= -->
+        <section class="si-sheet" data-state="complete perfect" aria-labelledby="done-title">
+          <div class="si-q-head"><p class="si-q-type">今日練習 · 完成</p><span class="si-q-no si-num">20 / 20</span></div>
+          <div class="complete">
+            <div class="big" data-state="complete"><i data-mark="o" data-draw></i><span class="score si-num" aria-label="答對 18 題，共 20 題"><b>18</b><span> / 20</span></span></div>
+            <div class="big hana" data-state="perfect"><i data-mark="hana" data-draw></i></div>
+            <p data-state="perfect"><span class="hana-label">花丸 · 全對</span></p>
+            <h1 id="done-title" class="si-section" data-state="complete" style="font-size:24px;line-height:32px">今日練習完成</h1>
+            <h1 class="si-section" data-state="perfect" style="font-size:24px;line-height:32px;margin-top:12px">20 題全對</h1>
+            <p class="si-secondary" data-state="complete">答錯的 2 題已經排進弱點複習，明天會先出現。</p>
+            <dl class="si-tally">
+              <div><dt>已答</dt><dd class="si-num">20</dd></div>
+              <div><dt>正解</dt><dd class="si-num si-score" data-state="complete">18</dd><dd class="si-num si-score" data-state="perfect">20</dd></div>
+              <div><dt>正確率</dt><dd class="si-num" data-state="complete">90%</dd><dd class="si-num" data-state="perfect">100%</dd></div>
+            </dl>
+            <ul class="missed" data-state="complete" aria-label="這次答錯的題目">
+              <li><span><span class="si-ja-gothic" lang="ja">都合</span> · 漢字読み</span><span class="si-meta">你選 <span lang="ja">とごう</span> → <span lang="ja">つごう</span></span></li>
+              <li><span><span class="si-ja-gothic" lang="ja">〜かたわら</span> · 文法形式</span><span class="si-meta">你選 <span lang="ja">ながら</span> → <span lang="ja">かたわら</span></span></li>
+            </ul>
+            <div class="si-actions"><button class="si-btn si-btn-primary" type="button"><i data-icon="refresh"></i>再來一組</button><a class="si-btn" href="today.html">回到今日</a></div>
+            <div class="share"><span>分享成績</span><button class="si-iconbtn" type="button" aria-label="分享"><i data-icon="share"></i></button><span aria-hidden="true">·</span><button class="si-btn si-btn-ghost" type="button"><i data-icon="message"></i>意見回饋</button></div>
+            <p class="watermark">jabiko.app</p>
+          </div>
+        </section>
+      </div>
+
+      <aside class="si-margin si-margin-right" aria-label="本次紀錄" data-state="q correct wrong revealed recall">
+        <section>
+          <h2><span data-l="zh-Hant">本次</span><span data-l="en">This session</span></h2>
+          <dl class="si-tally">
+            <div><dt><span data-l="zh-Hant">已答</span><span data-l="en">Answered</span></dt><dd class="si-num" id="t-answered">6</dd></div>
+            <div><dt><span data-l="zh-Hant">正解</span><span data-l="en">Correct</span></dt><dd class="si-num si-score" id="t-correct">5</dd></div>
+            <div><dt><span data-l="zh-Hant">複習</span><span data-l="en">Review</span></dt><dd class="si-num">2</dd></div>
+          </dl>
+        </section>
+        <section>
+          <h2><span data-l="zh-Hant">本次答錯</span><span data-l="en">Missed this session</span></h2>
+          <ul class="si-mistakes">
+            <li><span class="si-ja" lang="ja">〜かたわら</span><span class="si-meta"><span lang="ja">ながら</span> → <span lang="ja">かたわら</span></span></li>
+            <li data-state="wrong revealed"><span class="si-ja" lang="ja">都合</span><span class="si-meta"><span lang="ja">とごう</span> → <span lang="ja">つごう</span></span></li>
+          </ul>
+        </section>
+        <section>
+          <h2><span data-l="zh-Hant">本次設定</span><span data-l="en">Settings</span></h2>
+          <p><span data-l="zh-Hant">每組 20 題 · 語速 標準</span><span data-l="en">20 per set · Normal speech</span></p>
+          <button class="si-btn si-btn-ghost" type="button" style="margin-top:8px;margin-left:-14px"><i data-icon="sliders"></i><span data-l="zh-Hant">調整</span><span data-l="en">Adjust</span></button>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
+<script type="module">
+  import { applyTheme, hydrate, showState } from "./harness.js";
+  applyTheme();
+  const state = showState("q");
+  // Ledger ticks: 20 questions; the first six answered, question 7 current.
+  const verdicts = ["o", "o", "x", "o", "o", "o"];
+  const ticks = document.getElementById("ticks");
+  const seventh = { q: "now", correct: "o", wrong: "x", revealed: "x" }[state] ?? "now";
+  ticks.innerHTML = Array.from({ length: 20 }, (_, i) =>
+    `<i data-v="${i < 6 ? verdicts[i] : i === 6 ? seventh : ""}"></i>`).join("");
+  if (["complete", "perfect"].includes(state)) {
+    ticks.innerHTML = Array.from({ length: 20 }, (_, i) => `<i data-v="${state === "complete" && (i === 2 || i === 6) ? "x" : "o"}"></i>`).join("");
+    document.getElementById("progress-text").textContent = "20 / 20";
+    document.getElementById("progress-fill").style.width = "100%";
+  }
+  if (state === "recall") {
+    document.getElementById("progress-text").textContent = "3 / 20";
+    document.getElementById("progress-fill").style.width = "15%";
+    for (const el of document.querySelectorAll(".si-session-set [data-l='zh-Hant'], .si-margin-left .si-title [data-l='zh-Hant']")) el.textContent = "基礎變化";
+  }
+  // Answer states (mirrors the DrillPanel data-result contract).
+  const drill = document.getElementById("drill");
+  const opts = [...document.querySelectorAll("#options .si-option")];
+  const lang = document.documentElement.lang;
+  const L = (zh, en) => (lang === "en" ? en : zh);
+  const tag = (m, text) => `<span class="si-option-tag">${m ? `<i data-mark="${m}"></i>` : ""}${text}</span>`;
+  if (["correct", "wrong", "revealed"].includes(state)) {
+    document.getElementById("options").dataset.verdict = state;
+    drill.dataset.result = state === "wrong" ? "wrong" : state;
+    for (const o of opts) o.setAttribute("aria-disabled", "true");
+    document.getElementById("reveal").disabled = true;
+    const [one, two] = opts;
+    if (state === "correct") {
+      one.dataset.selected = "true"; one.dataset.result = "correct";
+      one.insertAdjacentHTML("beforeend", '<i data-mark="o" data-draw class="si-verdict"></i>' + tag("o", L("正解", "Correct")));
+      document.getElementById("t-answered").textContent = "7"; document.getElementById("t-correct").textContent = "6";
+    } else {
+      if (state === "wrong") {
+        two.dataset.selected = "true"; two.dataset.result = "wrong";
+        two.insertAdjacentHTML("beforeend", tag("x", L("你的答案", "Your answer")));
+      }
+      one.dataset.result = "target";
+      one.insertAdjacentHTML("beforeend", `<i data-mark="${state === "revealed" ? "dashed-o" : "o"}" data-draw class="si-verdict"></i>` + tag("", L("正解", "Answer")));
+      document.getElementById("t-answered").textContent = "7";
+    }
+  }
+  hydrate();
+</script>
+</body>
+</html>

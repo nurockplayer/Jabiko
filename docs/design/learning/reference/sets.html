@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shu-ire SI-1 · Practice sets and JLPT sections (/challenge set switcher, /mock)</title>
+<link rel="stylesheet" href="shu-ire.css">
+<style>
+  /* Board-local layout (DESIGN.md §7.3, §7.4). */
+  .switcher { position: fixed; z-index: 41; top: 64px; left: 16px; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 88px); overflow: auto; padding: 8px 20px 20px; border: 1px solid var(--si-border-subtle); border-radius: 10px; background: var(--si-surface-raised); box-shadow: var(--si-elev-dialog); }
+  .switcher h2 { font-size: 17px; line-height: 24px; font-weight: 600; margin: 12px 0 0; }
+  .switcher .group { margin-top: 16px; }
+  .switcher .group > h3 { margin-bottom: 4px; }
+  .switcher .si-index-row { grid-template-columns: 9em 1fr auto; min-height: 52px; padding: 10px 4px; }
+  .switcher .si-index-row[aria-current="true"] { box-shadow: inset 3px 0 0 var(--si-learner-mark); background: var(--si-learner-tint); padding-left: 12px; }
+  .switcher .si-index-row[aria-current="true"] .si-index-name::after { content: "目前"; margin-left: 8px; font-size: 12px; font-weight: 600; color: var(--si-learner-mark); }
+  .switcher footer { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; }
+  .dim-behind { filter: none; }
+  .mock-head { display: grid; gap: 12px; margin-bottom: 24px; }
+  .mock-head .si-display { margin-top: 4px; }
+  .mock-head .si-segment { justify-self: start; min-width: min(360px, 100%); }
+  .mock .si-index-row { grid-template-columns: 3.2em minmax(10em, 15em) 1fr auto; }
+  .mock .si-index-no { font-size: 13px; line-height: 24px; color: var(--si-text-tertiary); font-variant-numeric: tabular-nums; }
+  .mock .si-index-name { font-family: var(--si-font-mincho); font-weight: 600; font-size: 19px; }
+  .group-label { margin: 32px 0 8px; }
+  @media (max-width: 599px) {
+    .switcher { display: none; }
+    .mock .si-index-row { grid-template-columns: 3.6em 1fr auto; }
+    .mock .si-index-no { white-space: nowrap; }
+    .mock .si-index-desc { grid-column: 2; grid-row: 2; }
+    .mock .si-index-meta { grid-column: 3; grid-row: 1 / span 2; }
+  }
+  @media (min-width: 600px) { .si-sheet-panel.phone-only { display: none; } }
+</style>
+</head>
+<body>
+<div class="si-app">
+  <!-- ======== Set switcher over an active session ======== -->
+  <div data-state="switcher">
+    <header class="si-session-bar">
+      <div style="display:flex;align-items:center;gap:4px;min-width:0">
+        <a class="si-iconbtn" href="today.html" aria-label="離開練習，回到今日"><i data-icon="close"></i></a>
+        <button class="si-session-set" type="button" aria-haspopup="dialog" aria-expanded="true"><span>今日練習</span><i data-icon="chevron"></i></button>
+      </div>
+      <div></div>
+      <div class="si-session-tools"><button class="si-iconbtn" type="button" aria-label="選單與設定"><i data-icon="menu"></i></button></div>
+    </header>
+    <main class="si-main" aria-hidden="true"><h1 class="si-visually-hidden">今日練習</h1></main>
+    <div class="si-scrim" aria-hidden="true"></div>
+
+    <div class="switcher" role="dialog" aria-modal="true" aria-labelledby="sw-title">
+      <h2 id="sw-title">換一組練習</h2>
+      <p class="si-meta" style="margin-top:2px">目前這組的進度會保留在紀錄中；換組會開始新的一組。</p>
+      <div class="group"><h3 class="si-kicker">每日</h3>
+        <ul class="si-index">
+          <li><button class="si-index-row" type="button" aria-current="true"><span class="si-index-name">今日練習</span><span class="si-index-desc">複習優先・文法 / 語順 / 漢字讀み混合一輪</span><span class="si-index-meta">20 題</span></button></li>
+          <li><button class="si-index-row" type="button"><span class="si-index-name">弱點複習</span><span class="si-index-desc">上次答錯的題目，重練到對為止</span><span class="si-index-meta">3 題</span></button></li>
+          <li><button class="si-index-row" type="button"><span class="si-index-name">我的收藏</span><span class="si-index-desc">重練你標記的題目</span><span class="si-index-meta">12 題</span></button></li>
+        </ul>
+      </div>
+      <div class="group"><h3 class="si-kicker">備考題庫</h3>
+        <ul class="si-index">
+          <li><button class="si-index-row" type="button"><span class="si-index-name">綜合考題庫</span><span class="si-index-desc">N1〜N3 為主・文法 / 語順 / 短文 / 詞彙 / 漢字讀み</span><span class="si-index-meta">1,259 題</span></button></li>
+          <li><button class="si-index-row" type="button"><span class="si-index-name">N1 備考</span><span class="si-index-desc">N1＋N2 綜合題</span><span class="si-index-meta">1,253 題</span></button></li>
+          <li><button class="si-index-row" type="button"><span class="si-index-name">N2 備考</span><span class="si-index-desc">N2＋N3 綜合題</span><span class="si-index-meta">971 題</span></button></li>
+          <li><button class="si-index-row" type="button"><span class="si-index-name">N3 備考</span><span class="si-index-desc">N3＋N4 綜合題</span><span class="si-index-meta">664 題</span></button></li>
+          <li><button class="si-index-row" type="button"><span class="si-index-name">N4 備考</span><span class="si-index-desc">N4＋N5 綜合題・助詞 / 基礎文法</span><span class="si-index-meta">482 題</span></button></li>
+        </ul>
+      </div>
+      <div class="group"><h3 class="si-kicker">專項練習</h3>
+        <ul class="si-index">
+          <li><button class="si-index-row" type="button"><span class="si-index-name">句型練習</span><span class="si-index-desc">N5/N4 句型判斷・視角 / 許可 / 引用 / 不必</span><span class="si-index-meta">254 題</span></button></li>
+          <li><button class="si-index-row" type="button"><span class="si-index-name">句中填空</span><span class="si-index-desc">N5 文型・〜てください / 〜たいです</span><span class="si-index-meta">20 題</span></button></li>
+          <li><button class="si-index-row" type="button"><span class="si-index-name">單字讀音</span><span class="si-index-desc">N1〜N5 漢字詞・選正確讀音</span><span class="si-index-meta">1,251 題</span></button></li>
+          <li><button class="si-index-row" type="button"><span class="si-index-name">基礎變化</span><span class="si-index-desc">詞類變化・自己輸入答案</span><span class="si-index-meta">輸入</span></button></li>
+        </ul>
+      </div>
+      <footer><a class="si-btn si-btn-ghost" href="sets.html?state=mock">依 JLPT 題型練習<i data-icon="arrow"></i></a><button class="si-btn" type="button">關閉</button></footer>
+    </div>
+
+    <div class="si-sheet-panel phone-only" role="dialog" aria-modal="true" aria-labelledby="sw-title-m">
+      <div class="si-sheet-grip" aria-hidden="true"></div>
+      <h2 id="sw-title-m" class="si-title">換一組練習</h2>
+      <p class="si-meta" style="margin-top:2px">換組會開始新的一組。</p>
+      <h3 class="si-kicker" style="margin-top:16px">每日</h3>
+      <ul class="si-index">
+        <li><button class="si-index-row" type="button" aria-current="true" style="box-shadow:inset 3px 0 0 var(--si-learner-mark);background:var(--si-learner-tint);padding-left:12px"><span class="si-index-name">今日練習 <span class="si-meta" style="color:var(--si-learner-mark);font-weight:600">目前</span></span><span class="si-index-desc">複習優先・混合一輪</span><span class="si-index-meta">20 題</span></button></li>
+        <li><button class="si-index-row" type="button"><span class="si-index-name">弱點複習</span><span class="si-index-desc">上次答錯的題目</span><span class="si-index-meta">3 題</span></button></li>
+        <li><button class="si-index-row" type="button"><span class="si-index-name">我的收藏</span><span class="si-index-desc">你標記的題目</span><span class="si-index-meta">12 題</span></button></li>
+      </ul>
+      <h3 class="si-kicker" style="margin-top:16px">備考題庫</h3>
+      <ul class="si-index">
+        <li><button class="si-index-row" type="button"><span class="si-index-name">綜合考題庫</span><span class="si-index-desc">N1〜N3 為主</span><span class="si-index-meta">1,259 題</span></button></li>
+        <li><button class="si-index-row" type="button"><span class="si-index-name">N3 備考</span><span class="si-index-desc">N3＋N4 綜合題</span><span class="si-index-meta">664 題</span></button></li>
+      </ul>
+      <p class="si-meta" style="margin-top:8px">⋯ 其餘組別同桌面版，依序往下捲動</p>
+    </div>
+  </div>
+
+  <!-- ======== /mock — JLPT sections ======== -->
+  <div data-state="mock">
+    <div id="topbar"></div>
+    <main class="si-main">
+      <div class="si-page">
+        <div class="si-column mock">
+          <div class="mock-head">
+            <p class="si-kicker">練習 · JLPT 題型</p>
+            <h1 class="si-display">依官方題型逐區練習</h1>
+            <p class="si-secondary">選一個題型直接練那一區。每題作答後立即看解析，答錯會自動進弱點複習。</p>
+            <div class="si-segment" role="group" aria-label="等級"><button type="button">N1</button><button type="button" aria-pressed="true">N2</button><button type="button">N3</button><button type="button">N4</button><button type="button">N5</button></div>
+          </div>
+
+          <h2 class="si-kicker group-label">文字・語彙</h2>
+          <ul class="si-index">
+            <li><a class="si-index-row" href="session.html"><span class="si-index-no">問題 1</span><span class="si-index-name" lang="ja">漢字読み</span><span class="si-index-desc">漢字讀音</span><span class="si-index-meta">41 題<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="session.html"><span class="si-index-no">問題 2</span><span class="si-index-name" lang="ja">表記</span><span class="si-index-desc">漢字書寫</span><span class="si-index-meta">12 題<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="session.html"><span class="si-index-no">問題 3</span><span class="si-index-name" lang="ja">語形成</span><span class="si-index-desc">詞形成（N2 限定）</span><span class="si-index-meta">8 題<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="session.html"><span class="si-index-no">問題 4</span><span class="si-index-name" lang="ja">文脈規定</span><span class="si-index-desc">詞彙填空</span><span class="si-index-meta">85 題<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="session.html"><span class="si-index-no">問題 5</span><span class="si-index-name" lang="ja">言い換え類義</span><span class="si-index-desc">類義替換</span><span class="si-index-meta">61 題<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="session.html"><span class="si-index-no">問題 6</span><span class="si-index-name" lang="ja">用法</span><span class="si-index-desc">詞彙用法</span><span class="si-index-meta">25 題<i data-icon="arrow"></i></span></a></li>
+          </ul>
+
+          <h2 class="si-kicker group-label">文法</h2>
+          <ul class="si-index">
+            <li><a class="si-index-row" href="session.html"><span class="si-index-no">問題 7</span><span class="si-index-name" lang="ja">文の文法 1</span><span class="si-index-desc">文法形式判斷</span><span class="si-index-meta">309 題<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="session.html"><span class="si-index-no">問題 8</span><span class="si-index-name" lang="ja">文の文法 2</span><span class="si-index-desc">句子組合（★ 題）</span><span class="si-index-meta">14 題<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="session.html"><span class="si-index-no">問題 9</span><span class="si-index-name" lang="ja">文章の文法</span><span class="si-index-desc">文章脈絡填空</span><span class="si-index-meta">20 題<i data-icon="arrow"></i></span></a></li>
+          </ul>
+
+          <h2 class="si-kicker group-label">讀解</h2>
+          <ul class="si-index">
+            <li><div class="si-index-row" role="link" aria-disabled="true"><span class="si-index-no">問題 10</span><span class="si-index-name" lang="ja">内容理解（短文）</span><span class="si-index-desc">短文閱讀 · 題目整理中，完成後會出現在這裡</span><span class="si-index-meta"><span class="si-status-word">準備中</span></span></div></li>
+            <li><div class="si-index-row" role="link" aria-disabled="true"><span class="si-index-no">問題 11</span><span class="si-index-name" lang="ja">内容理解（中文）</span><span class="si-index-desc">中篇閱讀</span><span class="si-index-meta"><span class="si-status-word">準備中</span></span></div></li>
+            <li><div class="si-index-row" role="link" aria-disabled="true"><span class="si-index-no">問題 12</span><span class="si-index-name" lang="ja">統合理解</span><span class="si-index-desc">綜合理解（雙文）</span><span class="si-index-meta"><span class="si-status-word">準備中</span></span></div></li>
+            <li><div class="si-index-row" role="link" aria-disabled="true"><span class="si-index-no">問題 13</span><span class="si-index-name" lang="ja">主張理解（長文）</span><span class="si-index-desc">主張理解（長文）</span><span class="si-index-meta"><span class="si-status-word">準備中</span></span></div></li>
+            <li><div class="si-index-row" role="link" aria-disabled="true"><span class="si-index-no">問題 14</span><span class="si-index-name" lang="ja">情報検索</span><span class="si-index-desc">資訊檢索</span><span class="si-index-meta"><span class="si-status-word">準備中</span></span></div></li>
+          </ul>
+        </div>
+      </div>
+    </main>
+    <div id="bottombar"></div>
+  </div>
+</div>
+<script type="module">
+  import { applyTheme, bottombar, hydrate, showState, topbar } from "./harness.js";
+  applyTheme();
+  document.getElementById("topbar").outerHTML = topbar("practice");
+  document.getElementById("bottombar").outerHTML = bottombar("practice");
+  showState("switcher");
+  hydrate();
+</script>
+</body>
+</html>

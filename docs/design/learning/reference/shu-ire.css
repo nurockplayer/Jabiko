@@ -1,0 +1,1880 @@
+/*
+ * Jabiko Learning — Shu-ire (朱入れ) reference recipes, revision SI-1.
+ *
+ * DESIGN HARNESS, NOT PRODUCTION CODE. This file exists so the canonical
+ * tokens in ../tokens.json can be rendered, measured and reviewed. Production
+ * implementation (#838) re-expresses these recipes in src/styles; it must not
+ * import this file. Custom property names here are harness-private; the
+ * semantic role names in tokens.json are the contract.
+ *
+ * Every color value below is checked against tokens.json by
+ * ../tools/verify.mjs (parity + contrast).
+ */
+
+:root {
+  --si-surface-app: #FFFFFF;
+  --si-surface-chrome: #F6F5F2;
+  --si-surface-content: #FFFFFF;
+  --si-surface-inset: #EFEEEA;
+  --si-surface-raised: #FFFFFF;
+  --si-text-primary: #1D1C1A;
+  --si-text-secondary: #5F5C57;
+  --si-text-tertiary: #6E6A63;
+  --si-text-disabled: #8C877E;
+  --si-text-link: #2456B0;
+  --si-border-subtle: #E3E1DB;
+  --si-border-control: #8C877E;
+  --si-border-strong: #1D1C1A;
+  --si-action-primary-background: #1D1C1A;
+  --si-action-primary-hover: #3A3834;
+  --si-action-primary-pressed: #000000;
+  --si-action-primary-foreground: #FFFFFF;
+  --si-action-secondary-hover: #F6F5F2;
+  --si-action-secondary-pressed: #EFEEEA;
+  --si-focus-ring: #2456B0;
+  --si-learner-mark: #2456B0;
+  --si-learner-markForeground: #FFFFFF;
+  --si-learner-tint: #EAF0FB;
+  --si-mark-ink: #C43A17;
+  --si-mark-tint: #FBEDE7;
+  --si-state-warning-ink: #865015;
+  --si-state-warning-background: #FFF3DD;
+  --si-state-error-ink: #A02D42;
+  --si-state-error-background: #FFF0F3;
+  --si-state-success-ink: #206C4E;
+  --si-state-success-background: #E9F6F0;
+  --si-scrim: rgba(29, 28, 26, 0.48);
+
+  --si-font-ui: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", sans-serif;
+  --si-font-ui-ja: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", "Noto Sans CJK JP", "Meiryo", sans-serif;
+  --si-font-ui-zh: system-ui, -apple-system, "Segoe UI", "PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", sans-serif;
+  --si-font-mincho: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", "Noto Serif JP", "Noto Serif CJK JP", "Source Han Serif JP", serif;
+  --si-font-gothic-ja: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "YuGothic", "Noto Sans JP", "Noto Sans CJK JP", "Meiryo", sans-serif;
+
+  --si-elev-overlay: 0 1px 2px rgba(29, 28, 26, 0.08), 0 6px 20px rgba(29, 28, 26, 0.12);
+  --si-elev-dialog: 0 2px 6px rgba(29, 28, 26, 0.10), 0 20px 56px rgba(29, 28, 26, 0.20);
+  --si-ease: cubic-bezier(0.2, 0, 0, 1);
+  --si-dur-state: 120ms;
+  --si-dur-layer: 180ms;
+  --si-dur-mark: 260ms;
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --si-surface-app: #151513;
+  --si-surface-chrome: #1C1C1A;
+  --si-surface-content: #151513;
+  --si-surface-inset: #252522;
+  --si-surface-raised: #222220;
+  --si-text-primary: #EDEBE6;
+  --si-text-secondary: #B5B1A9;
+  --si-text-tertiary: #A29E96;
+  --si-text-disabled: #77736C;
+  --si-text-link: #8DB2FF;
+  --si-border-subtle: #34332F;
+  --si-border-control: #7A766F;
+  --si-border-strong: #EDEBE6;
+  --si-action-primary-background: #EDEBE6;
+  --si-action-primary-hover: #D8D5CE;
+  --si-action-primary-pressed: #FFFFFF;
+  --si-action-primary-foreground: #151513;
+  --si-action-secondary-hover: #252522;
+  --si-action-secondary-pressed: #2E2E2A;
+  --si-focus-ring: #8DB2FF;
+  --si-learner-mark: #8DB2FF;
+  --si-learner-markForeground: #151513;
+  --si-learner-tint: #18233A;
+  --si-mark-ink: #FF8866;
+  --si-mark-tint: #3A1E15;
+  --si-state-warning-ink: #F2B866;
+  --si-state-warning-background: #332611;
+  --si-state-error-ink: #FF9AAD;
+  --si-state-error-background: #3A1820;
+  --si-state-success-ink: #6FD3A6;
+  --si-state-success-background: #12301F;
+  --si-scrim: rgba(0, 0, 0, 0.62);
+  --si-elev-overlay: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.45);
+  --si-elev-dialog: 0 2px 6px rgba(0, 0, 0, 0.4), 0 24px 64px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --si-dur-state: 0ms;
+    --si-dur-layer: 0ms;
+    --si-dur-mark: 0ms;
+  }
+}
+
+/* ---------------------------------------------------------------- base */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--si-surface-app);
+  color: var(--si-text-primary);
+  font-family: var(--si-font-ui);
+  font-size: 15px;
+  line-height: 24px;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+:lang(ja) {
+  font-family: var(--si-font-ui-ja);
+}
+
+:lang(zh-Hant) {
+  font-family: var(--si-font-ui-zh);
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ol,
+ul,
+dl,
+dd,
+figure {
+  margin: 0;
+}
+
+ol,
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: var(--si-text-link);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Tachiko focus geometry: 3px ring, 2px clearance, never removed. */
+:focus-visible {
+  outline: 3px solid var(--si-focus-ring);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--si-learner-tint);
+  color: var(--si-text-primary);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.si-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.si-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Japanese learning content. lang="ja" is required on every carrier. */
+.si-ja-mincho {
+  font-family: var(--si-font-mincho);
+  font-feature-settings: "palt" 0;
+}
+
+.si-ja-gothic {
+  font-family: var(--si-font-gothic-ja);
+}
+
+ruby {
+  ruby-position: over;
+}
+
+rt {
+  font-family: var(--si-font-gothic-ja);
+  font-size: 0.5em;
+  color: var(--si-text-tertiary);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* --------------------------------------------------------------- type */
+
+.si-display {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.si-section {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.si-title {
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.si-body {
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.si-label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.si-meta {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--si-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.si-kicker {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--si-text-secondary);
+}
+
+.si-secondary {
+  color: var(--si-text-secondary);
+}
+
+.si-headword {
+  font-family: var(--si-font-mincho);
+  font-size: 48px;
+  line-height: 60px;
+  font-weight: 500;
+}
+
+.si-prompt {
+  font-family: var(--si-font-mincho);
+  font-size: 26px;
+  line-height: 44px;
+  font-weight: 400;
+}
+
+.si-ja-body {
+  font-family: var(--si-font-gothic-ja);
+  font-size: 17px;
+  line-height: 30px;
+}
+
+@media (max-width: 599px) {
+  .si-display {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .si-headword {
+    font-size: 40px;
+    line-height: 52px;
+  }
+
+  .si-prompt {
+    font-size: 22px;
+    line-height: 38px;
+  }
+}
+
+/* ------------------------------------------------------------ buttons */
+
+.si-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--si-border-control);
+  border-radius: 7px;
+  background: var(--si-surface-app);
+  color: var(--si-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color var(--si-dur-state) var(--si-ease), border-color var(--si-dur-state) var(--si-ease);
+}
+
+.si-btn:hover {
+  background: var(--si-action-secondary-hover);
+}
+
+.si-btn:active,
+.si-btn[data-demo="pressed"] {
+  background: var(--si-action-secondary-pressed);
+}
+
+.si-btn svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.si-btn-primary {
+  border-color: var(--si-action-primary-background);
+  background: var(--si-action-primary-background);
+  color: var(--si-action-primary-foreground);
+}
+
+.si-btn-primary:hover,
+.si-btn-primary[data-demo="hover"] {
+  background: var(--si-action-primary-hover);
+  border-color: var(--si-action-primary-hover);
+}
+
+.si-btn-primary:active,
+.si-btn-primary[data-demo="pressed"] {
+  background: var(--si-action-primary-pressed);
+  border-color: var(--si-action-primary-pressed);
+}
+
+.si-btn-ghost {
+  border-color: transparent;
+  background: transparent;
+}
+
+.si-btn-ghost:hover,
+.si-btn-ghost[data-demo="hover"] {
+  background: var(--si-action-secondary-hover);
+}
+
+.si-btn-large {
+  min-height: 48px;
+  padding: 0 20px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.si-btn[disabled],
+.si-btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  border-color: var(--si-border-subtle);
+  background: var(--si-surface-chrome);
+  color: var(--si-text-disabled);
+}
+
+.si-btn[data-demo="focus"] {
+  outline: 3px solid var(--si-focus-ring);
+  outline-offset: 2px;
+}
+
+.si-btn[data-busy="true"] {
+  cursor: progress;
+}
+
+.si-iconbtn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--si-text-secondary);
+  flex: none;
+}
+
+.si-iconbtn:hover {
+  background: var(--si-action-secondary-hover);
+  color: var(--si-text-primary);
+}
+
+.si-iconbtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Toggle with persistent pressed state (furigana, theme): the learner's
+ * setting, therefore Ai. aria-pressed carries the meaning, not color. */
+.si-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--si-border-subtle);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--si-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.si-toggle:hover {
+  background: var(--si-action-secondary-hover);
+}
+
+.si-toggle[aria-pressed="true"] {
+  border-color: var(--si-learner-mark);
+  background: var(--si-learner-tint);
+  color: var(--si-text-primary);
+}
+
+.si-toggle .si-toggle-state {
+  font-size: 12px;
+  color: var(--si-text-tertiary);
+}
+
+.si-toggle[aria-pressed="true"] .si-toggle-state {
+  color: var(--si-learner-mark);
+  font-weight: 600;
+}
+
+.si-furi-glyph {
+  font-family: var(--si-font-mincho);
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* Segmented control (level N1–N5, session length). */
+.si-segment {
+  display: inline-flex;
+  border: 1px solid var(--si-border-control);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.si-segment button {
+  min-width: 44px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-left: 1px solid var(--si-border-subtle);
+  background: var(--si-surface-app);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.si-segment button {
+  flex: 1 0 auto;
+  white-space: nowrap;
+}
+
+.si-segment button:first-child {
+  border-left: 0;
+}
+
+.si-segment button:hover {
+  background: var(--si-action-secondary-hover);
+}
+
+.si-segment button[aria-pressed="true"],
+.si-segment button[aria-checked="true"],
+.si-segment button[aria-current="true"] {
+  background: var(--si-learner-tint);
+  color: var(--si-learner-mark);
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 var(--si-learner-mark);
+}
+
+.si-segment button:focus-visible {
+  outline-offset: -3px;
+}
+
+.si-kbd {
+  display: inline-block;
+  min-width: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--si-border-control);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  font-family: var(--si-font-ui);
+  font-size: 11px;
+  line-height: 16px;
+  text-align: center;
+  color: var(--si-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------- fields */
+
+.si-field {
+  display: grid;
+  gap: 6px;
+}
+
+.si-field label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.si-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--si-border-control);
+  border-radius: 7px;
+  background: var(--si-surface-app);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.si-input::placeholder {
+  color: var(--si-text-tertiary);
+}
+
+.si-search {
+  position: relative;
+}
+
+.si-search svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  color: var(--si-text-tertiary);
+  pointer-events: none;
+}
+
+.si-search .si-input {
+  padding-left: 38px;
+}
+
+/* ------------------------------------------------------------ notices */
+
+/* Protected Tachiko state notices: glyph + text + tint, never color alone. */
+.si-notice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.si-notice svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 1px;
+}
+
+.si-notice-warning {
+  background: var(--si-state-warning-background);
+  color: var(--si-state-warning-ink);
+}
+
+.si-notice-error {
+  background: var(--si-state-error-background);
+  color: var(--si-state-error-ink);
+}
+
+.si-notice-success {
+  background: var(--si-state-success-background);
+  color: var(--si-state-success-ink);
+}
+
+.si-notice-neutral {
+  background: var(--si-surface-inset);
+  color: var(--si-text-secondary);
+}
+
+.si-notice .si-notice-action {
+  margin-left: auto;
+  flex: none;
+}
+
+/* --------------------------------------------------------------- marks */
+
+/* Verdict marks (〇 × △ 花丸) are the Shu evaluation layer. Always paired
+ * with a text label; the stroke draws in over --si-dur-mark. */
+.si-mark {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  color: var(--si-mark-ink);
+  vertical-align: -0.12em;
+  flex: none;
+}
+
+.si-mark path,
+.si-mark circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.si-mark[data-draw] .si-stroke {
+  stroke-dasharray: 100 100;
+  stroke-dashoffset: 100;
+  animation: si-draw var(--si-dur-mark) var(--si-ease) forwards;
+}
+
+.si-mark[data-draw] .si-stroke + .si-stroke {
+  animation-delay: calc(var(--si-dur-mark) * 0.45);
+}
+
+@keyframes si-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .si-mark[data-draw] .si-stroke {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+.si-mark-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--si-mark-ink);
+  font-weight: 700;
+}
+
+/* -------------------------------------------------------------- layout */
+
+.si-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.si-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 56px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--si-border-subtle);
+  background: var(--si-surface-app);
+}
+
+.si-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--si-text-primary);
+  text-decoration: none;
+  flex: none;
+}
+
+.si-brand svg {
+  width: 30px;
+  height: 30px;
+}
+
+.si-brand-word {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.si-brand-desc {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--si-text-secondary);
+  padding-left: 10px;
+  border-left: 1px solid var(--si-border-subtle);
+}
+
+.si-nav {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  height: 100%;
+}
+
+.si-nav a,
+.si-nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--si-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: inset 0 -2px 0 transparent;
+}
+
+.si-nav a:hover,
+.si-nav button:hover {
+  color: var(--si-text-primary);
+}
+
+.si-nav a[aria-current="page"] {
+  color: var(--si-text-primary);
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 var(--si-border-strong);
+}
+
+.si-nav a:focus-visible,
+.si-nav button:focus-visible {
+  outline-offset: -3px;
+}
+
+.si-nav svg {
+  width: 14px;
+  height: 14px;
+}
+
+.si-topbar-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.si-focus-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--si-border-subtle);
+  border-radius: 7px;
+  background: transparent;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--si-text-secondary);
+}
+
+.si-focus-chip[data-active="true"] {
+  color: var(--si-text-primary);
+  border-color: var(--si-border-control);
+}
+
+.si-focus-chip svg {
+  width: 16px;
+  height: 16px;
+}
+
+.si-bottombar {
+  display: none;
+}
+
+.si-main {
+  flex: 1;
+  width: 100%;
+}
+
+.si-page {
+  width: 100%;
+  max-width: 1216px;
+  margin: 0 auto;
+  padding: 40px 24px 96px;
+}
+
+.si-column {
+  max-width: 760px;
+}
+
+.si-rule {
+  height: 0;
+  border: 0;
+  border-top: 1px solid var(--si-border-subtle);
+  margin: 0;
+}
+
+.si-footer {
+  border-top: 1px solid var(--si-border-subtle);
+  padding: 32px 24px 48px;
+  color: var(--si-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.si-footer-inner {
+  max-width: 1216px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: center;
+}
+
+.si-footer a {
+  color: var(--si-text-secondary);
+}
+
+@media (max-width: 1023px) {
+  .si-brand-desc {
+    display: none;
+  }
+
+  .si-nav {
+    display: none;
+  }
+
+  .si-topbar {
+    height: 52px;
+    padding: 0 12px 0 16px;
+    gap: 12px;
+  }
+
+  .si-bottombar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    height: calc(60px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid var(--si-border-subtle);
+    background: var(--si-surface-app);
+  }
+
+  .si-bottombar a {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 2px;
+    min-height: 44px;
+    color: var(--si-text-secondary);
+    font-size: 11px;
+    line-height: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .si-bottombar a svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .si-bottombar a[aria-current="page"] {
+    color: var(--si-text-primary);
+    font-weight: 700;
+  }
+
+  .si-bottombar a[aria-current="page"] .si-tab-glyph {
+    box-shadow: 0 2px 0 var(--si-border-strong);
+  }
+
+  .si-bottombar a:focus-visible {
+    outline-offset: -3px;
+  }
+
+  .si-page {
+    padding: 24px 16px calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Harness only: full-page review captures pin the tab bar to the document
+ * end instead of leaving it floating mid-page. */
+html[data-capture="full"] .si-bottombar {
+  position: static;
+}
+
+@media (max-width: 1023px) and (pointer: coarse), (max-width: 599px) {
+  .si-btn,
+  .si-toggle,
+  .si-focus-chip,
+  .si-segment button {
+    min-height: 44px;
+  }
+
+  .si-iconbtn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .si-input {
+    min-height: 44px;
+  }
+
+}
+
+/* ---------------------------------------------- index (typeset lists) */
+
+.si-index {
+  border-top: 1px solid var(--si-border-strong);
+}
+
+.si-index > li {
+  border-bottom: 1px solid var(--si-border-subtle);
+}
+
+.si-index-row {
+  display: grid;
+  grid-template-columns: minmax(9em, 13em) 1fr auto;
+  gap: 4px 24px;
+  align-items: baseline;
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--si-text-primary);
+  text-align: left;
+  text-decoration: none;
+}
+
+.si-index-row:hover {
+  background: var(--si-action-secondary-hover);
+}
+
+.si-index-row:focus-visible {
+  outline-offset: -3px;
+}
+
+.si-index-name {
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.si-index-name .si-ja {
+  font-family: var(--si-font-mincho);
+  font-weight: 500;
+  font-size: 19px;
+}
+
+.si-index-desc {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--si-text-secondary);
+}
+
+.si-index-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--si-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.si-index-meta svg {
+  width: 16px;
+  height: 16px;
+  color: var(--si-text-secondary);
+}
+
+.si-index-row[aria-disabled="true"] {
+  cursor: default;
+}
+
+.si-index-row[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.si-index-row[aria-disabled="true"] .si-index-name {
+  color: var(--si-text-secondary);
+}
+
+.si-status-word {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  border: 1px solid var(--si-border-subtle);
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--si-text-secondary);
+}
+
+@media (max-width: 599px) {
+  .si-index-row {
+    grid-template-columns: 1fr auto;
+    padding: 12px 0;
+  }
+
+  .si-index-desc {
+    grid-column: 1 / 2;
+    grid-row: 2;
+  }
+
+  .si-index-meta {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+}
+
+.si-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 48px 0 12px;
+}
+
+.si-section-head h2 {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.si-section-head .si-ja-label {
+  font-family: var(--si-font-mincho);
+  font-size: 14px;
+  color: var(--si-text-tertiary);
+  margin-left: 10px;
+  font-weight: 400;
+}
+
+/* ------------------------------------------------------- session sheet */
+
+.si-session-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  height: 56px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--si-border-subtle);
+  background: var(--si-surface-app);
+}
+
+.si-session-set {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  justify-self: start;
+}
+
+.si-session-set:hover {
+  background: var(--si-action-secondary-hover);
+}
+
+.si-session-set span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.si-session-set svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--si-text-secondary);
+}
+
+.si-session-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Progress ledger: one tick per question; answered ticks carry the verdict
+ * glyph in miniature so progress is not color-coded. */
+.si-ledger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--si-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.si-ledger-ticks {
+  display: flex;
+  gap: 3px;
+}
+
+.si-ledger-ticks i {
+  display: block;
+  width: 6px;
+  height: 14px;
+  border-radius: 1px;
+  background: var(--si-border-subtle);
+}
+
+.si-ledger-ticks i[data-v="o"] {
+  background: var(--si-mark-ink);
+}
+
+.si-ledger-ticks i[data-v="x"] {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--si-mark-ink);
+}
+
+.si-ledger-ticks i[data-v="now"] {
+  background: var(--si-text-primary);
+}
+
+.si-sheet-layout {
+  display: grid;
+  grid-template-columns: 216px minmax(0, 680px) 280px;
+  justify-content: center;
+  gap: 48px;
+  padding: 40px 24px 96px;
+}
+
+.si-margin {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--si-text-secondary);
+}
+
+.si-margin h2,
+.si-margin h3 {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--si-text-secondary);
+  margin-bottom: 8px;
+}
+
+.si-margin section + section {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--si-border-subtle);
+}
+
+.si-tally {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.si-tally div {
+  display: grid;
+  gap: 2px;
+}
+
+.si-tally dt {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--si-text-tertiary);
+}
+
+.si-tally dd {
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--si-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.si-tally dd.si-score {
+  color: var(--si-mark-ink);
+}
+
+.si-mistakes li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--si-border-subtle);
+}
+
+.si-mistakes .si-ja {
+  font-family: var(--si-font-gothic-ja);
+  color: var(--si-text-primary);
+}
+
+@media (max-width: 1279px) {
+  .si-sheet-layout {
+    grid-template-columns: minmax(0, 680px) 260px;
+    gap: 40px;
+  }
+
+  .si-margin-left {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .si-sheet-layout {
+    grid-template-columns: minmax(0, 680px);
+    padding: 24px 16px 48px;
+  }
+
+  .si-margin-right {
+    display: none;
+  }
+}
+
+.si-q-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--si-border-strong);
+}
+
+.si-q-type {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.si-q-type .si-ja {
+  font-family: var(--si-font-mincho);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.si-q-no {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--si-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.si-q-instruction {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--si-text-secondary);
+}
+
+.si-q-prompt {
+  margin: 20px 0 8px;
+}
+
+.si-q-prompt u,
+.si-target {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 7px;
+  text-decoration-color: var(--si-text-primary);
+}
+
+.si-q-aids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 24px;
+}
+
+.si-q-headword-block {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  margin: 24px 0 24px;
+}
+
+.si-pos {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--si-text-secondary);
+}
+
+/* Answer options: numbered bubbles in the JLPT answer-sheet grammar. */
+.si-options {
+  display: grid;
+  gap: 8px;
+}
+
+.si-options[data-layout="grid"] {
+  grid-template-columns: 1fr 1fr;
+}
+
+.si-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 16px 12px 12px;
+  border: 1px solid var(--si-border-subtle);
+  border-radius: 7px;
+  background: var(--si-surface-app);
+  color: var(--si-text-primary);
+  text-align: left;
+  font-family: var(--si-font-mincho);
+  font-size: 20px;
+  line-height: 30px;
+  transition: background-color var(--si-dur-state) var(--si-ease), border-color var(--si-dur-state) var(--si-ease);
+}
+
+.si-option:hover:not([aria-disabled="true"]),
+.si-option[data-demo="hover"] {
+  background: var(--si-action-secondary-hover);
+  border-color: var(--si-border-control);
+}
+
+.si-option[data-demo="focus"] {
+  outline: 3px solid var(--si-focus-ring);
+  outline-offset: 2px;
+}
+
+.si-option[aria-disabled="true"] {
+  cursor: default;
+}
+
+.si-option .si-option-text {
+  flex: 1;
+  min-width: 4em;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Japanese line breaking: phrase-aware where supported (Chromium
+ * word-break: auto-phrase with lang="ja"), no orphaned final syllable. */
+.si-prompt,
+.si-ja-body,
+.si-option {
+  line-break: strict;
+  text-wrap: pretty;
+}
+
+.si-prompt:lang(ja),
+.si-ja-body:lang(ja) {
+  word-break: auto-phrase;
+}
+
+.si-bubble {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--si-border-control);
+  border-radius: 50%;
+  font-family: var(--si-font-ui);
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--si-text-secondary);
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+.si-option[data-selected="true"] .si-bubble {
+  border-color: var(--si-learner-mark);
+  background: var(--si-learner-mark);
+  color: var(--si-learner-markForeground);
+}
+
+.si-option[data-selected="true"] {
+  border-color: var(--si-learner-mark);
+}
+
+/* Teacher's marks drawn over the bubble. */
+.si-option .si-verdict {
+  position: absolute;
+  left: 2px;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  pointer-events: none;
+}
+
+.si-option-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  font-family: var(--si-font-ui);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 700;
+  color: var(--si-mark-ink);
+}
+
+.si-option-tag .si-mark {
+  width: 18px;
+  height: 18px;
+}
+
+.si-options[data-verdict] .si-option:not([data-result]) {
+  color: var(--si-text-primary);
+}
+
+.si-kbd-hint {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--si-text-tertiary);
+}
+
+@media (pointer: coarse) {
+  .si-kbd-hint {
+    display: none;
+  }
+}
+
+.si-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+@media (max-width: 599px) {
+  .si-option {
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  /* Compact: always one column so verdict tags never squeeze the answer. */
+  .si-options[data-layout="grid"] {
+    grid-template-columns: 1fr;
+  }
+
+  .si-actions {
+    position: sticky;
+    bottom: 0;
+    margin: 16px -16px 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--si-surface-app);
+    border-top: 1px solid var(--si-border-subtle);
+  }
+
+  .si-actions .si-btn {
+    flex: 1;
+  }
+}
+
+/* Feedback: the red-pen note under the marked options. */
+.si-feedback {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--si-border-subtle);
+}
+
+.si-verdict-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.si-verdict-line .si-mark-label {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.si-verdict-line .si-mark {
+  width: 28px;
+  height: 28px;
+}
+
+.si-verdict-answer {
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.si-verdict-answer .si-ja {
+  font-family: var(--si-font-gothic-ja);
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.si-level-tag {
+  margin-left: auto;
+  padding: 0 6px;
+  border: 1px solid var(--si-border-subtle);
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--si-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.si-explain {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 26px;
+}
+
+.si-gloss {
+  margin-top: 16px;
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--si-text-secondary);
+}
+
+.si-gloss dt {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--si-text-secondary);
+  margin-bottom: 2px;
+}
+
+.si-gloss dd .si-ja {
+  font-family: var(--si-font-gothic-ja);
+  color: var(--si-text-primary);
+}
+
+.si-example {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-left: 2px solid var(--si-border-strong);
+  background: var(--si-surface-chrome);
+}
+
+.si-example p + p {
+  margin-top: 2px;
+}
+
+.si-feedback-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* ---------------------------------------------------------- overlays */
+
+.si-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--si-scrim);
+  z-index: 40;
+}
+
+.si-dialog {
+  position: fixed;
+  z-index: 41;
+  left: 50%;
+  top: 50%;
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  overflow: auto;
+  transform: translate(-50%, -50%);
+  padding: 24px;
+  border-radius: 10px;
+  background: var(--si-surface-raised);
+  box-shadow: var(--si-elev-dialog);
+}
+
+.si-dialog h2 {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.si-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.si-menu {
+  min-width: 260px;
+  padding: 6px;
+  border: 1px solid var(--si-border-subtle);
+  border-radius: 10px;
+  background: var(--si-surface-raised);
+  box-shadow: var(--si-elev-overlay);
+}
+
+.si-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.si-menu-item:hover,
+.si-menu-item[data-demo="hover"] {
+  background: var(--si-action-secondary-hover);
+}
+
+.si-menu-item svg {
+  width: 18px;
+  height: 18px;
+  color: var(--si-text-secondary);
+  flex: none;
+}
+
+.si-menu-item .si-menu-value {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--si-text-tertiary);
+}
+
+.si-menu-sep {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--si-border-subtle);
+}
+
+.si-menu-head {
+  padding: 8px 10px 4px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--si-text-secondary);
+}
+
+.si-menu-item-danger {
+  color: var(--si-state-error-ink);
+}
+
+.si-menu-item-danger svg {
+  color: var(--si-state-error-ink);
+}
+
+.si-sheet-panel {
+  position: fixed;
+  z-index: 41;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 86vh;
+  overflow: auto;
+  padding: 8px 16px calc(24px + env(safe-area-inset-bottom));
+  border-radius: 10px 10px 0 0;
+  background: var(--si-surface-raised);
+  box-shadow: var(--si-elev-dialog);
+}
+
+.si-sheet-grip {
+  width: 36px;
+  height: 4px;
+  margin: 4px auto 12px;
+  border-radius: 2px;
+  background: var(--si-border-control);
+}
+
+.si-toast {
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 10px 10px 10px 16px;
+  border-radius: 10px;
+  background: var(--si-action-primary-background);
+  color: var(--si-action-primary-foreground);
+  box-shadow: var(--si-elev-overlay);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.si-toast .si-btn {
+  background: transparent;
+  color: inherit;
+  border-color: currentColor;
+}
+
+@media (max-width: 1023px) {
+  .si-toast {
+    bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ------------------------------------------------------------ lattice */
+
+/* Genkō-style lattice for kana / kanji tables: hairline cells, no cards. */
+.si-lattice {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  border-top: 1px solid var(--si-border-subtle);
+  border-left: 1px solid var(--si-border-subtle);
+}
+
+.si-lattice > * {
+  border-right: 1px solid var(--si-border-subtle);
+  border-bottom: 1px solid var(--si-border-subtle);
+}
+
+.si-cell {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  min-height: 112px;
+  padding: 10px 12px 12px;
+  border: 0;
+  background: var(--si-surface-app);
+  text-align: left;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--si-text-secondary);
+}
+
+.si-cell:hover {
+  background: var(--si-action-secondary-hover);
+}
+
+.si-cell:focus-visible {
+  outline-offset: -3px;
+  position: relative;
+  z-index: 1;
+}
+
+.si-cell .si-cell-kanji {
+  font-family: var(--si-font-mincho);
+  font-size: 34px;
+  line-height: 44px;
+  color: var(--si-text-primary);
+}
+
+.si-cell .si-cell-reading {
+  font-family: var(--si-font-gothic-ja);
+  color: var(--si-text-primary);
+  font-size: 13px;
+}
+
+/* -------------------------------------------- forced colors (Tachiko) */
+
+@media (forced-colors: active) {
+  .si-option,
+  .si-btn,
+  .si-toggle,
+  .si-segment,
+  .si-input,
+  .si-menu,
+  .si-dialog,
+  .si-notice {
+    border: 1px solid CanvasText;
+  }
+
+  .si-option[data-selected="true"] .si-bubble {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+  }
+
+  .si-mark,
+  .si-mark-label,
+  .si-option-tag {
+    color: CanvasText;
+  }
+
+  .si-nav a[aria-current="page"],
+  .si-segment button[aria-pressed="true"] {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  .si-ledger-ticks i {
+    forced-color-adjust: none;
+    background: GrayText;
+  }
+
+  .si-ledger-ticks i[data-v="o"],
+  .si-ledger-ticks i[data-v="now"] {
+    background: CanvasText;
+  }
+
+  .si-ledger-ticks i[data-v="x"] {
+    background: Canvas;
+    box-shadow: inset 0 0 0 1.5px CanvasText;
+  }
+}
+
+/* ------------------------------------------ touch targets (keep last) */
+
+/* Touch: every standalone target reaches 44 x 44px; links inside running
+ * prose are the only (WCAG 2.5.8) inline exemption. Declared last so it
+ * wins over the pointer-density base recipes above. */
+@media (max-width: 1023px) and (pointer: coarse), (max-width: 599px) {
+  .si-brand,
+  .si-session-set,
+  .si-menu-item {
+    min-height: 44px;
+  }
+
+  .si-toggle {
+    min-width: 44px;
+    justify-content: center;
+  }
+
+  .si-footer a,
+  .si-crumbs a,
+  .si-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

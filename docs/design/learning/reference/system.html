@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shu-ire SI-1 · System surfaces (menu, dialogs, focus, errors)</title>
+<link rel="stylesheet" href="shu-ire.css">
+<style>
+  /* Board-local layout for shell/system surfaces (DESIGN.md §7.9–7.11). */
+  .menu-anchor { position: fixed; z-index: 41; top: 60px; right: 16px; }
+  .menu-account { padding: 10px; }
+  .menu-account p { font-size: 13px; line-height: 20px; color: var(--si-text-secondary); margin-top: 4px; }
+  .menu-account strong { font-size: 15px; }
+  .menu-account .si-btn { width: 100%; margin-top: 10px; }
+  .sync-line { display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 20px; color: var(--si-state-success-ink); margin-top: 4px; }
+  .sync-line svg { width: 16px; height: 16px; }
+  .menu-theme { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 10px; min-height: 44px; font-size: 14px; }
+  .lang-list { display: grid; gap: 6px; margin-top: 16px; }
+  .lang-opt { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 14px; border: 1px solid var(--si-border-subtle); border-radius: 7px; background: var(--si-surface-raised); text-align: left; font-size: 16px; }
+  .lang-opt small { font-size: 13px; color: var(--si-text-tertiary); margin-left: auto; }
+  .lang-opt[aria-checked="true"] { border-color: var(--si-learner-mark); background: var(--si-learner-tint); font-weight: 700; }
+  .radio { width: 18px; height: 18px; border: 1.5px solid var(--si-border-control); border-radius: 50%; display: inline-grid; place-items: center; flex: none; }
+  .lang-opt[aria-checked="true"] .radio { border-color: var(--si-learner-mark); }
+  .lang-opt[aria-checked="true"] .radio::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--si-learner-mark); }
+  .check { display: flex; gap: 10px; align-items: center; min-height: 44px; margin-top: 16px; font-size: 15px; line-height: 24px; }
+  .check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--si-learner-mark); }
+  .btn-danger { background: var(--si-state-error-ink); border-color: var(--si-state-error-ink); color: #FFFFFF; }
+  :root[data-theme="dark"] .btn-danger { color: #151513; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .break { min-height: 100vh; display: grid; place-items: center; padding: 32px 16px; background: var(--si-surface-chrome); }
+  .break-card { width: min(560px, 100%); text-align: center; }
+  .break-clock { font-size: 72px; line-height: 80px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; margin-top: 12px; }
+  .break .si-tally { max-width: 460px; margin: 28px auto 0; grid-template-columns: repeat(4, 1fr); }
+  .break .si-actions { justify-content: center; position: static; margin: 24px 0 0; padding: 0; border: 0; background: none; }
+  .ad-slot { margin: 32px auto 0; width: min(468px, 100%); }
+  .ad-slot .label { font-size: 11px; line-height: 16px; letter-spacing: 0.06em; color: var(--si-text-tertiary); text-align: left; }
+  .ad-slot .box { height: 90px; margin-top: 4px; border: 1px dashed var(--si-border-control); display: grid; place-items: center; font-size: 12px; color: var(--si-text-tertiary); }
+  .err-page { max-width: 560px; margin: 64px auto; padding: 0 16px; }
+  .err-page h1 { margin-top: 16px; }
+  textarea.si-input { min-height: 140px; padding: 10px 12px; line-height: 24px; resize: vertical; font-family: inherit; }
+  .kind { margin-top: 16px; }
+  @media (max-width: 599px) {
+    .menu-anchor { left: 8px; right: 8px; top: 56px; }
+    .menu-anchor .si-menu { width: 100%; }
+    .break .si-tally { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .break-clock { font-size: 56px; line-height: 64px; }
+  }
+</style>
+</head>
+<body>
+<div class="si-app">
+  <div id="topbar" data-state="menu-guest menu-user language delete focus-config offline update feedback"></div>
+
+  <main class="si-main" data-state="menu-guest menu-user language delete focus-config offline update feedback">
+    <div class="si-page">
+      <div class="si-column">
+        <p class="si-notice si-notice-warning" role="status" data-state="offline"><i data-icon="offline"></i><span>目前離線。已下載的題庫和作答都能照常使用；作答紀錄會先存在這台裝置，恢復連線後再同步。</span></p>
+        <p class="si-kicker" style="margin-top:24px">背景頁面（今日）</p>
+        <h1 class="si-display" style="margin-top:8px">先複習 3 題，再練 20 題</h1>
+        <p class="si-secondary" style="margin-top:8px">此畫面只是系統層元件的背景。</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= App menu: signed out ================= -->
+  <div data-state="menu-guest menu-user">
+    <div class="menu-anchor">
+      <div class="si-menu" role="menu" aria-label="選單與設定" style="width:300px">
+        <div class="menu-account" data-state="menu-guest">
+          <strong>作答紀錄存在這台裝置</strong>
+          <p>免登入也能用，紀錄存在本機；想跨裝置同步再登入。</p>
+          <button class="si-btn si-btn-primary" type="button" role="menuitem"><i data-icon="user"></i>Google 登入</button>
+        </div>
+        <div class="menu-account" data-state="menu-user">
+          <strong>林小雨</strong>
+          <p class="sync-line"><i data-icon="check"></i>錯題與學習進度已跨裝置同步。</p>
+        </div>
+        <div class="si-menu-sep"></div>
+        <button class="si-menu-item" type="button" role="menuitem"><i data-icon="globe"></i>介面語言<span class="si-menu-value">繁體中文</span></button>
+        <div class="menu-theme"><span>外觀</span><div class="si-segment" role="group" aria-label="外觀"><button type="button" aria-pressed="true">淺色</button><button type="button">深色</button></div></div>
+        <button class="si-menu-item" type="button" role="menuitem"><i data-icon="timer"></i>專注模式</button>
+        <button class="si-menu-item" type="button" role="menuitem"><i data-icon="message"></i>意見回饋</button>
+        <div class="si-menu-sep"></div>
+        <button class="si-menu-item" type="button" role="menuitem">關於 Jabiko</button>
+        <button class="si-menu-item" type="button" role="menuitem">合作夥伴</button>
+        <div data-state="menu-user">
+          <div class="si-menu-sep"></div>
+          <button class="si-menu-item" type="button" role="menuitem">登出</button>
+          <button class="si-menu-item si-menu-item-danger" type="button" role="menuitem"><i data-icon="trash"></i>刪除練習紀錄…</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Language dialog ================= -->
+  <div data-state="language">
+    <div class="si-scrim" aria-hidden="true"></div>
+    <div class="si-dialog" role="dialog" aria-modal="true" aria-labelledby="lang-title">
+      <h2 id="lang-title">介面語言</h2>
+      <p class="si-secondary" style="margin-top:4px">只改變介面文字；日文題目與例句不受影響。</p>
+      <div class="lang-list" role="radiogroup" aria-labelledby="lang-title">
+        <button class="lang-opt" type="button" role="radio" aria-checked="true" lang="zh-Hant"><span class="radio"></span>繁體中文<small>zh-Hant</small></button>
+        <button class="lang-opt" type="button" role="radio" aria-checked="false" lang="ja"><span class="radio"></span>日本語<small>ja</small></button>
+        <button class="lang-opt" type="button" role="radio" aria-checked="false" lang="en"><span class="radio"></span>English<small>en</small></button>
+      </div>
+      <div class="si-dialog-actions"><button class="si-btn" type="button">關閉</button></div>
+    </div>
+  </div>
+
+  <!-- ================= Destructive confirm ================= -->
+  <div data-state="delete">
+    <div class="si-scrim" aria-hidden="true"></div>
+    <div class="si-dialog" role="alertdialog" aria-modal="true" aria-labelledby="del-title" aria-describedby="del-desc">
+      <h2 id="del-title">刪除練習紀錄</h2>
+      <p id="del-desc" style="margin-top:8px">這會刪除此帳號已同步的練習作答紀錄，並清除此裝置的練習紀錄與弱點／複習進度。帳號、收藏、語言與外觀設定不會刪除，此操作不可復原。</p>
+      <label class="check"><input type="checkbox">我了解此操作不可復原</label>
+      <div class="si-dialog-actions"><button class="si-btn" type="button">取消</button><button class="si-btn btn-danger" type="button" disabled>刪除</button></div>
+    </div>
+  </div>
+
+  <!-- ================= Focus configure ================= -->
+  <div data-state="focus-config">
+    <div class="si-scrim" aria-hidden="true"></div>
+    <div class="si-dialog" role="dialog" aria-modal="true" aria-labelledby="focus-title">
+      <h2 id="focus-title">專注設定</h2>
+      <p class="si-secondary" style="margin-top:4px">專注期間不顯示任何廣告。</p>
+      <div class="field-row">
+        <div class="si-field"><label for="fm">專注時間（分鐘）</label><input class="si-input si-num" id="fm" inputmode="numeric" value="25"></div>
+        <div class="si-field"><label for="bm">休息時間（分鐘）</label><input class="si-input si-num" id="bm" inputmode="numeric" value="5"></div>
+      </div>
+      <div class="si-dialog-actions"><button class="si-btn" type="button">取消</button><button class="si-btn si-btn-primary" type="button">開始</button></div>
+    </div>
+  </div>
+
+  <!-- ================= Focus break ================= -->
+  <div class="break" data-state="focus-break" role="dialog" aria-modal="true" aria-labelledby="break-title">
+    <div class="break-card">
+      <p class="si-kicker">專注模式</p>
+      <h1 id="break-title" class="si-display" style="margin-top:8px">休息一下</h1>
+      <p class="break-clock" aria-label="休息剩下 4 分 32 秒" role="timer">4:32</p>
+      <p class="si-secondary">放鬆一下，伸展或喝口水，再繼續下一輪。</p>
+      <dl class="si-tally">
+        <div><dt>本次專注</dt><dd class="si-num">25 分</dd></div>
+        <div><dt>作答</dt><dd class="si-num">18</dd></div>
+        <div><dt>正確率</dt><dd class="si-num si-score">83%</dd></div>
+        <div><dt>今日累計</dt><dd class="si-num">50 分</dd></div>
+      </dl>
+      <div class="si-actions"><button class="si-btn si-btn-primary si-btn-large" type="button">開始下一輪</button><button class="si-btn si-btn-large" type="button">略過休息</button></div>
+      <p style="margin-top:12px"><button class="si-btn si-btn-ghost" type="button">結束專注模式</button></p>
+      <aside class="ad-slot" aria-label="廣告">
+        <p class="label">廣告</p>
+        <div class="box">僅在符合 docs/adsense.md 全部條件時才建立；否則此區塊不存在</div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ================= Feedback form ================= -->
+  <div data-state="feedback">
+    <div class="si-scrim" aria-hidden="true"></div>
+    <div class="si-dialog" role="dialog" aria-modal="true" aria-labelledby="fb-title">
+      <h2 id="fb-title">意見回饋</h2>
+      <div class="si-segment kind" role="group" aria-label="類型"><button type="button" aria-pressed="true">許願功能</button><button type="button">回報問題</button><button type="button">其他</button></div>
+      <div class="si-field" style="margin-top:16px"><label for="fb">內容（匿名）</label><textarea class="si-input" id="fb">希望可以把錯題依題型分開複習。</textarea></div>
+      <p class="si-notice si-notice-error" role="alert" style="margin-top:12px"><i data-icon="error"></i><span>沒有送出，可能是網路中斷。你寫的內容還在，可以再試一次。</span></p>
+      <div class="si-dialog-actions"><button class="si-btn" type="button">取消</button><button class="si-btn si-btn-primary" type="button">再試一次</button></div>
+    </div>
+  </div>
+
+  <!-- ================= Route error ================= -->
+  <main class="err-page" data-state="route-error">
+    <p class="si-notice si-notice-error" role="alert"><i data-icon="error"></i><span>頁面載入失敗</span></p>
+    <h1 class="si-display">這一頁沒有順利打開</h1>
+    <p class="si-secondary" style="margin-top:8px">可能是瀏覽器還在使用舊版本檔案。請重新整理，載入最新版本。你的作答紀錄不受影響。</p>
+    <div class="si-actions" style="justify-content:flex-start"><button class="si-btn si-btn-primary" type="button"><i data-icon="refresh"></i>重新整理</button><button class="si-btn" type="button">清除快取後重載</button><a class="si-btn si-btn-ghost" href="today.html">回首頁</a></div>
+  </main>
+
+  <div class="si-toast" role="status" data-state="update"><span>有新版本可用。</span><button class="si-btn" type="button">更新</button></div>
+  <div id="bottombar" data-state="menu-guest menu-user language delete focus-config offline update feedback"></div>
+</div>
+<script type="module">
+  import { applyTheme, bottombar, hydrate, showState, topbar } from "./harness.js";
+  applyTheme();
+  showState("menu-guest");
+  const top = document.getElementById("topbar");
+  if (!top.hidden) top.outerHTML = topbar("today"); else top.remove();
+  const bottom = document.getElementById("bottombar");
+  if (!bottom.hidden) bottom.outerHTML = bottombar("today"); else bottom.remove();
+  hydrate();
+</script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shu-ire SI-1 · Today (/)</title>
+<link rel="stylesheet" href="shu-ire.css">
+<style>
+  /* Board-local layout for the Today surface (DESIGN.md §7.1).
+   * DOM order = reading order = compact order:
+   * masthead → today sheet → recent 14 days → next → partner → all → record → colophon.
+   * Wide: the recent-7-days aside moves to the right margin. */
+  .today { display: grid; grid-template-columns: minmax(0, 760px) 280px; column-gap: 56px; justify-content: center; align-items: start; }
+  .today > * { grid-column: 1; }
+  .today > .t-aside { grid-column: 2; grid-row: 1 / span 9; padding-top: 4px; }
+  .masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 12px; }
+  .masthead h1 { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--si-text-secondary); letter-spacing: 0.02em; }
+  .masthead time { font-size: 14px; line-height: 20px; color: var(--si-text-secondary); font-variant-numeric: tabular-nums; }
+  .sheet { padding: 28px 0 32px; border-top: 1px solid var(--si-border-strong); border-bottom: 1px solid var(--si-border-subtle); }
+  .sheet h2 { font-size: 32px; line-height: 42px; font-weight: 700; letter-spacing: 0.01em; margin-top: 8px; }
+  .sheet h2 .si-due { color: var(--si-mark-ink); }
+  .composition { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 12px; font-size: 15px; line-height: 24px; color: var(--si-text-secondary); }
+  .composition .step { color: var(--si-text-primary); }
+  .composition .arrow { color: var(--si-text-tertiary); }
+  .level-chip { display: inline-flex; align-items: center; gap: 6px; margin-left: 4px; padding: 0 8px; min-height: 28px; border: 1px solid var(--si-border-control); border-radius: 7px; background: transparent; font-size: 13px; line-height: 20px; }
+  .level-chip strong { font-weight: 700; }
+  .level-chip .change { color: var(--si-text-link); font-weight: 500; }
+  .sheet-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  .steps { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; font-size: 14px; line-height: 20px; color: var(--si-text-secondary); }
+  .steps li { display: inline-flex; gap: 8px; align-items: baseline; }
+  .steps b { display: inline-grid; place-items: center; width: 22px; height: 22px; border: 1.5px solid var(--si-border-control); border-radius: 50%; font-size: 12px; line-height: 1; color: var(--si-text-primary); }
+  .steps li[aria-current="step"] b { background: var(--si-text-primary); border-color: var(--si-text-primary); color: var(--si-surface-app); }
+  .levels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 20px; }
+  .levels button { display: grid; gap: 2px; justify-items: start; min-height: 72px; padding: 12px; border: 1px solid var(--si-border-control); border-radius: 7px; background: var(--si-surface-app); text-align: left; }
+  .levels button:hover { background: var(--si-action-secondary-hover); }
+  .levels strong { font-size: 16px; line-height: 22px; }
+  .levels span { font-size: 13px; line-height: 18px; color: var(--si-text-secondary); font-variant-numeric: tabular-nums; }
+  .value { margin-top: 16px; font-size: 14px; line-height: 20px; color: var(--si-text-secondary); }
+  .partner { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-top: 32px; padding: 12px 0; border-top: 1px solid var(--si-border-subtle); border-bottom: 1px solid var(--si-border-subtle); font-size: 14px; line-height: 20px; }
+  .partner .who { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: var(--si-text-secondary); }
+  .partner a { margin-left: auto; }
+  .stamps { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px; }
+  .stamp { display: grid; justify-items: center; gap: 2px; padding: 6px 0 4px; border: 1px solid var(--si-border-subtle); border-radius: 4px; font-size: 11px; line-height: 14px; color: var(--si-text-tertiary); font-variant-numeric: tabular-nums; }
+  .stamp .si-mark { width: 22px; height: 22px; }
+  .stamp .blank { display: block; width: 22px; height: 22px; }
+  .stamp[data-today] { border-color: var(--si-border-strong); color: var(--si-text-primary); font-weight: 600; }
+  .record-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 12px; margin-top: 16px; }
+  .record-nums div { display: grid; }
+  .record-nums dt { font-size: 12px; line-height: 16px; color: var(--si-text-tertiary); }
+  .record-nums dd { font-size: 24px; line-height: 32px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .record-nums dd small { font-size: 13px; font-weight: 500; color: var(--si-text-secondary); margin-left: 2px; }
+  .record-nums .points dd, .record-nums .due dd { color: var(--si-mark-ink); }
+  .bars { display: grid; gap: 8px; margin-top: 8px; }
+  .bar { display: grid; grid-template-columns: 7em 1fr 3.5em; gap: 10px; align-items: center; font-size: 13px; line-height: 18px; }
+  .bar .track { height: 6px; background: var(--si-surface-inset); border-radius: 1px; overflow: hidden; }
+  .bar .fill { display: block; height: 100%; background: var(--si-text-primary); }
+  .bar .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--si-text-secondary); }
+  .record-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .colophon { margin-top: 48px; font-size: 13px; line-height: 20px; color: var(--si-text-tertiary); font-variant-numeric: tabular-nums; }
+  @media (max-width: 1023px) {
+    .today { grid-template-columns: minmax(0, 760px); }
+    .today > .t-aside { grid-column: 1; grid-row: auto; margin-top: 24px; padding-top: 0; }
+    .levels { grid-template-columns: 1fr 1fr; }
+    .levels button:first-child { grid-column: 1 / -1; }
+    .record-nums { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 599px) {
+    .level-chip { min-height: 44px; }
+    .sheet { padding: 20px 0 24px; }
+    .sheet h2 { font-size: 26px; line-height: 34px; }
+    .sheet-actions .si-btn { flex: 1 1 100%; }
+    .record-detail { grid-template-columns: 1fr; gap: 24px; }
+    .partner a { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="si-app">
+  <div id="topbar"></div>
+  <main class="si-main" id="main">
+    <div class="si-page">
+      <div class="today">
+        <div class="masthead">
+          <h1>Jabiko · JLPT 自習室</h1>
+          <time datetime="2026-09-30">9月30日（三）</time>
+        </div>
+
+        <!-- ============ Returning learner ============ -->
+        <section class="sheet" aria-labelledby="today-title" data-state="returning">
+          <p class="si-kicker">今日練習</p>
+          <h2 id="today-title">先複習 <span class="si-num si-due">3</span> 題，再練 <span class="si-num">20</span> 題</h2>
+          <p class="composition">
+            <span class="step">弱點複習 3</span><span class="arrow" aria-hidden="true">→</span>
+            <span class="step">混合 20</span><span>文法・語順・漢字読み</span>
+            <button class="level-chip" type="button" aria-expanded="false">目標 <strong>N3・N4</strong><span class="change">變更</span></button>
+          </p>
+          <div class="sheet-actions">
+            <a class="si-btn si-btn-primary si-btn-large" href="session.html">開始今日練習<i data-icon="arrow"></i></a>
+            <a class="si-btn si-btn-large" href="session.html?state=wrong">只複習錯題（3）</a>
+          </div>
+        </section>
+
+        <!-- ============ First-run learner ============ -->
+        <section class="sheet" aria-labelledby="first-title" data-state="first">
+          <p class="si-kicker">免費 · 免註冊 · N5〜N1</p>
+          <h2 id="first-title">先選你的程度，今天就開始。</h2>
+          <ol class="steps" aria-label="開始方式">
+            <li aria-current="step"><b>1</b>選程度</li>
+            <li><b>2</b>今日練習</li>
+            <li><b>3</b>答錯自動複習</li>
+          </ol>
+          <div class="levels" role="group" aria-label="選擇你的程度">
+            <button type="button"><strong>完全新手</strong><span>從零開始</span></button>
+            <button type="button"><strong>初級</strong><span>N4・N5</span></button>
+            <button type="button"><strong>中初級</strong><span>N3・N4</span></button>
+            <button type="button"><strong>中級</strong><span>N2・N3</span></button>
+            <button type="button"><strong>高級</strong><span>N1・N2</span></button>
+          </div>
+          <p class="value">程度決定今日練習與各題庫的預設難度，之後隨時可改。<a href="#">使用說明</a></p>
+          <div class="sheet-actions">
+            <a class="si-btn si-btn-primary si-btn-large" href="session.html">開始今日練習<i data-icon="arrow"></i></a>
+          </div>
+        </section>
+
+        <aside class="t-aside" aria-labelledby="stamp-title">
+          <section data-state="returning">
+            <h2 id="stamp-title" class="si-kicker">最近 14 天</h2>
+            <ol class="stamps">
+              <li class="stamp" aria-label="9月17日 有練習"><i data-mark="o"></i>17</li>
+              <li class="stamp" aria-label="9月18日 有練習"><i data-mark="o"></i>18</li>
+              <li class="stamp" aria-label="9月19日 沒有練習"><span class="blank"></span>19</li>
+              <li class="stamp" aria-label="9月20日 沒有練習"><span class="blank"></span>20</li>
+              <li class="stamp" aria-label="9月21日 有練習"><i data-mark="o"></i>21</li>
+              <li class="stamp" aria-label="9月22日 有練習"><i data-mark="o"></i>22</li>
+              <li class="stamp" aria-label="9月23日 有練習"><i data-mark="o"></i>23</li>
+              <li class="stamp" aria-label="9月24日 有練習"><i data-mark="o"></i>24</li>
+              <li class="stamp" aria-label="9月25日 沒有練習"><span class="blank"></span>25</li>
+              <li class="stamp" aria-label="9月26日 有練習"><i data-mark="o"></i>26</li>
+              <li class="stamp" aria-label="9月27日 有練習"><i data-mark="o"></i>27</li>
+              <li class="stamp" aria-label="9月28日 有練習"><i data-mark="o"></i>28</li>
+              <li class="stamp" aria-label="9月29日 有練習"><i data-mark="o"></i>29</li>
+              <li class="stamp" data-today aria-label="今天 還沒練習"><span class="blank"></span>30</li>
+            </ol>
+            <dl class="record-nums">
+              <div><dt>連續天數</dt><dd class="si-num">4<small>天</small></dd></div>
+              <div class="due"><dt>待複習</dt><dd class="si-num">3<small>題</small></dd></div>
+              <div><dt>已作答</dt><dd class="si-num">1,065</dd></div>
+              <div><dt>正確率</dt><dd class="si-num">78<small>%</small></dd></div>
+              <div><dt>已掌握</dt><dd class="si-num">212</dd></div>
+              <div class="points"><dt>點數</dt><dd class="si-num">830</dd></div>
+            </dl>
+          </section>
+          <section data-state="first">
+            <h2 id="stamp-title-first" class="si-kicker">JABIKO 可以做什麼</h2>
+            <ul class="si-body si-secondary" style="display:grid;gap:8px;margin-top:8px">
+              <li>JLPT N5〜N1 文法、單字、漢字讀音與官方題型</li>
+              <li>答錯的題目自動排進複習</li>
+              <li>不用註冊；登入 Google 可跨裝置同步</li>
+            </ul>
+          </section>
+        </aside>
+
+        <section aria-labelledby="next-title" data-state="returning">
+          <div class="si-section-head"><h2 id="next-title">接著做</h2></div>
+          <ul class="si-index">
+            <li><a class="si-index-row" href="learn.html"><span class="si-index-name">第 7 課　て形</span><span class="si-index-desc">上次讀到這裡 · 規則 → 練習 12 題</span><span class="si-index-meta">學習<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="talk.html"><span class="si-index-name">咖啡日</span><span class="si-index-desc">即將到來 · 10月1日 · 可以聊飲品偏好</span><span class="si-index-meta">會話<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="session.html"><span class="si-index-name">我的收藏</span><span class="si-index-desc">你標記過的題目</span><span class="si-index-meta"><span class="si-num">12 題</span><i data-icon="arrow"></i></span></a></li>
+          </ul>
+        </section>
+
+        <p class="partner">
+          <span class="who">合作夥伴</span>
+          <span>東京住宿 Stay.D｜把學過的日文帶進旅程。</span>
+          <a class="si-link" href="#">在 Airbnb 查看</a>
+        </p>
+
+        <section aria-labelledby="all-title">
+          <div class="si-section-head"><h2 id="all-title">全部練習</h2></div>
+          <ul class="si-index">
+            <li><a class="si-index-row" href="session.html"><span class="si-index-name">今日練習</span><span class="si-index-desc">複習優先，再混合文法・語順・漢字読み</span><span class="si-index-meta">每日<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="sets.html"><span class="si-index-name">備考題庫</span><span class="si-index-desc">N1〜N4 各級綜合題與綜合考題庫</span><span class="si-index-meta">5 組<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="sets.html?state=mock"><span class="si-index-name">JLPT 題型</span><span class="si-index-desc">依官方題型結構逐區練習</span><span class="si-index-meta">N1〜N5<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="sets.html"><span class="si-index-name">專項練習</span><span class="si-index-desc">句型・句中填空・單字讀音・基礎變化</span><span class="si-index-meta">4 組<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="session.html?state=recall"><span class="si-index-name">動詞變化</span><span class="si-index-desc">看動詞與目標形，自己輸入答案</span><span class="si-index-meta">輸入<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="learn.html"><span class="si-index-name">學習章節</span><span class="si-index-desc">一章一章讀規則、看例子，再練習</span><span class="si-index-meta"><span class="si-num" data-state="returning">12 / 48 章</span><span class="si-num" data-state="first">48 章</span><i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="talk.html"><span class="si-index-name">日常會話</span><span class="si-index-desc">短・中・長的生活情境接話練習</span><span class="si-index-meta">Small Talk<i data-icon="arrow"></i></span></a></li>
+          </ul>
+          <ul class="si-index" style="margin-top:24px" aria-label="查資料">
+            <li><a class="si-index-row" href="grammar.html"><span class="si-index-name">文型資料庫</span><span class="si-index-desc">N5〜N1 文型、接續與例句</span><span class="si-index-meta">查資料<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="reference.html"><span class="si-index-name">漢字音讀</span><span class="si-index-desc">依音讀找同音漢字</span><span class="si-index-meta">查資料<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="#"><span class="si-index-name">活用速查表</span><span class="si-index-desc">動詞・形容詞各形變化規則</span><span class="si-index-meta">查資料<i data-icon="arrow"></i></span></a></li>
+            <li><a class="si-index-row" href="#"><span class="si-index-name">五十音表</span><span class="si-index-desc">平假名・片假名・濁音・拗音</span><span class="si-index-meta">查資料<i data-icon="arrow"></i></span></a></li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="record-title" data-state="returning">
+          <div class="si-section-head"><h2 id="record-title">你的紀錄</h2><span class="si-meta">依作答紀錄計算</span></div>
+          <div class="record-detail">
+            <div>
+              <h3 class="si-kicker">各級正確率</h3>
+              <div class="bars">
+                <div class="bar"><span>N5</span><span class="track"><span class="fill" style="width:91%"></span></span><span class="v">91%</span></div>
+                <div class="bar"><span>N4</span><span class="track"><span class="fill" style="width:84%"></span></span><span class="v">84%</span></div>
+                <div class="bar"><span>N3</span><span class="track"><span class="fill" style="width:72%"></span></span><span class="v">72%</span></div>
+                <div class="bar"><span>N2</span><span class="track"><span class="fill" style="width:58%"></span></span><span class="v">58%</span></div>
+                <div class="bar"><span>N1</span><span class="track"><span class="fill" style="width:0%"></span></span><span class="v">未作答</span></div>
+              </div>
+            </div>
+            <div>
+              <h3 class="si-kicker">最需要加強的題型</h3>
+              <div class="bars">
+                <div class="bar"><span lang="ja">言い換え類義</span><span class="track"><span class="fill" style="width:46%"></span></span><span class="v">46%</span></div>
+                <div class="bar"><span lang="ja">文の組み立て</span><span class="track"><span class="fill" style="width:53%"></span></span><span class="v">53%</span></div>
+                <div class="bar"><span lang="ja">用法</span><span class="track"><span class="fill" style="width:61%"></span></span><span class="v">61%</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <p class="colophon">收錄 4,307 題 · 檢定題 2,131 · 單字 1,251 · 漢字讀音 671 · 句型 254 · 74 個學習章節</p>
+      </div>
+    </div>
+  </main>
+  <footer class="si-footer">
+    <div class="si-footer-inner">
+      <span>一步一步來，祝你考試順利合格。</span>
+      <a href="#">許願功能</a><a href="#">回報問題</a><a href="#">小額贊助</a><a href="#">分享 Jabiko</a>
+      <span style="margin-left:auto"><a href="#">隱私權政策</a> · <a href="#">使用條款</a> · <a href="#">關於</a></span>
+    </div>
+  </footer>
+  <div id="bottombar"></div>
+</div>
+<script type="module">
+  import { applyTheme, bottombar, hydrate, showState, topbar } from "./harness.js";
+  applyTheme();
+  document.getElementById("topbar").outerHTML = topbar("today");
+  document.getElementById("bottombar").outerHTML = bottombar("today");
+  showState("returning");
+  hydrate();
+</script>
+</body>
+</html>

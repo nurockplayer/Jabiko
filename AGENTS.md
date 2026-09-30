@@ -34,6 +34,7 @@ Run commands directly (**there is no `rtk` tool** — leftover from an old conve
 - **Layering**: domain logic in `src/domain/`, React components don't hold business logic; TypeScript strict, no `any`
 - **Bundle discipline**: examBlocks / furigana data / article bodies may only enter lazy chunks; don't import them from eager paths (App / components barrel / home page)
 - **EOL**: `exam/items/*.ts` is `-text`; stage with `git -c core.autocrlf=false add <files>` (list files explicitly); `git diff --cached --check` must be clean before committing
+- **Design authority**: Jabiko Learning UI presentation follows `docs/design/learning/` (Shu-ire); implement it, don't redesign in code
 
 ## Scope Boundaries
 
