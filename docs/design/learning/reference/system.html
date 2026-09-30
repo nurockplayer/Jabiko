@@ -21,7 +21,8 @@
   .lang-opt[aria-checked="true"] { border-color: var(--si-learner-mark); background: var(--si-learner-tint); font-weight: 700; }
   .radio { width: 18px; height: 18px; border: 1.5px solid var(--si-border-control); border-radius: 50%; display: inline-grid; place-items: center; flex: none; }
   .lang-opt[aria-checked="true"] .radio { border-color: var(--si-learner-mark); }
-  .lang-opt[aria-checked="true"] .radio::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--si-learner-mark); }
+  .radio i { display: none; width: 8px; height: 8px; border-radius: 50%; background: var(--si-learner-mark); }
+  .lang-opt[aria-checked="true"] .radio i { display: block; }
   .check { display: flex; gap: 10px; align-items: center; min-height: 44px; margin-top: 16px; font-size: 15px; line-height: 24px; }
   .check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--si-learner-mark); }
   .btn-danger { background: var(--si-state-error-ink); border-color: var(--si-state-error-ink); color: #FFFFFF; }
@@ -99,9 +100,9 @@
       <h2 id="lang-title">介面語言</h2>
       <p class="si-secondary" style="margin-top:4px">只改變介面文字；日文題目與例句不受影響。</p>
       <div class="lang-list" role="radiogroup" aria-labelledby="lang-title">
-        <button class="lang-opt" type="button" role="radio" aria-checked="true" lang="zh-Hant"><span class="radio"></span>繁體中文<small>zh-Hant</small></button>
-        <button class="lang-opt" type="button" role="radio" aria-checked="false" lang="ja"><span class="radio"></span>日本語<small>ja</small></button>
-        <button class="lang-opt" type="button" role="radio" aria-checked="false" lang="en"><span class="radio"></span>English<small>en</small></button>
+        <button class="lang-opt" type="button" role="radio" aria-checked="true" lang="zh-Hant"><span class="radio"><i></i></span>繁體中文<small>zh-Hant</small></button>
+        <button class="lang-opt" type="button" role="radio" aria-checked="false" lang="ja"><span class="radio"><i></i></span>日本語<small>ja</small></button>
+        <button class="lang-opt" type="button" role="radio" aria-checked="false" lang="en"><span class="radio"><i></i></span>English<small>en</small></button>
       </div>
       <div class="si-dialog-actions"><button class="si-btn" type="button">關閉</button></div>
     </div>

@@ -23,9 +23,9 @@
   .examples .ja { font-family: var(--si-font-mincho); font-size: 20px; line-height: 32px; }
   .examples .note { font-size: 14px; line-height: 22px; color: var(--si-text-secondary); }
   .pitfalls { margin-top: 32px; padding: 16px 20px; background: var(--si-surface-inset); border-radius: 7px; }
-  .pitfalls ol { display: grid; gap: 8px; margin-top: 8px; counter-reset: pit; }
-  .pitfalls li { position: relative; padding-left: 30px; font-size: 15px; line-height: 24px; counter-increment: pit; }
-  .pitfalls li::before { content: counter(pit); position: absolute; left: 0; top: 2px; display: inline-grid; place-items: center; width: 20px; height: 20px; border: 1.5px solid var(--si-border-control); border-radius: 50%; font-size: 11px; line-height: 1; color: var(--si-text-secondary); font-variant-numeric: tabular-nums; }
+  .pitfalls ol { display: grid; gap: 8px; margin-top: 8px; }
+  .pitfalls li { position: relative; padding-left: 30px; font-size: 15px; line-height: 24px; }
+  .pitfalls li .n { position: absolute; left: 0; top: 2px; display: inline-grid; place-items: center; width: 20px; height: 20px; border: 1.5px solid var(--si-border-control); border-radius: 50%; font-size: 11px; line-height: 1; color: var(--si-text-secondary); font-variant-numeric: tabular-nums; }
   .chapter-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
   .toc-button { display: none; }
   @media (max-width: 1023px) {
@@ -87,9 +87,9 @@
         <section class="pitfalls" aria-labelledby="pit-title">
           <h2 id="pit-title" class="si-kicker">常見陷阱</h2>
           <ol>
-            <li>「在某處做動作」用で、「存在於某處／去某處」用に：<span lang="ja">いえで たべます</span> vs <span lang="ja">いえに います</span></li>
-            <li>疑問詞（だれ・なに）當主語只能接が，不能接は</li>
-            <li>を 只用來標動作對象；現代日文裡讀音和 お 相同</li>
+            <li><span class="n" aria-hidden="true">1</span>「在某處做動作」用で、「存在於某處／去某處」用に：<span lang="ja">いえで たべます</span> vs <span lang="ja">いえに います</span></li>
+            <li><span class="n" aria-hidden="true">2</span>疑問詞（だれ・なに）當主語只能接が，不能接は</li>
+            <li><span class="n" aria-hidden="true">3</span>を 只用來標動作對象；現代日文裡讀音和 お 相同</li>
           </ol>
         </section>
 

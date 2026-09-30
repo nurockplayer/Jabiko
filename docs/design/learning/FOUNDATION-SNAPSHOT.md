@@ -23,10 +23,9 @@ does not create a shared package.
 
 ### Hash-verified native Figma exports
 
-The canonical Figma file was **not connected** to a qualified bridge in this
-session (the same condition recorded on #832 on 2026-09-26). The approved
-nodes were instead inspected through their **retained native exports and
-readbacks** listed in the #71 final registry
+When SI-1 was first authored (2026-09-30) the canonical Figma file was not
+connected to a qualified bridge, so the approved nodes were inspected through
+their **retained native exports and readbacks** listed in the #71 final registry
 (`mission-final-registry.json`, SHA-256
 `84adf0658ac7adb4b37c7e575686fa8a5e88c2ddb0927cce83f8216a15975343`, matches the
 receipt). Each consumed frame's PNG and readback SHA-256 were recomputed and
@@ -46,7 +45,18 @@ match the registry:
 | `22:230481` | design-index | `6744c14541b27591539eee9b0d51ec9723202e77ca7b9b1b62deb286cfe029cb` | match |
 
 These exports are evidence of *approved* nodes; they are not an editable
-readback of the live file. See [DECISIONS.md D-01](DECISIONS.md#d-01).
+readback of the live file.
+
+**Live check (2026-10-01, read-only).** Through the qualified bridge
+(`@gethopp/figma-mcp-bridge` 0.0.22), the connected "Tachiko Sheet — Product
+Design" file shows the eight canonical pages, and node `21:36433` reads back
+as "APPROVED #71 · grid-guide", matching the #71 registry. The bridge
+addresses every connected file by a per-session `unsaved-…` key (#71's own
+client did too), so the earlier #832 note that the connected file was
+"unsaved" and therefore not canonical was a misreading of that key. Nothing
+was written to the Tachiko file; Jabiko's frames live in their own file
+(D-01). The hash-verified exports above remain the consumed evidence. See
+[DECISIONS.md D-01](DECISIONS.md#d-01).
 
 ## 2. Inherited unchanged (cross-product)
 

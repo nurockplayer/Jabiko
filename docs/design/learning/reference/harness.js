@@ -119,8 +119,8 @@ export function topbar(current, { furigana = false } = {}) {
       <button type="button" aria-haspopup="menu" aria-expanded="false"${current === "reference" ? ' data-current="true"' : ""}>${t.reference}${icon("chevron")}</button>
     </nav>
     <div class="si-topbar-tools">
-      <button class="si-focus-chip" type="button">${icon("timer")}<span>${t.focus}</span></button>
-      <button class="si-toggle" type="button" aria-pressed="${furigana}"><span class="si-furi-glyph" lang="ja">ふ</span><span>${t.furigana}</span><span class="si-toggle-state">${furigana ? t.furiOn : t.furiOff}</span></button>
+      <button class="si-focus-chip" type="button">${icon("timer")}<span class="si-chrome-label">${t.focus}</span></button>
+      <button class="si-toggle" type="button" aria-pressed="${furigana}"><span class="si-furi-glyph" lang="ja">ふ</span><span class="si-chrome-label">${t.furigana}</span><span class="si-toggle-state">${furigana ? t.furiOn : t.furiOff}</span></button>
       <button class="si-iconbtn" type="button" aria-label="${t.menu}" aria-haspopup="menu">${icon("menu")}</button>
     </div>
   </header>`;

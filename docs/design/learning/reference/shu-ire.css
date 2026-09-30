@@ -201,6 +201,31 @@ button {
   white-space: nowrap;
 }
 
+/* Chrome word labels (focus chip, furigana toggle) yield before anything
+ * wraps or collides: hidden from view in the session bar below 600 and in
+ * the top bar below 360, but kept as the control's accessible name. */
+@media (max-width: 599px) {
+  .si-session-bar .si-chrome-label {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+  }
+}
+
+@media (max-width: 359px) {
+  .si-topbar .si-chrome-label {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+  }
+}
+
 .si-num {
   font-variant-numeric: tabular-nums;
 }
@@ -432,6 +457,7 @@ rt {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
   min-height: 36px;
   padding: 0 10px;
   border: 1px solid var(--si-border-subtle);
@@ -483,6 +509,7 @@ rt {
   padding: 0 12px;
   border: 0;
   border-left: 1px solid var(--si-border-subtle);
+  border-bottom: 2px solid transparent;
   background: var(--si-surface-app);
   font-size: 14px;
   line-height: 20px;
@@ -509,7 +536,7 @@ rt {
   background: var(--si-learner-tint);
   color: var(--si-learner-mark);
   font-weight: 700;
-  box-shadow: inset 0 -2px 0 var(--si-learner-mark);
+  border-bottom-color: var(--si-learner-mark);
 }
 
 .si-segment button:focus-visible {
@@ -746,7 +773,8 @@ rt {
   line-height: 20px;
   font-weight: 500;
   text-decoration: none;
-  box-shadow: inset 0 -2px 0 transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
 }
 
 .si-nav a:hover,
@@ -757,7 +785,7 @@ rt {
 .si-nav a[aria-current="page"] {
   color: var(--si-text-primary);
   font-weight: 700;
-  box-shadow: inset 0 -2px 0 var(--si-border-strong);
+  border-bottom-color: var(--si-border-strong);
 }
 
 .si-nav a:focus-visible,
@@ -781,6 +809,7 @@ rt {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
   min-height: 36px;
   padding: 0 10px;
   border: 1px solid var(--si-border-subtle);
@@ -927,6 +956,12 @@ html[data-capture="full"] .si-bottombar {
   .si-focus-chip,
   .si-segment button {
     min-height: 44px;
+  }
+
+  .si-toggle,
+  .si-focus-chip {
+    min-width: 44px;
+    justify-content: center;
   }
 
   .si-iconbtn {
@@ -1126,6 +1161,7 @@ html[data-capture="full"] .si-bottombar {
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-self: end;
 }
 
 /* Progress ledger: one tick per question; answered ticks carry the verdict
@@ -1134,6 +1170,7 @@ html[data-capture="full"] .si-bottombar {
   display: flex;
   align-items: center;
   gap: 10px;
+  white-space: nowrap;
   font-size: 13px;
   line-height: 20px;
   color: var(--si-text-secondary);
@@ -1159,7 +1196,7 @@ html[data-capture="full"] .si-bottombar {
 
 .si-ledger-ticks i[data-v="x"] {
   background: transparent;
-  box-shadow: inset 0 0 0 1.5px var(--si-mark-ink);
+  border: 1.5px solid var(--si-mark-ink);
 }
 
 .si-ledger-ticks i[data-v="now"] {
@@ -1847,7 +1884,7 @@ html[data-capture="full"] .si-bottombar {
 
   .si-ledger-ticks i[data-v="x"] {
     background: Canvas;
-    box-shadow: inset 0 0 0 1.5px CanvasText;
+    border: 1.5px solid CanvasText;
   }
 }
 

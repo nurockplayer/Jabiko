@@ -10,10 +10,13 @@ inherited.
 
 Values live in [`tokens.json`](tokens.json); executable recipes live in
 [`reference/shu-ire.css`](reference/shu-ire.css); every surface below has a
-reference board in [`reference/`](reference/) and committed renders in
-[`renders/`](renders/). When prose and a token value disagree, `tokens.json`
-wins; when a board and this document disagree on behavior, this document wins
-and the board is a defect.
+reference board in [`reference/`](reference/), committed renders in
+[`renders/`](renders/) and a canonical, editable frame in the Figma file
+[Jabiko Learning — Shu-ire](https://www.figma.com/design/h4XBtIaL5XYsBOxGVTHmc4/Jabiko-Learning-%E2%80%94-Shu-ire)
+(node IDs in [`figma-registry.json`](figma-registry.json); D-01). When prose
+and a token value disagree, `tokens.json` wins; on visual presentation the
+Figma frame wins; when a board or frame and this document disagree on
+behavior, this document wins and the board or frame is a defect.
 
 Normative words: **must / must not** are acceptance requirements; **should**
 is the default that needs a recorded reason to deviate; **may** is optional.
@@ -213,7 +216,10 @@ Brand lockup (JabikoMark 30px + "Jabiko" + locale descriptor
 "JLPT 自習室" / "JLPT Study Room", descriptor hidden < 1024) · primary
 navigation (≥ 1024) · focus chip · furigana toggle · menu button. Current
 location: `text.primary`, weight 700, 2px `border.strong` underline,
-`aria-current="page"`. Sticky, `surface.app`, bottom hairline.
+`aria-current="page"`. Sticky, `surface.app`, bottom hairline. Bar text never
+wraps: below 360px the focus chip and furigana toggle drop their visible word
+(glyph, timer and on/off state stay; the word remains the accessible name)
+and keep a 44 × 44 minimum.
 
 ### 4.4 Bottom tab bar (< 1024)
 
@@ -229,7 +235,10 @@ Left: exit (×, label "離開練習，回到今日") and the set switcher button
 per question; answered ticks show verdict: filled shu = correct, outlined shu
 = incorrect; current tick ink; plus "7 / 20"). Compact: "7 / 20" text plus a 2px
 ink progress line under the bar. Right: furigana toggle, session settings
-(sliders icon → length + speech rate), menu.
+(sliders icon → length + speech rate), menu. Compact (< 600): the set name is
+the only part that shrinks (ellipsis); "7 / 20" never wraps or collides with
+the tools, and the furigana toggle's word is visually hidden but remains its
+accessible name.
 
 ## 5. The mark system (evaluation layer)
 
@@ -766,6 +775,7 @@ This section is binding on *what*, advisory on *how*.
 
 - WORLD (game) profile, NPC/scene art, game HUD — remains #832.
 - `/game` entry label — waits for the naming decision (D-08).
-- Editable Figma import of these boards — optional follow-up (D-01).
+- Figma variables, text styles and components for SI-1 — follow-up; the
+  bridge cannot author them, so values stay in `tokens.json` (D-01).
 - Learner evidence for the shu 〇-for-correct convention in `en` (D-03).
 - Removing the `flag-icons` dependency — separate reviewed change (D-11).

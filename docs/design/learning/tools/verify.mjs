@@ -10,7 +10,7 @@
 //    overflow; exactly one visible h1; >= 44px touch targets on compact
 //    widths (inline text links exempt, WCAG 2.5.8); Japanese carriers inherit
 //    lang="ja"; keyboard focus draws a >= 3px outline; reduced motion stops
-//    mark animation.
+//    mark animation; bar text never wraps and bar controls never overlap.
 // 4. Captures the canonical review renders into ../renders (palette PNG).
 //
 // Writes ../verification/report.json. Exits non-zero on any failure.
@@ -20,6 +20,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { startStaticServer } from "./static-server.mjs";
+import { BOARDS, CAPTURES, VIEWPORTS, captureName } from "./scenes.mjs";
 
 const HERE = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = resolve(HERE, "..");
@@ -80,86 +81,6 @@ for (const theme of ["light", "dark"]) {
 }
 
 // ------------------------------------------------------------ boards
-const VIEWPORTS = { "320x640": [320, 640], "390x844": [390, 844], "1280x800": [1280, 800], "1440x900": [1440, 900] };
-const BOARDS = [
-  ["today.html", ["returning", "first"]],
-  ["session.html", ["q", "correct", "wrong", "revealed", "recall", "complete", "perfect", "empty", "loading", "error"]],
-  ["sets.html", ["switcher", "mock"]],
-  ["learn.html", [""]],
-  ["grammar.html", ["index", "point"]],
-  ["reference.html", ["page", "sheet"]],
-  ["talk.html", ["intro", "respond", "feedback", "complete"]],
-  ["system.html", ["menu-guest", "menu-user", "language", "delete", "focus-config", "focus-break", "offline", "update", "feedback", "route-error"]]
-];
-
-// Canonical review captures: [board?query, viewport, fullPage, extra].
-const CAPTURES = [
-  ["specimen.html", "1440x900", true],
-  ["specimen.html?theme=dark", "1440x900", true],
-  ["today.html", "1440x900", true],
-  ["today.html", "390x844", true],
-  ["today.html", "320x640", false],
-  ["today.html?state=first", "1440x900", false],
-  ["today.html?state=first", "390x844", true],
-  ["today.html?theme=dark", "1440x900", false],
-  ["session.html", "1440x900", false],
-  ["session.html", "390x844", false],
-  ["session.html?state=correct", "1440x900", false],
-  ["session.html?state=wrong", "1440x900", false],
-  ["session.html?state=wrong", "1280x800", false],
-  ["session.html?state=wrong", "390x844", true],
-  ["session.html?state=wrong", "320x640", false],
-  ["session.html?state=wrong&lang=en", "1440x900", false],
-  ["session.html?state=wrong&theme=dark", "1440x900", false],
-  ["session.html?state=wrong&theme=dark", "390x844", false],
-  ["session.html?state=wrong", "1440x900", false, "forced"],
-  ["session.html?state=revealed", "390x844", false],
-  ["session.html?state=recall", "390x844", false],
-  ["session.html?state=complete", "1440x900", false],
-  ["session.html?state=complete", "390x844", true],
-  ["session.html?state=perfect", "390x844", false],
-  ["session.html?state=empty", "390x844", false],
-  ["session.html?state=loading", "390x844", false],
-  ["session.html?state=error", "390x844", false],
-  ["sets.html", "1440x900", false],
-  ["sets.html", "390x844", false],
-  ["sets.html?state=mock", "1440x900", true],
-  ["sets.html?state=mock", "390x844", true],
-  ["learn.html", "1440x900", true],
-  ["learn.html", "390x844", true],
-  ["grammar.html", "1440x900", false],
-  ["grammar.html", "390x844", true],
-  ["grammar.html?state=point", "1440x900", false],
-  ["grammar.html?state=point", "390x844", true],
-  ["reference.html", "1440x900", false],
-  ["reference.html", "390x844", false],
-  ["reference.html?state=sheet", "390x844", false],
-  ["talk.html", "1440x900", false],
-  ["talk.html", "390x844", true],
-  ["talk.html?state=respond", "390x844", false],
-  ["talk.html?state=feedback", "1440x900", false],
-  ["talk.html?state=feedback", "390x844", true],
-  ["talk.html?state=complete", "390x844", false],
-  ["system.html?state=menu-guest", "1440x900", false],
-  ["system.html?state=menu-guest", "390x844", false],
-  ["system.html?state=menu-user", "1440x900", false],
-  ["system.html?state=language", "390x844", false],
-  ["system.html?state=delete", "390x844", false],
-  ["system.html?state=focus-config", "390x844", false],
-  ["system.html?state=focus-break", "1440x900", false],
-  ["system.html?state=focus-break", "390x844", false],
-  ["system.html?state=offline", "390x844", false],
-  ["system.html?state=update", "390x844", false],
-  ["system.html?state=feedback", "390x844", false],
-  ["system.html?state=route-error", "390x844", false]
-];
-
-function captureName(board, vp, extra) {
-  const [file, query = ""] = board.split("?");
-  const q = query ? `-${query.replace(/[=&]/g, "-")}` : "";
-  return `${file.replace(/\.html$/, "")}${q}${extra ? `-${extra}` : ""}-${vp}.png`;
-}
-
 async function contextFor(browser, vp, options = {}) {
   const [width, height] = VIEWPORTS[vp];
   const touch = width < 600;
@@ -196,7 +117,34 @@ async function inspect(page, compact) {
       .filter((el) => (el.closest("[lang]")?.getAttribute("lang") ?? "") !== "ja")
       .map((el) => `${el.className} "${(el.textContent || "").trim().slice(0, 16)}"`);
     const animated = [...document.querySelectorAll("[data-draw] .si-stroke")].filter((el) => getComputedStyle(el).animationName !== "none").length;
-    return { overflow, h1, small, missingLang, animated };
+    // Bars are single-line chrome: no text run may wrap, and no two controls
+    // or text items may overlap (a collapsed grid track lets them collide).
+    const barCollisions = [];
+    const label = (el) => `${el.tagName.toLowerCase()}.${[...el.classList].join(".")} "${(el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 16)}"`;
+    for (const bar of document.querySelectorAll(".si-session-bar, .si-topbar, .si-bottombar")) {
+      if (!visible(bar)) continue;
+      const walker = document.createTreeWalker(bar, NodeFilter.SHOW_TEXT);
+      let t;
+      while ((t = walker.nextNode())) {
+        if (!t.textContent.trim() || !visible(t.parentElement)) continue;
+        const range = document.createRange();
+        range.selectNodeContents(t);
+        const tops = new Set([...range.getClientRects()].filter((r) => r.width > 0).map((r) => Math.round(r.top)));
+        if (tops.size > 1) barCollisions.push(`wrapped ${label(t.parentElement)}`);
+      }
+      const items = [...bar.querySelectorAll("a, button, .si-num")].filter(visible);
+      for (let i = 0; i < items.length; i += 1) {
+        for (let j = i + 1; j < items.length; j += 1) {
+          const [a, b] = [items[i], items[j]];
+          if (a.contains(b) || b.contains(a)) continue;
+          const [ra, rb] = [a.getBoundingClientRect(), b.getBoundingClientRect()];
+          const ox = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left);
+          const oy = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top);
+          if (ox > 0.5 && oy > 0.5) barCollisions.push(`overlap ${label(a)} × ${label(b)}`);
+        }
+      }
+    }
+    return { overflow, h1, small, missingLang, animated, barCollisions };
   }, compact);
 }
 
@@ -247,6 +195,7 @@ try {
         if (result.h1 !== 1) problems.push(`${result.h1} visible h1`);
         if (result.small.length) problems.push(`small targets: ${result.small.join("; ")}`);
         if (result.missingLang.length) problems.push(`missing lang=ja: ${result.missingLang.join("; ")}`);
+        if (result.barCollisions.length) problems.push(`bar collisions: ${result.barCollisions.join("; ")}`);
         if (result.animated) problems.push(`${result.animated} mark strokes still animate under reduced motion`);
         if (focus.length) problems.push(`focus without 3px ring: ${focus.map((f) => `${f.tag}.${f.cls}`).join("; ")}`);
         entry.ok = problems.length === 0;
@@ -271,7 +220,7 @@ try {
         await document.fonts.ready;
       }, fullPage);
       const raw = await page.screenshot({ fullPage });
-      const name = captureName(board, vp, extra);
+      const name = `${captureName(board, vp, extra)}.png`;
       await sharp(raw).png({ palette: true, quality: 90, effort: 8 }).toFile(resolve(outDir, name));
       report.captures.push({ file: `renders/${name}`, board, viewport: vp, fullPage, mode: extra ?? "default" });
       await context.close();

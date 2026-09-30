@@ -13,28 +13,56 @@ decision or product surface and need an explicit yes/no during review.
 
 ---
 
-## D-01 — Authority medium: repository-hosted, render-first authority {#d-01}
+## D-01 — Authority medium: Figma for visual presentation, repository for values and rules {#d-01}
 
-**Decision.** The canonical authority for Jabiko Learning SI-1 is this
-directory: `tokens.json` (values), `reference/shu-ire.css` (executable
-recipes), the reference boards, the committed renders, `DESIGN.md` (rules) and
-this log. The Tachiko foundation is consumed from the #71 approved nodes via
-their hash-verified native exports (FOUNDATION-SNAPSHOT.md).
+**Decision (revised 2026-10-01).** Authority is split by kind:
 
-**Why.** The founder asked for implementation-grade authority preserved in the
-repository and opened as a PR. The canonical Tachiko Figma file is still not
-connected through the qualified bridge (the #832 blocker), so an editable
-Figma deliverable cannot be produced or read back this session. Render-first
-HTML/CSS is the authoring path Tachiko Sheet's own authority README accepts
-for dense work, and it makes every value mechanically checkable.
+- **Figma is canonical for visual presentation**: hierarchy, spacing,
+  typography, component states and the responsive layout of every SI-1
+  surface. The file is
+  [Jabiko Learning — Shu-ire](https://www.figma.com/design/h4XBtIaL5XYsBOxGVTHmc4/Jabiko-Learning-%E2%80%94-Shu-ire)
+  (pages 00–60). Its frames are editable layers (frames, text, vectors, no
+  image fills), and each is listed with its node ID in
+  [figma-registry.json](figma-registry.json).
+- **This repository is canonical for** exact values (`tokens.json`; the
+  bridge cannot author Figma variables or styles, so the file has none yet),
+  behavior, accessibility and localization rules (DESIGN.md), the reasons
+  (this log) and the verification tooling.
+- **The reference harness** (`reference/`) is the source the frames were
+  imported from and the executable form of the recipes. It is not an
+  authority of its own. `tools/figma/verify.mjs` holds harness and Figma
+  together: it fails when the harness changes without a re-import, and with
+  `--live` it fails when a frame has been edited in Figma without
+  re-registration.
+- **Frame status** is `SI-1 CANDIDATE · …` until independent review accepts
+  SI-1; the frames are then renamed `SI-1 APPROVED · …` and re-registered.
+- **Conflicts**: a value disagreement is settled by `tokens.json`; a visual
+  presentation disagreement by the Figma frame; a behavior or rule
+  disagreement by DESIGN.md. The losing artifact is a defect to fix.
 
-**Rejected.** Waiting for Figma (blocks the founder's request indefinitely);
-treating the superseded PR #840 prototype as a base (superseded); an unsaved
-Figma document (not canonical).
+**Why.** The first version of this decision (2026-09-30) made the
+repository render-first because no qualified Figma bridge was connected.
+After this PR opened, the founder confirmed Figma is available and asked for
+editable Figma authority in a dedicated Jabiko file, verified through the
+bridge. The official `@gethopp/figma-mcp-bridge` 0.0.22 was then qualified
+against that file: disposable probes were imported, exported, read back and
+deleted (VERIFICATION.md). Figma owning visual presentation while the
+repository owns values and rules mirrors Tachiko Sheet's own precedence.
 
-**Consequences.** Importing these boards into Figma later is an optional
-follow-up, not a precondition for #838. This PR records the Learning/Training
-half of #832's Jabiko profile; the WORLD half remains open in #832.
+**Rejected.** Keeping the render-first authority only (it ignores the Figma
+file designers and implementers will actually open); redrawing SI-1 by hand
+in Figma (a second, unverifiable design); placing Jabiko frames in the
+Tachiko Sheet file (a different product, and that canonical file must not be
+modified); screenshots as image fills (not editable authority).
+
+**Consequences.** #838 implements presentation from the Figma frames and
+values and rules from `tokens.json` and DESIGN.md. After acceptance,
+presentation changes are made in Figma, or in the harness and re-imported,
+and re-registered; `tools/figma/verify.mjs` must pass. The Figma-side limits
+(Noto/Inter stand in for the system faces, no variables or components yet,
+mixed-language runs split per rendered line) are listed in VERIFICATION.md.
+This PR records the Learning/Training half of #832's Jabiko profile; the
+WORLD half remains open in #832.
 
 ## D-02 — Three inks with exclusive jobs
 

@@ -1,0 +1,6286 @@
+{
+  "$comment": "Canonical Figma frames of Shu-ire SI-1. Written by tools/figma/registry.mjs; checked by tools/figma/verify.mjs.",
+  "system": "Jabiko Learning — Shu-ire",
+  "revision": "SI-1",
+  "status": "SI-1 CANDIDATE",
+  "file": {
+    "name": "Jabiko Learning — Shu-ire",
+    "key": "h4XBtIaL5XYsBOxGVTHmc4",
+    "url": "https://www.figma.com/design/h4XBtIaL5XYsBOxGVTHmc4/Jabiko-Learning-%E2%80%94-Shu-ire"
+  },
+  "pages": {
+    "00 Index": "4:2",
+    "01 Foundations": "4:3",
+    "10 Today": "4:4",
+    "20 Practice session": "4:5",
+    "30 Sets & JLPT sections": "4:6",
+    "40 Learn · Grammar · Reference": "4:7",
+    "50 Small Talk": "4:8",
+    "60 Shell & System": "4:9",
+    "90 Archive": "4:10"
+  },
+  "bridge": {
+    "package": "@gethopp/figma-mcp-bridge",
+    "version": "0.0.22",
+    "tool": "import_html_layers"
+  },
+  "serializer": {
+    "htmlFigmaBundleSha256": "4731bb508e22c9887a03e9701b5e14e1771d9868e5b174313994f07b95313eca",
+    "chromium": "151.0.7922.34",
+    "fontPolicy": {
+      "mincho": "Noto Serif JP",
+      "japanese": "Noto Sans JP",
+      "chinese": "Noto Sans TC",
+      "latin": "Inter"
+    },
+    "figmaStyles": {
+      "Inter": {
+        "300": "Light",
+        "400": "Regular",
+        "500": "Medium",
+        "600": "Semi Bold",
+        "700": "Bold",
+        "900": "Black"
+      },
+      "Noto Sans JP": {
+        "400": "Regular",
+        "500": "Medium",
+        "700": "Bold"
+      },
+      "Noto Sans TC": {
+        "400": "Regular",
+        "500": "Medium",
+        "700": "Bold"
+      },
+      "Noto Serif JP": {
+        "400": "Regular",
+        "500": "Medium",
+        "600": "SemiBold",
+        "700": "Bold"
+      }
+    },
+    "harnessDigest": "457d9cdc91920a7aa1256d129bf2d09bb55bda1f5e575bde6cbf1660cad5ccf4"
+  },
+  "visualMetric": {
+    "description": "Share of pixels whose max RGB channel delta exceeds 48 between the native Figma export (scale 1) and the Chromium capture of the same scene laid out in the Figma faces; sizes must be equal.",
+    "limit": 0.05
+  },
+  "frames": [
+    {
+      "scene": "cover-1440x900",
+      "label": "cover · default · 1440×900",
+      "board": "cover.html",
+      "query": "",
+      "viewport": "1440x900",
+      "fullPage": true,
+      "mode": "default",
+      "page": "00 Index",
+      "pageId": "4:2",
+      "nodeId": "4:33108",
+      "frameName": "SI-1 CANDIDATE · cover · default · 1440×900",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 117,
+        "expected": 117,
+        "serializedTypes": {
+          "FRAME": 67,
+          "SVG": 1,
+          "TEXT": 35,
+          "RECTANGLE": 14
+        },
+        "readbackTypes": {
+          "FRAME": 69,
+          "TEXT": 35,
+          "RECTANGLE": 14,
+          "VECTOR": 15,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 35,
+        "readback": 35,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 5,
+          "Noto Serif JP Regular": 2,
+          "Inter Regular": 14,
+          "Noto Sans TC Regular": 1,
+          "Inter Semi Bold": 13
+        },
+        "readback": {
+          "Inter Regular": 14,
+          "Inter Semi Bold": 13,
+          "Noto Sans TC Regular": 1,
+          "Inter Bold": 5,
+          "Noto Serif JP Regular": 2
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#c43a17",
+          "#e3e1db",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#28385a",
+          "#c43a17",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0306,
+        "meanChannelDelta": 3.85,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/cover-1440x900.png",
+      "sha256": {
+        "source": "a59fba79c013371a533db4d5d947b2fce6fe76f4266da348b6bb56014bc66e60",
+        "html": "ab6f4bd6dd3aa03f538988e047b2afedfc8a6ffd13d0e199d1a15d16e7a08875",
+        "figma": "b31caf74d88f9d5db8b381351a6c7c818c5d188d851bfcb52e880ed17ae4b371",
+        "readback": "d0713c72de6005c2acfce1106583e74a98c360177fb6fc19db4e5781a39bac3d"
+      },
+      "importedAt": "2026-09-30T16:44:22.159Z"
+    },
+    {
+      "scene": "specimen-1440x900",
+      "label": "specimen · default · 1440×900",
+      "board": "specimen.html",
+      "query": "",
+      "viewport": "1440x900",
+      "fullPage": true,
+      "mode": "default",
+      "page": "01 Foundations",
+      "pageId": "4:3",
+      "nodeId": "4:33242",
+      "frameName": "SI-1 CANDIDATE · specimen · default · 1440×900",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 2782
+      },
+      "layers": {
+        "imported": 534,
+        "expected": 534,
+        "serializedTypes": {
+          "FRAME": 287,
+          "TEXT": 172,
+          "RECTANGLE": 60,
+          "SVG": 15
+        },
+        "readbackTypes": {
+          "FRAME": 303,
+          "TEXT": 172,
+          "VECTOR": 18,
+          "RECTANGLE": 60
+        }
+      },
+      "texts": {
+        "serialized": 172,
+        "readback": 172,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans JP Bold": 10,
+          "Inter Semi Bold": 10,
+          "Inter Regular": 88,
+          "Inter Bold": 4,
+          "Noto Sans TC Medium": 13,
+          "Noto Sans TC Bold": 4,
+          "Noto Sans JP Regular": 17,
+          "Noto Sans TC Regular": 5,
+          "Noto Serif JP Medium": 3,
+          "Noto Serif JP Regular": 7,
+          "Inter Medium": 11
+        },
+        "readback": {
+          "Inter Regular": 88,
+          "Noto Sans TC Regular": 5,
+          "Noto Sans TC Medium": 13,
+          "Inter Semi Bold": 10,
+          "Noto Sans JP Bold": 10,
+          "Noto Sans JP Regular": 17,
+          "Inter Medium": 11,
+          "Inter Bold": 4,
+          "Noto Sans TC Bold": 4,
+          "Noto Serif JP Medium": 3,
+          "Noto Serif JP Regular": 7
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#206c4e",
+          "#2456b0",
+          "#3a3834",
+          "#5f5c57",
+          "#6e6a63",
+          "#865015",
+          "#8c877e",
+          "#a02d42",
+          "#c43a17",
+          "#e3e1db",
+          "#e9f6f0",
+          "#eaf0fb",
+          "#efeeea",
+          "#f6f5f2",
+          "#fbede7",
+          "#fff0f3",
+          "#fff3dd",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#000000",
+          "#1d1c1a",
+          "#206c4e",
+          "#2456b0",
+          "#3a3834",
+          "#5f5c57",
+          "#865015",
+          "#8c877e",
+          "#a02d42",
+          "#c43a17",
+          "#e3e1db"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 2782,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0125,
+        "meanChannelDelta": 1.74,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/specimen-1440x900.png",
+      "sha256": {
+        "source": "87edf8661cb34d62cdab66c9293c3596027f61242f1afcab3de3040f08aebd25",
+        "html": "a7c69434db28e0a862c280ef75dd44027d6229d5d50cc25537a76acda9a1cf35",
+        "figma": "8c0e6d20b0d75e18af50ea907924a116d07a64cce83872f39a197ba428c70098",
+        "readback": "1c8150a7d532053cec37bfed73ca1e8d6d38cab5ca1cd701aedaf2f35a583a82"
+      },
+      "importedAt": "2026-09-30T16:44:24.987Z"
+    },
+    {
+      "scene": "specimen-theme-dark-1440x900",
+      "label": "specimen · default · dark · 1440×900",
+      "board": "specimen.html",
+      "query": "theme=dark",
+      "viewport": "1440x900",
+      "fullPage": true,
+      "mode": "default",
+      "page": "01 Foundations",
+      "pageId": "4:3",
+      "nodeId": "4:33795",
+      "frameName": "SI-1 CANDIDATE · specimen · default · dark · 1440×900",
+      "position": {
+        "x": 1600,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 2782
+      },
+      "layers": {
+        "imported": 534,
+        "expected": 534,
+        "serializedTypes": {
+          "FRAME": 287,
+          "TEXT": 172,
+          "RECTANGLE": 60,
+          "SVG": 15
+        },
+        "readbackTypes": {
+          "FRAME": 303,
+          "TEXT": 172,
+          "VECTOR": 18,
+          "RECTANGLE": 60
+        }
+      },
+      "texts": {
+        "serialized": 172,
+        "readback": 172,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans JP Bold": 10,
+          "Inter Semi Bold": 10,
+          "Inter Regular": 88,
+          "Inter Bold": 4,
+          "Noto Sans TC Medium": 13,
+          "Noto Sans TC Bold": 4,
+          "Noto Sans JP Regular": 17,
+          "Noto Sans TC Regular": 5,
+          "Noto Serif JP Medium": 3,
+          "Noto Serif JP Regular": 7,
+          "Inter Medium": 11
+        },
+        "readback": {
+          "Inter Regular": 88,
+          "Noto Sans TC Regular": 5,
+          "Noto Sans TC Medium": 13,
+          "Inter Semi Bold": 10,
+          "Noto Sans JP Bold": 10,
+          "Noto Sans JP Regular": 17,
+          "Inter Medium": 11,
+          "Inter Bold": 4,
+          "Noto Sans TC Bold": 4,
+          "Noto Serif JP Medium": 3,
+          "Noto Serif JP Regular": 7
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#12301f",
+          "#151513",
+          "#18233a",
+          "#1c1c1a",
+          "#222220",
+          "#252522",
+          "#2e2e2a",
+          "#332611",
+          "#34332f",
+          "#3a1820",
+          "#3a1e15",
+          "#6fd3a6",
+          "#77736c",
+          "#7a766f",
+          "#8db2ff",
+          "#a29e96",
+          "#b5b1a9",
+          "#d8d5ce",
+          "#edebe6",
+          "#f2b866",
+          "#ff8866",
+          "#ff9aad",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#34332f",
+          "#6fd3a6",
+          "#7a766f",
+          "#8db2ff",
+          "#b5b1a9",
+          "#d8d5ce",
+          "#edebe6",
+          "#f2b866",
+          "#ff8866",
+          "#ff9aad",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 2782,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.012,
+        "meanChannelDelta": 1.64,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/specimen-theme-dark-1440x900.png",
+      "sha256": {
+        "source": "2c5e9435b12d5b3aefc2ad607eb5fa71f21cdc2e6772e413ed15f312150de7ed",
+        "html": "76fead9a0cb83b6a89aac75690a15614d0fc4169c1e14055f457006457a0a426",
+        "figma": "2d8523341151dc5cb597309f328719c5ea84998f50d38a5b94beba904c3f4417",
+        "readback": "55b2cf2b6e9926607c92b934f1cd42abfc6246a0a5b94f512dc03925ab5094e8"
+      },
+      "importedAt": "2026-09-30T16:44:29.245Z"
+    },
+    {
+      "scene": "today-1440x900",
+      "label": "today · default · 1440×900",
+      "board": "today.html",
+      "query": "",
+      "viewport": "1440x900",
+      "fullPage": true,
+      "mode": "default",
+      "page": "10 Today",
+      "pageId": "4:4",
+      "nodeId": "4:34348",
+      "frameName": "SI-1 CANDIDATE · today · default · 1440×900",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 1951
+      },
+      "layers": {
+        "imported": 434,
+        "expected": 434,
+        "serializedTypes": {
+          "FRAME": 234,
+          "SVG": 29,
+          "TEXT": 137,
+          "RECTANGLE": 34
+        },
+        "readbackTypes": {
+          "FRAME": 264,
+          "RECTANGLE": 34,
+          "TEXT": 137,
+          "VECTOR": 43,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 137,
+        "readback": 137,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 9,
+          "Noto Sans TC Regular": 45,
+          "Noto Sans TC Bold": 28,
+          "Noto Sans TC Medium": 11,
+          "Noto Serif JP Medium": 1,
+          "Inter Regular": 30,
+          "Noto Sans JP Regular": 9,
+          "Noto Sans JP Bold": 2,
+          "Inter Semi Bold": 1,
+          "Inter Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 45,
+          "Inter Regular": 30,
+          "Noto Sans JP Regular": 9,
+          "Noto Sans TC Bold": 28,
+          "Noto Sans JP Bold": 2,
+          "Inter Bold": 9,
+          "Inter Medium": 1,
+          "Noto Sans TC Medium": 11,
+          "Inter Semi Bold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#c43a17",
+          "#e3e1db",
+          "#efeeea",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 1951,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0083,
+        "meanChannelDelta": 1.27,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/today-1440x900.png",
+      "sha256": {
+        "source": "4d013d993a6608ff8a5447762ffd93041d87ac97866093137cba9df97ad4d920",
+        "html": "9111894b6cd89a97fdfa4c1163e1dad86ffaa1bcd0bbc0a0d574abf2ec063796",
+        "figma": "a7f15a47db2b0d9db49cecd50b1a36ce828040796d9b2ca3fee453844d68517a",
+        "readback": "e85fac2c9c1848fa88698d770006822c71d395f0b1d2ec51a84426db16db841b"
+      },
+      "importedAt": "2026-09-30T16:44:32.163Z"
+    },
+    {
+      "scene": "today-390x844",
+      "label": "today · default · 390×844",
+      "board": "today.html",
+      "query": "",
+      "viewport": "390x844",
+      "fullPage": true,
+      "mode": "default",
+      "page": "10 Today",
+      "pageId": "4:4",
+      "nodeId": "4:34827",
+      "frameName": "SI-1 CANDIDATE · today · default · 390×844",
+      "position": {
+        "x": 1600,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 2891
+      },
+      "layers": {
+        "imported": 438,
+        "expected": 438,
+        "serializedTypes": {
+          "FRAME": 242,
+          "SVG": 33,
+          "TEXT": 135,
+          "RECTANGLE": 28
+        },
+        "readbackTypes": {
+          "FRAME": 276,
+          "RECTANGLE": 28,
+          "TEXT": 135,
+          "VECTOR": 47,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 135,
+        "readback": 135,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 9,
+          "Noto Sans TC Medium": 10,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Bold": 28,
+          "Noto Sans TC Regular": 44,
+          "Inter Regular": 30,
+          "Noto Sans JP Regular": 9,
+          "Noto Sans JP Bold": 2,
+          "Inter Semi Bold": 1,
+          "Inter Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 44,
+          "Inter Regular": 30,
+          "Noto Sans JP Regular": 9,
+          "Noto Sans TC Bold": 28,
+          "Noto Sans JP Bold": 2,
+          "Inter Bold": 9,
+          "Inter Medium": 1,
+          "Noto Sans TC Medium": 10,
+          "Inter Semi Bold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#c43a17",
+          "#e3e1db",
+          "#efeeea",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 2891,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0189,
+        "meanChannelDelta": 2.9,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/today-390x844.png",
+      "sha256": {
+        "source": "81cf17d2d8bed9b8fccb9f0a3ddcc666f5c9907ca45b4cbabbda51d35f5fc612",
+        "html": "b27047a15dc022b0bd1b37374b03c905b91e728608350957fe2ffe114217c3f1",
+        "figma": "c450a342238baf6f89b308e29b9f5ba2c5003de20431a6cbcaf8ec37a9a4a01d",
+        "readback": "9368dc1c7130403f88290f63f71f2c274f572e859e73c29657904ee0a90bf61d"
+      },
+      "importedAt": "2026-09-30T16:44:34.228Z"
+    },
+    {
+      "scene": "today-320x640",
+      "label": "today · default · 320×640",
+      "board": "today.html",
+      "query": "",
+      "viewport": "320x640",
+      "fullPage": false,
+      "mode": "default",
+      "page": "10 Today",
+      "pageId": "4:4",
+      "nodeId": "4:35314",
+      "frameName": "SI-1 CANDIDATE · today · default · 320×640",
+      "position": {
+        "x": 2150,
+        "y": 0
+      },
+      "size": {
+        "width": 320,
+        "height": 640
+      },
+      "layers": {
+        "imported": 438,
+        "expected": 438,
+        "serializedTypes": {
+          "FRAME": 242,
+          "SVG": 33,
+          "TEXT": 135,
+          "RECTANGLE": 28
+        },
+        "readbackTypes": {
+          "FRAME": 276,
+          "RECTANGLE": 28,
+          "TEXT": 135,
+          "VECTOR": 47,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 135,
+        "readback": 135,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 28,
+          "Noto Sans TC Medium": 10,
+          "Inter Bold": 9,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Regular": 44,
+          "Inter Regular": 30,
+          "Noto Sans JP Regular": 9,
+          "Noto Sans JP Bold": 2,
+          "Inter Semi Bold": 1,
+          "Inter Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 44,
+          "Inter Regular": 30,
+          "Noto Sans JP Regular": 9,
+          "Noto Sans TC Bold": 28,
+          "Noto Sans JP Bold": 2,
+          "Inter Bold": 9,
+          "Inter Medium": 1,
+          "Noto Sans TC Medium": 10,
+          "Inter Semi Bold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#c43a17",
+          "#e3e1db",
+          "#efeeea",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 320,
+        "height": 640,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0294,
+        "meanChannelDelta": 4.59,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/today-320x640.png",
+      "sha256": {
+        "source": "dd0fb3d875a0865eaaf4ec81fc24251f2cc3c9ff8964ac37301aea7d1f432fde",
+        "html": "ce7eae7edbc997690322b56e0cead4046e925b573adc81073b27af2799849702",
+        "figma": "2f33d8846dd233d3e5c03b2b8c752c058a88e155e2b8ee697b7c3cd21e4b8d2a",
+        "readback": "384bac9f0d0299584d52088af97aec61f7d63369d8197715f8ddef9d0f6190a9"
+      },
+      "importedAt": "2026-09-30T16:44:36.819Z"
+    },
+    {
+      "scene": "today-state-first-1440x900",
+      "label": "today · first · 1440×900",
+      "board": "today.html",
+      "query": "state=first",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "10 Today",
+      "pageId": "4:4",
+      "nodeId": "4:35801",
+      "frameName": "SI-1 CANDIDATE · today · first · 1440×900",
+      "position": {
+        "x": 2630,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 274,
+        "expected": 274,
+        "serializedTypes": {
+          "FRAME": 141,
+          "SVG": 16,
+          "TEXT": 87,
+          "RECTANGLE": 30
+        },
+        "readbackTypes": {
+          "FRAME": 158,
+          "RECTANGLE": 30,
+          "TEXT": 87,
+          "VECTOR": 30,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 87,
+        "readback": 87,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 4,
+          "Noto Sans TC Regular": 37,
+          "Noto Sans TC Bold": 24,
+          "Noto Sans TC Medium": 8,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans JP Regular": 9,
+          "Inter Regular": 4
+        },
+        "readback": {
+          "Noto Sans TC Regular": 37,
+          "Inter Regular": 4,
+          "Noto Sans JP Regular": 9,
+          "Noto Sans TC Bold": 24,
+          "Inter Bold": 4,
+          "Noto Sans TC Medium": 8,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0116,
+        "meanChannelDelta": 1.88,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/today-state-first-1440x900.png",
+      "sha256": {
+        "source": "5e4404b9d76fb556c5eedc7ec6d20c5622cba51bf50ef76ebca5ce9352d7c93f",
+        "html": "0e4c4ae13e18b1cb853d4cf60dc224ad6bde485447aa86b03c5f174875c800bd",
+        "figma": "abf1d826bdf9aa2827737821fcf2eef950977d459eaca30d911f7b964d53d6d7",
+        "readback": "fee0cd52275fa0052bde5c49c3227b17f460f6a52ef115b5bbbe282084f0bc96"
+      },
+      "importedAt": "2026-09-30T16:44:38.996Z"
+    },
+    {
+      "scene": "today-state-first-390x844",
+      "label": "today · first · 390×844",
+      "board": "today.html",
+      "query": "state=first",
+      "viewport": "390x844",
+      "fullPage": true,
+      "mode": "default",
+      "page": "10 Today",
+      "pageId": "4:4",
+      "nodeId": "4:36107",
+      "frameName": "SI-1 CANDIDATE · today · first · 390×844",
+      "position": {
+        "x": 4230,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 2286
+      },
+      "layers": {
+        "imported": 278,
+        "expected": 278,
+        "serializedTypes": {
+          "FRAME": 149,
+          "SVG": 20,
+          "TEXT": 85,
+          "RECTANGLE": 24
+        },
+        "readbackTypes": {
+          "FRAME": 170,
+          "RECTANGLE": 24,
+          "TEXT": 85,
+          "VECTOR": 34,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 85,
+        "readback": 85,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 4,
+          "Noto Sans TC Medium": 7,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Bold": 24,
+          "Noto Sans TC Regular": 36,
+          "Noto Sans JP Regular": 9,
+          "Inter Regular": 4
+        },
+        "readback": {
+          "Noto Sans TC Regular": 36,
+          "Inter Regular": 4,
+          "Noto Sans JP Regular": 9,
+          "Noto Sans TC Bold": 24,
+          "Inter Bold": 4,
+          "Noto Sans TC Medium": 7,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 2286,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0178,
+        "meanChannelDelta": 2.96,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/today-state-first-390x844.png",
+      "sha256": {
+        "source": "6ff6f0f9f8257ddbff77441981d62c980f18b43bf14f54b4e8d2c1e5dfcf2429",
+        "html": "365b840b7d93c2c3f34c6dd709956f078fc263b7bf3bd299a4fa3a273c9d6651",
+        "figma": "5443e8262501d55e110cbf607da025be8197767f5f1963103eb9f68653ef4df6",
+        "readback": "c29f228aef35a2bc53069d42ea911a83319632a518db6fef8b68f9a7be29721b"
+      },
+      "importedAt": "2026-09-30T16:44:41.196Z"
+    },
+    {
+      "scene": "today-theme-dark-1440x900",
+      "label": "today · default · dark · 1440×900",
+      "board": "today.html",
+      "query": "theme=dark",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "10 Today",
+      "pageId": "4:4",
+      "nodeId": "4:36421",
+      "frameName": "SI-1 CANDIDATE · today · default · dark · 1440×900",
+      "position": {
+        "x": 4780,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 434,
+        "expected": 434,
+        "serializedTypes": {
+          "FRAME": 234,
+          "SVG": 29,
+          "TEXT": 137,
+          "RECTANGLE": 34
+        },
+        "readbackTypes": {
+          "FRAME": 264,
+          "RECTANGLE": 34,
+          "TEXT": 137,
+          "VECTOR": 43,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 137,
+        "readback": 137,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 9,
+          "Noto Sans TC Regular": 45,
+          "Noto Sans TC Bold": 28,
+          "Noto Sans TC Medium": 11,
+          "Noto Serif JP Medium": 1,
+          "Inter Regular": 30,
+          "Noto Sans JP Regular": 9,
+          "Noto Sans JP Bold": 2,
+          "Inter Semi Bold": 1,
+          "Inter Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 45,
+          "Inter Regular": 30,
+          "Noto Sans JP Regular": 9,
+          "Noto Sans TC Bold": 28,
+          "Noto Sans JP Bold": 2,
+          "Inter Bold": 9,
+          "Inter Medium": 1,
+          "Noto Sans TC Medium": 11,
+          "Inter Semi Bold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#151513",
+          "#252522",
+          "#28385a",
+          "#34332f",
+          "#8db2ff",
+          "#a29e96",
+          "#b5b1a9",
+          "#edebe6",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ff8866"
+        ],
+        "strokes": [
+          "#151513",
+          "#28385a",
+          "#34332f",
+          "#7a766f",
+          "#b5b1a9",
+          "#edebe6",
+          "#f0a49c",
+          "#ff8866"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0106,
+        "meanChannelDelta": 1.62,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/today-theme-dark-1440x900.png",
+      "sha256": {
+        "source": "d142db5e5a30dab6518d7827934880d9fa4de0b1ec9d7abf49e6d48719abcb3c",
+        "html": "c268a605a17d7c66a71ca5463e922b49f11d571a3eda7c93e7fd43daaf090d61",
+        "figma": "3441f2e84f5dd30e955101072a81a0508372907b6022fc4ca9698f152a15c441",
+        "readback": "48e0b6593275693cddac76d7300e88ce3b1f17799aba4e8a2053a4e32e73c42a"
+      },
+      "importedAt": "2026-09-30T16:44:43.886Z"
+    },
+    {
+      "scene": "session-1440x900",
+      "label": "session · default · 1440×900",
+      "board": "session.html",
+      "query": "",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:36900",
+      "frameName": "SI-1 CANDIDATE · session · default · 1440×900",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 234,
+        "expected": 234,
+        "serializedTypes": {
+          "FRAME": 125,
+          "SVG": 10,
+          "RECTANGLE": 49,
+          "TEXT": 50
+        },
+        "readbackTypes": {
+          "FRAME": 136,
+          "RECTANGLE": 49,
+          "TEXT": 50,
+          "VECTOR": 10
+        }
+      },
+      "texts": {
+        "serialized": 50,
+        "readback": 50,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 7,
+          "Inter Regular": 5,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 8,
+          "Noto Sans JP Regular": 9,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 9,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans JP Bold": 4,
+          "Inter Semi Bold": 3
+        },
+        "readback": {
+          "Noto Sans TC Medium": 8,
+          "Noto Sans TC Regular": 9,
+          "Noto Sans TC Bold": 7,
+          "Noto Sans JP Regular": 9,
+          "Inter Regular": 5,
+          "Inter Semi Bold": 3,
+          "Noto Sans JP Bold": 4,
+          "Noto Serif JP Regular": 3,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0061,
+        "meanChannelDelta": 0.93,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-1440x900.png",
+      "sha256": {
+        "source": "fd2f72a955cdb87629aa8c0c3e65c2fd4aaa1e8b5a419b6188832abf27f926aa",
+        "html": "27aa6ee7fb54f3c4df46669645b80384a0216e449cb0910bbf172241ed11cb61",
+        "figma": "9b6b7246176a20f8b98ddf659391b9b6f55b96e134829d8211adb6f758642425",
+        "readback": "8696aa3e5bf3c1a04101f4afc1a0a3d84c87c423794d536022df5c905292cb30"
+      },
+      "importedAt": "2026-09-30T16:44:45.827Z"
+    },
+    {
+      "scene": "session-390x844",
+      "label": "session · default · 390×844",
+      "board": "session.html",
+      "query": "",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:37145",
+      "frameName": "SI-1 CANDIDATE · session · default · 390×844",
+      "position": {
+        "x": 1600,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 113,
+        "expected": 113,
+        "serializedTypes": {
+          "FRAME": 55,
+          "SVG": 8,
+          "RECTANGLE": 27,
+          "TEXT": 23
+        },
+        "readbackTypes": {
+          "FRAME": 64,
+          "TEXT": 23,
+          "RECTANGLE": 27,
+          "VECTOR": 8
+        }
+      },
+      "texts": {
+        "serialized": 23,
+        "readback": 23,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 2,
+          "Inter Regular": 1,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 5,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 1,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans JP Regular": 5,
+          "Noto Sans JP Bold": 4
+        },
+        "readback": {
+          "Noto Sans JP Regular": 5,
+          "Noto Sans JP Bold": 4,
+          "Noto Sans TC Medium": 5,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans TC Regular": 1,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Bold": 2,
+          "Noto Serif JP Medium": 1,
+          "Inter Regular": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0178,
+        "meanChannelDelta": 2.69,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-390x844.png",
+      "sha256": {
+        "source": "36cb0a1e814e9309bb2e7a8d07c0c1bd76c7b792d2b73ea1532b8ca65092b5ea",
+        "html": "f7e7feca67c79c5228a012888756f171c86d62ece52d057fcafea54b56261b81",
+        "figma": "bcfe362695d702a05dbbe91f2d91cf978668ddec039a41f57fe9f9d541af65c7",
+        "readback": "3b4fed8b118c8810045c659f7562a683c657aae7751f796bc33864c4b831c831"
+      },
+      "importedAt": "2026-09-30T16:44:47.297Z"
+    },
+    {
+      "scene": "session-state-correct-1440x900",
+      "label": "session · correct · 1440×900",
+      "board": "session.html",
+      "query": "state=correct",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:37267",
+      "frameName": "SI-1 CANDIDATE · session · correct · 1440×900",
+      "position": {
+        "x": 2150,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 256,
+        "expected": 256,
+        "serializedTypes": {
+          "FRAME": 145,
+          "SVG": 14,
+          "RECTANGLE": 38,
+          "TEXT": 59
+        },
+        "readbackTypes": {
+          "FRAME": 160,
+          "RECTANGLE": 38,
+          "TEXT": 59,
+          "VECTOR": 14
+        }
+      },
+      "texts": {
+        "serialized": 59,
+        "readback": 59,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 9,
+          "Inter Regular": 6,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 9,
+          "Noto Sans JP Regular": 14,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 8,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans JP Bold": 5,
+          "Inter Semi Bold": 3
+        },
+        "readback": {
+          "Noto Sans TC Medium": 9,
+          "Noto Sans TC Regular": 8,
+          "Noto Sans TC Bold": 9,
+          "Noto Sans JP Regular": 14,
+          "Inter Regular": 6,
+          "Inter Semi Bold": 3,
+          "Noto Sans JP Bold": 5,
+          "Noto Serif JP Regular": 3,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#f6f5f2",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0107,
+        "meanChannelDelta": 1.6,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-correct-1440x900.png",
+      "sha256": {
+        "source": "f089d0363cc70ed20f4f6b80f51766fe55a836db4672eda907f522ce056f30c2",
+        "html": "6f09c4ef4e5f259ff2073ea34438f7efc76fb198e6a669943f0e9f097b52ff96",
+        "figma": "7bbb9e9d028ca3ab02c90871a710f4e29a4fab19364cd57b497d43502a3e3f70",
+        "readback": "0f5ec3410b9890ce4c2800b2f773dc97568a64e433e6716d148482d4827277b3"
+      },
+      "importedAt": "2026-09-30T16:44:49.370Z"
+    },
+    {
+      "scene": "session-state-wrong-1440x900",
+      "label": "session · wrong · 1440×900",
+      "board": "session.html",
+      "query": "state=wrong",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:37538",
+      "frameName": "SI-1 CANDIDATE · session · wrong · 1440×900",
+      "position": {
+        "x": 3750,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 273,
+        "expected": 273,
+        "serializedTypes": {
+          "FRAME": 154,
+          "SVG": 14,
+          "RECTANGLE": 39,
+          "TEXT": 66
+        },
+        "readbackTypes": {
+          "FRAME": 169,
+          "RECTANGLE": 39,
+          "TEXT": 66,
+          "VECTOR": 16
+        }
+      },
+      "texts": {
+        "serialized": 66,
+        "readback": 66,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 9,
+          "Inter Regular": 7,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 9,
+          "Noto Sans JP Regular": 17,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 9,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans JP Bold": 7,
+          "Inter Semi Bold": 3
+        },
+        "readback": {
+          "Noto Sans TC Medium": 9,
+          "Noto Sans TC Regular": 9,
+          "Noto Sans TC Bold": 9,
+          "Noto Sans JP Regular": 17,
+          "Inter Regular": 7,
+          "Inter Semi Bold": 3,
+          "Noto Sans JP Bold": 7,
+          "Noto Serif JP Regular": 3,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#f6f5f2",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0113,
+        "meanChannelDelta": 1.68,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-wrong-1440x900.png",
+      "sha256": {
+        "source": "b855985556b959e1a3904be79eaf1954a7ae0dfb935adc0093e703cf08cb8874",
+        "html": "a76887c553dc4e3946d1caf3f1f775af77e998347c1219c9423158f0b8426689",
+        "figma": "42d7e114823f10d0293e94d9e8c41d33afc50d7744a0c6cccedb7b82715a3e2d",
+        "readback": "46bdf869912b21e0c4133ef01568851f2e559af9f21c885a187c54aeeed19dd8"
+      },
+      "importedAt": "2026-09-30T16:44:51.493Z"
+    },
+    {
+      "scene": "session-state-wrong-1280x800",
+      "label": "session · wrong · 1280×800",
+      "board": "session.html",
+      "query": "state=wrong",
+      "viewport": "1280x800",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:37828",
+      "frameName": "SI-1 CANDIDATE · session · wrong · 1280×800",
+      "position": {
+        "x": 0,
+        "y": 1140
+      },
+      "size": {
+        "width": 1280,
+        "height": 800
+      },
+      "layers": {
+        "imported": 273,
+        "expected": 273,
+        "serializedTypes": {
+          "FRAME": 154,
+          "SVG": 14,
+          "RECTANGLE": 39,
+          "TEXT": 66
+        },
+        "readbackTypes": {
+          "FRAME": 169,
+          "RECTANGLE": 39,
+          "TEXT": 66,
+          "VECTOR": 16
+        }
+      },
+      "texts": {
+        "serialized": 66,
+        "readback": 66,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 9,
+          "Inter Regular": 7,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 9,
+          "Noto Sans JP Regular": 17,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 9,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans JP Bold": 7,
+          "Inter Semi Bold": 3
+        },
+        "readback": {
+          "Noto Sans TC Medium": 9,
+          "Noto Sans TC Regular": 9,
+          "Noto Sans TC Bold": 9,
+          "Noto Sans JP Regular": 17,
+          "Inter Regular": 7,
+          "Inter Semi Bold": 3,
+          "Noto Sans JP Bold": 7,
+          "Noto Serif JP Regular": 3,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#f6f5f2",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1280,
+        "height": 800,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0143,
+        "meanChannelDelta": 2.12,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-wrong-1280x800.png",
+      "sha256": {
+        "source": "11e489dfc350cddae562d8f0a0bb3ed53f7f0473dc94c97ac218c381263b1a05",
+        "html": "cfc07a13fc0995a844c63fcf7397e7f79ede0abbe11a4838f1d4389ef045d0c2",
+        "figma": "16b09f085eb0bd384d8e4f63f95c5705a1453e713557bb70e912e7b4fe88c49b",
+        "readback": "1eb0e7a2b684e5a54560a5629322ace59e55503e5e5972181ebe467bc4f8fd25"
+      },
+      "importedAt": "2026-09-30T16:44:53.608Z"
+    },
+    {
+      "scene": "session-state-wrong-390x844",
+      "label": "session · wrong · 390×844",
+      "board": "session.html",
+      "query": "state=wrong",
+      "viewport": "390x844",
+      "fullPage": true,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:38118",
+      "frameName": "SI-1 CANDIDATE · session · wrong · 390×844",
+      "position": {
+        "x": 1440,
+        "y": 1140
+      },
+      "size": {
+        "width": 390,
+        "height": 1073
+      },
+      "layers": {
+        "imported": 166,
+        "expected": 166,
+        "serializedTypes": {
+          "FRAME": 84,
+          "SVG": 12,
+          "RECTANGLE": 28,
+          "TEXT": 42
+        },
+        "readbackTypes": {
+          "FRAME": 97,
+          "RECTANGLE": 28,
+          "TEXT": 42,
+          "VECTOR": 14
+        }
+      },
+      "texts": {
+        "serialized": 42,
+        "readback": 42,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 4,
+          "Inter Regular": 5,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 6,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 5,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans JP Regular": 10,
+          "Noto Sans JP Bold": 7
+        },
+        "readback": {
+          "Noto Sans TC Medium": 6,
+          "Noto Sans JP Regular": 10,
+          "Inter Regular": 5,
+          "Noto Sans TC Regular": 5,
+          "Noto Sans TC Bold": 4,
+          "Noto Sans JP Bold": 7,
+          "Noto Serif JP Regular": 3,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#f6f5f2",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 1073,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0291,
+        "meanChannelDelta": 4.32,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-wrong-390x844.png",
+      "sha256": {
+        "source": "ec98ff60b5f584ae827f1bc78fcadd097489494b1da5a467d05bbcefba445782",
+        "html": "93a16934d2d600d75e3ca54867d6a9323c289a3f83e5b816766949f5a2df5395",
+        "figma": "b95a5dbc0d8aa3e26d2dcba0551123086a099758a1f3ceb5d68629e07306b20c",
+        "readback": "85238810009f81af559a28fbf5a1b92309d04c2241c16e05fa662a8ac67ba6e8"
+      },
+      "importedAt": "2026-09-30T16:44:55.073Z"
+    },
+    {
+      "scene": "session-state-wrong-320x640",
+      "label": "session · wrong · 320×640",
+      "board": "session.html",
+      "query": "state=wrong",
+      "viewport": "320x640",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:38299",
+      "frameName": "SI-1 CANDIDATE · session · wrong · 320×640",
+      "position": {
+        "x": 1990,
+        "y": 1140
+      },
+      "size": {
+        "width": 320,
+        "height": 640
+      },
+      "layers": {
+        "imported": 167,
+        "expected": 167,
+        "serializedTypes": {
+          "FRAME": 84,
+          "SVG": 12,
+          "RECTANGLE": 28,
+          "TEXT": 43
+        },
+        "readbackTypes": {
+          "FRAME": 97,
+          "RECTANGLE": 28,
+          "TEXT": 43,
+          "VECTOR": 14
+        }
+      },
+      "texts": {
+        "serialized": 43,
+        "readback": 43,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 4,
+          "Inter Regular": 5,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 6,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 5,
+          "Noto Serif JP Regular": 4,
+          "Noto Sans JP Regular": 10,
+          "Noto Sans JP Bold": 7
+        },
+        "readback": {
+          "Noto Sans TC Medium": 6,
+          "Noto Sans JP Regular": 10,
+          "Inter Regular": 5,
+          "Noto Sans TC Regular": 5,
+          "Noto Sans TC Bold": 4,
+          "Noto Sans JP Bold": 7,
+          "Noto Serif JP Regular": 4,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#f6f5f2",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 320,
+        "height": 640,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0255,
+        "meanChannelDelta": 3.97,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-wrong-320x640.png",
+      "sha256": {
+        "source": "6591b8f004ab36048603ae1d4c8a63cfb6699d92df6b2f144dedbd7227135cbc",
+        "html": "3689d684110469125df5b316c6de98c776a28d3cccd9b110921e5ece9ef7e9cf",
+        "figma": "4f2d45e23de0d4049cd6d85957dca056617044844df64cbd05c093c59a5f8ac7",
+        "readback": "9e321fc07ebcc2cc8a3cc94bb17625451b44b097ce02fd84dc3a623fbbe8419d"
+      },
+      "importedAt": "2026-09-30T16:44:56.778Z"
+    },
+    {
+      "scene": "session-state-wrong-lang-en-1440x900",
+      "label": "session · wrong · en · 1440×900",
+      "board": "session.html",
+      "query": "state=wrong&lang=en",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:38481",
+      "frameName": "SI-1 CANDIDATE · session · wrong · en · 1440×900",
+      "position": {
+        "x": 2470,
+        "y": 1140
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 273,
+        "expected": 273,
+        "serializedTypes": {
+          "FRAME": 154,
+          "SVG": 14,
+          "RECTANGLE": 39,
+          "TEXT": 66
+        },
+        "readbackTypes": {
+          "FRAME": 169,
+          "RECTANGLE": 39,
+          "TEXT": 66,
+          "VECTOR": 16
+        }
+      },
+      "texts": {
+        "serialized": 66,
+        "readback": 66,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Semi Bold": 11,
+          "Inter Regular": 17,
+          "Noto Serif JP Medium": 1,
+          "Inter Medium": 9,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans JP Regular": 16,
+          "Noto Sans JP Bold": 7,
+          "Inter Bold": 1
+        },
+        "readback": {
+          "Inter Medium": 9,
+          "Inter Regular": 17,
+          "Inter Semi Bold": 11,
+          "Noto Sans JP Regular": 16,
+          "Noto Sans JP Bold": 7,
+          "Inter Bold": 1,
+          "Noto Serif JP Regular": 3,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#f6f5f2",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0166,
+        "meanChannelDelta": 2.38,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-wrong-lang-en-1440x900.png",
+      "sha256": {
+        "source": "378f70374f12552746a7a5eb2bf4dff953296fbb543f788ff4f7232e47a7d4b0",
+        "html": "acb95c7b64fe1d8ac2981dfe1564074b9dcaa5bd25f90c9dedf157fa9c8f96ff",
+        "figma": "e92e8e4369b53a8036fdcebcc5db6b7facf0f86690ba4aaecf253470c0402db8",
+        "readback": "46f2aee88d4f344dda39abea02d1ef059424644d008ef2f3abf758792a2d81e6"
+      },
+      "importedAt": "2026-09-30T16:44:58.962Z"
+    },
+    {
+      "scene": "session-state-wrong-theme-dark-1440x900",
+      "label": "session · wrong · dark · 1440×900",
+      "board": "session.html",
+      "query": "state=wrong&theme=dark",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:38771",
+      "frameName": "SI-1 CANDIDATE · session · wrong · dark · 1440×900",
+      "position": {
+        "x": 4070,
+        "y": 1140
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 273,
+        "expected": 273,
+        "serializedTypes": {
+          "FRAME": 154,
+          "SVG": 14,
+          "RECTANGLE": 39,
+          "TEXT": 66
+        },
+        "readbackTypes": {
+          "FRAME": 169,
+          "RECTANGLE": 39,
+          "TEXT": 66,
+          "VECTOR": 16
+        }
+      },
+      "texts": {
+        "serialized": 66,
+        "readback": 66,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 9,
+          "Inter Regular": 7,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 9,
+          "Noto Sans JP Regular": 17,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 9,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans JP Bold": 7,
+          "Inter Semi Bold": 3
+        },
+        "readback": {
+          "Noto Sans TC Medium": 9,
+          "Noto Sans TC Regular": 9,
+          "Noto Sans TC Bold": 9,
+          "Noto Sans JP Regular": 17,
+          "Inter Regular": 7,
+          "Inter Semi Bold": 3,
+          "Noto Sans JP Bold": 7,
+          "Noto Serif JP Regular": 3,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#151513",
+          "#1c1c1a",
+          "#34332f",
+          "#77736c",
+          "#8db2ff",
+          "#a29e96",
+          "#b5b1a9",
+          "#edebe6",
+          "#ff8866"
+        ],
+        "strokes": [
+          "#151513",
+          "#34332f",
+          "#77736c",
+          "#7a766f",
+          "#8db2ff",
+          "#b5b1a9",
+          "#edebe6",
+          "#ff8866"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.011,
+        "meanChannelDelta": 1.58,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-wrong-theme-dark-1440x900.png",
+      "sha256": {
+        "source": "9f9774ff6f98be625de5bb807e8535fe4c1eeda66c5c83393c9d1f5e847c63da",
+        "html": "6a735a0d7ae7c0409b9582b220b80726bff2fe5f167cd253703cfa37e88a2fb4",
+        "figma": "52e9a861c406e5d46ac82ba64004475e05dd443525e6b08ee0ef90df6b732004",
+        "readback": "fb4df042d5da9f84848363956a9a6c31672812d0887d31ab7f22bc69c45b2d5d"
+      },
+      "importedAt": "2026-09-30T16:45:01.140Z"
+    },
+    {
+      "scene": "session-state-wrong-theme-dark-390x844",
+      "label": "session · wrong · dark · 390×844",
+      "board": "session.html",
+      "query": "state=wrong&theme=dark",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:39061",
+      "frameName": "SI-1 CANDIDATE · session · wrong · dark · 390×844",
+      "position": {
+        "x": 5670,
+        "y": 1140
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 166,
+        "expected": 166,
+        "serializedTypes": {
+          "FRAME": 84,
+          "SVG": 12,
+          "RECTANGLE": 28,
+          "TEXT": 42
+        },
+        "readbackTypes": {
+          "FRAME": 97,
+          "RECTANGLE": 28,
+          "TEXT": 42,
+          "VECTOR": 14
+        }
+      },
+      "texts": {
+        "serialized": 42,
+        "readback": 42,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 4,
+          "Inter Regular": 5,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 6,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 5,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans JP Regular": 10,
+          "Noto Sans JP Bold": 7
+        },
+        "readback": {
+          "Noto Sans TC Medium": 6,
+          "Noto Sans JP Regular": 10,
+          "Inter Regular": 5,
+          "Noto Sans TC Regular": 5,
+          "Noto Sans TC Bold": 4,
+          "Noto Sans JP Bold": 7,
+          "Noto Serif JP Regular": 3,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#151513",
+          "#1c1c1a",
+          "#34332f",
+          "#77736c",
+          "#8db2ff",
+          "#b5b1a9",
+          "#edebe6",
+          "#ff8866"
+        ],
+        "strokes": [
+          "#151513",
+          "#34332f",
+          "#77736c",
+          "#7a766f",
+          "#8db2ff",
+          "#b5b1a9",
+          "#edebe6",
+          "#ff8866"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0362,
+        "meanChannelDelta": 5.13,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-wrong-theme-dark-390x844.png",
+      "sha256": {
+        "source": "0a1922e16fed21f8ea38598cb62763b569d48a14a681547dedf8f08df869f906",
+        "html": "f5a1058d9036554a5447d258b04f1b0223e0f5e5b9cb3711fb91479702019e82",
+        "figma": "bafb765d62f2b4559a5528b5ec7deca1c40d778d8ab1dfcca74b0f9108e7a50a",
+        "readback": "d6bad6a8f06e477093f2c281868b9385d16cb4099cad85c68d58847ed4c22be2"
+      },
+      "importedAt": "2026-09-30T16:45:02.845Z"
+    },
+    {
+      "scene": "session-state-wrong-forced-1440x900",
+      "label": "session · wrong · forced colors · 1440×900",
+      "board": "session.html",
+      "query": "state=wrong",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "forced",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:39242",
+      "frameName": "SI-1 CANDIDATE · session · wrong · forced colors · 1440×900",
+      "position": {
+        "x": 0,
+        "y": 2453
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 241,
+        "expected": 241,
+        "serializedTypes": {
+          "FRAME": 154,
+          "SVG": 14,
+          "TEXT": 66,
+          "RECTANGLE": 7
+        },
+        "readbackTypes": {
+          "FRAME": 169,
+          "RECTANGLE": 7,
+          "TEXT": 66,
+          "VECTOR": 16
+        }
+      },
+      "texts": {
+        "serialized": 66,
+        "readback": 66,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 9,
+          "Inter Regular": 7,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 9,
+          "Noto Sans JP Regular": 17,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 9,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans JP Bold": 7,
+          "Inter Semi Bold": 3
+        },
+        "readback": {
+          "Noto Sans TC Medium": 9,
+          "Noto Sans TC Regular": 9,
+          "Noto Sans TC Bold": 9,
+          "Noto Sans JP Regular": 17,
+          "Inter Regular": 7,
+          "Inter Semi Bold": 3,
+          "Noto Sans JP Bold": 7,
+          "Noto Serif JP Regular": 3,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#050049",
+          "#600000",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#000000",
+          "#00009f",
+          "#050049",
+          "#5f5c57",
+          "#600000"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0124,
+        "meanChannelDelta": 2.03,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-wrong-forced-1440x900.png",
+      "sha256": {
+        "source": "7f9e67c6a5baedf46c8279bb71f2246040675cf647896c42055e086784e1243d",
+        "html": "903d4558c738d7091a729dd3c0fafdf31f56f8b15e9b7f0add304209cb95fae2",
+        "figma": "6180487bb2d49be6f77f3de4be0e20a82d0883a9fcc15e111cb36a09f0cc3705",
+        "readback": "2ed725c404304f297faf6cec2350258c5bbccf248d3f65845e817257232593bb"
+      },
+      "importedAt": "2026-09-30T16:45:04.899Z"
+    },
+    {
+      "scene": "session-state-revealed-390x844",
+      "label": "session · revealed · 390×844",
+      "board": "session.html",
+      "query": "state=revealed",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:39500",
+      "frameName": "SI-1 CANDIDATE · session · revealed · 390×844",
+      "position": {
+        "x": 1600,
+        "y": 2453
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 163,
+        "expected": 163,
+        "serializedTypes": {
+          "FRAME": 83,
+          "SVG": 11,
+          "RECTANGLE": 28,
+          "TEXT": 41
+        },
+        "readbackTypes": {
+          "FRAME": 95,
+          "RECTANGLE": 28,
+          "TEXT": 41,
+          "VECTOR": 11
+        }
+      },
+      "texts": {
+        "serialized": 41,
+        "readback": 41,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 4,
+          "Inter Regular": 5,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 6,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 5,
+          "Noto Serif JP Regular": 3,
+          "Noto Sans JP Regular": 10,
+          "Noto Sans JP Bold": 6
+        },
+        "readback": {
+          "Noto Sans TC Medium": 6,
+          "Noto Sans JP Regular": 10,
+          "Inter Regular": 5,
+          "Noto Sans TC Regular": 5,
+          "Noto Sans TC Bold": 4,
+          "Noto Sans JP Bold": 6,
+          "Noto Serif JP Regular": 3,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#f6f5f2",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0379,
+        "meanChannelDelta": 5.57,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-revealed-390x844.png",
+      "sha256": {
+        "source": "ecd8031feb20fe39e8e992e3aaee7076193615bc1141d1ae8a30762bb1d7158b",
+        "html": "c495726bfeed7d9f452834ed0ad2ed04464611e4d00cf0c70e38bac0dee36fcb",
+        "figma": "4a9bddd22918fa2cf023fdc7ce7f6f2994afcf00f49890b4e63eed97c52fde9d",
+        "readback": "6854002f3ea33b83568e66fcabc4d40611131a64a67149a259a86bd11bdf0f2d"
+      },
+      "importedAt": "2026-09-30T16:45:06.554Z"
+    },
+    {
+      "scene": "session-state-recall-390x844",
+      "label": "session · recall · 390×844",
+      "board": "session.html",
+      "query": "state=recall",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:39675",
+      "frameName": "SI-1 CANDIDATE · session · recall · 390×844",
+      "position": {
+        "x": 2150,
+        "y": 2453
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 82,
+        "expected": 82,
+        "serializedTypes": {
+          "FRAME": 41,
+          "SVG": 6,
+          "RECTANGLE": 19,
+          "TEXT": 16
+        },
+        "readbackTypes": {
+          "FRAME": 48,
+          "TEXT": 16,
+          "RECTANGLE": 19,
+          "VECTOR": 6
+        }
+      },
+      "texts": {
+        "serialized": 16,
+        "readback": 16,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 2,
+          "Inter Regular": 1,
+          "Noto Serif JP Medium": 2,
+          "Noto Sans TC Medium": 5,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Regular": 2,
+          "Noto Sans JP Regular": 2,
+          "Noto Sans JP Bold": 1
+        },
+        "readback": {
+          "Noto Sans TC Medium": 5,
+          "Noto Sans JP Regular": 2,
+          "Noto Sans JP Bold": 1,
+          "Noto Sans TC Regular": 2,
+          "Noto Serif JP Medium": 2,
+          "Noto Serif JP SemiBold": 1,
+          "Noto Sans TC Bold": 2,
+          "Inter Regular": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0131,
+        "meanChannelDelta": 1.94,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-recall-390x844.png",
+      "sha256": {
+        "source": "c96a66cb0a58ffcb4357e0f7e88b2f00de6c46368f7824585e9c386c2a736bc8",
+        "html": "ca03d662b359d6a8ba33683f816d9c6232b650fe1afd156408fc0aa5eaea26d0",
+        "figma": "5052a981be05e0ca57d0e9fbed6c7449f114f421073b4c1b38d4d87ccb702f6d",
+        "readback": "8702672489768612ffcb03de4ed1ec5b869b8317647c54f5820f95096bbfcfd0"
+      },
+      "importedAt": "2026-09-30T16:45:07.970Z"
+    },
+    {
+      "scene": "session-state-complete-1440x900",
+      "label": "session · complete · 1440×900",
+      "board": "session.html",
+      "query": "state=complete",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:39764",
+      "frameName": "SI-1 CANDIDATE · session · complete · 1440×900",
+      "position": {
+        "x": 2700,
+        "y": 2453
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 178,
+        "expected": 178,
+        "serializedTypes": {
+          "FRAME": 98,
+          "SVG": 9,
+          "RECTANGLE": 32,
+          "TEXT": 39
+        },
+        "readbackTypes": {
+          "FRAME": 108,
+          "TEXT": 39,
+          "RECTANGLE": 32,
+          "VECTOR": 9
+        }
+      },
+      "texts": {
+        "serialized": 39,
+        "readback": 39,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 5,
+          "Inter Regular": 4,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 6,
+          "Noto Sans JP Regular": 8,
+          "Inter Black": 1,
+          "Inter Medium": 1,
+          "Noto Sans TC Regular": 10,
+          "Inter Semi Bold": 3
+        },
+        "readback": {
+          "Inter Regular": 4,
+          "Noto Sans TC Medium": 6,
+          "Noto Sans TC Regular": 10,
+          "Noto Sans JP Regular": 8,
+          "Inter Semi Bold": 3,
+          "Noto Sans TC Bold": 5,
+          "Inter Medium": 1,
+          "Inter Black": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#6e6a63",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0051,
+        "meanChannelDelta": 0.81,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-complete-1440x900.png",
+      "sha256": {
+        "source": "251d7dd2e1b3c2c6a5b907f61d60c887598cd0419885c231376567e45a69986c",
+        "html": "f276d0d60e24c570c13aea9ca43ea1ee127b4ab55fe905168c6096854473a7e3",
+        "figma": "aacaff452f11459433397797a102ed425f3be172d583cfdd6d9eda1c8933a992",
+        "readback": "0973be0a11e88e983eac381aac652ca7538bc4b75c28827532fc3541ed07fe01"
+      },
+      "importedAt": "2026-09-30T16:45:09.773Z"
+    },
+    {
+      "scene": "session-state-complete-390x844",
+      "label": "session · complete · 390×844",
+      "board": "session.html",
+      "query": "state=complete",
+      "viewport": "390x844",
+      "fullPage": true,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:39952",
+      "frameName": "SI-1 CANDIDATE · session · complete · 390×844",
+      "position": {
+        "x": 4300,
+        "y": 2453
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 137,
+        "expected": 137,
+        "serializedTypes": {
+          "FRAME": 66,
+          "SVG": 8,
+          "RECTANGLE": 29,
+          "TEXT": 34
+        },
+        "readbackTypes": {
+          "FRAME": 75,
+          "TEXT": 34,
+          "RECTANGLE": 29,
+          "VECTOR": 8
+        }
+      },
+      "texts": {
+        "serialized": 34,
+        "readback": 34,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 3,
+          "Inter Regular": 4,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 4,
+          "Inter Black": 1,
+          "Inter Medium": 1,
+          "Noto Sans TC Regular": 10,
+          "Inter Semi Bold": 3,
+          "Noto Sans JP Regular": 7
+        },
+        "readback": {
+          "Inter Regular": 4,
+          "Noto Sans TC Medium": 4,
+          "Noto Sans TC Regular": 10,
+          "Noto Sans JP Regular": 7,
+          "Inter Semi Bold": 3,
+          "Noto Sans TC Bold": 3,
+          "Inter Medium": 1,
+          "Inter Black": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#6e6a63",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0171,
+        "meanChannelDelta": 2.65,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-complete-390x844.png",
+      "sha256": {
+        "source": "296e3e24666830a74314ebad972c7e10d39daa8560993c6c32de34e0afe3b4e5",
+        "html": "039aa481d3d662d5507e26ad2b2cd9cc09c932d193af7fc5bd20304c8931c854",
+        "figma": "373cbc36f57e7602400bc5326ed620464568a084aee1f7b695a555b9b88c0803",
+        "readback": "9f7c5d4b596dd55f4e3b8af2eabbab21648fc3f480c063fcdccd86ceeacd1655"
+      },
+      "importedAt": "2026-09-30T16:45:11.344Z"
+    },
+    {
+      "scene": "session-state-perfect-390x844",
+      "label": "session · perfect · 390×844",
+      "board": "session.html",
+      "query": "state=perfect",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:40098",
+      "frameName": "SI-1 CANDIDATE · session · perfect · 390×844",
+      "position": {
+        "x": 4850,
+        "y": 2453
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 106,
+        "expected": 106,
+        "serializedTypes": {
+          "FRAME": 51,
+          "SVG": 8,
+          "RECTANGLE": 27,
+          "TEXT": 20
+        },
+        "readbackTypes": {
+          "FRAME": 60,
+          "TEXT": 20,
+          "RECTANGLE": 27,
+          "VECTOR": 9
+        }
+      },
+      "texts": {
+        "serialized": 20,
+        "readback": 20,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 4,
+          "Inter Regular": 4,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 4,
+          "Noto Sans TC Regular": 4,
+          "Inter Semi Bold": 3
+        },
+        "readback": {
+          "Inter Regular": 4,
+          "Noto Sans TC Medium": 4,
+          "Noto Sans TC Regular": 4,
+          "Inter Semi Bold": 3,
+          "Noto Sans TC Bold": 4,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#6e6a63",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.012,
+        "meanChannelDelta": 1.83,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-perfect-390x844.png",
+      "sha256": {
+        "source": "2a38ee90c66661815269d9cec7cf1329d4bea787b64411952df7ce2e77f927c1",
+        "html": "013d19cd43f5c04e0a08254916afda574b8d1c8f70158e446a038053408d4466",
+        "figma": "b71b50b4bcc8ddc06a691a3718827de7985dd4244b0370a3eac9001e56bf694c",
+        "readback": "b8141fe3458fb85b67442638c828ab1755451577b54468c392565c9e5bedbb79"
+      },
+      "importedAt": "2026-09-30T16:45:12.782Z"
+    },
+    {
+      "scene": "session-state-empty-390x844",
+      "label": "session · empty · 390×844",
+      "board": "session.html",
+      "query": "state=empty",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:40214",
+      "frameName": "SI-1 CANDIDATE · session · empty · 390×844",
+      "position": {
+        "x": 5400,
+        "y": 2453
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 67,
+        "expected": 67,
+        "serializedTypes": {
+          "FRAME": 33,
+          "SVG": 5,
+          "RECTANGLE": 19,
+          "TEXT": 10
+        },
+        "readbackTypes": {
+          "FRAME": 39,
+          "TEXT": 10,
+          "RECTANGLE": 19,
+          "VECTOR": 5
+        }
+      },
+      "texts": {
+        "serialized": 10,
+        "readback": 10,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 3,
+          "Inter Regular": 1,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 3,
+          "Noto Sans TC Regular": 2
+        },
+        "readback": {
+          "Noto Sans TC Regular": 2,
+          "Noto Sans TC Bold": 3,
+          "Noto Sans TC Medium": 3,
+          "Noto Serif JP Medium": 1,
+          "Inter Regular": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.015,
+        "meanChannelDelta": 2.18,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-empty-390x844.png",
+      "sha256": {
+        "source": "079cacd21fd3a8246bd6a45bca1a8c101d7654c2dac71b8892af62105e55e504",
+        "html": "be4d478012aec1db7d32e7bf185da2f4a8d0fe951998dd9c8da2de6b8a165c16",
+        "figma": "88c73f9def29066ac4126d9ba5a0d647703551aa05353a9615b90ebc6e4b777d",
+        "readback": "9fea1add1cd9fe2f2efcb3bd82a25a6485d5fba1ce9124cea7f30b66a8132a92"
+      },
+      "importedAt": "2026-09-30T16:45:14.119Z"
+    },
+    {
+      "scene": "session-state-loading-390x844",
+      "label": "session · loading · 390×844",
+      "board": "session.html",
+      "query": "state=loading",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:40287",
+      "frameName": "SI-1 CANDIDATE · session · loading · 390×844",
+      "position": {
+        "x": 5950,
+        "y": 2453
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 68,
+        "expected": 68,
+        "serializedTypes": {
+          "FRAME": 38,
+          "SVG": 5,
+          "RECTANGLE": 18,
+          "TEXT": 7
+        },
+        "readbackTypes": {
+          "FRAME": 44,
+          "TEXT": 7,
+          "VECTOR": 5,
+          "RECTANGLE": 18
+        }
+      },
+      "texts": {
+        "serialized": 7,
+        "readback": 7,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 2,
+          "Inter Regular": 2,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 1,
+          "Noto Sans TC Regular": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 1,
+          "Inter Regular": 2,
+          "Noto Sans TC Bold": 2,
+          "Noto Sans TC Medium": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#e3e1db",
+          "#efeeea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#5f5c57",
+          "#e3e1db"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0016,
+        "meanChannelDelta": 0.25,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-loading-390x844.png",
+      "sha256": {
+        "source": "6452b2c36251fb7dc888307027c40c7f2d47359311d5c96a4d35c9bc83b28a53",
+        "html": "b272dd5008b0e8df0b094466fab3d7abbde530d59ccc4a8ca4abf7f4ff86399d",
+        "figma": "1942feae879fadb9447b348e87b3fa9d43e4e43e7c35bcd64191c40ce00a6f44",
+        "readback": "67bfda15c4e6bf8749bf418d419163f7591d4724b0a3266dece2da467d260a5f"
+      },
+      "importedAt": "2026-09-30T16:45:15.434Z"
+    },
+    {
+      "scene": "session-state-error-390x844",
+      "label": "session · error · 390×844",
+      "board": "session.html",
+      "query": "state=error",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "20 Practice session",
+      "pageId": "4:5",
+      "nodeId": "4:40361",
+      "frameName": "SI-1 CANDIDATE · session · error · 390×844",
+      "position": {
+        "x": 0,
+        "y": 3593
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 66,
+        "expected": 66,
+        "serializedTypes": {
+          "FRAME": 32,
+          "SVG": 6,
+          "RECTANGLE": 19,
+          "TEXT": 9
+        },
+        "readbackTypes": {
+          "FRAME": 39,
+          "TEXT": 9,
+          "VECTOR": 6,
+          "RECTANGLE": 19
+        }
+      },
+      "texts": {
+        "serialized": 9,
+        "readback": 9,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 2,
+          "Inter Regular": 2,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 3,
+          "Noto Sans TC Regular": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 1,
+          "Inter Regular": 2,
+          "Noto Sans TC Bold": 2,
+          "Noto Sans TC Medium": 3,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#a02d42",
+          "#e3e1db",
+          "#fff0f3",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#a02d42",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.003,
+        "meanChannelDelta": 0.48,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/session-state-error-390x844.png",
+      "sha256": {
+        "source": "26108318e39cf96fc2781087b83ebafeb699036d05fe0c25ca1112c8d5e41783",
+        "html": "9f1d2abbf56e464a63e2d945ec571251509b35cbc203a60be85c7f1e2eb367ce",
+        "figma": "14fd1e473bfb0e76218ebc09474893e2b05ee54a3d02b2cd7983c4e144fee5c8",
+        "readback": "a91454c07918f9d8b05c0860cc893a430d4c187466f8b28ab080f3019b786528"
+      },
+      "importedAt": "2026-09-30T16:45:16.776Z"
+    },
+    {
+      "scene": "sets-1440x900",
+      "label": "sets · default · 1440×900",
+      "board": "sets.html",
+      "query": "",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "30 Sets & JLPT sections",
+      "pageId": "4:6",
+      "nodeId": "4:40434",
+      "frameName": "SI-1 CANDIDATE · sets · default · 1440×900",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 171,
+        "expected": 171,
+        "serializedTypes": {
+          "FRAME": 88,
+          "TEXT": 46,
+          "RECTANGLE": 33,
+          "SVG": 4
+        },
+        "readbackTypes": {
+          "FRAME": 93,
+          "TEXT": 46,
+          "RECTANGLE": 33,
+          "VECTOR": 4
+        }
+      },
+      "texts": {
+        "serialized": 46,
+        "readback": 46,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 19,
+          "Noto Sans TC Regular": 18,
+          "Noto Sans JP Regular": 7,
+          "Noto Sans TC Medium": 2
+        },
+        "readback": {
+          "Noto Sans TC Bold": 19,
+          "Noto Sans TC Medium": 2,
+          "Noto Sans TC Regular": 18,
+          "Noto Sans JP Regular": 7
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#eaf0fb",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0066,
+        "meanChannelDelta": 1.03,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/sets-1440x900.png",
+      "sha256": {
+        "source": "ba4d87d9586e65d81bcef35335c8453aee2162b9306e4d9fa0e6657d754c1933",
+        "html": "0d5f40fe6f3c04bbf4702b40acf5510315294f9b42b8aee903dd4337d57111ee",
+        "figma": "fcb833f2fa4089a3ecb43bc92f43d75641ea7b617cb7efd9144b41322a3a28bb",
+        "readback": "f40c6f8030b622730577ec060e2314d971d472c6666e691e1a7bb2d7a7e53f96"
+      },
+      "importedAt": "2026-09-30T16:45:18.839Z"
+    },
+    {
+      "scene": "sets-390x844",
+      "label": "sets · default · 390×844",
+      "board": "sets.html",
+      "query": "",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "30 Sets & JLPT sections",
+      "pageId": "4:6",
+      "nodeId": "4:40610",
+      "frameName": "SI-1 CANDIDATE · sets · default · 390×844",
+      "position": {
+        "x": 1600,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 94,
+        "expected": 94,
+        "serializedTypes": {
+          "FRAME": 47,
+          "TEXT": 23,
+          "RECTANGLE": 21,
+          "SVG": 3
+        },
+        "readbackTypes": {
+          "FRAME": 51,
+          "TEXT": 23,
+          "RECTANGLE": 21,
+          "VECTOR": 3
+        }
+      },
+      "texts": {
+        "serialized": 23,
+        "readback": 23,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 11,
+          "Noto Sans TC Regular": 11,
+          "Noto Sans JP Regular": 1
+        },
+        "readback": {
+          "Noto Sans TC Bold": 11,
+          "Noto Sans TC Regular": 11,
+          "Noto Sans JP Regular": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#e3e1db",
+          "#eaf0fb",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#5f5c57"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0154,
+        "meanChannelDelta": 2.09,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/sets-390x844.png",
+      "sha256": {
+        "source": "97385c93f04bc3a9f8d3c9578c0cf8709e6cedb461990c9312eab8e103bdab4e",
+        "html": "99361723b2ac56882cfcd751f280955fc72d0896557d6fdd857d7b5a9a029116",
+        "figma": "34ab149883ef50f086612fba7160e8caeab16a8a837d25fd71ec21f957d84acc",
+        "readback": "9377a39e0613f37176c9a810b7da52cdf6012a2d3f90f362bc2a9374e675a1ec"
+      },
+      "importedAt": "2026-09-30T16:45:20.722Z"
+    },
+    {
+      "scene": "sets-state-mock-1440x900",
+      "label": "sets · mock · 1440×900",
+      "board": "sets.html",
+      "query": "state=mock",
+      "viewport": "1440x900",
+      "fullPage": true,
+      "mode": "default",
+      "page": "30 Sets & JLPT sections",
+      "pageId": "4:6",
+      "nodeId": "4:40708",
+      "frameName": "SI-1 CANDIDATE · sets · mock · 1440×900",
+      "position": {
+        "x": 2150,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 1315
+      },
+      "layers": {
+        "imported": 260,
+        "expected": 260,
+        "serializedTypes": {
+          "FRAME": 130,
+          "SVG": 13,
+          "TEXT": 79,
+          "RECTANGLE": 38
+        },
+        "readbackTypes": {
+          "FRAME": 144,
+          "RECTANGLE": 38,
+          "TEXT": 79,
+          "VECTOR": 27,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 79,
+        "readback": 79,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 2,
+          "Noto Sans TC Regular": 44,
+          "Noto Sans TC Medium": 8,
+          "Noto Sans TC Bold": 5,
+          "Noto Serif JP Medium": 1,
+          "Inter Medium": 4,
+          "Noto Sans JP Bold": 1,
+          "Noto Serif JP SemiBold": 14
+        },
+        "readback": {
+          "Noto Sans TC Regular": 44,
+          "Noto Serif JP SemiBold": 14,
+          "Noto Sans TC Bold": 5,
+          "Noto Sans JP Bold": 1,
+          "Inter Medium": 4,
+          "Inter Bold": 2,
+          "Noto Sans TC Medium": 8,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 1315,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0079,
+        "meanChannelDelta": 1.19,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/sets-state-mock-1440x900.png",
+      "sha256": {
+        "source": "4e29fba089165f82f42e572f5741b2461eb3eeee29a7c08909895ff475d1b747",
+        "html": "9d87f84d9377def66e8f9258c9c29f1f778fd7b85bbcc0464a4c925bc879f763",
+        "figma": "3fea01262e241847056db567e5b0e32684836a7464a842974528cde946530e12",
+        "readback": "fb6180c03cc7f4a57a3af868d3196542a350af35df3d95fa1bad91b5ce9c5145"
+      },
+      "importedAt": "2026-09-30T16:45:23.044Z"
+    },
+    {
+      "scene": "sets-state-mock-390x844",
+      "label": "sets · mock · 390×844",
+      "board": "sets.html",
+      "query": "state=mock",
+      "viewport": "390x844",
+      "fullPage": true,
+      "mode": "default",
+      "page": "30 Sets & JLPT sections",
+      "pageId": "4:6",
+      "nodeId": "4:40997",
+      "frameName": "SI-1 CANDIDATE · sets · mock · 390×844",
+      "position": {
+        "x": 3750,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 1669
+      },
+      "layers": {
+        "imported": 264,
+        "expected": 264,
+        "serializedTypes": {
+          "FRAME": 138,
+          "SVG": 17,
+          "TEXT": 77,
+          "RECTANGLE": 32
+        },
+        "readbackTypes": {
+          "FRAME": 156,
+          "RECTANGLE": 32,
+          "TEXT": 77,
+          "VECTOR": 31,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 77,
+        "readback": 77,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 2,
+          "Noto Sans TC Medium": 7,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Bold": 5,
+          "Noto Sans TC Regular": 43,
+          "Inter Medium": 4,
+          "Noto Sans JP Bold": 1,
+          "Noto Serif JP SemiBold": 14
+        },
+        "readback": {
+          "Noto Sans TC Regular": 43,
+          "Noto Serif JP SemiBold": 14,
+          "Noto Sans TC Bold": 5,
+          "Noto Sans JP Bold": 1,
+          "Inter Medium": 4,
+          "Inter Bold": 2,
+          "Noto Sans TC Medium": 7,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 1669,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0287,
+        "meanChannelDelta": 3.95,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/sets-state-mock-390x844.png",
+      "sha256": {
+        "source": "b7be961c7e6367756ca27298c47b7daafc9f00324f8fe41b3299f157885d845c",
+        "html": "9a08db82ee7d96d89d0f359d22353b854564deb9e8285548f645c50d2dc714d8",
+        "figma": "8c0bdbb3c3325e6f666bb2cc2c2c2440f9bc4a47b8155d50c82425423871c6a2",
+        "readback": "1060e8daec23d467a9382098df15c742870f52d9cdd0335ec49ee4ef4f0068f4"
+      },
+      "importedAt": "2026-09-30T16:45:25.235Z"
+    },
+    {
+      "scene": "learn-1440x900",
+      "label": "learn · default · 1440×900",
+      "board": "learn.html",
+      "query": "",
+      "viewport": "1440x900",
+      "fullPage": true,
+      "mode": "default",
+      "page": "40 Learn · Grammar · Reference",
+      "pageId": "4:7",
+      "nodeId": "4:41294",
+      "frameName": "SI-1 CANDIDATE · learn · default · 1440×900",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 1140
+      },
+      "layers": {
+        "imported": 239,
+        "expected": 239,
+        "serializedTypes": {
+          "FRAME": 105,
+          "SVG": 16,
+          "TEXT": 62,
+          "RECTANGLE": 56
+        },
+        "readbackTypes": {
+          "FRAME": 122,
+          "RECTANGLE": 56,
+          "TEXT": 62,
+          "VECTOR": 30,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 62,
+        "readback": 62,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 1,
+          "Noto Sans TC Regular": 4,
+          "Noto Sans TC Medium": 8,
+          "Noto Sans TC Bold": 9,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans JP Regular": 26,
+          "Noto Sans JP Bold": 3,
+          "Noto Serif JP Regular": 7,
+          "Inter Regular": 3
+        },
+        "readback": {
+          "Noto Sans TC Regular": 4,
+          "Noto Sans TC Bold": 9,
+          "Noto Sans JP Regular": 26,
+          "Noto Sans JP Bold": 3,
+          "Inter Regular": 3,
+          "Noto Serif JP Regular": 7,
+          "Noto Sans TC Medium": 8,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#efeeea",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 1140,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0148,
+        "meanChannelDelta": 2.18,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/learn-1440x900.png",
+      "sha256": {
+        "source": "2501089e8c74fb47a60b6fc13f9a56e8d1d7a161acba9b9175d8bebbb8647e48",
+        "html": "0810caf105b01051c37111cd7ba354698bc1cc89f815f0be03d50905c5f8748e",
+        "figma": "3ba50ef288dab2ac20bd862dc95a2ab4d09bfc9d57c3f1051a2a0aae5bb84f89",
+        "readback": "b6b84c86f9dc71b4429ab8be803382a6aea88bca9cc8ed4886faacd19f302dd3"
+      },
+      "importedAt": "2026-09-30T16:45:27.269Z"
+    },
+    {
+      "scene": "learn-390x844",
+      "label": "learn · default · 390×844",
+      "board": "learn.html",
+      "query": "",
+      "viewport": "390x844",
+      "fullPage": true,
+      "mode": "default",
+      "page": "40 Learn · Grammar · Reference",
+      "pageId": "4:7",
+      "nodeId": "4:41565",
+      "frameName": "SI-1 CANDIDATE · learn · default · 390×844",
+      "position": {
+        "x": 1600,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 1756
+      },
+      "layers": {
+        "imported": 175,
+        "expected": 175,
+        "serializedTypes": {
+          "FRAME": 78,
+          "SVG": 16,
+          "TEXT": 43,
+          "RECTANGLE": 38
+        },
+        "readbackTypes": {
+          "FRAME": 95,
+          "TEXT": 43,
+          "VECTOR": 30,
+          "RECTANGLE": 38,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 43,
+        "readback": 43,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 1,
+          "Noto Sans TC Medium": 8,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Bold": 5,
+          "Noto Sans JP Bold": 2,
+          "Noto Serif JP Regular": 7,
+          "Noto Sans JP Regular": 16,
+          "Inter Regular": 3
+        },
+        "readback": {
+          "Noto Sans JP Bold": 2,
+          "Noto Sans TC Bold": 5,
+          "Noto Sans JP Regular": 16,
+          "Inter Regular": 3,
+          "Noto Serif JP Regular": 7,
+          "Noto Sans TC Medium": 8,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#efeeea",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 1756,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0337,
+        "meanChannelDelta": 4.82,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/learn-390x844.png",
+      "sha256": {
+        "source": "8d01c35de8d89e2a2eb24a1d3ff83502a80fd2555b1babd8f1edd4ed5ba68798",
+        "html": "1ad40b8a86a794429c6cdc1b9c650f1eae8ea6f0fc0d1df4108d221a40ac434a",
+        "figma": "0be2856aafe4722ba7f9f3c0e209ebc07c911ec2ccab55f14ba0a343e5a414e6",
+        "readback": "23c415e1fd4c264bd4874155f710cc5a9f57557d8cbde42652293ea40057b6f6"
+      },
+      "importedAt": "2026-09-30T16:45:29.348Z"
+    },
+    {
+      "scene": "grammar-1440x900",
+      "label": "grammar · default · 1440×900",
+      "board": "grammar.html",
+      "query": "",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "40 Learn · Grammar · Reference",
+      "pageId": "4:7",
+      "nodeId": "4:41772",
+      "frameName": "SI-1 CANDIDATE · grammar · default · 1440×900",
+      "position": {
+        "x": 2150,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 181,
+        "expected": 181,
+        "serializedTypes": {
+          "FRAME": 87,
+          "SVG": 5,
+          "TEXT": 55,
+          "RECTANGLE": 34
+        },
+        "readbackTypes": {
+          "FRAME": 93,
+          "RECTANGLE": 34,
+          "TEXT": 55,
+          "VECTOR": 19,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 55,
+        "readback": 55,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 2,
+          "Noto Sans TC Regular": 11,
+          "Noto Sans TC Medium": 11,
+          "Noto Sans TC Bold": 10,
+          "Noto Serif JP Medium": 1,
+          "Inter Regular": 2,
+          "Inter Medium": 4,
+          "Noto Serif JP SemiBold": 7,
+          "Noto Sans JP Regular": 7
+        },
+        "readback": {
+          "Noto Sans JP Regular": 7,
+          "Noto Sans TC Bold": 10,
+          "Noto Sans TC Regular": 11,
+          "Noto Serif JP SemiBold": 7,
+          "Noto Sans TC Medium": 11,
+          "Inter Medium": 4,
+          "Inter Bold": 2,
+          "Inter Regular": 2,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0059,
+        "meanChannelDelta": 0.91,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/grammar-1440x900.png",
+      "sha256": {
+        "source": "5136789b0fcf6f00cb4663114ac5247d20292c951985d209262b5f520e64d53c",
+        "html": "bed085699a6f217d0fe787e4c2a521defe031ccda2fa3ec94f44f1e9de0bcf25",
+        "figma": "399fd3b550f8d07f66715a42c2e326e2fcf3f27d2c17029a889340ade03ea0fe",
+        "readback": "9573ce4c672f3b19a8b672888a7960a391d72581b58b0b4ceb91a0ed7777df20"
+      },
+      "importedAt": "2026-09-30T16:45:31.416Z"
+    },
+    {
+      "scene": "grammar-390x844",
+      "label": "grammar · default · 390×844",
+      "board": "grammar.html",
+      "query": "",
+      "viewport": "390x844",
+      "fullPage": true,
+      "mode": "default",
+      "page": "40 Learn · Grammar · Reference",
+      "pageId": "4:7",
+      "nodeId": "4:41974",
+      "frameName": "SI-1 CANDIDATE · grammar · default · 390×844",
+      "position": {
+        "x": 3750,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 1314
+      },
+      "layers": {
+        "imported": 185,
+        "expected": 185,
+        "serializedTypes": {
+          "FRAME": 95,
+          "SVG": 9,
+          "TEXT": 53,
+          "RECTANGLE": 28
+        },
+        "readbackTypes": {
+          "FRAME": 105,
+          "RECTANGLE": 28,
+          "TEXT": 53,
+          "VECTOR": 23,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 53,
+        "readback": 53,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 2,
+          "Noto Sans TC Medium": 10,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Bold": 10,
+          "Noto Sans TC Regular": 10,
+          "Inter Regular": 2,
+          "Inter Medium": 4,
+          "Noto Serif JP SemiBold": 7,
+          "Noto Sans JP Regular": 7
+        },
+        "readback": {
+          "Noto Sans JP Regular": 7,
+          "Noto Sans TC Bold": 10,
+          "Noto Sans TC Regular": 10,
+          "Noto Serif JP SemiBold": 7,
+          "Noto Sans TC Medium": 10,
+          "Inter Medium": 4,
+          "Inter Bold": 2,
+          "Inter Regular": 2,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 1314,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.014,
+        "meanChannelDelta": 2.13,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/grammar-390x844.png",
+      "sha256": {
+        "source": "0052f90e8d836e9a749f5bd49dc8f92c65bd0ced88e4b53d03880cefad6ed274",
+        "html": "e9dff51bd60ec9e90dc4d724ed352800e9fb9f54bee7bb7d440461a430e599cc",
+        "figma": "8da32dd811528248d89a2a1402fc9d0158c04608e92adaaec5449f1c3e45f23b",
+        "readback": "a939060ef3010022748532f728dc30a142a5ba4e6a2d92bd370b59a97fbf217b"
+      },
+      "importedAt": "2026-09-30T16:45:33.262Z"
+    },
+    {
+      "scene": "grammar-state-point-1440x900",
+      "label": "grammar · point · 1440×900",
+      "board": "grammar.html",
+      "query": "state=point",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "40 Learn · Grammar · Reference",
+      "pageId": "4:7",
+      "nodeId": "4:42184",
+      "frameName": "SI-1 CANDIDATE · grammar · point · 1440×900",
+      "position": {
+        "x": 4300,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 159,
+        "expected": 159,
+        "serializedTypes": {
+          "FRAME": 81,
+          "SVG": 5,
+          "TEXT": 47,
+          "RECTANGLE": 26
+        },
+        "readbackTypes": {
+          "FRAME": 87,
+          "RECTANGLE": 26,
+          "TEXT": 47,
+          "VECTOR": 19,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 47,
+        "readback": 47,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 2,
+          "Noto Sans TC Regular": 12,
+          "Noto Sans TC Medium": 8,
+          "Noto Sans TC Bold": 7,
+          "Noto Serif JP Medium": 2,
+          "Noto Sans JP Regular": 8,
+          "Noto Sans JP Bold": 1,
+          "Inter Regular": 3,
+          "Noto Serif JP Regular": 4
+        },
+        "readback": {
+          "Noto Sans TC Regular": 12,
+          "Noto Sans TC Bold": 7,
+          "Noto Sans JP Regular": 8,
+          "Noto Serif JP Regular": 4,
+          "Inter Bold": 2,
+          "Noto Serif JP Medium": 2,
+          "Inter Regular": 3,
+          "Noto Sans JP Bold": 1,
+          "Noto Sans TC Medium": 8
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#efeeea",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0079,
+        "meanChannelDelta": 1.19,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/grammar-state-point-1440x900.png",
+      "sha256": {
+        "source": "8f76b70a906082a28565c966b81c9e0512a1e4bd185a7821984e5175c390a974",
+        "html": "69de3e70e41007c73ef60cc2085aa8ff2bd745a594f2d73c41fae304754b8521",
+        "figma": "4e368127a6ca488164ebac490f4a006571b005d7ab74882b56c7a8dfc01ea419",
+        "readback": "fcc50360bcdfb22f5250d698c3bc5ddc39fefba22bb72c713096469d254d70b6"
+      },
+      "importedAt": "2026-09-30T16:45:35.173Z"
+    },
+    {
+      "scene": "grammar-state-point-390x844",
+      "label": "grammar · point · 390×844",
+      "board": "grammar.html",
+      "query": "state=point",
+      "viewport": "390x844",
+      "fullPage": true,
+      "mode": "default",
+      "page": "40 Learn · Grammar · Reference",
+      "pageId": "4:7",
+      "nodeId": "4:42364",
+      "frameName": "SI-1 CANDIDATE · grammar · point · 390×844",
+      "position": {
+        "x": 5900,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 928
+      },
+      "layers": {
+        "imported": 124,
+        "expected": 124,
+        "serializedTypes": {
+          "FRAME": 66,
+          "SVG": 9,
+          "TEXT": 35,
+          "RECTANGLE": 14
+        },
+        "readbackTypes": {
+          "FRAME": 76,
+          "RECTANGLE": 14,
+          "TEXT": 35,
+          "VECTOR": 23,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 35,
+        "readback": 35,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 2,
+          "Noto Sans TC Medium": 7,
+          "Noto Serif JP Medium": 2,
+          "Noto Sans TC Bold": 4,
+          "Noto Sans TC Regular": 10,
+          "Inter Regular": 3,
+          "Noto Sans JP Regular": 3,
+          "Noto Serif JP Regular": 4
+        },
+        "readback": {
+          "Noto Serif JP Regular": 4,
+          "Noto Sans TC Regular": 10,
+          "Noto Sans TC Bold": 4,
+          "Noto Sans JP Regular": 3,
+          "Inter Bold": 2,
+          "Noto Serif JP Medium": 2,
+          "Inter Regular": 3,
+          "Noto Sans TC Medium": 7
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#efeeea",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 928,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.036,
+        "meanChannelDelta": 4.96,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/grammar-state-point-390x844.png",
+      "sha256": {
+        "source": "8b3126efcbdf0263f3814b0d0997d30fb14df5a7fc184c5fd4513bf1836f00aa",
+        "html": "dbb76aaf690c1c9b9f2dc75c5edd93ad72888403a21ea7cb7535bf241ce490d3",
+        "figma": "f2d4309fd61a1d18bfc3f81f83ff45df2f5eeb4002f668a14fd46795cc5a54b3",
+        "readback": "9bc887423bbe2fe1c4d744617cfc641df28c96ce4d85a17ce416121ff54c1939"
+      },
+      "importedAt": "2026-09-30T16:45:36.789Z"
+    },
+    {
+      "scene": "reference-1440x900",
+      "label": "reference · default · 1440×900",
+      "board": "reference.html",
+      "query": "",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "40 Learn · Grammar · Reference",
+      "pageId": "4:7",
+      "nodeId": "4:42513",
+      "frameName": "SI-1 CANDIDATE · reference · default · 1440×900",
+      "position": {
+        "x": 0,
+        "y": 1996
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 418,
+        "expected": 418,
+        "serializedTypes": {
+          "FRAME": 206,
+          "SVG": 5,
+          "TEXT": 133,
+          "RECTANGLE": 74
+        },
+        "readbackTypes": {
+          "FRAME": 212,
+          "TEXT": 133,
+          "RECTANGLE": 74,
+          "VECTOR": 19,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 133,
+        "readback": 133,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 1,
+          "Noto Sans TC Regular": 56,
+          "Noto Sans TC Medium": 11,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Bold": 4,
+          "Inter Medium": 5,
+          "Inter Regular": 2,
+          "Noto Serif JP SemiBold": 2,
+          "Noto Sans JP Regular": 33,
+          "Noto Serif JP Regular": 18
+        },
+        "readback": {
+          "Noto Sans TC Medium": 11,
+          "Noto Sans TC Regular": 56,
+          "Noto Sans JP Regular": 33,
+          "Noto Serif JP Regular": 18,
+          "Noto Serif JP SemiBold": 2,
+          "Inter Regular": 2,
+          "Inter Medium": 5,
+          "Noto Sans TC Bold": 4,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0135,
+        "meanChannelDelta": 2.05,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/reference-1440x900.png",
+      "sha256": {
+        "source": "6060828902bf78e41d197f109c929fd18bccd6d043ade10fdc0a15a098769233",
+        "html": "3d3408ba77ade32ac5ecabb8b7b71cd5cddaacad02f2fe99894604b48eeb7aa8",
+        "figma": "899f6c34629840d9d53a5188d1cc7a7bcb9228b374e7e513aa920df0a39617cd",
+        "readback": "61a18e4a6d13e8499e56c2f85807e1252d2c875ca6d433964e9365f4348fe25f"
+      },
+      "importedAt": "2026-09-30T16:45:39.433Z"
+    },
+    {
+      "scene": "reference-390x844",
+      "label": "reference · default · 390×844",
+      "board": "reference.html",
+      "query": "",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "40 Learn · Grammar · Reference",
+      "pageId": "4:7",
+      "nodeId": "4:42952",
+      "frameName": "SI-1 CANDIDATE · reference · default · 390×844",
+      "position": {
+        "x": 1600,
+        "y": 1996
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 407,
+        "expected": 407,
+        "serializedTypes": {
+          "FRAME": 211,
+          "SVG": 9,
+          "TEXT": 127,
+          "RECTANGLE": 60
+        },
+        "readbackTypes": {
+          "FRAME": 221,
+          "TEXT": 127,
+          "RECTANGLE": 60,
+          "VECTOR": 23,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 127,
+        "readback": 127,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Medium": 9,
+          "Noto Sans TC Bold": 5,
+          "Inter Bold": 1,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Regular": 53,
+          "Inter Medium": 5,
+          "Noto Serif JP SemiBold": 2,
+          "Noto Sans JP Regular": 33,
+          "Noto Serif JP Regular": 18
+        },
+        "readback": {
+          "Noto Sans TC Medium": 9,
+          "Noto Sans TC Regular": 53,
+          "Noto Sans JP Regular": 33,
+          "Noto Serif JP Regular": 18,
+          "Noto Serif JP SemiBold": 2,
+          "Inter Medium": 5,
+          "Noto Sans TC Bold": 5,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0251,
+        "meanChannelDelta": 3.87,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/reference-390x844.png",
+      "sha256": {
+        "source": "872b9426d322d0697111b0d6881032d3e0dec1d7f8fbd4117001ee76645cb6d3",
+        "html": "9f69809ae149f002194545acae9c530907737b675058be08cc50d48f80d6db7a",
+        "figma": "080b4ca0368e3061a324feebc40a45b5637f9dc3fa259f7544e09e855678eef0",
+        "readback": "ddcbf1ce9c3383dcb0eeea5df5c8fb1bba939392342d292efc2d47fa789e57d6"
+      },
+      "importedAt": "2026-09-30T16:45:41.869Z"
+    },
+    {
+      "scene": "reference-state-sheet-390x844",
+      "label": "reference · sheet · 390×844",
+      "board": "reference.html",
+      "query": "state=sheet",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "40 Learn · Grammar · Reference",
+      "pageId": "4:7",
+      "nodeId": "4:43384",
+      "frameName": "SI-1 CANDIDATE · reference · sheet · 390×844",
+      "position": {
+        "x": 2150,
+        "y": 1996
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 460,
+        "expected": 460,
+        "serializedTypes": {
+          "FRAME": 241,
+          "TEXT": 141,
+          "SVG": 13,
+          "RECTANGLE": 65
+        },
+        "readbackTypes": {
+          "FRAME": 255,
+          "TEXT": 141,
+          "RECTANGLE": 65,
+          "VECTOR": 27,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 141,
+        "readback": 141,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 10,
+          "Noto Serif JP Medium": 5,
+          "Noto Sans TC Regular": 55,
+          "Noto Sans JP Regular": 35,
+          "Noto Sans TC Medium": 10,
+          "Inter Bold": 1,
+          "Inter Medium": 5,
+          "Noto Serif JP SemiBold": 2,
+          "Noto Serif JP Regular": 18
+        },
+        "readback": {
+          "Noto Sans TC Medium": 10,
+          "Noto Sans TC Regular": 55,
+          "Noto Sans JP Regular": 35,
+          "Noto Serif JP Regular": 18,
+          "Noto Serif JP SemiBold": 2,
+          "Inter Medium": 5,
+          "Noto Sans TC Bold": 10,
+          "Noto Serif JP Medium": 5,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0181,
+        "meanChannelDelta": 2.43,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/reference-state-sheet-390x844.png",
+      "sha256": {
+        "source": "1349a2dfb6400dc47fafe28ebba374a123a21dc8df2148c5c2d9a6a2d4e8e441",
+        "html": "e5547ae2ce09c6933de187547bb5ab9327e397065b03b117fa3fba2c4889b0cd",
+        "figma": "80a9441bdd918a1723d90468ccc1ad2840d15820fc00110b24216c7b7a90f4fb",
+        "readback": "7f094b366f8a23b5d5c1762be69474cbac1c1ebbf1cc9b26c1285fbe061de28a"
+      },
+      "importedAt": "2026-09-30T16:45:44.837Z"
+    },
+    {
+      "scene": "talk-1440x900",
+      "label": "talk · default · 1440×900",
+      "board": "talk.html",
+      "query": "",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "50 Small Talk",
+      "pageId": "4:8",
+      "nodeId": "4:43873",
+      "frameName": "SI-1 CANDIDATE · talk · default · 1440×900",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 167,
+        "expected": 167,
+        "serializedTypes": {
+          "FRAME": 91,
+          "SVG": 5,
+          "TEXT": 49,
+          "RECTANGLE": 22
+        },
+        "readbackTypes": {
+          "FRAME": 97,
+          "RECTANGLE": 22,
+          "TEXT": 49,
+          "VECTOR": 19,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 49,
+        "readback": 49,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 1,
+          "Noto Sans TC Regular": 22,
+          "Noto Sans TC Medium": 8,
+          "Noto Sans TC Bold": 16,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans JP Regular": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 22,
+          "Noto Sans TC Bold": 16,
+          "Noto Sans JP Regular": 1,
+          "Noto Sans TC Medium": 8,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.013,
+        "meanChannelDelta": 1.93,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/talk-1440x900.png",
+      "sha256": {
+        "source": "ba099ebe2febd511b223b00cec1317debd1fbc1908859bc8d10eeae14c98db6e",
+        "html": "d35194c36ea3f9a02d28394d853156be8b6151e935e5fc69c4ae8a3d875c6df8",
+        "figma": "c1b26da1bc30a6d2dd0cf5b4a26631fde236dafe2a75a7b43a89617ca3f558fb",
+        "readback": "c2e63bb8c13828db1aaf71ca5da78532f69b01361bf45dce884c822cd59097f9"
+      },
+      "importedAt": "2026-09-30T16:45:46.781Z"
+    },
+    {
+      "scene": "talk-390x844",
+      "label": "talk · default · 390×844",
+      "board": "talk.html",
+      "query": "",
+      "viewport": "390x844",
+      "fullPage": true,
+      "mode": "default",
+      "page": "50 Small Talk",
+      "pageId": "4:8",
+      "nodeId": "4:44061",
+      "frameName": "SI-1 CANDIDATE · talk · default · 390×844",
+      "position": {
+        "x": 1600,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 1599
+      },
+      "layers": {
+        "imported": 171,
+        "expected": 171,
+        "serializedTypes": {
+          "FRAME": 99,
+          "SVG": 9,
+          "TEXT": 47,
+          "RECTANGLE": 16
+        },
+        "readbackTypes": {
+          "FRAME": 109,
+          "VECTOR": 23,
+          "TEXT": 47,
+          "RECTANGLE": 16,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 47,
+        "readback": 47,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Inter Bold": 1,
+          "Noto Sans TC Medium": 7,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Bold": 16,
+          "Noto Sans TC Regular": 21,
+          "Noto Sans JP Regular": 1
+        },
+        "readback": {
+          "Noto Sans TC Bold": 16,
+          "Noto Sans TC Regular": 21,
+          "Noto Sans JP Regular": 1,
+          "Noto Sans TC Medium": 7,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 1599,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0422,
+        "meanChannelDelta": 5.81,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/talk-390x844.png",
+      "sha256": {
+        "source": "be3e3d1f9f5ebfc92795edd51a121fd2b37ec6ee1c04e6c5ebbb4119d960a85c",
+        "html": "237fe5c30aaf675840d49b832cb4d485cff387f6cdcf68dce9f87a2fc3ad067e",
+        "figma": "20f9d95449db41f162d8979849fce9f7a360f5056be63d3a077bb8cca63d5757",
+        "readback": "3246f4acdef4f46adc8ee7e1d54856473c26b5013463d2dcf63d4ae62bd8a0cf"
+      },
+      "importedAt": "2026-09-30T16:45:48.664Z"
+    },
+    {
+      "scene": "talk-state-respond-390x844",
+      "label": "talk · respond · 390×844",
+      "board": "talk.html",
+      "query": "state=respond",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "50 Small Talk",
+      "pageId": "4:8",
+      "nodeId": "4:44257",
+      "frameName": "SI-1 CANDIDATE · talk · respond · 390×844",
+      "position": {
+        "x": 2150,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 81,
+        "expected": 81,
+        "serializedTypes": {
+          "FRAME": 39,
+          "SVG": 3,
+          "RECTANGLE": 25,
+          "TEXT": 14
+        },
+        "readbackTypes": {
+          "FRAME": 43,
+          "TEXT": 14,
+          "RECTANGLE": 25,
+          "VECTOR": 3
+        }
+      },
+      "texts": {
+        "serialized": 14,
+        "readback": 14,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 4,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 2,
+          "Noto Sans TC Regular": 4,
+          "Noto Serif JP Regular": 1,
+          "Noto Sans JP Regular": 2
+        },
+        "readback": {
+          "Noto Sans TC Regular": 4,
+          "Noto Sans TC Medium": 2,
+          "Noto Sans JP Regular": 2,
+          "Noto Sans TC Bold": 4,
+          "Noto Serif JP Regular": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#2456b0",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0284,
+        "meanChannelDelta": 3.69,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/talk-state-respond-390x844.png",
+      "sha256": {
+        "source": "18ee1e38014f09cda8e2d1fb60b4d213a05fee7ebefbf6d28aa4d2b2552dafda",
+        "html": "095f96e0ddd5e095609f3ea75ee224ba43d0ec95d61bc6aa9a9e278341c360e0",
+        "figma": "8e5b4bf81b55b1fc7b1439390411a756e4b4c5f500cdd0ebe5008d029859d035",
+        "readback": "be3e386945f7a755671557f029f5e721a3fe14a79994956446b496abbc683b74"
+      },
+      "importedAt": "2026-09-30T16:45:49.950Z"
+    },
+    {
+      "scene": "talk-state-feedback-1440x900",
+      "label": "talk · feedback · 1440×900",
+      "board": "talk.html",
+      "query": "state=feedback",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "50 Small Talk",
+      "pageId": "4:8",
+      "nodeId": "4:44342",
+      "frameName": "SI-1 CANDIDATE · talk · feedback · 1440×900",
+      "position": {
+        "x": 2700,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 125,
+        "expected": 125,
+        "serializedTypes": {
+          "FRAME": 60,
+          "SVG": 10,
+          "RECTANGLE": 26,
+          "TEXT": 29
+        },
+        "readbackTypes": {
+          "FRAME": 71,
+          "TEXT": 29,
+          "RECTANGLE": 26,
+          "VECTOR": 10
+        }
+      },
+      "texts": {
+        "serialized": 29,
+        "readback": 29,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 13,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 1,
+          "Noto Sans TC Regular": 10,
+          "Noto Serif JP Regular": 2,
+          "Inter Regular": 2
+        },
+        "readback": {
+          "Noto Sans TC Regular": 10,
+          "Noto Sans TC Bold": 13,
+          "Inter Regular": 2,
+          "Noto Serif JP Regular": 2,
+          "Noto Sans TC Medium": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#6e6a63",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0038,
+        "meanChannelDelta": 0.51,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/talk-state-feedback-1440x900.png",
+      "sha256": {
+        "source": "c3214a2a98b19d76efcb43c1f51620804cc84aa99dd6f656463a9a1addcf1120",
+        "html": "43bf07a23407cae7fb7f794875a23dd194065e2c484e47b0ed2dc678b35045d6",
+        "figma": "03a4cb5a6b788d0a1b3a099d2ede3773cc7291cec94b14cd31cbbcf4a0b8ff02",
+        "readback": "38f3bc0f1806194f075ba0de25664fcc46e9adc3b46ba6d69571d0ee2106dcce"
+      },
+      "importedAt": "2026-09-30T16:45:51.761Z"
+    },
+    {
+      "scene": "talk-state-feedback-390x844",
+      "label": "talk · feedback · 390×844",
+      "board": "talk.html",
+      "query": "state=feedback",
+      "viewport": "390x844",
+      "fullPage": true,
+      "mode": "default",
+      "page": "50 Small Talk",
+      "pageId": "4:8",
+      "nodeId": "4:44478",
+      "frameName": "SI-1 CANDIDATE · talk · feedback · 390×844",
+      "position": {
+        "x": 4300,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 964
+      },
+      "layers": {
+        "imported": 125,
+        "expected": 125,
+        "serializedTypes": {
+          "FRAME": 60,
+          "SVG": 10,
+          "RECTANGLE": 26,
+          "TEXT": 29
+        },
+        "readbackTypes": {
+          "FRAME": 71,
+          "TEXT": 29,
+          "RECTANGLE": 26,
+          "VECTOR": 10
+        }
+      },
+      "texts": {
+        "serialized": 29,
+        "readback": 29,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 13,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 1,
+          "Noto Sans TC Regular": 10,
+          "Noto Serif JP Regular": 2,
+          "Inter Regular": 2
+        },
+        "readback": {
+          "Noto Sans TC Regular": 10,
+          "Noto Sans TC Bold": 13,
+          "Inter Regular": 2,
+          "Noto Serif JP Regular": 2,
+          "Noto Sans TC Medium": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#6e6a63",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#c43a17",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 964,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0208,
+        "meanChannelDelta": 2.72,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/talk-state-feedback-390x844.png",
+      "sha256": {
+        "source": "001f0c35afd50eee067b8f1110edf35d13074eed282e0e372033cb7407c3f645",
+        "html": "e240d2a0d35030c77d6a2fe56b2e1bddc59cae5dc42fa3576d562bd7a41d3e9d",
+        "figma": "6f9537fe5084fecc323bac70e7d46c69beb288511fbf27c663f5f2afbf63d084",
+        "readback": "5a2841f791a6b904f3f244697e82f35bf812f902d6d6eb5bd342bbdd3763eb3d"
+      },
+      "importedAt": "2026-09-30T16:45:54.388Z"
+    },
+    {
+      "scene": "talk-state-complete-390x844",
+      "label": "talk · complete · 390×844",
+      "board": "talk.html",
+      "query": "state=complete",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "50 Small Talk",
+      "pageId": "4:8",
+      "nodeId": "4:44614",
+      "frameName": "SI-1 CANDIDATE · talk · complete · 390×844",
+      "position": {
+        "x": 4850,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 91,
+        "expected": 91,
+        "serializedTypes": {
+          "FRAME": 46,
+          "SVG": 4,
+          "RECTANGLE": 20,
+          "TEXT": 21
+        },
+        "readbackTypes": {
+          "FRAME": 51,
+          "TEXT": 21,
+          "RECTANGLE": 20,
+          "VECTOR": 4
+        }
+      },
+      "texts": {
+        "serialized": 21,
+        "readback": 21,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 10,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Medium": 1,
+          "Noto Sans TC Regular": 5,
+          "Noto Serif JP Regular": 2,
+          "Inter Regular": 2
+        },
+        "readback": {
+          "Noto Sans TC Regular": 5,
+          "Noto Sans TC Bold": 10,
+          "Inter Regular": 2,
+          "Noto Serif JP Regular": 2,
+          "Noto Sans TC Medium": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.025,
+        "meanChannelDelta": 3.18,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/talk-state-complete-390x844.png",
+      "sha256": {
+        "source": "454824bbaccb98e504d743c16332f714e673edeb316fa326b05cb0ec6ab8cb4c",
+        "html": "7bc90f1f0166416ff03b0fcac25ece920ac0438bffaffd699cdb46fad3709076",
+        "figma": "385e1c62ff67fa0f6763ec4e2579eafbafc004a40eb297f2d00a71505d0dfe68",
+        "readback": "a297a5a3d483c088fd480cb3f8dea3cf164baae83a6f7fa305b6ac8a3c83d84d"
+      },
+      "importedAt": "2026-09-30T16:45:56.390Z"
+    },
+    {
+      "scene": "system-state-menu-guest-1440x900",
+      "label": "system · menu-guest · 1440×900",
+      "board": "system.html",
+      "query": "state=menu-guest",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:44710",
+      "frameName": "SI-1 CANDIDATE · system · menu-guest · 1440×900",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 96,
+        "expected": 96,
+        "serializedTypes": {
+          "FRAME": 46,
+          "TEXT": 27,
+          "SVG": 8,
+          "RECTANGLE": 15
+        },
+        "readbackTypes": {
+          "FRAME": 55,
+          "TEXT": 27,
+          "RECTANGLE": 15,
+          "VECTOR": 22,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 27,
+        "readback": 27,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 5,
+          "Noto Sans TC Regular": 10,
+          "Noto Sans TC Medium": 10,
+          "Inter Bold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 10,
+          "Noto Sans TC Bold": 5,
+          "Noto Sans TC Medium": 10,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.004,
+        "meanChannelDelta": 0.69,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-menu-guest-1440x900.png",
+      "sha256": {
+        "source": "2aa9431a4f66178cb7968f87793f88c41eafe9970aa510c71587e254d1390832",
+        "html": "c8e7c9709da7ae00f4002bbe104ee4411019ce55063b2b3863b407f96aee3951",
+        "figma": "993216eeb04ac693f3486796e9ab1d66e355508962a92617485326db328dc72b",
+        "readback": "d6859b3de3e95be934eb7ac18954d6ed8a7d99e584a85a1ecd78d475a5fec3ae"
+      },
+      "importedAt": "2026-09-30T16:45:58.015Z"
+    },
+    {
+      "scene": "system-state-menu-guest-390x844",
+      "label": "system · menu-guest · 390×844",
+      "board": "system.html",
+      "query": "state=menu-guest",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:44830",
+      "frameName": "SI-1 CANDIDATE · system · menu-guest · 390×844",
+      "position": {
+        "x": 1600,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 100,
+        "expected": 100,
+        "serializedTypes": {
+          "FRAME": 54,
+          "TEXT": 25,
+          "SVG": 12,
+          "RECTANGLE": 9
+        },
+        "readbackTypes": {
+          "FRAME": 67,
+          "TEXT": 25,
+          "RECTANGLE": 9,
+          "VECTOR": 26,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 25,
+        "readback": 25,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 5,
+          "Noto Sans TC Regular": 9,
+          "Noto Sans TC Medium": 9,
+          "Inter Bold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 9,
+          "Noto Sans TC Bold": 5,
+          "Noto Sans TC Medium": 9,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0034,
+        "meanChannelDelta": 0.74,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-menu-guest-390x844.png",
+      "sha256": {
+        "source": "810d5a2d52ea8672242b6102bc1a0302e824ea6864fa28c1b25e5fe194e0c21b",
+        "html": "5477601cdbf22370ad1fa7fbf0510d665419247153696bb502517c7a9be06f5d",
+        "figma": "c8bba2634bb0573dcfbc3d3bf292b34104fadeea7ee82e29afbf267d20125fd1",
+        "readback": "2fddc1e30fb6f429882e6cb3d3be0bd192e3c72b46f675101ac64a3ab92c8023"
+      },
+      "importedAt": "2026-09-30T16:45:59.590Z"
+    },
+    {
+      "scene": "system-state-menu-user-1440x900",
+      "label": "system · menu-user · 1440×900",
+      "board": "system.html",
+      "query": "state=menu-user",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:44958",
+      "frameName": "SI-1 CANDIDATE · system · menu-user · 1440×900",
+      "position": {
+        "x": 2150,
+        "y": 0
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 101,
+        "expected": 101,
+        "serializedTypes": {
+          "FRAME": 49,
+          "TEXT": 28,
+          "SVG": 9,
+          "RECTANGLE": 15
+        },
+        "readbackTypes": {
+          "FRAME": 59,
+          "TEXT": 28,
+          "RECTANGLE": 15,
+          "VECTOR": 23,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 28,
+        "readback": 28,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 5,
+          "Noto Sans TC Regular": 12,
+          "Noto Sans TC Medium": 9,
+          "Inter Bold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 12,
+          "Noto Sans TC Bold": 5,
+          "Noto Sans TC Medium": 9,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#a02d42",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#a02d42",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0038,
+        "meanChannelDelta": 0.67,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-menu-user-1440x900.png",
+      "sha256": {
+        "source": "5cfb2836e1181d03bd6c122374c64910d959490990108364865c69ca5a25a6d5",
+        "html": "eda890de2782ab2fd976c4063d050285d9f55409fc0a9ad5570daf4a72203fe0",
+        "figma": "83aad034f8a08b6cec5617e8f6df40a8a6ea09fe652cbc3f559b8ae21a6c70d3",
+        "readback": "078b1a854d7d9874e93b4dcf727e61c6eb1eccb94bcaad5fe6add659194c3e15"
+      },
+      "importedAt": "2026-09-30T16:46:01.360Z"
+    },
+    {
+      "scene": "system-state-language-390x844",
+      "label": "system · language · 390×844",
+      "board": "system.html",
+      "query": "state=language",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:45084",
+      "frameName": "SI-1 CANDIDATE · system · language · 390×844",
+      "position": {
+        "x": 3750,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 88,
+        "expected": 88,
+        "serializedTypes": {
+          "FRAME": 52,
+          "TEXT": 22,
+          "SVG": 8,
+          "RECTANGLE": 6
+        },
+        "readbackTypes": {
+          "FRAME": 61,
+          "TEXT": 22,
+          "RECTANGLE": 6,
+          "VECTOR": 22,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 22,
+        "readback": 22,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 5,
+          "Noto Sans TC Regular": 2,
+          "Inter Bold": 2,
+          "Noto Sans JP Regular": 2,
+          "Inter Regular": 2,
+          "Noto Sans TC Medium": 8,
+          "Noto Serif JP Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 2,
+          "Noto Sans TC Bold": 5,
+          "Noto Sans TC Medium": 8,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 2,
+          "Inter Regular": 2,
+          "Noto Sans JP Regular": 2
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0124,
+        "meanChannelDelta": 1.83,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-language-390x844.png",
+      "sha256": {
+        "source": "2c4bd31fc8e6e253ebeea20d5d37f99e7103616a9a431be03154f4d51cb3ba0c",
+        "html": "da0c7fd2966e7e21473de99eca33790d90c7063b84a66ae1a75e92e30867f727",
+        "figma": "81bca2f735efcd43461999545a19f3a4ee8b1dff0bf60e21ccfc0398898c3128",
+        "readback": "6d24eab60c0fefaf6883fd20c867994ca8ac7482b712cbbc05e0fc45e67c63f5"
+      },
+      "importedAt": "2026-09-30T16:46:03.242Z"
+    },
+    {
+      "scene": "system-state-delete-390x844",
+      "label": "system · delete · 390×844",
+      "board": "system.html",
+      "query": "state=delete",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:45196",
+      "frameName": "SI-1 CANDIDATE · system · delete · 390×844",
+      "position": {
+        "x": 4300,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 77,
+        "expected": 77,
+        "serializedTypes": {
+          "FRAME": 44,
+          "TEXT": 19,
+          "SVG": 8,
+          "RECTANGLE": 6
+        },
+        "readbackTypes": {
+          "FRAME": 53,
+          "TEXT": 19,
+          "RECTANGLE": 6,
+          "VECTOR": 22,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 19,
+        "readback": 19,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 4,
+          "Noto Sans TC Regular": 3,
+          "Inter Regular": 1,
+          "Noto Sans TC Medium": 9,
+          "Inter Bold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 3,
+          "Noto Sans TC Bold": 4,
+          "Noto Sans TC Medium": 9,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1,
+          "Inter Regular": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c",
+          "#f6f5f2",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0275,
+        "meanChannelDelta": 3.91,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-delete-390x844.png",
+      "sha256": {
+        "source": "0a8b3b131cac2420958a21f3c1b9aee490362b503a6dd43c0b4cba4e5411ecbd",
+        "html": "3aff4ce8330d571e839331298e36f23b54862b17ae60301a24c81eb4ac14ab25",
+        "figma": "93f93fe33c1c6b8fb98cd1cf12864821d8c5ddb69ca8c7155e85a33895c2646d",
+        "readback": "99744858e81a33ed697d1a2bd00024fab87c4c0e684783a978bba9f10b710a26"
+      },
+      "importedAt": "2026-09-30T16:46:05.143Z"
+    },
+    {
+      "scene": "system-state-focus-config-390x844",
+      "label": "system · focus-config · 390×844",
+      "board": "system.html",
+      "query": "state=focus-config",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:45297",
+      "frameName": "SI-1 CANDIDATE · system · focus-config · 390×844",
+      "position": {
+        "x": 4850,
+        "y": 0
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 84,
+        "expected": 84,
+        "serializedTypes": {
+          "FRAME": 49,
+          "TEXT": 21,
+          "SVG": 8,
+          "RECTANGLE": 6
+        },
+        "readbackTypes": {
+          "FRAME": 58,
+          "TEXT": 21,
+          "RECTANGLE": 6,
+          "VECTOR": 22,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 21,
+        "readback": 21,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 4,
+          "Noto Sans TC Regular": 2,
+          "Noto Sans TC Medium": 11,
+          "Inter Regular": 2,
+          "Inter Bold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 2,
+          "Noto Sans TC Bold": 4,
+          "Noto Sans TC Medium": 11,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1,
+          "Inter Regular": 2
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0105,
+        "meanChannelDelta": 1.58,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-focus-config-390x844.png",
+      "sha256": {
+        "source": "c84420e4e353e9810447e9156d86312a17b32f589e76899d4533d56d716212ae",
+        "html": "21c63bd3f8dd66232bfaae3cc0c070f6eeda462b96d8593e3556cc17584843b7",
+        "figma": "8407353c671ebef2f188bb14eb4c23695cc6157f84be4bd307c0a8cbedb5333b",
+        "readback": "a34e9453742bcbb4f40f85a1777c621f3f7becfe86e9aba11882a411266ccfcc"
+      },
+      "importedAt": "2026-09-30T16:46:06.808Z"
+    },
+    {
+      "scene": "system-state-focus-break-1440x900",
+      "label": "system · focus-break · 1440×900",
+      "board": "system.html",
+      "query": "state=focus-break",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:45405",
+      "frameName": "SI-1 CANDIDATE · system · focus-break · 1440×900",
+      "position": {
+        "x": 0,
+        "y": 1140
+      },
+      "size": {
+        "width": 1440,
+        "height": 900
+      },
+      "layers": {
+        "imported": 50,
+        "expected": 50,
+        "serializedTypes": {
+          "FRAME": 29,
+          "TEXT": 17,
+          "RECTANGLE": 4
+        },
+        "readbackTypes": {
+          "FRAME": 30,
+          "TEXT": 17,
+          "RECTANGLE": 4
+        }
+      },
+      "texts": {
+        "serialized": 17,
+        "readback": 17,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 6,
+          "Inter Light": 1,
+          "Noto Sans TC Regular": 7,
+          "Inter Semi Bold": 2,
+          "Noto Sans TC Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 7,
+          "Noto Sans TC Medium": 1,
+          "Noto Sans TC Bold": 6,
+          "Inter Semi Bold": 2,
+          "Inter Light": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#6e6a63",
+          "#c43a17",
+          "#f6f5f2",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#8c877e"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 1440,
+        "height": 900,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.007,
+        "meanChannelDelta": 1.06,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-focus-break-1440x900.png",
+      "sha256": {
+        "source": "336c3a7f2d23d881b166301fb50476811bdd4e1abb464b67cddf52c4401fef21",
+        "html": "8d440f4ce0c535a4ef0c163de79ce8276b61f0213e6f2c406aef56cd76d18206",
+        "figma": "d01786bd6239077248bce24b362b7e224e0bcaf5e27f5801a347dc931e3786a5",
+        "readback": "92981f8a9653624289e3b432559fd60fd6dcd11c848ab835b55cb3fe5ec89c54"
+      },
+      "importedAt": "2026-09-30T16:46:08.187Z"
+    },
+    {
+      "scene": "system-state-focus-break-390x844",
+      "label": "system · focus-break · 390×844",
+      "board": "system.html",
+      "query": "state=focus-break",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:45456",
+      "frameName": "SI-1 CANDIDATE · system · focus-break · 390×844",
+      "position": {
+        "x": 1600,
+        "y": 1140
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 50,
+        "expected": 50,
+        "serializedTypes": {
+          "FRAME": 29,
+          "TEXT": 17,
+          "RECTANGLE": 4
+        },
+        "readbackTypes": {
+          "FRAME": 30,
+          "TEXT": 17,
+          "RECTANGLE": 4
+        }
+      },
+      "texts": {
+        "serialized": 17,
+        "readback": 17,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 6,
+          "Inter Light": 1,
+          "Noto Sans TC Regular": 7,
+          "Inter Semi Bold": 2,
+          "Noto Sans TC Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 7,
+          "Noto Sans TC Medium": 1,
+          "Noto Sans TC Bold": 6,
+          "Inter Semi Bold": 2,
+          "Inter Light": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#6e6a63",
+          "#c43a17",
+          "#f6f5f2",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#8c877e"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0268,
+        "meanChannelDelta": 3.63,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-focus-break-390x844.png",
+      "sha256": {
+        "source": "8d1d1206167c8ebb42d85acc3b832595c4c282f83d5b3b15f5905b6240886ee2",
+        "html": "69334b81a5336a6c68e69a9b31ac29316c5b693e2c1e50e39dad5a9354b7e289",
+        "figma": "d23cdf8330c5828bbcc022ba96d414a3113a5a6eb6770e6981be041a53f3e91d",
+        "readback": "9cf05de8f0c7508512736cd5dc367bc80b2650a417de9a77a48ed7c9cd5e2e26"
+      },
+      "importedAt": "2026-09-30T16:46:09.661Z"
+    },
+    {
+      "scene": "system-state-offline-390x844",
+      "label": "system · offline · 390×844",
+      "board": "system.html",
+      "query": "state=offline",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:45507",
+      "frameName": "SI-1 CANDIDATE · system · offline · 390×844",
+      "position": {
+        "x": 2150,
+        "y": 1140
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 66,
+        "expected": 66,
+        "serializedTypes": {
+          "FRAME": 37,
+          "SVG": 9,
+          "TEXT": 14,
+          "RECTANGLE": 6
+        },
+        "readbackTypes": {
+          "FRAME": 47,
+          "TEXT": 14,
+          "VECTOR": 23,
+          "RECTANGLE": 6,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 14,
+        "readback": 14,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 3,
+          "Noto Sans TC Medium": 7,
+          "Inter Bold": 1,
+          "Noto Serif JP Medium": 1,
+          "Noto Sans TC Regular": 2
+        },
+        "readback": {
+          "Noto Sans TC Regular": 2,
+          "Noto Sans TC Bold": 3,
+          "Noto Sans TC Medium": 7,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#865015",
+          "#e3e1db",
+          "#f0a49c",
+          "#fdf6ea",
+          "#fff3dd",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#865015",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0113,
+        "meanChannelDelta": 1.9,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-offline-390x844.png",
+      "sha256": {
+        "source": "a3bc968af0e96c96cdcfb8c11ef8ffaf7f45a1b9835d279b21b3250cc9c6d37d",
+        "html": "7bfe48c92212468444adbaf36f6cc38416608341109697faf71dcc8891bed233",
+        "figma": "e506bc0ddc2881415c1d1c9816d239ab1167e488a24fe6072dd23bcd0cabaa9b",
+        "readback": "9c648cc7e7b5ba064810654da58f07693f3b349037387f323f79b86b91c5afdc"
+      },
+      "importedAt": "2026-09-30T16:46:11.065Z"
+    },
+    {
+      "scene": "system-state-update-390x844",
+      "label": "system · update · 390×844",
+      "board": "system.html",
+      "query": "state=update",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:45598",
+      "frameName": "SI-1 CANDIDATE · system · update · 390×844",
+      "position": {
+        "x": 2700,
+        "y": 1140
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 67,
+        "expected": 67,
+        "serializedTypes": {
+          "FRAME": 38,
+          "TEXT": 15,
+          "SVG": 8,
+          "RECTANGLE": 6
+        },
+        "readbackTypes": {
+          "FRAME": 47,
+          "TEXT": 15,
+          "RECTANGLE": 6,
+          "VECTOR": 22,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 15,
+        "readback": 15,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Regular": 2,
+          "Noto Sans TC Medium": 8,
+          "Noto Sans TC Bold": 3,
+          "Inter Bold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 2,
+          "Noto Sans TC Bold": 3,
+          "Noto Sans TC Medium": 8,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#e3e1db",
+          "#f0a49c",
+          "#fdf6ea",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#e3e1db",
+          "#f0a49c",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0114,
+        "meanChannelDelta": 1.85,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-update-390x844.png",
+      "sha256": {
+        "source": "ffaa1b6876cb20e22dd2cd2776aebfdbe1f6d007f47b64c23eb75591e4745ea8",
+        "html": "44b1d34fbf72a7541b465cbbdb3385b0bccb46b034a352ed3a8a530f6763c220",
+        "figma": "113941427cce955d8a5dff2c73d247339fe0dd8a9e9060a036623fe661e1ff6f",
+        "readback": "5b6c8ab8be5b0793e19c9ece27bd1596fd93446f6f32bb8af3de698ffe3f7f77"
+      },
+      "importedAt": "2026-09-30T16:46:12.455Z"
+    },
+    {
+      "scene": "system-state-feedback-390x844",
+      "label": "system · feedback · 390×844",
+      "board": "system.html",
+      "query": "state=feedback",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:45689",
+      "frameName": "SI-1 CANDIDATE · system · feedback · 390×844",
+      "position": {
+        "x": 3250,
+        "y": 1140
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 92,
+        "expected": 92,
+        "serializedTypes": {
+          "FRAME": 50,
+          "TEXT": 22,
+          "RECTANGLE": 11,
+          "SVG": 9
+        },
+        "readbackTypes": {
+          "FRAME": 60,
+          "TEXT": 22,
+          "RECTANGLE": 11,
+          "VECTOR": 23,
+          "GROUP": 1
+        }
+      },
+      "texts": {
+        "serialized": 22,
+        "readback": 22,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Bold": 5,
+          "Noto Sans TC Medium": 12,
+          "Noto Sans TC Regular": 3,
+          "Inter Bold": 1,
+          "Noto Serif JP Medium": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 3,
+          "Noto Sans TC Bold": 5,
+          "Noto Sans TC Medium": 12,
+          "Noto Serif JP Medium": 1,
+          "Inter Bold": 1
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#2456b0",
+          "#28385a",
+          "#5f5c57",
+          "#6e6a63",
+          "#a02d42",
+          "#e3e1db",
+          "#eaf0fb",
+          "#f0a49c",
+          "#fdf6ea",
+          "#fff0f3",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#28385a",
+          "#5f5c57",
+          "#8c877e",
+          "#a02d42",
+          "#e3e1db",
+          "#f0a49c"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.0152,
+        "meanChannelDelta": 2.37,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-feedback-390x844.png",
+      "sha256": {
+        "source": "17133af1d5f390a5bbbb7d1e19d97097bda80995e3f27539f759dd0dddee7ce9",
+        "html": "eae920ef2827563365eb7a206fc73defd25bc781b39aa417ac49bcbcfa463c31",
+        "figma": "1f8b52d32f1200fb07aa92a41bd7dad701b0e01cdc8b668fe0e8b4678cae3fbd",
+        "readback": "bfcc15fd8d6e31f67e197a501f2cd1cb9e53bb98b0beea7dbcde01ab02d71afd"
+      },
+      "importedAt": "2026-09-30T16:46:14.107Z"
+    },
+    {
+      "scene": "system-state-route-error-390x844",
+      "label": "system · route-error · 390×844",
+      "board": "system.html",
+      "query": "state=route-error",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default",
+      "page": "60 Shell & System",
+      "pageId": "4:9",
+      "nodeId": "4:45806",
+      "frameName": "SI-1 CANDIDATE · system · route-error · 390×844",
+      "position": {
+        "x": 3800,
+        "y": 1140
+      },
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "layers": {
+        "imported": 24,
+        "expected": 24,
+        "serializedTypes": {
+          "FRAME": 11,
+          "SVG": 2,
+          "TEXT": 6,
+          "RECTANGLE": 5
+        },
+        "readbackTypes": {
+          "FRAME": 14,
+          "TEXT": 6,
+          "VECTOR": 2,
+          "RECTANGLE": 5
+        }
+      },
+      "texts": {
+        "serialized": 6,
+        "readback": 6,
+        "unmatched": 0,
+        "missing": 0
+      },
+      "fonts": {
+        "expected": {
+          "Noto Sans TC Medium": 3,
+          "Noto Sans TC Regular": 2,
+          "Noto Sans TC Bold": 1
+        },
+        "readback": {
+          "Noto Sans TC Regular": 2,
+          "Noto Sans TC Bold": 1,
+          "Noto Sans TC Medium": 3
+        },
+        "match": true
+      },
+      "paints": {
+        "fills": [
+          "#000000",
+          "#1d1c1a",
+          "#5f5c57",
+          "#a02d42",
+          "#e3e1db",
+          "#fff0f3",
+          "#ffffff"
+        ],
+        "strokes": [
+          "#1d1c1a",
+          "#8c877e",
+          "#a02d42",
+          "#ffffff"
+        ],
+        "imageFills": 0
+      },
+      "visual": {
+        "width": 390,
+        "height": 844,
+        "sizeMismatch": false,
+        "differingPixelRatio": 0.016,
+        "meanChannelDelta": 2.25,
+        "exportAttempts": 2,
+        "exportStable": true
+      },
+      "render": "renders/figma/system-state-route-error-390x844.png",
+      "sha256": {
+        "source": "7efe2a7506b98b6ad67c8ebbfed805d64f2355fc55fbad98e461e82549be7522",
+        "html": "695d9e6787b547a131818fb8d40ef0c802b614e29b222e12bebfefedae175bb6",
+        "figma": "a1d388870442a05f7d91107abc9b52678bea68df623fc3d4189ac41c26806eaf",
+        "readback": "a1968af907fe7b4c9f4d5e803cef86302de70c63c2436cb8190d7694a7a0caf5"
+      },
+      "importedAt": "2026-09-30T16:46:15.600Z"
+    }
+  ]
+}

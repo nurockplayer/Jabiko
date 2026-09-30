@@ -46,8 +46,7 @@
     .si-session-bar { position: sticky; }
   }
   @media (max-width: 599px) {
-    .si-session-bar { grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px; padding: 0 8px; }
-    .tool-label { display: none; }
+    .si-session-bar { grid-template-columns: minmax(0, 1fr) auto minmax(max-content, 1fr); gap: 4px; padding: 0 8px; }
     .complete .big .score { font-size: 44px; line-height: 52px; }
   }
 </style>
@@ -66,7 +65,7 @@
       </div>
     </div>
     <div class="si-session-tools">
-      <button class="si-toggle" type="button" aria-pressed="false"><span class="si-furi-glyph" lang="ja">ふ</span><span class="tool-label"><span data-l="zh-Hant">振假名</span><span data-l="en">Furigana</span></span></button>
+      <button class="si-toggle" type="button" aria-pressed="false"><span class="si-furi-glyph" lang="ja">ふ</span><span class="si-chrome-label"><span data-l="zh-Hant">振假名</span><span data-l="en">Furigana</span></span></button>
       <button class="si-iconbtn" type="button" aria-label="本次設定：題數與語速" aria-haspopup="dialog"><i data-icon="sliders"></i></button>
       <button class="si-iconbtn" type="button" aria-label="選單與設定" aria-haspopup="menu"><i data-icon="menu"></i></button>
     </div>

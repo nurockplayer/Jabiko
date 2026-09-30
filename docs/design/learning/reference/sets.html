@@ -12,8 +12,8 @@
   .switcher .group { margin-top: 16px; }
   .switcher .group > h3 { margin-bottom: 4px; }
   .switcher .si-index-row { grid-template-columns: 9em 1fr auto; min-height: 52px; padding: 10px 4px; }
-  .switcher .si-index-row[aria-current="true"] { box-shadow: inset 3px 0 0 var(--si-learner-mark); background: var(--si-learner-tint); padding-left: 12px; }
-  .switcher .si-index-row[aria-current="true"] .si-index-name::after { content: "目前"; margin-left: 8px; font-size: 12px; font-weight: 600; color: var(--si-learner-mark); }
+  .switcher .si-index-row[aria-current="true"] { border-left: 3px solid var(--si-learner-mark); background: var(--si-learner-tint); padding-left: 9px; }
+  .switcher .now { margin-left: 8px; font-size: 12px; font-weight: 600; color: var(--si-learner-mark); }
   .switcher footer { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; }
   .dim-behind { filter: none; }
   .mock-head { display: grid; gap: 12px; margin-bottom: 24px; }
@@ -53,7 +53,7 @@
       <p class="si-meta" style="margin-top:2px">目前這組的進度會保留在紀錄中；換組會開始新的一組。</p>
       <div class="group"><h3 class="si-kicker">每日</h3>
         <ul class="si-index">
-          <li><button class="si-index-row" type="button" aria-current="true"><span class="si-index-name">今日練習</span><span class="si-index-desc">複習優先・文法 / 語順 / 漢字讀み混合一輪</span><span class="si-index-meta">20 題</span></button></li>
+          <li><button class="si-index-row" type="button" aria-current="true"><span class="si-index-name">今日練習<span class="now">目前</span></span><span class="si-index-desc">複習優先・文法 / 語順 / 漢字讀み混合一輪</span><span class="si-index-meta">20 題</span></button></li>
           <li><button class="si-index-row" type="button"><span class="si-index-name">弱點複習</span><span class="si-index-desc">上次答錯的題目，重練到對為止</span><span class="si-index-meta">3 題</span></button></li>
           <li><button class="si-index-row" type="button"><span class="si-index-name">我的收藏</span><span class="si-index-desc">重練你標記的題目</span><span class="si-index-meta">12 題</span></button></li>
         </ul>
@@ -84,7 +84,7 @@
       <p class="si-meta" style="margin-top:2px">換組會開始新的一組。</p>
       <h3 class="si-kicker" style="margin-top:16px">每日</h3>
       <ul class="si-index">
-        <li><button class="si-index-row" type="button" aria-current="true" style="box-shadow:inset 3px 0 0 var(--si-learner-mark);background:var(--si-learner-tint);padding-left:12px"><span class="si-index-name">今日練習 <span class="si-meta" style="color:var(--si-learner-mark);font-weight:600">目前</span></span><span class="si-index-desc">複習優先・混合一輪</span><span class="si-index-meta">20 題</span></button></li>
+        <li><button class="si-index-row" type="button" aria-current="true" style="border-left:3px solid var(--si-learner-mark);background:var(--si-learner-tint);padding-left:9px"><span class="si-index-name">今日練習 <span class="si-meta" style="color:var(--si-learner-mark);font-weight:600">目前</span></span><span class="si-index-desc">複習優先・混合一輪</span><span class="si-index-meta">20 題</span></button></li>
         <li><button class="si-index-row" type="button"><span class="si-index-name">弱點複習</span><span class="si-index-desc">上次答錯的題目</span><span class="si-index-meta">3 題</span></button></li>
         <li><button class="si-index-row" type="button"><span class="si-index-name">我的收藏</span><span class="si-index-desc">你標記的題目</span><span class="si-index-meta">12 題</span></button></li>
       </ul>
