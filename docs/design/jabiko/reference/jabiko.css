@@ -373,6 +373,14 @@ ruby rt { font-size: 0.5em; font-weight: 400; }
 .jt-segmented button:hover { background: var(--jt-surface-inset); color: var(--jt-text-primary); }
 .jt-segmented button[aria-pressed="true"], .jt-segmented button[aria-checked="true"] { background: var(--jt-accent-background); color: var(--jt-accent-foreground); font-weight: 600; box-shadow: inset 0 0 0 1px var(--jt-selection-edge); }
 .jt-segmented button:focus-visible, .jt-segmented a:focus-visible { outline-offset: -3px; }
+/* Presets + a labelled custom number field (session length, speech rate).
+   When the effective value is custom, no preset is pressed and the field is
+   marked selected (data-selected). */
+.jt-custom-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.jt-custom { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--jt-text-secondary); }
+.jt-custom .jt-input { width: 88px; }
+.jt-custom[data-selected] { color: var(--jt-accent-foreground); font-weight: 600; }
+.jt-custom[data-selected] .jt-input { border-color: var(--jt-selection-edge); box-shadow: inset 0 0 0 1px var(--jt-selection-edge); background: var(--jt-accent-background); color: var(--jt-accent-foreground); font-weight: 600; }
 /* Multi-select variant (data-multi): segments are independent aria-pressed
    toggles; "全部" clears the others. Same look, wraps instead of scrolling. */
 .jt-segmented[data-multi] { flex-wrap: wrap; overflow: visible; }

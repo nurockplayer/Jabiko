@@ -16,10 +16,10 @@ macOS system faces (the harness downloads nothing).
 | Token parity: every `tokens.json` color equals the harness custom property | 33 roles × 2 themes | **66/66** |
 | Tachiko parity: every role sourced `tachiko`/`tachiko-protected` equals the FOUNDATION.md §2 snapshot | 30 roles | **30/30** |
 | Contrast: every declared pair meets its minimum | 30 pairs × 2 themes | **60/60** |
-| Board checks: no horizontal overflow; exactly one visible h1; ≥ 44px targets below 1024px (touch; inline links in running text exempt); Japanese carriers inside `lang="ja"`; every visible control has an accessible name independent of width-hidden text; 3px focus ring on the first 14 Tab stops (1440); bar text never wraps and bar controls never overlap | 12 boards × 48 states × 5 widths (320, 390, 768, 1280, 1440); < 1024 emulated as touch | **240/240** |
+| Board checks: no horizontal overflow; exactly one visible h1; ≥ 44px targets below 1024px (touch; inline links in running text exempt); Japanese carriers inside `lang="ja"`; every visible control has an accessible name independent of width-hidden text; 3px focus ring on the first 14 Tab stops (1440); bar text never wraps and bar controls never overlap | 12 boards × 49 states × 5 widths (320, 390, 768, 1280, 1440); < 1024 emulated as touch | **245/245** |
 | D-07 geometry: the four options **and Next** keep identical boxes in `q`, `correct`, `wrong`, `revealed` | 5 widths × {short, long} × {zh-Hant, en} | **20/20** |
 | D-07 fold: at 390×844 the verdict line ends above the fixed action row | `session?state=wrong` | **pass** |
-| Captures | light, dark, forced colors, English overlay, long-content fixture | **90** renders |
+| Captures | light, dark, forced colors, English overlay, long-content fixture | **91** renders |
 
 Specimen boards (`index`, `foundation`, `components`) are exempt from the
 target and focus checks because they show forced states side by side.
@@ -93,7 +93,20 @@ text, 0 missing text and 0 elements moved** by preparation (fail-closed).
      `(pointer: coarse)`; 768px is now touch-emulated and target-checked.
   7. *Stale anatomy order; author note visible in the World frame* —
      **fixed**.
-- **Package review, round 3.** See §5.
+- **Package review, round 3 (fresh Codex reviewer).** Round-2 items 1, 2, 5,
+  6, 7 VERIFIED; 3 and 4 partially. Verdict "Blocking findings: 2".
+  Dispositions:
+  1. *Settings inventories exceeded production* (副詞/寒暄語, missing 必要過去,
+     range options outside `VOCAB_LEVEL_RANGE_OPTIONS`, a range selector for the
+     comprehensive bank) — **fixed**: inventories now equal `ModePicker` /
+     `usePracticeSession` / `levelRange.ts`; length hidden for daily as today.
+  2. *Custom length/rate had no input state* — **fixed**: presets plus labelled
+     自訂 number fields, a selected-custom state and the rate draft rule
+     (`session?state=settings-custom`, DESIGN §7.2).
+  3. *`unanswered` missing on recall; long fixture kept short-fixture
+     attributes* — **fixed**.
+  4. *World feedback showed three of five dimensions* — **fixed** (all five).
+- **Package review, round 4.** See §5.
 
 ## 4. What design evidence does not prove
 

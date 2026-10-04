@@ -381,7 +381,7 @@ primary without a level moves focus to the level group and shows the existing
 
 ### 7.2 Practice session `/challenge` — `session`
 
-States: `q`, `correct`, `wrong`, `revealed`, `recall`, `settings`, `settings-basic`, `settings-range`, `complete`,
+States: `q`, `correct`, `wrong`, `revealed`, `recall`, `settings`, `settings-basic`, `settings-range`, `settings-custom`, `complete`,
 `perfect`, `empty`, `loading`, `error`. Anatomy: h1 "問題 + question type
 (Mincho)" → instruction (secondary) → prompt (`ja.prompt`, target
 underlined) or headword block → aids (朗讀; 提示 before answering) → options → action row (fixed bottom
@@ -392,17 +392,33 @@ answer~~ → answer), 本次設定 (length · rate + 調整). Below 1024 the sam
 capabilities live in the title button (switcher), the settings sheet and
 completion. On wide widths 調整 opens the same settings as a dialog.
 
-Settings (`session?state=settings`, `settings-basic`, `settings-range`): first "這一組：<set>"
-with exactly the conditional controls the current mode has today
-(`ModePicker`): 題庫範圍 single choice (全部 · N1＋N2 · N2＋N3 · N3＋N4 · N4＋N5)
-for vocabulary reading and the comprehensive bank; for 基礎變化 練習類型
-(動詞 · い形容詞 · な形容詞 · 名詞 · 副詞 · 寒暄語 · 混合), 答題方式 (選項 / 自己輸入,
-verbs only, where the current rule allows it), 題庫範圍 multi-select (全部
-clears; levels without items disabled with a reason), 練習重點, 動詞類別
-multi-select (verbs only), 目標形 select (single-form focus only) — plus "改變
-這些設定會重新開始這一組". Then 每組題數 and 朗讀語速, then 換一組練習 and 重設本次
-(stating what is cleared). Multi-select groups are `role="group"` with
-`aria-pressed` segments (`data-multi`); single choices are radiogroups.
+Settings (`session?state=settings`, `settings-basic`, `settings-range`,
+`settings-custom`): first "這一組：<set>" with exactly the conditional controls
+the current mode has today (`ModePicker`, `usePracticeSession`), never more:
+
+- **単字讀音 only**: 題庫範圍 single choice from `VOCAB_LEVEL_RANGE_OPTIONS`
+  (全部 · N1＋N2 · N2＋N3 · N4＋N5). The comprehensive bank has no range control —
+  its level is the N1〜N4 備考 preset.
+- **基礎變化**: 練習類型 (動詞 · い形容詞 · な形容詞 · 名詞 · 混合); 答題方式
+  (選項 / 自己輸入) for verbs where the current rule allows it; 題庫範圍
+  multi-select N1–N5 (全部 clears; levels without items disabled with a
+  reason); 練習重點 from the available focus options (verbs: 單一形 · 核心動詞變化 ·
+  て/た比較 · 否定整理 · 普通形整理 · 必要過去; non-verbs add く/に修飾 and drop the
+  verb-only ones); 動詞類別 multi-select (verbs only); 目標形 select (single-form
+  focus only; the compatible subset of the target-form inventory).
+- Other sets show "沒有額外設定".
+
+A note says changing these restarts the set. Then **每組題數**: presets 10 · 20 ·
+30 · 50 · 全部 (shown for every set except daily, review and bookmarks, as
+today) plus a labelled 自訂 number field (1–999, numeric keypad); **朗讀語速**:
+標準 · 慢 · 更慢 plus 自訂 (0.5–1.5, step 0.05, decimal keypad). When the
+effective value is custom, no preset is pressed and the 自訂 field is marked
+selected (accent border/fill). The rate field keeps the learner's draft
+("0", "0.") and applies it only once it parses in range; on blur an
+out-of-range draft reverts to the effective rate (`TtsRatePicker`). Then 換一組練習
+and 重設本次 (stating what is cleared). Multi-select groups are `role="group"`
+with `aria-pressed` segments (`data-multi`); single choices are radiogroups;
+preset rows are `aria-pressed` groups as today.
 
 Typed recall: part of speech + reading meta, headword (dictionary form),
 target form as an outlined label ("改成 て形"), labelled field + 送出, hint

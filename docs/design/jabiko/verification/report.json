@@ -1,7 +1,7 @@
 {
   "system": "jabiko",
   "revision": "JT-1",
-  "generatedAt": "2026-10-04T18:41:48.089Z",
+  "generatedAt": "2026-10-04T18:55:55.791Z",
   "parity": [
     {
       "theme": "light",
@@ -2214,6 +2214,76 @@
     {
       "board": "session.html",
       "state": "settings-range",
+      "viewport": "1440x900",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "settings-custom",
+      "viewport": "320x640",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "settings-custom",
+      "viewport": "390x844",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "settings-custom",
+      "viewport": "768x1024",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "settings-custom",
+      "viewport": "1280x800",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "settings-custom",
       "viewport": "1440x900",
       "overflow": 0,
       "h1": 1,
@@ -5038,6 +5108,13 @@
       "mode": "default"
     },
     {
+      "file": "renders/session-state-settings-custom-390x844.png",
+      "board": "session.html?state=settings-custom",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default"
+    },
+    {
       "file": "renders/session-state-wrong-fixture-long-390x844.png",
       "board": "session.html?state=wrong&fixture=long",
       "viewport": "390x844",
@@ -5440,8 +5517,8 @@
     "parity": "66/66",
     "tachikoParity": "30/30",
     "contrast": "60/60",
-    "boardChecks": "240/240",
+    "boardChecks": "245/245",
     "geometry": "20/20",
-    "captures": 90
+    "captures": 91
   }
 }
