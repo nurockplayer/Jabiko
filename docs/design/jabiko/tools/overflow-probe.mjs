@@ -6,7 +6,7 @@ import { startStaticServer } from "./static-server.mjs";
 
 const [board, w = "390", h = "844"] = process.argv.slice(2);
 const width = Number(w);
-const touch = width < 600;
+const touch = width < 1024;
 const { server, origin } = await startStaticServer();
 const browser = await chromium.launch();
 try {

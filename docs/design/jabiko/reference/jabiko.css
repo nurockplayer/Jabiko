@@ -381,8 +381,8 @@ ruby rt { font-size: 0.5em; font-weight: 400; }
 .jt-segmented a { display: inline-grid; place-items: center; min-height: calc(var(--jt-control-h) - 6px); padding: 0 12px; border-radius: 5px; text-decoration: none; font-size: 14px; font-weight: 500; color: var(--jt-text-secondary); white-space: nowrap; }
 .jt-segmented a:hover { background: var(--jt-surface-inset); color: var(--jt-text-primary); }
 .jt-segmented a[aria-current="page"] { background: var(--jt-accent-background); color: var(--jt-accent-foreground); font-weight: 600; box-shadow: inset 0 0 0 1px var(--jt-selection-edge); }
-@media (max-width: 599px) { .jt-segmented a { min-height: 44px; min-width: 44px; } }
-@media (max-width: 599px) { .jt-segmented button { min-height: 44px; min-width: 44px; } .jt-segmented { padding: 1px; } }
+@media (max-width: 599px), (pointer: coarse) { .jt-segmented a { min-height: 44px; min-width: 44px; } }
+@media (max-width: 599px), (pointer: coarse) { .jt-segmented button { min-height: 44px; min-width: 44px; } .jt-segmented { padding: 1px; } }
 
 /* Fields (Tachiko labeled field). */
 .jt-field { display: grid; gap: 4px; }
@@ -520,9 +520,11 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
 }
 .jt-option-text { font-family: var(--jt-font-mincho); font-weight: 500; font-size: 20px; line-height: 28px; min-width: 0; overflow-wrap: anywhere; }
 .jt-option-text.jt-option-text-ui { font-family: inherit; font-size: 16px; line-height: 24px; font-weight: 500; }
-.jt-option-verdict { display: none; align-items: center; gap: 4px; font-size: 12px; line-height: 16px; font-weight: 600; white-space: nowrap; }
+/* The verdict slot is reserved from the start (fixed width, empty before
+   answering), so a label appearing can never re-wrap the option text (D-07). */
+.jt-option-verdict { display: inline-flex; justify-content: flex-end; align-items: center; gap: 4px; width: var(--jt-verdict-w, 80px); font-size: 12px; line-height: 16px; font-weight: 600; white-space: nowrap; }
+:root[lang="en"] { --jt-verdict-w: 96px; }
 .jt-option[data-jt-verdict] { cursor: default; }
-.jt-option[data-jt-verdict] .jt-option-verdict { display: inline-flex; }
 /* Verdict edges are inset shadows: options never move (D-07). */
 .jt-option[data-jt-verdict="correct"], .jt-option[data-jt-verdict="target"] { box-shadow: inset 0 0 0 1px var(--jt-assess-correct); border-color: var(--jt-assess-correct); }
 .jt-option[data-jt-verdict="correct"] .jt-option-verdict, .jt-option[data-jt-verdict="target"] .jt-option-verdict { color: var(--jt-assess-correct); }
@@ -634,7 +636,7 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
 .jt-cell[aria-pressed="true"] .jt-cell-glyph, .jt-cell[aria-pressed="true"] .jt-cell-mean { color: var(--jt-accent-foreground); }
 .jt-cell-speak { position: absolute; top: 2px; right: 2px; }
 .jt-cell-speak .jt-iconbtn { width: 36px; height: 36px; }
-@media (max-width: 599px) { .jt-cell-speak .jt-iconbtn { width: 44px; height: 44px; } }
+@media (max-width: 599px), (pointer: coarse) { .jt-cell-speak .jt-iconbtn { width: 44px; height: 44px; } }
 /* "上次看到" marks the remembered position when nothing is selected. */
 .jt-cell[data-last-read]::before { content: attr(data-last-read); position: absolute; top: 6px; left: 6px; font-size: 11px; line-height: 14px; font-weight: 600; color: var(--jt-accent-foreground); }
 /* Detail row: spans the full lattice width directly after the selected cell. */
@@ -667,7 +669,7 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
 .jt-menu-item .jt-icon { color: var(--jt-text-secondary); }
 .jt-menu-item-value { margin-left: auto; color: var(--jt-text-secondary); font-size: 12px; }
 .jt-menu-item-danger, .jt-menu-item-danger .jt-icon { color: var(--jt-status-error-ink); }
-@media (max-width: 599px) { .jt-menu-item { min-height: 44px; } }
+@media (max-width: 599px), (pointer: coarse) { .jt-menu-item { min-height: 44px; } }
 
 .jt-dialog {
   position: fixed; z-index: 50; left: 50%; top: 50%; transform: translate(-50%, -50%);
@@ -717,13 +719,13 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
 
 .jt-link { color: var(--jt-text-link); text-decoration: underline; text-underline-offset: 3px; }
 /* A link that stands alone (not inside running text) gets a full touch target. */
-@media (max-width: 599px) { .jt-link-standalone { display: inline-flex; align-items: center; min-height: 44px; } }
+@media (max-width: 599px), (pointer: coarse) { .jt-link-standalone { display: inline-flex; align-items: center; min-height: 44px; } }
 
 /* Breadcrumbs. */
 .jt-crumbs { display: flex; flex-wrap: wrap; gap: 0 4px; align-items: center; font-size: 12px; line-height: 20px; color: var(--jt-text-secondary); margin-bottom: 8px; }
 .jt-crumbs a { color: var(--jt-text-secondary); text-decoration: none; display: inline-flex; align-items: center; min-height: 24px; }
 .jt-crumbs a:hover { text-decoration: underline; }
-@media (max-width: 599px) { .jt-crumbs a { min-height: 44px; min-width: 44px; } }
+@media (max-width: 599px), (pointer: coarse) { .jt-crumbs a { min-height: 44px; min-width: 44px; } }
 
 /* ------------------------------------------------------------ reduced motion / forced colors */
 

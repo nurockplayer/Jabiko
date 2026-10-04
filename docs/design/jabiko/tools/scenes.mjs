@@ -20,7 +20,7 @@ export const BOARDS = [
   ["foundation.html", [""]],
   ["components.html", [""]],
   ["today.html", ["returning", "first"]],
-  ["session.html", ["q", "correct", "wrong", "revealed", "recall", "settings", "settings-basic", "complete", "perfect", "empty", "loading", "error"]],
+  ["session.html", ["q", "correct", "wrong", "revealed", "recall", "settings", "settings-basic", "settings-range", "complete", "perfect", "empty", "loading", "error"]],
   ["sets.html", ["switcher", "mock"]],
   ["learn.html", [""]],
   ["grammar.html", ["index", "point"]],
@@ -67,6 +67,9 @@ export const CAPTURES = [
   ["session.html?state=settings", "390x844", false],
   ["session.html?state=settings-basic", "390x844", false],
   ["session.html?state=settings-basic", "1440x900", false],
+  ["session.html?state=settings-range", "390x844", false],
+  ["session.html?state=wrong&fixture=long", "390x844", true],
+  ["session.html?state=wrong&fixture=long", "768x1024", false],
   ["session.html?state=complete", "1440x900", false],
   ["session.html?state=complete", "390x844", true],
   ["session.html?state=perfect", "390x844", false],
@@ -164,6 +167,7 @@ export function sceneLabel(board, vp, mode, fullPage) {
   bits.push(params.get("state") || "default");
   if (params.get("theme")) bits.push(params.get("theme"));
   if (params.get("lang")) bits.push(params.get("lang"));
+  if (params.get("fixture")) bits.push(`${params.get("fixture")} content`);
   if (mode) bits.push(`${mode} colors`);
   if (fullPage && needsFullSuffix(board, vp, mode)) bits.push("full page");
   return `${bits.join(" · ")} · ${vp.replace("x", "×")}`;

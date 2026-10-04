@@ -107,7 +107,8 @@ for (const theme of ["light", "dark"]) {
 // ------------------------------------------------------------ boards
 async function contextFor(browser, vp, options = {}) {
   const [width, height] = VIEWPORTS[vp];
-  const touch = width < 600;
+  // Phones and tablets (< 1024) are emulated as touch devices, so coarse-pointer rules apply.
+  const touch = width < 1024;
   return browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, isMobile: touch, hasTouch: touch, reducedMotion: "reduce", locale: "zh-TW", ...options });
 }
 
@@ -214,7 +215,8 @@ try {
         const page = await context.newPage();
         await page.goto(`${origin}/reference/${board}${state ? `?state=${state}` : ""}`, { waitUntil: "networkidle" });
         await page.evaluate(() => document.fonts.ready);
-        const compact = VIEWPORTS[vp][0] < 600 && !SPECIMEN_BOARDS.has(board);
+        // Touch-target floor applies to every touch-emulated width (< 1024).
+        const compact = VIEWPORTS[vp][0] < 1024 && !SPECIMEN_BOARDS.has(board);
         const result = await inspect(page, compact);
         const focus = vp === "1440x900" && !SPECIMEN_BOARDS.has(board) ? await focusCheck(page) : [];
         const entry = { board, state, viewport: vp, ...result, focusWithoutRing: focus.length };
@@ -244,22 +246,25 @@ try {
     }
   }
 
-  // D-07 geometry: options and Next keep their exact boxes after answering.
-  for (const vp of Object.keys(VIEWPORTS)) {
-    const rects = {};
-    for (const state of ["q", "correct", "wrong", "revealed"]) {
-      const context = await contextFor(browser, vp);
-      const page = await context.newPage();
-      await page.goto(`${origin}/reference/session.html?state=${state}`, { waitUntil: "networkidle" });
-      await page.evaluate(() => document.fonts.ready);
-      rects[state] = await optionRects(page);
-      await context.close();
+  // D-07 geometry: options and Next keep their exact boxes after answering,
+  // for short and long content, in zh-Hant and English.
+  for (const variant of ["", "&fixture=long", "&lang=en", "&fixture=long&lang=en"]) {
+    for (const vp of Object.keys(VIEWPORTS)) {
+      const rects = {};
+      for (const state of ["q", "correct", "wrong", "revealed"]) {
+        const context = await contextFor(browser, vp);
+        const page = await context.newPage();
+        await page.goto(`${origin}/reference/session.html?state=${state}${variant}`, { waitUntil: "networkidle" });
+        await page.evaluate(() => document.fonts.ready);
+        rects[state] = await optionRects(page);
+        await context.close();
+      }
+      // All five boxes: the four options and Next.
+      const moved = ["correct", "wrong", "revealed"].filter((s) => rects[s].length !== 5 || JSON.stringify(rects[s]) !== JSON.stringify(rects.q));
+      const ok = moved.length === 0;
+      report.geometry.push({ viewport: vp, variant: variant || "default", ok, moved });
+      if (!ok) failures.push(`D-07 options moved after answering @${vp}${variant}: ${moved.join(", ")}`);
     }
-    // All five boxes: the four options and Next.
-    const moved = ["correct", "wrong", "revealed"].filter((s) => rects[s].length !== 5 || JSON.stringify(rects[s]) !== JSON.stringify(rects.q));
-    const ok = moved.length === 0;
-    report.geometry.push({ viewport: vp, ok, moved });
-    if (!ok) failures.push(`D-07 options moved after answering @${vp}: ${moved.join(", ")}`);
   }
 
   if (capture) {

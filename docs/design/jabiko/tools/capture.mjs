@@ -3,7 +3,7 @@
 //   node docs/design/jabiko/tools/capture.mjs [--out DIR] [--full] board[?query]@WxH ...
 //
 // Example: node docs/design/jabiko/tools/capture.mjs session.html?state=wrong@390x844
-// Viewports below 600px wide are emulated as a touch phone.
+// Viewports below 1024px wide are emulated as touch devices (as in verify.mjs).
 import { chromium } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -33,7 +33,7 @@ try {
   for (const job of jobs) {
     const [board, size] = job.split("@");
     const [width, height] = size.split("x").map(Number);
-    const touch = width < 600;
+    const touch = width < 1024;
     const context = await browser.newContext({
       viewport: { width, height },
       deviceScaleFactor: 1,

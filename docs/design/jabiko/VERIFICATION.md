@@ -8,7 +8,7 @@ prove (Tachiko UQC §8–9 evidence discipline). Machine-readable results:
 ## 1. Design checks — `tools/verify.mjs`
 
 Environment: Chromium from the repository's Playwright, DPR 1,
-`reducedMotion: reduce`, locale zh-TW; widths < 600 emulate a touch phone.
+`reducedMotion: reduce`, locale zh-TW; widths < 1024 emulate a touch device.
 macOS system faces (the harness downloads nothing).
 
 | Check | Scope | Result |
@@ -16,10 +16,10 @@ macOS system faces (the harness downloads nothing).
 | Token parity: every `tokens.json` color equals the harness custom property | 33 roles × 2 themes | **66/66** |
 | Tachiko parity: every role sourced `tachiko`/`tachiko-protected` equals the FOUNDATION.md §2 snapshot | 30 roles | **30/30** |
 | Contrast: every declared pair meets its minimum | 30 pairs × 2 themes | **60/60** |
-| Board checks: no horizontal overflow; exactly one visible h1; ≥ 44px targets below 600px (inline links in running text exempt); Japanese carriers inside `lang="ja"`; every visible control has an accessible name independent of width-hidden text; 3px focus ring on the first 14 Tab stops (1440); bar text never wraps and bar controls never overlap | 12 boards × 47 states × 5 widths (320, 390, 768, 1280, 1440) | **235/235** |
-| D-07 geometry: the four options **and Next** keep identical boxes in `q`, `correct`, `wrong`, `revealed` | 5 widths | **5/5** |
+| Board checks: no horizontal overflow; exactly one visible h1; ≥ 44px targets below 1024px (touch; inline links in running text exempt); Japanese carriers inside `lang="ja"`; every visible control has an accessible name independent of width-hidden text; 3px focus ring on the first 14 Tab stops (1440); bar text never wraps and bar controls never overlap | 12 boards × 48 states × 5 widths (320, 390, 768, 1280, 1440); < 1024 emulated as touch | **240/240** |
+| D-07 geometry: the four options **and Next** keep identical boxes in `q`, `correct`, `wrong`, `revealed` | 5 widths × {short, long} × {zh-Hant, en} | **20/20** |
 | D-07 fold: at 390×844 the verdict line ends above the fixed action row | `session?state=wrong` | **pass** |
-| Captures | light, dark, forced colors, English overlay | **87** renders |
+| Captures | light, dark, forced colors, English overlay, long-content fixture | **90** renders |
 
 Specimen boards (`index`, `foundation`, `components`) are exempt from the
 target and focus checks because they show forced states side by side.
@@ -34,7 +34,7 @@ than columns; the set switcher state missing its h1.
 ## 2. Figma — `tools/figma/*`
 
 Pending the import into the dedicated Jabiko file (see README). The serializer
-has been run over all 82 scenes: every scene serialized with **0 unmatched
+has been run over all scenes: every scene serialized with **0 unmatched
 text, 0 missing text and 0 elements moved** by preparation (fail-closed).
 
 ## 3. Independent review
@@ -75,7 +75,25 @@ text, 0 missing text and 0 elements moved** by preparation (fail-closed).
      = answer text, option `data-selected="true"`, `data-result` values
      unchanged, presentation states on `data-jt-verdict`; recall Next enabled.
   8. *Figma evidence pending* — see §2.
-- **Package review, round 2.** See §5.
+- **Package review, round 2 (fresh Codex reviewer).** Round-1 items 2, 3
+  (for the supplied fixtures), 4 and 5 VERIFIED; items 1, 6, 7 partially.
+  Verdict "Blocking findings: 2". Dispositions:
+  1. *Verdict label could re-wrap option text; translation inserted above
+     the options* — **fixed**: verdict slot reserved before answering
+     (80px, 96px in English) with short labels; prompt translation moved into
+     the feedback block; the geometry check now runs short and long content
+     (`?fixture=long`) in zh-Hant and English at every width (20/20).
+  2. *Kanji N2/N1 filter missing* — **fixed** (全部, N5–N1).
+  3. *Range selector and target forms only described* — **fixed**:
+     `settings-range` renders the real 題庫範圍 selector; 目標形 lists the full
+     inventory with the compatibility rule stated.
+  4. *`data-result="unanswered"` omitted* — **fixed** in board and A6.
+  5. *Learn completion copy restricted to the chapter* — **fixed** ("在任何練習裡").
+  6. *Tablet touch targets* — **fixed**: 44px floors also under
+     `(pointer: coarse)`; 768px is now touch-emulated and target-checked.
+  7. *Stale anatomy order; author note visible in the World frame* —
+     **fixed**.
+- **Package review, round 3.** See §5.
 
 ## 4. What design evidence does not prove
 

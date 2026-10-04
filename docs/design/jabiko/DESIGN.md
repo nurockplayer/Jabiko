@@ -154,7 +154,7 @@ moves to a sheet (session settings, switcher, Learn TOC).
 | State | Option treatment | Label (zh-Hant) | Announced |
 | --- | --- | --- | --- |
 | unanswered | 1px `border.control`; key square `surface.sunken` | — | option text + key |
-| correct · chosen | inset `assess.correct` edge (1px inset + 1px border = 2px), key square filled `assess.correct` | 〇 正解 · 你的答案 | verdict line "答對了" via live region |
+| correct · chosen | inset `assess.correct` edge (1px inset + 1px border = 2px), key square filled `assess.correct` | 〇 正解 | verdict line "答對了" via live region |
 | correct · not chosen (`target`) | same as correct | 〇 正解 | — |
 | miss (`wrong`) | inset `assess.miss` edge, key filled `assess.miss` | × 你的答案 | verdict line "答錯了 · 正解 X" |
 | revealed | dashed `assess.correct` border | dashed 〇 答案 | "已看答案 · 答案 X" |
@@ -172,7 +172,7 @@ moves to a sheet (session settings, switcher, Learn TOC).
   for revealed); labels and glyphs carry the meaning.
 - **A6** Automation attributes stay exactly as today:
   `.drill-panel[data-selected]` = the chosen answer text,
-  `[data-result]` = `correct` | `wrong` | `revealed`,
+  `[data-result]` = `unanswered` | `correct` | `wrong` | `revealed`,
   `[data-expected-answer]`; the chosen option `data-selected="true"`, options
   `data-result` = `correct` | `wrong` | `target` (the correct option on a miss
   or a reveal). The extra presentation states (`idle`, `revealed` on the
@@ -261,23 +261,23 @@ grammar-note expansion; never for state.
 
 ### 6.11 Answer option — Jabiko
 
-Grid `key 24 · text · verdict slot`, ≥ 56px, 12px/14px padding, 7px radius,
+Grid `key 24 · text · verdict slot (reserved 80px; 96px in en)`, ≥ 56px, 12px/14px padding, 7px radius,
 1px `border.control`, `surface.content`. Key square 24px radius 4,
 `surface.sunken`, digit 12px 600. Text: `ja.option` Mincho 20/28 with
 `lang="ja"`; UI-language options (meaning choice) use 16/24 chrome type and no
-`lang="ja"`. Long text wraps (`overflow-wrap: anywhere`); the verdict slot
-stays at the right and vertically centered. Layout: 2×2 grid ≥ 600 when all
+`lang="ja"`. Long text wraps (`overflow-wrap: anywhere`); the verdict slot is
+reserved before answering (empty) at the right, vertically centered, so a label appearing never re-wraps the text. Layout: 2×2 grid ≥ 600 when all
 options are short (≤ 12 characters), otherwise one column; always one column
 < 600 and for Small Talk/World responses. States: rest · hover (inset) ·
-pressed (sunken) · focus (ring) · §5 verdict states · focus on a verdicted
-option (ring over the verdict edge). Activation commits immediately (click,
+pressed (sunken) · focus (ring) · §5 verdict states (disabled; focus moves
+to Next). Activation commits immediately (click,
 tap, key 1–4).
 
 ### 6.12 Verdict line and feedback block — Jabiko
 
-Feedback block: 24px below the options, top hairline, then: verdict line
-(§5 A2) → explanation (`read.body`) → translation of the prompt when the
-example equals the prompt (in the aids row) → "其他選項讀起來是" gloss list
+Feedback block: 24px below the action row, top hairline, then: verdict line
+(§5 A2) → translation of the prompt when the
+example equals the prompt (14px secondary) → explanation (`read.body`) → "其他選項讀起來是" gloss list
 (Japanese 500 · gloss secondary) → example sentences when present (`ja.line` +
 translation + speak) → actions row: 收藏此題 (toggle, `aria-pressed`), 文型說明
 (toggle, `aria-expanded`, expands a note) and 看這個文型 (opens the point
@@ -381,18 +381,18 @@ primary without a level moves focus to the level group and shows the existing
 
 ### 7.2 Practice session `/challenge` — `session`
 
-States: `q`, `correct`, `wrong`, `revealed`, `recall`, `settings`, `complete`,
+States: `q`, `correct`, `wrong`, `revealed`, `recall`, `settings`, `settings-basic`, `settings-range`, `complete`,
 `perfect`, `empty`, `loading`, `error`. Anatomy: h1 "問題 + question type
 (Mincho)" → instruction (secondary) → prompt (`ja.prompt`, target
-underlined) or headword block → aids (朗讀, 提示 before answering; prompt
-translation after) → options → keycap hint (before answering, fine pointer
-only) → feedback block → action row. Aside (≥ 1024): 這一組 (name,
+underlined) or headword block → aids (朗讀; 提示 before answering) → options → action row (fixed bottom
+< 600) → keycap hint (before answering, fine pointer
+only) → feedback block (prompt translation first). Aside (≥ 1024): 這一組 (name,
 description, 換一組, 重設本次), 本次 (已答, 答對), 本次答錯 (surface · ~~your
 answer~~ → answer), 本次設定 (length · rate + 調整). Below 1024 the same
 capabilities live in the title button (switcher), the settings sheet and
 completion. On wide widths 調整 opens the same settings as a dialog.
 
-Settings (`session?state=settings`, `settings-basic`): first "這一組：<set>"
+Settings (`session?state=settings`, `settings-basic`, `settings-range`): first "這一組：<set>"
 with exactly the conditional controls the current mode has today
 (`ModePicker`): 題庫範圍 single choice (全部 · N1＋N2 · N2＋N3 · N3＋N4 · N4＋N5)
 for vocabulary reading and the comprehensive bank; for 基礎變化 練習類型

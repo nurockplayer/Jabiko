@@ -359,7 +359,7 @@ try {
     const name = captureName(board, vp, mode, full);
     if (filter && !name.includes(filter)) continue;
     const [width, height] = VIEWPORTS[vp];
-    const touch = width < 600;
+    const touch = width < 1024;
     const context = await browser.newContext({
       viewport: { width, height }, deviceScaleFactor: 1, isMobile: touch, hasTouch: touch,
       reducedMotion: "reduce", locale: "zh-TW", ...(mode === "forced" ? { forcedColors: "active" } : {})

@@ -1,7 +1,7 @@
 {
   "system": "jabiko",
   "revision": "JT-1",
-  "generatedAt": "2026-10-04T18:20:54.610Z",
+  "generatedAt": "2026-10-04T18:41:48.089Z",
   "parity": [
     {
       "theme": "light",
@@ -2144,6 +2144,76 @@
     {
       "board": "session.html",
       "state": "settings-basic",
+      "viewport": "1440x900",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "settings-range",
+      "viewport": "320x640",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "settings-range",
+      "viewport": "390x844",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "settings-range",
+      "viewport": "768x1024",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "settings-range",
+      "viewport": "1280x800",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "settings-range",
       "viewport": "1440x900",
       "overflow": 0,
       "h1": 1,
@@ -4609,26 +4679,121 @@
   "geometry": [
     {
       "viewport": "320x640",
+      "variant": "default",
       "ok": true,
       "moved": []
     },
     {
       "viewport": "390x844",
+      "variant": "default",
       "ok": true,
       "moved": []
     },
     {
       "viewport": "768x1024",
+      "variant": "default",
       "ok": true,
       "moved": []
     },
     {
       "viewport": "1280x800",
+      "variant": "default",
       "ok": true,
       "moved": []
     },
     {
       "viewport": "1440x900",
+      "variant": "default",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "320x640",
+      "variant": "&fixture=long",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "390x844",
+      "variant": "&fixture=long",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "768x1024",
+      "variant": "&fixture=long",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "1280x800",
+      "variant": "&fixture=long",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "1440x900",
+      "variant": "&fixture=long",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "320x640",
+      "variant": "&lang=en",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "390x844",
+      "variant": "&lang=en",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "768x1024",
+      "variant": "&lang=en",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "1280x800",
+      "variant": "&lang=en",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "1440x900",
+      "variant": "&lang=en",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "320x640",
+      "variant": "&fixture=long&lang=en",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "390x844",
+      "variant": "&fixture=long&lang=en",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "768x1024",
+      "variant": "&fixture=long&lang=en",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "1280x800",
+      "variant": "&fixture=long&lang=en",
+      "ok": true,
+      "moved": []
+    },
+    {
+      "viewport": "1440x900",
+      "variant": "&fixture=long&lang=en",
       "ok": true,
       "moved": []
     }
@@ -4862,6 +5027,27 @@
       "file": "renders/session-state-settings-basic-1440x900.png",
       "board": "session.html?state=settings-basic",
       "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default"
+    },
+    {
+      "file": "renders/session-state-settings-range-390x844.png",
+      "board": "session.html?state=settings-range",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default"
+    },
+    {
+      "file": "renders/session-state-wrong-fixture-long-390x844.png",
+      "board": "session.html?state=wrong&fixture=long",
+      "viewport": "390x844",
+      "fullPage": true,
+      "mode": "default"
+    },
+    {
+      "file": "renders/session-state-wrong-fixture-long-768x1024.png",
+      "board": "session.html?state=wrong&fixture=long",
+      "viewport": "768x1024",
       "fullPage": false,
       "mode": "default"
     },
@@ -5254,8 +5440,8 @@
     "parity": "66/66",
     "tachikoParity": "30/30",
     "contrast": "60/60",
-    "boardChecks": "235/235",
-    "geometry": "5/5",
-    "captures": 87
+    "boardChecks": "240/240",
+    "geometry": "20/20",
+    "captures": 90
   }
 }

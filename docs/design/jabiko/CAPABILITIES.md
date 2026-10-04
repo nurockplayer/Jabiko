@@ -41,7 +41,7 @@ column is the < 1024px path; "Evidence" names the board and state.
 | 句型練習, 句中填空, 単字讀音, 基礎變化 | same | Switcher "專項練習" (all four) | same | `sets?state=switcher` |
 | JLPT question-type sections, unavailable sections | `/mock`, `mockExam.ts` | JLPT sections page; "準備中" status word | same | `sets?state=mock` |
 | Deep links `/challenge?mode=&level=` | `challengeDeepLink.ts` | unchanged | unchanged | — |
-| Set configuration: 題庫範圍 (vocab / exam ranges); for 基礎變化 練習類型, 答題方式 (choice/recall), level multi-select (unavailable levels disabled), 練習重點, 動詞類別 multi-select, 目標形 | `ModePicker` (conditional) | Aside 調整 → settings dialog "這一組" section | Session bar sliders → settings sheet "這一組" | `session?state=settings-basic` (390, 1440) |
+| Set configuration: 題庫範圍 (vocab / exam ranges); for 基礎變化 練習類型, 答題方式 (choice/recall), level multi-select (unavailable levels disabled), 練習重點, 動詞類別 multi-select, 目標形 | `ModePicker` (conditional) | Aside 調整 → settings dialog "這一組" section | Session bar sliders → settings sheet "這一組" | `session?state=settings-basic` (390, 1440), `settings-range` |
 | Session length (10/20/30/50/all/custom) | `SessionLengthPicker` | Aside "本次設定 · 調整" | Session bar sliders → settings sheet | `session?state=settings` |
 | TTS rate (normal/slow/slower/custom) | `TtsRatePicker` | same | same | `session?state=settings` |
 | Reset session | `ModePicker` | Aside "重設本次" | Settings sheet (states what is cleared) | `session?state=settings` |

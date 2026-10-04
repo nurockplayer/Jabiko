@@ -45,10 +45,10 @@
 </head>
 <body>
 <div class="jt-app">
-  <header class="jt-session-bar" data-state="q correct wrong revealed recall complete perfect empty loading error settings settings-basic">
+  <header class="jt-session-bar" data-state="q correct wrong revealed recall complete perfect empty loading error settings settings-basic settings-range">
     <div class="jt-session-left">
       <a class="jt-iconbtn" href="today.html" aria-label="離開練習，回到今日"><i data-icon="close"></i></a>
-      <button class="jt-session-title" type="button" aria-haspopup="dialog" aria-label="這一組：今日練習。換一組"><span><span data-l="zh-Hant"><span data-state="q correct wrong revealed recall settings complete perfect empty loading error">今日練習</span><span data-state="settings-basic">基礎變化</span></span><span data-l="en">Today's set</span></span><i data-icon="chevron" class="jt-icon-sm"></i></button>
+      <button class="jt-session-title" type="button" aria-haspopup="dialog" aria-label="這一組：今日練習。換一組"><span><span data-l="zh-Hant"><span data-state="q correct wrong revealed recall settings complete perfect empty loading error">今日練習</span><span data-state="settings-basic">基礎變化</span><span data-state="settings-range">単字讀音</span></span><span data-l="en">Today's set</span></span><i data-icon="chevron" class="jt-icon-sm"></i></button>
     </div>
     <div class="jt-progress" aria-label="進度：第 7 題，共 20 題">
       <span class="jt-meter" aria-hidden="true"><span style="width:35%"></span></span>
@@ -66,8 +66,8 @@
     <div class="jt-layout">
       <div>
         <!-- ============ Question (all answer states) ============ -->
-        <section class="drill-panel" id="drill" aria-labelledby="qtype" data-state="q correct wrong revealed settings"
-          data-question-id="n3-kanji-tsugou" data-question-type="kanji-reading">
+        <section class="drill-panel" id="drill" aria-labelledby="qtype" data-state="q correct wrong revealed settings settings-range"
+          data-question-id="n3-kanji-tsugou" data-question-type="kanji-reading" data-result="unanswered">
           <div class="jt-qhead">
             <h1 class="jt-h1" id="qtype"><span data-l="zh-Hant">問題</span><span data-l="en">Question</span> <span class="jt-qtype" lang="ja">漢字読み</span></h1>
           </div>
@@ -75,8 +75,7 @@
           <p class="jt-prompt jt-qprompt" lang="ja">今日はちょっと<u>都合</u>が悪いので、また今度にしてください。</p>
           <div class="jt-aids">
             <button class="jt-btn jt-btn-ghost" type="button" aria-label="播放這一句"><i data-icon="speaker"></i><span data-l="zh-Hant">朗讀</span><span data-l="en">Listen</span></button>
-            <button class="jt-btn jt-btn-ghost" type="button" aria-expanded="false" data-state="q settings"><i data-icon="eye"></i><span data-l="zh-Hant">提示</span><span data-l="en">Hint</span></button>
-            <p class="jt-translation" data-state="correct wrong revealed"><span data-l="zh-Hant">今天有點不方便，請改約下次。</span><span data-l="en">Today isn't convenient, so please make it another time.</span></p>
+            <button class="jt-btn jt-btn-ghost" type="button" aria-expanded="false" data-state="q settings settings-range"><i data-icon="eye"></i><span data-l="zh-Hant">提示</span><span data-l="en">Hint</span></button>
           </div>
 
           <div class="jt-options" role="group" aria-label="選項">
@@ -89,7 +88,7 @@
             <button class="jt-btn" type="button" id="reveal"><i data-icon="eye"></i><span data-l="zh-Hant">看答案</span><span data-l="en">Show answer</span></button>
             <button class="jt-btn jt-btn-primary" type="button" id="next"><span data-l="zh-Hant">下一題</span><span data-l="en">Next</span><i data-icon="arrow"></i></button>
           </div>
-          <p class="jt-kbd-hint" data-state="q settings" style="margin-top:12px"><i data-icon="keyboard" class="jt-icon-sm"></i><span class="jt-kbd">1</span>–<span class="jt-kbd">4</span> <span data-l="zh-Hant">選答</span><span data-l="en">answer</span> · <span class="jt-kbd">Enter</span> <span data-l="zh-Hant">下一題</span><span data-l="en">next</span></p>
+          <p class="jt-kbd-hint" data-state="q settings settings-range" style="margin-top:12px"><i data-icon="keyboard" class="jt-icon-sm"></i><span class="jt-kbd">1</span>–<span class="jt-kbd">4</span> <span data-l="zh-Hant">選答</span><span data-l="en">answer</span> · <span class="jt-kbd">Enter</span> <span data-l="zh-Hant">下一題</span><span data-l="en">next</span></p>
 
           <!-- Feedback: below the marked options and the action row (D-07); nothing above it moves. -->
           <section class="jt-feedback" aria-live="polite" aria-labelledby="verdict" data-state="correct wrong revealed">
@@ -100,6 +99,7 @@
               <span class="jt-verdict-answer" data-state="wrong revealed"><span data-l="zh-Hant">正解</span><span data-l="en">Answer</span> <b lang="ja">つごう</b></span>
               <span class="jt-tag" title="JLPT 等級">N3</span>
             </div>
+            <p class="jt-translation" id="tr"><span data-l="zh-Hant">今天有點不方便，請改約下次。</span><span data-l="en">Today isn't convenient, so please make it another time.</span></p>
             <p class="jt-read"><span data-l="zh-Hant">「都」在這裡讀「つ」，「合」濁化讀「ごう」，所以「都合」＝つごう（情況、方便與否）。「とごう」把「都」讀成「と」；「つこう」漏掉了濁音。</span><span data-l="en">Here 都 is read つ and 合 voices to ごう, so 都合 = つごう (circumstances, convenience). とごう misreads 都 as と; つこう drops the voicing.</span></p>
             <div>
               <h2 class="jt-subhead"><span data-l="zh-Hant">其他選項讀起來是</span><span data-l="en">The other options read as</span></h2>
@@ -213,7 +213,7 @@
       </div>
 
       <!-- ============ Aside: this session (≥ 1024; below, moves to sheets) ============ -->
-      <aside class="jt-aside jt-hide-medium" aria-label="本次練習" data-state="q correct wrong revealed recall settings settings-basic">
+      <aside class="jt-aside jt-hide-medium" aria-label="本次練習" data-state="q correct wrong revealed recall settings settings-basic settings-range">
         <section class="aside-set">
           <h2 class="jt-aside-h">這一組</h2>
           <p class="jt-h3" style="color:var(--jt-text-primary);margin:0">今日練習</p>
@@ -247,7 +247,7 @@
   </main>
 
   <!-- ============ Session settings sheet (compact / medium entry) ============ -->
-  <div data-state="settings settings-basic">
+  <div data-state="settings settings-basic settings-range">
     <div class="jt-scrim"></div>
     <div class="jt-dialog settings-sheet" role="dialog" aria-modal="true" aria-labelledby="set-h" data-sheet>
       <div class="jt-dialog-head"><h2 class="jt-dialog-title" id="set-h">本次設定</h2><button class="jt-iconbtn" type="button" aria-label="關閉" style="margin:-10px -10px 0 0"><i data-icon="close"></i></button></div>
@@ -271,13 +271,21 @@
           <div class="jt-segmented" data-multi role="group" aria-labelledby="vg-l"><button aria-pressed="false">全部</button><button aria-pressed="true">一類</button><button aria-pressed="true">二類</button><button aria-pressed="false">三類</button></div>
         </div>
         <div class="jt-field"><label for="tf">目標形</label>
-          <select class="jt-select jt-input" id="tf"><option>て形</option><option>ます形</option><option>ない形</option><option>辭書形</option></select>
+          <select class="jt-select jt-input" id="tf"><option>て形</option><option>た形</option><option>ない形</option><option>否定て形・ないで</option><option>否定接續・なくて</option><option>必要過去・なければならなかった</option><option>ます形</option><option>可能形</option><option>意向形</option><option>假定形・ば</option><option>使役形</option><option>受身形</option><option>願望・たい形</option><option>念法</option><option>意思</option><option>普通形・非過去肯定</option><option>普通形・非過去否定</option><option>普通形・過去肯定</option><option>普通形・過去否定</option></select>
+          <p class="jt-field-hint">只列出目前詞類與練習重點相容的目標形（與現行規則相同）。</p>
         </div>
         <p class="jt-field-hint">改變這些設定會重新開始這一組。</p>
       </section>
       <section class="set-config" data-state="settings" aria-labelledby="cfg2-h">
         <h3 class="jt-subhead" id="cfg2-h">這一組：今日練習</h3>
-        <p class="jt-field-hint">今日練習沒有額外設定。単字讀音、綜合考題庫可在這裡選題庫範圍（全部、N1＋N2、N2＋N3、N3＋N4、N4＋N5）。</p>
+        <p class="jt-field-hint">今日練習沒有額外設定。</p>
+      </section>
+      <section class="set-config" data-state="settings-range" aria-labelledby="cfg3-h">
+        <h3 class="jt-subhead" id="cfg3-h">這一組：単字讀音</h3>
+        <div class="jt-field"><span class="jt-field-label" id="rg-l">題庫範圍</span>
+          <div class="jt-segmented" data-multi role="radiogroup" aria-labelledby="rg-l"><button role="radio" aria-checked="false">全部</button><button role="radio" aria-checked="false">N1＋N2</button><button role="radio" aria-checked="false">N2＋N3</button><button role="radio" aria-checked="true">N3＋N4</button><button role="radio" aria-checked="false">N4＋N5</button><button role="radio" aria-checked="false">完全新手</button></div>
+        </div>
+        <p class="jt-field-hint">綜合考題庫用同一個控制項；改變範圍會重新開始這一組。</p>
       </section>
       <div>
         <div class="jt-field"><span class="jt-field-label" id="len-l">每組題數</span>
@@ -305,9 +313,17 @@
   const X = '<svg class="jt-mark" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>';
   const R = '<svg class="jt-mark" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-dasharray="3 2.6"><circle cx="12" cy="12" r="7.5"/></svg>';
   const en = new URLSearchParams(location.search).get("lang") === "en";
+  if (new URLSearchParams(location.search).get("fixture") === "long") {
+    document.querySelector("#drill .jt-prompt").innerHTML = "会議の資料は前もって全員に送っておいたので、当日は説明を短くして、質疑応答の<u>時間</u>を長めに取ることにしました。";
+    document.querySelector("#drill .jt-options").dataset.layout = "list";
+    ["じかん（時間を長めに取る）", "とき（その時になったら考える）", "じき（時期を見て決める）", "ころ（そのころには終わっている）"].forEach((txt, i) => { opts[i].querySelector(".jt-option-text").textContent = txt; });
+    document.querySelector(".jt-verdict-answer b").textContent = "じかん";
+    document.querySelector("#drill .jt-read").textContent = "（版面測試用的長內容：確認回饋出現時，上方的選項與下一題都不會移動。）";
+    document.getElementById("tr").textContent = "會議資料已經事先寄給所有人，所以當天決定縮短說明，把問答時間留長一點。這是一段刻意拉長的翻譯，用來確認回饋區塊出現時，上方的選項和下一題按鈕都不會移動。";
+  }
   if (state === "correct") {
     drill.dataset.selected = "つごう"; opts[0].dataset.selected = "true"; drill.dataset.result = "correct"; drill.dataset.expectedAnswer = "つごう";
-    verdict(opts[0], "correct", `${O}${en ? "Correct · your answer" : "正解 · 你的答案"}`);
+    verdict(opts[0], "correct", `${O}${en ? "Correct" : "正解"}`);
     opts.slice(1).forEach((o) => verdict(o, "idle", ""));
   }
   if (state === "wrong") {

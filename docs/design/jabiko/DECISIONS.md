@@ -99,7 +99,7 @@ Tachiko's protected system states:
 
 | Role | Light / dark | Glyph | Used for |
 | --- | --- | --- | --- |
-| `assess.correct` | `#206C4E` / `#74CFA5` | 〇 circle | the correct option (chosen: "正解 · 你的答案"; not chosen: "正解"); met Small Talk dimensions |
+| `assess.correct` | `#206C4E` / `#74CFA5` | 〇 circle | the correct option (chosen or not: "正解"; the chosen one also has its key square filled and the verdict line says 答對了); met Small Talk dimensions |
 | `assess.miss` | `#B3361C` / `#F4906F` | × | only the learner's incorrect choice ("你的答案") |
 | `assess.partial` | `#5B6072` / `#B9BCCB` | △ | a Small Talk dimension that "可以再加強" — formative, not wrong |
 | revealed | `assess.correct`, dashed | dashed 〇 | answer shown without answering ("答案"); never counted as earned |
