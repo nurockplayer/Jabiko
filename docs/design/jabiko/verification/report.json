@@ -1,7 +1,7 @@
 {
   "system": "jabiko",
   "revision": "JT-1",
-  "generatedAt": "2026-10-04T19:12:33.375Z",
+  "generatedAt": "2026-10-04T19:27:08.634Z",
   "parity": [
     {
       "theme": "light",
@@ -5680,6 +5680,26 @@
     "platform": "darwin",
     "node": "v26.10.0"
   },
+  "forcedFocus": [
+    {
+      "board": "session.html?state=settings-basic",
+      "viewport": "1440x900",
+      "focusedSelected": 9,
+      "ok": true
+    },
+    {
+      "board": "today.html?state=first",
+      "viewport": "1440x900",
+      "focusedSelected": 4,
+      "ok": true
+    },
+    {
+      "board": "reference.html?state=selected",
+      "viewport": "1440x900",
+      "focusedSelected": 5,
+      "ok": true
+    }
+  ],
   "failures": [],
   "summary": {
     "parity": "66/66",
@@ -5687,6 +5707,7 @@
     "contrast": "60/60",
     "boardChecks": "255/255",
     "geometry": "20/20",
+    "forcedFocus": "3/3",
     "captures": 95
   }
 }

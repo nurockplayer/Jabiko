@@ -749,9 +749,14 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
   .jt-option-key { border: 1px solid CanvasText; }
   .jt-tab[aria-current="page"]::after, .jt-tabbar a[aria-current="page"]::before, .jt-meter > span, .jt-bar-track > span, .jt-day[data-done], .jt-stage i[data-on] { background: Highlight; forced-color-adjust: none; }
   .jt-day, .jt-bar-track, .jt-meter, .jt-stage i { border: 1px solid CanvasText; }
+  /* Selection uses the system selection fill (Highlight/HighlightText), never
+     an outline, so the 3px keyboard focus ring stays a separate, visible state. */
   .jt-row[aria-current="true"], .jt-row[aria-current="page"], .jt-row[aria-pressed="true"], .jt-choice[aria-checked="true"],
   .jt-segmented button[aria-pressed="true"], .jt-segmented button[aria-checked="true"], .jt-segmented a[aria-current="page"],
-  .jt-cell[aria-pressed="true"], .jt-custom[data-selected] .jt-input, .jt-toggle[aria-pressed="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  .jt-cell[aria-pressed="true"], .jt-custom[data-selected] .jt-input, .jt-toggle[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  .jt-row[aria-current] *, .jt-row[aria-pressed="true"] *, .jt-choice[aria-checked="true"] *, .jt-cell[aria-pressed="true"] *, .jt-toggle[aria-pressed="true"] * { color: HighlightText; }
+  :focus-visible { outline: 3px solid CanvasText; outline-offset: 2px; }
+  .jt-row:focus-visible, .jt-tab:focus-visible, .jt-tabbar a:focus-visible, .jt-cell:focus-visible, .jt-menu-item:focus-visible, .jt-choice:focus-visible, .jt-segmented button:focus-visible, .jt-segmented a:focus-visible { outline-offset: -3px; }
   .jt-btn, .jt-toggle, .jt-select-btn, .jt-segmented { border: 1px solid ButtonText; }
   .jt-notice, .jt-note, .jt-panel { border: 1px solid CanvasText; }
 }

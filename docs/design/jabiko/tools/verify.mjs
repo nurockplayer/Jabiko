@@ -246,6 +246,31 @@ try {
     }
   }
 
+  // Forced colours: a selected/checked/pressed control that receives keyboard
+  // focus must still draw a >= 3px focus outline (selection never replaces focus).
+  for (const [board, vp] of [["session.html?state=settings-basic", "1440x900"], ["today.html?state=first", "1440x900"], ["reference.html?state=selected", "1440x900"]]) {
+    const context = await contextFor(browser, vp, { forcedColors: "active" });
+    const page = await context.newPage();
+    await page.goto(`${origin}/reference/${board}`, { waitUntil: "networkidle" });
+    const seen = [];
+    for (let i = 0; i < 60; i += 1) {
+      await page.keyboard.press("Tab");
+      const info = await page.evaluate(() => {
+        const el = document.activeElement;
+        if (!el || el === document.body) return null;
+        const selected = el.matches('[aria-checked="true"], [aria-pressed="true"], [aria-current]');
+        const s = getComputedStyle(el);
+        return { selected, width: parseFloat(s.outlineWidth), style: s.outlineStyle, label: (el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 12) };
+      });
+      if (info?.selected) seen.push(info);
+    }
+    const bad = seen.filter((f) => f.style === "none" || f.width < 3);
+    const ok = seen.length > 0 && bad.length === 0;
+    report.forcedFocus = [...(report.forcedFocus ?? []), { board, viewport: vp, focusedSelected: seen.length, ok }];
+    if (!ok) failures.push(`forced colours: focused selected controls without a 3px ring on ${board}: ${seen.length ? bad.map((b) => b.label).join(", ") : "none reached"}`);
+    await context.close();
+  }
+
   // D-07 geometry: options and Next keep their exact boxes after answering,
   // for short and long content, in zh-Hant and English.
   for (const variant of ["", "&fixture=long", "&lang=en", "&fixture=long&lang=en"]) {
@@ -298,6 +323,7 @@ report.summary = {
   contrast: `${report.contrast.filter((c) => c.ok).length}/${report.contrast.length}`,
   boardChecks: `${report.boards.filter((b) => b.ok).length}/${report.boards.length}`,
   geometry: `${report.geometry.filter((g) => g.ok).length}/${report.geometry.length}`,
+  forcedFocus: `${(report.forcedFocus ?? []).filter((f) => f.ok).length}/${(report.forcedFocus ?? []).length}`,
   captures: report.captures.length
 };
 await mkdir(resolve(ROOT, "verification"), { recursive: true });

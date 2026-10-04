@@ -19,6 +19,7 @@ macOS system faces (the harness downloads nothing).
 | Board checks: no horizontal overflow; exactly one visible h1; ≥ 44px targets below 1024px (touch; inline links in running text exempt); Japanese carriers inside `lang="ja"`; every visible control has an accessible name independent of width-hidden text; 3px focus ring on the first 14 Tab stops (1440); bar text never wraps and bar controls never overlap | 12 boards × 51 states × 5 widths (320, 390, 768, 1280, 1440); < 1024 emulated as touch | **255/255** |
 | D-07 geometry: the four options **and Next** keep identical boxes in `q`, `correct`, `wrong`, `revealed` | 5 widths × {short, long} × {zh-Hant, en} | **20/20** |
 | D-07 fold: at 390×844 the verdict line ends above the fixed action row | `session?state=wrong` | **pass** |
+| Forced colours: selected controls that receive keyboard focus still draw a ≥ 3px ring | settings, first-run levels, kanji selection (1440, forced) | **3/3** |
 | Captures | light, dark, forced colors, English overlay, long-content fixture | **95** renders |
 
 Specimen boards (`index`, `foundation`, `components`) are exempt from the
@@ -125,7 +126,18 @@ text, 0 missing text and 0 elements moved** by preparation (fail-closed).
   The reviewer also noted that the keyboard check covers outline styling on
   Tab stops only, not modal containment or radio arrow keys; that remains an
   implementation acceptance item (§4).
-- **Package review, round 5.** See §5.
+- **Package review, round 5 (fresh Codex reviewer).** All four round-4
+  items VERIFIED; parity 66/66, contrast 60/60, Tachiko roles 19/19
+  independently recalculated. Verdict "Blocking findings: 1":
+  1. *Forced-colours selection outline overrode the keyboard focus ring* —
+     **fixed**: selection uses the system selection fill
+     (`Highlight`/`HighlightText`), focus keeps a 3px `CanvasText` outline; a
+     new forced-colours focus check tabs through selected controls on three
+     boards (3/3).
+  Should-fix items fixed: the endless summary no longer shows a finite
+  progress edge; the session anatomy text names the progress-button path and
+  the verdict-first feedback order.
+- **Package review, round 6.** See §5.
 
 ## 4. What design evidence does not prove
 

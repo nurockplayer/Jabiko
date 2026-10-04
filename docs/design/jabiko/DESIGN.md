@@ -392,10 +392,10 @@ States: `q`, `correct`, `wrong`, `revealed`, `recall`, `settings`, `settings-bas
 (Mincho)" → instruction (secondary) → prompt (`ja.prompt`, target
 underlined) or headword block → aids (朗讀; 提示 before answering) → options → action row (fixed bottom
 < 600) → keycap hint (before answering, fine pointer
-only) → feedback block (prompt translation first). Aside (≥ 1024): 這一組 (name,
+only) → feedback block (verdict line first, then the prompt translation, §6.12). Aside (≥ 1024): 這一組 (name,
 description, 換一組, 重設本次), 本次 (已答, 答對), 本次答錯 (surface · ~~your
 answer~~ → answer), 本次設定 (length · rate + 調整). Below 1024 the same
-capabilities live in the title button (switcher), the settings sheet and
+capabilities live in the title button (switcher), the progress button (本次: tally and mistakes, also in endless sessions), the settings sheet and
 completion. On wide widths 調整 opens the same settings as a dialog.
 
 Settings (`session?state=settings`, `settings-basic`, `settings-range`,
@@ -591,7 +591,7 @@ Route error: h1 "這一頁沒有順利打開", error notice, 重新整理 / 清�
 - **Reflow**: 320px without horizontal scroll (verified); 200% text zoom must
   not clip (#838 check).
 - **Forced colors**: system colors, real borders on controls and notices,
-  2px `CanvasText` verdict edges, `Highlight` for current/selected/progress
+  2px `CanvasText` verdict edges, a `Highlight` fill with `HighlightText` for current/selected (never an outline, so the 3px `CanvasText` focus ring stays distinct), `Highlight` for progress
   (`renders/*-forced-*`).
 - **Reduced motion**: no transitions or animation.
 - **Language**: `html lang` = UI language; Japanese carriers `lang="ja"`.
