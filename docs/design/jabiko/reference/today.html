@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jabiko JT-1 · Today (/)</title>
+<link rel="stylesheet" href="jabiko.css">
+<style>
+  /* Board-local layout for Today (DESIGN.md §7.1). */
+  .masthead { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-bottom: 12px; }
+  .today-set { display: grid; gap: 12px; padding: 0 0 32px; }
+  .today-headline { font-size: 32px; line-height: 40px; font-weight: 600; letter-spacing: -0.015em; }
+  .today-headline b { color: var(--jt-accent-foreground); font-weight: 600; }
+  .composition { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--jt-text-secondary); }
+  .composition .jt-icon-sm { color: var(--jt-text-secondary); }
+  .today-actions { margin-top: 8px; }
+  .steps { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--jt-text-secondary); }
+  .steps li { display: inline-flex; align-items: center; gap: 8px; }
+  .steps li span { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--jt-border-control); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .steps li[aria-current="step"] { color: var(--jt-text-primary); font-weight: 600; }
+  .steps li[aria-current="step"] span { background: var(--jt-accent-foreground); border-color: var(--jt-accent-foreground); color: var(--jt-surface-app); }
+  .levels { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+  .level { display: grid; gap: 2px; min-height: 64px; padding: 10px 12px; text-align: left; border: 1px solid var(--jt-border-control); border-radius: var(--jt-radius-control); background: var(--jt-surface-content); }
+  .level:hover { background: var(--jt-surface-inset); }
+  .level b { font-size: 14px; line-height: 20px; font-weight: 600; }
+  .level span { font-size: 12px; line-height: 16px; color: var(--jt-text-secondary); font-variant-numeric: tabular-nums; }
+  .level[aria-checked="true"] { background: var(--jt-accent-background); border-color: var(--jt-selection-edge); box-shadow: inset 0 0 0 1px var(--jt-selection-edge); }
+  .level[aria-checked="true"] b, .level[aria-checked="true"] span { color: var(--jt-accent-foreground); }
+  @media (max-width: 1023px) { .levels { grid-template-columns: repeat(2, minmax(0, 1fr)); } .levels .level:first-child { grid-column: 1 / -1; } }
+  .partner { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 16px 0; border-top: 1px solid var(--jt-border-subtle); font-size: 14px; }
+  .lists { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .colophon { padding-top: 24px; font-size: 12px; line-height: 16px; color: var(--jt-text-secondary); font-variant-numeric: tabular-nums; }
+  .record-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+  @media (max-width: 599px) { .record-cols { grid-template-columns: minmax(0, 1fr); } .today-headline { font-size: 26px; line-height: 34px; } }
+  .world-row .jt-row-title { display: inline-flex; align-items: center; gap: 8px; }
+  .today-layout { grid-template-areas: "a aside" "b aside"; }
+  .today-a { grid-area: a; } .today-b { grid-area: b; } .today-aside { grid-area: aside; }
+  @media (max-width: 1023px) { .today-layout { grid-template-areas: "a" "aside" "b"; } }
+  .first-facts { display: grid; gap: 12px; font-size: 14px; line-height: 20px; color: var(--jt-text-secondary); }
+  .first-facts b { color: var(--jt-text-primary); font-weight: 600; display: block; }
+</style>
+</head>
+<body>
+<div class="jt-app">
+  <div id="chrome-top"></div>
+  <main class="jt-main" id="main">
+    <div class="masthead">
+      <h1 class="jt-h1 jt-h1-quiet">Jabiko · JLPT 自習室</h1>
+      <p class="jt-meta jt-num">10月5日（日）</p>
+    </div>
+    <div class="jt-layout today-layout">
+      <div class="today-a">
+        <!-- ===== Today's set: returning ===== -->
+        <section class="today-set" aria-labelledby="set-h" data-state="returning">
+          <p class="jt-kicker">今日練習</p>
+          <h2 class="today-headline" id="set-h">先複習 <b class="jt-num">3</b> 題，再練 20 題</h2>
+          <p class="composition">弱點複習 3 <i data-icon="arrow" class="jt-icon-sm"></i> 混合 20 · 文法・語順・漢字読み</p>
+          <div><button class="jt-select-btn" type="button" aria-expanded="false" aria-label="目標程度 N3・N4，變更"><span class="jt-select-key">目標</span>N3・N4<i data-icon="chevron" class="jt-icon-sm"></i></button></div>
+          <div class="jt-actions today-actions jt-actions-stack">
+            <a class="jt-btn jt-btn-primary jt-btn-lg" href="session.html">開始今日練習<i data-icon="arrow"></i></a>
+            <a class="jt-btn jt-btn-lg" href="session.html">只複習錯題（3）</a>
+          </div>
+        </section>
+
+        <!-- ===== Today's set: first run (#532 level gate) ===== -->
+        <section class="today-set" aria-labelledby="first-h" data-state="first">
+          <p class="jt-kicker">免費 · 免註冊 · N5〜N1</p>
+          <h2 class="today-headline" id="first-h">先選你的程度，今天就開始</h2>
+          <ol class="steps" aria-label="開始步驟">
+            <li aria-current="step"><span>1</span>選程度</li><li><span>2</span>今日練習</li><li><span>3</span>答錯自動複習</li>
+          </ol>
+          <div class="levels" role="radiogroup" aria-label="你的程度">
+            <button class="level" type="button" role="radio" aria-checked="false"><b>完全新手</b><span>從五十音開始</span></button>
+            <button class="level" type="button" role="radio" aria-checked="false"><b>初級</b><span>N5・N4</span></button>
+            <button class="level" type="button" role="radio" aria-checked="true"><b>中初級</b><span>N4・N3</span></button>
+            <button class="level" type="button" role="radio" aria-checked="false"><b>中級</b><span>N3・N2</span></button>
+            <button class="level" type="button" role="radio" aria-checked="false"><b>高級</b><span>N2・N1</span></button>
+          </div>
+          <p class="jt-field-hint">之後隨時可以在「目標」變更。<a class="jt-link" href="#">使用說明</a></p>
+          <div class="jt-actions today-actions jt-actions-stack">
+            <a class="jt-btn jt-btn-primary jt-btn-lg" href="session.html">開始今日練習<i data-icon="arrow"></i></a>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ===== Record aside: wide = right column; below 1024 it follows the set (aside-before keeps DOM order = reading order) ===== -->
+      <aside class="jt-aside today-aside" aria-label="你的進度">
+        <section data-state="returning">
+          <h2 class="jt-aside-h">最近 14 天</h2>
+          <div class="jt-days" role="img" aria-label="最近 14 天中有 10 天有練習；今天尚未練習">
+            <span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day"></span><span class="jt-day"></span><span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day" data-done></span>
+            <span class="jt-day" data-done></span><span class="jt-day"></span><span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day" data-today></span>
+          </div>
+          <p class="jt-days-legend"><span>9/22</span><span>今天</span></p>
+        </section>
+        <section data-state="returning">
+          <dl class="jt-readouts">
+            <div class="jt-readout jt-readout-focal"><dt>點數</dt><dd class="jt-num">830</dd></div>
+            <div class="jt-readout"><dt>連續天數</dt><dd class="jt-num">4<small>天</small></dd></div>
+            <div class="jt-readout"><dt>待複習</dt><dd class="jt-num">3<small>題</small></dd></div>
+            <div class="jt-readout"><dt>正確率</dt><dd class="jt-num">78<small>%</small></dd></div>
+            <div class="jt-readout"><dt>已作答</dt><dd class="jt-num">1,065</dd></div>
+            <div class="jt-readout"><dt>已掌握</dt><dd class="jt-num">212</dd></div>
+          </dl>
+        </section>
+        <section data-state="first">
+          <h2 class="jt-aside-h">Jabiko 有什麼</h2>
+          <div class="first-facts">
+            <p><b>4,307 題 JLPT 練習</b>依官方題型與程度整理，答錯會自動進入複習。</p>
+            <p><b>文型資料庫與學習章節</b>N5〜N1 文型、接續與例句，一章一章讀。</p>
+            <p><b>日常會話</b>在生活情境裡練習把話接下去。</p>
+          </div>
+        </section>
+      </aside>
+
+      <div class="today-b">
+        <!-- ===== Continue ===== -->
+        <section class="jt-section" aria-labelledby="next-h" data-state="returning">
+          <div class="jt-section-head"><h2 class="jt-h2" id="next-h">接著做</h2></div>
+          <div class="jt-rows">
+            <a class="jt-row" href="learn.html"><span class="jt-row-title">第 7 課 · <span lang="ja">て形</span></span><span class="jt-row-desc">上次讀到這裡：規則 → 練習 12 題</span><span class="jt-row-meta">學習</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+            <a class="jt-row" href="talk.html"><span class="jt-row-title">咖啡日</span><span class="jt-row-desc">10月1日 · 可以聊飲品偏好</span><span class="jt-row-meta">最近 · 會話</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+            <a class="jt-row" href="session.html"><span class="jt-row-title">我的收藏</span><span class="jt-row-desc">你標記過的題目</span><span class="jt-row-meta jt-num">12 題</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+          </div>
+          <p class="partner"><span class="jt-label">合作夥伴</span><span>東京住宿 Stay.D｜把學過的日文帶進旅程</span><a class="jt-link jt-link-standalone" href="#">在 Airbnb 查看<span class="jt-visually-hidden">（另開新視窗）</span></a></p>
+        </section>
+
+        <!-- ===== Record (aside on wide, here on medium/compact) — rendered once in DOM order via aside below ===== -->
+
+        <!-- ===== All practice ===== -->
+        <section class="jt-section" aria-labelledby="all-h">
+          <div class="jt-section-head"><h2 class="jt-h2" id="all-h">全部練習</h2></div>
+          <div class="lists">
+            <div class="jt-rows">
+              <a class="jt-row" href="session.html"><span class="jt-row-title">今日練習</span><span class="jt-row-desc">複習優先，再混合文法・語順・漢字讀音</span><span class="jt-row-meta">每日</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+              <a class="jt-row" href="sets.html"><span class="jt-row-title">備考題庫</span><span class="jt-row-desc">綜合考題庫與 N1〜N4 各級題庫</span><span class="jt-row-meta jt-num">5 組</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+              <a class="jt-row" href="sets.html?state=mock"><span class="jt-row-title">JLPT 題型</span><span class="jt-row-desc">依官方題型逐區練習</span><span class="jt-row-meta">N1〜N5</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+              <a class="jt-row" href="sets.html"><span class="jt-row-title">專項練習</span><span class="jt-row-desc">句型・句中填空・單字讀音・基礎變化</span><span class="jt-row-meta jt-num">4 組</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+              <a class="jt-row" href="learn.html"><span class="jt-row-title">學習章節</span><span class="jt-row-desc">一章一章讀規則、看例句，再練習</span><span class="jt-row-meta jt-num" data-state="returning">12 / 48 章</span><span class="jt-row-meta jt-num" data-state="first">48 章</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+              <a class="jt-row" href="talk.html"><span class="jt-row-title">日常會話</span><span class="jt-row-desc">短・中・長的生活情境接話練習</span><span class="jt-row-meta">Small Talk</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+              <a class="jt-row world-row" href="world.html"><span class="jt-row-title"><i data-icon="world" class="jt-icon-sm"></i>日常世界</span><span class="jt-row-desc">在生活場景裡用會話推進故事</span><span class="jt-row-meta">預覽</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+            </div>
+            <div>
+              <h3 class="jt-subhead">查資料</h3>
+              <div class="jt-rows">
+                <a class="jt-row" href="grammar.html"><span class="jt-row-title">文型資料庫</span><span class="jt-row-desc">N5〜N1 文型、接續與例句</span><span class="jt-row-meta">資料</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+                <a class="jt-row" href="reference.html"><span class="jt-row-title">漢字音讀</span><span class="jt-row-desc">依讀音找同音漢字</span><span class="jt-row-meta">資料</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+                <a class="jt-row" href="#"><span class="jt-row-title">活用速查表</span><span class="jt-row-desc">動詞・形容詞各形變化規則</span><span class="jt-row-meta">資料</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+                <a class="jt-row" href="#"><span class="jt-row-title">五十音表</span><span class="jt-row-desc">平假名・片假名・濁音・拗音</span><span class="jt-row-meta">資料</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Your record ===== -->
+        <section class="jt-section" aria-labelledby="rec-h" data-state="returning">
+          <div class="jt-section-head"><h2 class="jt-h2" id="rec-h">你的紀錄</h2><span class="jt-meta">依作答紀錄計算</span></div>
+          <div class="record-cols">
+            <div>
+              <h3 class="jt-subhead">各級正確率</h3>
+              <div class="jt-bars">
+                <div class="jt-bar"><span>N5</span><span class="jt-bar-track"><span style="width:91%"></span></span><span class="jt-bar-value">91%</span></div>
+                <div class="jt-bar"><span>N4</span><span class="jt-bar-track"><span style="width:84%"></span></span><span class="jt-bar-value">84%</span></div>
+                <div class="jt-bar"><span>N3</span><span class="jt-bar-track"><span style="width:72%"></span></span><span class="jt-bar-value">72%</span></div>
+                <div class="jt-bar"><span>N2</span><span class="jt-bar-track"><span style="width:58%"></span></span><span class="jt-bar-value">58%</span></div>
+                <div class="jt-bar"><span>N1</span><span class="jt-bar-track"><span style="width:0%"></span></span><span class="jt-bar-value">未作答</span></div>
+              </div>
+            </div>
+            <div>
+              <h3 class="jt-subhead">最需要加強的題型</h3>
+              <div class="jt-bars">
+                <div class="jt-bar"><span lang="ja">言い換え類義</span><span class="jt-bar-track"><span style="width:46%"></span></span><span class="jt-bar-value">46%</span></div>
+                <div class="jt-bar"><span lang="ja">文の組み立て</span><span class="jt-bar-track"><span style="width:53%"></span></span><span class="jt-bar-value">53%</span></div>
+                <div class="jt-bar"><span lang="ja">用法</span><span class="jt-bar-track"><span style="width:61%"></span></span><span class="jt-bar-value">61%</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <p class="colophon">收錄 4,307 題 · 檢定題 2,131 · 單字 1,251 · 漢字音讀 671 · 句型 254 · 74 個學習章節</p>
+      </div>
+    </div>
+  </main>
+  <div id="chrome-footer"></div>
+  <div id="chrome-bottom"></div>
+</div>
+<script type="module">
+  import { boot } from "./harness.js";
+  boot({ current: "today", defaultState: "returning" });
+</script>
+</body>
+</html>

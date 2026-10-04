@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jabiko JT-1 · Components and states</title>
+<link rel="stylesheet" href="jabiko.css">
+<style>
+  /* Specimen board: every component in every state that exists (DESIGN.md §6).
+     .is-* classes force interaction states for static review only. */
+  .board { max-width: 1280px; margin: 0 auto; padding: 48px 32px 64px; display: grid; gap: 48px; }
+  .board-head { display: grid; gap: 8px; max-width: 760px; }
+  .board-head h1 { font-size: 28px; line-height: 36px; font-weight: 600; }
+  .group h2 { font-size: 20px; line-height: 28px; font-weight: 600; margin-bottom: 4px; }
+  .group > p { font-size: 14px; color: var(--jt-text-secondary); margin-bottom: 16px; max-width: 820px; }
+  .matrix { display: grid; grid-template-columns: 96px repeat(6, minmax(0, 1fr)); gap: 12px 16px; align-items: center; }
+  .matrix .h { font-size: 12px; font-weight: 600; color: var(--jt-text-secondary); }
+  .cell-l { font-size: 12px; color: var(--jt-text-secondary); }
+  .specimens { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 32px; }
+  .specimens-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 32px; }
+  .sp { display: grid; gap: 8px; align-content: start; }
+  .sp > .cell-l { margin-bottom: 0; }
+  .is-hover.jt-btn:not(.jt-btn-primary), .is-hover.jt-toggle, .is-hover.jt-option, .is-hover.jt-row, .is-hover.jt-select-btn { background: var(--jt-surface-inset); }
+  .is-hover.jt-btn-primary { background: var(--jt-action-primary-hover); border-color: var(--jt-action-primary-hover); }
+  .is-active.jt-btn:not(.jt-btn-primary), .is-active.jt-option { background: var(--jt-surface-sunken); }
+  .is-active.jt-btn-primary { background: var(--jt-action-primary-pressed); border-color: var(--jt-action-primary-pressed); }
+  .is-focus { outline: 3px solid var(--jt-focus-ring); outline-offset: 2px; }
+  .jt-row.is-focus, .jt-tab.is-focus { outline-offset: -3px; }
+  .is-hover.jt-input { border-color: var(--jt-text-secondary); }
+  .is-hover.jt-tab { color: var(--jt-text-primary); }
+  .is-hover.jt-tab > .jt-tab-hit { background: var(--jt-surface-inset); }
+  .tabs-demo { display: flex; height: 56px; background: var(--jt-surface-chrome); border: 1px solid var(--jt-border-subtle); border-radius: var(--jt-radius-control); padding: 0 8px; gap: 4px; }
+  .tabbar-demo { display: grid !important; position: static; border: 1px solid var(--jt-border-subtle); border-radius: var(--jt-radius-control); }
+  .static .jt-menu, .static .jt-dialog, .static .jt-toast { position: static; transform: none; left: auto; top: auto; bottom: auto; }
+  .static .jt-dialog { width: 100%; }
+  .returnbar-demo { border: 1px solid var(--jt-border-subtle); border-radius: var(--jt-radius-control); }
+  @media (max-width: 1023px) { .matrix { grid-template-columns: 72px repeat(3, minmax(0, 1fr)); } .specimens, .specimens-2 { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<main class="board" id="main">
+  <header class="board-head">
+    <p class="jt-kicker">Jabiko JT-1 · 02 Components</p>
+    <h1>Components and states</h1>
+    <p class="jt-desc">Shared controls follow Tachiko's one behavioral grammar (UQC §1.10, §4). Jabiko-owned learning components are marked JABIKO. Interaction states are forced statically here for review.</p>
+  </header>
+
+  <section class="group" aria-labelledby="b-h">
+    <h2 id="b-h">Buttons — Tachiko grammar</h2>
+    <p>Primary is the single most important command on a surface. Busy keeps the label and suppresses repeat dispatch. Disabled is readable and, where material, explained nearby.</p>
+    <div class="matrix">
+      <span></span><span class="h">Default</span><span class="h">Hover</span><span class="h">Pressed</span><span class="h">Focus</span><span class="h">Disabled</span><span class="h">Busy</span>
+      <span class="cell-l">Primary</span>
+      <span><button class="jt-btn jt-btn-primary" type="button">開始今日練習</button></span><span><button class="jt-btn jt-btn-primary is-hover" type="button">開始今日練習</button></span><span><button class="jt-btn jt-btn-primary is-active" type="button">開始今日練習</button></span><span><button class="jt-btn jt-btn-primary is-focus" type="button">開始今日練習</button></span><span><button class="jt-btn jt-btn-primary" type="button" disabled>開始今日練習</button></span><span><button class="jt-btn jt-btn-primary" type="button" aria-busy="true"><i data-icon="clock"></i>準備中…</button></span>
+      <span class="cell-l">Secondary</span>
+      <span><button class="jt-btn" type="button">只複習錯題</button></span><span><button class="jt-btn is-hover" type="button">只複習錯題</button></span><span><button class="jt-btn is-active" type="button">只複習錯題</button></span><span><button class="jt-btn is-focus" type="button">只複習錯題</button></span><span><button class="jt-btn" type="button" disabled>只複習錯題</button></span><span><button class="jt-btn" type="button" aria-busy="true"><i data-icon="clock"></i>同步中…</button></span>
+      <span class="cell-l">Ghost</span>
+      <span><button class="jt-btn jt-btn-ghost" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-ghost is-hover" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-ghost is-active" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-ghost is-focus" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-ghost" type="button" disabled><i data-icon="flag"></i>回報此題</button></span><span></span>
+      <span class="cell-l">Destructive</span>
+      <span><button class="jt-btn jt-btn-danger jt-btn-solid" type="button">刪除</button></span><span></span><span></span><span><button class="jt-btn jt-btn-danger jt-btn-solid is-focus" type="button">刪除</button></span><span><button class="jt-btn" type="button" disabled>刪除</button></span><span><button class="jt-btn jt-btn-danger jt-btn-solid" type="button" aria-busy="true">刪除中…</button></span>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="s-h">
+    <h2 id="s-h">Toggles, segments, selects, fields</h2>
+    <div class="specimens">
+      <div class="sp"><span class="cell-l">Toggle off / on / focus (aria-pressed)</span><div class="jt-actions"><button class="jt-toggle" type="button" aria-pressed="false" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span>振假名<span class="jt-toggle-state">關</span></button><button class="jt-toggle" type="button" aria-pressed="true" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span>振假名<span class="jt-toggle-state">開</span></button><button class="jt-toggle is-focus" type="button" aria-pressed="true" aria-label="專注模式，剩 18:42"><i data-icon="timer"></i><span aria-hidden="true">18:42</span></button></div></div>
+      <div class="sp"><span class="cell-l">Segmented (radiogroup) · link variant uses aria-current</span><div class="jt-segmented" role="radiogroup" aria-label="級數"><button role="radio" aria-checked="false">N5</button><button role="radio" aria-checked="false">N4</button><button role="radio" aria-checked="true">N3</button><button role="radio" aria-checked="false" class="is-focus">N2</button><button role="radio" aria-checked="false">N1</button></div></div>
+      <div class="sp"><span class="cell-l">Select button (opens picker in place)</span><div class="jt-actions"><button class="jt-select-btn" type="button"><span class="jt-select-key">目標</span>N3・N4<i data-icon="chevron" class="jt-icon-sm"></i></button><button class="jt-select-btn is-hover" type="button"><span class="jt-select-key">目標</span>N3・N4<i data-icon="chevron" class="jt-icon-sm"></i></button></div></div>
+      <div class="sp"><span class="cell-l">Field default / hover</span><div class="jt-field"><label for="f1">你的答案</label><input class="jt-input" id="f1" lang="ja" placeholder="請輸入答案"></div><div class="jt-field"><label for="f2">搜尋</label><input class="jt-input is-hover" id="f2" value="みたい"></div></div>
+      <div class="sp"><span class="cell-l">Field focus / invalid (draft kept)</span><div class="jt-field"><label for="f3">你的答案</label><input class="jt-input is-focus" id="f3" lang="ja" value="たべって"></div><div class="jt-field"><label for="f4">想說的話</label><input class="jt-input" id="f4" aria-invalid="true" value="希望可以設定提醒"><p class="jt-field-error"><i data-icon="error" class="jt-icon-sm"></i>沒有送出。你寫的內容還在。</p></div></div>
+      <div class="sp"><span class="cell-l">Field disabled · checkbox · keycaps · tag · status word</span><div class="jt-field"><label for="f5">專注時間（分）</label><input class="jt-input" id="f5" value="25" disabled></div><label class="jt-check"><input type="checkbox" checked>只看有影視例句</label><p class="jt-kbd-hint"><span class="jt-kbd">1</span>–<span class="jt-kbd">4</span> 選答 · <span class="jt-kbd">Enter</span> 下一題</p><p style="display:flex;gap:12px;align-items:center"><span class="jt-tag">N3</span><span class="jt-status-word">準備中</span></p></div>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="n-h">
+    <h2 id="n-h">Navigation — links with aria-current, not a tablist</h2>
+    <p>Header items use Tachiko's tab state grammar (accent ink + 2px underline) but are cross-route links. Reference is a disclosure menu button. Below 1024 the bottom tab bar replaces header items.</p>
+    <div class="specimens-2">
+      <div class="sp"><span class="cell-l">Header items: default · hover · current · focus · menu button</span>
+        <div class="tabs-demo"><a class="jt-tab" href="#"><span class="jt-tab-hit"></span>今日</a><a class="jt-tab is-hover" href="#"><span class="jt-tab-hit"></span>練習</a><a class="jt-tab" href="#" aria-current="page"><span class="jt-tab-hit"></span>學習</a><a class="jt-tab is-focus" href="#"><span class="jt-tab-hit"></span>文型</a><button class="jt-tab" type="button" aria-haspopup="menu"><span class="jt-tab-hit"></span>資料<i data-icon="chevron" class="jt-icon-sm"></i></button></div>
+      </div>
+      <div class="sp"><span class="cell-l">Bottom tab bar (&lt; 1024)</span>
+        <nav class="jt-tabbar tabbar-demo" aria-label="示範"><a href="#"><i data-icon="today"></i><span>今日</span></a><a href="#" aria-current="page"><i data-icon="practice"></i><span>練習</span></a><a href="#"><i data-icon="learn"></i><span>學習</span></a><a href="#"><i data-icon="talk"></i><span>會話</span></a><a href="#"><i data-icon="reference"></i><span>資料</span></a></nav>
+      </div>
+      <div class="sp"><span class="cell-l">Return-to-World bar (Training entered from World) · stale fallback</span>
+        <div class="jt-returnbar returnbar-demo"><i data-icon="world" class="jt-icon-sm"></i><span>從「駅・佐藤さん」過來練習</span><a href="#">回到對話<i data-icon="arrow" class="jt-icon-sm"></i></a></div>
+        <div class="jt-returnbar returnbar-demo"><i data-icon="info" class="jt-icon-sm"></i><span>原本的對話已經結束或更新，回到日常會從目前的地方繼續。</span><a href="#">回到日常<i data-icon="arrow" class="jt-icon-sm"></i></a></div>
+      </div>
+      <div class="sp"><span class="cell-l">Session progress (meter + count; tabular)</span>
+        <div class="jt-progress"><span class="jt-meter"><span style="width:35%"></span></span><span class="jt-progress-text">7 <span>/ 20</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="o-h">
+    <h2 id="o-h">Answer option — JABIKO</h2>
+    <p>Options commit on activation (click, tap, 1–4). After a verdict every option is inert and nothing moves: verdict edges are inset, labels appear in a reserved trailing slot. Text label + glyph always; color is never the only signal.</p>
+    <div class="specimens" id="options"></div>
+  </section>
+
+  <section class="group" aria-labelledby="v-h">
+    <h2 id="v-h">Verdict line — JABIKO</h2>
+    <div class="specimens">
+      <div class="jt-verdict"><span class="jt-verdict-word" data-kind="correct"><i data-mark="o" class="jt-mark-lg"></i>答對了</span><span class="jt-tag">N3</span></div>
+      <div class="jt-verdict"><span class="jt-verdict-word" data-kind="miss"><i data-mark="x" class="jt-mark-lg"></i>答錯了</span><span class="jt-verdict-answer">正解 <b lang="ja">つごう</b></span></div>
+      <div class="jt-verdict"><span class="jt-verdict-word" data-kind="revealed"><i data-mark="ring" class="jt-mark-lg"></i>已看答案</span><span class="jt-verdict-answer">答案 <b lang="ja">つごう</b></span></div>
+    </div>
+    <div class="sp" style="margin-top:24px"><span class="cell-l">Feedback actions on a grammar item · multiple accepted answers · grammar note expanded</span>
+      <div class="jt-verdict"><span class="jt-verdict-word" data-kind="miss"><i data-mark="x" class="jt-mark-lg"></i>答錯了</span><span class="jt-verdict-answer">正解 <b lang="ja">ばかり</b>・<b lang="ja">ばっかり</b></span></div>
+      <div class="jt-actions"><button class="jt-btn" type="button" aria-pressed="false"><i data-icon="bookmark"></i>收藏此題</button><button class="jt-btn" type="button" aria-expanded="true"><i data-icon="grammar"></i>文型說明</button><a class="jt-btn jt-btn-ghost" href="#" target="_blank" rel="noopener">看這個文型<i data-icon="external"></i><span class="jt-visually-hidden">（另開分頁，本次練習保留）</span></a><button class="jt-btn jt-btn-ghost" type="button"><i data-icon="flag"></i>回報此題</button></div>
+      <div class="jt-note" style="max-width:720px"><i data-icon="grammar"></i><div><b lang="ja">〜ばかり</b> 光是…、老是…<p class="jt-ja-body" lang="ja" style="font-size:14px;line-height:22px">名詞 ／ て形 ＋ ばかり</p></div></div>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="st-h">
+    <h2 id="st-h">Script, dimensions, moves — JABIKO (Small Talk and World)</h2>
+    <div class="specimens-2">
+      <ol class="jt-script">
+        <li class="jt-script-line"><span class="jt-speaker">同事</span><div><p class="jt-line" lang="ja">今日も暑いですね。</p><p class="jt-script-gloss">今天也好熱呢。</p></div><button class="jt-iconbtn" type="button" aria-label="播放"><i data-icon="speaker"></i></button></li>
+        <li class="jt-script-line" data-speaker="you"><span class="jt-speaker">你</span><div><p class="jt-line" lang="ja">本当ですね。アイスコーヒーを買いました。</p></div><button class="jt-iconbtn" type="button" aria-label="播放"><i data-icon="speaker"></i></button></li>
+      </ol>
+      <div class="sp">
+        <ul class="jt-dims">
+          <li class="jt-dim" data-status="met"><i data-mark="o"></i><span class="jt-dim-name">自然<span class="jt-dim-state">做到了</span></span><p class="jt-secondary">日本人也常這樣附和。</p></li>
+          <li class="jt-dim" data-status="partial"><i data-mark="tri"></i><span class="jt-dim-name">接得下去<span class="jt-dim-state">可以再加強</span></span><p class="jt-secondary">對方只能回「そうですね」。</p></li>
+        </ul>
+        <p class="jt-moves"><span class="jt-move" data-done><i data-icon="check" class="jt-icon-sm"></i>回答</span><i data-icon="arrow" class="jt-icon-sm"></i><span class="jt-move" data-done><i data-icon="check" class="jt-icon-sm"></i>補充</span><i data-icon="arrow" class="jt-icon-sm"></i><span class="jt-move">提問</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="r-h">
+    <h2 id="r-h">Index rows, readouts, records</h2>
+    <p>Rows replace cards (D-04). Readouts use Tachiko's label/value grammar with tabular numerals; one focal value (points) uses accent ink.</p>
+    <div class="specimens-2">
+      <div class="jt-rows">
+        <a class="jt-row" href="#"><span class="jt-row-title">備考題庫</span><span class="jt-row-desc">綜合考題庫與 N1〜N4 各級題庫</span><span class="jt-row-meta">5 組</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row is-hover" href="#"><span class="jt-row-title">JLPT 題型</span><span class="jt-row-desc">hover</span><span class="jt-row-meta">N1〜N5</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row" href="#" aria-current="true"><span class="jt-row-title">今日練習</span><span class="jt-row-desc">current / selected</span><span class="jt-row-meta">目前</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row is-focus" href="#"><span class="jt-row-title">我的收藏</span><span class="jt-row-desc">keyboard focus (inset)</span><span class="jt-row-meta">12 題</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <div class="jt-row jt-row-unavailable"><span class="jt-row-title" lang="ja">用法</span><span class="jt-row-desc">unavailable is not a warning</span><span class="jt-status-word">準備中</span><span></span></div>
+      </div>
+      <div class="sp">
+        <dl class="jt-readouts"><div class="jt-readout jt-readout-focal"><dt>點數</dt><dd class="jt-num">830</dd></div><div class="jt-readout"><dt>正確率</dt><dd class="jt-num">78<small>%</small></dd></div></dl>
+        <div class="jt-days" role="img" aria-label="最近 14 天有 10 天練習"><span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day"></span><span class="jt-day"></span><span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day"></span><span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day" data-done></span><span class="jt-day" data-today></span></div>
+        <div class="jt-bars"><div class="jt-bar"><span>N3</span><span class="jt-bar-track"><span style="width:72%"></span></span><span class="jt-bar-value">72%</span></div></div>
+        <div class="jt-moment" style="border-top:1px solid var(--jt-border-subtle)"><span class="jt-monogram" lang="ja" aria-hidden="true">佐</span><div><p class="jt-moment-who"><span lang="ja">佐藤さん</span> · 同學 <span class="jt-stage" role="img" aria-label="第 1 階段，共 3 階段"><i data-on></i><i></i><i></i></span></p><p class="jt-moment-what">World moment row · relationship stage</p></div><button class="jt-btn" type="button">開始</button></div>
+        <p class="jt-locked"><i data-icon="lock" class="jt-icon-sm"></i>完成「駅・佐藤さん」後開放</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="no-h">
+    <h2 id="no-h">Notices and layers</h2>
+    <p>Notices are Tachiko's protected treatments and only carry system state. The neutral note is informational. Overlays are the only elevated layers.</p>
+    <div class="specimens static">
+      <div class="sp">
+        <div class="jt-notice jt-notice-warning"><i data-icon="offline"></i><span>目前離線。作答會先存在這台裝置。</span></div>
+        <div class="jt-notice jt-notice-error"><i data-icon="error"></i><span>題目沒有載入。你的作答紀錄都還在。</span></div>
+        <div class="jt-notice jt-notice-success"><i data-icon="check"></i><span>練習紀錄已刪除</span></div>
+        <p class="jt-note"><i data-icon="info"></i><span>日常世界還在預覽。</span></p>
+        <div class="jt-toast"><span>有新版本可用。</span><button class="jt-btn" type="button">更新</button></div>
+      </div>
+      <div class="jt-menu" role="menu" aria-label="選單示範">
+        <div class="jt-menu-group"><button class="jt-menu-item" role="menuitem" type="button"><i data-icon="globe"></i>介面語言<span class="jt-menu-item-value">繁體中文</span></button><button class="jt-menu-item is-hover" role="menuitem" type="button" style="background:var(--jt-surface-inset)"><i data-icon="timer"></i>專注模式</button><button class="jt-menu-item is-focus" role="menuitem" type="button"><i data-icon="message"></i>意見回饋</button></div>
+        <div class="jt-menu-group"><button class="jt-menu-item jt-menu-item-danger" role="menuitem" type="button"><i data-icon="trash"></i>刪除練習紀錄…</button></div>
+      </div>
+      <div class="jt-dialog" role="dialog" aria-labelledby="dlg-h"><div class="jt-dialog-head"><h3 class="jt-dialog-title" id="dlg-h">介面語言</h3></div>
+        <div role="radiogroup" aria-labelledby="dlg-h"><button class="jt-choice" role="radio" aria-checked="true" type="button"><span class="jt-radio"></span>繁體中文<span class="jt-choice-code">zh-Hant</span></button><button class="jt-choice" role="radio" aria-checked="false" type="button" lang="ja"><span class="jt-radio"></span>日本語<span class="jt-choice-code">ja</span></button></div>
+        <div class="jt-dialog-actions"><button class="jt-btn" type="button">取消</button><button class="jt-btn jt-btn-primary" type="button">完成</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+<script type="module">
+  import { applyTheme, hydrate, mark } from "./harness.js";
+  applyTheme();
+  const opt = (key, text, result, label, extra = "", cls = "") => `<button class="jt-option ${cls}" type="button"${result ? ` data-jt-verdict="${result}" disabled` : ""}><span class="jt-option-key">${key}</span><span class="jt-option-text${extra}" lang="ja">${text}</span><span class="jt-option-verdict">${label}</span></button>`;
+  const O = mark("o"), X = mark("x"), R = mark("ring");
+  const specs = [
+    ["Rest", opt(1, "つごう", "", "")],
+    ["Hover", opt(1, "つごう", "", "", "", "is-hover")],
+    ["Keyboard focus", opt(1, "つごう", "", "", "", "is-focus")],
+    ["Pressed", opt(1, "つごう", "", "", "", "is-active")],
+    ["Correct · chosen", opt(1, "つごう", "correct", `${O}正解 · 你的答案`)],
+    ["Correct · not chosen (target)", opt(1, "つごう", "target", `${O}正解`)],
+    ["Miss · the learner's choice", opt(2, "とごう", "wrong", `${X}你的答案`)],
+    ["Revealed answer", opt(1, "つごう", "revealed", `${R}答案`)],
+    ["Other option after verdict", opt(3, "つこう", "idle", "")],
+    ["Long option text wraps; label stays", opt(3, "会議の資料を前もって全員に送っておいたほうがいいと思います", "target", `${O}正解`)],
+    ["UI-language option (meaning choice)", opt(4, "好像…（依看到、聽到的判斷）", "", "", " jt-option-text-ui").replace(' lang="ja"', "")]
+  ];
+  document.getElementById("options").innerHTML = specs.map(([l, h]) => `<div class="sp"><span class="cell-l">${l}</span>${h}</div>`).join("");
+  hydrate();
+</script>
+</body>
+</html>

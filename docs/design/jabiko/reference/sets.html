@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jabiko JT-1 · Set switcher and JLPT sections (/challenge, /mock)</title>
+<link rel="stylesheet" href="jabiko.css">
+<style>
+  /* Board-local layout (DESIGN.md §7.3–7.4). */
+  .switcher { top: 64px; left: max(16px, calc(50% - 600px + 24px)); width: 560px; max-height: calc(100vh - 80px); overflow: auto; padding: 16px; }
+  .switcher .jt-rows { border-top: 0; }
+  .switcher .jt-row { grid-template-columns: minmax(0, 1fr) auto; min-height: 52px; }
+  .switcher-group { padding: 8px 0 12px; }
+  .switcher-group + .switcher-group { border-top: 1px solid var(--jt-border-subtle); }
+  .switcher-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px solid var(--jt-border-subtle); flex-wrap: wrap; }
+  @media (max-width: 599px) {
+    .switcher { top: auto; bottom: 0; left: 0; width: 100%; max-width: 100%; max-height: 85vh; border-radius: var(--jt-radius-overlay) var(--jt-radius-overlay) 0 0; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); }
+  }
+  .mock-row { grid-template-columns: 4.5em minmax(7em, 11em) minmax(0, 1fr) auto 20px; }
+  .mock-row .jt-row-title { font-family: var(--jt-font-mincho); font-weight: 600; font-size: 18px; }
+  .mock-row .num { font-size: 12px; color: var(--jt-text-secondary); font-weight: 600; font-variant-numeric: tabular-nums; }
+  @media (max-width: 599px) { .mock-row { grid-template-columns: minmax(0, 1fr) auto 20px; } .mock-row .num { grid-column: 1; grid-row: 1; } .mock-row .jt-row-title { grid-row: 2; } .mock-row .jt-row-desc { grid-row: 3; } .mock-row .jt-row-meta, .mock-row .jt-row-go { grid-row: 1 / span 3; } }
+  .group-h { margin: 24px 0 4px; font-size: 14px; line-height: 20px; font-weight: 600; display: flex; gap: 8px; align-items: baseline; }
+  .group-h span { font-weight: 400; color: var(--jt-text-secondary); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="jt-app">
+  <!-- ===== Switcher: opened over the session from the set title ===== -->
+  <header class="jt-session-bar" data-state="switcher">
+    <div class="jt-session-left">
+      <a class="jt-iconbtn" href="today.html" aria-label="離開練習，回到今日"><i data-icon="close"></i></a>
+      <button class="jt-session-title" type="button" aria-haspopup="dialog" aria-expanded="true"><span>今日練習</span><i data-icon="chevron" class="jt-icon-sm"></i></button>
+    </div>
+    <div class="jt-progress" aria-label="進度：第 7 題，共 20 題"><span class="jt-meter" aria-hidden="true"><span style="width:35%"></span></span><span class="jt-progress-text">7 <span>/ 20</span></span></div>
+    <div class="jt-session-right">
+      <button class="jt-toggle" type="button" aria-pressed="false" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span><span class="jt-toggle-label">振假名</span></button>
+      <button class="jt-iconbtn" type="button" aria-label="本次設定" aria-haspopup="dialog"><i data-icon="sliders"></i></button>
+      <button class="jt-iconbtn" type="button" aria-label="選單與設定" aria-haspopup="menu"><i data-icon="menu"></i></button>
+    </div>
+  </header>
+  <div id="chrome-top" data-state="mock"></div>
+
+  <main class="jt-main" id="main">
+    <div class="jt-layout-single" data-state="switcher" aria-hidden="true" style="opacity:.55">
+      <h1 class="jt-h1" style="font-size:16px">問題 <span class="jt-qtype" lang="ja">漢字読み</span></h1>
+      <p class="jt-prompt jt-qprompt" lang="ja">今日はちょっと<u>都合</u>が悪いので、また今度にしてください。</p>
+    </div>
+
+    <!-- ===== /mock: JLPT sections ===== -->
+    <div class="jt-layout-single" data-state="mock">
+      <header class="jt-pagehead">
+        <p class="jt-kicker">練習 · JLPT 題型</p>
+        <h1 class="jt-h1">依官方題型逐區練習</h1>
+        <p class="jt-desc">每一區都是單獨一組練習，題目依官方題型分類。</p>
+      </header>
+      <div class="jt-segmented" role="radiogroup" aria-label="級數">
+        <button role="radio" aria-checked="false">N1</button><button role="radio" aria-checked="false">N2</button><button role="radio" aria-checked="true">N3</button><button role="radio" aria-checked="false">N4</button><button role="radio" aria-checked="false">N5</button>
+      </div>
+      <h2 class="group-h">文字・語彙 <span>5 區</span></h2>
+      <div class="jt-rows">
+        <a class="jt-row mock-row" href="session.html"><span class="num">問題 1</span><span class="jt-row-title" lang="ja">漢字読み</span><span class="jt-row-desc">漢字詞語的讀音</span><span class="jt-row-meta jt-num">86 題</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row mock-row" href="session.html"><span class="num">問題 2</span><span class="jt-row-title" lang="ja">表記</span><span class="jt-row-desc">平假名寫成漢字</span><span class="jt-row-meta jt-num">64 題</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row mock-row" href="session.html"><span class="num">問題 3</span><span class="jt-row-title" lang="ja">文脈規定</span><span class="jt-row-desc">依前後文選詞</span><span class="jt-row-meta jt-num">92 題</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row mock-row" href="session.html"><span class="num">問題 4</span><span class="jt-row-title" lang="ja">言い換え類義</span><span class="jt-row-desc">意思最接近的說法</span><span class="jt-row-meta jt-num">58 題</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <div class="jt-row mock-row jt-row-unavailable"><span class="num">問題 5</span><span class="jt-row-title" lang="ja">用法</span><span class="jt-row-desc">題目還在整理</span><span class="jt-status-word">準備中</span><span></span></div>
+      </div>
+      <h2 class="group-h">文法 <span>3 區</span></h2>
+      <div class="jt-rows">
+        <a class="jt-row mock-row" href="session.html"><span class="num">問題 1</span><span class="jt-row-title" lang="ja">文法形式の判断</span><span class="jt-row-desc">選出合適的文法形式</span><span class="jt-row-meta jt-num">120 題</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row mock-row" href="session.html"><span class="num">問題 2</span><span class="jt-row-title" lang="ja">文の組み立て</span><span class="jt-row-desc">排出正確語順，找出 ★</span><span class="jt-row-meta jt-num">74 題</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <div class="jt-row mock-row jt-row-unavailable"><span class="num">問題 3</span><span class="jt-row-title" lang="ja">文章の文法</span><span class="jt-row-desc">題目還在整理</span><span class="jt-status-word">準備中</span><span></span></div>
+      </div>
+      <p class="jt-meta" style="margin-top:16px">分組與「問題 N」編號取自題型藍圖；藍圖沒有的資訊不顯示。</p>
+    </div>
+  </main>
+
+  <!-- ===== Switcher layer ===== -->
+  <div data-state="switcher">
+    <div class="jt-scrim"></div>
+    <div class="jt-popover switcher" role="dialog" aria-modal="true" aria-labelledby="sw-h">
+      <div class="jt-dialog-head" style="padding:0 0 8px"><div><h2 class="jt-dialog-title" id="sw-h">換一組練習</h2><p class="jt-meta">選了就從第 1 題開始，這一組已答的 7 題會保留在紀錄裡。</p></div><button class="jt-iconbtn" type="button" aria-label="關閉" style="margin:-8px -8px 0 0"><i data-icon="close"></i></button></div>
+      <div class="switcher-group">
+        <h3 class="jt-subhead">每日</h3>
+        <div class="jt-rows">
+          <button class="jt-row" type="button" aria-current="true"><span><span class="jt-row-title">今日練習</span><br><span class="jt-row-desc">複習優先 · 文法 / 語順 / 漢字読み混合一輪</span></span><span class="jt-row-meta">目前</span></button>
+          <button class="jt-row" type="button"><span><span class="jt-row-title">弱點複習</span><br><span class="jt-row-desc">把上次答錯的題目重練到對為止</span></span><span class="jt-row-meta jt-num">3 題</span></button>
+          <button class="jt-row" type="button"><span><span class="jt-row-title">我的收藏</span><br><span class="jt-row-desc">重練你星標收藏的題目</span></span><span class="jt-row-meta jt-num">12 題</span></button>
+        </div>
+      </div>
+      <div class="switcher-group">
+        <h3 class="jt-subhead">備考題庫</h3>
+        <div class="jt-rows">
+          <button class="jt-row" type="button"><span><span class="jt-row-title">綜合考題庫</span><br><span class="jt-row-desc">N1〜N3 為主 · 文法 / 語順 / 短文 / 詞彙 / 漢字読み</span></span><span class="jt-row-meta jt-num">2,131 題</span></button>
+          <button class="jt-row" type="button"><span><span class="jt-row-title">N1 備考</span><br><span class="jt-row-desc">N1＋N2 綜合題</span></span><span class="jt-row-meta jt-num">640 題</span></button>
+          <button class="jt-row" type="button"><span><span class="jt-row-title">N2 備考</span><br><span class="jt-row-desc">N2＋N3 綜合題</span></span><span class="jt-row-meta jt-num">610 題</span></button>
+          <button class="jt-row" type="button"><span><span class="jt-row-title">N3 備考</span><br><span class="jt-row-desc">N3＋N4 綜合題</span></span><span class="jt-row-meta jt-num">512 題</span></button>
+          <button class="jt-row" type="button"><span><span class="jt-row-title">N4 備考</span><br><span class="jt-row-desc">N4＋N5 綜合題 · 助詞 / 基礎文法</span></span><span class="jt-row-meta jt-num">369 題</span></button>
+        </div>
+      </div>
+      <div class="switcher-group">
+        <h3 class="jt-subhead">專項練習</h3>
+        <div class="jt-rows">
+          <button class="jt-row" type="button"><span><span class="jt-row-title">句型練習</span><br><span class="jt-row-desc">N5/N4 句型判斷 · 視角 / 許可 / 引用 / 不必</span></span><span class="jt-row-meta jt-num">254 題</span></button>
+          <button class="jt-row" type="button"><span><span class="jt-row-title">句中填空</span><br><span class="jt-row-desc">N5 文型 · 〜てください / 〜たいです</span></span><span class="jt-row-meta jt-num">120 題</span></button>
+          <button class="jt-row" type="button"><span><span class="jt-row-title">単字讀音</span><br><span class="jt-row-desc">N1〜N5 漢字詞 · 選正確讀音（よみ）</span></span><span class="jt-row-meta jt-num">1,251 題</span></button>
+          <button class="jt-row" type="button"><span><span class="jt-row-title">基礎變化</span><br><span class="jt-row-desc">詞類變化練習 · 課本詞彙</span></span><span class="jt-row-meta">選項／輸入</span></button>
+        </div>
+      </div>
+      <div class="switcher-foot">
+        <a class="jt-btn jt-btn-ghost" href="sets.html?state=mock">依 JLPT 題型練習<i data-icon="arrow"></i></a>
+        <button class="jt-btn" type="button">關閉</button>
+      </div>
+    </div>
+  </div>
+  <div id="chrome-bottom" data-state="mock"></div>
+</div>
+<script type="module">
+  import { boot } from "./harness.js";
+  boot({ current: "practice", defaultState: "switcher" });
+</script>
+</body>
+</html>

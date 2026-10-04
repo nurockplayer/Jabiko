@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jabiko JT-1 · Learn (/learn)</title>
+<link rel="stylesheet" href="jabiko.css">
+<style>
+  /* Board-local layout for Learn (DESIGN.md §7.5). The chapter TOC is the aside, placed first. */
+  .learn-layout { grid-template-columns: 240px minmax(0, var(--jt-column)); justify-content: start; gap: 64px; }
+  .toc { position: sticky; top: calc(var(--jt-bar-h) + 32px); max-height: calc(100vh - var(--jt-bar-h) - 64px); overflow: auto; }
+  .toc h3 { font-size: 12px; line-height: 20px; font-weight: 600; color: var(--jt-text-secondary); margin: 16px 0 4px; }
+  .toc h3:first-of-type { margin-top: 0; }
+  .toc a { display: flex; align-items: center; gap: 8px; min-height: 32px; padding: 4px 8px; margin: 0 -8px; border-radius: var(--jt-radius-control); text-decoration: none; font-size: 14px; line-height: 20px; color: var(--jt-text-secondary); }
+  .toc a:hover { background: var(--jt-surface-inset); color: var(--jt-text-primary); }
+  .toc a[aria-current="page"] { background: var(--jt-accent-background); color: var(--jt-accent-foreground); font-weight: 600; }
+  .toc a .jt-mark { color: var(--jt-assess-correct); width: 14px; height: 14px; margin-left: auto; }
+  .toc-ref { margin-left: auto; font-size: 12px; color: var(--jt-text-secondary); font-weight: 500; }
+  .toc-count { font-size: 12px; color: var(--jt-text-secondary); margin-top: 12px; font-variant-numeric: tabular-nums; }
+  .toc-btn { display: none; }
+  @media (max-width: 1023px) {
+    .learn-layout { grid-template-columns: minmax(0, 1fr); max-width: var(--jt-column); margin: 0 auto; gap: 16px; }
+    .toc { display: none; }
+    .toc-btn { display: inline-flex; }
+  }
+  .examples { border-top: 1px solid var(--jt-border-subtle); }
+  .ex { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 16px 0; border-bottom: 1px solid var(--jt-border-subtle); }
+  .ex p { grid-column: 1; }
+  .ex .jt-iconbtn { grid-column: 2; grid-row: 1 / span 2; }
+  .pitfalls { counter-reset: p; display: grid; gap: 8px; }
+  .pitfalls li { counter-increment: p; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 8px; font-size: 14px; line-height: 22px; }
+  .pitfalls li::before { content: counter(p); display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 4px; background: var(--jt-surface-sunken); font-size: 12px; font-weight: 600; color: var(--jt-text-secondary); }
+  .formula { font-family: var(--jt-font-ja); font-size: 18px; line-height: 28px; font-weight: 500; padding: 12px 16px; border-left: 2px solid var(--jt-border-control); background: var(--jt-surface-inset); border-radius: 0 var(--jt-radius-control) var(--jt-radius-control) 0; }
+  .chapter-side { display: grid; gap: 24px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--jt-border-subtle); }
+  .chapter-side ul li { display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 4px 0; }
+  .chapter-side .jt-mark { color: var(--jt-assess-correct); width: 14px; height: 14px; }
+</style>
+</head>
+<body>
+<div class="jt-app">
+  <div id="chrome-top"></div>
+  <main class="jt-main" id="main">
+    <div class="jt-layout learn-layout">
+      <nav class="toc" aria-label="章節目錄">
+        <h3>入門</h3>
+        <a href="#" lang="ja">五十音<i data-mark="o"></i></a><a href="#" lang="ja">あいさつ<i data-mark="o"></i></a><a href="#" lang="ja">です・ます<i data-mark="o"></i></a>
+        <h3>N5 文法</h3>
+        <a href="#" lang="ja">は と が<i data-mark="o"></i></a><a href="#" lang="ja">動詞のグループ</a><a href="#" lang="ja">ます形</a><a href="#" lang="ja" aria-current="page">て形</a><a href="#" lang="ja">ない形</a><a href="#" lang="ja">た形</a>
+        <h3>N4 文法</h3>
+        <a href="#" lang="ja">可能形</a><a href="#" lang="ja">意向形</a><a href="#"><span lang="ja">〜ところ</span><span class="toc-ref">參考</span></a>
+        <p class="toc-count">已完成 4 / 48 章</p>
+      </nav>
+      <article>
+        <button class="jt-btn toc-btn" type="button" aria-haspopup="dialog"><i data-icon="learn"></i>章節目錄 · <span class="jt-num">4 / 48</span></button>
+        <header class="jt-pagehead" style="padding-top:8px">
+          <p class="jt-kicker">N5 文法 · 第 7 課</p>
+          <h1 class="jt-h1">て形</h1>
+          <p class="jt-mincho" lang="ja" style="font-size:18px;line-height:28px;color:var(--jt-text-secondary)">動詞のて形</p>
+        </header>
+        <div class="jt-read" style="display:grid;gap:16px">
+          <p>て形用來連接動作、請求別人做事，也是很多文型的基礎。變化方式依動詞分類而不同：第一類動詞看字尾，第二類去掉「る」加「て」。</p>
+          <p class="formula" lang="ja">書く → 書いて　読む → 読んで　食べる → 食べて</p>
+        </div>
+        <section class="jt-section" style="margin-top:32px" aria-labelledby="ex-h">
+          <h2 class="jt-h2" id="ex-h" style="margin-bottom:12px">例句</h2>
+          <div class="examples">
+            <div class="ex"><p class="jt-line" lang="ja">朝ごはんを食べて、学校に行きます。</p><p class="jt-secondary">吃完早餐，然後去學校。</p><button class="jt-iconbtn" type="button" aria-label="播放例句"><i data-icon="speaker"></i></button></div>
+            <div class="ex"><p class="jt-line" lang="ja">ちょっと待ってください。</p><p class="jt-secondary">請稍等一下。</p><button class="jt-iconbtn" type="button" aria-label="播放例句"><i data-icon="speaker"></i></button></div>
+          </div>
+        </section>
+        <section class="jt-section" aria-labelledby="pit-h">
+          <h2 class="jt-h2" id="pit-h" style="margin-bottom:12px">常見陷阱</h2>
+          <ol class="pitfalls">
+            <li><span><span lang="ja">行く</span> 是例外：<span lang="ja">行って</span>，不是 <span lang="ja">行いて</span>。</span></li>
+            <li><span>第一類動詞字尾 <span lang="ja">む・ぶ・ぬ</span> 都變成 <span lang="ja">んで</span>。</span></li>
+          </ol>
+        </section>
+        <div class="jt-actions jt-actions-stack" style="margin-top:8px">
+          <a class="jt-btn jt-btn-primary jt-btn-lg" href="session.html">練這一章：て形變化<i data-icon="arrow"></i></a>
+          <a class="jt-btn jt-btn-lg" href="#">下一章：ない形</a>
+        </div>
+        <div class="chapter-side">
+          <section><h2 class="jt-aside-h">建議先看</h2><ul><li><i data-mark="o"></i>動詞のグループ</li><li><span style="width:14px"></span>ます形</li></ul></section>
+          <section><h2 class="jt-aside-h">完成條件</h2><p class="jt-secondary">在這一章的練習裡把「て形」答對一次，就算完成。參考章節不需要完成，目錄標示「參考」。</p></section>
+        </div>
+      </article>
+    </div>
+  </main>
+  <div id="chrome-footer"></div>
+  <div id="chrome-bottom"></div>
+</div>
+<script type="module">
+  import { boot } from "./harness.js";
+  boot({ current: "learn", defaultState: "chapter" });
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jabiko JT-1 · Foundations</title>
+<link rel="stylesheet" href="jabiko.css">
+<style>
+  /* Specimen board: what Jabiko inherits from Tachiko, what it adds (DESIGN.md §2–4). */
+  .board { max-width: 1280px; margin: 0 auto; padding: 48px 32px 64px; display: grid; gap: 48px; }
+  .board-head { display: grid; gap: 8px; max-width: 760px; }
+  .board-head h1 { font-size: 28px; line-height: 36px; font-weight: 600; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 12px; color: var(--jt-text-secondary); }
+  .src { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; border: 1px solid var(--jt-border-subtle); color: var(--jt-text-secondary); white-space: nowrap; }
+  .src[data-src="tachiko"] { color: var(--jt-accent-foreground); border-color: var(--jt-selection-edge); }
+  .src[data-src="tachiko-protected"] { color: var(--jt-text-primary); border-color: var(--jt-border-control); }
+  .src[data-src="jabiko"] { color: var(--jt-assess-miss); border-color: var(--jt-assess-miss); }
+  .group h2 { font-size: 20px; line-height: 28px; font-weight: 600; margin-bottom: 4px; }
+  .group > p { font-size: 14px; color: var(--jt-text-secondary); margin-bottom: 16px; max-width: 760px; }
+  .swatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 24px; }
+  .sw { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 4px 12px; align-items: start; }
+  .chip { grid-row: 1 / span 3; width: 40px; height: 40px; border-radius: 6px; border: 1px solid var(--jt-border-subtle); }
+  .sw-role { font-size: 13px; line-height: 18px; font-weight: 600; overflow-wrap: anywhere; }
+  .sw-val { font-size: 12px; line-height: 16px; color: var(--jt-text-secondary); font-variant-numeric: tabular-nums; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .type-row { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--jt-border-subtle); }
+  .type-row:last-child { border-bottom: 1px solid var(--jt-border-subtle); }
+  .type-name { font-size: 13px; font-weight: 600; display: grid; gap: 2px; }
+  .type-name span { font-weight: 400; font-size: 12px; color: var(--jt-text-secondary); font-variant-numeric: tabular-nums; }
+  .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .spec { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; gap: 10px 16px; font-size: 14px; align-items: center; }
+  .spec dt { font-weight: 600; }
+  .spec dd { color: var(--jt-text-secondary); }
+  .bar-sp { height: 12px; background: var(--jt-accent-background); border: 1px solid var(--jt-selection-edge); border-radius: 2px; }
+  .marks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .mk { display: grid; gap: 8px; padding: 16px; border: 1px solid var(--jt-border-subtle); border-radius: var(--jt-radius-control); }
+  .mk-glyph { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  .mk-glyph .jt-mark { width: 28px; height: 28px; }
+  .mk p { font-size: 12px; line-height: 16px; color: var(--jt-text-secondary); }
+  .excluded { display: flex; flex-wrap: wrap; gap: 8px; }
+  .excluded span { font-size: 12px; padding: 2px 8px; border: 1px dashed var(--jt-border-control); border-radius: 4px; color: var(--jt-text-secondary); text-decoration: line-through; }
+  @media (max-width: 1023px) { .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols, .marks { grid-template-columns: minmax(0, 1fr); } .type-row { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+</style>
+</head>
+<body>
+<main class="board" id="main">
+  <header class="board-head">
+    <p class="jt-kicker">Jabiko JT-1 · 01 Foundations · <span id="theme-word">light</span></p>
+    <h1>Tachiko foundation, Jabiko voice</h1>
+    <p class="jt-desc">Jabiko uses the approved Tachiko Sheet profile roles unchanged for surfaces, ink, borders, primary action, accent, selection and focus, and Tachiko's protected status treatments exactly. Jabiko adds only what a learning product needs: assessment roles, Japanese content type and the dark theme.</p>
+    <p class="legend"><span><span class="src" data-src="tachiko">TACHIKO</span> approved profile value, unchanged</span><span><span class="src" data-src="tachiko-protected">PROTECTED</span> Tachiko product-owned state, copied exactly</span><span><span class="src" data-src="jabiko">JABIKO</span> Jabiko-owned extension (DECISIONS.md)</span></p>
+  </header>
+
+  <section class="group" aria-labelledby="c-h">
+    <h2 id="c-h">Color roles</h2>
+    <p>Values from tokens.json. Spreadsheet-only Tachiko roles (grid.*, selection.row/header/active.*, text.reference) are not part of Jabiko.</p>
+    <div class="swatches" id="swatches"></div>
+  </section>
+
+  <section class="group" aria-labelledby="t-h">
+    <h2 id="t-h">Type — chrome and content are separate systems</h2>
+    <p>Chrome uses Tachiko's roles on local system faces. Japanese learning content uses Mincho at ≥ 18px and the Japanese Gothic stack below; every Japanese carrier sets lang="ja".</p>
+    <div>
+      <div class="type-row"><span class="type-name">ui.display<span>28/36 · 600 · Tachiko</span></span><span class="jt-h1">先複習 3 題，再練 20 題</span></div>
+      <div class="type-row"><span class="type-name">ui.title<span>20/28 · 600 · Tachiko</span></span><span class="jt-h2">全部練習</span></div>
+      <div class="type-row"><span class="type-name">ui.heading<span>16/24 · 600 · Tachiko</span></span><span class="jt-h3">這樣回，對方接得下去嗎？</span></div>
+      <div class="type-row"><span class="type-name">ui.body<span>14/20 · 400 · Tachiko</span></span><span>複習優先，再混合文法・語順・漢字讀音一輪。</span></div>
+      <div class="type-row"><span class="type-name">ui.label<span>12/20 · 500 · Tachiko</span></span><span class="jt-label">本次答錯</span></div>
+      <div class="type-row"><span class="type-name">ui.meta<span>12/16 · 400 · Jabiko (Tachiko 11/16)</span></span><span class="jt-meta">收錄 4,307 題 · 檢定題 2,131</span></div>
+      <div class="type-row"><span class="type-name">ui.figure<span>28/32 · 600 · tabular</span></span><span class="jt-num" style="font-size:28px;line-height:32px;font-weight:600">1,065</span></div>
+      <div class="type-row"><span class="type-name">read.body<span>16/28 · 400 · Jabiko</span></span><span class="jt-read">「都」在這裡讀「つ」，「合」濁化讀「ごう」，所以「都合」＝つごう。</span></div>
+      <div class="type-row"><span class="type-name">ja.headword<span>40/52 Mincho · compact 32/44</span></span><span class="jt-headword" lang="ja">〜みたいだ</span></div>
+      <div class="type-row"><span class="type-name">ja.prompt<span>28/48 Mincho · compact 22/38</span></span><span class="jt-prompt" lang="ja">今日はちょっと<u>都合</u>が悪いので、また今度にしてください。</span></div>
+      <div class="type-row"><span class="type-name">ja.line + ja.ruby<span>20/34 Mincho · ruby 0.5em</span></span><span class="jt-line" lang="ja"><ruby>今日<rt>きょう</rt></ruby>も<ruby>暑<rt>あつ</rt></ruby>いですね。</span></div>
+      <div class="type-row"><span class="type-name">ja.option<span>20/28 Mincho</span></span><span class="jt-option-text" lang="ja">つごう</span></div>
+      <div class="type-row"><span class="type-name">ja.body<span>16/28 Japanese Gothic</span></span><span class="jt-ja-body" lang="ja">普通形 ＋ みたいだ</span></div>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="a-h">
+    <h2 id="a-h">Assessment marks — learning verdicts are not system states</h2>
+    <p>A mark always travels with a text label and lands on the option or dimension it judges. Verdicts never use notice panels, warning/error icons or role="alert".</p>
+    <div class="marks">
+      <div class="mk"><span class="mk-glyph" style="color:var(--jt-assess-correct)"><i data-mark="o"></i>正解</span><p>assess.correct · the correct option (chosen or not) and met Small Talk dimensions</p></div>
+      <div class="mk"><span class="mk-glyph" style="color:var(--jt-assess-miss)"><i data-mark="x"></i>你的答案</span><p>assess.miss · only on the learner's incorrect choice; vermilion, never error crimson</p></div>
+      <div class="mk"><span class="mk-glyph" style="color:var(--jt-assess-correct)"><i data-mark="ring"></i>答案</span><p>revealed answer · dashed; never counted as earned</p></div>
+      <div class="mk"><span class="mk-glyph" style="color:var(--jt-assess-partial)"><i data-mark="tri"></i>可以再加強</span><p>assess.partial · formative Small Talk dimension; not a wrong answer</p></div>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="g-h">
+    <h2 id="g-h">Space, geometry, layers</h2>
+    <div class="cols">
+      <dl class="spec">
+        <dt>4</dt><dd><div class="bar-sp" style="width:4px"></div></dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>8</dt><dd><div class="bar-sp" style="width:8px"></div></dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>12</dt><dd><div class="bar-sp" style="width:12px"></div></dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>16</dt><dd><div class="bar-sp" style="width:16px"></div></dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>24</dt><dd><div class="bar-sp" style="width:24px"></div></dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>32</dt><dd><div class="bar-sp" style="width:32px"></div></dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>48</dt><dd><div class="bar-sp" style="width:48px"></div></dd><dd class="src" data-src="jabiko">JABIKO</dd>
+        <dt>64</dt><dd><div class="bar-sp" style="width:64px"></div></dd><dd class="src" data-src="jabiko">JABIKO</dd>
+      </dl>
+      <dl class="spec">
+        <dt>Control radius</dt><dd>7px</dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>Overlay radius</dt><dd>10px</dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>Focus</dt><dd>3px ring + 2px gap</dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>Control (pointer)</dt><dd>36px</dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>Control (touch)</dt><dd>44px</dd><dd class="src" data-src="jabiko">JABIKO</dd>
+        <dt>Answer option</dt><dd>≥ 56px</dd><dd class="src" data-src="jabiko">JABIKO</dd>
+        <dt>Verdict edge</dt><dd>inset 2px, no shift</dd><dd class="src" data-src="jabiko">JABIKO</dd>
+      </dl>
+      <dl class="spec">
+        <dt>Main regions</dt><dd>flat, no shadow</dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>Overlays</dt><dd>shadow + 10px</dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>Breakpoints</dt><dd>320 · 600 · 1024</dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+        <dt>Column</dt><dd>720 + 320 aside</dd><dd class="src" data-src="jabiko">JABIKO</dd>
+        <dt>Motion</dt><dd>layers 160/120ms</dd><dd class="src" data-src="jabiko">JABIKO</dd>
+        <dt>Reduced motion</dt><dd>nothing animates</dd><dd class="src" data-src="tachiko">TACHIKO</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="group" aria-labelledby="x-h">
+    <h2 id="x-h">Not inherited — spreadsheet-only Tachiko Sheet</h2>
+    <p>Kept out of Jabiko on purpose. The kana/kanji lattice is a manuscript-paper table with no selection, headers or editing.</p>
+    <div class="excluded"><span>grid lattice + row/column headers</span><span>cell selection / active cell</span><span>formula bar · text.reference</span><span>sheet tabs · View inventory</span><span>workbook saved/stale/current</span><span>ribbon command grouping</span><span>report canvas</span><span>28px row pitch</span><span>Appearance profile selector</span></div>
+  </section>
+</main>
+<script type="module">
+  import { applyTheme, hydrate, params } from "./harness.js";
+  applyTheme();
+  const { theme } = params();
+  document.getElementById("theme-word").textContent = theme;
+  const tokens = await (await fetch("../tokens.json")).json();
+  const roles = tokens.color[theme];
+  document.getElementById("swatches").innerHTML = Object.entries(roles).map(([role, t]) => {
+    const src = theme === "dark" ? "jabiko" : t.source;
+    const label = { tachiko: "TACHIKO", "tachiko-protected": "PROTECTED", jabiko: "JABIKO" }[src];
+    return `<div class="sw"><span class="chip" style="background:${t.value}${t.opacity ? `;opacity:${t.opacity}` : ""}"></span><span class="sw-role">${role}</span><span class="sw-val">${t.value}<span class="src" data-src="${src}">${label}</span></span></div>`;
+  }).join("");
+  hydrate();
+</script>
+</body>
+</html>

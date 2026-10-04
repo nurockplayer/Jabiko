@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jabiko JT-1 · Small Talk (/conversation)</title>
+<link rel="stylesheet" href="jabiko.css">
+<style>
+  /* Board-local layout for Small Talk (DESIGN.md §7.8). */
+  .phase { font-size: 12px; line-height: 20px; font-weight: 600; color: var(--jt-accent-foreground); white-space: nowrap; }
+  .phase[data-phase="recent"] { color: var(--jt-text-secondary); }
+  .len-head { display: flex; align-items: baseline; gap: 12px; margin: 24px 0 8px; }
+  .len-head h3 { font-size: 16px; line-height: 24px; font-weight: 600; }
+  .len-head p { font-size: 14px; color: var(--jt-text-secondary); }
+  .scene-row { grid-template-columns: minmax(0, 1fr) auto 20px; }
+  .scene-row .jt-row-title { font-weight: 500; }
+  .run-head { display: grid; gap: 4px; margin-bottom: 20px; }
+  .run-situation { font-size: 14px; color: var(--jt-text-secondary); max-width: 44em; }
+  .respond { margin-top: 24px; display: grid; gap: 12px; }
+  .respond .jt-option { grid-template-columns: 24px minmax(0, 1fr) auto; }
+  .respond .jt-option-text { font-size: 18px; line-height: 30px; }
+  .fb-h { display: flex; align-items: center; gap: 8px; }
+  .fb-note { font-size: 12px; line-height: 16px; color: var(--jt-text-secondary); margin-top: 24px; }
+  @media (max-width: 599px) { .respond .jt-option-text { font-size: 17px; line-height: 28px; } }
+</style>
+</head>
+<body>
+<div class="jt-app">
+  <div id="chrome-top" data-state="intro"></div>
+  <header class="jt-session-bar" data-state="respond feedback complete">
+    <div class="jt-session-left">
+      <a class="jt-iconbtn" href="talk.html" aria-label="離開這個情境，回到會話"><i data-icon="close"></i></a>
+      <span class="jt-session-title" style="cursor:default">會話 · 短</span>
+    </div>
+    <div class="jt-progress" aria-label="第 1 段，共 2 段"><span class="jt-meter" aria-hidden="true"><span style="width:50%"></span></span><span class="jt-progress-text">1 <span>/ 2</span></span></div>
+    <div class="jt-session-right">
+      <button class="jt-toggle" type="button" aria-pressed="true" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span><span class="jt-toggle-label">振假名</span></button>
+      <button class="jt-iconbtn" type="button" aria-label="選單與設定" aria-haspopup="menu"><i data-icon="menu"></i></button>
+    </div>
+    <span class="jt-meter-edge" aria-hidden="true"><span style="width:50%"></span></span>
+  </header>
+
+  <main class="jt-main" id="main">
+    <!-- ================= Intro: discovery + scenes + brief ================= -->
+    <div class="jt-layout" data-state="intro">
+      <div>
+        <header class="jt-pagehead">
+          <p class="jt-kicker">會話 · Small Talk</p>
+          <h1 class="jt-h1">把話接下去</h1>
+          <p class="jt-desc">選一個生活情境，比較幾種回應，練習回答、補充、再問一句。</p>
+        </header>
+        <section class="jt-section" aria-labelledby="season-h">
+          <div class="jt-section-head"><h2 class="jt-h2" id="season-h">最近適合聊的季節話題</h2><span class="jt-meta">以今天 10月5日 為準</span></div>
+          <div class="jt-rows">
+            <a class="jt-row" href="#"><span class="jt-row-title">紅葉</span><span class="jt-row-desc">北海道開始轉紅，可以聊想去哪裡看</span><span class="phase">即將到來 · 10月中旬</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+            <a class="jt-row" href="#"><span class="jt-row-title">咖啡日</span><span class="jt-row-desc">可以聊飲品偏好與常去的店</span><span class="phase" data-phase="recent">最近 · 10月1日</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+          </div>
+        </section>
+        <section class="jt-section" aria-labelledby="scene-h">
+          <div class="jt-section-head"><h2 class="jt-h2" id="scene-h">情境</h2><span class="jt-meta">18 個情境</span></div>
+          <div class="len-head"><h3>短</h3><p>一兩句接話：反應、補一句、追問</p></div>
+          <div class="jt-rows">
+            <button class="jt-row scene-row" type="button" aria-pressed="true"><span><span class="jt-row-title">夏天早上，同事提起外面好熱</span><br><span class="jt-row-desc">同事 · 天氣</span></span><span class="jt-row-meta">目前</span><i data-icon="chevronRight" class="jt-row-go"></i></button>
+            <button class="jt-row scene-row" type="button" aria-pressed="false"><span><span class="jt-row-title">員工餐廳，同事推薦今天的定食</span><br><span class="jt-row-desc">同事 · 吃飯</span></span><span class="jt-row-meta"></span><i data-icon="chevronRight" class="jt-row-go"></i></button>
+          </div>
+          <div class="len-head"><h3>中</h3><p>幾來幾往：延續話題、帶出新內容</p></div>
+          <div class="jt-rows">
+            <button class="jt-row scene-row" type="button" aria-pressed="false"><span><span class="jt-row-title">同學說最近開始織毛線</span><br><span class="jt-row-desc">同學 · 興趣</span></span><span class="jt-row-meta"></span><i data-icon="chevronRight" class="jt-row-go"></i></button>
+          </div>
+          <div class="len-head"><h3>長</h3><p>多主題、委婉拒絕與約下次</p></div>
+          <div class="jt-rows">
+            <button class="jt-row scene-row" type="button" aria-pressed="false"><span><span class="jt-row-title">前輩邀約排隊拉麵，但你只有三十分鐘</span><br><span class="jt-row-desc">前輩 · 吃飯</span></span><span class="jt-row-meta"></span><i data-icon="chevronRight" class="jt-row-go"></i></button>
+          </div>
+        </section>
+      </div>
+      <aside class="jt-aside" aria-labelledby="brief-h">
+        <section class="jt-panel" tabindex="-1">
+          <p class="jt-kicker">短 · 天氣</p>
+          <h2 class="jt-h3" id="brief-h">夏天早上，同事提起外面好熱</h2>
+          <dl class="jt-facts">
+            <dt>情境</dt><dd>夏天早上，你和同事剛走進公司，對方提起外面的熱氣。</dd>
+            <dt>你 / 對方</dt><dd>同事 / 同事</dd>
+            <dt>關係與語氣</dt><dd>同一個團隊、平常會閒聊。語氣可以輕鬆，仍使用です・ます。</dd>
+            <dt>這次要練</dt><dd>先回應對方的感受，再補充一點經驗或追問一句。</dd>
+          </dl>
+          <button class="jt-btn jt-btn-primary" type="button">開始這個情境<i data-icon="arrow"></i></button>
+        </section>
+      </aside>
+    </div>
+
+    <!-- ================= Run ================= -->
+    <div class="jt-layout-center" data-state="respond feedback complete">
+      <div class="run-head" data-state="respond feedback">
+        <h1 class="jt-h1" style="font-size:20px;line-height:28px">夏天早上，同事提起外面好熱</h1>
+        <p class="jt-meta">短 · 同事 / 同事 · です・ます</p>
+        <p class="run-situation">夏天早上，你和同事剛走進公司，對方提起外面的熱氣。</p>
+      </div>
+
+      <ol class="jt-script" aria-label="對話" data-state="respond feedback">
+        <li class="jt-script-line" data-speaker="partner">
+          <span class="jt-speaker">同事</span>
+          <div><p class="jt-line" lang="ja"><ruby>今日<rt>きょう</rt></ruby>も<ruby>暑<rt>あつ</rt></ruby>いですね。<ruby>駅<rt>えき</rt></ruby>から<ruby>歩<rt>ある</rt></ruby>くだけで<ruby>汗<rt>あせ</rt></ruby>をかいちゃいました。</p></div>
+          <button class="jt-iconbtn" type="button" aria-label="播放這一句"><i data-icon="speaker"></i></button>
+        </li>
+        <li class="jt-script-line" data-speaker="you" data-state="feedback">
+          <span class="jt-speaker">你</span>
+          <div><p class="jt-line" lang="ja">そうですね。<ruby>暑<rt>あつ</rt></ruby>いですね。</p></div>
+          <button class="jt-iconbtn" type="button" aria-label="播放這一句"><i data-icon="speaker"></i></button>
+        </li>
+      </ol>
+
+      <section class="respond" aria-labelledby="respond-h" data-state="respond">
+        <h2 class="jt-h3" id="respond-h">你的回應</h2>
+        <p class="jt-secondary" style="margin-top:-8px">回應同事，試著留下一個可以接話的線索。</p>
+        <div class="jt-options" data-layout="list" role="group" aria-labelledby="respond-h">
+          <button class="jt-option" type="button"><span class="jt-option-key">1</span><span class="jt-option-text" lang="ja">そうですね。暑いですね。</span><span class="jt-option-verdict"></span></button>
+          <button class="jt-option" type="button"><span class="jt-option-key">2</span><span class="jt-option-text" lang="ja">本当ですね。会社に来る途中で、アイスコーヒーを買いました。</span><span class="jt-option-verdict"></span></button>
+          <button class="jt-option" type="button"><span class="jt-option-key">3</span><span class="jt-option-text" lang="ja">本当に暑いですね。私も汗だくです。駅からここまで、どのくらい歩くんですか？</span><span class="jt-option-verdict"></span></button>
+        </div>
+      </section>
+
+      <section class="jt-feedback" aria-labelledby="fb-h" data-state="feedback" tabindex="-1">
+        <h2 class="jt-h3 fb-h" id="fb-h">這樣回，對方接得下去嗎？</h2>
+        <p class="jt-read">這是自然的附和，並沒有說錯。以這次「延續話題」的目標來看，它還沒有提供新的接話線索。</p>
+        <ul class="jt-dims" aria-label="五個面向">
+          <li class="jt-dim" data-status="met"><i data-mark="o"></i><span class="jt-dim-name">聽得懂<span class="jt-dim-state">做到了</span></span><p class="jt-secondary">意思清楚。</p></li>
+          <li class="jt-dim" data-status="met"><i data-mark="o"></i><span class="jt-dim-name">正確<span class="jt-dim-state">做到了</span></span><p class="jt-secondary">文法與用字正確。</p></li>
+          <li class="jt-dim" data-status="met"><i data-mark="o"></i><span class="jt-dim-name">自然<span class="jt-dim-state">做到了</span></span><p class="jt-secondary">日本人也常這樣附和。</p></li>
+          <li class="jt-dim" data-status="partial"><i data-mark="tri"></i><span class="jt-dim-name">接得下去<span class="jt-dim-state">可以再加強</span></span><p class="jt-secondary">對方只能回「そうですね」，話題容易停住。</p></li>
+          <li class="jt-dim" data-status="met"><i data-mark="o"></i><span class="jt-dim-name">場合語氣<span class="jt-dim-state">做到了</span></span><p class="jt-secondary">對同事用です・ます剛好。</p></li>
+        </ul>
+        <div>
+          <h3 class="jt-subhead">這句做到的</h3>
+          <p class="jt-moves"><span class="jt-move" data-done><i data-icon="check" class="jt-icon-sm"></i>回答</span><i data-icon="arrow" class="jt-icon-sm"></i><span class="jt-move">補充</span><i data-icon="arrow" class="jt-icon-sm"></i><span class="jt-move">提問</span></p>
+        </div>
+        <div class="jt-actions jt-actions-stack">
+          <button class="jt-btn jt-btn-primary" type="button">換個說法再試一次</button>
+          <button class="jt-btn" type="button">繼續<i data-icon="arrow"></i></button>
+        </div>
+      </section>
+
+      <section data-state="complete" aria-labelledby="done-h">
+        <p class="jt-kicker">會話 · 短 · 完成</p>
+        <h1 class="jt-h1" id="done-h">這段對話完成了</h1>
+        <p class="jt-desc" style="margin-top:8px">你回應了同事的感受，也補充了自己的經驗，讓對方有話可以接。</p>
+        <div style="margin-top:24px">
+          <h2 class="jt-subhead">這次練到的</h2>
+          <p class="jt-moves"><span class="jt-move" data-done><i data-icon="check" class="jt-icon-sm"></i>回答</span><i data-icon="arrow" class="jt-icon-sm"></i><span class="jt-move" data-done><i data-icon="check" class="jt-icon-sm"></i>補充</span><i data-icon="arrow" class="jt-icon-sm"></i><span class="jt-move">提問</span></p>
+        </div>
+        <div class="jt-actions jt-actions-stack" style="margin-top:24px">
+          <button class="jt-btn jt-btn-primary" type="button">再練一次</button>
+          <a class="jt-btn" href="talk.html">換情境</a>
+        </div>
+      </section>
+
+      <p class="fb-note" data-state="respond feedback complete">回饋為人工編寫，離線可用；不使用 AI 評分，也不做語音辨識。</p>
+    </div>
+  </main>
+  <div id="chrome-bottom" data-state="intro"></div>
+</div>
+<script type="module">
+  import { boot, mark } from "./harness.js";
+  const state = boot({ current: "talk", defaultState: "intro" });
+  if (state === "intro") { /* chrome replaced */ }
+</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jabiko JT-1 · Grammar (/grammar/:level, /grammar/:surface)</title>
+<link rel="stylesheet" href="jabiko.css">
+<style>
+  /* Board-local layout for Grammar (DESIGN.md §7.6). */
+  .crumbs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 12px; line-height: 20px; color: var(--jt-text-secondary); margin-bottom: 8px; }
+  .crumbs a { color: var(--jt-text-secondary); text-decoration: none; display: inline-flex; align-items: center; min-height: 24px; }
+  .crumbs a:hover { text-decoration: underline; }
+  .filters { display: grid; gap: 12px; margin-bottom: 8px; }
+  .filters-row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .pat-row { grid-template-columns: minmax(7em, 11em) minmax(0, 1fr) auto 20px; }
+  .pat-row .jt-row-title { font-family: var(--jt-font-mincho); font-weight: 600; font-size: 20px; line-height: 28px; }
+  .pat-formation { display: block; font-family: var(--jt-font-ja); font-size: 12px; line-height: 16px; color: var(--jt-text-secondary); margin-top: 2px; }
+  @media (max-width: 599px) { .pat-row { grid-template-columns: minmax(0, 1fr) auto 20px; } }
+  .point-meaning { font-size: 18px; line-height: 28px; font-weight: 600; margin-top: 8px; }
+  .point-ja { font-family: var(--jt-font-mincho); font-size: 16px; line-height: 26px; color: var(--jt-text-secondary); }
+  .formation { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; font-size: 14px; line-height: 22px; }
+  .formation dt { color: var(--jt-text-secondary); font-weight: 500; }
+  .formation dd { font-family: var(--jt-font-ja); font-size: 16px; }
+  .examples { border-top: 1px solid var(--jt-border-subtle); }
+  .ex { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 16px 0; border-bottom: 1px solid var(--jt-border-subtle); }
+  .ex p { grid-column: 1; }
+  .ex .jt-iconbtn { grid-column: 2; grid-row: 1 / span 2; }
+  .ex .jt-line { font-size: 22px; line-height: 36px; }
+  @media (max-width: 599px) { .ex .jt-line { font-size: 18px; line-height: 30px; } }
+  .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 32px; }
+  .pager a { display: grid; gap: 2px; padding: 12px; border: 1px solid var(--jt-border-subtle); border-radius: var(--jt-radius-control); text-decoration: none; }
+  .pager a:hover { background: var(--jt-surface-inset); }
+  .pager a span { font-size: 12px; color: var(--jt-text-secondary); }
+  .pager a b { font-family: var(--jt-font-mincho); font-size: 18px; font-weight: 600; }
+  .pager a:last-child { text-align: right; }
+  .related a { min-height: 44px; align-items: center; display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--jt-border-subtle); text-decoration: none; font-size: 14px; }
+  .related a b { font-family: var(--jt-font-mincho); font-weight: 600; font-size: 16px; }
+  .related a span { color: var(--jt-text-secondary); }
+</style>
+</head>
+<body>
+<div class="jt-app">
+  <div id="chrome-top"></div>
+  <main class="jt-main" id="main">
+    <!-- ===== Level hub ===== -->
+    <div class="jt-layout-single" data-state="index">
+      <nav class="jt-crumbs" aria-label="麵包屑"><a href="today.html">Jabiko</a><i data-icon="chevronRight" class="jt-icon-sm"></i><a href="#">文型</a><i data-icon="chevronRight" class="jt-icon-sm"></i><span aria-current="page">N3</span></nav>
+      <header class="jt-pagehead">
+        <h1 class="jt-h1">JLPT N3 文型</h1>
+        <p class="jt-desc">N3 程度的文型、意思、接續與例句。</p>
+      </header>
+      <div class="filters">
+        <nav class="jt-segmented" aria-label="級數" style="justify-self:start"><a href="#">N5</a><a href="#">N4</a><a href="#" aria-current="page">N3</a><a href="#">N2</a><a href="#">N1</a></nav>
+        <div class="jt-search"><i data-icon="search"></i><input class="jt-input" type="search" aria-label="搜尋文型" placeholder="搜尋文型、意思"></div>
+        <div class="filters-row">
+          <div class="jt-segmented" role="radiogroup" aria-label="重要度"><button role="radio" aria-checked="true">全部</button><button role="radio" aria-checked="false">高頻</button><button role="radio" aria-checked="false">理解即可</button></div>
+          <label class="jt-check"><input type="checkbox">只看有影視例句</label>
+          <span class="jt-meta" role="status" style="margin-left:auto">共 86 個文型</span>
+        </div>
+      </div>
+      <div class="jt-rows">
+        <a class="jt-row pat-row" href="grammar.html?state=point"><span class="jt-row-title" lang="ja">〜みたいだ</span><span class="jt-row-desc">好像…（依看到、聽到的判斷）<span class="pat-formation" lang="ja">普通形 ＋ みたいだ</span></span><span class="jt-row-meta">高頻</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row pat-row" href="#"><span class="jt-row-title" lang="ja">〜ばかり</span><span class="jt-row-desc">光是…、老是…<span class="pat-formation" lang="ja">名詞 ／ て形 ＋ ばかり</span></span><span class="jt-row-meta">高頻</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row pat-row" href="#"><span class="jt-row-title" lang="ja">〜わけがない</span><span class="jt-row-desc">不可能…<span class="pat-formation" lang="ja">普通形 ＋ わけがない</span></span><span class="jt-row-meta">理解即可</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row pat-row" href="#"><span class="jt-row-title" lang="ja">〜ように</span><span class="jt-row-desc">為了…、希望…<span class="pat-formation" lang="ja">辞書形 ／ ない形 ＋ ように</span></span><span class="jt-row-meta">高頻</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+      </div>
+    </div>
+
+    <!-- ===== Point (SEO landing) ===== -->
+    <div class="jt-layout" data-state="point">
+      <article>
+        <nav class="jt-crumbs" aria-label="麵包屑"><a href="today.html">Jabiko</a><i data-icon="chevronRight" class="jt-icon-sm"></i><a href="#">文型</a><i data-icon="chevronRight" class="jt-icon-sm"></i><a href="grammar.html">N3</a><i data-icon="chevronRight" class="jt-icon-sm"></i><span aria-current="page" lang="ja">〜みたいだ</span></nav>
+        <header style="display:grid;gap:4px;padding-bottom:24px">
+          <div style="display:flex;gap:8px;align-items:center"><span class="jt-tag">N3</span><span class="jt-status-word" style="color:var(--jt-text-secondary)">高頻</span></div>
+          <h1 class="jt-headword" lang="ja">〜みたいだ</h1>
+          <p class="point-meaning">好像…（依自己看到、聽到的判斷）</p>
+          <p class="point-ja" lang="ja">見たり聞いたりしたことから判断する</p>
+        </header>
+        <section class="jt-section" aria-labelledby="form-h">
+          <h2 class="jt-h2" id="form-h" style="margin-bottom:12px">接續</h2>
+          <dl class="formation">
+            <dt>動詞・い形容詞</dt><dd lang="ja">普通形 ＋ みたいだ</dd>
+            <dt>な形容詞・名詞</dt><dd lang="ja">語幹 ／ 名詞 ＋ みたいだ</dd>
+          </dl>
+        </section>
+        <section class="jt-section" aria-labelledby="ex-h">
+          <h2 class="jt-h2" id="ex-h" style="margin-bottom:12px">例句</h2>
+          <div class="examples">
+            <div class="ex"><p class="jt-line" lang="ja">電車、止まってるみたいですね。</p><p class="jt-secondary">電車好像停了耶。</p><button class="jt-iconbtn" type="button" aria-label="播放例句"><i data-icon="speaker"></i></button></div>
+            <div class="ex"><p class="jt-line" lang="ja">外は雨が降っているみたいだ。</p><p class="jt-secondary">外面好像在下雨。</p><button class="jt-iconbtn" type="button" aria-label="播放例句"><i data-icon="speaker"></i></button></div>
+          </div>
+        </section>
+        <section class="jt-section" aria-labelledby="mis-h">
+          <h2 class="jt-h2" id="mis-h" style="margin-bottom:12px">常見錯誤</h2>
+          <p class="jt-read">「みたいだ」是口語；正式文章多用「ようだ」。</p>
+        </section>
+        <nav class="pager" aria-label="上一個與下一個文型"><a href="#"><span>上一個</span><b lang="ja">〜ばかり</b></a><a href="#"><span>下一個</span><b lang="ja">〜わけがない</b></a></nav>
+      </article>
+      <aside class="jt-aside" aria-labelledby="rel-h">
+        <section class="related"><h2 class="jt-aside-h" id="rel-h">相關文型</h2>
+          <a href="#"><b lang="ja">〜ようだ</b><span>好像（書面）</span></a>
+          <a href="#"><b lang="ja">〜らしい</b><span>聽說、像是</span></a>
+          <a href="#"><b lang="ja">〜そうだ</b><span>看起來</span></a>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <div id="chrome-footer"></div>
+  <div id="chrome-bottom"></div>
+</div>
+<script type="module">
+  import { boot } from "./harness.js";
+  boot({ current: "grammar", defaultState: "index" });
+</script>
+</body>
+</html>

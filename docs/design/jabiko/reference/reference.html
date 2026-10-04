@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jabiko JT-1 · Reference (/kanji, reference sheet)</title>
+<link rel="stylesheet" href="jabiko.css">
+<style>
+  /* Board-local layout for Reference (DESIGN.md §7.7). */
+  .filters { display: grid; gap: 12px; margin-bottom: 24px; }
+  .filters-row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .reading-group { margin-top: 24px; }
+  .reading-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+  .reading-head b { font-family: var(--jt-font-mincho); font-size: 24px; line-height: 32px; font-weight: 600; }
+  .reading-head span { font-size: 12px; color: var(--jt-text-secondary); }
+  .sheet { padding: 16px; }
+  .sheet .jt-row { grid-template-columns: minmax(0, 1fr) auto 20px; }
+  .sheet .ja-label { display: block; font-family: var(--jt-font-mincho); font-size: 14px; color: var(--jt-text-secondary); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="jt-app">
+  <div id="chrome-top"></div>
+  <main class="jt-main" id="main">
+    <div class="jt-layout-single">
+      <header class="jt-pagehead">
+        <p class="jt-kicker">資料 · 漢字音讀</p>
+        <h1 class="jt-h1">依讀音找同音漢字</h1>
+        <p class="jt-desc">輸入讀音或漢字，看同一個音讀的字一起記。</p>
+      </header>
+      <div class="filters">
+        <div class="jt-search"><i data-icon="search"></i><input class="jt-input" type="search" aria-label="搜尋讀音或漢字" placeholder="例：こう、校"></div>
+        <div class="filters-row">
+          <div class="jt-segmented" role="radiogroup" aria-label="讀音種類"><button role="radio" aria-checked="true">音讀</button><button role="radio" aria-checked="false">訓讀</button></div>
+          <div class="jt-segmented" role="radiogroup" aria-label="級數"><button role="radio" aria-checked="true">全部</button><button role="radio" aria-checked="false">N5</button><button role="radio" aria-checked="false">N4</button><button role="radio" aria-checked="false">N3</button></div>
+          <p class="jt-kbd-hint" style="margin-left:auto"><span class="jt-kbd">←</span><span class="jt-kbd">→</span> 切換讀音</p>
+        </div>
+      </div>
+      <section class="reading-group" aria-labelledby="r1">
+        <div class="reading-head"><b id="r1" lang="ja">こう</b><span>音讀み · 12 字</span></div>
+        <div class="jt-lattice" data-state="page sheet">
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false" data-last-read="上次看到"><span class="jt-cell-glyph" lang="ja">校</span><span class="jt-cell-sub" lang="ja">音 コウ</span><span class="jt-cell-mean">學校</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">高</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 たかい</span><span class="jt-cell-mean">高</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">行</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 いく</span><span class="jt-cell-mean">去、行</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">口</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 くち</span><span class="jt-cell-mean">口</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">工</span><span class="jt-cell-sub" lang="ja">音 コウ</span><span class="jt-cell-mean">工</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">広</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 ひろい</span><span class="jt-cell-mean">寬廣</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">考</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 かんがえる</span><span class="jt-cell-mean">思考</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">交</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 まじわる</span><span class="jt-cell-mean">交流</span></button></div>
+        </div>
+        <div class="jt-lattice" data-state="selected">
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="true"><span class="jt-cell-glyph" lang="ja">校</span><span class="jt-cell-sub" lang="ja">音 コウ</span><span class="jt-cell-mean">學校</span></button><span class="jt-cell-speak"><button class="jt-iconbtn" type="button" aria-label="播放 こう"><i data-icon="speaker"></i></button></span></div>
+          <div class="jt-cell-detail" aria-live="polite" data-state="selected">
+            <div class="jt-cell-detail-head">
+              <span class="jt-cell-detail-char" lang="ja">校</span>
+              <div>
+                <p class="jt-cell-detail-read" lang="ja">コウ・キョウ<small>音読み</small></p>
+
+                <p style="display:flex;align-items:center;gap:4px">學校；校對<button class="jt-iconbtn" type="button" aria-label="播放 コウ"><i data-icon="speaker"></i></button></p>
+              </div>
+            </div>
+            <p class="jt-subhead" style="margin:0">例詞</p>
+            <ul class="jt-examples">
+              <li><span class="ex-surface" lang="ja">学校</span><span class="ex-reading" lang="ja">がっこう</span><span class="ex-mean">學校</span><button class="jt-iconbtn" type="button" aria-label="播放 がっこう"><i data-icon="speaker"></i></button></li>
+              <li><span class="ex-surface" lang="ja">校長</span><span class="ex-reading" lang="ja">こうちょう</span><span class="ex-mean">校長</span><button class="jt-iconbtn" type="button" aria-label="播放 こうちょう"><i data-icon="speaker"></i></button></li>
+            </ul>
+          </div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">高</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 たかい</span><span class="jt-cell-mean">高</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">行</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 いく</span><span class="jt-cell-mean">去、行</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">口</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 くち</span><span class="jt-cell-mean">口</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">工</span><span class="jt-cell-sub" lang="ja">音 コウ</span><span class="jt-cell-mean">工</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">広</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 ひろい</span><span class="jt-cell-mean">寬廣</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">考</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 かんがえる</span><span class="jt-cell-mean">思考</span></button></div>
+          <div class="jt-cell-wrap"><button class="jt-cell" type="button" aria-pressed="false"><span class="jt-cell-glyph" lang="ja">交</span><span class="jt-cell-sub" lang="ja">音 コウ · 訓 まじわる</span><span class="jt-cell-mean">交流</span></button></div>
+        </div>
+      </section>
+      <button class="jt-btn" type="button" style="width:100%;margin-top:24px">載入更多（還有 640 字）</button>
+    </div>
+  </main>
+  <div data-state="sheet">
+    <div class="jt-scrim"></div>
+    <div class="jt-dialog sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-h" data-sheet>
+      <div class="jt-dialog-head"><h2 class="jt-dialog-title" id="sheet-h">資料</h2><button class="jt-iconbtn" type="button" aria-label="關閉" style="margin:-10px -10px 0 0"><i data-icon="close"></i></button></div>
+      <nav class="jt-rows" aria-label="資料">
+        <a class="jt-row" href="grammar.html"><span><span class="jt-row-title">文型資料庫</span><span class="ja-label" lang="ja">文型</span></span><span class="jt-row-meta">N5〜N1</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row" href="reference.html" aria-current="page"><span><span class="jt-row-title">漢字音讀</span><span class="ja-label" lang="ja">音読み</span></span><span class="jt-row-meta">目前</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row" href="#"><span><span class="jt-row-title">活用速查表</span><span class="ja-label" lang="ja">活用</span></span><span class="jt-row-meta"></span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+        <a class="jt-row" href="#"><span><span class="jt-row-title">五十音表</span><span class="ja-label" lang="ja">五十音</span></span><span class="jt-row-meta"></span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+      </nav>
+    </div>
+  </div>
+  <div id="chrome-footer"></div>
+  <div id="chrome-bottom"></div>
+</div>
+<script type="module">
+  import { boot } from "./harness.js";
+  boot({ current: "reference", defaultState: "page" });
+</script>
+</body>
+</html>

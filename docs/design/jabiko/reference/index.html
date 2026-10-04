@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jabiko JT-1 · Design authority index</title>
+<link rel="stylesheet" href="jabiko.css">
+<style>
+  .board { max-width: 1280px; margin: 0 auto; padding: 64px 32px; display: grid; gap: 48px; }
+  .cover { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 64px; align-items: end; padding-bottom: 48px; border-bottom: 1px solid var(--jt-border-subtle); }
+  .cover h1 { font-size: 40px; line-height: 48px; font-weight: 600; letter-spacing: -0.02em; margin-top: 16px; }
+  .cover .lede { font-size: 18px; line-height: 28px; color: var(--jt-text-secondary); margin-top: 12px; max-width: 36em; }
+  .brandline { display: flex; align-items: center; gap: 12px; }
+  .brandline .jt-appmark { width: 48px; height: 48px; border-radius: 12px; }
+  .brandline b { font-size: 20px; font-weight: 600; }
+  .family { display: grid; gap: 8px; font-size: 14px; }
+  .family div { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px solid var(--jt-border-subtle); }
+  .family dt { font-weight: 600; }
+  .family dd { color: var(--jt-text-secondary); }
+  .boards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 32px; }
+  .boards .jt-row { grid-template-columns: 2.5em minmax(0, 1fr) 20px; }
+  .boards .num { font-size: 12px; font-weight: 600; color: var(--jt-text-secondary); font-variant-numeric: tabular-nums; }
+  .status { display: inline-flex; gap: 8px; align-items: center; font-size: 12px; font-weight: 600; color: var(--jt-accent-foreground); }
+  @media (max-width: 1023px) { .cover, .boards { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<main class="board" id="main">
+  <section class="cover">
+    <div>
+      <div class="brandline"><span class="jt-appmark" id="mark"></span><b>Jabiko</b></div>
+      <h1>Jabiko design authority JT-1</h1>
+      <p class="lede">Tachiko provides the shared foundation; Jabiko is its learning-product expression. Same ink, surfaces, geometry and state grammar — composed around a Japanese sentence, an answer, and a conversation instead of a grid.</p>
+      <p class="status" style="margin-top:20px">JT-1 CANDIDATE · issue #850 · supersedes visual authority in #832 and PR #849</p>
+    </div>
+    <dl class="family">
+      <div><dt>Foundation</dt><dd>Tachiko Sheet canonical Figma (#71, #69 Phase A, #70) — profile roles, protected states, geometry, focus, UQC</dd></div>
+      <div><dt>Jabiko adds</dt><dd>Assessment marks, Japanese content type, answer option, script lines, World moments, dark theme</dd></div>
+      <div><dt>Not shared</dt><dd>Grid, cells, formula, sheet tabs, workbook state, ribbon, report canvas</dd></div>
+      <div><dt>Runtime</dt><dd>No dependency on tachiko-sheet; values live in Jabiko tokens.json</dd></div>
+    </dl>
+  </section>
+  <section class="boards" aria-label="Boards">
+    <div class="jt-rows">
+      <a class="jt-row" href="foundation.html"><span class="num">01</span><span class="jt-row-title">Foundations</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+      <a class="jt-row" href="components.html"><span class="num">02</span><span class="jt-row-title">Components and states</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+      <a class="jt-row" href="today.html"><span class="num">10</span><span class="jt-row-title">Today</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+    </div>
+    <div class="jt-rows">
+      <a class="jt-row" href="session.html"><span class="num">20</span><span class="jt-row-title">Practice session</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+      <a class="jt-row" href="sets.html"><span class="num">30</span><span class="jt-row-title">Sets and JLPT sections</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+      <a class="jt-row" href="learn.html"><span class="num">40</span><span class="jt-row-title">Learn · Grammar · Reference</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+    </div>
+    <div class="jt-rows">
+      <a class="jt-row" href="talk.html"><span class="num">50</span><span class="jt-row-title">Small Talk</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+      <a class="jt-row" href="world.html"><span class="num">60</span><span class="jt-row-title">World (Jabiko Life shell)</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+      <a class="jt-row" href="system.html"><span class="num">70</span><span class="jt-row-title">Shell and system states</span><i data-icon="chevronRight" class="jt-row-go"></i></a>
+    </div>
+  </section>
+</main>
+<script type="module">
+  import { applyTheme, hydrate, BRAND_MARK } from "./harness.js";
+  applyTheme();
+  document.getElementById("mark").innerHTML = BRAND_MARK;
+  hydrate();
+</script>
+</body>
+</html>
