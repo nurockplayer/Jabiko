@@ -344,7 +344,7 @@ to read about it), exactly as today:
   音読み and 訓読み lines, meaning + speak, 例詞 list (surface Mincho ·
   reading · meaning · speak).
 - **Remembered position**: when nothing is selected, the last-read cell shows
-  "上次看到" (accent 11px label).
+  "上次看到" (accent 12/16 label).
 - **Keyboard**: ← / → walk characters in display order across reading groups
   (global listener, ignored in text fields and with modifiers), stop at both
   ends, reveal the next batch past the load-more boundary, and move focus to
@@ -576,7 +576,7 @@ Route error: h1 "這一頁沒有順利打開", error notice, 重新整理 / 清�
   Dialogs/sheets: contained Tab, Escape closes, focus returns to the trigger.
   No new shortcuts.
 - **Focus**: 3px `focus.ring` + 2px offset on every focusable element; inset
-  (−3px) inside bars, rows, lattices, menu items and choices (design evidence: the first 14 Tab stops of every board at 1440, and every
+  (−3px) inside bars, rows, lattices, menu items and choices (design evidence: the first 14 Tab stops of every product board at 1440, and every
   focused selected control on three forced-colours boards; full traversal is an implementation check).
 - **Names**: every control has an accessible name that does not depend on
   text hidden at the current width (the focus and furigana toggles carry

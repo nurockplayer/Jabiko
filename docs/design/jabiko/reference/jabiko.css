@@ -649,7 +649,7 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
 .jt-cell-speak .jt-iconbtn { width: 36px; height: 36px; }
 @media (max-width: 599px), (pointer: coarse) { .jt-cell-speak .jt-iconbtn { width: 44px; height: 44px; } }
 /* "上次看到" marks the remembered position when nothing is selected. */
-.jt-cell[data-last-read]::before { content: attr(data-last-read); position: absolute; top: 6px; left: 6px; font-size: 11px; line-height: 14px; font-weight: 600; color: var(--jt-accent-foreground); }
+.jt-cell[data-last-read]::before { content: attr(data-last-read); position: absolute; top: 6px; left: 6px; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--jt-accent-foreground); }
 /* Detail row: spans the full lattice width directly after the selected cell. */
 .jt-cell-detail { grid-column: 1 / -1; padding: 20px; border-right: 1px solid var(--jt-border-subtle); border-bottom: 1px solid var(--jt-border-subtle); background: var(--jt-surface-inset); display: grid; gap: 12px; }
 .jt-cell-detail-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: center; }

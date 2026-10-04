@@ -34,9 +34,14 @@ than columns; the set switcher state missing its h1.
 
 ## 2. Figma — `tools/figma/*`
 
-Pending the import into the dedicated Jabiko file (see README). The serializer
-has been run over all scenes: every scene serialized with **0 unmatched
-text, 0 missing text and 0 elements moved** by preparation (fail-closed).
+**Pending**: the import into a dedicated new Figma file ("Jabiko — Tachiko
+Design Authority"; not the historical Shu-ire file and never the Tachiko Sheet
+canonical file). Until it lands, `figma-registry.json` and `renders/figma/`
+do not exist and the frames are not canonical. Dry runs of the serializer over
+the scene set produced **0 unmatched text, 0 missing text and 0 elements
+moved** for every scene (fail-closed); it is re-run from the final harness at
+import time, followed by import, readback, native export, registry and
+`tools/figma/verify.mjs --live`.
 
 ## 3. Independent review
 
@@ -125,7 +130,7 @@ text, 0 missing text and 0 elements moved** by preparation (fail-closed).
      a forced-colours settings capture was added.
   The reviewer also noted that the keyboard check covers outline styling on
   Tab stops only, not modal containment or radio arrow keys; that remains an
-  implementation acceptance item (§4).
+  implementation acceptance item (§5).
 - **Package review, round 5 (fresh Codex reviewer).** All four round-4
   items VERIFIED; parity 66/66, contrast 60/60, Tachiko roles 19/19
   independently recalculated. Verdict "Blocking findings: 1":
@@ -146,9 +151,33 @@ text, 0 missing text and 0 elements moved** by preparation (fail-closed).
      dark forced themes (6/6; minimum 11.3:1 light, 8.73:1 dark).
   Should-fix: the focus-coverage wording in DESIGN §9 now states the bounded
   evidence; README capture count corrected.
-- **Package review, round 7.** See §5.
+- **Package review, round 7 (fresh Codex reviewer).** All round-6 items
+  VERIFIED (the reviewer's sandbox could not start a browser, so it verified
+  the committed evidence and implementation rather than re-running it).
+  Final sweep: **"No blocking findings."** Polish applied afterwards: the
+  "上次看到" label now uses the 12/16 CJK floor; DESIGN §9 says "every product
+  board". Notes kept as implementation acceptance items: full Tab traversal,
+  modal containment, radio arrow keys, selected custom fields under forced
+  colours.
 
-## 4. What design evidence does not prove
+## 4. Review log summary
+
+| Round | Reviewer | Verdict | Outcome |
+| --- | --- | --- | --- |
+| 0 | Codex (direction challenge) | — | composition per surface, assessment states, capability map, link navigation, World states |
+| 1 | Codex | Blocking 5 | all fixed |
+| 2 | Codex (fresh) | Blocking 2 | all fixed |
+| 3 | Codex (fresh) | Blocking 2 | all fixed |
+| 4 | Codex (fresh) | Blocking 2 | all fixed |
+| 5 | Codex (fresh) | Blocking 1 | fixed |
+| 6 | Codex (fresh) | Blocking 1 | fixed |
+| 7 | Codex (fresh) | **No blocking findings** | polish applied |
+
+These are independent *agent* reviews of the design package. JT-1 still
+needs the founder's acceptance (including the REVIEW-CONFIRM items D-07, D-14,
+D-22) before frames are renamed "JT-1 APPROVED".
+
+## 5. What design evidence does not prove
 
 Static boards and Figma frames do not prove runtime correctness, screen-reader
 output, CJK IME behavior on real keyboards, software-keyboard layout on
@@ -157,6 +186,3 @@ the app, or performance and lazy-loading. Those are acceptance gates of
 #838/#834/#836 (DESIGN.md §10.3). Sample counts, names, places and lines on
 the boards are illustrative unless CAPABILITIES.md names their source.
 
-## 5. Review log
-
-(Filled in below as reviews complete.)
