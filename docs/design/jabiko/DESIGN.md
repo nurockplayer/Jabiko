@@ -138,7 +138,13 @@ edge. It never appears on session surfaces.
 Grid `[left 1fr] [progress auto] [right 1fr]` (< 600: `1fr auto auto`).
 Left: exit icon button (aria-label names the destination) + title button
 (opens the set switcher; chevron). Center: 160px meter (4px, `surface.sunken`
-track, accent fill) + "7 / 20" (600, tabular; total in `text.secondary`).
+track, accent fill) + "7 / 20" (600, tabular; total in `text.secondary`); in
+endless sessions (全部) no meter and "第 7 題". In practice sessions the
+progress readout is a **button** that opens 本次 (attempts, correct, accuracy,
+mistakes, and this session's mistake list) as a sheet < 600 / dialog ≥ 600 —
+the compact path to the aside, and the only path in endless sessions that never
+reach completion (`session?state=summary`). Its accessible name states the
+position, total (or "不限題數") and correct count.
 Right: furigana toggle (glyph only < 600), settings (practice), menu.
 < 600: meter becomes a 2px edge on the bar's bottom border.
 
@@ -381,7 +387,7 @@ primary without a level moves focus to the level group and shows the existing
 
 ### 7.2 Practice session `/challenge` — `session`
 
-States: `q`, `correct`, `wrong`, `revealed`, `recall`, `settings`, `settings-basic`, `settings-range`, `settings-custom`, `complete`,
+States: `q`, `correct`, `wrong`, `revealed`, `recall`, `settings`, `settings-basic`, `settings-range`, `settings-custom`, `summary`, `complete`,
 `perfect`, `empty`, `loading`, `error`. Anatomy: h1 "問題 + question type
 (Mincho)" → instruction (secondary) → prompt (`ja.prompt`, target
 underlined) or headword block → aids (朗讀; 提示 before answering) → options → action row (fixed bottom
@@ -501,15 +507,20 @@ note: curated, offline, no AI scoring, no speech recognition.
 
 ### 7.9 World `/game` — `world` (D-22)
 
-States: `home`, `moment`, `feedback`, `handoff`, `handoff-stale`, `empty`,
+States: `home`, `moment`, `feedback`, `complete`, `handoff`, `handoff-stale`, `empty`,
 `error` (definition invalid), `progress-error` (saved progress invalid).
 Completed moments show "已完成" without an action (no replay, D-22). Home per §6.15 and D-22, aside 認識的人 + 想先練一下？ (Small Talk link).
 Moment: session bar titled "place・person", the same script and response
-components, then feedback with the person's reaction as the heading,
-dimensions, the unlock result ("和佐藤さん熟了一點 · 「学校」開放了", check icon,
-accent 600), the optional handoff row (reason + "可略過" + secondary link),
-繼續 (primary) / 換個說法再試一次. Handoff: the normal Training surface with the
-return bar (§6.16). Empty and error per D-22.
+components, then **response feedback** (retryable; it never claims world
+progress): the person's reaction as the heading, all five dimensions, the
+optional handoff row (reason + "可略過" + secondary link), 繼續對話 (primary) /
+換個說法再試一次. **Complete** (`complete`, bar "3 / 3"): shown only after the
+conversation session completes and `applyCompletedConversationSession()`
+has applied the transition — kicker "place・person · 完成", h1, one-line
+summary, the actual changes as rows (relationship stage with its meter;
+newly unlocked places/moments marked "新"), moves practised, 回到日常
+(primary). Handoff: the normal Training surface with the return bar (§6.16).
+Empty and errors per D-22.
 
 ### 7.10 Shell and menu — `system` (`menu-guest`, `menu-user`, `language`, `delete`, `feedback`)
 

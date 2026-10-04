@@ -35,17 +35,18 @@
 <body>
 <div class="jt-app">
   <div id="chrome-top" data-state="home empty error progress-error"></div>
-  <header class="jt-session-bar" data-state="moment feedback">
+  <header class="jt-session-bar" data-state="moment feedback complete">
     <div class="jt-session-left">
       <a class="jt-iconbtn" href="world.html" aria-label="離開這段對話，回到日常"><i data-icon="close"></i></a>
       <span class="jt-session-title" style="cursor:default"><span lang="ja">駅</span>・<span>佐藤さん</span></span>
     </div>
-    <div class="jt-progress" aria-label="第 1 段，共 3 段"><span class="jt-meter" aria-hidden="true"><span style="width:33%"></span></span><span class="jt-progress-text">1 <span>/ 3</span></span></div>
+    <div class="jt-progress" aria-label="第 1 段，共 3 段" data-state="moment feedback"><span class="jt-meter" aria-hidden="true"><span style="width:33%"></span></span><span class="jt-progress-text">1 <span>/ 3</span></span></div>
+    <div class="jt-progress" aria-label="3 段都完成了" data-state="complete"><span class="jt-meter" aria-hidden="true"><span style="width:100%"></span></span><span class="jt-progress-text">3 <span>/ 3</span></span></div>
     <div class="jt-session-right">
       <button class="jt-toggle" type="button" aria-pressed="false" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span><span class="jt-toggle-label">振假名</span></button>
       <button class="jt-iconbtn" type="button" aria-label="選單與設定" aria-haspopup="menu"><i data-icon="menu"></i></button>
     </div>
-    <span class="jt-meter-edge" aria-hidden="true"><span style="width:33%"></span></span>
+    <span class="jt-meter-edge" aria-hidden="true" data-state="moment feedback"><span style="width:33%"></span></span><span class="jt-meter-edge" aria-hidden="true" data-state="complete"><span style="width:100%"></span></span>
   </header>
   <!-- Training surface entered from World: header + return bar (#836) -->
   <div id="chrome-top-training" data-state="handoff handoff-stale"></div>
@@ -169,14 +170,33 @@
           <li class="jt-dim" data-status="met"><i data-mark="o"></i><span class="jt-dim-name">接得下去<span class="jt-dim-state">做到了</span></span><p class="jt-secondary">問了接下來怎麼去，對方容易回答。</p></li>
           <li class="jt-dim" data-status="met"><i data-mark="o"></i><span class="jt-dim-name">場合語氣<span class="jt-dim-state">做到了</span></span><p class="jt-secondary">對剛認識的同學用です・ます剛好。</p></li>
         </ul>
-        <p class="unlock"><i data-icon="check" class="jt-icon-sm"></i>和佐藤さん熟了一點 · 「学校」開放了</p>
         <div class="handoff">
           <p><b>想先練一下？</b> 這段用到「〜みたいです」。可以先去文型練習，練完會帶你回到這裡。<span class="jt-secondary">（可略過）</span></p>
           <a class="jt-btn" href="world.html?state=handoff">去練「〜みたいです」</a>
         </div>
         <div class="jt-actions jt-actions-stack">
-          <a class="jt-btn jt-btn-primary" href="world.html">繼續<i data-icon="arrow"></i></a>
+          <a class="jt-btn jt-btn-primary" href="world.html?state=complete">繼續對話<i data-icon="arrow"></i></a>
           <button class="jt-btn" type="button">換個說法再試一次</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= Moment complete: the applied world transition ================= -->
+    <div class="jt-layout-center" data-state="complete">
+      <section aria-labelledby="w-done">
+        <p class="jt-kicker"><span lang="ja">駅</span>・<span lang="ja">佐藤さん</span> · 完成</p>
+        <h1 class="jt-h1" id="w-done">和<span lang="ja">佐藤さん</span>一起去學校了</h1>
+        <p class="jt-desc" style="margin-top:8px">三段都接下去了：回應、問路線，最後約好一起走。</p>
+        <ul class="jt-rows" style="margin-top:24px" aria-label="這次的變化">
+          <li class="jt-row" style="grid-template-columns:36px minmax(0,1fr) auto;cursor:default"><span class="jt-monogram" lang="ja" aria-hidden="true">佐</span><span><span class="jt-row-title"><span lang="ja">佐藤さん</span>熟了一點</span><br><span class="jt-row-desc">會主動打招呼的同學</span></span><span class="jt-stage" role="img" aria-label="關係 第 2 階段，共 3 階段"><i data-on></i><i data-on></i><i></i></span></li>
+          <li class="jt-row" style="grid-template-columns:36px minmax(0,1fr) auto;cursor:default"><span class="jt-monogram" aria-hidden="true">&#x2713;</span><span><span class="jt-row-title">「<span lang="ja">学校</span>」開放了</span><br><span class="jt-row-desc">新的對話：在教室和<span lang="ja">佐藤さん</span>聊早上的事</span></span><span class="jt-status-word">新</span></li>
+        </ul>
+        <div style="margin-top:24px">
+          <h2 class="jt-subhead">這次練到的</h2>
+          <p class="jt-moves"><span class="jt-move" data-done><i data-icon="check" class="jt-icon-sm"></i>回答</span><i data-icon="arrow" class="jt-icon-sm"></i><span class="jt-move" data-done><i data-icon="check" class="jt-icon-sm"></i>補充</span><i data-icon="arrow" class="jt-icon-sm"></i><span class="jt-move" data-done><i data-icon="check" class="jt-icon-sm"></i>提問</span></p>
+        </div>
+        <div class="jt-actions jt-actions-stack" style="margin-top:24px">
+          <a class="jt-btn jt-btn-primary jt-btn-lg" href="world.html">回到日常<i data-icon="arrow"></i></a>
         </div>
       </section>
     </div>

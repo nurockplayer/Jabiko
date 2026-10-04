@@ -265,6 +265,9 @@ ruby rt { font-size: 0.5em; font-weight: 400; }
 .jt-session-title span { overflow: hidden; text-overflow: ellipsis; }
 .jt-session-title:hover { background: var(--jt-surface-inset); }
 .jt-progress { display: flex; align-items: center; gap: 12px; }
+/* In practice sessions the progress readout is a button that opens 本次 (tally + mistakes). */
+.jt-progress-btn { min-height: 44px; padding: 0 10px; border: 0; border-radius: var(--jt-radius-control); background: none; color: inherit; }
+.jt-progress-btn:hover { background: var(--jt-surface-inset); }
 .jt-meter { position: relative; width: 160px; height: 4px; border-radius: 2px; background: var(--jt-surface-sunken); overflow: hidden; }
 .jt-meter > span { position: absolute; inset: 0 auto 0 0; background: var(--jt-accent-foreground); border-radius: 2px; }
 .jt-progress-text { font-size: 14px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -746,7 +749,9 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
   .jt-option-key { border: 1px solid CanvasText; }
   .jt-tab[aria-current="page"]::after, .jt-tabbar a[aria-current="page"]::before, .jt-meter > span, .jt-bar-track > span, .jt-day[data-done], .jt-stage i[data-on] { background: Highlight; forced-color-adjust: none; }
   .jt-day, .jt-bar-track, .jt-meter, .jt-stage i { border: 1px solid CanvasText; }
-  .jt-row[aria-current="true"], .jt-row[aria-pressed="true"], .jt-choice[aria-checked="true"], .jt-segmented button[aria-pressed="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  .jt-row[aria-current="true"], .jt-row[aria-current="page"], .jt-row[aria-pressed="true"], .jt-choice[aria-checked="true"],
+  .jt-segmented button[aria-pressed="true"], .jt-segmented button[aria-checked="true"], .jt-segmented a[aria-current="page"],
+  .jt-cell[aria-pressed="true"], .jt-custom[data-selected] .jt-input, .jt-toggle[aria-pressed="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
   .jt-btn, .jt-toggle, .jt-select-btn, .jt-segmented { border: 1px solid ButtonText; }
   .jt-notice, .jt-note, .jt-panel { border: 1px solid CanvasText; }
 }

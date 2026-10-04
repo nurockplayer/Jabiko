@@ -302,7 +302,9 @@ renders everything final.
 
 An active practice session, Small Talk run and World moment replace the global
 header and tab bar with a session bar: exit, set/scene title, progress (meter
-+ tabular count), furigana, settings (practice only), menu. Below 600px the
++ tabular count; in practice a button opening 本次 — tally and mistakes,
+reachable on every width and in endless sessions), furigana, settings
+(practice only), menu. Below 600px the
 meter becomes a 2px edge under the bar and the title truncates (full name in
 `aria-label`). Exit returns to the surface that launched it.
 
@@ -352,6 +354,11 @@ locale used; `pickLocalized()` and its fallback chain are unchanged.
   state-invalid and valid-empty (a small, tested domain addition). The
   progress error never modifies or clears progress; offering "start over" is a
   separate product decision and is not designed here.
+- **Feedback ≠ progress.** Response feedback inside a moment is retryable
+  and never announces relationship or unlock changes; those appear only on
+  the completed-moment surface, after the conversation session completes and
+  the world transition has been applied (`conversationSession`,
+  `applyCompletedConversationSession` rejects incomplete sessions).
 - **No replay.** Completed moments show "已完成" and no action:
   `applyCompletedConversationSession()` rejects re-completing a moment, and a
   non-progressing replay mode is not an authorized capability. The valid-empty

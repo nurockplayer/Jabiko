@@ -20,13 +20,13 @@ export const BOARDS = [
   ["foundation.html", [""]],
   ["components.html", [""]],
   ["today.html", ["returning", "first"]],
-  ["session.html", ["q", "correct", "wrong", "revealed", "recall", "settings", "settings-basic", "settings-range", "settings-custom", "complete", "perfect", "empty", "loading", "error"]],
+  ["session.html", ["q", "correct", "wrong", "revealed", "recall", "settings", "settings-basic", "settings-range", "settings-custom", "summary", "complete", "perfect", "empty", "loading", "error"]],
   ["sets.html", ["switcher", "mock"]],
   ["learn.html", [""]],
   ["grammar.html", ["index", "point"]],
   ["reference.html", ["page", "selected", "sheet"]],
   ["talk.html", ["intro", "respond", "feedback", "complete"]],
-  ["world.html", ["home", "moment", "feedback", "handoff", "handoff-stale", "empty", "error", "progress-error"]],
+  ["world.html", ["home", "moment", "feedback", "complete", "handoff", "handoff-stale", "empty", "error", "progress-error"]],
   ["system.html", ["menu-guest", "menu-user", "language", "delete", "focus-config", "focus-break", "offline", "update", "feedback", "route-error"]]
 ];
 
@@ -69,6 +69,8 @@ export const CAPTURES = [
   ["session.html?state=settings-basic", "1440x900", false],
   ["session.html?state=settings-range", "390x844", false],
   ["session.html?state=settings-custom", "390x844", false],
+  ["session.html?state=summary", "390x844", false],
+  ["session.html?state=settings-basic", "390x844", false, "forced"],
   ["session.html?state=wrong&fixture=long", "390x844", true],
   ["session.html?state=wrong&fixture=long", "768x1024", false],
   ["session.html?state=complete", "1440x900", false],
@@ -111,6 +113,8 @@ export const CAPTURES = [
   ["world.html?state=moment", "390x844", false],
   ["world.html?state=feedback", "1440x900", true],
   ["world.html?state=feedback", "390x844", true],
+  ["world.html?state=complete", "390x844", false],
+  ["world.html?state=complete", "1440x900", false],
   ["world.html?state=handoff", "1440x900", false],
   ["world.html?state=handoff", "390x844", false],
   ["world.html?state=handoff-stale", "390x844", false],

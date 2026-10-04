@@ -1,7 +1,7 @@
 {
   "system": "jabiko",
   "revision": "JT-1",
-  "generatedAt": "2026-10-04T18:55:55.791Z",
+  "generatedAt": "2026-10-04T19:12:33.375Z",
   "parity": [
     {
       "theme": "light",
@@ -2297,6 +2297,76 @@
     },
     {
       "board": "session.html",
+      "state": "summary",
+      "viewport": "320x640",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "summary",
+      "viewport": "390x844",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "summary",
+      "viewport": "768x1024",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "summary",
+      "viewport": "1280x800",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
+      "state": "summary",
+      "viewport": "1440x900",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "session.html",
       "state": "complete",
       "viewport": "320x640",
       "overflow": 0,
@@ -3684,6 +3754,76 @@
     {
       "board": "world.html",
       "state": "feedback",
+      "viewport": "1440x900",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "world.html",
+      "state": "complete",
+      "viewport": "320x640",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "world.html",
+      "state": "complete",
+      "viewport": "390x844",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "world.html",
+      "state": "complete",
+      "viewport": "768x1024",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "world.html",
+      "state": "complete",
+      "viewport": "1280x800",
+      "overflow": 0,
+      "h1": 1,
+      "small": [],
+      "missingLang": [],
+      "barCollisions": [],
+      "unnamed": [],
+      "focusWithoutRing": 0,
+      "ok": true,
+      "problems": []
+    },
+    {
+      "board": "world.html",
+      "state": "complete",
       "viewport": "1440x900",
       "overflow": 0,
       "h1": 1,
@@ -5115,6 +5255,20 @@
       "mode": "default"
     },
     {
+      "file": "renders/session-state-summary-390x844.png",
+      "board": "session.html?state=summary",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default"
+    },
+    {
+      "file": "renders/session-state-settings-basic-forced-390x844.png",
+      "board": "session.html?state=settings-basic",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "forced"
+    },
+    {
       "file": "renders/session-state-wrong-fixture-long-390x844.png",
       "board": "session.html?state=wrong&fixture=long",
       "viewport": "390x844",
@@ -5381,6 +5535,20 @@
       "mode": "default"
     },
     {
+      "file": "renders/world-state-complete-390x844.png",
+      "board": "world.html?state=complete",
+      "viewport": "390x844",
+      "fullPage": false,
+      "mode": "default"
+    },
+    {
+      "file": "renders/world-state-complete-1440x900.png",
+      "board": "world.html?state=complete",
+      "viewport": "1440x900",
+      "fullPage": false,
+      "mode": "default"
+    },
+    {
       "file": "renders/world-state-handoff-1440x900.png",
       "board": "world.html?state=handoff",
       "viewport": "1440x900",
@@ -5517,8 +5685,8 @@
     "parity": "66/66",
     "tachikoParity": "30/30",
     "contrast": "60/60",
-    "boardChecks": "245/245",
+    "boardChecks": "255/255",
     "geometry": "20/20",
-    "captures": 91
+    "captures": 95
   }
 }

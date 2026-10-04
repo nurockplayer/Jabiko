@@ -16,10 +16,10 @@ macOS system faces (the harness downloads nothing).
 | Token parity: every `tokens.json` color equals the harness custom property | 33 roles × 2 themes | **66/66** |
 | Tachiko parity: every role sourced `tachiko`/`tachiko-protected` equals the FOUNDATION.md §2 snapshot | 30 roles | **30/30** |
 | Contrast: every declared pair meets its minimum | 30 pairs × 2 themes | **60/60** |
-| Board checks: no horizontal overflow; exactly one visible h1; ≥ 44px targets below 1024px (touch; inline links in running text exempt); Japanese carriers inside `lang="ja"`; every visible control has an accessible name independent of width-hidden text; 3px focus ring on the first 14 Tab stops (1440); bar text never wraps and bar controls never overlap | 12 boards × 49 states × 5 widths (320, 390, 768, 1280, 1440); < 1024 emulated as touch | **245/245** |
+| Board checks: no horizontal overflow; exactly one visible h1; ≥ 44px targets below 1024px (touch; inline links in running text exempt); Japanese carriers inside `lang="ja"`; every visible control has an accessible name independent of width-hidden text; 3px focus ring on the first 14 Tab stops (1440); bar text never wraps and bar controls never overlap | 12 boards × 51 states × 5 widths (320, 390, 768, 1280, 1440); < 1024 emulated as touch | **255/255** |
 | D-07 geometry: the four options **and Next** keep identical boxes in `q`, `correct`, `wrong`, `revealed` | 5 widths × {short, long} × {zh-Hant, en} | **20/20** |
 | D-07 fold: at 390×844 the verdict line ends above the fixed action row | `session?state=wrong` | **pass** |
-| Captures | light, dark, forced colors, English overlay, long-content fixture | **91** renders |
+| Captures | light, dark, forced colors, English overlay, long-content fixture | **95** renders |
 
 Specimen boards (`index`, `foundation`, `components`) are exempt from the
 target and focus checks because they show forced states side by side.
@@ -106,7 +106,26 @@ text, 0 missing text and 0 elements moved** by preparation (fail-closed).
   3. *`unanswered` missing on recall; long fixture kept short-fixture
      attributes* — **fixed**.
   4. *World feedback showed three of five dimensions* — **fixed** (all five).
-- **Package review, round 4.** See §5.
+- **Package review, round 4 (fresh Codex reviewer).** All four round-3 items
+  VERIFIED; independent recalculation of colour parity (66/66), contrast
+  (60/60) and Tachiko mapping roles (19/19) passed. Verdict "Blocking
+  findings: 2". Dispositions:
+  1. *No compact path to the session tally/mistakes; endless sessions never
+     reach completion* — **fixed**: the progress readout is a button opening
+     本次 on every width (`session?state=summary`, endless "第 7 題").
+  2. *World feedback announced unlocks before the moment completed* —
+     **fixed**: retryable response feedback shows no progress; a separate
+     `complete` state shows the applied transition (D-22).
+  3. *Automation identity in specimens* — **fixed**: exam
+     `data-question-type` = promptLabel, recall has an id and `targetForm`, the
+     long fixture has its own id; CAPABILITIES states ids are illustrative.
+  4. *Forced colours missed checked radios* — **fixed**: outline for checked
+     radios, current links, selected cells, custom fields and pressed toggles;
+     a forced-colours settings capture was added.
+  The reviewer also noted that the keyboard check covers outline styling on
+  Tab stops only, not modal containment or radio arrow keys; that remains an
+  implementation acceptance item (§4).
+- **Package review, round 5.** See §5.
 
 ## 4. What design evidence does not prove
 

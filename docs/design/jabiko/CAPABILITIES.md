@@ -51,10 +51,10 @@ column is the < 1024px path; "Evidence" names the board and state.
 | Feedback: verdict, accepted answer(s), explanation, distractor glosses, example + translation, level tag (post-answer only) | `FeedbackPanel` | Under the marked options | same | `session?state=wrong`, `components` |
 | Grammar note toggle; "study this grammar point" (opens separately, session kept) | `FeedbackPanel` | Feedback action row when the item has a grammar point | same | `components` (feedback actions) |
 | Bookmark, per-question report | `FeedbackPanel`, `QuestionReportForm` | Feedback action row | same | `session?state=wrong` |
-| Tally, this-session mistakes | `ScoreReport`, `ReviewList` | Aside "本次", "本次答錯" | Progress count in bar; mistakes on completion | `session`, `session?state=complete` |
+| Tally (attempts, correct, accuracy, mistake count), this-session mistakes — including endless (全部) sessions that never reach completion | `ScoreReport`, `ReviewList` | Aside "本次", "本次答錯"; the progress button also opens 本次 | Progress button in the session bar → 本次 sheet (works before completion and in endless mode) | `session?state=summary`, `session?state=complete` |
 | Completion: counts, perfect run, again/exit, share, feedback, `jabiko.app` watermark | `DrillPanel` done | Result sheet | same | `session?state=complete`, `perfect` |
-| Empty (review/bookmarks/nothing to practise), loading, load error | `DrillPanel` | Session surface | same | `session?state=empty|loading|error` |
-| Automation contract: `.drill-panel` `data-question-id`, `data-question-type`, `data-selected`, `data-result`, `data-expected-answer`; options `data-selected`, `data-result` (`correct`/`wrong`/`target`) | `DrillPanel` | **Preserved verbatim** (boards carry them) | same | `session` |
+| Empty (review/bookmarks/nothing to practise), loading, load error | `DrillPanel` | Session surface | same | `session?state=empty\|loading\|error` |
+| Automation contract: `.drill-panel` `data-question-id`, `data-question-type` (`promptLabel ?? targetForm`), `data-selected` (answer text), `data-result` (`unanswered`/`correct`/`wrong`/`revealed`), `data-expected-answer`; options `data-selected="true"`, `data-result` (`correct`/`wrong`/`target`) | `DrillPanel` | **Preserved verbatim**; boards carry representative values (ids are illustrative) | same | `session` |
 
 ### Learn, Grammar, Reference
 
@@ -86,10 +86,10 @@ column is the < 1024px path; "Evidence" names the board and state.
 | Current moment: place, time/weather context, NPC, relationship stage, objective, start | #833 domain | "現在" scene block | same | `world?state=home` |
 | Other places: available moments, completed moments, locked places with their real unlock condition | #833 | Place sections | same | `world?state=home` |
 | Relationship readout | #833 | Aside "認識的人" | After places | `world?state=home` |
-| Moment run reusing the Small Talk script/feedback; unlock result | #810 kernel, #833 | Session surface | same | `world?state=moment|feedback` |
-| Optional, skippable training handoff and return | #836 | Handoff row in feedback; return bar on the Training surface | same | `world?state=feedback|handoff` |
+| Moment run reusing the Small Talk script/feedback (retryable, no progress claimed); completed transition (relationship stage, unlocks) shown only after the session completes and the world update applies | #810 kernel, #833 (`conversationSession`, `applyCompletedConversationSession`) | Session surface | same | `world?state=moment\|feedback\|complete` |
+| Optional, skippable training handoff and return | #836 | Handoff row in feedback; return bar on the Training surface | same | `world?state=feedback\|handoff` |
 | Return state no longer valid → safe fallback | #836 | Stale return bar ("回到日常") | same | `world?state=handoff-stale` |
-| Valid-empty vs definition-invalid vs saved-progress-invalid | #834 (needs an explicit load status) | Three distinct surfaces; progress never modified | same | `world?state=empty|error|progress-error` |
+| Valid-empty vs definition-invalid vs saved-progress-invalid | #834 (needs an explicit load status) | Three distinct surfaces; progress never modified | same | `world?state=empty\|error\|progress-error` |
 | Completed moments | #833 (`applyCompletedConversationSession` rejects re-completion) | "已完成", no replay action | same | `world?state=home` |
 
 ### Shell and system
@@ -98,11 +98,11 @@ column is the < 1024px path; "Evidence" names the board and state.
 | --- | --- | --- | --- | --- |
 | Language picker (zh-Hant, ja, en launched) | `LanguagePicker` | Menu → dialog | Menu → sheet | `system?state=language` |
 | Light/dark theme (`jabiko.theme`) | `useTheme` | Menu segment | same | `system?state=menu-guest` |
-| Focus Mode: configure, active timer, break summary, policy-gated ad | `useFocusMode`, `focus/*`, `docs/adsense.md` | Header toggle (shows remaining time when active); dialog; break surface | Header icon toggle; menu item | `system?state=focus-config|focus-break` |
-| Google sign-in, sync status/errors, sign out | `useAuth` | Menu account block | same | `system?state=menu-guest|menu-user` |
+| Focus Mode: configure, active timer, break summary, policy-gated ad | `useFocusMode`, `focus/*`, `docs/adsense.md` | Header toggle (shows remaining time when active); dialog; break surface | Header icon toggle; menu item | `system?state=focus-config\|focus-break` |
+| Google sign-in, sync status/errors, sign out | `useAuth` | Menu account block | same | `system?state=menu-guest\|menu-user` |
 | Delete practice history (confirmed, irreversible; existing copy verbatim) | `DeletePracticeHistoryDialog` | Menu → alertdialog | same | `system?state=delete` |
 | Feedback form (anonymous; draft kept on failure) | `FeedbackForm` | Menu + footer → dialog | sheet | `system?state=feedback` |
-| PWA update toast; route error (reload / clear cache / home); offline | `UpdateToast`, `RouteErrorBoundary`, `assetRecovery` | Toast; error page; warning notice | same (toast above tab bar) | `system?state=update|route-error|offline` |
+| PWA update toast; route error (reload / clear cache / home); offline | `UpdateToast`, `RouteErrorBoundary`, `assetRecovery` | Toast; error page; warning notice | same (toast above tab bar) | `system?state=update\|route-error\|offline` |
 | Breadcrumbs, About, Privacy, Terms, Partners, Stay.D page | various | Crumbs; footer; menu | same; crumbs 44px | `grammar`, `today` |
 
 ## 2. Protected contracts (JT-1 changes none of these)
