@@ -1,7 +1,7 @@
 {
   "system": "jabiko",
   "revision": "JT-1",
-  "generatedAt": "2026-10-04T19:27:08.634Z",
+  "generatedAt": "2026-10-04T19:45:40.006Z",
   "parity": [
     {
       "theme": "light",
@@ -5684,19 +5684,49 @@
     {
       "board": "session.html?state=settings-basic",
       "viewport": "1440x900",
+      "colorScheme": "light",
       "focusedSelected": 9,
+      "minContrast": 11.3,
       "ok": true
     },
     {
       "board": "today.html?state=first",
       "viewport": "1440x900",
+      "colorScheme": "light",
       "focusedSelected": 4,
+      "minContrast": 11.3,
       "ok": true
     },
     {
       "board": "reference.html?state=selected",
       "viewport": "1440x900",
+      "colorScheme": "light",
       "focusedSelected": 5,
+      "minContrast": 11.3,
+      "ok": true
+    },
+    {
+      "board": "session.html?state=settings-basic",
+      "viewport": "1440x900",
+      "colorScheme": "dark",
+      "focusedSelected": 9,
+      "minContrast": 8.73,
+      "ok": true
+    },
+    {
+      "board": "today.html?state=first",
+      "viewport": "1440x900",
+      "colorScheme": "dark",
+      "focusedSelected": 4,
+      "minContrast": 8.73,
+      "ok": true
+    },
+    {
+      "board": "reference.html?state=selected",
+      "viewport": "1440x900",
+      "colorScheme": "dark",
+      "focusedSelected": 5,
+      "minContrast": 8.73,
       "ok": true
     }
   ],
@@ -5707,7 +5737,7 @@
     "contrast": "60/60",
     "boardChecks": "255/255",
     "geometry": "20/20",
-    "forcedFocus": "3/3",
+    "forcedFocus": "6/6",
     "captures": 95
   }
 }

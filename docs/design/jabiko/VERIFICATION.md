@@ -19,7 +19,7 @@ macOS system faces (the harness downloads nothing).
 | Board checks: no horizontal overflow; exactly one visible h1; ≥ 44px targets below 1024px (touch; inline links in running text exempt); Japanese carriers inside `lang="ja"`; every visible control has an accessible name independent of width-hidden text; 3px focus ring on the first 14 Tab stops (1440); bar text never wraps and bar controls never overlap | 12 boards × 51 states × 5 widths (320, 390, 768, 1280, 1440); < 1024 emulated as touch | **255/255** |
 | D-07 geometry: the four options **and Next** keep identical boxes in `q`, `correct`, `wrong`, `revealed` | 5 widths × {short, long} × {zh-Hant, en} | **20/20** |
 | D-07 fold: at 390×844 the verdict line ends above the fixed action row | `session?state=wrong` | **pass** |
-| Forced colours: selected controls that receive keyboard focus still draw a ≥ 3px ring | settings, first-run levels, kanji selection (1440, forced) | **3/3** |
+| Forced colours: selected controls that receive keyboard focus still draw a ≥ 3px ring at ≥ 3:1 against the composited fill | settings, first-run levels, kanji selection (1440) × forced light / dark | **6/6** (min 11.3:1 / 8.73:1) |
 | Captures | light, dark, forced colors, English overlay, long-content fixture | **95** renders |
 
 Specimen boards (`index`, `foundation`, `components`) are exempt from the
@@ -137,7 +137,16 @@ text, 0 missing text and 0 elements moved** by preparation (fail-closed).
   Should-fix items fixed: the endless summary no longer shows a finite
   progress edge; the session anatomy text names the progress-button path and
   the verdict-first feedback order.
-- **Package review, round 6.** See §5.
+- **Package review, round 6 (fresh Codex reviewer).** All round-5 items
+  VERIFIED. Verdict "Blocking findings: 1":
+  1. *Forced-colours focus ring inside a selection fill measured ≈ 1.9:1
+     (CanvasText on Highlight)* — **fixed**: inside a selection fill the
+     inset ring is `HighlightText` (offset −4px); the forced-colours check
+     now also measures ring contrast against the composited fill in light and
+     dark forced themes (6/6; minimum 11.3:1 light, 8.73:1 dark).
+  Should-fix: the focus-coverage wording in DESIGN §9 now states the bounded
+  evidence; README capture count corrected.
+- **Package review, round 7.** See §5.
 
 ## 4. What design evidence does not prove
 

@@ -576,8 +576,8 @@ Route error: h1 "這一頁沒有順利打開", error notice, 重新整理 / 清�
   Dialogs/sheets: contained Tab, Escape closes, focus returns to the trigger.
   No new shortcuts.
 - **Focus**: 3px `focus.ring` + 2px offset on every focusable element; inset
-  (−3px) inside bars, rows, lattices, menu items and choices (verified by
-  keyboard traversal on every board at 1440).
+  (−3px) inside bars, rows, lattices, menu items and choices (design evidence: the first 14 Tab stops of every board at 1440, and every
+  focused selected control on three forced-colours boards; full traversal is an implementation check).
 - **Names**: every control has an accessible name that does not depend on
   text hidden at the current width (the focus and furigana toggles carry
   `aria-label`; the active focus toggle includes the remaining time) —
@@ -591,7 +591,7 @@ Route error: h1 "這一頁沒有順利打開", error notice, 重新整理 / 清�
 - **Reflow**: 320px without horizontal scroll (verified); 200% text zoom must
   not clip (#838 check).
 - **Forced colors**: system colors, real borders on controls and notices,
-  2px `CanvasText` verdict edges, a `Highlight` fill with `HighlightText` for current/selected (never an outline, so the 3px `CanvasText` focus ring stays distinct), `Highlight` for progress
+  2px `CanvasText` verdict edges, a `Highlight` fill with `HighlightText` for current/selected (never an outline); the 3px focus ring is `CanvasText`, and `HighlightText` inset 4px when it sits inside a selection fill, so focus keeps ≥ 3:1 against what it is drawn on, `Highlight` for progress
   (`renders/*-forced-*`).
 - **Reduced motion**: no transitions or animation.
 - **Language**: `html lang` = UI language; Japanese carriers `lang="ja"`.

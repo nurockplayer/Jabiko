@@ -757,6 +757,11 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
   .jt-row[aria-current] *, .jt-row[aria-pressed="true"] *, .jt-choice[aria-checked="true"] *, .jt-cell[aria-pressed="true"] *, .jt-toggle[aria-pressed="true"] * { color: HighlightText; }
   :focus-visible { outline: 3px solid CanvasText; outline-offset: 2px; }
   .jt-row:focus-visible, .jt-tab:focus-visible, .jt-tabbar a:focus-visible, .jt-cell:focus-visible, .jt-menu-item:focus-visible, .jt-choice:focus-visible, .jt-segmented button:focus-visible, .jt-segmented a:focus-visible { outline-offset: -3px; }
+  /* Inside a selection fill the inset ring is drawn in HighlightText (the
+     system's own contrasting pair), never CanvasText on Highlight. */
+  .jt-row[aria-current]:focus-visible, .jt-row[aria-pressed="true"]:focus-visible, .jt-choice[aria-checked="true"]:focus-visible,
+  .jt-segmented button[aria-pressed="true"]:focus-visible, .jt-segmented button[aria-checked="true"]:focus-visible, .jt-segmented a[aria-current="page"]:focus-visible,
+  .jt-cell[aria-pressed="true"]:focus-visible, .jt-custom[data-selected] .jt-input:focus-visible, .jt-toggle[aria-pressed="true"]:focus-visible { outline-color: HighlightText; outline-offset: -4px; }
   .jt-btn, .jt-toggle, .jt-select-btn, .jt-segmented { border: 1px solid ButtonText; }
   .jt-notice, .jt-note, .jt-panel { border: 1px solid CanvasText; }
 }

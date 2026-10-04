@@ -22,7 +22,7 @@ choice found during implementation comes back here as a revision (JT-2, …).
 | [tokens.json](tokens.json) | Canonical values: colors (light, dark) with source per role, contrast requirements, type, space, geometry, layers, motion, breakpoints |
 | [figma-registry.json](figma-registry.json) | The canonical Figma frames (node IDs, readback and export hashes) — written by `tools/figma/registry.mjs` |
 | [reference/](reference/) | Executable design harness: `jabiko.css` recipes, `harness.js`, boards `index`, `foundation`, `components`, `today`, `session`, `sets`, `learn`, `grammar`, `reference`, `talk`, `world`, `system` (states via `?state=`, `?theme=dark`, `?lang=en`) |
-| [renders/](renders/) | 82 committed captures (320, 390, 768, 1280, 1440; light, dark, forced colors, English) and, in `renders/figma/`, the native Figma exports |
+| [renders/](renders/) | 95 committed captures (320, 390, 768, 1280, 1440; light, dark, forced colors, English, long content) and, in `renders/figma/`, the native Figma exports |
 | [tools/](tools/) | `verify.mjs` (parity, contrast, board checks, D-07 geometry, captures), `scenes.mjs`, `capture.mjs`, `static-server.mjs`, `overflow-probe.mjs`; `figma/` (bridge client, serializer, importer, registry writer, Figma parity check) |
 | [VERIFICATION.md](VERIFICATION.md) | What was verified, how, results, review record and what design evidence does not prove |
 

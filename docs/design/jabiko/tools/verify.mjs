@@ -248,27 +248,53 @@ try {
 
   // Forced colours: a selected/checked/pressed control that receives keyboard
   // focus must still draw a >= 3px focus outline (selection never replaces focus).
-  for (const [board, vp] of [["session.html?state=settings-basic", "1440x900"], ["today.html?state=first", "1440x900"], ["reference.html?state=selected", "1440x900"]]) {
-    const context = await contextFor(browser, vp, { forcedColors: "active" });
-    const page = await context.newPage();
-    await page.goto(`${origin}/reference/${board}`, { waitUntil: "networkidle" });
-    const seen = [];
-    for (let i = 0; i < 60; i += 1) {
-      await page.keyboard.press("Tab");
-      const info = await page.evaluate(() => {
-        const el = document.activeElement;
-        if (!el || el === document.body) return null;
-        const selected = el.matches('[aria-checked="true"], [aria-pressed="true"], [aria-current]');
-        const s = getComputedStyle(el);
-        return { selected, width: parseFloat(s.outlineWidth), style: s.outlineStyle, label: (el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 12) };
-      });
-      if (info?.selected) seen.push(info);
+  // The ring must also contrast >= 3:1 with what it is drawn on (the
+  // control's own fill for inset rings, else the nearest opaque ancestor),
+  // in light and dark forced-colour themes.
+  for (const colorScheme of ["light", "dark"]) {
+    for (const [board, vp] of [["session.html?state=settings-basic", "1440x900"], ["today.html?state=first", "1440x900"], ["reference.html?state=selected", "1440x900"]]) {
+      const context = await contextFor(browser, vp, { forcedColors: "active", colorScheme });
+      const page = await context.newPage();
+      await page.goto(`${origin}/reference/${board}`, { waitUntil: "networkidle" });
+      const seen = [];
+      for (let i = 0; i < 60; i += 1) {
+        await page.keyboard.press("Tab");
+        const info = await page.evaluate(() => {
+          const el = document.activeElement;
+          if (!el || el === document.body) return null;
+          const selected = el.matches('[aria-checked="true"], [aria-pressed="true"], [aria-current]');
+          const s = getComputedStyle(el);
+          const rgb = (c) => (c.match(/[\d.]+/g) || []).map(Number);
+          const lum = ([r, g, b]) => [r, g, b].map((v) => v / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)).reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0);
+          const inset = parseFloat(s.outlineOffset) < 0;
+          // Composite translucent fills (e.g. Chromium's emulated Highlight is
+          // rgba(…, 0.8)) over their ancestors down to the page canvas.
+          const layers = [];
+          for (let n = inset ? el : el.parentElement; n; n = n.parentElement) {
+            const c = rgb(getComputedStyle(n).backgroundColor);
+            if (c.length >= 3 && (c[3] === undefined || c[3] > 0)) {
+              layers.push(c);
+              if (c[3] === undefined || c[3] >= 1) break;
+            }
+          }
+          const canvas = rgb(getComputedStyle(document.documentElement).backgroundColor);
+          let bg = canvas.length >= 3 && (canvas[3] ?? 1) > 0 ? canvas.slice(0, 3) : [255, 255, 255];
+          for (const c of layers.reverse()) {
+            const a = c[3] ?? 1;
+            bg = [0, 1, 2].map((i) => c[i] * a + bg[i] * (1 - a));
+          }
+          const ring = rgb(s.outlineColor);
+          const [hi, lo] = [lum(ring), lum(bg)].sort((a, b) => b - a);
+          return { selected, width: parseFloat(s.outlineWidth), style: s.outlineStyle, contrast: Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100, label: (el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 12) };
+        });
+        if (info?.selected) seen.push(info);
+      }
+      const bad = seen.filter((f) => f.style === "none" || f.width < 3 || f.contrast < 3);
+      const ok = seen.length > 0 && bad.length === 0;
+      report.forcedFocus = [...(report.forcedFocus ?? []), { board, viewport: vp, colorScheme, focusedSelected: seen.length, minContrast: Math.min(...seen.map((f) => f.contrast)), ok }];
+      if (!ok) failures.push(`forced colours (${colorScheme}): focused selected controls failing 3px/3:1 on ${board}: ${seen.length ? bad.map((b) => `${b.label} ${b.width}px ${b.contrast}:1`).join(", ") : "none reached"}`);
+      await context.close();
     }
-    const bad = seen.filter((f) => f.style === "none" || f.width < 3);
-    const ok = seen.length > 0 && bad.length === 0;
-    report.forcedFocus = [...(report.forcedFocus ?? []), { board, viewport: vp, focusedSelected: seen.length, ok }];
-    if (!ok) failures.push(`forced colours: focused selected controls without a 3px ring on ${board}: ${seen.length ? bad.map((b) => b.label).join(", ") : "none reached"}`);
-    await context.close();
   }
 
   // D-07 geometry: options and Next keep their exact boxes after answering,

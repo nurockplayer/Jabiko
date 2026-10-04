@@ -36,7 +36,7 @@
   .today-layout { grid-template-areas: "a aside" "b aside"; }
   .today-a { grid-area: a; } .today-b { grid-area: b; } .today-aside { grid-area: aside; }
   @media (max-width: 1023px) { .today-layout { grid-template-areas: "a" "aside" "b"; } }
-  @media (forced-colors: active) { .level[aria-checked="true"] { forced-color-adjust: none; background: Highlight; } .level[aria-checked="true"] b, .level[aria-checked="true"] span { color: HighlightText; } }
+  @media (forced-colors: active) { .level[aria-checked="true"]:focus-visible { outline-color: HighlightText; outline-offset: -4px; } .level[aria-checked="true"] { forced-color-adjust: none; background: Highlight; } .level[aria-checked="true"] b, .level[aria-checked="true"] span { color: HighlightText; } }
   .first-facts { display: grid; gap: 12px; font-size: 14px; line-height: 20px; color: var(--jt-text-secondary); }
   .first-facts b { color: var(--jt-text-primary); font-weight: 600; display: block; }
 </style>
