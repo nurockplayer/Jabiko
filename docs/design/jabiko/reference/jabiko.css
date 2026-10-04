@@ -45,6 +45,7 @@
   --jt-assess-partial: #5B6072;
 
   --jt-scrim-opacity: 0.32;
+  --jt-scrim-fill: rgba(37, 39, 53, 0.32); /* scrim #252735 at 0.32 */
   --jt-shadow-overlay: 0 1px 2px rgba(37, 39, 53, 0.08), 0 8px 24px rgba(37, 39, 53, 0.14);
 
   --jt-font-cjk: "PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei";
@@ -103,6 +104,7 @@
   --jt-assess-partial: #B9BCCB;
 
   --jt-scrim-opacity: 0.56;
+  --jt-scrim-fill: rgba(0, 0, 0, 0.56); /* scrim #000000 at 0.56 */
   --jt-shadow-overlay: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.5);
   color-scheme: dark;
 }
@@ -414,7 +416,12 @@ ruby rt { font-size: 0.5em; font-weight: 400; }
 .jt-search .jt-input { padding-left: 36px; }
 
 .jt-check { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px; cursor: pointer; }
-.jt-check input { width: 18px; height: 18px; margin: 0; accent-color: var(--jt-action-primary-background); }
+.jt-checkbox { position: relative; display: inline-grid; width: 18px; height: 18px; flex: none; }
+.jt-checkbox input { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; margin: 0; border: 1px solid var(--jt-border-control); border-radius: 4px; background: var(--jt-surface-content); cursor: pointer; }
+.jt-checkbox input:checked { background: var(--jt-action-primary-background); border-color: var(--jt-action-primary-background); }
+.jt-checkbox svg { position: absolute; inset: 1px; width: 16px; height: 16px; color: var(--jt-action-primary-foreground); pointer-events: none; opacity: 0; }
+.jt-checkbox input:checked + svg { opacity: 1; }
+@media (forced-colors: active) { .jt-checkbox input { border-color: CanvasText; } .jt-checkbox input:checked { background: Highlight; } .jt-checkbox svg { color: HighlightText; } }
 
 /* Chip-like "select" button (Tachiko CollectionSelect grammar) — level target. */
 .jt-select-btn {
@@ -664,7 +671,7 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
 
 /* ------------------------------------------------------------ overlays */
 
-.jt-scrim { position: fixed; inset: 0; z-index: 40; background: color-mix(in srgb, var(--jt-scrim) calc(var(--jt-scrim-opacity) * 100%), transparent); }
+.jt-scrim { position: fixed; inset: 0; z-index: 40; background: var(--jt-scrim-fill); }
 .jt-popover, .jt-menu {
   position: absolute; z-index: 45; width: 320px; max-width: calc(100vw - 16px);
   background: var(--jt-surface-content); border: 1px solid var(--jt-border-subtle); border-radius: var(--jt-radius-overlay);
@@ -716,7 +723,7 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
   display: flex; align-items: center; gap: 16px; padding: 8px 8px 8px 16px; max-width: calc(100vw - 32px);
   background: var(--jt-inverse-background); color: var(--jt-inverse-foreground); border-radius: var(--jt-radius-overlay); box-shadow: var(--jt-shadow-overlay); font-size: 14px;
 }
-.jt-toast .jt-btn { background: transparent; color: var(--jt-inverse-foreground); border-color: color-mix(in srgb, var(--jt-inverse-foreground) 50%, transparent); }
+.jt-toast .jt-btn { background: transparent; color: var(--jt-inverse-foreground); border-color: var(--jt-inverse-foreground); }
 @media (max-width: 1023px) { .jt-toast { bottom: calc(56px + 16px + env(safe-area-inset-bottom)); } }
 
 /* ------------------------------------------------------------ footer */

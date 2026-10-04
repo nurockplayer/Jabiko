@@ -8,13 +8,13 @@
 //
 // State (page IDs, scene node IDs) is kept in $FIGMA_WORK_DIR/figma-state.json
 // so a run can resume. With --replace, an existing frame for a scene is moved
-// to "90 Archive" and renamed "ARCHIVED · NOT AUTHORITY · …" before re-import.
+// to the archive page ("Page 1") and renamed "ARCHIVED · NOT AUTHORITY · …" before re-import.
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import sharp from "sharp";
 import { openBridge } from "./bridge-client.mjs";
-import { CAPTURES, FIGMA_PAGES, captureName, sceneLabel } from "../scenes.mjs";
+import { BOARD_LABELS, CAPTURES, FIGMA_ARCHIVE_PAGE, FIGMA_PAGES, captureName, sceneLabel } from "../scenes.mjs";
 import { FRAME_STATUS } from "./policy.mjs";
 
 const workDir = process.env.FIGMA_WORK_DIR;
@@ -24,7 +24,8 @@ const args = process.argv.slice(2);
 const replace = args.includes("--replace");
 const filter = args.find((a) => !a.startsWith("--")) ?? "";
 const STATUS = FRAME_STATUS;
-const ARCHIVE = "90 Archive";
+const ARCHIVE = FIGMA_ARCHIVE_PAGE;
+const LABEL_HEIGHT = 160;
 const ROW_WIDTH = 6400;
 const GAP = 160;
 const ROW_GAP = 240;
@@ -141,7 +142,18 @@ try {
       (state.archived ??= []).push({ ...existing, archivedAt: new Date().toISOString() });
     }
     const capture = JSON.parse(readFileSync(resolve(workDir, `${name}-capture.json`), "utf8"));
-    const cursor = (state.cursors[pageName] ??= { x: 0, y: 0, rowHeight: 0 });
+    const cursor = (state.cursors[pageName] ??= { x: 0, y: 0, rowHeight: 0, board: null });
+    if (!existing && cursor.board !== file) {
+      if (cursor.board !== null) {
+        cursor.y += cursor.rowHeight + ROW_GAP;
+      }
+      cursor.x = 0;
+      cursor.rowHeight = 0;
+      const label = await bridge.call("create_text", { fileKey, parentId: pageId, name: `Board · ${BOARD_LABELS[file]}`, characters: BOARD_LABELS[file], fontFamily: "Inter", fontStyle: "Semi Bold", fontSize: 64, fillHex: "#252735", x: 0, y: cursor.y });
+      (state.labels ??= {})[file] = { nodeId: label.nodeId ?? label.id, pageId, y: cursor.y };
+      cursor.y += LABEL_HEIGHT;
+      cursor.board = file;
+    }
     const position = existing ? { x: existing.x, y: existing.y } : (() => {
       if (cursor.x > 0 && cursor.x + capture.size.width > ROW_WIDTH) {
         cursor.x = 0;

@@ -8,12 +8,13 @@ import { fileURLToPath } from "node:url";
 
 const DESIGN_ROOT = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 
-// The canonical Jabiko Figma file (created by the founder, 2026-10-01). The
-// bridge addresses it by a per-session "unsaved-…" key, never by this key.
+// The canonical JT-1 Figma file (created by the founder, 2026-10-05). The
+// bridge addresses it by a per-session "unsaved-…" key, never by its file
+// key; the shareable key/URL is recorded once the founder supplies the link.
 export const FIGMA_FILE = {
-  name: "Jabiko Learning — Shu-ire",
-  key: "h4XBtIaL5XYsBOxGVTHmc4",
-  url: "https://www.figma.com/design/h4XBtIaL5XYsBOxGVTHmc4/Jabiko-Learning-%E2%80%94-Shu-ire"
+  name: "Jabiko — Tachiko Design Authority",
+  key: null,
+  url: null
 };
 
 // Frame status prefix. Renamed to "JT-1 APPROVED" only after independent

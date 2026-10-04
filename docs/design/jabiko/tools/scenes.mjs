@@ -136,17 +136,40 @@ export const CAPTURES = [
   ["system.html?state=route-error", "390x844", false]
 ];
 
-// Figma page for each board file.
+// Figma page for each board file. The JT-1 file is on Figma's Starter plan
+// (three pages; the bridge cannot rename or delete pages), so the system
+// boards share "00 Index" and every surface lives on "01 Foundations" in
+// labelled board rows (BOARD_LABELS). "Page 1" is the archive. The founder
+// renames the two pages by hand ("00 System", "10 Surfaces"); the registry
+// records page IDs, which survive renaming.
 export const FIGMA_PAGES = {
+  "index.html": "00 Index",
+  "foundation.html": "00 Index",
+  "components.html": "00 Index",
+  "today.html": "01 Foundations",
+  "session.html": "01 Foundations",
+  "sets.html": "01 Foundations",
+  "learn.html": "01 Foundations",
+  "grammar.html": "01 Foundations",
+  "reference.html": "01 Foundations",
+  "talk.html": "01 Foundations",
+  "world.html": "01 Foundations",
+  "system.html": "01 Foundations"
+};
+
+export const FIGMA_ARCHIVE_PAGE = "Page 1";
+
+// Row label drawn above each board's frames.
+export const BOARD_LABELS = {
   "index.html": "00 Index",
   "foundation.html": "01 Foundations",
   "components.html": "02 Components",
   "today.html": "10 Today",
   "session.html": "20 Practice session",
   "sets.html": "30 Sets & JLPT sections",
-  "learn.html": "40 Learn · Grammar · Reference",
-  "grammar.html": "40 Learn · Grammar · Reference",
-  "reference.html": "40 Learn · Grammar · Reference",
+  "learn.html": "40 Learn",
+  "grammar.html": "41 Grammar",
+  "reference.html": "42 Reference",
   "talk.html": "50 Small Talk",
   "world.html": "60 World",
   "system.html": "70 Shell & System"

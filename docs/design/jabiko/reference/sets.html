@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="jabiko.css">
 <style>
   /* Board-local layout (DESIGN.md §7.3–7.4). */
-  .switcher { top: 64px; left: max(16px, calc(50% - 600px + 24px)); width: 560px; max-height: calc(100vh - 80px); overflow: auto; padding: 16px; }
+  .switcher { position: fixed; top: 64px; left: max(16px, calc(50% - 600px + 24px)); width: 560px; max-height: calc(100vh - 80px); overflow: auto; padding: 16px; }
   .switcher .jt-rows { border-top: 0; }
   .switcher .jt-row { grid-template-columns: minmax(0, 1fr) auto; min-height: 52px; }
   .switcher-group { padding: 8px 0 12px; }

@@ -34,14 +34,43 @@ than columns; the set switcher state missing its h1.
 
 ## 2. Figma — `tools/figma/*`
 
-**Pending**: the import into a dedicated new Figma file ("Jabiko — Tachiko
-Design Authority"; not the historical Shu-ire file and never the Tachiko Sheet
-canonical file). Until it lands, `figma-registry.json` and `renders/figma/`
-do not exist and the frames are not canonical. Dry runs of the serializer over
-the scene set produced **0 unmatched text, 0 missing text and 0 elements
-moved** for every scene (fail-closed); it is re-run from the final harness at
-import time, followed by import, readback, native export, registry and
-`tools/figma/verify.mjs --live`.
+File: **"Jabiko — Tachiko Design Authority"** (new, created by the founder
+2026-10-05; not the historical Shu-ire file, never the Tachiko Sheet canonical
+file). Transport: official `@gethopp/figma-mcp-bridge` 0.0.22, bulk editable
+`import_html_layers` (html-figma 0.3.1 bundle, SHA-256 pinned in
+`tools/figma/policy.mjs`).
+
+| Check | Result |
+| --- | --- |
+| Frames imported, one per capture scene, named `JT-1 CANDIDATE · <board> · <state> · <viewport>` | **95/95**, every serialized layer imported |
+| Serializer completeness (fail-closed): unmatched text / missing text / elements moved by preparation | **0 / 0 / 0** for every scene |
+| Readback: TEXT layers equal the serialized count; fonts equal the serialized `fontName` | **5,250** text layers; fonts match on every frame |
+| Image fills (no raster substitutes) | **0** |
+| Every solid paint is a `tokens.json` colour (either theme) or mascot art (forced-colours frames exempt) | pass |
+| Native export size equals frame size; export byte-stable | pass (95/95) |
+| Visual diff vs. the like-for-like Chromium capture (share of pixels with channel delta > 48; limit 0.05) | max **0.0322**, median **0.0122** |
+| Offline parity (`tools/figma/verify.mjs`) | **95/95**, 0 failures |
+| Live parity (`verify.mjs --live`: every frame read back; name, size and readback hash equal the registry) | **95/95** |
+
+**Page layout.** The file is on Figma's Starter plan (three pages) and the
+bridge cannot rename or delete pages, so — by the founder's choice — the
+system boards (index, foundations, components) are on the page created as
+"00 Index", every surface board is on the page created as "01 Foundations" in
+labelled rows (10 Today … 70 Shell & System), and "Page 1" is the archive.
+The founder renames the two pages by hand ("00 System", "10 Surfaces");
+`figma-registry.json` records page **IDs**, which survive renaming.
+
+**Defects the Figma pass caught and fixed in the harness** (each followed by a
+clean re-import of all frames from one harness state): the modal scrim and the
+toast button border used `color-mix()`, which the importer cannot read
+(scrim missing; off-palette `#010101`) — now explicit colours from the
+`scrim` and `inverse` tokens; native checkboxes imported as the text "on" —
+now a drawn checkbox over a real input; the set switcher was `absolute` and
+painted under the fixed scrim in Figma — now a fixed overlay.
+
+**Pending:** the shareable file key/URL (`policy.mjs` `FIGMA_FILE.key`/`url`)
+are recorded once the founder shares the link; frames are renamed
+"JT-1 APPROVED · …" only after the founder accepts JT-1.
 
 ## 3. Independent review
 

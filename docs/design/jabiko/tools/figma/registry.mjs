@@ -75,6 +75,8 @@ const registry = {
   status: FRAME_STATUS,
   file: FIGMA_FILE,
   pages: Object.fromEntries(Object.entries(state.pages).filter(([name]) => name !== "Page 1")),
+  archivePage: state.pages["Page 1"] ?? null,
+  boardLabels: state.labels ?? {},
   bridge: { package: "@gethopp/figma-mcp-bridge", version: BRIDGE_VERSION, tool: "import_html_layers" },
   serializer: {
     htmlFigmaBundleSha256: HTML_FIGMA_BUNDLE_SHA256,

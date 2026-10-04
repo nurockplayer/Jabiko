@@ -9,6 +9,13 @@ choice found during implementation comes back here as a revision (JT-2, …).
 > **Tachiko foundation, Jabiko voice.** Tachiko provides the shared design
 > foundation; Jabiko is its learning-product expression.
 
+**Figma (canonical for visual presentation):** the file
+**"Jabiko — Tachiko Design Authority"** — 95 editable frames named
+`JT-1 CANDIDATE · <board> · <state> · <viewport>`, registered with node IDs and
+hashes in [figma-registry.json](figma-registry.json) (link to be recorded in
+`tools/figma/policy.mjs` once shared). System boards are on the first page,
+all surfaces on the second in labelled rows (VERIFICATION.md §2).
+
 ![Practice session after a wrong answer, 1440×900](renders/session-state-wrong-1440x900.png)
 
 ## What is where
