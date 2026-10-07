@@ -13,13 +13,14 @@ macOS system faces (the harness downloads nothing).
 
 | Check | Scope | Result |
 | --- | --- | --- |
-| Token parity: every `tokens.json` color equals the harness custom property | 33 roles × 2 themes | **66/66** |
+| Token parity: every `tokens.json` color equals the harness custom property | 36 roles × 2 themes | **72/72** |
 | Tachiko parity: every role sourced `tachiko`/`tachiko-protected` equals the FOUNDATION.md §2 snapshot | 30 roles | **30/30** |
-| Contrast: every declared pair meets its minimum | 30 pairs × 2 themes | **60/60** |
+| Contrast: every declared pair meets its minimum | 35 pairs × 2 themes | **70/70** |
 | Board checks: no horizontal overflow; exactly one visible h1; ≥ 44px targets below 1024px (touch; inline links in running text exempt); Japanese carriers inside `lang="ja"`; every visible control has an accessible name independent of width-hidden text; 3px focus ring on the first 14 Tab stops (1440); bar text never wraps and bar controls never overlap | 12 boards × 51 states × 5 widths (320, 390, 768, 1280, 1440); < 1024 emulated as touch | **255/255** |
 | D-07 geometry: the four options **and Next** keep identical boxes in `q`, `correct`, `wrong`, `revealed` | 5 widths × {short, long} × {zh-Hant, en} | **20/20** |
 | D-07 fold: at 390×844 the verdict line ends above the fixed action row | `session?state=wrong` | **pass** |
 | Forced colours: selected controls that receive keyboard focus still draw a ≥ 3px ring at ≥ 3:1 against the composited fill | settings, first-run levels, kanji selection (1440) × forced light / dark | **6/6** (min 11.3:1 / 8.73:1) |
+| Disabled precedence (D-25): every disabled (native or `aria-disabled`) command — primary included — or toggle and every child resolves to the disabled ink, and (outside forced colours) to the disabled fill: transparent for quiet/off toggles, `surface.inset` otherwise including on+disabled; a focused on+disabled control in forced colours draws a 3px ring ≥ 3:1 against its own background | `components`, `session?state=wrong` × light, dark, forced light, forced dark | **8/8** (10 controls, 21 elements per mode; forced ring 21:1) |
 | Captures | light, dark, forced colors, English overlay, long-content fixture | **95** renders |
 
 Specimen boards (`index`, `foundation`, `components`) are exempt from the
@@ -67,6 +68,12 @@ toast button border used `color-mix()`, which the importer cannot read
 `scrim` and `inverse` tokens; native checkboxes imported as the text "on" —
 now a drawn checkbox over a real input; the set switcher was `absolute` and
 painted under the fixed scrim in Figma — now a fixed overlay.
+
+**Re-import for D-25 (2026-10-08).** After the action-language revision all
+95 frames were re-imported with `import.mjs --replace` (the superseded frames
+were moved to "Page 1" and renamed "ARCHIVED · NOT AUTHORITY · …"), then
+re-registered: 95/95 imported, 0 image fills, visual diff max **0.0322**,
+median **0.0122**; offline and live parity **95/95**.
 
 **Pending:** the shareable file key/URL (`policy.mjs` `FIGMA_FILE.key`/`url`)
 are recorded once the founder shares the link; frames are renamed
@@ -189,6 +196,44 @@ are recorded once the founder shares the link; frames are renamed
   modal containment, radio arrow keys, selected custom fields under forced
   colours.
 
+- **Action-language revision D-25 (founder feedback: actions "read too much
+  like Bootstrap 4"), round 8 (fresh Codex challenger).** Verdict "Blocking 3":
+  1. *Two primaries in typed recall* — **fixed**: the primary follows the
+     phase (DESIGN §6.1); before a verdict the session row has no primary,
+     after it 下一題 is primary; 下一題 keeps a 132px minimum box so the swap
+     never moves it (geometry check now selects `#next`, still five boxes,
+     20/20).
+  2. *"On" overrode "disabled"* — fixed in round 9 (below).
+  3. *Enter keycap shown before Enter works* — **fixed**: keycap and
+     `aria-keyshortcuts` only after a verdict, matching production
+     `handleDrillKeyDown`.
+  Non-blocking, all applied: Today hero pair is primary + quiet (no two filled
+  rectangles); border rule narrowed to command buttons and the grammar pager
+  made quiet; toggle contract restated as "inset edge is the shape mark";
+  bar icon buttons in secondary ink; deviation record lists sizing changes.
+- **Round 9 (Codex).** Items 1 and 3 VERIFIED; hero pairing VERIFIED. Held on
+  disabled precedence (aria-disabled and toggle children not covered) —
+  **fixed** with one consolidated rule block after the toggle rules for both
+  disabled attributes, in normal and forced colours, plus an aria-disabled
+  specimen row; stale "state word" prose and "large tonal" corrected.
+- **Round 10 (Codex, cascade audit of 80 combinations).** Prose items
+  VERIFIED; disabled precedence still NOT RESOLVED: `:is()` wrapping did not
+  raise specificity enough, so the furigana glyph and state word kept their
+  on/off ink, and forced-colour disabled ink lost to authored ink; a focused
+  on+disabled control kept a `HighlightText` ring on `Canvas`. **Fixed** by
+  specificity (a `:root` prefix and an explicit child list) rather than source
+  order, and a `CanvasText` ring for that case. Because a reading of the
+  cascade had been wrong twice, the rule is now **measured**: `verify.mjs`
+  checks computed ink of every disabled control and child in four modes and
+  the forced focus ring (8/8). Mutation check: re-breaking the child rule
+  makes it fail with exactly the round-10 symptoms (6/8).
+- **Round 11 (fresh Codex, final sweep of D-25).** Rounds 8–10 blockers
+  VERIFIED. **"Blocking findings: 0".** Design judgment: primary-plus-quiet
+  heroes and quiet toolbar controls answer the Bootstrap critique; the
+  hierarchy reads as intentional. Polish applied: the disabled check now also
+  covers primary commands and asserts fills; large-quiet weight (500) and
+  "quiet next chapter" stated explicitly.
+
 ## 4. Review log summary
 
 | Round | Reviewer | Verdict | Outcome |
@@ -201,6 +246,10 @@ are recorded once the founder shares the link; frames are renamed
 | 5 | Codex (fresh) | Blocking 1 | fixed |
 | 6 | Codex (fresh) | Blocking 1 | fixed |
 | 7 | Codex (fresh) | **No blocking findings** | polish applied |
+| 8 | Codex (fresh, D-25 actions) | Blocking 3 | 2 fixed, 1 fixed in round 9 |
+| 9 | Codex | Blocking 1 | fixed in round 10 |
+| 10 | Codex | Blocking 1 | fixed; now a measured check |
+| 11 | Codex (fresh, final D-25 sweep) | **No blocking findings** | polish applied |
 
 These are independent *agent* reviews of the design package. JT-1 still
 needs the founder's acceptance (including the REVIEW-CONFIRM items D-07, D-14,

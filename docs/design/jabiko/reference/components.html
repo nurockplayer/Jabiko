@@ -20,15 +20,26 @@
   .specimens-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 32px; }
   .sp { display: grid; gap: 8px; align-content: start; }
   .sp > .cell-l { margin-bottom: 0; }
-  .is-hover.jt-btn:not(.jt-btn-primary), .is-hover.jt-toggle, .is-hover.jt-option, .is-hover.jt-row, .is-hover.jt-select-btn { background: var(--jt-surface-inset); }
-  .is-hover.jt-btn-primary { background: var(--jt-action-primary-hover); border-color: var(--jt-action-primary-hover); }
-  .is-active.jt-btn:not(.jt-btn-primary), .is-active.jt-option { background: var(--jt-surface-sunken); }
-  .is-active.jt-btn-primary { background: var(--jt-action-primary-pressed); border-color: var(--jt-action-primary-pressed); }
+  .is-hover.jt-option, .is-hover.jt-row, .is-hover.jt-select-btn { background: var(--jt-surface-inset); }
+  .is-hover.jt-btn { background: var(--jt-action-tonal-hover); }
+  .is-hover.jt-btn-quiet, .is-hover.jt-toggle, .is-hover.jt-iconbtn { background: var(--jt-action-tonal-background); }
+  .is-hover.jt-btn-quiet .jt-icon, .is-hover.jt-toggle .jt-icon { color: var(--jt-text-primary); }
+  .is-hover.jt-btn-primary { background: var(--jt-action-primary-hover); }
+  .is-hover.jt-btn-danger { background: var(--jt-status-error-background); box-shadow: inset 0 0 0 1px var(--jt-status-error-ink); }
+  .is-active.jt-btn { background: var(--jt-action-tonal-pressed); }
+  .is-active.jt-btn-quiet, .is-active.jt-toggle, .is-active.jt-iconbtn { background: var(--jt-action-tonal-hover); }
+  .is-active.jt-option { background: var(--jt-surface-sunken); }
+  .is-active.jt-btn-primary { background: var(--jt-action-primary-pressed); }
+  .is-active.jt-btn-danger { background: var(--jt-status-error-background); box-shadow: inset 0 0 0 1px var(--jt-status-error-ink); }
+  .is-kbd .jt-btn-primary .jt-btn-kbd { display: inline-block; }
+  .is-kbd .jt-btn-primary .jt-btn-kbd + .jt-icon { display: none; }
+  .chrome-demo { display: flex; align-items: center; gap: 2px; height: 56px; padding: 0 12px; background: var(--jt-surface-chrome); border: 1px solid var(--jt-border-subtle); border-radius: var(--jt-radius-control); }
+  .ladder { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .is-focus { outline: 3px solid var(--jt-focus-ring); outline-offset: 2px; }
   .jt-row.is-focus, .jt-tab.is-focus { outline-offset: -3px; }
   .is-hover.jt-input { border-color: var(--jt-text-secondary); }
   .is-hover.jt-tab { color: var(--jt-text-primary); }
-  .is-hover.jt-tab > .jt-tab-hit { background: var(--jt-surface-inset); }
+  .is-hover.jt-tab > .jt-tab-hit { background: var(--jt-action-tonal-background); }
   .tabs-demo { display: flex; height: 56px; background: var(--jt-surface-chrome); border: 1px solid var(--jt-border-subtle); border-radius: var(--jt-radius-control); padding: 0 8px; gap: 4px; }
   .tabbar-demo { display: grid !important; position: static; border: 1px solid var(--jt-border-subtle); border-radius: var(--jt-radius-control); }
   .static .jt-menu, .static .jt-dialog, .static .jt-toast { position: static; transform: none; left: auto; top: auto; bottom: auto; }
@@ -46,25 +57,32 @@
   </header>
 
   <section class="group" aria-labelledby="b-h">
-    <h2 id="b-h">Buttons — Tachiko grammar</h2>
-    <p>Primary is the single most important command on a surface. Busy keeps the label and suppresses repeat dispatch. Disabled is readable and, where material, explained nearby.</p>
+    <h2 id="b-h">Actions — Tachiko grammar, Jabiko expression (D-25)</h2>
+    <p>Commands are fills; choices are outlines. Emphasis steps down primary → tonal → quiet, and a surface has at most one primary. "On" is accent tint with an inset edge (the shape mark; the furigana toggle adds 開/關 where width allows); "open" is a neutral fill; disabled outranks both. Busy keeps the label and suppresses repeat dispatch. Disabled is readable and, where material, explained nearby.</p>
     <div class="matrix">
       <span></span><span class="h">Default</span><span class="h">Hover</span><span class="h">Pressed</span><span class="h">Focus</span><span class="h">Disabled</span><span class="h">Busy</span>
       <span class="cell-l">Primary</span>
       <span><button class="jt-btn jt-btn-primary" type="button">開始今日練習</button></span><span><button class="jt-btn jt-btn-primary is-hover" type="button">開始今日練習</button></span><span><button class="jt-btn jt-btn-primary is-active" type="button">開始今日練習</button></span><span><button class="jt-btn jt-btn-primary is-focus" type="button">開始今日練習</button></span><span><button class="jt-btn jt-btn-primary" type="button" disabled>開始今日練習</button></span><span><button class="jt-btn jt-btn-primary" type="button" aria-busy="true"><i data-icon="clock"></i>準備中…</button></span>
-      <span class="cell-l">Secondary</span>
+      <span class="cell-l">Tonal (default)</span>
       <span><button class="jt-btn" type="button">只複習錯題</button></span><span><button class="jt-btn is-hover" type="button">只複習錯題</button></span><span><button class="jt-btn is-active" type="button">只複習錯題</button></span><span><button class="jt-btn is-focus" type="button">只複習錯題</button></span><span><button class="jt-btn" type="button" disabled>只複習錯題</button></span><span><button class="jt-btn" type="button" aria-busy="true"><i data-icon="clock"></i>同步中…</button></span>
-      <span class="cell-l">Ghost</span>
-      <span><button class="jt-btn jt-btn-ghost" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-ghost is-hover" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-ghost is-active" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-ghost is-focus" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-ghost" type="button" disabled><i data-icon="flag"></i>回報此題</button></span><span></span>
+      <span class="cell-l">Quiet</span>
+      <span><button class="jt-btn jt-btn-quiet" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-quiet is-hover" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-quiet is-active" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-quiet is-focus" type="button"><i data-icon="flag"></i>回報此題</button></span><span><button class="jt-btn jt-btn-quiet" type="button" disabled><i data-icon="flag"></i>回報此題</button></span><span></span>
+      <span class="cell-l">Toggle (quiet)</span>
+      <span><button class="jt-btn jt-btn-quiet" type="button" aria-pressed="false"><i data-icon="bookmark"></i>收藏此題</button></span><span><button class="jt-btn jt-btn-quiet is-hover" type="button" aria-pressed="false"><i data-icon="bookmark"></i>收藏此題</button></span><span><button class="jt-btn jt-btn-quiet" type="button" aria-pressed="true"><i data-icon="bookmark"></i>收藏此題</button></span><span><button class="jt-btn jt-btn-quiet is-focus" type="button" aria-pressed="true"><i data-icon="bookmark"></i>收藏此題</button></span><span><button class="jt-btn jt-btn-quiet" type="button" aria-expanded="true"><i data-icon="grammar"></i>文型說明</button></span><span><button class="jt-btn jt-btn-quiet" type="button" aria-pressed="true" disabled><i data-icon="bookmark"></i>收藏此題</button><span class="cell-l" style="display:block;margin-top:4px">on · on+focus · open · on+disabled</span></span>
       <span class="cell-l">Destructive</span>
-      <span><button class="jt-btn jt-btn-danger jt-btn-solid" type="button">刪除</button></span><span></span><span></span><span><button class="jt-btn jt-btn-danger jt-btn-solid is-focus" type="button">刪除</button></span><span><button class="jt-btn" type="button" disabled>刪除</button></span><span><button class="jt-btn jt-btn-danger jt-btn-solid" type="button" aria-busy="true">刪除中…</button></span>
+      <span><button class="jt-btn jt-btn-danger" type="button">刪除練習紀錄…</button></span><span><button class="jt-btn jt-btn-danger is-hover" type="button">刪除練習紀錄…</button></span><span><button class="jt-btn jt-btn-danger jt-btn-solid" type="button">刪除</button></span><span><button class="jt-btn jt-btn-danger jt-btn-solid is-focus" type="button">刪除</button></span><span><button class="jt-btn jt-btn-danger" type="button" disabled>刪除</button></span><span><button class="jt-btn jt-btn-danger jt-btn-solid" type="button" aria-busy="true">刪除中…</button></span>
+    </div>
+    <div class="specimens" style="margin-top:24px">
+      <div class="sp"><span class="cell-l">Hero pair: one large primary + a large quiet alternative (Today, complete, chapter, break)</span><div class="ladder"><a class="jt-btn jt-btn-primary jt-btn-lg" href="#">開始今日練習<i data-icon="arrow"></i></a><a class="jt-btn jt-btn-quiet jt-btn-lg" href="#">只複習錯題（3）</a></div></div>
+      <div class="sp"><span class="cell-l">Session row: primary follows the phase. Before a verdict the options are the job (下一題 tonal = skip); after it 下一題 is primary and carries Enter (keyboard devices; arrow on touch)</span><div class="ladder"><button class="jt-btn" type="button"><i data-icon="eye"></i>看答案</button><button class="jt-btn jt-btn-next" type="button">下一題<kbd class="jt-btn-kbd" aria-hidden="true">Enter</kbd><i data-icon="arrow"></i></button></div><div class="ladder is-kbd"><button class="jt-btn" type="button" disabled><i data-icon="eye"></i>看答案</button><button class="jt-btn jt-btn-primary jt-btn-next" type="button" aria-keyshortcuts="Enter">下一題<kbd class="jt-btn-kbd" aria-hidden="true">Enter</kbd><i data-icon="arrow"></i></button></div></div>
+      <div class="sp"><span class="cell-l">Header tools on chrome: product switch · tools (quiet; on = tint + inset edge)</span><div class="chrome-demo"><a class="jt-product-link" href="#"><i data-icon="world"></i><span>日常</span><span class="jt-preview-word">預覽</span></a><span class="jt-header-sep" aria-hidden="true"></span><button class="jt-toggle" type="button" aria-pressed="false" aria-label="專注模式"><i data-icon="timer"></i><span aria-hidden="true">專注</span></button><button class="jt-toggle" type="button" aria-pressed="true" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span><span aria-hidden="true">振假名</span><span class="jt-toggle-state" aria-hidden="true">開</span></button><button class="jt-iconbtn" type="button" aria-label="選單"><i data-icon="menu"></i></button></div></div>
     </div>
   </section>
 
   <section class="group" aria-labelledby="s-h">
     <h2 id="s-h">Toggles, segments, selects, fields</h2>
     <div class="specimens">
-      <div class="sp"><span class="cell-l">Toggle off / on / focus (aria-pressed)</span><div class="jt-actions"><button class="jt-toggle" type="button" aria-pressed="false" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span>振假名<span class="jt-toggle-state">關</span></button><button class="jt-toggle" type="button" aria-pressed="true" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span>振假名<span class="jt-toggle-state">開</span></button><button class="jt-toggle is-focus" type="button" aria-pressed="true" aria-label="專注模式，剩 18:42"><i data-icon="timer"></i><span aria-hidden="true">18:42</span></button></div></div>
+      <div class="sp"><span class="cell-l">Toggle off / on / focus (aria-pressed)</span><div class="jt-actions"><button class="jt-toggle" type="button" aria-pressed="false" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span>振假名<span class="jt-toggle-state">關</span></button><button class="jt-toggle" type="button" aria-pressed="true" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span>振假名<span class="jt-toggle-state">開</span></button><button class="jt-toggle is-focus" type="button" aria-pressed="true" aria-label="專注模式，剩 18:42"><i data-icon="timer"></i><span aria-hidden="true">18:42</span></button></div><span class="cell-l">Disabled outranks on (aria-disabled): off · on</span><div class="jt-actions"><button class="jt-toggle" type="button" aria-pressed="false" aria-disabled="true" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span>振假名<span class="jt-toggle-state">關</span></button><button class="jt-toggle" type="button" aria-pressed="true" aria-disabled="true" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span>振假名<span class="jt-toggle-state">開</span></button><button class="jt-btn jt-btn-quiet" type="button" aria-pressed="true" aria-disabled="true"><i data-icon="bookmark"></i>收藏此題</button></div></div>
       <div class="sp"><span class="cell-l">Segmented (radiogroup) · link variant uses aria-current</span><div class="jt-segmented" role="radiogroup" aria-label="級數"><button role="radio" aria-checked="false">N5</button><button role="radio" aria-checked="false">N4</button><button role="radio" aria-checked="true">N3</button><button role="radio" aria-checked="false" class="is-focus">N2</button><button role="radio" aria-checked="false">N1</button></div></div>
       <div class="sp"><span class="cell-l">Select button (opens picker in place)</span><div class="jt-actions"><button class="jt-select-btn" type="button"><span class="jt-select-key">目標</span>N3・N4<i data-icon="chevron" class="jt-icon-sm"></i></button><button class="jt-select-btn is-hover" type="button"><span class="jt-select-key">目標</span>N3・N4<i data-icon="chevron" class="jt-icon-sm"></i></button></div></div>
       <div class="sp"><span class="cell-l">Field default / hover</span><div class="jt-field"><label for="f1">你的答案</label><input class="jt-input" id="f1" lang="ja" placeholder="請輸入答案"></div><div class="jt-field"><label for="f2">搜尋</label><input class="jt-input is-hover" id="f2" value="みたい"></div></div>
@@ -108,7 +126,7 @@
     </div>
     <div class="sp" style="margin-top:24px"><span class="cell-l">Feedback actions on a grammar item · multiple accepted answers · grammar note expanded</span>
       <div class="jt-verdict"><span class="jt-verdict-word" data-kind="miss"><i data-mark="x" class="jt-mark-lg"></i>答錯了</span><span class="jt-verdict-answer">正解 <b lang="ja">ばかり</b>・<b lang="ja">ばっかり</b></span></div>
-      <div class="jt-actions"><button class="jt-btn" type="button" aria-pressed="false"><i data-icon="bookmark"></i>收藏此題</button><button class="jt-btn" type="button" aria-expanded="true"><i data-icon="grammar"></i>文型說明</button><a class="jt-btn jt-btn-ghost" href="#" target="_blank" rel="noopener">看這個文型<i data-icon="external"></i><span class="jt-visually-hidden">（另開分頁，本次練習保留）</span></a><button class="jt-btn jt-btn-ghost" type="button"><i data-icon="flag"></i>回報此題</button></div>
+      <div class="jt-actions jt-actions-quiet"><button class="jt-btn jt-btn-quiet" type="button" aria-pressed="false"><i data-icon="bookmark"></i>收藏此題</button><button class="jt-btn jt-btn-quiet" type="button" aria-expanded="true"><i data-icon="grammar"></i>文型說明</button><a class="jt-btn jt-btn-quiet" href="#" target="_blank" rel="noopener">看這個文型<i data-icon="external"></i><span class="jt-visually-hidden">（另開分頁，本次練習保留）</span></a><button class="jt-btn jt-btn-quiet" type="button"><i data-icon="flag"></i>回報此題</button></div>
       <div class="jt-note" style="max-width:720px"><i data-icon="grammar"></i><div><b lang="ja">〜ばかり</b> 光是…、老是…<p class="jt-ja-body" lang="ja" style="font-size:14px;line-height:22px">名詞 ／ て形 ＋ ばかり</p></div></div>
     </div>
   </section>

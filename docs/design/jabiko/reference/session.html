@@ -62,7 +62,7 @@
       <span class="jt-progress-text" aria-hidden="true">第 7 題</span>
     </button>
     <div class="jt-session-right">
-      <button class="jt-toggle" type="button" aria-pressed="false" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span><span class="jt-toggle-label"><span data-l="zh-Hant">振假名</span><span data-l="en">Furigana</span></span></button>
+      <button class="jt-toggle" type="button" aria-pressed="false" aria-label="振假名"><span class="jt-furi" lang="ja" aria-hidden="true">ふ</span><span class="jt-toggle-label" aria-hidden="true"><span data-l="zh-Hant">振假名</span><span data-l="en">Furigana</span></span><span class="jt-toggle-state jt-hide-compact" aria-hidden="true"><span data-l="zh-Hant">關</span><span data-l="en">Off</span></span></button>
       <button class="jt-iconbtn" type="button" aria-label="本次設定：題數、語速、重設" aria-haspopup="dialog"><i data-icon="sliders"></i></button>
       <button class="jt-iconbtn" type="button" aria-label="選單與設定" aria-haspopup="menu"><i data-icon="menu"></i></button>
     </div>
@@ -81,8 +81,8 @@
           <p class="jt-qinstruction"><span data-l="zh-Hant">選出底線詞語的正確讀音。</span><span data-l="en">Choose the correct reading of the underlined word.</span></p>
           <p class="jt-prompt jt-qprompt" lang="ja">今日はちょっと<u>都合</u>が悪いので、また今度にしてください。</p>
           <div class="jt-aids">
-            <button class="jt-btn jt-btn-ghost" type="button" aria-label="播放這一句"><i data-icon="speaker"></i><span data-l="zh-Hant">朗讀</span><span data-l="en">Listen</span></button>
-            <button class="jt-btn jt-btn-ghost" type="button" aria-expanded="false" data-state="q settings settings-range settings-custom summary"><i data-icon="eye"></i><span data-l="zh-Hant">提示</span><span data-l="en">Hint</span></button>
+            <button class="jt-btn jt-btn-quiet" type="button" aria-label="播放這一句"><i data-icon="speaker"></i><span data-l="zh-Hant">朗讀</span><span data-l="en">Listen</span></button>
+            <button class="jt-btn jt-btn-quiet" type="button" aria-expanded="false" data-state="q settings settings-range settings-custom summary"><i data-icon="eye"></i><span data-l="zh-Hant">提示</span><span data-l="en">Hint</span></button>
           </div>
 
           <div class="jt-options" role="group" aria-label="選項">
@@ -93,9 +93,9 @@
           </div>
           <div class="jt-session-actions">
             <button class="jt-btn" type="button" id="reveal"><i data-icon="eye"></i><span data-l="zh-Hant">看答案</span><span data-l="en">Show answer</span></button>
-            <button class="jt-btn jt-btn-primary" type="button" id="next"><span data-l="zh-Hant">下一題</span><span data-l="en">Next</span><i data-icon="arrow"></i></button>
+            <button class="jt-btn jt-btn-next" type="button" id="next"><span data-l="zh-Hant">下一題</span><span data-l="en">Next</span><kbd class="jt-btn-kbd" aria-hidden="true">Enter</kbd><i data-icon="arrow"></i></button>
           </div>
-          <p class="jt-kbd-hint" data-state="q settings settings-range settings-custom summary" style="margin-top:12px"><i data-icon="keyboard" class="jt-icon-sm"></i><span class="jt-kbd">1</span>–<span class="jt-kbd">4</span> <span data-l="zh-Hant">選答</span><span data-l="en">answer</span> · <span class="jt-kbd">Enter</span> <span data-l="zh-Hant">下一題</span><span data-l="en">next</span></p>
+          <p class="jt-kbd-hint" data-state="q settings settings-range settings-custom summary" style="margin-top:12px"><i data-icon="keyboard" class="jt-icon-sm"></i><span class="jt-kbd">1</span>–<span class="jt-kbd">4</span> <span data-l="zh-Hant">選答</span><span data-l="en">answer</span></p>
 
           <!-- Feedback: below the marked options and the action row (D-07); nothing above it moves. -->
           <section class="jt-feedback" aria-live="polite" aria-labelledby="verdict" data-state="correct wrong revealed">
@@ -116,9 +116,9 @@
                 <dt lang="ja">とこう</dt><dd><span data-l="zh-Hant">渡航（出國旅行）</span><span data-l="en">渡航 (overseas travel)</span></dd>
               </dl>
             </div>
-            <div class="jt-actions">
-              <button class="jt-btn" type="button" aria-pressed="false"><i data-icon="bookmark"></i><span data-l="zh-Hant">收藏此題</span><span data-l="en">Bookmark</span></button>
-              <button class="jt-btn jt-btn-ghost" type="button"><i data-icon="flag"></i><span data-l="zh-Hant">回報此題</span><span data-l="en">Report</span></button>
+            <div class="jt-actions jt-actions-quiet">
+              <button class="jt-btn jt-btn-quiet" type="button" aria-pressed="false"><i data-icon="bookmark"></i><span data-l="zh-Hant">收藏此題</span><span data-l="en">Bookmark</span></button>
+              <button class="jt-btn jt-btn-quiet" type="button"><i data-icon="flag"></i><span data-l="zh-Hant">回報此題</span><span data-l="en">Report</span></button>
             </div>
           </section>
 
@@ -145,7 +145,7 @@
           </div>
           <div class="jt-session-actions">
             <button class="jt-btn" type="button"><i data-icon="eye"></i>看答案</button>
-            <button class="jt-btn jt-btn-primary" type="button">下一題<i data-icon="arrow"></i></button>
+            <button class="jt-btn jt-btn-next" type="button">下一題<i data-icon="arrow"></i></button>
           </div>
         </section>
 
@@ -169,7 +169,7 @@
           </dl>
           <div class="jt-actions complete-actions jt-actions-stack">
             <button class="jt-btn jt-btn-primary jt-btn-lg" type="button">再來一組<i data-icon="arrow"></i></button>
-            <a class="jt-btn jt-btn-lg" href="today.html">回到今日</a>
+            <a class="jt-btn jt-btn-quiet jt-btn-lg" href="today.html">回到今日</a>
           </div>
           <div style="margin-top:32px" data-state="complete">
             <h2 class="jt-h3" style="margin-bottom:8px">這次答錯的題目</h2>
@@ -178,9 +178,9 @@
               <li><span class="q" lang="ja">都合</span><span class="a"><s lang="ja">とごう</s> → <b lang="ja">つごう</b></span></li>
             </ul>
           </div>
-          <div class="jt-actions" style="margin-top:24px">
-            <button class="jt-btn jt-btn-ghost" type="button"><i data-icon="share"></i>分享結果</button>
-            <button class="jt-btn jt-btn-ghost" type="button"><i data-icon="message"></i>意見回饋</button>
+          <div class="jt-actions jt-actions-quiet" style="margin-top:24px">
+            <button class="jt-btn jt-btn-quiet" type="button"><i data-icon="share"></i>分享結果</button>
+            <button class="jt-btn jt-btn-quiet" type="button"><i data-icon="message"></i>意見回饋</button>
             <span class="watermark">jabiko.app</span>
           </div>
         </section>
@@ -193,7 +193,7 @@
           <div class="jt-actions jt-actions-stack" style="margin-top:24px">
             <a class="jt-btn jt-btn-primary" href="#">做今日練習</a>
             <a class="jt-btn" href="#">綜合考題庫</a>
-            <a class="jt-btn jt-btn-ghost" href="today.html">回到今日</a>
+            <a class="jt-btn jt-btn-quiet" href="today.html">回到今日</a>
           </div>
         </section>
 
@@ -227,7 +227,7 @@
           <p>複習優先，再混合文法・語順・漢字読み一輪。目標 N3・N4。</p>
           <div class="jt-actions" style="margin-top:12px">
             <button class="jt-btn" type="button">換一組</button>
-            <button class="jt-btn jt-btn-ghost" type="button"><i data-icon="refresh"></i>重設本次</button>
+            <button class="jt-btn jt-btn-quiet" type="button"><i data-icon="refresh"></i>重設本次</button>
           </div>
         </section>
         <section>
@@ -247,7 +247,7 @@
         <section>
           <h2 class="jt-aside-h">本次設定</h2>
           <p class="jt-secondary">每組 20 題 · 語速 標準</p>
-          <button class="jt-btn jt-btn-ghost" type="button" style="margin:4px 0 0 -14px"><i data-icon="sliders"></i>調整</button>
+          <button class="jt-btn jt-btn-quiet" type="button" style="margin:4px 0 0 -10px"><i data-icon="sliders"></i>調整</button>
         </section>
       </aside>
     </div>
@@ -363,6 +363,12 @@
     document.querySelector(".jt-verdict-answer b").textContent = "じかん";
     document.querySelector("#drill .jt-read").textContent = "（版面測試用的長內容：確認回饋出現時，上方的選項與下一題都不會移動。）";
     document.getElementById("tr").textContent = "會議資料已經事先寄給所有人，所以當天決定縮短說明，把問答時間留長一點。這是一段刻意拉長的翻譯，用來確認回饋區塊出現時，上方的選項和下一題按鈕都不會移動。";
+  }
+  // Primary follows the phase: after a verdict 下一題 is the job and Enter means "next".
+  if (["correct", "wrong", "revealed"].includes(state)) {
+    const next = document.getElementById("next");
+    next.classList.add("jt-btn-primary");
+    next.setAttribute("aria-keyshortcuts", "Enter");
   }
   if (state === "correct") {
     drill.dataset.selected = opts[0].querySelector(".jt-option-text").textContent; opts[0].dataset.selected = "true"; drill.dataset.result = "correct"; drill.dataset.expectedAnswer = opts[0].querySelector(".jt-option-text").textContent;

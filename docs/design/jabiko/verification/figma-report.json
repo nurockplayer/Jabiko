@@ -8,7 +8,7 @@
   "visualLimit": 0.05,
   "summary": {
     "frames": "95/95",
-    "live": "not run",
+    "live": "95 frames read back",
     "failures": 0
   },
   "failures": []

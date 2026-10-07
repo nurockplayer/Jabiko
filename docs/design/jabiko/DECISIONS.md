@@ -390,3 +390,71 @@ Where DESIGN.md names a small domain change (navigation grouping, retiring
 `doneSpot`, an additive language-source helper, an explicit World load status
 separating definition-invalid / state-invalid / valid-empty),
 that change still goes through TDD in its implementation issue.
+
+## D-25 — Action language: commands are fills, choices are outlines {#d-25}
+
+**Decision.** Jabiko keeps Tachiko's command *grammar* (one primary per
+surface; hover/pressed/focus/disabled/busy; busy keeps its label; 7px radius;
+3px focus ring) and changes its *expression*:
+
+1. **Border = a value lives here.** Fields, select buttons, answer options and
+   segmented controls, checkbox and radio indicators keep `border.control`.
+   Command buttons never have a resting border; navigation rows and pagers
+   use hairline separators and a hover fill.
+2. **Emphasis by fill, not outline.** Primary (solid violet) → tonal (neutral
+   fill, the default) → quiet (no fill until hovered). Destructive is tonal red
+   at entry points and solid only in the final confirmation.
+3. **One strong action, then words.** A hero pair is a large primary plus a
+   large *quiet* alternative — never two filled rectangles side by side — and
+   the primary follows the phase: before a verdict the answer options are the
+   job and the session row has no primary; after it, 下一題 is the primary.
+4. **States stay distinct from emphasis.** "On" (`aria-pressed`) uses the
+   selection grammar (accent tint + inset edge, the shape mark; plus the
+   開/關 word on the furigana toggle where width allows); "open"
+   (`aria-expanded`) uses the neutral fill. Neither can be mistaken for a
+   primary command. Disabled outranks on/open (an on+disabled command keeps a
+   disabled-ink edge).
+5. **Bars and the header are quiet toolbars.** Every bar control is a quiet
+   command or toggle with secondary-ink icons; a hairline separates the
+   product switch from the tools.
+6. **The shortcut lives on the command, only while it works.** After a
+   verdict 下一題 carries its Enter keycap (`aria-keyshortcuts`) on keyboard
+   devices — matching production, where Enter → next is handled only once
+   feedback exists.
+7. Large hero is 48px (was 44).
+
+New Jabiko-owned roles: `action.tonal.background` / `.hover` / `.pressed`
+(light `#ECEEF4`/`#E2E5ED`/`#D7DBE5`, dark `#2C2E3A`/`#363948`/`#404354`),
+each verified ≥ 4.5:1 with `text.primary`. Quiet hover in bars uses
+`action.tonal.background` because `surface.inset` is not visible on
+`surface.chrome` (1.01:1).
+
+**Why.** The founder's review found the JT-1 actions "read like Bootstrap 4":
+a filled primary beside a 1px dark outlined secondary, and outlined boxes in
+the top-right corner. That pairing is the framework default — the outline
+gives the secondary the same visual weight as an input, so the hero pair and
+the header looked like a form. Tachiko Sheet's outlined secondary suits a
+dense spreadsheet whose commands sit beside many fields; Jabiko's surfaces are
+a reading column with one job, where outlines should be reserved for things
+the learner chooses (options, levels) so a bordered thing always means "pick
+me". Tonal and quiet commands also let the learning content — not the
+chrome — be the most visible thing on a surface (UQC §1.1, §6).
+
+Codex challenged the first cut (review round 8): it still read as a generic
+filled + tonal recipe on Today, had two primaries in typed recall, let "on"
+override "disabled", and advertised Enter before Enter worked. Points 3, 4
+and 6 are the answers.
+
+**Rejected.** Pill-shaped buttons (breaks Tachiko's 7px control radius and
+D-23's "no pill chips"); accent-tinted secondary (collides with the "on"
+state and the selected-segment treatment); shadows or gradients on primary
+(D-23, UQC §6); press-scale motion (geometry shift, UQC §1.2); a tint-only
+"on" state (the tint alone is ~1.05:1 against chrome; the inset edge is
+required).
+
+**Deviation from Tachiko.** Presentation and sizing: the secondary variant
+is a fill instead of an outline, bar controls have no resting border, three
+tonal roles are added, the large size is 48px with 22px padding, and the
+default padding/icon gap are 16/8 (quiet 10). Unchanged: every shared role
+value, the 7px radius, the focus ring, and the behavioral contract (states,
+busy, one primary) (FOUNDATION.md §4).

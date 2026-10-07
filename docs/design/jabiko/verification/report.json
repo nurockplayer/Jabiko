@@ -1,7 +1,7 @@
 {
   "system": "jabiko",
   "revision": "JT-1",
-  "generatedAt": "2026-10-04T23:45:50.285Z",
+  "generatedAt": "2026-10-07T21:39:14.316Z",
   "parity": [
     {
       "theme": "light",
@@ -120,6 +120,27 @@
       "role": "action.primary.foreground",
       "token": "#FFFFFF",
       "css": "#FFFFFF",
+      "ok": true
+    },
+    {
+      "theme": "light",
+      "role": "action.tonal.background",
+      "token": "#ECEEF4",
+      "css": "#ECEEF4",
+      "ok": true
+    },
+    {
+      "theme": "light",
+      "role": "action.tonal.hover",
+      "token": "#E2E5ED",
+      "css": "#E2E5ED",
+      "ok": true
+    },
+    {
+      "theme": "light",
+      "role": "action.tonal.pressed",
+      "token": "#D7DBE5",
+      "css": "#D7DBE5",
       "ok": true
     },
     {
@@ -351,6 +372,27 @@
       "role": "action.primary.foreground",
       "token": "#FFFFFF",
       "css": "#FFFFFF",
+      "ok": true
+    },
+    {
+      "theme": "dark",
+      "role": "action.tonal.background",
+      "token": "#2C2E3A",
+      "css": "#2C2E3A",
+      "ok": true
+    },
+    {
+      "theme": "dark",
+      "role": "action.tonal.hover",
+      "token": "#363948",
+      "css": "#363948",
+      "ok": true
+    },
+    {
+      "theme": "dark",
+      "role": "action.tonal.pressed",
+      "token": "#404354",
+      "css": "#404354",
       "ok": true
     },
     {
@@ -800,7 +842,51 @@
       "bgValue": "#4936AB",
       "ratio": 8.75,
       "min": 4.5,
-      "use": "primary pressed",
+      "use": "primary pressed; keycap inside primary",
+      "ok": true
+    },
+    {
+      "theme": "light",
+      "fg": "text.primary",
+      "bg": "action.tonal.background",
+      "fgValue": "#252735",
+      "bgValue": "#ECEEF4",
+      "ratio": 12.75,
+      "min": 4.5,
+      "use": "tonal command label",
+      "ok": true
+    },
+    {
+      "theme": "light",
+      "fg": "text.primary",
+      "bg": "action.tonal.hover",
+      "fgValue": "#252735",
+      "bgValue": "#E2E5ED",
+      "ratio": 11.73,
+      "min": 4.5,
+      "use": "tonal command hover",
+      "ok": true
+    },
+    {
+      "theme": "light",
+      "fg": "text.primary",
+      "bg": "action.tonal.pressed",
+      "fgValue": "#252735",
+      "bgValue": "#D7DBE5",
+      "ratio": 10.67,
+      "min": 4.5,
+      "use": "tonal command pressed",
+      "ok": true
+    },
+    {
+      "theme": "light",
+      "fg": "text.secondary",
+      "bg": "action.tonal.background",
+      "fgValue": "#646879",
+      "bgValue": "#ECEEF4",
+      "ratio": 4.77,
+      "min": 3,
+      "use": "quiet command icon on hover / open",
       "ok": true
     },
     {
@@ -856,6 +942,17 @@
       "ratio": 5.8,
       "min": 3,
       "use": "selected edge",
+      "ok": true
+    },
+    {
+      "theme": "light",
+      "fg": "selection.edge",
+      "bg": "accent.background",
+      "fgValue": "#6551CE",
+      "bgValue": "#F0EDFD",
+      "ratio": 5.04,
+      "min": 3,
+      "use": "toggle on: inset edge",
       "ok": true
     },
     {
@@ -1130,7 +1227,51 @@
       "bgValue": "#5140BC",
       "ratio": 7.47,
       "min": 4.5,
-      "use": "primary pressed",
+      "use": "primary pressed; keycap inside primary",
+      "ok": true
+    },
+    {
+      "theme": "dark",
+      "fg": "text.primary",
+      "bg": "action.tonal.background",
+      "fgValue": "#E8E9F0",
+      "bgValue": "#2C2E3A",
+      "ratio": 11.13,
+      "min": 4.5,
+      "use": "tonal command label",
+      "ok": true
+    },
+    {
+      "theme": "dark",
+      "fg": "text.primary",
+      "bg": "action.tonal.hover",
+      "fgValue": "#E8E9F0",
+      "bgValue": "#363948",
+      "ratio": 9.45,
+      "min": 4.5,
+      "use": "tonal command hover",
+      "ok": true
+    },
+    {
+      "theme": "dark",
+      "fg": "text.primary",
+      "bg": "action.tonal.pressed",
+      "fgValue": "#E8E9F0",
+      "bgValue": "#404354",
+      "ratio": 8.07,
+      "min": 4.5,
+      "use": "tonal command pressed",
+      "ok": true
+    },
+    {
+      "theme": "dark",
+      "fg": "text.secondary",
+      "bg": "action.tonal.background",
+      "fgValue": "#A5A8B9",
+      "bgValue": "#2C2E3A",
+      "ratio": 5.71,
+      "min": 3,
+      "use": "quiet command icon on hover / open",
       "ok": true
     },
     {
@@ -1186,6 +1327,17 @@
       "ratio": 6.82,
       "min": 3,
       "use": "selected edge",
+      "ok": true
+    },
+    {
+      "theme": "dark",
+      "fg": "selection.edge",
+      "bg": "accent.background",
+      "fgValue": "#9D90FF",
+      "bgValue": "#262240",
+      "ratio": 5.68,
+      "min": 3,
+      "use": "toggle on: inset edge",
       "ok": true
     },
     {
@@ -5730,14 +5882,89 @@
       "ok": true
     }
   ],
+  "disabledInk": [
+    {
+      "theme": "light",
+      "forced": false,
+      "board": "components.html",
+      "controls": 9,
+      "nodes": 17,
+      "ok": true,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "forced": false,
+      "board": "session.html?state=wrong",
+      "controls": 1,
+      "nodes": 4,
+      "ok": true,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "forced": false,
+      "board": "components.html",
+      "controls": 9,
+      "nodes": 17,
+      "ok": true,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "forced": false,
+      "board": "session.html?state=wrong",
+      "controls": 1,
+      "nodes": 4,
+      "ok": true,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "forced": true,
+      "board": "components.html",
+      "controls": 9,
+      "nodes": 17,
+      "ok": true,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "forced": true,
+      "board": "session.html?state=wrong",
+      "controls": 1,
+      "nodes": 4,
+      "ok": true,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "forced": true,
+      "board": "components.html",
+      "controls": 9,
+      "nodes": 17,
+      "ok": true,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "forced": true,
+      "board": "session.html?state=wrong",
+      "controls": 1,
+      "nodes": 4,
+      "ok": true,
+      "bad": []
+    }
+  ],
   "failures": [],
   "summary": {
-    "parity": "66/66",
+    "parity": "72/72",
     "tachikoParity": "30/30",
-    "contrast": "60/60",
+    "contrast": "70/70",
     "boardChecks": "255/255",
     "geometry": "20/20",
     "forcedFocus": "6/6",
+    "disabledInk": "8/8",
     "captures": 95
   }
 }

@@ -27,9 +27,9 @@
   .ex .jt-iconbtn { grid-column: 2; grid-row: 1 / span 2; }
   .ex .jt-line { font-size: 22px; line-height: 36px; }
   @media (max-width: 599px) { .ex .jt-line { font-size: 18px; line-height: 30px; } }
-  .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 32px; }
-  .pager a { display: grid; gap: 2px; padding: 12px; border: 1px solid var(--jt-border-subtle); border-radius: var(--jt-radius-control); text-decoration: none; }
-  .pager a:hover { background: var(--jt-surface-inset); }
+  .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 32px; padding-top: 8px; border-top: 1px solid var(--jt-border-subtle); }
+  .pager a { display: grid; gap: 2px; padding: 12px; margin: 0 -12px; border-radius: var(--jt-radius-control); text-decoration: none; transition: background var(--jt-dur-state); }
+  .pager a:hover { background: var(--jt-action-tonal-background); }
   .pager a span { font-size: 12px; color: var(--jt-text-secondary); }
   .pager a b { font-family: var(--jt-font-mincho); font-size: 18px; font-weight: 600; }
   .pager a:last-child { text-align: right; }

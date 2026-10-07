@@ -134,7 +134,8 @@ export function header(current, { furigana = false, focusActive = "" } = {}) {
     </nav>
     <div class="jt-header-tools">
       <a class="jt-product-link jt-hide-medium" href="world.html">${icon("world")}<span>${t("world")}</span><span class="jt-preview-word">${t("preview")}</span></a>
-      <button class="jt-toggle" type="button" aria-pressed="${focusActive ? "true" : "false"}" aria-label="${focusActive ? `${t("focusMode")}，${t("remaining")} ${focusActive}` : t("focusMode")}">${icon("timer")}<span class="jt-toggle-label" aria-hidden="true">${focusActive || t("focus")}</span></button>
+      <span class="jt-header-sep jt-hide-medium" aria-hidden="true"></span>
+      <button class="jt-toggle" type="button" aria-pressed="${focusActive ? "true" : "false"}" aria-label="${focusActive ? `${t("focusMode")}，${t("remaining")} ${focusActive}` : t("focusMode")}">${icon("timer")}<span class="jt-toggle-label${focusActive ? " jt-num" : ""}" aria-hidden="true">${focusActive || t("focus")}</span></button>
       ${furiToggle(furigana)}
       <button class="jt-iconbtn" type="button" aria-label="${t("menu")}" aria-haspopup="menu" aria-expanded="false">${icon("menu")}</button>
     </div>
@@ -163,6 +164,7 @@ export function worldHeader() {
     <a class="jt-brand" href="world.html" aria-label="Jabiko ${t("world")}">${appmark()}<span class="jt-brand-word">Jabiko</span><span class="jt-brand-product">${t("world")} · ${t("preview")}</span></a>
     <div class="jt-header-tools">
       <a class="jt-product-link" href="today.html">${icon("back")}<span>回到練習</span></a>
+      <span class="jt-header-sep jt-hide-compact" aria-hidden="true"></span>
       ${furiToggle(false)}
       <button class="jt-iconbtn" type="button" aria-label="${t("menu")}" aria-haspopup="menu" aria-expanded="false">${icon("menu")}</button>
     </div>

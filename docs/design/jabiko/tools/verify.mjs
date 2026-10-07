@@ -14,7 +14,12 @@
 //    and bar controls never overlap.
 // 4. D-07: answer options do not move between the unanswered and answered
 //    states, and at 390x844 the verdict line sits above the sticky actions.
-// 5. Captures the canonical review renders into ../renders (palette PNG).
+// 5. Disabled precedence (D-25): every disabled (native or aria-disabled)
+//    command (primary included) or toggle, and every child, resolves to the
+//    disabled ink in light, dark and both forced themes, and to the disabled
+//    fill outside forced colours; a focused on+disabled control in
+//    forced colours draws a 3px ring >= 3:1 against its own background.
+// 6. Captures the canonical review renders into ../renders (palette PNG).
 //
 // Writes ../verification/report.json. Exits non-zero on any failure.
 import { chromium } from "@playwright/test";
@@ -198,7 +203,7 @@ async function focusCheck(page) {
 }
 
 async function optionRects(page) {
-  return page.evaluate(() => [...document.querySelectorAll("#drill .jt-option, #drill .jt-session-actions .jt-btn-primary")].map((el) => {
+  return page.evaluate(() => [...document.querySelectorAll("#drill .jt-option, #drill #next")].map((el) => {
     const r = el.getBoundingClientRect();
     return [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)];
   }));
@@ -297,6 +302,73 @@ try {
     }
   }
 
+  // Disabled precedence (D-25): disabled outranks on/open for fill and ink.
+  report.disabledInk = [];
+  for (const [theme, forced] of [["light", false], ["dark", false], ["light", true], ["dark", true]]) {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: theme, forcedColors: forced ? "active" : "none" });
+    const page = await context.newPage();
+    for (const board of ["components.html", "session.html?state=wrong"]) {
+      await page.goto(`${origin}/reference/${board}${board.includes("?") ? "&" : "?"}theme=${theme}`, { waitUntil: "networkidle" });
+      const r = await page.evaluate((isForced) => {
+        const probe = document.createElement("span");
+        probe.style.color = isForced ? "GrayText" : "var(--jt-text-disabled)";
+        document.body.append(probe);
+        const expected = getComputedStyle(probe).color;
+        probe.remove();
+        // Expected fill outside forced colours: transparent for quiet commands and
+        // toggles that are off; surface.inset for everything else (including on).
+        probe.style.background = "var(--jt-surface-inset)";
+        document.body.append(probe);
+        const insetFill = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        const sel = '.jt-btn:is([disabled],[aria-disabled="true"]), .jt-toggle:is([disabled],[aria-disabled="true"])';
+        const bad = [];
+        let nodes = 0;
+        let controls = 0;
+        for (const el of document.querySelectorAll(sel)) {
+          if (el.closest("[hidden]")) continue;
+          controls++;
+          if (!isForced) {
+            const on = el.getAttribute("aria-pressed") === "true" && !el.classList.contains("jt-btn-primary");
+            const clear = !on && (el.classList.contains("jt-btn-quiet") || el.classList.contains("jt-toggle"));
+            const fill = getComputedStyle(el).backgroundColor;
+            const want = clear ? "rgba(0, 0, 0, 0)" : insetFill;
+            if (fill !== want) bad.push(`${el.textContent.trim()} fill: ${fill} (want ${want})`);
+          }
+          for (const node of [el, ...el.querySelectorAll("*")]) {
+            if (node.matches("path, circle, line, rect, polyline, polygon")) continue;
+            nodes++;
+            const c = getComputedStyle(node).color;
+            if (c !== expected) bad.push(`${el.textContent.trim()} › ${node.tagName.toLowerCase()}: ${c}`);
+          }
+        }
+        return { expected, nodes, controls, bad };
+      }, forced);
+      if (forced) {
+        // Keyboard focus on each on+aria-disabled control: the ring must contrast with the control's own background.
+        for (const handle of await page.$$('[aria-pressed="true"][aria-disabled="true"]')) {
+          if (!(await handle.isVisible())) continue;
+          await page.keyboard.press("Shift");
+          await handle.focus();
+          const f = await handle.evaluate((node) => {
+            const cs = getComputedStyle(node);
+            return { visible: node.matches(":focus-visible"), width: parseFloat(cs.outlineWidth), ring: cs.outlineColor, bg: cs.backgroundColor };
+          });
+          const rgb = (c) => c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number);
+          const ch = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+          const lum = (c) => { const [r, g, b] = rgb(c).map(ch); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+          const [hi, lo] = [lum(f.ring), lum(f.bg)].sort((a, b) => b - a);
+          const contrast = Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100;
+          if (!f.visible || f.width < 3 || contrast < 3) r.bad.push(`focus on+disabled: ${f.width}px ${contrast}:1`);
+        }
+      }
+      const ok = r.nodes > 0 && r.bad.length === 0;
+      report.disabledInk.push({ theme, forced, board, controls: r.controls, nodes: r.nodes, ok, bad: r.bad });
+      if (!ok) failures.push(`disabled precedence ${theme}${forced ? "+forced" : ""} ${board}: ${r.nodes ? r.bad.slice(0, 6).join("; ") : "no disabled controls found"}`);
+    }
+    await context.close();
+  }
+
   // D-07 geometry: options and Next keep their exact boxes after answering,
   // for short and long content, in zh-Hant and English.
   for (const variant of ["", "&fixture=long", "&lang=en", "&fixture=long&lang=en"]) {
@@ -350,6 +422,7 @@ report.summary = {
   boardChecks: `${report.boards.filter((b) => b.ok).length}/${report.boards.length}`,
   geometry: `${report.geometry.filter((g) => g.ok).length}/${report.geometry.length}`,
   forcedFocus: `${(report.forcedFocus ?? []).filter((f) => f.ok).length}/${(report.forcedFocus ?? []).length}`,
+  disabledInk: `${report.disabledInk.filter((d) => d.ok).length}/${report.disabledInk.length}`,
   captures: report.captures.length
 };
 await mkdir(resolve(ROOT, "verification"), { recursive: true });

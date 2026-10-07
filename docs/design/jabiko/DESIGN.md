@@ -122,10 +122,12 @@ Evidence viewports: 320×640, 390×844, 768×1024, 1280×800, 1440×900.
 56px, `surface.chrome`, bottom hairline, sticky. Left: app mark (32px tile)
 + "Jabiko" (16/24 600) + product line (12px, `text.secondary`, hidden < 600).
 Middle (≥ 1024): nav items (D-08) — links, 14/20 500, `text.secondary`; hover
-`text.primary` + inset fill; current `accent.foreground` 600 + 2px underline
+`text.primary` + `action.tonal.background` fill; current `accent.foreground` 600 + 2px underline
 on the bar edge; focus ring inset. 資料 is a menu button with chevron. Right:
-World product link (≥ 1024), focus toggle, furigana toggle, menu icon
-button. A "跳到主要內容" skip link is the first focusable element.
+one quiet toolbar (D-25) — World product link (≥ 1024), a 1×20px
+`border.subtle` hairline, focus toggle, furigana toggle, menu icon button;
+2px apart, no resting borders or fills; secondary-ink icons. A "跳到主要內容"
+skip link is the first focusable element.
 
 ### 4.3 Bottom tab bar (< 1024)
 
@@ -190,32 +192,90 @@ moves to a sheet (session settings, switcher, Learn TOC).
 All shared primitives follow one behavioral grammar (UQC §1.10). "Tachiko"
 means the Tachiko component spec applies unchanged; Jabiko rows are new.
 
-### 6.1 Button — Tachiko
+### 6.1 Button — Tachiko grammar, Jabiko expression (D-25)
 
-Variants: primary (`action.primary.*`), secondary (1px `border.control`,
-`surface.content`), ghost (no border), destructive (solid `status.error.ink`,
-used only in confirmations). Sizes: default (`--control-h`), large (44px,
-15/20 600 — the one hero action per surface). States: default · hover
-(inset / primary.hover) · pressed (sunken / primary.pressed) · focus (3px +
-2px) · disabled (`surface.inset`, `border.subtle`, `text.disabled`) · busy
-(keeps a label such as "準備中…", `aria-busy`, ignores repeat activation). Icon
-18px leading or trailing (arrow trailing on forward actions).
-< 600: stacked actions are full width (`jt-actions-stack`).
+**Commands are fills; choices are outlines.** Among controls, a 1px
+`border.control` means "a value is chosen or typed here" (fields, select
+buttons, answer options, segmented controls, checkbox and radio indicators).
+A command button never has a resting border; every variant carries a
+transparent 1px border so all are the same size and forced colors draws a
+real one. Navigation rows and pagers are neither: they are separated by
+`border.subtle` hairlines and fill on hover like quiet commands.
 
-### 6.2 Icon button — Tachiko
+| Variant | Rest | Hover | Pressed | Use |
+| --- | --- | --- | --- | --- |
+| Primary | `action.primary.background`, foreground 600 | `.hover` | `.pressed` | At most one per surface, and it follows the phase: the command that is the learner's current job (see below) |
+| Tonal (default) | `action.tonal.background`, `text.primary` 600 | `action.tonal.hover` | `action.tonal.pressed` | Standalone commands with no primary beside them (換一組, chapter TOC, World moment start in a list), the non-primary command of a session row (看答案; 下一題 before a verdict), dialog "取消" |
+| Quiet | transparent, `text.primary` 500, icon `text.secondary` | `action.tonal.background`, icon `text.primary` | `action.tonal.hover` | The alternative in a hero pair; supporting commands that sit with content (朗讀, 提示, 收藏此題, 回報此題, 重設本次, 調整); every bar/header control |
+| Destructive | `status.error.background` + `status.error.ink` | + 1px inset `status.error.ink` | same | Entry points to deletion |
+| Destructive solid | `status.error.ink` fill, white (dark: `#14151B`) | + 1px inset `text.primary` | same | Only the final confirm of an irreversible action |
 
-44×44 hit area, 20px icon, `aria-label` always; hover inset fill.
+States shared by all: focus (3px + 2px, Tachiko) · disabled (`surface.inset`
+fill — quiet stays transparent — and `text.disabled`) · busy (keeps a label
+such as "準備中…", `aria-busy`, ignores repeat activation). **On**
+(`aria-pressed="true"`, tonal/quiet only): `accent.background` + 1px inset
+`selection.edge` + accent ink — the selection grammar, never a primary fill;
+the accessible name does not change. **Open** (`aria-expanded="true"` on a
+quiet disclosure): `action.tonal.background`, so "open" never reads as "on".
+**Precedence** (UQC §1.3, states stay independent): disabled — native
+`disabled` or `aria-disabled="true"` — sets fill and ink for the control and
+all its children and wins over on/open; an on+disabled command keeps its inset edge in
+`text.disabled` so the value stays visible; focus is always drawn on top.
+Forced colors: on = `Highlight`/`HighlightText`; disabled = `GrayText`
+(on+disabled: `Canvas` with a 2px `GrayText` border).
+
+**Primary follows the phase.** A surface never shows two primaries, and the
+primary moves to whatever is the learner's job *now*: in a practice item
+before a verdict the options are the job, so the session row has no primary
+(看答案 and 下一題 are tonal; 下一題 skips); typed recall's 送出 is primary
+until it is judged; after a verdict 下一題 becomes primary. 下一題 keeps a
+fixed 132px minimum box so the change never moves it (D-07).
+
+**Hero pair.** A surface's large hero is one large primary with, when an
+alternative exists, a large **quiet** command 8px after it (Today
+"開始今日練習 → · 只複習錯題（3）", session complete, chapter start, focus
+break). Two filled rectangles side by side are not used.
+
+Sizes: default (`--control-h`: 36, 44 on touch/compact; padding 16, quiet
+10) and large (48px, padding 22, 15/20 — 600 primary, 500 quiet — 20px icon)
+for the hero pair of a surface (Today start, session complete, chapter start, World start).
+Icon 18px leading, or trailing arrow on forward actions; gap 8.
+
+**Shortcut on the command.** When — and only while — a key performs a
+command, that command carries it: `aria-keyshortcuts` on the button and an
+`aria-hidden` keycap (12/20 500, `action.primary.pressed` fill,
+`radius.mark`) that replaces the trailing arrow on keyboard devices (≥ 600,
+hover + fine pointer); touch keeps the arrow. Used for 下一題 (Enter) after a
+verdict, matching production, which handles Enter → next only once feedback
+exists (`handleDrillKeyDown`). Before a verdict 下一題 has neither. In typed
+recall Enter submits the field (IME composition Enter never does) and the
+hint stays under the field.
+
+Groups: 8px apart; a row of quiet commands under content is 4px apart and
+optically aligned to the text edge (`jt-actions-quiet`, −10px). < 600: stacked
+hero actions are full width (`jt-actions-stack`).
+
+### 6.2 Icon button — Tachiko grammar, Jabiko expression (D-25)
+
+44×44 hit area, 20px icon, `aria-label` always; quiet: hover
+`action.tonal.background`, pressed `action.tonal.hover`. In the header and
+session bar the icon is `text.secondary` and turns `text.primary` on hover,
+like every other bar control.
 
 ### 6.3 Navigation item / tab bar item — Tachiko tab grammar, Jabiko meaning
 
 See §4.2–4.3. Links with `aria-current="page"`; never `role="tab"`.
 
-### 6.4 Toggle — Tachiko
+### 6.4 Toggle — Tachiko grammar, Jabiko expression (D-25)
 
-Persistent settings (`aria-pressed`): furigana, focus mode. Off: bordered
-control; on: `accent.background`, `selection.edge` border, accent ink, state
-word "開/關" (hidden < 600, glyph keeps an accessible name). Focus toggle
-shows remaining time ("18:42", tabular) while active.
+Persistent settings (`aria-pressed`): furigana, focus mode; per-item:
+收藏此題. A quiet command: off is unfilled with a `text.secondary` glyph; on
+is `accent.background` + 1px inset `selection.edge` (≥ 3:1 against the
+tint, verified) + accent ink 600. **On is carried by a shape mark** — the
+inset edge — never by the tint alone. In addition, where width allows, the
+furigana toggle shows the state word "開/關" (hidden < 600; the accessible
+name never depends on it), and the focus toggle shows the remaining time
+("18:42", tabular) while on.
 
 ### 6.5 Segmented control — Tachiko
 
@@ -288,12 +348,16 @@ example equals the prompt (14px secondary) → explanation (`read.body`) → "�
 translation + speak) → actions row: 收藏此題 (toggle, `aria-pressed`), 文型說明
 (toggle, `aria-expanded`, expands a note) and 看這個文型 (opens the point
 separately; the session is kept; external icon + visually hidden note) when
-the item has a grammar point, 回報此題 (ghost). Region `aria-live="polite"`.
+the item has a grammar point, 回報此題. All four are quiet commands in one
+`jt-actions-quiet` row (D-25), so the feedback block never competes with 下一題.
+Region `aria-live="polite"`.
 
 ### 6.13 Session action row
 
-看答案 (secondary; disabled after a verdict) and 下一題 → (primary, always
-enabled, including typed recall; Enter). ≥ 600: right-aligned directly under
+看答案 (tonal; disabled after a verdict) and 下一題 (always enabled,
+including typed recall: tonal before a verdict, primary with the Enter keycap
+after it on keyboard devices, arrow on touch — §6.1 "Primary follows the
+phase"). ≥ 600: right-aligned directly under
 the options (before the keycap hint and the feedback block). < 600: fixed to
 the viewport bottom on `surface.chrome` with two equal buttons; the main
 region reserves its height so nothing hides behind it.
@@ -377,7 +441,7 @@ filled. Status word: "— 準備中" 12px secondary.
 ### 7.1 Today `/` — `today` (`returning`, `first`, dark)
 
 Structure and order per D-13. Headline 32/40 600 with the due count in accent
-(26/34 < 600). Actions: large primary "開始今日練習 →" + large secondary
+(26/34 < 600). Actions: large primary "開始今日練習 →" + large quiet
 "只複習錯題（n）" (only when anything is due). First run: kicker "免費 · 免註冊 ·
 N5〜N1", headline "先選你的程度，今天就開始", three steps (current filled
 accent), five level buttons as a radiogroup (5 columns ≥ 1024; 2 columns with
@@ -466,7 +530,7 @@ small `assess.correct` 〇; current `aria-current` with accent background;
 button → TOC sheet. Chapter: kicker "group · 第 n 課", h1, Japanese subtitle
 (Mincho, `lang="ja"`), explanation (`read.body`), formula block (inset with a
 2px `border.control` left rule), 例句 rows (`ja.line` + translation + speak),
-常見陷阱 numbered list, primary "練這一章：…" + secondary next chapter, then
+常見陷阱 numbered list, primary "練這一章：…" + quiet next chapter (hero pair, §6.1), then
 建議先看 and 完成條件: the chapter's actual rule from `isLearningBlockComplete` in plain words (e.g. "把「て形」答對一次"); reference chapters show "參考" in the TOC and no 完成條件.
 
 ### 7.6 Grammar — `grammar` (`index`, `point`)
@@ -657,6 +721,10 @@ Binding on *what*, advisory on *how*.
 - [ ] Language isolation and furigana rules unchanged; new copy in every
       launched locale.
 - [ ] Nothing from the anti-template ledger (D-23).
+- [ ] Actions per D-25: no resting border on any command button; at most
+      one primary per surface, following the phase; hero pairs are primary +
+      quiet; "on" keeps its inset edge; disabled wins over on; bar controls
+      quiet; keycaps only while the key works.
 - [ ] World: empty vs error distinguishable; preview truthful; handoff
       optional; stale return safe.
 

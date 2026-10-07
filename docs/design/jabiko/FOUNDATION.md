@@ -108,6 +108,7 @@ Roles from the 29-role map that Jabiko does **not** consume: `grid.canvas`,
 | Japanese content type | — | `ja.prompt`, `ja.headword`, `ja.option`, `ja.line`, `ja.body`, `ja.ruby`, `read.body` | D-05 |
 | Navigation presentation | ViewTab state grammar (selected = accent ink + 2px underline) | same grammar on cross-route links; bottom tab bar below 1024 | D-08 |
 | Layout | Sheet shell (header + grid + Views + status) | column ≤ 720 + 320 aside; single column below 1024 | D-16 |
+| Command presentation | secondary = 1px outline; ghost; bordered toolbar toggles | same grammar; secondary = tonal fill (`action.tonal.*`); hero pair = 48px primary + quiet; primary follows the phase; quiet bar controls; borders only on value controls; disabled outranks on; Enter keycap on 下一題 after a verdict | D-25 |
 
 ## 5. Not inherited (spreadsheet-only)
 

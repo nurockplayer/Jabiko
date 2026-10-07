@@ -27,6 +27,9 @@
   --jt-action-primary-hover: #5541C2;
   --jt-action-primary-pressed: #4936AB;
   --jt-action-primary-foreground: #FFFFFF;
+  --jt-action-tonal-background: #ECEEF4;
+  --jt-action-tonal-hover: #E2E5ED;
+  --jt-action-tonal-pressed: #D7DBE5;
   --jt-accent-foreground: #5542B5;
   --jt-accent-background: #F0EDFD;
   --jt-selection-edge: #6551CE;
@@ -86,6 +89,9 @@
   --jt-action-primary-hover: #5E4BCF;
   --jt-action-primary-pressed: #5140BC;
   --jt-action-primary-foreground: #FFFFFF;
+  --jt-action-tonal-background: #2C2E3A;
+  --jt-action-tonal-hover: #363948;
+  --jt-action-tonal-pressed: #404354;
   --jt-accent-foreground: #B2A7FF;
   --jt-accent-background: #262240;
   --jt-selection-edge: #9D90FF;
@@ -209,12 +215,13 @@ ruby rt { font-size: 0.5em; font-weight: 400; }
 }
 .jt-tab > span.jt-tab-hit { position: absolute; inset: 10px 2px; border-radius: var(--jt-radius-control); z-index: -1; transition: background var(--jt-dur-state); }
 .jt-tab:hover { color: var(--jt-text-primary); }
-.jt-tab:hover > span.jt-tab-hit { background: var(--jt-surface-inset); }
+.jt-tab:hover > span.jt-tab-hit { background: var(--jt-action-tonal-background); }
 .jt-tab[aria-current="page"], .jt-tab[data-current="true"] { color: var(--jt-accent-foreground); font-weight: 600; }
 .jt-tab[aria-current="page"]::after, .jt-tab[data-current="true"]::after {
   content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--jt-accent-foreground); border-radius: 1px;
 }
-.jt-header-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; flex: none; }
+.jt-header-tools { margin-left: auto; display: flex; align-items: center; gap: 2px; flex: none; }
+.jt-header-sep { width: 1px; height: 20px; margin: 0 8px; background: var(--jt-border-subtle); flex: none; }
 
 /* World entry: a product switch, never a tab (D-08). */
 .jt-product-link {
@@ -222,7 +229,8 @@ ruby rt { font-size: 0.5em; font-weight: 400; }
   padding: 0 10px; border-radius: var(--jt-radius-control); text-decoration: none;
   font-size: 14px; font-weight: 500; color: var(--jt-text-primary); white-space: nowrap;
 }
-.jt-product-link:hover { background: var(--jt-surface-inset); }
+.jt-product-link:hover { background: var(--jt-action-tonal-background); }
+.jt-product-link .jt-icon { color: var(--jt-text-secondary); }
 .jt-product-link .jt-preview-word { font-size: 12px; line-height: 16px; color: var(--jt-text-secondary); }
 
 .jt-tabbar {
@@ -265,11 +273,11 @@ ruby rt { font-size: 0.5em; font-weight: 400; }
   font-size: 14px; line-height: 20px; font-weight: 600; white-space: nowrap;
 }
 .jt-session-title span { overflow: hidden; text-overflow: ellipsis; }
-.jt-session-title:hover { background: var(--jt-surface-inset); }
+.jt-session-title:hover { background: var(--jt-action-tonal-background); }
 .jt-progress { display: flex; align-items: center; gap: 12px; }
 /* In practice sessions the progress readout is a button that opens 本次 (tally + mistakes). */
 .jt-progress-btn { min-height: 44px; padding: 0 10px; border: 0; border-radius: var(--jt-radius-control); background: none; color: inherit; }
-.jt-progress-btn:hover { background: var(--jt-surface-inset); }
+.jt-progress-btn:hover { background: var(--jt-action-tonal-background); }
 .jt-meter { position: relative; width: 160px; height: 4px; border-radius: 2px; background: var(--jt-surface-sunken); overflow: hidden; }
 .jt-meter > span { position: absolute; inset: 0 auto 0 0; background: var(--jt-accent-foreground); border-radius: 2px; }
 .jt-progress-text { font-size: 14px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -323,51 +331,131 @@ ruby rt { font-size: 0.5em; font-weight: 400; }
   .jt-section { padding: 24px 0; }
 }
 
-/* ------------------------------------------------------------ buttons (Tachiko grammar) */
+/* ------------------------------------------------------------ actions (JT-1 action language, D-25)
+ *
+ * Tachiko's command grammar (states, busy, focus, disabled, one primary per
+ * surface) with a Jabiko presentation:
+ *   - Commands are fills; choices are outlines. A border means "a value is
+ *     chosen or typed here" (fields, selects, answer options, segments). A
+ *     command never carries a resting border.
+ *   - Emphasis ladder: primary (solid violet, one per surface) > tonal
+ *     (neutral fill) > quiet (no fill until hovered). Destructive is tonal
+ *     red at entry points and solid only to confirm.
+ *   - "On" is accent tint + inset selection edge (the selection grammar);
+ *     "open" is a neutral fill. Neither looks like a primary command.
+ * The transparent 1px border keeps every variant the same size and becomes
+ * a real border in forced colors.
+ */
 
 .jt-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: var(--jt-control-h); padding: 0 14px;
-  border: 1px solid var(--jt-border-control); border-radius: var(--jt-radius-control);
-  background: var(--jt-surface-content); color: var(--jt-text-primary);
-  font-size: 14px; line-height: 20px; font-weight: 500; text-decoration: none; white-space: nowrap;
-  transition: background var(--jt-dur-state), border-color var(--jt-dur-state);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: var(--jt-control-h); padding: 0 16px;
+  border: 1px solid transparent; border-radius: var(--jt-radius-control);
+  background: var(--jt-action-tonal-background); color: var(--jt-text-primary);
+  font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; white-space: nowrap;
+  transition: background var(--jt-dur-state), box-shadow var(--jt-dur-state), color var(--jt-dur-state);
 }
-.jt-btn:hover { background: var(--jt-surface-inset); }
-.jt-btn:active { background: var(--jt-surface-sunken); }
-.jt-btn-primary { background: var(--jt-action-primary-background); border-color: var(--jt-action-primary-background); color: var(--jt-action-primary-foreground); }
-.jt-btn-primary:hover { background: var(--jt-action-primary-hover); border-color: var(--jt-action-primary-hover); }
-.jt-btn-primary:active { background: var(--jt-action-primary-pressed); border-color: var(--jt-action-primary-pressed); }
-.jt-btn-ghost { border-color: transparent; background: transparent; }
-.jt-btn-ghost:hover { background: var(--jt-surface-inset); }
-.jt-btn-danger { color: var(--jt-status-error-ink); border-color: var(--jt-status-error-ink); }
-.jt-btn-danger.jt-btn-solid { background: var(--jt-status-error-ink); color: #FFFFFF; }
-:root[data-theme="dark"] .jt-btn-danger.jt-btn-solid { color: #14151B; }
-.jt-btn-lg { min-height: 44px; padding: 0 20px; font-size: 15px; font-weight: 600; }
-.jt-btn[disabled], .jt-btn[aria-disabled="true"] { background: var(--jt-surface-inset); border-color: var(--jt-border-subtle); color: var(--jt-text-disabled); cursor: not-allowed; }
-.jt-btn[aria-busy="true"] { cursor: progress; }
+.jt-btn:hover { background: var(--jt-action-tonal-hover); }
+.jt-btn:active { background: var(--jt-action-tonal-pressed); }
 .jt-btn .jt-icon { width: 18px; height: 18px; }
+
+.jt-btn-primary { background: var(--jt-action-primary-background); color: var(--jt-action-primary-foreground); }
+.jt-btn-primary:hover { background: var(--jt-action-primary-hover); }
+.jt-btn-primary:active { background: var(--jt-action-primary-pressed); }
+
+.jt-btn-quiet { background: transparent; padding: 0 10px; font-weight: 500; }
+.jt-btn-quiet .jt-icon { color: var(--jt-text-secondary); }
+.jt-btn-quiet:hover { background: var(--jt-action-tonal-background); }
+.jt-btn-quiet:active { background: var(--jt-action-tonal-hover); }
+.jt-btn-quiet:hover .jt-icon { color: var(--jt-text-primary); }
+
+/* On (aria-pressed) and open (aria-expanded) states of tonal/quiet commands. */
+.jt-btn[aria-pressed="true"]:not(.jt-btn-primary) {
+  background: var(--jt-accent-background); color: var(--jt-accent-foreground);
+  box-shadow: inset 0 0 0 1px var(--jt-selection-edge);
+}
+.jt-btn[aria-pressed="true"]:not(.jt-btn-primary) .jt-icon { color: inherit; }
+.jt-btn-quiet[aria-expanded="true"] { background: var(--jt-action-tonal-background); }
+.jt-btn-quiet[aria-expanded="true"] .jt-icon { color: var(--jt-text-primary); }
+
+.jt-btn-danger { background: var(--jt-status-error-background); color: var(--jt-status-error-ink); }
+.jt-btn-danger:hover, .jt-btn-danger:active { background: var(--jt-status-error-background); box-shadow: inset 0 0 0 1px var(--jt-status-error-ink); }
+.jt-btn-danger.jt-btn-solid { background: var(--jt-status-error-ink); color: #FFFFFF; }
+.jt-btn-danger.jt-btn-solid:hover, .jt-btn-danger.jt-btn-solid:active { background: var(--jt-status-error-ink); box-shadow: inset 0 0 0 1px var(--jt-text-primary); }
+:root[data-theme="dark"] .jt-btn-danger.jt-btn-solid { color: #14151B; }
+
+/* Large: the hero pair of a surface — one primary and its quiet alternative. */
+.jt-btn-lg { min-height: 48px; padding: 0 22px; font-size: 15px; line-height: 20px; }
+.jt-btn-lg .jt-icon { width: 20px; height: 20px; }
+
+.jt-btn[disabled], .jt-btn[aria-disabled="true"] { background: var(--jt-surface-inset); color: var(--jt-text-disabled); box-shadow: none; cursor: not-allowed; }
+.jt-btn-quiet[disabled], .jt-btn-quiet[aria-disabled="true"] { background: transparent; }
+.jt-btn[disabled] .jt-icon, .jt-btn[aria-disabled="true"] .jt-icon { color: inherit; }
+.jt-btn[aria-busy="true"] { cursor: progress; }
+
+/* Keyboard shortcut carried by the command itself (aria-keyshortcuts on the
+   button; the keycap is aria-hidden). Shown only where a keyboard is likely;
+   elsewhere the trailing arrow takes its place. */
+.jt-btn-kbd {
+  display: none; min-width: 20px; height: 20px; margin-right: -6px; padding: 0 6px; border-radius: var(--jt-radius-mark);
+  background: var(--jt-action-primary-pressed); color: var(--jt-action-primary-foreground);
+  font: 500 12px/20px var(--jt-font-ui); letter-spacing: 0.01em;
+}
+@media (min-width: 600px) and (hover: hover) and (pointer: fine) {
+  .jt-btn-primary .jt-btn-kbd { display: inline-block; }
+  .jt-btn-primary .jt-btn-kbd + .jt-icon { display: none; }
+}
+/* 下一題 changes emphasis with the phase (tonal skip → primary next) inside a
+   fixed box, so the swap never moves it (D-07). */
+.jt-btn-next { min-width: 132px; }
+
 .jt-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.jt-actions-quiet { gap: 4px; margin-left: -10px; }
 @media (max-width: 599px) { .jt-actions-stack { display: grid; grid-template-columns: minmax(0, 1fr); } .jt-actions-stack .jt-btn { width: 100%; } }
 
 .jt-iconbtn {
   display: inline-grid; place-items: center; width: 44px; height: 44px; flex: none;
-  border: 0; background: none; border-radius: var(--jt-radius-control); color: var(--jt-text-primary);
+  border: 1px solid transparent; background: none; border-radius: var(--jt-radius-control); color: var(--jt-text-primary);
+  transition: background var(--jt-dur-state);
 }
-.jt-iconbtn:hover { background: var(--jt-surface-inset); }
+.jt-iconbtn:hover { background: var(--jt-action-tonal-background); }
+.jt-header .jt-iconbtn, .jt-session-bar .jt-iconbtn { color: var(--jt-text-secondary); }
+.jt-header .jt-iconbtn:hover, .jt-session-bar .jt-iconbtn:hover { color: var(--jt-text-primary); }
+.jt-iconbtn:active { background: var(--jt-action-tonal-hover); }
 
-/* Toggle (persistent, aria-pressed) — furigana. Pressed uses accent background, not a filled primary. */
+/* Toggle (persistent setting, aria-pressed): furigana, focus mode. A quiet
+   command at rest; "on" uses the selection grammar, whose inset edge is the
+   shape mark, so the state never depends on the tint alone (DESIGN §6.4). */
 .jt-toggle {
   display: inline-flex; align-items: center; gap: 6px; min-height: var(--jt-control-h); padding: 0 10px;
-  border: 1px solid var(--jt-border-control); border-radius: var(--jt-radius-control);
-  background: var(--jt-surface-content); font-size: 14px; font-weight: 500; white-space: nowrap;
+  border: 1px solid transparent; border-radius: var(--jt-radius-control);
+  background: transparent; color: var(--jt-text-primary); font-size: 14px; font-weight: 500; white-space: nowrap;
+  transition: background var(--jt-dur-state);
 }
-.jt-toggle:hover { background: var(--jt-surface-inset); }
-.jt-toggle[aria-pressed="true"] { background: var(--jt-accent-background); border-color: var(--jt-selection-edge); color: var(--jt-accent-foreground); }
-.jt-toggle .jt-toggle-state { font-size: 12px; color: var(--jt-text-secondary); }
-.jt-toggle[aria-pressed="true"] .jt-toggle-state { color: var(--jt-accent-foreground); }
+.jt-toggle .jt-icon { color: var(--jt-text-secondary); }
+.jt-toggle:hover { background: var(--jt-action-tonal-background); }
+.jt-toggle:active { background: var(--jt-action-tonal-hover); }
+.jt-toggle[aria-pressed="true"] { background: var(--jt-accent-background); color: var(--jt-accent-foreground); box-shadow: inset 0 0 0 1px var(--jt-selection-edge); font-weight: 600; }
+.jt-toggle[aria-pressed="true"] .jt-icon { color: inherit; }
+.jt-toggle .jt-toggle-state { font-size: 12px; font-weight: 400; color: var(--jt-text-secondary); }
+.jt-toggle[aria-pressed="true"] .jt-toggle-state { color: var(--jt-accent-foreground); font-weight: 600; }
+.jt-toggle .jt-num { font-variant-numeric: tabular-nums; }
 .jt-furi { font-family: var(--jt-font-ja); font-size: 13px; font-weight: 600; width: 18px; text-align: center; }
+.jt-toggle:not([aria-pressed="true"]) .jt-furi { color: var(--jt-text-secondary); }
 @media (max-width: 599px) { .jt-toggle .jt-toggle-label { display: none; } .jt-toggle { min-width: 44px; justify-content: center; } }
+
+/* Disabled outranks on/open (UQC §1.3) for both disabled attributes: it sets
+   fill and ink for the control and every child; an on+disabled control keeps
+   its inset edge in disabled ink so the value stays visible. The :root prefix
+   and the explicit child list lift these above every on/hover/toggle rule
+   (specificity, not source order). */
+:root .jt-btn:is([disabled], [aria-disabled="true"]):not(.jt-btn-primary), :root .jt-toggle:is([disabled], [aria-disabled="true"]) { color: var(--jt-text-disabled); cursor: not-allowed; }
+:root .jt-btn:is([disabled], [aria-disabled="true"]):not(.jt-btn-primary) :is(.jt-icon, .jt-toggle-state, .jt-toggle-label, .jt-furi, span, svg, kbd), :root .jt-toggle:is([disabled], [aria-disabled="true"]) :is(.jt-icon, .jt-toggle-state, .jt-toggle-label, .jt-furi, span, svg, kbd) { color: var(--jt-text-disabled); }
+:root .jt-btn-quiet:is([disabled], [aria-disabled="true"]), :root .jt-toggle:is([disabled], [aria-disabled="true"]) { background: transparent; box-shadow: none; }
+:root .jt-btn:is([disabled], [aria-disabled="true"]):not(.jt-btn-primary):not(.jt-btn-quiet):not([aria-pressed="true"]) { background: var(--jt-surface-inset); box-shadow: none; }
+:root .jt-btn:is([disabled], [aria-disabled="true"])[aria-pressed="true"]:not(.jt-btn-primary), :root .jt-toggle:is([disabled], [aria-disabled="true"])[aria-pressed="true"] {
+  background: var(--jt-surface-inset); box-shadow: inset 0 0 0 1px var(--jt-text-disabled); font-weight: 500;
+}
 
 /* Segmented control (single choice). */
 .jt-segmented { display: inline-flex; width: fit-content; justify-self: start; padding: 2px; gap: 2px; border: 1px solid var(--jt-border-control); border-radius: var(--jt-radius-control); background: var(--jt-surface-content); max-width: 100%; overflow-x: auto; }
@@ -593,7 +681,7 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
 .jt-qinstruction { margin-top: 4px; color: var(--jt-text-secondary); }
 .jt-qprompt { margin: 24px 0 8px; }
 .jt-aids { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin: 4px 0 20px -8px; }
-.jt-aids .jt-btn-ghost { padding: 0 8px; color: var(--jt-text-secondary); }
+.jt-aids .jt-btn-quiet { padding: 0 8px; color: var(--jt-text-secondary); }
 .jt-translation { font-size: 14px; color: var(--jt-text-secondary); }
 
 /* ------------------------------------------------------------ Small Talk / World script */
@@ -723,7 +811,8 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
   display: flex; align-items: center; gap: 16px; padding: 8px 8px 8px 16px; max-width: calc(100vw - 32px);
   background: var(--jt-inverse-background); color: var(--jt-inverse-foreground); border-radius: var(--jt-radius-overlay); box-shadow: var(--jt-shadow-overlay); font-size: 14px;
 }
-.jt-toast .jt-btn { background: transparent; color: var(--jt-inverse-foreground); border-color: var(--jt-inverse-foreground); }
+.jt-toast .jt-btn { background: transparent; color: var(--jt-inverse-foreground); padding: 0 10px; text-decoration: underline; text-underline-offset: 3px; }
+.jt-toast .jt-btn:hover, .jt-toast .jt-btn:active { background: transparent; text-decoration-thickness: 2px; }
 @media (max-width: 1023px) { .jt-toast { bottom: calc(56px + 16px + env(safe-area-inset-bottom)); } }
 
 /* ------------------------------------------------------------ footer */
@@ -770,6 +859,15 @@ button.jt-row { width: calc(100% + 16px); border: 0; background: none; text-alig
   .jt-segmented button[aria-pressed="true"]:focus-visible, .jt-segmented button[aria-checked="true"]:focus-visible, .jt-segmented a[aria-current="page"]:focus-visible,
   .jt-cell[aria-pressed="true"]:focus-visible, .jt-custom[data-selected] .jt-input:focus-visible, .jt-toggle[aria-pressed="true"]:focus-visible { outline-color: HighlightText; outline-offset: -4px; }
   .jt-btn, .jt-toggle, .jt-select-btn, .jt-segmented { border: 1px solid ButtonText; }
+  .jt-btn[aria-pressed="true"]:not(.jt-btn-primary) { forced-color-adjust: none; background: Highlight; color: HighlightText; box-shadow: none; }
+  .jt-btn[aria-pressed="true"]:not(.jt-btn-primary) * { color: HighlightText; }
+  .jt-btn[aria-pressed="true"]:not(.jt-btn-primary):focus-visible { outline-color: HighlightText; outline-offset: -4px; }
+  .jt-btn-kbd { border: 1px solid ButtonText; }
+  :root .jt-btn.jt-btn:is([disabled], [aria-disabled="true"]), :root .jt-toggle.jt-toggle:is([disabled], [aria-disabled="true"]) { color: GrayText; border-color: GrayText; }
+  :root .jt-btn.jt-btn:is([disabled], [aria-disabled="true"]) :is(.jt-icon, .jt-toggle-state, .jt-toggle-label, .jt-furi, span, svg, kbd), :root .jt-toggle.jt-toggle:is([disabled], [aria-disabled="true"]) :is(.jt-icon, .jt-toggle-state, .jt-toggle-label, .jt-furi, span, svg, kbd) { color: GrayText; }
+  :root .jt-btn.jt-btn:is([disabled], [aria-disabled="true"])[aria-pressed="true"]:not(.jt-btn-primary), :root .jt-toggle.jt-toggle:is([disabled], [aria-disabled="true"])[aria-pressed="true"] { forced-color-adjust: none; background: Canvas; color: GrayText; border: 2px solid GrayText; }
+  /* A focused on+disabled control sits on Canvas, so its ring is CanvasText, not HighlightText. */
+  :root .jt-btn.jt-btn:is([disabled], [aria-disabled="true"])[aria-pressed="true"]:not(.jt-btn-primary):focus-visible, :root .jt-toggle.jt-toggle:is([disabled], [aria-disabled="true"])[aria-pressed="true"]:focus-visible { outline-color: CanvasText; outline-offset: 2px; }
   .jt-notice, .jt-note, .jt-panel { border: 1px solid CanvasText; }
 }
 
