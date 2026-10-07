@@ -263,4 +263,3 @@ devices, platform font fallback (Windows/Android Mincho), 200% text zoom in
 the app, or performance and lazy-loading. Those are acceptance gates of
 #838/#834/#836 (DESIGN.md §10.3). Sample counts, names, places and lines on
 the boards are illustrative unless CAPABILITIES.md names their source.
-
