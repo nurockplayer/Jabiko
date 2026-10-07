@@ -106,6 +106,23 @@ function renderDone(opts: {
 }
 
 describe("DrillPanel", () => {
+  it("offers a direct Today exit before an active endless question without resetting session data", async () => {
+    const user = userEvent.setup();
+    const onExit = vi.fn();
+    const resetSession = vi.fn();
+    const { container } = render(
+      <DrillPanel {...baseProps} language="zh-Hant" onExit={onExit} resetSession={resetSession} />
+    );
+
+    expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
+    expect(container.querySelector(".drill-panel")).toHaveAttribute("data-question-id", question.id);
+    await user.click(screen.getByRole("button", { name: "首頁" }));
+
+    expect(onExit).toHaveBeenCalledOnce();
+    expect(resetSession).not.toHaveBeenCalled();
+    expect(container.querySelector(".drill-panel")).toHaveAttribute("data-question-id", question.id);
+  });
+
   it("renders, focuses, and submits a semantic recall field instead of choice options", () => {
     const handleChoiceSubmit = vi.fn();
     render(
@@ -475,7 +492,7 @@ describe("DrillPanel", () => {
         window.innerWidth = 390;
         const mobile = renderAnswered(answeredCorrect);
         const mobileBlocks = childBlocks(mobile.container);
-        expect(mobileBlocks).toEqual(["prompt-header", "word-block", "feedback", "choice-grid", "action-row"]);
+        expect(mobileBlocks).toEqual(["session-exit", "prompt-header", "word-block", "feedback", "choice-grid", "action-row"]);
         mobile.unmount();
 
         window.innerWidth = 1280;

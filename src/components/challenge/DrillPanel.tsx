@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ComponentType } from "react";
-import { ArrowRight, Eye, GraduationCap, MessageSquare, RotateCcw } from "lucide-react";
+import { ArrowRight, Eye, GraduationCap, House, MessageSquare, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
 import {
@@ -184,6 +184,10 @@ export function DrillPanel({
     >
       {currentQuestion ? (
         <>
+          <button className="session-exit" type="button" onClick={onExit}>
+            <House aria-hidden="true" size={16} />
+            {t.home}
+          </button>
           <div className="prompt-header">
             <span>
               {sessionTotal != null

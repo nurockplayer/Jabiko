@@ -56,6 +56,17 @@ describe("JT-1 shell contracts", () => {
     expect(css).toMatch(/\.jt1-primary-nav > a,\s*\.jt1-primary-nav \.nav-resources-compact\s*\{[^}]*font-size:\s*0\.75rem[^}]*line-height:\s*1rem/s);
   });
 
+  it("keeps a selected Resources trigger on an accessible tonal surface", () => {
+    expect(css).toMatch(/\.app-shell \.jt1-primary-nav \.nav-more-trigger\.selected\s*\{[^}]*background:\s*var\(--jt-surface-chrome\)[^}]*border-bottom-color:\s*var\(--jt-accent-foreground\)[^}]*color:\s*var\(--jt-accent-foreground\)/s);
+    expect(css).toMatch(/\.app-shell \.jt1-primary-nav \.nav-more-trigger\.selected:hover:not\(:disabled\)\s*\{[^}]*background:\s*var\(--jt-action-tonal-hover\)[^}]*color:\s*var\(--jt-accent-foreground\)/s);
+    expect(css).toMatch(/\.app-shell \.jt1-primary-nav \.nav-more-trigger\.selected:active:not\(:disabled\)\s*\{[^}]*background:\s*var\(--jt-action-tonal-pressed\)[^}]*color:\s*var\(--jt-accent-foreground\)/s);
+  });
+
+  it("keeps the fixed compact navigation opaque and separated from scrolled content", () => {
+    expect(css).toMatch(/\.app-shell \.jt1-primary-nav\s*\{[^}]*background:\s*var\(--jt-surface-chrome\)[^}]*border-top:\s*1px solid var\(--jt-border-subtle\)/s);
+    expect(css).toMatch(/\.jt1-primary-nav\s*\{[^}]*position:\s*fixed/s);
+  });
+
   it("preserves the enabled furigana on-state during hover and press", () => {
     const activeHover = css.match(
       /\.app-shell \.jt1-header-tools \.furigana-toggle\.active:hover:not\(:disabled\),\s*\.app-shell \.jt1-header-tools \.furigana-toggle\.active:active:not\(:disabled\)\s*\{([^}]*)\}/s

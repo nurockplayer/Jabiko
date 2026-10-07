@@ -222,9 +222,9 @@
 }
 
 .conversation-primary {
-  background: var(--teal);
-  border: 1px solid var(--teal);
-  color: #fffaf0;
+  background: var(--jt-action-primary-background);
+  border: 1px solid var(--jt-action-primary-background);
+  color: var(--jt-action-primary-foreground);
 }
 
 .conversation-feedback.is-dead-end .conversation-primary {

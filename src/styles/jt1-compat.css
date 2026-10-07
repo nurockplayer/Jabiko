@@ -9,7 +9,7 @@
   --teal: var(--jt-accent-foreground);
   --teal-dark: var(--jt-accent-foreground);
   --matcha: var(--jt-accent-foreground);
-  --matcha-dark: var(--jt-action-primary-pressed);
+  --matcha-dark: var(--jt-accent-foreground);
   --vermilion: var(--jt-assess-miss);
   --indigo: var(--jt-accent-foreground);
   --gold: var(--jt-status-warning-ink);
@@ -34,7 +34,7 @@
   --button-border: var(--jt-border-control);
   --button-text: var(--jt-text-primary);
   --button-hover-shadow: none;
-  --selected-text: var(--jt-action-primary-foreground);
+  --selected-text: var(--jt-inverse-foreground);
   --label-text: var(--jt-text-secondary);
   --field-bg: var(--jt-surface-content);
   --field-border: var(--jt-border-control);

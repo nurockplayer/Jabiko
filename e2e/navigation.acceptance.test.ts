@@ -117,6 +117,78 @@ async function expectNoPageOverflow(page: Page, context: string) {
   ).toBeLessThanOrEqual(dimensions.viewportWidth);
 }
 
+function relativeLuminance(rgb: number[]): number {
+  const linear = rgb.map((channel) => {
+    const normalized = channel / 255;
+    return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+  });
+  return linear[0]! * 0.2126 + linear[1]! * 0.7152 + linear[2]! * 0.0722;
+}
+
+function parseRgb(value: string): number[] {
+  const isSrgb = value.startsWith("color(srgb ");
+  const channels = value.match(/[\d.]+/g)?.slice(0, 3).map((channel) => {
+    const parsed = Number(channel);
+    return isSrgb ? parsed * 255 : parsed;
+  });
+  if (!channels || channels.length !== 3) throw new Error(`Unsupported computed color: ${value}`);
+  return channels;
+}
+
+async function expectReadableForeground(locator: Locator, context: string) {
+  const colors = await locator.evaluate((element, context) => {
+    const alphaOf = (value: string): number => {
+      const isSrgb = value.startsWith("color(srgb ");
+      const openParen = value.indexOf("(");
+      const closeParen = value.lastIndexOf(")");
+      if (openParen < 0 || closeParen < 0) {
+        throw new Error(`${context}: unsupported computed background color: ${value}`);
+      }
+      const body = value.slice(openParen + 1, closeParen).trim();
+      const slashParts = body.split("/");
+      if (slashParts.length > 2) {
+        throw new Error(`${context}: unsupported computed background alpha syntax: ${value}`);
+      }
+      let alphaText = slashParts[1]?.trim();
+      if (!alphaText && !isSrgb && value.startsWith("rgba(")) {
+        const commaParts = body.split(",");
+        if (commaParts.length === 4) alphaText = commaParts[3]?.trim();
+      }
+      if (!alphaText) return 1;
+      const alpha = alphaText.endsWith("%")
+        ? Number(alphaText.slice(0, -1)) / 100
+        : Number(alphaText);
+      if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1) {
+        throw new Error(`${context}: unsupported computed background alpha in ${value}`);
+      }
+      return alpha;
+    };
+    const style = getComputedStyle(element);
+    let current: Element | null = element;
+    let background = "rgb(255, 255, 255)";
+    while (current) {
+      const candidate = getComputedStyle(current).backgroundColor;
+      const alpha = alphaOf(candidate);
+      if (alpha > 0 && alpha < 1) {
+        throw new Error(
+          `${context}: expected an opaque background for contrast measurement, found ${candidate}`
+        );
+      }
+      if (alpha >= 0.999) {
+        background = candidate;
+        break;
+      }
+      current = current.parentElement;
+    }
+    return { foreground: style.color, background };
+  }, context);
+  const foreground = relativeLuminance(parseRgb(colors.foreground));
+  const background = relativeLuminance(parseRgb(colors.background));
+  const ratio = (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+  expect(ratio, `${context}: ${colors.foreground} on ${colors.background}`).toBeGreaterThanOrEqual(4.5);
+  return { ...colors, ratio: Number(ratio.toFixed(2)) };
+}
+
 async function expectRepresentativeRouteReady(
   page: Page,
   route: (typeof representativeRoutes)[number]
@@ -235,7 +307,7 @@ for (const viewport of viewportMatrix) {
         await expect(nav.locator(".nav-resources-compact")).toBeHidden();
       }
       await expect(page.locator(".jt1-header-menu > .nav-more-trigger")).toBeVisible();
-      await expect(nav.locator("a")).toHaveCount(5);
+      await expect(nav.getByRole("link")).toHaveCount(compact ? 4 : 5);
       await expect(nav).toHaveCSS("display", compact ? "grid" : "flex");
       if (compact) {
         const compactTrackCount = await nav.evaluate((element) =>
@@ -248,7 +320,7 @@ for (const viewport of viewportMatrix) {
       await expectNoPageOverflow(page, `${viewport.name} open Resources menu`);
       await page.keyboard.press("Escape");
       const { menu: headerMenu } = await openHeaderMenu(page);
-      await expect(headerMenu.getByRole("menuitem", { name: "模擬考" })).toBeVisible();
+      await expect(headerMenu.getByRole("menuitem", { name: "題型練習", exact: true })).toBeVisible();
       await expect(headerMenu.getByRole("menuitem", { name: "關於" })).toBeVisible();
       await expectNoPageOverflow(page, `${viewport.name} open header menu`);
       await page.keyboard.press("Escape");
@@ -291,6 +363,278 @@ for (const viewport of viewportMatrix) {
         "aria-current",
         "page"
       );
+
+      await page.goto("/");
+      const { menu: headerMenu } = await openHeaderMenu(page);
+      const mockItem = headerMenu.getByRole("menuitem", { name: "題型練習", exact: true });
+      await page.keyboard.press("Home");
+      await expect(mockItem).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(headerMenu).toBeHidden();
+      await expect(page).toHaveURL(/\/mock$/);
+      await expect(page.locator(".mock-panel")).toBeVisible();
+      await expect(appNavigation(page).getByRole("link", { name: "練習" })).toHaveAttribute(
+        "aria-current",
+        "page"
+      );
+    });
+  });
+}
+
+for (const viewport of [
+  { name: "390x844", width: 390, height: 844 },
+  { name: "1440x900", width: 1440, height: 900 }
+] as const) {
+  test.describe(`selected Resources contrast at ${viewport.name}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } });
+
+    test("keeps current Resources labels readable in both themes and pointer states", async ({ page }) => {
+      const compact = viewport.width < 1024;
+      const evidence: Array<Record<string, string | number>> = [];
+      const trigger = page.locator(
+        `.jt1-primary-nav .nav-resources-${compact ? "compact" : "wide"} > .nav-more-trigger.selected`
+      );
+      for (const theme of ["light", "dark"] as const) {
+        await page.goto("/");
+        await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+        const routes = compact
+          ? (["/kana", "/kanji", "/rules", "/grammar/n5"] as const)
+          : (["/kana", "/kanji", "/rules"] as const);
+        for (const route of routes) {
+          await page.goto(route);
+          await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+          await expect(trigger).toBeVisible();
+          evidence.push({ theme, route, state: "resting", ...(await expectReadableForeground(trigger, `${theme} ${route} resting Resources`)) });
+          if (route === "/kana") {
+            await test.info().attach(`${viewport.name}-${theme}-resources.png`, {
+              body: await page.screenshot(),
+              contentType: "image/png"
+            });
+          }
+          await trigger.hover();
+          evidence.push({ theme, route, state: "hovered", ...(await expectReadableForeground(trigger, `${theme} ${route} hovered Resources`)) });
+          await page.mouse.down();
+          evidence.push({ theme, route, state: "pressed", ...(await expectReadableForeground(trigger, `${theme} ${route} pressed Resources`)) });
+          await page.mouse.up();
+          await expect(page.getByRole("menu", { name: "資料" })).toBeVisible();
+          evidence.push({ theme, route, state: "open", ...(await expectReadableForeground(trigger, `${theme} ${route} open Resources`)) });
+          await page.keyboard.press("Escape");
+        }
+      }
+      await test.info().attach(`${viewport.name}-resources-contrast.json`, {
+        body: JSON.stringify(evidence, null, 2),
+        contentType: "application/json"
+      });
+    });
+  });
+}
+
+test.describe("compact navigation chrome while scrolling", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("keeps the fixed bottom bar opaque over long content in both themes", async ({ page }) => {
+    const evidence: Array<Record<string, string | number>> = [];
+    for (const theme of ["light", "dark"] as const) {
+      await page.goto("/");
+      await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+      await page.goto("/rules");
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+      const nav = appNavigation(page);
+      const chrome = await nav.evaluate((element) => {
+        const style = getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return {
+          background: style.backgroundColor,
+          borderTopWidth: style.borderTopWidth,
+          borderTopStyle: style.borderTopStyle,
+          position: style.position,
+          bottom: Math.round(rect.bottom),
+          viewportHeight: window.innerHeight
+        };
+      });
+      expect(chrome.background).not.toMatch(/rgba?\([^)]*[,/]\s*0\s*\)/);
+      expect(chrome.background).not.toBe("transparent");
+      expect(chrome.borderTopWidth).toBe("1px");
+      expect(chrome.borderTopStyle).toBe("solid");
+      expect(chrome.position).toBe("fixed");
+      expect(chrome.bottom).toBe(chrome.viewportHeight);
+      evidence.push({ theme, ...chrome });
+      await test.info().attach(`390x844-${theme}-scrolled-bar.png`, {
+        body: await page.screenshot(),
+        contentType: "image/png"
+      });
+    }
+    await test.info().attach("390x844-scrolled-bar-evidence.json", {
+      body: JSON.stringify(evidence, null, 2),
+      contentType: "application/json"
+    });
+  });
+});
+
+test.describe("legacy color compatibility contrast", () => {
+  test("keeps selected controls and legacy accent ink readable in both themes", async ({ page }) => {
+    const surfaces = [
+      { route: "/challenge", selector: ".mode-card-count" },
+      { route: "/grammar", selector: ".gi-level-badge" },
+      { route: "/mock", selector: ".mock-section-head .eyebrow" }
+    ] as const;
+    const evidence: Array<Record<string, string | number>> = [];
+
+    for (const theme of ["light", "dark"] as const) {
+      await page.goto("/");
+      await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+      for (const surface of surfaces) {
+        await page.goto(surface.route);
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        if (surface.route === "/challenge") {
+          await expect(page.locator(".mode-card-count").first()).toBeVisible();
+        }
+        const target = page.locator(surface.selector).first();
+        await expect(target).toBeVisible();
+        evidence.push({
+          theme,
+          route: surface.route,
+          selector: surface.selector,
+          ...(await expectReadableForeground(target, `${theme} ${surface.route} ${surface.selector}`))
+        });
+      }
+      await page.goto("/challenge?mode=exam");
+      await page.locator(".session-length-custom input").fill("11");
+      const customLength = page.locator(".session-length-custom.selected input");
+      await expect(customLength).toBeVisible();
+      evidence.push({
+        theme,
+        route: "/challenge",
+        selector: ".session-length-custom.selected input",
+        ...(await expectReadableForeground(customLength, `${theme} custom session length`))
+      });
+      await page.locator(".tts-rate-custom input").fill("0.9");
+      const customRate = page.locator(".tts-rate-custom.selected input");
+      await expect(customRate).toBeVisible();
+      evidence.push({
+        theme,
+        route: "/challenge",
+        selector: ".tts-rate-custom.selected input",
+        ...(await expectReadableForeground(customRate, `${theme} custom speech rate`))
+      });
+
+      await page.getByRole("button", { name: /^基礎變化/ }).click();
+      const selectedSegment = page.locator(".segmented button.selected").first();
+      await expect(selectedSegment).toBeVisible();
+      evidence.push({
+        theme,
+        route: "/challenge",
+        selector: ".segmented button.selected",
+        ...(await expectReadableForeground(selectedSegment, `${theme} selected practice segment`))
+      });
+
+      await page.goto("/kanji");
+      await page.locator(".kanji-cell").first().click();
+      const reading = page.locator(".kanji-card-onyomi");
+      await expect(reading).toBeVisible();
+      evidence.push({
+        theme,
+        route: "/kanji",
+        selector: ".kanji-card-onyomi after selecting a kanji",
+        ...(await expectReadableForeground(reading, `${theme} selected kanji reading`))
+      });
+
+      await page.goto("/challenge");
+      await page.getByRole("button", { name: /^基礎變化/ }).click();
+      const choice = page.locator(".choice-option").first();
+      await choice.click();
+      const answeredChoice = page.locator('.choice-option[data-selected="true"]');
+      await expect(answeredChoice).toBeVisible();
+      evidence.push({
+        theme,
+        route: "/challenge",
+        selector: ".choice-option[data-selected=true]",
+        ...(await expectReadableForeground(answeredChoice, `${theme} selected answer feedback`))
+      });
+    }
+    await test.info().attach("legacy-color-contrast.json", {
+      body: JSON.stringify(evidence, null, 2),
+      contentType: "application/json"
+    });
+  });
+
+  test("renders the Focus break primary action with readable colors in both themes", async ({ page }) => {
+    await page.clock.install({ time: new Date("2026-10-07T12:00:00.000Z") });
+    const evidence: Array<Record<string, string | number>> = [];
+    for (const theme of ["light", "dark"] as const) {
+      await page.goto("/");
+      await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+      await page.reload();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await page.getByRole("button", { name: "專注", exact: true }).click();
+      const configure = page.getByRole("dialog", { name: "專注設定" });
+      await configure.getByLabel("專注時間（分鐘）").fill("1");
+      await configure.getByLabel("休息時間（分鐘）").fill("1");
+      await configure.getByRole("button", { name: "開始", exact: true }).click();
+      await page.clock.runFor(60_000);
+      const pause = page.getByRole("dialog", { name: "休息一下" });
+      await expect(pause).toBeVisible();
+      const primary = pause.locator(".focus-break-primary");
+      evidence.push({
+        theme,
+        route: "/",
+        selector: ".focus-break-primary",
+        ...(await expectReadableForeground(primary, `${theme} Focus break primary action`))
+      });
+      await pause.getByRole("button", { name: "結束專注模式" }).click();
+    }
+    await test.info().attach("focus-break-color-contrast.json", {
+      body: JSON.stringify(evidence, null, 2),
+      contentType: "application/json"
+    });
+  });
+});
+
+for (const viewport of [
+  { name: "390x844", width: 390, height: 844 },
+  { name: "1440x900", width: 1440, height: 900 }
+] as const) {
+  test.describe(`session exit at ${viewport.name}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } });
+
+    test("keeps a direct Today exit visible during active endless practice", async ({ page }) => {
+      const savedAttempt = {
+        questionId: "n1-grammar-yainaya",
+        vocabularyId: "n1-grammar-yainaya",
+        targetForm: "meaning",
+        prompt: "seed",
+        expectedAnswers: ["や否や"],
+        submittedAnswer: "x",
+        isCorrect: false,
+        timestamp: 1000,
+        responseTimeMs: 100
+      };
+      await page.addInitScript((attempt) => {
+        localStorage.setItem("jabiko:attempts", JSON.stringify([attempt]));
+        localStorage.setItem("jabiko.sessionLength", "all");
+      }, savedAttempt);
+      await page.goto("/challenge?mode=exam");
+      const exit = page.getByRole("button", { name: "首頁", exact: true });
+      await expect(exit).toBeVisible();
+      await expect(page.locator(".controls-panel")).toBeVisible();
+      await expect(page.locator(".drill-panel")).toBeVisible();
+      await expect(page.locator(".prompt-header span")).toHaveText(/^第 \d+ 題$/);
+      const exitBounds = await exit.boundingBox();
+      expect(exitBounds).not.toBeNull();
+      expect(exitBounds!.y).toBeGreaterThanOrEqual(0);
+      expect(exitBounds!.y + exitBounds!.height).toBeLessThanOrEqual(viewport.height);
+      const storedProgress = await page.evaluate(() => localStorage.getItem("jabiko:attempts"));
+
+      const endlessExitBounds = await exit.boundingBox();
+      expect(endlessExitBounds).not.toBeNull();
+      expect(endlessExitBounds!.y).toBeGreaterThanOrEqual(0);
+      expect(endlessExitBounds!.y + endlessExitBounds!.height).toBeLessThanOrEqual(viewport.height);
+      await exit.click();
+      await expect(page).toHaveURL(/\/$/);
+      await expect(page.getByRole("region", { name: "首頁" })).toBeVisible();
+      await expect.poll(() => page.evaluate(() => localStorage.getItem("jabiko:attempts"))).toBe(storedProgress);
     });
   });
 }

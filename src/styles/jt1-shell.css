@@ -548,6 +548,9 @@
 }
 @media (max-width: 1023px) {
   .app-shell .jt1-primary-nav {
+    background: var(--jt-surface-chrome);
+    border-bottom: 0;
+    border-top: 1px solid var(--jt-border-subtle);
     display: grid;
     flex-wrap: nowrap;
     grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -560,4 +563,18 @@
   .app-shell:has(.conversation-panel[data-session-surface="true"]) .update-toast {
     bottom: 1rem;
   }
+}
+
+.app-shell .jt1-primary-nav .nav-more-trigger.selected {
+  background: var(--jt-surface-chrome);
+  border-bottom-color: var(--jt-accent-foreground);
+  color: var(--jt-accent-foreground);
+}
+.app-shell .jt1-primary-nav .nav-more-trigger.selected:hover:not(:disabled) {
+  background: var(--jt-action-tonal-hover);
+  color: var(--jt-accent-foreground);
+}
+.app-shell .jt1-primary-nav .nav-more-trigger.selected:active:not(:disabled) {
+  background: var(--jt-action-tonal-pressed);
+  color: var(--jt-accent-foreground);
 }
