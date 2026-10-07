@@ -2,38 +2,30 @@ import type { LocaleCode } from "./types";
 import type { AppRoute, AppView } from "./routes";
 import { STAY_D_REQUIRED_LOCALES } from "./stayD";
 
-type NavigationGroup = "primary" | "resource";
+type NavigationGroup = "primary" | "resource" | "menu";
 export type NavigationId =
   | "home"
-  | "learn"
   | "challenge"
-  | "mock"
+  | "learn"
   | "grammar"
+  | "conversation"
   | "rules"
   | "kanji"
   | "kana"
-  | "about"
-  | "stayD";
-export type NavigationIcon =
-  | "home"
-  | "learn"
-  | "challenge"
   | "mock"
-  | "grammar"
-  | "rules"
-  | "kanji"
-  | "kana"
-  | "about"
-  | "stayD";
+  | "stayD"
+  | "about";
+export type NavigationIcon = NavigationId;
 export type NavigationLabelKey =
-  | "home"
+  | "today"
+  | "practice"
   | "learn"
-  | "challenge"
-  | "mockExam"
   | "grammar"
+  | "conversation"
   | "rules"
   | "kanji"
   | "kanaPageTitle"
+  | "mockExam"
   | "about"
   | "navPartnership";
 
@@ -43,10 +35,9 @@ export interface NavigationDefinition {
   readonly group: NavigationGroup;
   readonly labelKey: NavigationLabelKey;
   readonly icon: NavigationIcon;
+  /** Hidden below the wide breakpoint while remaining reachable in Resources. */
+  readonly wideOnly?: true;
   readonly zhHantOnly?: true;
-  /** Entry is only offered in these locales -- for tabs whose destination has
-   *  content in a subset of the app's locales (e.g. the Stay.D partnership
-   *  page). Undefined means "every locale". */
   readonly locales?: readonly LocaleCode[];
 }
 
@@ -55,27 +46,29 @@ export interface ResolvedNavigationEntry extends NavigationDefinition {
 }
 
 export const NAVIGATION_REGISTRY: readonly NavigationDefinition[] = [
-  { id: "home", view: "home", group: "primary", labelKey: "home", icon: "home" },
+  { id: "home", view: "home", group: "primary", labelKey: "today", icon: "home" },
+  { id: "challenge", view: "challenge", group: "primary", labelKey: "practice", icon: "challenge" },
   { id: "learn", view: "learn", group: "primary", labelKey: "learn", icon: "learn" },
-  { id: "challenge", view: "challenge", group: "primary", labelKey: "challenge", icon: "challenge" },
-  { id: "mock", view: "mock", group: "primary", labelKey: "mockExam", icon: "mock" },
-  { id: "grammar", view: "grammar", group: "primary", labelKey: "grammar", icon: "grammar" },
+  { id: "grammar", view: "grammar", group: "primary", labelKey: "grammar", icon: "grammar", wideOnly: true },
+  { id: "conversation", view: "conversation", group: "primary", labelKey: "conversation", icon: "conversation" },
+  { id: "rules", view: "rules", group: "resource", labelKey: "rules", icon: "rules" },
+  { id: "kanji", view: "kanji", group: "resource", labelKey: "kanji", icon: "kanji" },
+  { id: "kana", view: "kana", group: "resource", labelKey: "kanaPageTitle", icon: "kana" },
+  { id: "mock", view: "mock", group: "menu", labelKey: "mockExam", icon: "mock" },
   {
     id: "stayD",
     view: "stayD",
-    group: "resource",
+    group: "menu",
     labelKey: "navPartnership",
     icon: "stayD",
     locales: STAY_D_REQUIRED_LOCALES
   },
-  { id: "rules", view: "rules", group: "resource", labelKey: "rules", icon: "rules" },
-  { id: "kanji", view: "kanji", group: "resource", labelKey: "kanji", icon: "kanji" },
-  { id: "kana", view: "kana", group: "resource", labelKey: "kanaPageTitle", icon: "kana" },
-  { id: "about", view: "about", group: "resource", labelKey: "about", icon: "about" }
+  { id: "about", view: "about", group: "menu", labelKey: "about", icon: "about" }
 ] as const;
 
 function isCurrent(entry: NavigationDefinition, route: AppRoute): boolean {
-  if (entry.id === "learn") return route.view === "learn" || route.view === "kana";
+  if (entry.id === "learn") return route.view === "learn";
+  if (entry.id === "challenge") return route.view === "challenge" || route.view === "mock";
   if (entry.id === "about") {
     return route.view === "about" || route.view === "privacy" || route.view === "terms";
   }
@@ -86,6 +79,8 @@ export function resolveNavigation(route: AppRoute, language: LocaleCode): {
   primary: ResolvedNavigationEntry[];
   resources: ResolvedNavigationEntry[];
   resourcesCurrent: boolean;
+  menu: ResolvedNavigationEntry[];
+  menuCurrent: boolean;
 } {
   const visible = NAVIGATION_REGISTRY.filter(
     (entry) =>
@@ -94,5 +89,12 @@ export function resolveNavigation(route: AppRoute, language: LocaleCode): {
   ).map((entry) => ({ ...entry, current: isCurrent(entry, route) }));
   const primary = visible.filter((entry) => entry.group === "primary");
   const resources = visible.filter((entry) => entry.group === "resource");
-  return { primary, resources, resourcesCurrent: resources.some((entry) => entry.current) };
+  const menu = visible.filter((entry) => entry.group === "menu");
+  return {
+    primary,
+    resources,
+    resourcesCurrent: resources.some((entry) => entry.current) || primary.some((entry) => entry.id === "grammar" && entry.current),
+    menu,
+    menuCurrent: menu.some((entry) => entry.current)
+  };
 }

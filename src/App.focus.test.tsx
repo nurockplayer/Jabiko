@@ -62,9 +62,9 @@ describe("App Focus Mode (#771)", () => {
   it("keeps the countdown across in-app route changes", () => {
     render(<App />);
     startFocus();
-    fireEvent.click(screen.getByRole("button", { name: "學習" }));
+    fireEvent.click(screen.getByRole("link", { name: "學習" }));
     expect(screen.getByRole("button", { name: /專注 25:00/ })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "首頁" }));
+    fireEvent.click(screen.getByRole("link", { name: "今日" }));
     expect(screen.getByRole("button", { name: /專注 25:00/ })).toBeInTheDocument();
   });
 

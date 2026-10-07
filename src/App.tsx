@@ -1,12 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  ChevronDown,
-  Globe,
-  Languages,
-  MessageCircle,
-  Moon,
-  Sun,
-} from "lucide-react";
+import { Languages } from "lucide-react";
 import type { LearningBlockDrillPreset } from "./domain/learningBlocks";
 import type { SentencePatternId } from "./domain/sentencePatterns";
 import type { Attempt, JlptLevel } from "./domain/types";
@@ -15,14 +8,14 @@ import { countMistakes } from "./domain/srs";
 import { copy, LAUNCHED_LANGUAGES, type Language } from "./i18n";
 import { HomePanel, LearningPanel, RulesPanel, AboutPanel } from "./components";
 import { LanguagePicker } from "./components/LanguagePicker";
-import { LanguageFlag } from "./components/LanguageFlag";
 import { FeedbackForm } from "./components/FeedbackForm";
 import type { FeedbackCategory } from "./domain/feedbackRemote";
 import { UpdateToast } from "./components/UpdateToast";
 import { RouteErrorBoundary } from "./components/RouteErrorBoundary";
 import { usePwaUpdate } from "./hooks/usePwaUpdate";
 import { JabikoMark } from "./components/JabikoMark";
-import { AppNavigation } from "./components/AppNavigation";
+import { AppHeaderMenu, AppNavigation } from "./components/AppNavigation";
+import { getAppNavigationCopy } from "./components/AppNavigation.i18n";
 import { AppBreadcrumbs } from "./components/AppBreadcrumbs";
 import { buildBreadcrumbs, type BreadcrumbLabels } from "./domain/breadcrumbs";
 import { legalLabelsFor } from "./domain/legalLabels";
@@ -402,7 +395,6 @@ export default function App() {
   };
 
   const themeToggleLabel = theme === "dark" ? t.themeLight : t.themeDark;
-  const ThemeIcon = theme === "dark" ? Sun : Moon;
   const furiganaToggleLabel = furiganaEnabled ? t.furiganaHide : t.furiganaShow;
 
   // One source for the sync-status line so the header auth block and the
@@ -464,6 +456,61 @@ export default function App() {
   };
 
   const navigation = resolveNavigation(route, language);
+  const navigationCopy = getAppNavigationCopy(language, {
+    today: t.home,
+    practice: t.challenge,
+    learn: t.learn,
+    conversation: t.conversationTitle,
+    resources: t.navResources,
+    skipToContent: "Skip to main content",
+    resourcesCurrentLabel: t.navResourcesWithCurrent
+  });
+  const navigationLabels = {
+    today: navigationCopy.today,
+    practice: navigationCopy.practice,
+    learn: t.learn,
+    grammar: t.grammar,
+    conversation: navigationCopy.conversation,
+    rules: t.rules,
+    kanji: t.kanji,
+    kanaPageTitle: t.kanaPageTitle,
+    mockExam: t.mockExam,
+    about: t.about,
+    navPartnership: t.navPartnership
+  };
+  const headerMenuTools = {
+    heading: t.navMoreTools,
+    focus: {
+      label:
+        focusPhase === "idle"
+          ? t.focusLabel
+          : `${t.focusLabel} ${formatFocusClock(focus.remainingMs)}`,
+      onOpen: () => setFocusUi(focusPhase === "idle" ? "configure" : "active")
+    },
+    language:
+      LANGUAGE_OPTIONS.length > 1
+        ? { label: t.languageSwitchLabel, onOpen: () => setLangPickerOpen(true) }
+        : undefined,
+    furigana: {
+      label: furiganaToggleLabel,
+      pressed: furiganaEnabled,
+      onToggle: toggleFurigana
+    },
+    theme: { label: themeToggleLabel, onToggle: toggleTheme },
+    feedback: { label: t.feedbackTitle, onOpen: () => setFeedbackKind("wish") },
+    auth: isSupabaseConfigured
+      ? {
+          signedInAs: user ? (user.user_metadata.full_name ?? user.email ?? "") : null,
+          hint: authError ? t.authErrors[authError] : authSyncHint,
+          signInLabel: t.authSignIn,
+          signOutLabel: t.authSignOut,
+          onSignIn: signInWithGoogle,
+          onSignOut: signOut,
+          deleteHistoryLabel: t.deleteHistoryLabel,
+          onDeleteHistory: openDeleteHistory
+        }
+      : undefined
+  };
   const navigateFromAppNavigation = (id: NavigationId) => {
     if (id === "challenge") {
       openChallenge({ mode: "daily" });
@@ -479,7 +526,7 @@ export default function App() {
   const routeResetKey = `${appView}:${grammarSurface ?? ""}`;
 
   return (
-    <main className="app-shell">
+    <div className="app-shell" data-session-route={appView === "challenge" ? "true" : undefined}>
       <RouteErrorBoundary
         resetKey={routeResetKey}
         title={t.routeErrorTitle}
@@ -606,11 +653,11 @@ export default function App() {
           advertisement: t.focusAdvertisement
         }}
       />
+      <a className="jt1-skip-link" href="#main-content">{navigationCopy.skipToContent}</a>
       {/* #608: non-home views compress the heading to a one-line brand bar on
           phones (CSS-only; desktop and the home hero keep the full intro). */}
-      <div
+      <header
         className={`app-heading${appView === "home" ? "" : " app-heading-compact"}`}
-        aria-label={t.appIntroLabel}
       >
         <div className="app-brand">
           <JabikoMark className="app-brand-mark" />
@@ -622,47 +669,30 @@ export default function App() {
                 to keep exactly one h1 per view. Styling rides the .app-title
                 class, not the tag, so the level change is purely semantic. */}
             {appView === "grammar" || appView === "stayD" ? (
-              <h2 className="app-title">{t.appTitle}</h2>
+              <h2 className="app-title">
+                <span className="jt1-visually-hidden">{t.appTitle}</span>
+                <span aria-hidden="true">Jabiko</span>
+                <span className="app-product-line" aria-hidden="true">{t.appTitle.split("·").slice(1).join("·").trim()}</span>
+              </h2>
             ) : (
-              <h1 className="app-title">{t.appTitle}</h1>
+              <h1 className="app-title">
+                <span className="jt1-visually-hidden">{t.appTitle}</span>
+                <span aria-hidden="true">Jabiko</span>
+                <span className="app-product-line" aria-hidden="true">{t.appTitle.split("·").slice(1).join("·").trim()}</span>
+              </h1>
             )}
           </div>
         </div>
+        <AppNavigation
+          ariaLabel={t.flowLabel}
+          navigation={navigation}
+          labels={navigationLabels}
+          resourcesLabel={navigationCopy.resources}
+          resourcesCurrentLabel={navigationCopy.resourcesCurrentLabel}
+          onSelect={navigateFromAppNavigation}
+        />
         <div className="heading-actions">
-          <p>{t.appTagline}</p>
-          {isSupabaseConfigured && (
-            <div className={`heading-auth${user ? "" : " heading-auth-guest"}`}>
-              {user ? (
-                <div className="heading-auth-row">
-                  <span className="heading-user">{t.authSignedInAs(user.user_metadata.full_name ?? user.email ?? "")}</span>
-                  <button type="button" className="auth-button" onClick={signOut}>
-                    {t.authSignOut}
-                  </button>
-                </div>
-              ) : (
-                <button type="button" className="auth-button" onClick={signInWithGoogle}>
-                  {t.authSignIn}
-                </button>
-              )}
-              {user ? (
-                <button
-                  type="button"
-                  className="delete-history-text-action"
-                  onClick={(event) => openDeleteHistory(event.currentTarget)}
-                >
-                  {t.deleteHistoryLabel}
-                </button>
-              ) : null}
-              {authError ? (
-                <span className="heading-auth-error" role="alert">
-                  {t.authErrors[authError]}
-                </span>
-              ) : (
-                <span className="auth-hint">{authSyncHint}</span>
-              )}
-            </div>
-          )}
-          <div className="utility-actions">
+          <div className="utility-actions jt1-header-tools">
             <FocusControl
               phase={focusPhase}
               remainingMs={focus.remainingMs}
@@ -671,20 +701,6 @@ export default function App() {
               triggerRef={focusTriggerRef}
               copy={focusControlCopy}
             />
-            {LANGUAGE_OPTIONS.length > 1 && (
-              <button
-                type="button"
-                className="theme-toggle lang-switch-button"
-                aria-label={t.languageSwitchLabel}
-                aria-haspopup="dialog"
-                onClick={() => setLangPickerOpen(true)}
-              >
-                <Globe aria-hidden="true" className="lang-switch-globe" />
-                <LanguageFlag language={language} className="lang-switch-flag" />
-                <span className="lang-switch-name">{copy[language].languageName}</span>
-                <ChevronDown aria-hidden="true" className="lang-switch-caret" />
-              </button>
-            )}
             <button
               className={`theme-toggle furigana-toggle${furiganaEnabled ? " active" : ""}`}
               type="button"
@@ -695,79 +711,20 @@ export default function App() {
               <Languages aria-hidden="true" />
               <span className="toggle-text">{furiganaToggleLabel}</span>
             </button>
-            <button className="theme-toggle" type="button" aria-label={themeToggleLabel} onClick={toggleTheme}>
-              <ThemeIcon aria-hidden="true" />
-              <span className="toggle-text">{themeToggleLabel}</span>
-            </button>
-            <button
-              className="theme-toggle feedback-nav-button"
-              type="button"
-              aria-label={t.feedbackTitle}
-              aria-haspopup="dialog"
-              onClick={() => setFeedbackKind("wish")}
-            >
-              <MessageCircle aria-hidden="true" />
-              <span className="toggle-text">{t.feedbackTitle}</span>
-            </button>
+            <AppHeaderMenu
+              navigation={navigation}
+              labels={navigationLabels}
+              triggerLabel={t.navMore}
+              triggerCurrentLabel={t.navMoreWithCurrent}
+              tools={headerMenuTools}
+              onSelect={navigateFromAppNavigation}
+            />
           </div>
         </div>
-      </div>
+      </header>
+      {authError ? <p className="jt1-auth-alert" role="alert">{t.authErrors[authError]}</p> : null}
 
-      <AppNavigation
-        ariaLabel={t.flowLabel}
-        navigation={navigation}
-        labels={{
-          home: t.home,
-          learn: t.learn,
-          challenge: t.challenge,
-          mockExam: t.mockExam,
-          grammar: t.grammar,
-          rules: t.rules,
-          kanji: t.kanji,
-          kanaPageTitle: t.kanaPageTitle,
-          about: t.about,
-          navPartnership: t.navPartnership
-        }}
-        resourcesLabel={t.navResources}
-        resourcesCurrentLabel={t.navResourcesWithCurrent}
-        moreLabel={t.navMore}
-        moreCurrentLabel={t.navMoreWithCurrent}
-        onSelect={navigateFromAppNavigation}
-        tools={{
-            heading: t.navMoreTools,
-            focus: {
-              label:
-                focusPhase === "idle"
-                  ? t.focusLabel
-                  : `${t.focusLabel} ${formatFocusClock(focus.remainingMs)}`,
-              onOpen: () => setFocusUi(focusPhase === "idle" ? "configure" : "active")
-            },
-            language:
-              LANGUAGE_OPTIONS.length > 1
-                ? { label: t.languageSwitchLabel, onOpen: () => setLangPickerOpen(true) }
-                : undefined,
-            furigana: {
-              label: furiganaToggleLabel,
-              pressed: furiganaEnabled,
-              onToggle: toggleFurigana
-            },
-            theme: { label: themeToggleLabel, onToggle: toggleTheme },
-            feedback: { label: t.feedbackTitle, onOpen: () => setFeedbackKind("wish") },
-            auth: isSupabaseConfigured
-              ? {
-                  signedInAs: user ? (user.user_metadata.full_name ?? user.email ?? "") : null,
-                  hint: authError ? t.authErrors[authError] : authSyncHint,
-                  signInLabel: t.authSignIn,
-                  signOutLabel: t.authSignOut,
-                  onSignIn: signInWithGoogle,
-                  onSignOut: signOut,
-                  deleteHistoryLabel: t.deleteHistoryLabel,
-                  onDeleteHistory: openDeleteHistory
-                }
-              : undefined
-        }}
-      />
-
+      <main id="main-content" className="jt1-compat" tabIndex={-1}>
       {breadcrumbModel ? (
         <AppBreadcrumbs model={breadcrumbModel} onNavigate={setRoute} />
       ) : null}
@@ -906,8 +863,9 @@ export default function App() {
         </Suspense>
       )}
       </FuriganaContext.Provider>
+      </main>
       </RouteErrorBoundary>
-    </main>
+    </div>
   );
 }
 

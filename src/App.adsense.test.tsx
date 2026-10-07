@@ -55,11 +55,12 @@ describe("App AdSense isolation (#772)", () => {
     startFocus();
     expect(adBoundary.render).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "挑戰" }));
+    fireEvent.click(screen.getByRole("link", { name: "練習" }));
     await screen.findByRole("region", { name: "目前題目" }, { timeout: 30000 });
     expect(adBoundary.render).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "題型練習" }));
+    fireEvent.click(screen.getByRole("button", { name: "更多" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "題型練習" }));
     await screen.findByRole("region", { name: "題型練習" }, { timeout: 30000 });
     expect(adBoundary.render).not.toHaveBeenCalled();
   }, 60000);

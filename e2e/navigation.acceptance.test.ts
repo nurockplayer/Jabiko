@@ -4,10 +4,10 @@ const navigationName = "學習流程";
 const breadcrumbName = "目前位置";
 
 const viewportMatrix = [
-  { name: "320px", width: 320, foldedTrigger: "更多", hiddenTrigger: "資源" },
-  { name: "390px", width: 390, foldedTrigger: "更多", hiddenTrigger: "資源" },
-  { name: "768px", width: 768, foldedTrigger: "資源", hiddenTrigger: "更多" },
-  { name: "1280px", width: 1280, foldedTrigger: "資源", hiddenTrigger: "更多" }
+  { name: "320px", width: 320 },
+  { name: "390px", width: 390 },
+  { name: "768px", width: 768 },
+  { name: "1280px", width: 1280 }
 ] as const;
 
 const representativeRoutes = ["/", "/grammar/n5", "/kana", "/privacy", "/terms"] as const;
@@ -133,11 +133,21 @@ async function expectRepresentativeRouteReady(
   await expect(routeContent[route]).toBeVisible();
 }
 
-async function openFoldedMenu(page: Page, triggerName: string) {
+async function openResourcesMenu(page: Page, triggerName = "資料") {
   const trigger = appNavigation(page).getByRole("button", { name: triggerName });
   await trigger.focus();
   await trigger.press("ArrowDown");
-  const menu = page.getByRole("menu", { name: triggerName });
+  const menu = page.getByRole("menu", { name: "資料" });
+  await expect(menu).toBeVisible();
+  return { menu, trigger };
+}
+
+async function openHeaderMenu(page: Page) {
+  const trigger = page.locator(".jt1-header-menu > .nav-more-trigger");
+  await expect(trigger).toBeVisible();
+  await trigger.focus();
+  await trigger.press("ArrowDown");
+  const menu = page.getByRole("menu", { name: "更多" });
   await expect(menu).toBeVisible();
   return { menu, trigger };
 }
@@ -148,8 +158,8 @@ async function menuItems(menu: Locator) {
   return items;
 }
 
-async function selectKanaWithKeyboard(page: Page, triggerName: string) {
-  const { menu } = await openFoldedMenu(page, triggerName);
+async function selectKanaWithKeyboard(page: Page) {
+  const { menu } = await openResourcesMenu(page);
   const items = await menuItems(menu);
   const kanaIndex = await items.evaluateAll((nodes) =>
     nodes.findIndex((node) => node.textContent?.includes("五十音表"))
@@ -181,7 +191,7 @@ async function breadcrumbSnapshot(page: Page) {
 
 async function expectDesktopResourceCurrent(page: Page, itemName: string) {
   const trigger = appNavigation(page).getByRole("button", {
-    name: `資源（目前：${itemName}）`
+    name: `資料（目前：${itemName}）`
   });
   await expect(trigger).toBeVisible();
   await trigger.click();
@@ -189,6 +199,15 @@ async function expectDesktopResourceCurrent(page: Page, itemName: string) {
     "aria-current",
     "page"
   );
+  await page.keyboard.press("Escape");
+}
+
+async function expectHeaderMenuCurrent(page: Page, itemName: string) {
+  const trigger = page.getByRole("button", { name: `更多（目前：${itemName}）` });
+  await expect(trigger).toBeVisible();
+  await trigger.press("ArrowDown");
+  const menu = page.getByRole("menu", { name: "更多" });
+  await expect(menu.getByRole("menuitem", { name: itemName })).toHaveAttribute("aria-current", "page");
   await page.keyboard.press("Escape");
 }
 
@@ -206,17 +225,47 @@ for (const viewport of viewportMatrix) {
 
       await page.goto("/");
       const nav = appNavigation(page);
-      await expect(nav.getByRole("button", { name: viewport.foldedTrigger })).toBeVisible();
-      await expect(
-        nav.getByRole("button", { name: viewport.hiddenTrigger, includeHidden: true })
-      ).toBeHidden();
-      await openFoldedMenu(page, viewport.foldedTrigger);
-      await expectNoPageOverflow(page, `${viewport.name} open ${viewport.foldedTrigger} menu`);
+      const compact = viewport.width < 1024;
+      await expect(nav).toBeVisible();
+      if (compact) {
+        await expect(nav.locator(".nav-resources-compact")).toBeVisible();
+        await expect(nav.locator(".nav-resources-wide")).toBeHidden();
+      } else {
+        await expect(nav.locator(".nav-resources-wide")).toBeVisible();
+        await expect(nav.locator(".nav-resources-compact")).toBeHidden();
+      }
+      await expect(page.locator(".jt1-header-menu > .nav-more-trigger")).toBeVisible();
+      await expect(nav.locator("a")).toHaveCount(5);
+      await expect(nav).toHaveCSS("display", compact ? "grid" : "flex");
+      if (compact) {
+        const compactTrackCount = await nav.evaluate((element) =>
+          getComputedStyle(element).gridTemplateColumns.split(" ").length
+        );
+        expect(compactTrackCount).toBe(5);
+      }
+
+      await openResourcesMenu(page);
+      await expectNoPageOverflow(page, `${viewport.name} open Resources menu`);
+      await page.keyboard.press("Escape");
+      const { menu: headerMenu } = await openHeaderMenu(page);
+      await expect(headerMenu.getByRole("menuitem", { name: "模擬考" })).toBeVisible();
+      await expect(headerMenu.getByRole("menuitem", { name: "關於" })).toBeVisible();
+      await expectNoPageOverflow(page, `${viewport.name} open header menu`);
+      await page.keyboard.press("Escape");
+
+      if (compact) {
+        await page.goto("/challenge");
+        await expect(nav).toBeHidden();
+        await expect(page.locator(".jt1-header-menu > .nav-more-trigger")).toBeVisible();
+      }
+      await page.goto("/mock");
+      await expect(nav).toBeVisible();
+      await expectNoPageOverflow(page, `${viewport.name} mock picker`);
     });
 
     test("supports keyboard traversal, focus return, selection, and exact current state", async ({ page }) => {
       await page.goto("/");
-      const { menu, trigger } = await openFoldedMenu(page, viewport.foldedTrigger);
+      const { menu, trigger } = await openResourcesMenu(page);
       const items = await menuItems(menu);
 
       await page.keyboard.press("End");
@@ -229,19 +278,16 @@ for (const viewport of viewportMatrix) {
       await expect(menu).toBeHidden();
       await expect(trigger).toBeFocused();
 
-      await selectKanaWithKeyboard(page, viewport.foldedTrigger);
-      await expect(appNavigation(page).getByRole("button", { name: "學習" })).toHaveAttribute(
+      await selectKanaWithKeyboard(page);
+      await expect(appNavigation(page).getByRole("link", { name: "學習" })).not.toHaveAttribute(
         "aria-current",
         "page"
       );
       await expect(page.getByRole("navigation", { name: breadcrumbName })).toContainText("五十音表");
 
-      const currentTrigger = appNavigation(page).getByRole("button", {
-        name: `${viewport.foldedTrigger}（目前：五十音表）`
-      });
-      await currentTrigger.focus();
-      await currentTrigger.press("ArrowDown");
-      await expect(page.getByRole("menuitem", { name: "五十音表" })).toHaveAttribute(
+      await expect(appNavigation(page).getByRole("button", { name: "資料（目前：五十音表）" })).toBeVisible();
+      const { menu: currentResourcesMenu } = await openResourcesMenu(page, "資料（目前：五十音表）");
+      await expect(currentResourcesMenu.getByRole("menuitem", { name: "五十音表" })).toHaveAttribute(
         "aria-current",
         "page"
       );
@@ -258,11 +304,11 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
         path: "/grammar/n5",
         expected: grammarN5Breadcrumb,
         navigate: async () => {
-          await appNavigation(page).getByRole("button", { name: "文型" }).click();
+          await appNavigation(page).getByRole("link", { name: "文型" }).click();
           await page.getByRole("button", { name: "瀏覽 N5" }).click();
         },
         assertCurrent: async () => {
-          await expect(appNavigation(page).getByRole("button", { name: "文型" })).toHaveAttribute(
+          await expect(appNavigation(page).getByRole("link", { name: "文型" })).toHaveAttribute(
             "aria-current",
             "page"
           );
@@ -272,11 +318,11 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
         path: "/kana",
         expected: kanaBreadcrumb,
         navigate: async () => {
-          await appNavigation(page).getByRole("button", { name: "資源" }).click();
+          await appNavigation(page).getByRole("button", { name: "資料" }).click();
           await page.getByRole("menuitem", { name: "五十音表" }).click();
         },
         assertCurrent: async () => {
-          await expect(appNavigation(page).getByRole("button", { name: "學習" })).toHaveAttribute(
+          await expect(appNavigation(page).getByRole("link", { name: "學習" })).not.toHaveAttribute(
             "aria-current",
             "page"
           );
@@ -295,7 +341,7 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
           await page.getByRole("link", { name: "隱私政策" }).click();
         },
         assertCurrent: async () => {
-          await expectDesktopResourceCurrent(page, "關於");
+          await expectHeaderMenuCurrent(page, "關於");
         }
       },
       {
@@ -310,7 +356,7 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
           await page.getByRole("link", { name: "使用條款" }).click();
         },
         assertCurrent: async () => {
-          await expectDesktopResourceCurrent(page, "關於");
+          await expectHeaderMenuCurrent(page, "關於");
         }
       }
     ] as const;
@@ -364,31 +410,31 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
 
   test("restores canonical navigation and breadcrumbs through Back and Forward without stale child state", async ({ page }) => {
     await page.goto("/");
-    await appNavigation(page).getByRole("button", { name: "文型" }).click();
+    await appNavigation(page).getByRole("link", { name: "文型" }).click();
     await page.getByRole("button", { name: "瀏覽 N5" }).click();
-    await appNavigation(page).getByRole("button", { name: "資源" }).click();
+    await appNavigation(page).getByRole("button", { name: "資料" }).click();
     await page.getByRole("menuitem", { name: "五十音表" }).click();
     await expect(page).toHaveURL(/\/kana$/);
 
     await page.goBack();
     await expect(page).toHaveURL(/\/grammar\/n5$/);
-    await expect(appNavigation(page).getByRole("button", { name: "文型" })).toHaveAttribute(
+    await expect(appNavigation(page).getByRole("link", { name: "文型" })).toHaveAttribute(
       "aria-current",
       "page"
     );
     expect(await breadcrumbSnapshot(page)).toEqual(grammarN5Breadcrumb);
-    await appNavigation(page).getByRole("button", { name: "資源" }).click();
+    await appNavigation(page).getByRole("button", { name: "資料" }).click();
     await expect(page.getByRole("menu").locator('[aria-current="page"]')).toHaveCount(0);
     await page.keyboard.press("Escape");
 
     await page.goForward();
     await expect(page).toHaveURL(/\/kana$/);
-    await expect(appNavigation(page).getByRole("button", { name: "學習" })).toHaveAttribute(
+    await expect(appNavigation(page).getByRole("link", { name: "學習" })).not.toHaveAttribute(
       "aria-current",
       "page"
     );
     expect(await breadcrumbSnapshot(page)).toEqual(kanaBreadcrumb);
-    const resources = appNavigation(page).getByRole("button", { name: "資源（目前：五十音表）" });
+    const resources = appNavigation(page).getByRole("button", { name: "資料（目前：五十音表）" });
     await resources.click();
     await expect(page.getByRole("menuitem", { name: "五十音表" })).toHaveAttribute(
       "aria-current",

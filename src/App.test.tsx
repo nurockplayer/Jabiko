@@ -26,7 +26,8 @@ const deletionTest = vi.hoisted(() => ({
   /** The deleteRemoteAttempts outcome. */
   deleteRemoteResult: { ok: true } as { ok: true } | { ok: false; message: string },
   /** How many times the remote delete ran (1 per confirmed delete). */
-  deleteRemoteCalls: 0
+  deleteRemoteCalls: 0,
+  authError: null as "sessionFetchFailed" | "authUnavailable" | "signOutFailed" | null
 }));
 
 vi.mock("./lib/supabase", () => ({
@@ -65,7 +66,7 @@ vi.mock("./hooks/useAuth", async () => {
       if (deletionTest.active) {
         return {
           user: deletionTest.user,
-          error: null,
+          error: deletionTest.authError,
           signInWithGoogle: () => Promise.resolve({ error: null }),
           signOut: () => Promise.resolve()
         };
@@ -80,11 +81,27 @@ vi.mock("./hooks/useAuth", async () => {
 // straight into the chapter list. Every test that depends on Learn
 // being visible needs this helper to navigate there first.
 async function gotoLearn(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("button", { name: "學習" }));
+  await user.click(screen.getByRole("link", { name: "學習" }));
+}
+
+async function openHeaderMenu(user: ReturnType<typeof userEvent.setup>) {
+  const trigger = document.querySelector<HTMLButtonElement>(".jt1-header-menu > .nav-more-trigger");
+  if (!trigger) throw new Error("Expected the header More trigger");
+  if (trigger.getAttribute("aria-expanded") !== "true") await user.click(trigger);
+  return screen.getByRole("menu");
+}
+
+async function clickHeaderMenuItem(user: ReturnType<typeof userEvent.setup>, label: string) {
+  const menu = await openHeaderMenu(user);
+  const item = within(menu).getByRole("menuitem", { name: label });
+  await user.click(item);
+  return item;
 }
 
 async function gotoResource(user: ReturnType<typeof userEvent.setup>, label: string) {
-  await user.click(screen.getByRole("button", { name: /^資源/ }));
+  const compactResources = document.querySelector<HTMLButtonElement>(".nav-resources-compact button");
+  const moreMenu = document.querySelector<HTMLButtonElement>(".jt1-header-menu button");
+  await user.click(label === "合作推廣" || label === "關於" || label === "模擬考" || label === "題型練習" ? moreMenu! : compactResources!);
   await user.click(screen.getByRole("menuitem", { name: label }));
 }
 
@@ -107,9 +124,9 @@ describe("App", () => {
     await import("./components/GrammarPointPage");
     const user = userEvent.setup();
     const { unmount } = render(<App />);
-    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await user.click(screen.getByRole("link", { name: "練習" }));
     await screen.findByRole("region", { name: "目前題目" }, { timeout: 30000 });
-    await user.click(screen.getByRole("button", { name: "題型練習" }));
+    await gotoResource(user, "題型練習");
     await screen.findByRole("region", { name: "題型練習" }, { timeout: 30000 });
     await gotoResource(user, "漢字");
     await screen.findByRole("heading", { name: /漢字音読み/ }, { timeout: 30000 });
@@ -128,17 +145,20 @@ describe("App", () => {
     deletionTest.user = null;
     deletionTest.deleteRemoteResult = { ok: true };
     deletionTest.deleteRemoteCalls = 0;
+    deletionTest.authError = null;
   });
 
-  it("renders the home dashboard with the four-tab nav by default", () => {
+  it("renders the home dashboard with the compact nav and keeps Mock reachable in More", async () => {
+    const user = userEvent.setup();
     render(<App />);
 
     expect(screen.getByRole("heading", { name: /自習室/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "學習" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "資源" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "挑戰" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "題型練習" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "今日" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "學習" })).toBeInTheDocument();
+    expect(document.querySelector(".nav-resources-compact .nav-more-trigger")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "練習" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    expect(screen.getByRole("menuitem", { name: "題型練習" })).toBeInTheDocument();
     // Home hero copy + at least one entry card heading.
     expect(screen.getByRole("heading", { name: /今天想練什麼/ })).toBeInTheDocument();
     // Chapter index belongs to Learn view; not visible on Home.
@@ -217,8 +237,8 @@ describe("App", () => {
     await screen.findByRole("heading", { name: "合作推廣", level: 1 }, { timeout: 15000 });
 
     expect(window.location.pathname).toBe("/stay-d");
-    expect(screen.getByRole("button", { name: "資源（目前：合作推廣）" })).toHaveClass(
-      "selected"
+    expect(document.querySelector(".jt1-header-menu .nav-more-trigger")).toHaveAttribute(
+      "aria-label", "更多（目前：合作推廣）"
     );
   });
 
@@ -268,17 +288,19 @@ describe("App", () => {
 
     const nav = screen.getByRole("navigation", { name: "學習流程" });
     // Default view is home -> 首頁 is the current page, and the only one.
-    expect(screen.getByRole("button", { name: "首頁" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "今日" })).toHaveAttribute("aria-current", "page");
     expect(
       within(nav)
-        .getAllByRole("button")
+        .getAllByRole("link")
         .filter((button) => button.getAttribute("aria-current") === "page")
     ).toHaveLength(1);
 
     // Navigating moves aria-current to the new tab and clears the old one.
     await gotoResource(user, "規則表");
-    expect(screen.getByRole("button", { name: "資源（目前：規則表）" })).toHaveClass("selected");
-    expect(screen.getByRole("button", { name: "首頁" })).not.toHaveAttribute("aria-current");
+    expect(document.querySelector(".nav-resources-compact .nav-more-trigger")).toHaveAttribute(
+      "aria-label", "資料（目前：規則表）"
+    );
+    expect(screen.getByRole("link", { name: "今日" })).not.toHaveAttribute("aria-current");
   });
 
   it("home has a single h1 (the persistent app title); the hero is demoted to h2", () => {
@@ -422,7 +444,7 @@ describe("App", () => {
       const user = userEvent.setup();
       render(<App />);
 
-      await user.click(screen.getByRole("button", { name: "文型" }));
+      await user.click(screen.getByRole("link", { name: "文型" }));
       await screen.findByRole("heading", { name: "JLPT 文型資料庫" });
       expect(screen.queryByRole("navigation", { name: "目前位置" })).not.toBeInTheDocument();
 
@@ -928,7 +950,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "題型練習" }));
+    await gotoResource(user, "題型練習");
 
     // Section cards from the N2 blueprint render; the grammar section has
     // items, so its card is enabled and clickable.
@@ -952,7 +974,7 @@ describe("App", () => {
       </StrictMode>
     );
 
-    await user.click(screen.getByRole("button", { name: "題型練習" }));
+    await gotoResource(user, "題型練習");
     await user.click(screen.getByRole("button", { name: /文の文法 1/ }));
 
     const panel = await screen.findByRole("region", { name: "目前題目" });
@@ -1191,31 +1213,33 @@ describe("App", () => {
     render(<App />);
 
     expect(document.documentElement).toHaveAttribute("data-theme", "light");
-    expect(screen.getByRole("button", { name: "深色模式" })).toBeInTheDocument();
+    let menu = await openHeaderMenu(user);
+    expect(within(menu).getByRole("menuitem", { name: "深色模式" })).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "深色模式" }));
+    await user.click(within(menu).getByRole("menuitem", { name: "深色模式" }));
 
     expect(document.documentElement).toHaveAttribute("data-theme", "dark");
     expect(localStorage.getItem("jabiko.theme")).toBe("dark");
-    expect(screen.getByRole("button", { name: "淺色模式" })).toBeInTheDocument();
+    menu = await openHeaderMenu(user);
+    expect(within(menu).getByRole("menuitem", { name: "淺色模式" })).toBeInTheDocument();
   });
 
-  it("loads the stored dark theme preference", () => {
+  it("loads the stored dark theme preference", async () => {
     localStorage.setItem("jabiko.theme", "dark");
-
+    const user = userEvent.setup();
     render(<App />);
 
     expect(document.documentElement).toHaveAttribute("data-theme", "dark");
-    expect(screen.getByRole("button", { name: "淺色模式" })).toBeInTheDocument();
+    expect(within(await openHeaderMenu(user)).getByRole("menuitem", { name: "淺色模式" })).toBeInTheDocument();
   });
 
-  it("loads the stored light theme preference", () => {
+  it("loads the stored light theme preference", async () => {
     localStorage.setItem("jabiko.theme", "light");
-
+    const user = userEvent.setup();
     render(<App />);
 
     expect(document.documentElement).toHaveAttribute("data-theme", "light");
-    expect(screen.getByRole("button", { name: "深色模式" })).toBeInTheDocument();
+    expect(within(await openHeaderMenu(user)).getByRole("menuitem", { name: "深色模式" })).toBeInTheDocument();
   });
 
   it("defaults furigana OFF and stores an ON preference when toggled (#134)", async () => {
@@ -1240,15 +1264,21 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "隱藏註音" })).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("renders the language switcher with the shipped locales (#299)", () => {
+  it("keeps localized auth failures in a persistent live alert", () => {
+    deletionTest.active = true;
+    deletionTest.authError = "sessionFetchFailed";
     render(<App />);
 
-    expect(screen.getByRole("button", { name: "首頁" })).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("無法取得登入狀態");
+  });
 
-    // Language switcher is now a pill button that opens the LanguagePicker.
-    const switcher = screen.getByRole("button", { name: "切換語言" });
-    expect(switcher).toBeInTheDocument();
-    expect(switcher).toHaveAttribute("aria-haspopup", "dialog");
+  it("renders the language switcher in header More and opens the LanguagePicker (#299)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(screen.getByRole("link", { name: "今日" })).toBeInTheDocument();
+    await clickHeaderMenuItem(user, "切換語言");
+    expect(screen.getByRole("dialog", { name: /語言/ })).toBeInTheDocument();
     expect(screen.getByText("繁體中文")).toBeInTheDocument();
   });
 
@@ -1286,7 +1316,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await user.click(screen.getByRole("link", { name: "練習" }));
     await screen.findByRole("region", { name: "目前題目" });
 
     // The exam pool's level ranges are now first-class mode cards, not an
@@ -1323,7 +1353,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await user.click(screen.getByRole("link", { name: "練習" }));
     await screen.findByRole("region", { name: "目前題目" });
 
     // Entering the challenge tab lands on the guided 今日練習 mixed session,
@@ -1336,7 +1366,7 @@ describe("App", () => {
   it("shows accuracy in the 今日戰報 stats block, not on the 錯題複習 heading", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await user.click(screen.getByRole("link", { name: "練習" }));
     await screen.findByRole("region", { name: "目前題目" });
 
     // Accuracy is a labelled value with a progress bar, both owned by the
@@ -1373,7 +1403,7 @@ describe("App", () => {
   it("exposes data-selected and data-result on choice buttons after answering", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await user.click(screen.getByRole("link", { name: "練習" }));
     await screen.findByRole("region", { name: "目前題目" });
 
     const grid = screen.getByLabelText("答案選項");
@@ -1407,7 +1437,7 @@ describe("App", () => {
   it("flags the correct answer with data-result=target when revealed", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await user.click(screen.getByRole("link", { name: "練習" }));
     await screen.findByRole("region", { name: "目前題目" });
 
     await user.click(screen.getByRole("button", { name: "看答案" }));
@@ -1421,7 +1451,7 @@ describe("App", () => {
   it("exposes the whole answer state on the drill container for embedded AI", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await user.click(screen.getByRole("link", { name: "練習" }));
     const panel = await screen.findByRole("region", { name: "目前題目" });
 
     // Before answering: unanswered, with no selection / expected answer leaked.
@@ -1443,7 +1473,7 @@ describe("App", () => {
   it("marks the drill container revealed (no selection) after 看答案", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: "挑戰" }));
+    await user.click(screen.getByRole("link", { name: "練習" }));
     const panel = await screen.findByRole("region", { name: "目前題目" });
 
     await user.click(screen.getByRole("button", { name: "看答案" }));
@@ -1459,7 +1489,7 @@ describe("App", () => {
     render(<App />);
 
     // Click the Grammar nav button to open the grammar index overview
-    await user.click(screen.getByRole("button", { name: "文型" }));
+    await user.click(screen.getByRole("link", { name: "文型" }));
 
     // GrammarIndexPage is lazy-loaded; wait for the overview heading
     expect(
@@ -1487,7 +1517,7 @@ describe("App", () => {
     render(<App />);
 
     // The 文型 (Grammar) index nav entry is now offered in English.
-    expect(screen.getByRole("button", { name: "Grammar" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Grammar" })).toBeInTheDocument();
 
     // A direct /grammar URL now shows the grammar index (in English) instead of redirecting home.
     window.history.replaceState({}, "", "/grammar");
@@ -1516,14 +1546,13 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    const nav = screen.getByRole("navigation", { name: "學習流程" });
-    const trigger = within(nav).getByRole("button", { name: "更多" });
+    const trigger = document.querySelector<HTMLButtonElement>(".jt1-header-menu > .nav-more-trigger")!;
     expect(trigger).toHaveAttribute("aria-expanded", "false");
 
     await user.click(trigger);
     const menu = screen.getByRole("menu", { name: "更多" });
-    // Secondary views first, then the header tools below the divider.
-    for (const label of ["規則表", "漢字", "關於"]) {
+    // Mock, Stay.D, About and the persistent tools live in header More.
+    for (const label of ["題型練習", "合作推廣", "關於"]) {
       expect(within(menu).getByRole("menuitem", { name: label })).toBeInTheDocument();
     }
     expect(within(menu).getByRole("menuitemcheckbox", { name: /註音/ })).toBeInTheDocument();
@@ -1532,13 +1561,13 @@ describe("App", () => {
 
     await user.click(within(menu).getByRole("menuitem", { name: "關於" }));
     expect(screen.queryByRole("menu", { name: "更多" })).not.toBeInTheDocument();
-    // Same navigation contract as the plain nav button: URL + aria-current.
     expect(window.location.pathname).toBe("/about");
-    expect(within(nav).getByRole("button", { name: "資源（目前：關於）" })).toHaveClass("selected");
-    // The collapsed trigger carries the current location while a folded view
-    // is active (PR #628 review).
-    const selectedTrigger = within(nav).getByRole("button", { name: "更多（目前：關於）" });
+    const selectedTrigger = screen.getByRole("button", { name: "更多（目前：關於）" });
     expect(selectedTrigger.className).toContain("selected");
+
+    // Reference pages remain available through the separate Resources menu.
+    await gotoResource(user, "規則表");
+    expect(window.location.pathname).toBe("/rules");
 
     window.history.replaceState({}, "", "/");
   });
@@ -1549,7 +1578,7 @@ describe("App", () => {
     render(<App />);
     // The feedback entry lives in the always-visible header, not just the
     // homepage footer, so it's reachable from anywhere.
-    await user.click(screen.getByRole("button", { name: "意見回饋" }));
+    await clickHeaderMenuItem(user, "意見回饋");
     expect(await screen.findByRole("dialog", { name: "意見回饋" })).toBeInTheDocument();
   });
 
@@ -1586,9 +1615,7 @@ describe("App", () => {
 
     // Desktop heading-auth block is absent entirely (Supabase unconfigured),
     // so no delete action can exist.
-    expect(screen.queryByRole("button", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
-
-    // Mobile 更多 menu: auth section absent -> no delete entry either.
+    // The auth section is only present inside the header More menu.
     await user.click(screen.getByRole("button", { name: "更多" }));
     expect(
       within(screen.getByRole("menu", { name: "更多" })).queryByRole("menuitem", {
@@ -1604,8 +1631,7 @@ describe("App", () => {
     render(<App />);
 
     // Desktop heading-auth action under the sign-out row.
-    const desktopEntry = screen.getByRole("button", { name: "刪除練習紀錄" });
-    await user.click(desktopEntry);
+    await clickHeaderMenuItem(user, "刪除練習紀錄");
 
     const dialog = screen.getByRole("dialog", { name: "刪除練習紀錄" });
     expect(dialog).toHaveAttribute("aria-modal", "true");
@@ -1626,8 +1652,7 @@ describe("App", () => {
     // A wrong answer in the store -> the home review banner shows a count.
     expect(screen.getByRole("button", { name: /等待複習/ })).toBeInTheDocument();
 
-    const desktopEntry = screen.getByRole("button", { name: "刪除練習紀錄" });
-    await user.click(desktopEntry);
+    await clickHeaderMenuItem(user, "刪除練習紀錄");
     await user.click(screen.getByRole("checkbox", { name: "我了解此操作不可復原" }));
     await user.click(screen.getByRole("button", { name: "刪除" }));
 
@@ -1640,8 +1665,8 @@ describe("App", () => {
     // gone (the protocol cleared attempts -> no more 等待複習 banner).
     expect(screen.getByRole("status")).toHaveTextContent("練習紀錄已刪除");
     expect(screen.queryByRole("button", { name: /等待複習/ })).not.toBeInTheDocument();
-    // Focus returned to the original desktop trigger.
-    expect(desktopEntry).toHaveFocus();
+    // The persistent More trigger survives closing the menu and regains focus.
+    expect(document.querySelector(".jt1-header-menu > .nav-more-trigger")).toHaveFocus();
   });
 
   it("signed in: a failed delete keeps the dialog, shows a retryable error, clears nothing (#693)", async () => {
@@ -1652,7 +1677,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "刪除練習紀錄" }));
+    await clickHeaderMenuItem(user, "刪除練習紀錄");
     await user.click(screen.getByRole("checkbox", { name: "我了解此操作不可復原" }));
     await user.click(screen.getByRole("button", { name: "刪除" }));
 
@@ -1673,15 +1698,14 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    const desktopEntry = screen.getByRole("button", { name: "刪除練習紀錄" });
-    await user.click(desktopEntry);
+    await clickHeaderMenuItem(user, "刪除練習紀錄");
     expect(deletionTest.deleteRemoteCalls).toBe(0);
     await user.click(screen.getByRole("button", { name: "取消" }));
 
     expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
     expect(deletionTest.deleteRemoteCalls).toBe(0);
     expect(screen.queryByText("練習紀錄已刪除")).not.toBeInTheDocument();
-    expect(desktopEntry).toHaveFocus();
+    expect(document.querySelector(".jt1-header-menu > .nav-more-trigger")).toHaveFocus();
   });
 
   it("sign-out clears deletion UI so the same account cannot revive stale state", async () => {
@@ -1690,7 +1714,7 @@ describe("App", () => {
     const user = userEvent.setup();
     const { rerender } = render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "刪除練習紀錄" }));
+    await clickHeaderMenuItem(user, "刪除練習紀錄");
     expect(screen.getByRole("dialog", { name: "刪除練習紀錄" })).toBeInTheDocument();
 
     deletionTest.user = null;
@@ -1700,7 +1724,7 @@ describe("App", () => {
 
     deletionTest.user = signedInUser;
     rerender(<App />);
-    expect(screen.getByRole("button", { name: "刪除練習紀錄" })).toBeInTheDocument();
+    expect(within(await openHeaderMenu(user)).getByRole("menuitem", { name: "刪除練習紀錄" })).toBeInTheDocument();
     expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
@@ -1750,7 +1774,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "練習履歴を削除" }));
+    await clickHeaderMenuItem(user, "練習履歴を削除");
     await user.click(screen.getByRole("checkbox", { name: "この操作は元に戻せないことを理解しています" }));
     await user.click(screen.getByRole("button", { name: "削除" }));
     await waitFor(() => expect(deletionTest.deleteRemoteCalls).toBe(1));
@@ -1762,7 +1786,7 @@ describe("App", () => {
     expect(localStorage.getItem("jabiko.theme")).toBe("dark");
     expect(localStorage.getItem("jabiko.furigana")).toBe("on");
     // The auth session is untouched: the signed-in entry is still rendered.
-    expect(screen.getByRole("button", { name: "練習履歴を削除" })).toBeInTheDocument();
+    expect(within(await openHeaderMenu(user)).getByRole("menuitem", { name: "練習履歴を削除" })).toBeInTheDocument();
   });
 
   it("Escape closes the dialog with zero side effects (#693)", async () => {
@@ -1771,7 +1795,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "刪除練習紀錄" }));
+    await clickHeaderMenuItem(user, "刪除練習紀錄");
     expect(deletionTest.deleteRemoteCalls).toBe(0);
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
@@ -1790,7 +1814,7 @@ describe("App", () => {
       </StrictMode>
     );
 
-    await user.click(screen.getByRole("button", { name: "刪除練習紀錄" }));
+    await clickHeaderMenuItem(user, "刪除練習紀錄");
     await user.click(screen.getByRole("checkbox", { name: "我了解此操作不可復原" }));
     await user.click(screen.getByRole("button", { name: "刪除" }));
 
