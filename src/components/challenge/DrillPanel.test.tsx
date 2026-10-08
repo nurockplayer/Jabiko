@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -121,6 +121,23 @@ describe("DrillPanel", () => {
     expect(onExit).toHaveBeenCalledOnce();
     expect(resetSession).not.toHaveBeenCalled();
     expect(container.querySelector(".drill-panel")).toHaveAttribute("data-question-id", question.id);
+  });
+
+  it("keeps a direct Today exit available when the current filters match no questions", async () => {
+    const user = userEvent.setup();
+    const onExit = vi.fn();
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        currentQuestion={null}
+        onExit={onExit}
+      />
+    );
+
+    expect(screen.getByText("目前設定沒有可練習的題目。")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "首頁" }));
+    expect(onExit).toHaveBeenCalledOnce();
   });
 
   it("renders, focuses, and submits a semantic recall field instead of choice options", () => {
@@ -451,6 +468,26 @@ describe("DrillPanel", () => {
       const target = grid.querySelectorAll('button[data-result="target"]');
       expect(target).toHaveLength(1);
       expect(target[0].textContent).toBe("書いて");
+    });
+
+    it("lets Enter activate Today exit after feedback without advancing the question", async () => {
+      const user = userEvent.setup();
+      const onExit = vi.fn();
+      const nextQuestion = vi.fn();
+      const handleDrillKeyDown = vi.fn((event: ReactKeyboardEvent<HTMLElement>) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          nextQuestion();
+        }
+      });
+      renderAnswered({ ...answeredCorrect, onExit, nextQuestion, handleDrillKeyDown });
+      const exit = screen.getByRole("button", { name: "首頁" });
+      exit.focus();
+
+      await user.keyboard("{Enter}");
+
+      expect(onExit).toHaveBeenCalledOnce();
+      expect(nextQuestion).not.toHaveBeenCalled();
     });
 
     it("flags only the correct answer (as target) on a reveal, with no selection", () => {

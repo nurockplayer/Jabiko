@@ -135,6 +135,79 @@ function parseRgb(value: string): number[] {
   return channels;
 }
 
+function computedAlpha(value: string): number {
+  const openParen = value.indexOf("(");
+  const closeParen = value.lastIndexOf(")");
+  if (openParen < 0 || closeParen < 0) throw new Error(`Unsupported computed color: ${value}`);
+  const body = value.slice(openParen + 1, closeParen).trim();
+  const slashParts = body.split("/");
+  if (slashParts.length > 2) throw new Error(`Unsupported computed alpha syntax: ${value}`);
+  let alphaText = slashParts[1]?.trim();
+  if (!alphaText && value.startsWith("rgba(")) {
+    const commaParts = body.split(",");
+    if (commaParts.length === 4) alphaText = commaParts[3]?.trim();
+  }
+  if (!alphaText) return 1;
+  const alpha = alphaText.endsWith("%")
+    ? Number(alphaText.slice(0, -1)) / 100
+    : Number(alphaText);
+  if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1) {
+    throw new Error(`Unsupported computed alpha in ${value}`);
+  }
+  return alpha;
+}
+
+async function expectOpaqueRoleBackground(
+  locator: Locator,
+  role: string,
+  context: string,
+  foregroundRole?: string
+) {
+  // This check models solid opaque role surfaces only; it does not composite translucent ancestors.
+  const expected = await locator.evaluate((element, roles) => {
+    const probe = document.createElement("span");
+    probe.style.cssText = "position:fixed;visibility:hidden;pointer-events:none";
+    probe.style.backgroundColor = `var(${roles.background})`;
+    if (roles.foreground) probe.style.color = `var(${roles.foreground})`;
+    element.append(probe);
+    const style = getComputedStyle(probe);
+    const colors = {
+      background: style.backgroundColor,
+      ...(roles.foreground ? { foreground: style.color } : {})
+    };
+    probe.remove();
+    return colors;
+  }, { background: role, foreground: foregroundRole });
+  await expect(locator, `${context}: wait for exact ${role} background`).toHaveCSS(
+    "background-color",
+    expected.background
+  );
+  await expect(locator, `${context}: role background must not be a gradient`).toHaveCSS(
+    "background-image",
+    "none"
+  );
+  const actual = await locator.evaluate((element) => getComputedStyle(element).backgroundColor);
+  expect(computedAlpha(actual), `${context}: expected opaque ${role} background, got ${actual}`).toBe(1);
+  const translucentAncestors = await locator.evaluate((element) => {
+    const ancestors: Array<{ element: string; opacity: number }> = [];
+    let current: Element | null = element;
+    while (current) {
+      const opacity = Number(getComputedStyle(current).opacity);
+      if (opacity < 1) ancestors.push({ element: current.tagName.toLowerCase(), opacity });
+      current = current.parentElement;
+    }
+    return ancestors;
+  });
+  expect(translucentAncestors, `${context}: opacity compositing is outside this contrast check`).toEqual([]);
+  if (expected.foreground) {
+    await expect(locator, `${context}: wait for exact ${foregroundRole} foreground`).toHaveCSS(
+      "color",
+      expected.foreground
+    );
+  }
+  return expected.background;
+}
+
 async function expectReadableForeground(locator: Locator, context: string) {
   const colors = await locator.evaluate((element, context) => {
     const alphaOf = (value: string): number => {
@@ -404,6 +477,14 @@ for (const viewport of [
           await page.goto(route);
           await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
           await expect(trigger).toBeVisible();
+          await page.mouse.move(0, 0);
+          await expect.poll(() => trigger.evaluate((element) => element.matches(":hover"))).toBe(false);
+          await expectOpaqueRoleBackground(
+            trigger,
+            "--jt-surface-chrome",
+            `${theme} ${route} resting Resources`,
+            "--jt-accent-foreground"
+          );
           evidence.push({ theme, route, state: "resting", ...(await expectReadableForeground(trigger, `${theme} ${route} resting Resources`)) });
           if (route === "/kana") {
             await test.info().attach(`${viewport.name}-${theme}-resources.png`, {
@@ -412,11 +493,29 @@ for (const viewport of [
             });
           }
           await trigger.hover();
+          await expectOpaqueRoleBackground(
+            trigger,
+            "--jt-action-tonal-hover",
+            `${theme} ${route} hovered Resources`,
+            "--jt-accent-foreground"
+          );
           evidence.push({ theme, route, state: "hovered", ...(await expectReadableForeground(trigger, `${theme} ${route} hovered Resources`)) });
           await page.mouse.down();
+          await expectOpaqueRoleBackground(
+            trigger,
+            "--jt-action-tonal-pressed",
+            `${theme} ${route} pressed Resources`,
+            "--jt-accent-foreground"
+          );
           evidence.push({ theme, route, state: "pressed", ...(await expectReadableForeground(trigger, `${theme} ${route} pressed Resources`)) });
           await page.mouse.up();
           await expect(page.getByRole("menu", { name: "資料" })).toBeVisible();
+          await expectOpaqueRoleBackground(
+            trigger,
+            "--jt-action-tonal-hover",
+            `${theme} ${route} open Resources`,
+            "--jt-accent-foreground"
+          );
           evidence.push({ theme, route, state: "open", ...(await expectReadableForeground(trigger, `${theme} ${route} open Resources`)) });
           await page.keyboard.press("Escape");
         }
@@ -442,6 +541,7 @@ test.describe("compact navigation chrome while scrolling", () => {
       await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
       await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
       const nav = appNavigation(page);
+      await expectOpaqueRoleBackground(nav, "--jt-surface-chrome", `${theme} scrolled compact navigation`);
       const chrome = await nav.evaluate((element) => {
         const style = getComputedStyle(element);
         const rect = element.getBoundingClientRect();
@@ -454,8 +554,7 @@ test.describe("compact navigation chrome while scrolling", () => {
           viewportHeight: window.innerHeight
         };
       });
-      expect(chrome.background).not.toMatch(/rgba?\([^)]*[,/]\s*0\s*\)/);
-      expect(chrome.background).not.toBe("transparent");
+      expect(computedAlpha(chrome.background), `${theme} compact bar alpha`).toBe(1);
       expect(chrome.borderTopWidth).toBe("1px");
       expect(chrome.borderTopStyle).toBe("solid");
       expect(chrome.position).toBe("fixed");
@@ -523,6 +622,12 @@ test.describe("legacy color compatibility contrast", () => {
       await page.getByRole("button", { name: /^基礎變化/ }).click();
       const selectedSegment = page.locator(".segmented button.selected").first();
       await expect(selectedSegment).toBeVisible();
+      await expectOpaqueRoleBackground(
+        selectedSegment,
+        "--jt-action-primary-background",
+        `${theme} selected practice segment`,
+        "--jt-action-primary-foreground"
+      );
       evidence.push({
         theme,
         route: "/challenge",
@@ -547,6 +652,17 @@ test.describe("legacy color compatibility contrast", () => {
       await choice.click();
       const answeredChoice = page.locator('.choice-option[data-selected="true"]');
       await expect(answeredChoice).toBeVisible();
+      const feedbackRole = await answeredChoice.evaluate((element) =>
+        element.classList.contains("correct")
+          ? "--feedback-correct-bg"
+          : "--feedback-incorrect-bg"
+      );
+      await expectOpaqueRoleBackground(
+        answeredChoice,
+        feedbackRole,
+        `${theme} selected answer feedback`,
+        "--jt-text-primary"
+      );
       evidence.push({
         theme,
         route: "/challenge",
@@ -577,6 +693,12 @@ test.describe("legacy color compatibility contrast", () => {
       const pause = page.getByRole("dialog", { name: "休息一下" });
       await expect(pause).toBeVisible();
       const primary = pause.locator(".focus-break-primary");
+      await expectOpaqueRoleBackground(
+        primary,
+        "--jt-action-primary-background",
+        `${theme} Focus break primary action`,
+        "--jt-action-primary-foreground"
+      );
       evidence.push({
         theme,
         route: "/",
@@ -598,6 +720,63 @@ for (const viewport of [
 ] as const) {
   test.describe(`session exit at ${viewport.name}`, () => {
     test.use({ viewport: { width: viewport.width, height: viewport.height } });
+
+    test("keeps the Today exit available when a normal basic filter matches no questions", async ({ page }) => {
+      const savedAttempt = {
+        questionId: "n1-grammar-yainaya",
+        vocabularyId: "n1-grammar-yainaya",
+        targetForm: "meaning",
+        prompt: "seed",
+        expectedAnswers: ["や否や"],
+        submittedAnswer: "x",
+        isCorrect: false,
+        timestamp: 1000,
+        responseTimeMs: 100
+      };
+      await page.addInitScript((attempt) => {
+        localStorage.setItem("jabiko:attempts", JSON.stringify([attempt]));
+      }, savedAttempt);
+      await page.goto("/challenge?mode=basic");
+      const n5Filter = page.getByRole("button", { name: "N5", exact: true });
+      await expect(n5Filter).toBeEnabled();
+      await n5Filter.click();
+      await n5Filter.click();
+
+      await expect(page.getByText("目前設定沒有可練習的題目。", { exact: true })).toBeVisible();
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+      const exit = page.getByRole("button", { name: "首頁", exact: true });
+      await expect(exit).toBeVisible();
+      const bounds = await exit.boundingBox();
+      expect(bounds).not.toBeNull();
+      expect(bounds!.y).toBeGreaterThanOrEqual(0);
+      expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height);
+      const storedProgress = await page.evaluate(() => localStorage.getItem("jabiko:attempts"));
+      const attempts = JSON.parse(storedProgress ?? "[]") as unknown[];
+      expect(attempts.length).toBeGreaterThan(0);
+
+      await exit.click();
+      await expect(page).toHaveURL(/\/$/);
+      await expect(page.getByRole("region", { name: "首頁" })).toBeVisible();
+      await expect.poll(() => page.evaluate(() => localStorage.getItem("jabiko:attempts"))).toBe(storedProgress);
+    });
+
+    test("exits by keyboard from revealed feedback without advancing or deleting the attempt", async ({ page }) => {
+      await page.goto("/challenge?mode=basic");
+      await page.getByRole("button", { name: "看答案", exact: true }).click();
+      await expect(page.locator(".feedback")).toBeVisible();
+      const storedProgress = await page.evaluate(() => localStorage.getItem("jabiko:attempts"));
+      const attempts = JSON.parse(storedProgress ?? "[]") as unknown[];
+      expect(attempts.length).toBeGreaterThan(0);
+
+      const exit = page.getByRole("button", { name: "首頁", exact: true });
+      await exit.focus();
+      await page.keyboard.press("Enter");
+
+      await expect(page).toHaveURL(/\/$/);
+      await expect(page.getByRole("region", { name: "首頁" })).toBeVisible();
+      await expect.poll(() => page.evaluate(() => localStorage.getItem("jabiko:attempts"))).toBe(storedProgress);
+    });
 
     test("keeps a direct Today exit visible during active endless practice", async ({ page }) => {
       const savedAttempt = {

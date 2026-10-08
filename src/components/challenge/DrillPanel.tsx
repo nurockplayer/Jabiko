@@ -170,6 +170,8 @@ export function DrillPanel({
       : feedback.status === "revealed"
         ? "revealed"
         : "wrong";
+  const showDirectExit =
+    Boolean(currentQuestion) || (!sessionExhausted && !reviewEmpty && !bookmarksEmpty);
 
   return (
     <section
@@ -182,12 +184,19 @@ export function DrillPanel({
       data-result={drillResult}
       data-expected-answer={feedback ? currentQuestion?.expectedAnswers.join(" / ") : undefined}
     >
+      {showDirectExit ? (
+        <button
+          className="session-exit"
+          type="button"
+          onClick={onExit}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <House aria-hidden="true" size={16} />
+          {t.home}
+        </button>
+      ) : null}
       {currentQuestion ? (
         <>
-          <button className="session-exit" type="button" onClick={onExit}>
-            <House aria-hidden="true" size={16} />
-            {t.home}
-          </button>
           <div className="prompt-header">
             <span>
               {sessionTotal != null
