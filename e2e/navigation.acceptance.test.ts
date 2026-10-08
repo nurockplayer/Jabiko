@@ -943,9 +943,9 @@ for (const viewport of [
         await expect(heading).toBeVisible();
         await expect(nav).toBeVisible();
         await expectOpaqueRoleBackground(
-          nav,
+          compact ? nav : heading,
           "--jt-surface-chrome",
-          `${viewport.name} ${theme} /kana shell navigation`
+          `${viewport.name} ${theme} /kana shell ${compact ? "navigation" : "header"}`
         );
         await expect(nav.getByRole("link")).toHaveCount(compact ? 4 : 5);
         if (compact) {
