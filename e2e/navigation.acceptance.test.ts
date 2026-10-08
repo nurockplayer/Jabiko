@@ -921,6 +921,51 @@ for (const viewport of [
   });
 }
 
+for (const viewport of [
+  { name: "320x640", width: 320, height: 640 },
+  { name: "1280x800", width: 1280, height: 800 }
+] as const) {
+  test.describe(`JT-1 shell evidence at ${viewport.name}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } });
+
+    test("captures the themed kana shell at the requested viewport size", async ({ page }) => {
+      const compact = viewport.width < 1024;
+      for (const theme of ["light", "dark"] as const) {
+        await page.goto("/");
+        await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+        await page.goto("/kana");
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        await expectRepresentativeRouteReady(page, "/kana");
+        await expectNoPageOverflow(page, `${viewport.name} ${theme} /kana shell`);
+
+        const heading = page.locator(".app-heading");
+        const nav = appNavigation(page);
+        await expect(heading).toBeVisible();
+        await expect(nav).toBeVisible();
+        await expectOpaqueRoleBackground(
+          nav,
+          "--jt-surface-chrome",
+          `${viewport.name} ${theme} /kana shell navigation`
+        );
+        await expect(nav.getByRole("link")).toHaveCount(compact ? 4 : 5);
+        if (compact) {
+          await expect(nav.locator(".nav-resources-compact")).toBeVisible();
+          await expect(nav.locator(".nav-resources-wide")).toBeHidden();
+        } else {
+          await expect(nav.locator(".nav-resources-wide")).toBeVisible();
+          await expect(nav.locator(".nav-resources-compact")).toBeHidden();
+        }
+
+        // Capture a synthetic static frame with finite transitions completed.
+        await test.info().attach(`${viewport.name}-${theme}-kana-shell.png`, {
+          body: await page.screenshot({ fullPage: false, animations: "disabled" }),
+          contentType: "image/png"
+        });
+      }
+    });
+  });
+}
+
 test.describe("route, breadcrumb, link, and history acceptance", () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
