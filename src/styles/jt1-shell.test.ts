@@ -5,6 +5,7 @@ const { readFileSync } = (await import(/* @vite-ignore */ nodeFsSpecifier)) as {
   readFileSync: (path: URL, encoding: "utf8") => string;
 };
 const css = readFileSync(new URL("./jt1-shell.css", import.meta.url), "utf8");
+const challengeCss = readFileSync(new URL("./challenge.css", import.meta.url), "utf8");
 
 describe("JT-1 shell contracts", () => {
   it("keeps the header and five-entry compact bar within the accepted geometry", () => {
@@ -60,6 +61,15 @@ describe("JT-1 shell contracts", () => {
     expect(css).toMatch(/\.app-shell \.jt1-primary-nav \.nav-more-trigger\.selected\s*\{[^}]*background:\s*var\(--jt-surface-chrome\)[^}]*border-bottom-color:\s*var\(--jt-accent-foreground\)[^}]*color:\s*var\(--jt-accent-foreground\)/s);
     expect(css).toMatch(/\.app-shell \.jt1-primary-nav \.nav-more-trigger\.selected:hover:not\(:disabled\)\s*\{[^}]*background:\s*var\(--jt-action-tonal-hover\)[^}]*color:\s*var\(--jt-accent-foreground\)/s);
     expect(css).toMatch(/\.app-shell \.jt1-primary-nav \.nav-more-trigger\.selected:active:not\(:disabled\)\s*\{[^}]*background:\s*var\(--jt-action-tonal-pressed\)[^}]*color:\s*var\(--jt-accent-foreground\)/s);
+  });
+
+  it("gives the session exit a solid accepted keyboard focus ring", () => {
+    const focusRule = challengeCss.match(/\.drill-panel \.session-exit:focus-visible\s*\{([^}]*)\}/s);
+    expect(focusRule).not.toBeNull();
+    const declarations = focusRule?.[1] ?? "";
+    expect(declarations).toMatch(/outline:\s*var\(--jt-focus-ring-width\) solid var\(--jt-focus-ring\)/);
+    expect(declarations).toMatch(/outline-offset:\s*var\(--jt-focus-ring-offset\)/);
+    expect(declarations).toMatch(/box-shadow:\s*none/);
   });
 
   it("keeps the fixed compact navigation opaque and separated from scrolled content", () => {

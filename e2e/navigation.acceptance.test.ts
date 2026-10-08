@@ -721,6 +721,109 @@ for (const viewport of [
   test.describe(`session exit at ${viewport.name}`, () => {
     test.use({ viewport: { width: viewport.width, height: viewport.height } });
 
+    test("uses the accepted solid keyboard focus ring in both themes", async ({ page }) => {
+      const evidence: Array<Record<string, string | number | boolean>> = [];
+      for (const theme of ["light", "dark"] as const) {
+        await page.goto("/");
+        await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+        await page.goto("/challenge?mode=basic");
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+
+        const exit = page.getByRole("button", { name: "首頁", exact: true });
+        await expect(exit).toBeVisible();
+        let reachedExitByTab = false;
+        for (let tabCount = 0; tabCount < 120; tabCount += 1) {
+          await page.keyboard.press("Tab");
+          if (await exit.evaluate((element) => element === document.activeElement)) {
+            reachedExitByTab = true;
+            break;
+          }
+        }
+        expect(reachedExitByTab, `${theme}: Today exit is reachable by keyboard Tab`).toBe(true);
+
+        const drillPanel = page.locator(".drill-panel");
+        await expect(drillPanel).toHaveCSS("opacity", "1");
+        const background = await expectOpaqueRoleBackground(
+          drillPanel,
+          "--jt-surface-content",
+          `${theme} session exit parent surface`
+        );
+        await expect(exit).toHaveCSS("box-shadow", "none");
+        const focusState = await exit.evaluate((element) => {
+          const probe = document.createElement("span");
+          probe.style.cssText = "position:fixed;visibility:hidden;pointer-events:none;color:var(--jt-focus-ring)";
+          element.append(probe);
+          const ringColor = getComputedStyle(probe).color;
+          probe.remove();
+          const style = getComputedStyle(element);
+          return {
+            visibleFocus: element.matches(":focus-visible"),
+            outlineColor: style.outlineColor,
+            outlineStyle: style.outlineStyle,
+            outlineWidth: style.outlineWidth,
+            outlineOffset: style.outlineOffset,
+            boxShadow: style.boxShadow,
+            ringColor,
+            parentBackground: getComputedStyle(element.parentElement!).backgroundColor
+          };
+        });
+        expect(focusState.visibleFocus).toBe(true);
+        expect(focusState.outlineColor).toBe(focusState.ringColor);
+        expect(computedAlpha(focusState.outlineColor)).toBe(1);
+        expect(focusState.outlineStyle).toBe("solid");
+        expect(focusState.outlineWidth).toBe("3px");
+        expect(focusState.outlineOffset).toBe("2px");
+        expect(focusState.boxShadow).toBe("none");
+        expect(focusState.parentBackground).toBe(background);
+        const exitBounds = await exit.boundingBox();
+        const panelBounds = await drillPanel.boundingBox();
+        expect(exitBounds).not.toBeNull();
+        expect(panelBounds).not.toBeNull();
+        const outlineExtent = 5;
+        expect(exitBounds!.x - outlineExtent).toBeGreaterThanOrEqual(0);
+        expect(exitBounds!.y - outlineExtent).toBeGreaterThanOrEqual(0);
+        expect(exitBounds!.x + exitBounds!.width + outlineExtent).toBeLessThanOrEqual(viewport.width);
+        expect(exitBounds!.y + exitBounds!.height + outlineExtent).toBeLessThanOrEqual(viewport.height);
+        expect(exitBounds!.x - outlineExtent).toBeGreaterThanOrEqual(panelBounds!.x);
+        expect(exitBounds!.y - outlineExtent).toBeGreaterThanOrEqual(panelBounds!.y);
+        expect(exitBounds!.x + exitBounds!.width + outlineExtent).toBeLessThanOrEqual(
+          panelBounds!.x + panelBounds!.width
+        );
+        expect(exitBounds!.y + exitBounds!.height + outlineExtent).toBeLessThanOrEqual(
+          panelBounds!.y + panelBounds!.height
+        );
+        const contrast =
+          (Math.max(relativeLuminance(parseRgb(focusState.outlineColor)), relativeLuminance(parseRgb(background))) + 0.05) /
+          (Math.min(relativeLuminance(parseRgb(focusState.outlineColor)), relativeLuminance(parseRgb(background))) + 0.05);
+        expect(contrast, `${theme} focus ring against drill surface`).toBeGreaterThanOrEqual(3);
+        await exit.hover();
+        await expect(exit).toHaveCSS("box-shadow", "none");
+        const hoverFocusState = await exit.evaluate((element) => {
+          const style = getComputedStyle(element);
+          return {
+            visibleFocus: element.matches(":focus-visible"),
+            outlineColor: style.outlineColor,
+            outlineStyle: style.outlineStyle,
+            outlineWidth: style.outlineWidth,
+            outlineOffset: style.outlineOffset,
+            boxShadow: style.boxShadow
+          };
+        });
+        expect(hoverFocusState.visibleFocus).toBe(true);
+        expect(hoverFocusState.outlineColor).toBe(focusState.ringColor);
+        expect(computedAlpha(hoverFocusState.outlineColor)).toBe(1);
+        expect(hoverFocusState.outlineStyle).toBe("solid");
+        expect(hoverFocusState.outlineWidth).toBe("3px");
+        expect(hoverFocusState.outlineOffset).toBe("2px");
+        expect(hoverFocusState.boxShadow).toBe("none");
+        evidence.push({ theme, ...focusState, parentBackground: background, contrast: Number(contrast.toFixed(2)) });
+      }
+      await test.info().attach(`${viewport.name}-session-exit-focus-ring.json`, {
+        body: JSON.stringify(evidence, null, 2),
+        contentType: "application/json"
+      });
+    });
+
     test("keeps the Today exit available when a normal basic filter matches no questions", async ({ page }) => {
       const savedAttempt = {
         questionId: "n1-grammar-yainaya",

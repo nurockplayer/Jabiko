@@ -55,6 +55,12 @@
   color: var(--jt-text-primary);
 }
 
+.drill-panel .session-exit:focus-visible {
+  box-shadow: none;
+  outline: var(--jt-focus-ring-width) solid var(--jt-focus-ring);
+  outline-offset: var(--jt-focus-ring-offset);
+}
+
 .brand-lockup svg {
   color: var(--teal);
   height: 2rem;
