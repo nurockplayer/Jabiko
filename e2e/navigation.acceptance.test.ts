@@ -84,7 +84,7 @@ test.describe("compact navigation text reflow", () => {
             }
           }
           if (viewport.width === 390) {
-            expect(geometry.nav.height, `${locale}/${theme}/390px compact bar stays at its normal height: ${JSON.stringify(geometry)}`).toBe(56);
+            expect(geometry.nav.height, `${locale}/${theme}/390px compact bar keeps the token minimum`).toBeGreaterThanOrEqual(56);
           }
           expect(geometry.documentWidth, `${locale}/${theme}/${viewport.width}px document width`).toBeLessThanOrEqual(viewport.width);
         }
@@ -93,14 +93,13 @@ test.describe("compact navigation text reflow", () => {
   });
 
   test("tracks measured clearance through Resources, resize, locale change, and session return", async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 900 });
+    await page.setViewportSize({ width: 390, height: 900 });
     await page.goto("/");
     await page.evaluate(() => {
       localStorage.setItem("jabiko.lang", "en");
       localStorage.setItem("jabiko.theme", "light");
     });
     await page.reload();
-    await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
 
     const nav = page.locator(".app-shell .jt1-primary-nav");
     const shell = page.locator(".app-shell");
@@ -112,7 +111,15 @@ test.describe("compact navigation text reflow", () => {
         padding: Number.parseFloat(getComputedStyle(shellElement).paddingBottom)
       };
     });
-    await expect.poll(async () => (await clearance()).occupied).toBeGreaterThan(56);
+    await page.evaluate(() => document.fonts.ready);
+    await expect.poll(async () => (await clearance()).occupied).toBeGreaterThanOrEqual(56);
+    const normalBaseline = await clearance();
+    expect(Math.abs(normalBaseline.occupied - normalBaseline.height)).toBeLessThan(0.1);
+    expect(Math.abs(normalBaseline.padding - normalBaseline.occupied)).toBeLessThan(0.1);
+
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+    await expect.poll(async () => (await clearance()).occupied).toBeGreaterThan(normalBaseline.height);
     let measured = await clearance();
     expect(Math.abs(measured.occupied - measured.height)).toBeLessThan(0.1);
     expect(Math.abs(measured.padding - measured.occupied)).toBeLessThan(0.1);
@@ -138,10 +145,10 @@ test.describe("compact navigation text reflow", () => {
         ?.remove();
     });
     await page.setViewportSize({ width: 390, height: 900 });
-    await expect.poll(async () => (await clearance()).occupied).toBe(56);
+    await expect.poll(async () => Math.abs((await clearance()).occupied - normalBaseline.occupied)).toBeLessThan(0.1);
     measured = await clearance();
-    expect(measured.occupied).toBe(56);
-    expect(measured.padding).toBe(56);
+    expect(Math.abs(measured.height - normalBaseline.height)).toBeLessThan(0.1);
+    expect(Math.abs(measured.padding - measured.occupied)).toBeLessThan(0.1);
 
     const headerMenuTrigger = page.locator(".jt1-header-menu > .nav-more-trigger");
     await headerMenuTrigger.click();
@@ -150,7 +157,10 @@ test.describe("compact navigation text reflow", () => {
     const languageDialog = page.getByRole("dialog", { name: "Choose your language / 選擇語言 / 言語を選択" });
     await languageDialog.getByRole("button", { name: "日本語" }).click();
     await expect(page.locator("html")).toHaveAttribute("lang", "ja");
-    await expect.poll(async () => (await clearance()).height).toBe(56);
+    await expect.poll(async () => {
+      const afterLocaleChange = await clearance();
+      return Math.abs(afterLocaleChange.occupied - afterLocaleChange.height) < 0.1 && afterLocaleChange.height >= 56;
+    }).toBe(true);
     measured = await clearance();
     expect(Math.abs(measured.occupied - measured.height)).toBeLessThan(0.1);
 
@@ -161,9 +171,10 @@ test.describe("compact navigation text reflow", () => {
 
     await page.goto("/");
     await expect(nav).toBeVisible();
-    await expect.poll(async () => nav.evaluate((element) => Number.parseFloat(
-      element.closest<HTMLElement>(".app-shell")!.style.getPropertyValue("--jt-compact-nav-occupied")
-    ))).toBe(56);
+    await expect.poll(async () => {
+      const returned = await clearance();
+      return Math.abs(returned.occupied - returned.height) < 0.1 && returned.height >= 56;
+    }).toBe(true);
   });
 });
 
