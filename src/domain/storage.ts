@@ -10,7 +10,8 @@ export interface AttemptStore {
   list: () => Attempt[];
   add: (attempt: Attempt) => void;
   replace: (attempts: Attempt[]) => void;
-  clear: () => void;
+  // True only when persistent storage confirms the attempts key is absent.
+  clear: () => boolean;
 }
 
 const ATTEMPTS_KEY = "jabiko:attempts";
@@ -56,15 +57,23 @@ export function createAttemptStore(storage: StorageLike | null = browserStorage(
     clear: () => {
       memory = [];
 
-      if (!storage || useMemory) {
-        return;
+      if (!storage) {
+        return false;
       }
 
       try {
         storage.removeItem(ATTEMPTS_KEY);
+        if (storage.getItem(ATTEMPTS_KEY) === null) {
+          // Storage may have recovered after an earlier read/write failure.
+          // Re-enable persistence now that absence is confirmed.
+          useMemory = false;
+          return true;
+        }
       } catch {
-        useMemory = true;
+        // Keep memory empty, but let the caller retain the pending marker.
       }
+      useMemory = true;
+      return false;
     }
   };
 }
