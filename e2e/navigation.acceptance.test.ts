@@ -12,6 +12,70 @@ const viewportMatrix = [
 
 const representativeRoutes = ["/", "/grammar/n5", "/kana", "/privacy", "/terms"] as const;
 
+test.describe("World home entry reflow", () => {
+  test("keeps the existing World CTA and home text within responsive viewport bounds", async ({ page }) => {
+    for (const locale of ["zh-Hant", "ja", "en"] as const) {
+      for (const theme of ["light", "dark"] as const) {
+        for (const viewport of [
+          { width: 320, rootFontPercent: 200 },
+          { width: 390, rootFontPercent: 100 },
+          { width: 1440, rootFontPercent: 100 }
+        ]) {
+          await page.setViewportSize({ width: viewport.width, height: 900 });
+          await page.goto("/");
+          await page.evaluate(({ storedLocale, storedTheme }) => {
+            localStorage.setItem("jabiko.lang", storedLocale);
+            localStorage.setItem("jabiko.theme", storedTheme);
+          }, { storedLocale: locale, storedTheme: theme });
+          await page.reload();
+          await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+          if (viewport.rootFontPercent !== 100) {
+            await page.addStyleTag({ content: `:root { font-size: ${viewport.rootFontPercent}% !important; }` });
+          }
+
+          const entry = page.locator(".home-game-preview-entry");
+          await expect(entry).toHaveAttribute("href", "/game");
+          await expect(entry).toBeVisible();
+          const label = entry.locator(".home-game-preview-label");
+          const hint = entry.locator(".home-game-preview-copy");
+          const arrow = entry.locator("svg");
+          await expect(label).toBeVisible();
+          await expect(hint).toBeVisible();
+          await expect(arrow).toBeVisible();
+          const geometry = await entry.evaluate((element) => {
+            const rect = element.getBoundingClientRect();
+            const labelElement = element.querySelector<HTMLElement>(".home-game-preview-label")!;
+            const hintElement = element.querySelector<HTMLElement>(".home-game-preview-copy")!;
+            const arrowElement = element.querySelector<SVGElement>("svg")!;
+            const box = (target: Element) => {
+              const { left, right, top, bottom } = target.getBoundingClientRect();
+              return { left, right, top, bottom };
+            };
+            return {
+              entry: { left: rect.left, right: rect.right, height: rect.height },
+              label: box(labelElement),
+              hint: box(hintElement),
+              arrow: box(arrowElement),
+              viewport: window.innerWidth,
+              document: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth)
+            };
+          });
+          expect(geometry.entry.left, `${locale} ${theme} ${viewport.width}px entry left`).toBeGreaterThanOrEqual(0);
+          expect(geometry.entry.right, `${locale} ${theme} ${viewport.width}px entry right`).toBeLessThanOrEqual(viewport.width);
+          expect(geometry.entry.height, `${locale} ${theme} ${viewport.width}px entry target height`).toBeGreaterThanOrEqual(44);
+          expect(geometry.label.left).toBeGreaterThanOrEqual(geometry.entry.left);
+          expect(geometry.label.right).toBeLessThanOrEqual(geometry.entry.right);
+          expect(geometry.hint.left).toBeGreaterThanOrEqual(geometry.entry.left);
+          expect(geometry.hint.right).toBeLessThanOrEqual(geometry.entry.right);
+          expect(geometry.arrow.left).toBeGreaterThanOrEqual(geometry.entry.left);
+          expect(geometry.arrow.right).toBeLessThanOrEqual(geometry.entry.right);
+          expect(geometry.document, `${locale} ${theme} ${viewport.width}px document`).toBeLessThanOrEqual(geometry.viewport);
+        }
+      }
+    }
+  });
+});
+
 test.describe("Home share row reflow", () => {
   test("keeps all four share actions visible, in-bounds, and non-overlapping across scales and themes", async ({ page }) => {
     for (const theme of ["light", "dark"] as const) {

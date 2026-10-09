@@ -533,8 +533,10 @@
   border: 1px solid var(--jt-border-subtle);
   color: var(--jt-text-primary);
   display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
   min-height: 44px;
+  max-width: 100%;
   padding: 0.65rem 0.9rem;
   text-decoration: none;
   width: fit-content;
@@ -550,6 +552,7 @@
 }
 
 .home-game-preview-entry svg {
+  flex-shrink: 0;
   height: 1rem;
   width: 1rem;
 }
@@ -1202,6 +1205,12 @@
   color: var(--teal-dark);
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+.home-card h2,
+.home-card p,
+.home-card-meta {
+  overflow-wrap: anywhere;
 }
 
 .home-card-arrow {
