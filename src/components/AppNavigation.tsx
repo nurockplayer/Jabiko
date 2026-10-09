@@ -13,7 +13,7 @@ import {
   Type,
   type LucideIcon
 } from "lucide-react";
-import type { MouseEvent } from "react";
+import { useEffect, useRef, type MouseEvent } from "react";
 import { APP_VIEW_PATHS } from "../domain/routes";
 import type {
   NavigationIcon,
@@ -94,6 +94,37 @@ export function AppNavigation({
   resourcesCurrentLabel: (page: string) => string;
   onSelect: (id: NavigationId) => void;
 }) {
+  const navigationRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const navigationElement = navigationRef.current;
+    const shell = navigationElement?.closest<HTMLElement>(".app-shell");
+    if (!navigationElement || !shell || typeof ResizeObserver === "undefined") return;
+
+    const publishOccupiedHeight = (height: number) => {
+      if (!Number.isFinite(height) || height <= 0) {
+        shell.style.removeProperty("--jt-compact-nav-occupied");
+        return;
+      }
+      const value = `${height}px`;
+      if (shell.style.getPropertyValue("--jt-compact-nav-occupied") !== value) {
+        shell.style.setProperty("--jt-compact-nav-occupied", value);
+      }
+    };
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries.find(({ target }) => target === navigationElement);
+      if (!entry) return;
+      const borderBox = Array.isArray(entry.borderBoxSize) ? entry.borderBoxSize[0] : entry.borderBoxSize;
+      publishOccupiedHeight(borderBox?.blockSize ?? navigationElement.getBoundingClientRect().height);
+    });
+
+    observer.observe(navigationElement, { box: "border-box" });
+    return () => {
+      observer.disconnect();
+      shell.style.removeProperty("--jt-compact-nav-occupied");
+    };
+  }, []);
+
   const grammarEntry = navigation.primary.find((entry) => entry.id === "grammar");
   const compactResourceEntries = grammarEntry
     ? [grammarEntry, ...navigation.resources]
@@ -102,7 +133,7 @@ export function AppNavigation({
   const compactResourceItems = menuItems(compactResourceEntries, labels, onSelect);
 
   return (
-    <nav className="view-switch segmented jt1-navigation jt1-primary-nav" aria-label={ariaLabel}>
+    <nav ref={navigationRef} className="view-switch segmented jt1-navigation jt1-primary-nav" aria-label={ariaLabel}>
       {navigation.primary.map((entry) => {
         const Icon = ICONS[entry.icon];
         return (
