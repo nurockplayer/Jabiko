@@ -33,6 +33,31 @@ test.describe("World home entry reflow", () => {
             await page.addStyleTag({ content: `:root { font-size: ${viewport.rootFontPercent}% !important; }` });
           }
 
+          const options = page.locator(".home-level-card-options .home-level-option");
+          await expect(options).toHaveCount(5);
+          const optionLabels = await options.evaluateAll((elements) => elements.map((element) => {
+            const label = element.querySelector("strong")!;
+            const control = element.getBoundingClientRect();
+            const range = document.createRange();
+            range.selectNodeContents(label);
+            const text = range.getBoundingClientRect();
+            return {
+              text: label.textContent?.trim() ?? "",
+              control: { left: control.left, right: control.right, top: control.top, bottom: control.bottom },
+              label: { left: text.left, right: text.right, top: text.top, bottom: text.bottom }
+            };
+          }));
+          for (const [index, option] of optionLabels.entries()) {
+            expect(option.label.left, `${locale} ${theme} ${viewport.width}px ${option.text} label left: ${JSON.stringify(option)}`).toBeGreaterThanOrEqual(option.control.left);
+            expect(option.label.right, `${locale} ${theme} ${viewport.width}px ${option.text} label right`).toBeLessThanOrEqual(option.control.right);
+            expect(option.label.top, `${locale} ${theme} ${viewport.width}px ${option.text} label top`).toBeGreaterThanOrEqual(option.control.top);
+            expect(option.label.bottom, `${locale} ${theme} ${viewport.width}px ${option.text} label bottom`).toBeLessThanOrEqual(option.control.bottom);
+            for (const other of optionLabels.slice(index + 1)) {
+              const overlaps = option.label.left < other.label.right && option.label.right > other.label.left && option.label.top < other.label.bottom && option.label.bottom > other.label.top;
+              expect(overlaps, `${locale} ${theme} ${viewport.width}px level labels ${option.text} and ${other.text} do not overlap`).toBe(false);
+            }
+          }
+
           const entry = page.locator(".home-game-preview-entry");
           await expect(entry).toHaveAttribute("href", "/game");
           await expect(entry).toBeVisible();

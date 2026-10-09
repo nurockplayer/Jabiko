@@ -1290,6 +1290,10 @@
   padding: 0.7rem 0.5rem;
 }
 
+.home-level-option strong {
+  overflow-wrap: anywhere;
+}
+
 .home-level-option small {
   color: var(--muted);
   font-size: 0.8rem;
