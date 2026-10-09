@@ -1,0 +1,15 @@
+{
+  "file": {
+    "name": "Jabiko — Tachiko Design Authority",
+    "key": null,
+    "url": null
+  },
+  "status": "JT-1 CANDIDATE",
+  "visualLimit": 0.05,
+  "summary": {
+    "frames": "95/95",
+    "live": "95 frames read back",
+    "failures": 0
+  },
+  "failures": []
+}

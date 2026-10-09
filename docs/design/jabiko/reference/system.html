@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jabiko JT-1 · Shell, menu and system states</title>
+<link rel="stylesheet" href="jabiko.css">
+<style>
+  /* Board-local layout (DESIGN.md §7.10–7.12). */
+  .menu { top: 52px; right: max(8px, calc(var(--jt-gutter) - 8px)); }
+  @media (max-width: 599px) { .menu { left: 8px; right: 8px; width: auto; } }
+  .account { display: grid; gap: 8px; padding: 8px 10px 12px; }
+  .account-name { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+  .account-name .jt-monogram { width: 32px; height: 32px; font-family: var(--jt-font-ui); font-size: 14px; }
+  .sync { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; line-height: 16px; color: var(--jt-status-success-ink); }
+  .backdrop-page { opacity: 1; }
+  .break { min-height: calc(100vh - var(--jt-bar-h)); background: var(--jt-surface-chrome); }
+  .break-inner { max-width: 560px; margin: 0 auto; padding: 48px var(--jt-gutter); display: grid; gap: 16px; }
+  .clock { font-size: 72px; line-height: 80px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .ad-slot { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--jt-border-subtle); }
+  .ad-slot .jt-label { display: block; margin-bottom: 8px; }
+  .ad-box { height: 120px; border: 1px dashed var(--jt-border-control); border-radius: var(--jt-radius-control); display: grid; place-items: center; font-size: 12px; color: var(--jt-text-secondary); }
+  @media (max-width: 599px) { .clock { font-size: 56px; line-height: 64px; } .break-inner { padding-top: 32px; } }
+</style>
+</head>
+<body>
+<div class="jt-app">
+  <div id="chrome-top" data-state="menu-guest menu-user language delete focus-config offline update feedback route-error"></div>
+  <div data-state="offline">
+    <div class="jt-notice jt-notice-warning" role="status" style="border-radius:0;padding-left:var(--jt-gutter);padding-right:var(--jt-gutter)"><i data-icon="offline"></i><span>目前離線。練習、文型與資料仍可使用；作答會先存在這台裝置，連線後再同步。</span></div>
+  </div>
+  <header class="jt-header" data-state="focus-break">
+    <span class="jt-brand"><span class="jt-appmark" id="mark-slot"></span><span class="jt-brand-word">Jabiko</span><span class="jt-brand-product">專注模式</span></span>
+    <div class="jt-header-tools"><button class="jt-btn jt-btn-quiet" type="button">結束專注模式</button></div>
+  </header>
+
+  <main class="jt-main" id="main" data-state="menu-guest menu-user language delete focus-config offline update feedback">
+    <div class="jt-layout-single">
+      <header class="jt-pagehead">
+        <p class="jt-kicker">今日練習</p>
+        <h1 class="jt-h1">先複習 3 題，再練 20 題</h1>
+        <p class="jt-desc">弱點複習 3 → 混合 20 · 文法・語順・漢字読み</p>
+      </header>
+      <div class="jt-actions"><a class="jt-btn jt-btn-primary jt-btn-lg" href="#">開始今日練習</a></div>
+    </div>
+  </main>
+
+  <!-- ===== Route error ===== -->
+  <main class="jt-main" data-state="route-error">
+    <div class="jt-layout-single">
+      <h1 class="jt-h1">這一頁沒有順利打開</h1>
+      <div class="jt-notice jt-notice-error" role="alert" style="margin-top:16px"><i data-icon="error"></i><div>可能是剛更新版本，或暫存的檔案過期了。你的作答紀錄不會受影響。</div></div>
+      <div class="jt-actions jt-actions-stack" style="margin-top:16px">
+        <button class="jt-btn jt-btn-primary" type="button"><i data-icon="refresh"></i>重新整理</button>
+        <button class="jt-btn" type="button">清除快取後重載</button>
+        <a class="jt-btn jt-btn-quiet" href="today.html">回首頁</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== Focus break ===== -->
+  <main class="break" data-state="focus-break" aria-labelledby="break-h">
+    <div class="break-inner">
+      <p class="jt-kicker">專注模式 · 第 2 輪</p>
+      <h1 class="jt-h1" id="break-h">休息一下</h1>
+      <p class="clock" role="timer" aria-label="休息剩下 4 分 32 秒">4:32</p>
+      <p class="jt-secondary">起來走一走、喝口水。休息結束會提醒你。</p>
+      <dl class="jt-readouts-inline">
+        <div class="jt-readout"><dt>本次專注</dt><dd class="jt-num">25 分</dd></div>
+        <div class="jt-readout"><dt>作答</dt><dd class="jt-num">32 題</dd></div>
+        <div class="jt-readout"><dt>正確率</dt><dd class="jt-num">84%</dd></div>
+        <div class="jt-readout"><dt>今日累計</dt><dd class="jt-num">50 分</dd></div>
+      </dl>
+      <div class="jt-actions jt-actions-stack" style="margin-top:8px">
+        <button class="jt-btn jt-btn-primary jt-btn-lg" type="button">開始下一輪</button>
+        <button class="jt-btn jt-btn-quiet jt-btn-lg" type="button">略過休息</button>
+      </div>
+      <div class="ad-slot"><span class="jt-label">廣告</span><div class="ad-box">只在 docs/adsense.md 全部條件成立時存在；否則這一區不出現</div></div>
+    </div>
+  </main>
+
+  <!-- ===== Menu ===== -->
+  <div data-state="menu-guest menu-user">
+    <div class="jt-menu menu" role="menu" aria-label="選單與設定">
+      <div class="jt-menu-group">
+        <div class="account" data-state="menu-guest"><p class="jt-secondary" style="font-size:14px">作答紀錄存在這台裝置。登入後可以在其他裝置同步。</p><button class="jt-btn jt-btn-primary" type="button" role="menuitem">使用 Google 登入</button></div>
+        <div class="account" data-state="menu-user"><span class="account-name"><span class="jt-monogram">T</span>tachiko</span><span class="sync"><i data-icon="check" class="jt-icon-sm"></i>已同步 · 2 分鐘前</span></div>
+      </div>
+      <div class="jt-menu-group">
+        <button class="jt-menu-item" role="menuitem" type="button"><i data-icon="globe"></i>介面語言<span class="jt-menu-item-value">繁體中文</span></button>
+        <div class="jt-menu-item" style="cursor:default"><i data-icon="moon"></i>外觀<span style="margin-left:auto" class="jt-segmented" role="radiogroup" aria-label="外觀"><button role="radio" aria-checked="true">淺色</button><button role="radio" aria-checked="false">深色</button></span></div>
+        <button class="jt-menu-item" role="menuitem" type="button"><i data-icon="timer"></i>專注模式</button>
+      </div>
+      <div class="jt-menu-group">
+        <a class="jt-menu-item" role="menuitem" href="world.html"><i data-icon="world"></i>日常世界<span class="jt-menu-item-value">預覽</span></a>
+        <button class="jt-menu-item" role="menuitem" type="button"><i data-icon="message"></i>意見回饋</button>
+        <a class="jt-menu-item" role="menuitem" href="#"><i data-icon="info"></i>關於 Jabiko</a>
+        <a class="jt-menu-item" role="menuitem" href="#"><i data-icon="external"></i>合作夥伴</a>
+      </div>
+      <div class="jt-menu-group" data-state="menu-user">
+        <button class="jt-menu-item" role="menuitem" type="button"><i data-icon="user"></i>登出</button>
+        <button class="jt-menu-item jt-menu-item-danger" role="menuitem" type="button"><i data-icon="trash"></i>刪除練習紀錄…</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Language ===== -->
+  <div data-state="language">
+    <div class="jt-scrim"></div>
+    <div class="jt-dialog" role="dialog" aria-modal="true" aria-labelledby="lang-h" data-sheet>
+      <div class="jt-dialog-head"><h2 class="jt-dialog-title" id="lang-h">介面語言</h2><button class="jt-iconbtn" type="button" aria-label="關閉" style="margin:-10px -10px 0 0"><i data-icon="close"></i></button></div>
+      <div role="radiogroup" aria-labelledby="lang-h" style="display:grid;gap:2px">
+        <button class="jt-choice" role="radio" aria-checked="true" type="button"><span class="jt-radio"></span>繁體中文<span class="jt-choice-code">zh-Hant</span></button>
+        <button class="jt-choice" role="radio" aria-checked="false" type="button" lang="ja"><span class="jt-radio"></span>日本語<span class="jt-choice-code">ja</span></button>
+        <button class="jt-choice" role="radio" aria-checked="false" type="button" lang="en"><span class="jt-radio"></span>English<span class="jt-choice-code">en</span></button>
+      </div>
+      <p class="jt-meta">只改變介面文字；日文學習內容不變。</p>
+    </div>
+  </div>
+
+  <!-- ===== Delete history ===== -->
+  <div data-state="delete">
+    <div class="jt-scrim"></div>
+    <div class="jt-dialog" role="alertdialog" aria-modal="true" aria-labelledby="del-h" aria-describedby="del-d">
+      <div class="jt-dialog-head"><h2 class="jt-dialog-title" id="del-h">刪除練習紀錄</h2></div>
+      <p id="del-d">這會刪除此帳號已同步的練習作答紀錄，並清除此裝置的練習紀錄與弱點／複習進度。帳號、收藏、語言與外觀設定不會刪除，此操作不可復原。</p>
+      <label class="jt-check"><span class="jt-checkbox"><input type="checkbox" value="" checked><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>我了解此操作不可復原</label>
+      <div class="jt-dialog-actions"><button class="jt-btn" type="button">取消</button><button class="jt-btn jt-btn-danger jt-btn-solid" type="button">刪除</button></div>
+    </div>
+  </div>
+
+  <!-- ===== Focus config ===== -->
+  <div data-state="focus-config">
+    <div class="jt-scrim"></div>
+    <div class="jt-dialog" role="dialog" aria-modal="true" aria-labelledby="fc-h" data-sheet>
+      <div class="jt-dialog-head"><h2 class="jt-dialog-title" id="fc-h">專注模式</h2><button class="jt-iconbtn" type="button" aria-label="關閉" style="margin:-10px -10px 0 0"><i data-icon="close"></i></button></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="jt-field"><label for="fm">專注時間（分）</label><input class="jt-input jt-num" id="fm" inputmode="numeric" value="25"></div>
+        <div class="jt-field"><label for="bm">休息時間（分）</label><input class="jt-input jt-num" id="bm" inputmode="numeric" value="5"></div>
+      </div>
+      <p class="jt-meta">專注期間不顯示任何廣告。</p>
+      <div class="jt-dialog-actions"><button class="jt-btn" type="button">取消</button><button class="jt-btn jt-btn-primary" type="button">開始</button></div>
+    </div>
+  </div>
+
+  <!-- ===== Feedback form ===== -->
+  <div data-state="feedback">
+    <div class="jt-scrim"></div>
+    <div class="jt-dialog" role="dialog" aria-modal="true" aria-labelledby="fb-h" data-sheet>
+      <div class="jt-dialog-head"><h2 class="jt-dialog-title" id="fb-h">意見回饋</h2><button class="jt-iconbtn" type="button" aria-label="關閉" style="margin:-10px -10px 0 0"><i data-icon="close"></i></button></div>
+      <div class="jt-segmented" role="radiogroup" aria-label="類型" style="justify-self:start"><button role="radio" aria-checked="true">許願功能</button><button role="radio" aria-checked="false">回報問題</button><button role="radio" aria-checked="false">其他</button></div>
+      <div class="jt-field"><label for="fbt">想說的話（匿名）</label><textarea class="jt-textarea" id="fbt" aria-invalid="true" aria-describedby="fbe">希望可以設定每天提醒的時間。</textarea>
+        <p class="jt-field-error" id="fbe"><i data-icon="error" class="jt-icon-sm"></i>沒有送出，網路好像中斷了。你寫的內容還在。</p></div>
+      <div class="jt-dialog-actions"><button class="jt-btn" type="button">取消</button><button class="jt-btn jt-btn-primary" type="button">再試一次</button></div>
+    </div>
+  </div>
+
+  <!-- ===== Update toast ===== -->
+  <div data-state="update"><div class="jt-toast" role="status"><span>有新版本可用。</span><button class="jt-btn" type="button">更新</button></div></div>
+
+  <div id="chrome-bottom" data-state="menu-guest menu-user language delete focus-config offline update feedback route-error"></div>
+</div>
+<script type="module">
+  import { boot, BRAND_MARK } from "./harness.js";
+  boot({ current: "today", defaultState: "menu-guest" });
+  const slot = document.getElementById("mark-slot");
+  if (slot) slot.innerHTML = BRAND_MARK;
+</script>
+</body>
+</html>
