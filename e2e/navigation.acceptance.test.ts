@@ -174,6 +174,42 @@ test.describe("World home entry reflow", () => {
           await expect(dailyTitle).toBeVisible();
           expect(dailyBounds.title.left, `${locale} ${theme} ${viewport.width}px daily title left: ${JSON.stringify(dailyBounds)}`).toBeGreaterThanOrEqual(dailyBounds.button.left);
           expect(dailyBounds.title.right, `${locale} ${theme} ${viewport.width}px daily title right: ${JSON.stringify(dailyBounds)}`).toBeLessThanOrEqual(dailyBounds.button.right);
+          const conjugationLaunch = page.locator(".home-conjugation-launch");
+          const conjugationBounds = await conjugationLaunch.evaluate((element) => {
+            const button = element.getBoundingClientRect();
+            const title = element.querySelector<HTMLElement>("span strong")!;
+            const support = element.querySelector<HTMLElement>("span small")!;
+            const rangeBounds = (target: Element) => {
+              const range = document.createRange();
+              range.selectNodeContents(target);
+              const rect = range.getBoundingClientRect();
+              return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
+            };
+            const icons = [...element.querySelectorAll<SVGElement>("svg")].map((icon) => {
+              const rect = icon.getBoundingClientRect();
+              return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
+            });
+            return {
+              button: { left: button.left, right: button.right, top: button.top, bottom: button.bottom },
+              title: rangeBounds(title),
+              support: rangeBounds(support),
+              icons
+            };
+          });
+          expect(conjugationBounds.title.left, `${locale} ${theme} ${viewport.width}px conjugation title left: ${JSON.stringify(conjugationBounds)}`).toBeGreaterThanOrEqual(conjugationBounds.button.left);
+          expect(conjugationBounds.title.right, `${locale} ${theme} ${viewport.width}px conjugation title right: ${JSON.stringify(conjugationBounds)}`).toBeLessThanOrEqual(conjugationBounds.button.right);
+          expect(conjugationBounds.support.left).toBeGreaterThanOrEqual(conjugationBounds.button.left);
+          expect(conjugationBounds.support.right, `${locale} ${theme} ${viewport.width}px conjugation support right: ${JSON.stringify(conjugationBounds)}`).toBeLessThanOrEqual(conjugationBounds.button.right);
+          const textRows = [conjugationBounds.title, conjugationBounds.support];
+          for (const text of textRows) {
+            for (const icon of conjugationBounds.icons) {
+              const overlaps = text.left < icon.right && text.right > icon.left && text.top < icon.bottom && text.bottom > icon.top;
+              expect(overlaps, `${locale} ${theme} ${viewport.width}px conjugation text and icon do not overlap`).toBe(false);
+            }
+          }
+          const titleSupportOverlap = conjugationBounds.title.left < conjugationBounds.support.right && conjugationBounds.title.right > conjugationBounds.support.left && conjugationBounds.title.top < conjugationBounds.support.bottom && conjugationBounds.title.bottom > conjugationBounds.support.top;
+          expect(titleSupportOverlap, `${locale} ${theme} ${viewport.width}px conjugation title and support do not overlap`).toBe(false);
+
           const documentFailure = `${locale} ${theme} ${viewport.width}px document ${geometry.document}px > ${geometry.viewport}px; overflow=${JSON.stringify(geometry.overflowDiagnostics)}`;
           if (geometry.document > geometry.viewport) console.error(`[World home entry reflow] ${documentFailure}`);
           expect(geometry.document, documentFailure).toBeLessThanOrEqual(geometry.viewport);

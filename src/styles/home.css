@@ -679,6 +679,33 @@
   font-weight: 400;
 }
 
+@media (max-width: 360px) {
+  .home-conjugation-launch {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .home-conjugation-launch > span {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .home-conjugation-launch > svg:first-child {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .home-conjugation-launch > svg:last-child {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .home-conjugation-launch > span strong,
+  .home-conjugation-launch > span small {
+    overflow-wrap: anywhere;
+  }
+}
+
 .home-banner-text {
   display: flex;
   flex-direction: column;
