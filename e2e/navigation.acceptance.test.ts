@@ -12,6 +12,46 @@ const viewportMatrix = [
 
 const representativeRoutes = ["/", "/grammar/n5", "/kana", "/privacy", "/terms"] as const;
 
+test.describe("Home share row reflow", () => {
+  test("keeps all four share actions visible, in-bounds, and non-overlapping across scales and themes", async ({ page }) => {
+    for (const theme of ["light", "dark"] as const) {
+      for (const viewport of [
+        { width: 320, rootFontPercent: 200 },
+        { width: 390, rootFontPercent: 100 },
+        { width: 1440, rootFontPercent: 100 }
+      ]) {
+        await page.setViewportSize({ width: viewport.width, height: 900 });
+        await page.goto("/");
+        await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+        await page.reload();
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        if (viewport.rootFontPercent !== 100) {
+          await page.addStyleTag({ content: `:root { font-size: ${viewport.rootFontPercent}% !important; }` });
+        }
+
+        const actions = page.locator(".home-footer-share .share-btn");
+        await expect(actions).toHaveCount(4);
+        await expect(actions.first()).toBeVisible();
+        const measurements = await actions.evaluateAll((elements) => elements.map((element) => {
+          const rect = element.getBoundingClientRect();
+          return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height };
+        }));
+        expect(measurements).toHaveLength(4);
+        for (const [index, rect] of measurements.entries()) {
+          expect(rect.left, `${theme} ${viewport.width}px share action ${index} left`).toBeGreaterThanOrEqual(0);
+          expect(rect.right, `${theme} ${viewport.width}px share action ${index} right`).toBeLessThanOrEqual(viewport.width);
+          expect(rect.height, `${theme} ${viewport.width}px share action ${index} target height`).toBeGreaterThanOrEqual(40);
+          for (const other of measurements.slice(index + 1)) {
+            const overlaps = rect.left < other.right && rect.right > other.left && rect.top < other.bottom && rect.bottom > other.top;
+            expect(overlaps, `${theme} ${viewport.width}px share controls must not overlap`).toBe(false);
+          }
+        }
+        await expectNoPageOverflow(page, `${theme} ${viewport.width}px home share row at ${viewport.rootFontPercent}% root text`);
+      }
+    }
+  });
+});
+
 for (const width of [390, 1280]) {
   test.describe(`conversation keyboard flow at ${width}px`, () => {
     test.use({ viewport: { width, height: 844 } });
