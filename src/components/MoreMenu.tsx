@@ -46,7 +46,9 @@ export function MoreMenu({
   resourcesHeading,
   items,
   tools,
-  className = "nav-more"
+  className = "nav-more",
+  triggerIcon,
+  visuallyHiddenTriggerLabel = false
 }: {
   triggerLabel: string;
   /** Accessible name for the collapsed trigger while a folded view is active,
@@ -57,6 +59,8 @@ export function MoreMenu({
   items: MoreMenuNavItem[];
   tools?: MoreMenuTools;
   className?: string;
+  triggerIcon?: ReactNode;
+  visuallyHiddenTriggerLabel?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   // role="menu" is a single tab stop: only the focused entry keeps tabIndex 0
@@ -78,7 +82,7 @@ export function MoreMenu({
     tools ? "tool-theme" : null,
     tools ? "tool-feedback" : null,
     tools?.auth ? "tool-auth" : null,
-    tools?.auth?.signedInAs ? "tool-delete-history" : null
+    tools?.auth && tools.auth.signedInAs !== null ? "tool-delete-history" : null
   ].filter((key): key is string => key !== null);
 
   const allKeys = useCallback(() => [...items.map((item) => item.key), ...toolKeys], [items, toolKeys]);
@@ -173,6 +177,7 @@ export function MoreMenu({
 
   // Roving-tabindex helper: only the focused entry is tabbable.
   const rove = (key: string) => (effectiveFocusKey === key ? 0 : -1);
+  const isSignedIn = tools?.auth !== undefined && tools.auth.signedInAs !== null;
 
   return (
     <div className={className} ref={rootRef}>
@@ -198,8 +203,8 @@ export function MoreMenu({
           }
         }}
       >
-        {triggerLabel}
-        <ChevronDown aria-hidden="true" size={16} />
+        <span className={visuallyHiddenTriggerLabel ? "jt1-visually-hidden" : undefined}>{triggerLabel}</span>
+        {triggerIcon ?? <ChevronDown aria-hidden="true" size={16} />}
       </button>
       {open ? (
         <div
@@ -300,7 +305,7 @@ export function MoreMenu({
 
           {tools.auth ? (
             <>
-              {tools.auth.signedInAs ? (
+              {isSignedIn ? (
                 <button
                   type="button"
                   role="menuitem"
@@ -325,7 +330,7 @@ export function MoreMenu({
                   {tools.auth.signInLabel}
                 </button>
               )}
-              {tools.auth.signedInAs ? (
+              {isSignedIn ? (
                 <button
                   type="button"
                   role="menuitem"
@@ -347,7 +352,7 @@ export function MoreMenu({
                   {tools.auth.deleteHistoryLabel}
                 </button>
               ) : null}
-              {tools.auth.signedInAs || tools.auth.hint ? (
+              {isSignedIn || tools.auth.hint ? (
                 <p className="nav-more-hint">
                   {tools.auth.signedInAs ? <span>{tools.auth.signedInAs}</span> : null}
                   {tools.auth.hint ? <span>{tools.auth.hint}</span> : null}

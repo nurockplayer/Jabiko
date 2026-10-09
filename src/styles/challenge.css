@@ -38,6 +38,29 @@
   padding-bottom: 1rem;
 }
 
+.session-exit {
+  align-items: center;
+  background: transparent;
+  border-color: transparent;
+  color: var(--jt-text-secondary);
+  justify-content: flex-start;
+  margin-bottom: 0.75rem;
+  min-height: 44px;
+  padding-inline: 0.5rem;
+}
+
+.session-exit:hover:not(:disabled) {
+  background: var(--jt-action-tonal-background);
+  border-color: transparent;
+  color: var(--jt-text-primary);
+}
+
+.drill-panel .session-exit:focus-visible {
+  box-shadow: none;
+  outline: var(--jt-focus-ring-width) solid var(--jt-focus-ring);
+  outline-offset: var(--jt-focus-ring-offset);
+}
+
 .brand-lockup svg {
   color: var(--teal);
   height: 2rem;
@@ -91,9 +114,9 @@ legend,
 }
 
 .segmented button.selected {
-  background: var(--matcha);
-  border-color: var(--matcha-dark);
-  color: var(--selected-text);
+  background: var(--jt-action-primary-background);
+  border-color: var(--jt-action-primary-pressed);
+  color: var(--jt-action-primary-foreground);
 }
 
 .focus-segmented {
@@ -137,9 +160,9 @@ legend,
 
 .session-length-custom.selected input,
 .tts-rate-custom.selected input {
-  border-color: var(--matcha-dark);
-  background: var(--matcha);
-  color: var(--selected-text);
+  border-color: var(--jt-action-primary-pressed);
+  background: var(--jt-action-primary-background);
+  color: var(--jt-action-primary-foreground);
 }
 
 select {

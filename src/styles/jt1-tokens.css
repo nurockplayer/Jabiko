@@ -1,0 +1,106 @@
+/* JT-1 accepted values. Private to the Jabiko shell; see docs/design/jabiko/tokens.json. */
+:root {
+  --jt-surface-app: #FFFFFF;
+  --jt-surface-chrome: #F8F8FC;
+  --jt-surface-chrome-tint: #F0EDFD;
+  --jt-surface-content: #FFFFFF;
+  --jt-surface-inset: #F5F6F9;
+  --jt-surface-sunken: #ECEEF4;
+  --jt-text-primary: #252735;
+  --jt-text-secondary: #646879;
+  --jt-text-on-tint: #5B6072;
+  --jt-text-disabled: #9094A1;
+  --jt-text-link: #5542B5;
+  --jt-border-subtle: #DFE2EA;
+  --jt-border-control: #818798;
+  --jt-action-primary-background: #6350D2;
+  --jt-action-primary-hover: #5541C2;
+  --jt-action-primary-pressed: #4936AB;
+  --jt-action-primary-foreground: #FFFFFF;
+  --jt-action-tonal-background: #ECEEF4;
+  --jt-action-tonal-hover: #E2E5ED;
+  --jt-action-tonal-pressed: #D7DBE5;
+  --jt-accent-foreground: #5542B5;
+  --jt-accent-background: #F0EDFD;
+  --jt-selection-edge: #6551CE;
+  --jt-focus-ring: #6551CE;
+  --jt-status-warning-ink: #865015;
+  --jt-status-warning-background: #FFF3DD;
+  --jt-status-error-ink: #A02D42;
+  --jt-status-error-background: #FFF0F3;
+  --jt-status-success-ink: #206C4E;
+  --jt-status-success-background: #E9F6F0;
+  --jt-inverse-background: #252735;
+  --jt-inverse-foreground: #FFFFFF;
+  --jt-scrim: #252735;
+  --jt-scrim-opacity: 0.32;
+  --jt-assess-correct: #206C4E;
+  --jt-assess-miss: #B3361C;
+  --jt-assess-partial: #5B6072;
+  --jt-font-cjk: "PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei";
+  --jt-font-ja: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", "Noto Sans CJK JP", Meiryo;
+  --jt-font-ja-mincho: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif JP", "Noto Serif CJK JP", serif;
+  --jt-font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, var(--jt-font-cjk), sans-serif;
+  --jt-radius-control: 7px;
+  --jt-radius-overlay: 10px;
+  --jt-radius-mark: 4px;
+  --jt-border-width: 1px;
+  --jt-assess-edge-width: 2px;
+  --jt-focus-ring-width: 3px;
+  --jt-focus-ring-offset: 2px;
+  --jt-control-height-pointer: 36px;
+  --jt-control-height-touch: 44px;
+  --jt-option-minheight: 56px;
+  --jt-bar-height: 56px;
+  --jt-tabbar-height: 56px;
+  --jt-column-reading: 720px;
+  --jt-aside-width: 320px;
+  --jt-container-max: 1200px;
+  --jt-space-scale: 4px 8px 12px 16px 24px 32px 48px 64px;
+  --jt-elevation-overlay: 0 1px 2px rgba(37,39,53,0.08), 0 8px 24px rgba(37,39,53,0.14);
+}
+
+:root[data-theme="dark"] {
+  --jt-surface-app: #14151B;
+  --jt-surface-chrome: #1B1C24;
+  --jt-surface-chrome-tint: #262240;
+  --jt-surface-content: #1B1C24;
+  --jt-surface-inset: #22232D;
+  --jt-surface-sunken: #2C2E3A;
+  --jt-text-primary: #E8E9F0;
+  --jt-text-secondary: #A5A8B9;
+  --jt-text-on-tint: #C8C3EE;
+  --jt-text-disabled: #6C7080;
+  --jt-text-link: #B2A7FF;
+  --jt-border-subtle: #2E303D;
+  --jt-border-control: #7A8095;
+  --jt-action-primary-background: #6A57DA;
+  --jt-action-primary-hover: #5E4BCF;
+  --jt-action-primary-pressed: #5140BC;
+  --jt-action-primary-foreground: #FFFFFF;
+  --jt-action-tonal-background: #2C2E3A;
+  --jt-action-tonal-hover: #363948;
+  --jt-action-tonal-pressed: #404354;
+  --jt-accent-foreground: #B2A7FF;
+  --jt-accent-background: #262240;
+  --jt-selection-edge: #9D90FF;
+  --jt-focus-ring: #9D90FF;
+  --jt-status-warning-ink: #E6B673;
+  --jt-status-warning-background: #2E2516;
+  --jt-status-error-ink: #F28C9D;
+  --jt-status-error-background: #351A21;
+  --jt-status-success-ink: #74CFA5;
+  --jt-status-success-background: #142920;
+  --jt-inverse-background: #E8E9F0;
+  --jt-inverse-foreground: #14151B;
+  --jt-scrim: #000000;
+  --jt-scrim-opacity: 0.56;
+  --jt-assess-correct: #74CFA5;
+  --jt-assess-miss: #F4906F;
+  --jt-assess-partial: #B9BCCB;
+  --jt-elevation-overlay: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.5);
+}
+
+:root:lang(ja) {
+  --jt-font-cjk: var(--jt-font-ja);
+}

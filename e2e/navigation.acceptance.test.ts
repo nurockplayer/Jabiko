@@ -4,10 +4,10 @@ const navigationName = "學習流程";
 const breadcrumbName = "目前位置";
 
 const viewportMatrix = [
-  { name: "320px", width: 320, foldedTrigger: "更多", hiddenTrigger: "資源" },
-  { name: "390px", width: 390, foldedTrigger: "更多", hiddenTrigger: "資源" },
-  { name: "768px", width: 768, foldedTrigger: "資源", hiddenTrigger: "更多" },
-  { name: "1280px", width: 1280, foldedTrigger: "資源", hiddenTrigger: "更多" }
+  { name: "320px", width: 320 },
+  { name: "390px", width: 390 },
+  { name: "768px", width: 768 },
+  { name: "1280px", width: 1280 }
 ] as const;
 
 const representativeRoutes = ["/", "/grammar/n5", "/kana", "/privacy", "/terms"] as const;
@@ -117,6 +117,151 @@ async function expectNoPageOverflow(page: Page, context: string) {
   ).toBeLessThanOrEqual(dimensions.viewportWidth);
 }
 
+function relativeLuminance(rgb: number[]): number {
+  const linear = rgb.map((channel) => {
+    const normalized = channel / 255;
+    return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+  });
+  return linear[0]! * 0.2126 + linear[1]! * 0.7152 + linear[2]! * 0.0722;
+}
+
+function parseRgb(value: string): number[] {
+  const isSrgb = value.startsWith("color(srgb ");
+  const channels = value.match(/[\d.]+/g)?.slice(0, 3).map((channel) => {
+    const parsed = Number(channel);
+    return isSrgb ? parsed * 255 : parsed;
+  });
+  if (!channels || channels.length !== 3) throw new Error(`Unsupported computed color: ${value}`);
+  return channels;
+}
+
+function computedAlpha(value: string): number {
+  const openParen = value.indexOf("(");
+  const closeParen = value.lastIndexOf(")");
+  if (openParen < 0 || closeParen < 0) throw new Error(`Unsupported computed color: ${value}`);
+  const body = value.slice(openParen + 1, closeParen).trim();
+  const slashParts = body.split("/");
+  if (slashParts.length > 2) throw new Error(`Unsupported computed alpha syntax: ${value}`);
+  let alphaText = slashParts[1]?.trim();
+  if (!alphaText && value.startsWith("rgba(")) {
+    const commaParts = body.split(",");
+    if (commaParts.length === 4) alphaText = commaParts[3]?.trim();
+  }
+  if (!alphaText) return 1;
+  const alpha = alphaText.endsWith("%")
+    ? Number(alphaText.slice(0, -1)) / 100
+    : Number(alphaText);
+  if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1) {
+    throw new Error(`Unsupported computed alpha in ${value}`);
+  }
+  return alpha;
+}
+
+async function expectOpaqueRoleBackground(
+  locator: Locator,
+  role: string,
+  context: string,
+  foregroundRole?: string
+) {
+  // This check models solid opaque role surfaces only; it does not composite translucent ancestors.
+  const expected = await locator.evaluate((element, roles) => {
+    const probe = document.createElement("span");
+    probe.style.cssText = "position:fixed;visibility:hidden;pointer-events:none";
+    probe.style.backgroundColor = `var(${roles.background})`;
+    if (roles.foreground) probe.style.color = `var(${roles.foreground})`;
+    element.append(probe);
+    const style = getComputedStyle(probe);
+    const colors = {
+      background: style.backgroundColor,
+      ...(roles.foreground ? { foreground: style.color } : {})
+    };
+    probe.remove();
+    return colors;
+  }, { background: role, foreground: foregroundRole });
+  await expect(locator, `${context}: wait for exact ${role} background`).toHaveCSS(
+    "background-color",
+    expected.background
+  );
+  await expect(locator, `${context}: role background must not be a gradient`).toHaveCSS(
+    "background-image",
+    "none"
+  );
+  const actual = await locator.evaluate((element) => getComputedStyle(element).backgroundColor);
+  expect(computedAlpha(actual), `${context}: expected opaque ${role} background, got ${actual}`).toBe(1);
+  const translucentAncestors = await locator.evaluate((element) => {
+    const ancestors: Array<{ element: string; opacity: number }> = [];
+    let current: Element | null = element;
+    while (current) {
+      const opacity = Number(getComputedStyle(current).opacity);
+      if (opacity < 1) ancestors.push({ element: current.tagName.toLowerCase(), opacity });
+      current = current.parentElement;
+    }
+    return ancestors;
+  });
+  expect(translucentAncestors, `${context}: opacity compositing is outside this contrast check`).toEqual([]);
+  if (expected.foreground) {
+    await expect(locator, `${context}: wait for exact ${foregroundRole} foreground`).toHaveCSS(
+      "color",
+      expected.foreground
+    );
+  }
+  return expected.background;
+}
+
+async function expectReadableForeground(locator: Locator, context: string) {
+  const colors = await locator.evaluate((element, context) => {
+    const alphaOf = (value: string): number => {
+      const isSrgb = value.startsWith("color(srgb ");
+      const openParen = value.indexOf("(");
+      const closeParen = value.lastIndexOf(")");
+      if (openParen < 0 || closeParen < 0) {
+        throw new Error(`${context}: unsupported computed background color: ${value}`);
+      }
+      const body = value.slice(openParen + 1, closeParen).trim();
+      const slashParts = body.split("/");
+      if (slashParts.length > 2) {
+        throw new Error(`${context}: unsupported computed background alpha syntax: ${value}`);
+      }
+      let alphaText = slashParts[1]?.trim();
+      if (!alphaText && !isSrgb && value.startsWith("rgba(")) {
+        const commaParts = body.split(",");
+        if (commaParts.length === 4) alphaText = commaParts[3]?.trim();
+      }
+      if (!alphaText) return 1;
+      const alpha = alphaText.endsWith("%")
+        ? Number(alphaText.slice(0, -1)) / 100
+        : Number(alphaText);
+      if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1) {
+        throw new Error(`${context}: unsupported computed background alpha in ${value}`);
+      }
+      return alpha;
+    };
+    const style = getComputedStyle(element);
+    let current: Element | null = element;
+    let background = "rgb(255, 255, 255)";
+    while (current) {
+      const candidate = getComputedStyle(current).backgroundColor;
+      const alpha = alphaOf(candidate);
+      if (alpha > 0 && alpha < 1) {
+        throw new Error(
+          `${context}: expected an opaque background for contrast measurement, found ${candidate}`
+        );
+      }
+      if (alpha >= 0.999) {
+        background = candidate;
+        break;
+      }
+      current = current.parentElement;
+    }
+    return { foreground: style.color, background };
+  }, context);
+  const foreground = relativeLuminance(parseRgb(colors.foreground));
+  const background = relativeLuminance(parseRgb(colors.background));
+  const ratio = (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+  expect(ratio, `${context}: ${colors.foreground} on ${colors.background}`).toBeGreaterThanOrEqual(4.5);
+  return { ...colors, ratio: Number(ratio.toFixed(2)) };
+}
+
 async function expectRepresentativeRouteReady(
   page: Page,
   route: (typeof representativeRoutes)[number]
@@ -133,11 +278,21 @@ async function expectRepresentativeRouteReady(
   await expect(routeContent[route]).toBeVisible();
 }
 
-async function openFoldedMenu(page: Page, triggerName: string) {
+async function openResourcesMenu(page: Page, triggerName = "資料") {
   const trigger = appNavigation(page).getByRole("button", { name: triggerName });
   await trigger.focus();
   await trigger.press("ArrowDown");
-  const menu = page.getByRole("menu", { name: triggerName });
+  const menu = page.getByRole("menu", { name: "資料" });
+  await expect(menu).toBeVisible();
+  return { menu, trigger };
+}
+
+async function openHeaderMenu(page: Page) {
+  const trigger = page.locator(".jt1-header-menu > .nav-more-trigger");
+  await expect(trigger).toBeVisible();
+  await trigger.focus();
+  await trigger.press("ArrowDown");
+  const menu = page.getByRole("menu", { name: "更多" });
   await expect(menu).toBeVisible();
   return { menu, trigger };
 }
@@ -148,8 +303,8 @@ async function menuItems(menu: Locator) {
   return items;
 }
 
-async function selectKanaWithKeyboard(page: Page, triggerName: string) {
-  const { menu } = await openFoldedMenu(page, triggerName);
+async function selectKanaWithKeyboard(page: Page) {
+  const { menu } = await openResourcesMenu(page);
   const items = await menuItems(menu);
   const kanaIndex = await items.evaluateAll((nodes) =>
     nodes.findIndex((node) => node.textContent?.includes("五十音表"))
@@ -181,7 +336,7 @@ async function breadcrumbSnapshot(page: Page) {
 
 async function expectDesktopResourceCurrent(page: Page, itemName: string) {
   const trigger = appNavigation(page).getByRole("button", {
-    name: `資源（目前：${itemName}）`
+    name: `資料（目前：${itemName}）`
   });
   await expect(trigger).toBeVisible();
   await trigger.click();
@@ -189,6 +344,15 @@ async function expectDesktopResourceCurrent(page: Page, itemName: string) {
     "aria-current",
     "page"
   );
+  await page.keyboard.press("Escape");
+}
+
+async function expectHeaderMenuCurrent(page: Page, itemName: string) {
+  const trigger = page.getByRole("button", { name: `更多（目前：${itemName}）` });
+  await expect(trigger).toBeVisible();
+  await trigger.press("ArrowDown");
+  const menu = page.getByRole("menu", { name: "更多" });
+  await expect(menu.getByRole("menuitem", { name: itemName })).toHaveAttribute("aria-current", "page");
   await page.keyboard.press("Escape");
 }
 
@@ -206,17 +370,47 @@ for (const viewport of viewportMatrix) {
 
       await page.goto("/");
       const nav = appNavigation(page);
-      await expect(nav.getByRole("button", { name: viewport.foldedTrigger })).toBeVisible();
-      await expect(
-        nav.getByRole("button", { name: viewport.hiddenTrigger, includeHidden: true })
-      ).toBeHidden();
-      await openFoldedMenu(page, viewport.foldedTrigger);
-      await expectNoPageOverflow(page, `${viewport.name} open ${viewport.foldedTrigger} menu`);
+      const compact = viewport.width < 1024;
+      await expect(nav).toBeVisible();
+      if (compact) {
+        await expect(nav.locator(".nav-resources-compact")).toBeVisible();
+        await expect(nav.locator(".nav-resources-wide")).toBeHidden();
+      } else {
+        await expect(nav.locator(".nav-resources-wide")).toBeVisible();
+        await expect(nav.locator(".nav-resources-compact")).toBeHidden();
+      }
+      await expect(page.locator(".jt1-header-menu > .nav-more-trigger")).toBeVisible();
+      await expect(nav.getByRole("link")).toHaveCount(compact ? 4 : 5);
+      await expect(nav).toHaveCSS("display", compact ? "grid" : "flex");
+      if (compact) {
+        const compactTrackCount = await nav.evaluate((element) =>
+          getComputedStyle(element).gridTemplateColumns.split(" ").length
+        );
+        expect(compactTrackCount).toBe(5);
+      }
+
+      await openResourcesMenu(page);
+      await expectNoPageOverflow(page, `${viewport.name} open Resources menu`);
+      await page.keyboard.press("Escape");
+      const { menu: headerMenu } = await openHeaderMenu(page);
+      await expect(headerMenu.getByRole("menuitem", { name: "題型練習", exact: true })).toBeVisible();
+      await expect(headerMenu.getByRole("menuitem", { name: "關於" })).toBeVisible();
+      await expectNoPageOverflow(page, `${viewport.name} open header menu`);
+      await page.keyboard.press("Escape");
+
+      if (compact) {
+        await page.goto("/challenge");
+        await expect(nav).toBeHidden();
+        await expect(page.locator(".jt1-header-menu > .nav-more-trigger")).toBeVisible();
+      }
+      await page.goto("/mock");
+      await expect(nav).toBeVisible();
+      await expectNoPageOverflow(page, `${viewport.name} mock picker`);
     });
 
     test("supports keyboard traversal, focus return, selection, and exact current state", async ({ page }) => {
       await page.goto("/");
-      const { menu, trigger } = await openFoldedMenu(page, viewport.foldedTrigger);
+      const { menu, trigger } = await openResourcesMenu(page);
       const items = await menuItems(menu);
 
       await page.keyboard.press("End");
@@ -229,22 +423,545 @@ for (const viewport of viewportMatrix) {
       await expect(menu).toBeHidden();
       await expect(trigger).toBeFocused();
 
-      await selectKanaWithKeyboard(page, viewport.foldedTrigger);
-      await expect(appNavigation(page).getByRole("button", { name: "學習" })).toHaveAttribute(
+      await selectKanaWithKeyboard(page);
+      await expect(appNavigation(page).getByRole("link", { name: "學習" })).not.toHaveAttribute(
         "aria-current",
         "page"
       );
       await expect(page.getByRole("navigation", { name: breadcrumbName })).toContainText("五十音表");
 
-      const currentTrigger = appNavigation(page).getByRole("button", {
-        name: `${viewport.foldedTrigger}（目前：五十音表）`
-      });
-      await currentTrigger.focus();
-      await currentTrigger.press("ArrowDown");
-      await expect(page.getByRole("menuitem", { name: "五十音表" })).toHaveAttribute(
+      await expect(appNavigation(page).getByRole("button", { name: "資料（目前：五十音表）" })).toBeVisible();
+      const { menu: currentResourcesMenu } = await openResourcesMenu(page, "資料（目前：五十音表）");
+      await expect(currentResourcesMenu.getByRole("menuitem", { name: "五十音表" })).toHaveAttribute(
         "aria-current",
         "page"
       );
+
+      await page.goto("/");
+      const { menu: headerMenu } = await openHeaderMenu(page);
+      const mockItem = headerMenu.getByRole("menuitem", { name: "題型練習", exact: true });
+      await page.keyboard.press("Home");
+      await expect(mockItem).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(headerMenu).toBeHidden();
+      await expect(page).toHaveURL(/\/mock$/);
+      await expect(page.locator(".mock-panel")).toBeVisible();
+      await expect(appNavigation(page).getByRole("link", { name: "練習" })).toHaveAttribute(
+        "aria-current",
+        "page"
+      );
+    });
+  });
+}
+
+for (const viewport of [
+  { name: "390x844", width: 390, height: 844 },
+  { name: "1440x900", width: 1440, height: 900 }
+] as const) {
+  test.describe(`selected Resources contrast at ${viewport.name}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } });
+
+    test("keeps current Resources labels readable in both themes and pointer states", async ({ page }) => {
+      const compact = viewport.width < 1024;
+      const evidence: Array<Record<string, string | number>> = [];
+      const trigger = page.locator(
+        `.jt1-primary-nav .nav-resources-${compact ? "compact" : "wide"} > .nav-more-trigger.selected`
+      );
+      for (const theme of ["light", "dark"] as const) {
+        await page.goto("/");
+        await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+        const routes = compact
+          ? (["/kana", "/kanji", "/rules", "/grammar/n5"] as const)
+          : (["/kana", "/kanji", "/rules"] as const);
+        for (const route of routes) {
+          await page.goto(route);
+          await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+          await expect(trigger).toBeVisible();
+          await page.mouse.move(0, 0);
+          await expect.poll(() => trigger.evaluate((element) => element.matches(":hover"))).toBe(false);
+          await expectOpaqueRoleBackground(
+            trigger,
+            "--jt-surface-chrome",
+            `${theme} ${route} resting Resources`,
+            "--jt-accent-foreground"
+          );
+          evidence.push({ theme, route, state: "resting", ...(await expectReadableForeground(trigger, `${theme} ${route} resting Resources`)) });
+          if (route === "/kana") {
+            await test.info().attach(`${viewport.name}-${theme}-resources.png`, {
+              body: await page.screenshot(),
+              contentType: "image/png"
+            });
+          }
+          await trigger.hover();
+          await expectOpaqueRoleBackground(
+            trigger,
+            "--jt-action-tonal-hover",
+            `${theme} ${route} hovered Resources`,
+            "--jt-accent-foreground"
+          );
+          evidence.push({ theme, route, state: "hovered", ...(await expectReadableForeground(trigger, `${theme} ${route} hovered Resources`)) });
+          await page.mouse.down();
+          await expectOpaqueRoleBackground(
+            trigger,
+            "--jt-action-tonal-pressed",
+            `${theme} ${route} pressed Resources`,
+            "--jt-accent-foreground"
+          );
+          evidence.push({ theme, route, state: "pressed", ...(await expectReadableForeground(trigger, `${theme} ${route} pressed Resources`)) });
+          await page.mouse.up();
+          await expect(page.getByRole("menu", { name: "資料" })).toBeVisible();
+          await expectOpaqueRoleBackground(
+            trigger,
+            "--jt-action-tonal-hover",
+            `${theme} ${route} open Resources`,
+            "--jt-accent-foreground"
+          );
+          evidence.push({ theme, route, state: "open", ...(await expectReadableForeground(trigger, `${theme} ${route} open Resources`)) });
+          await page.keyboard.press("Escape");
+        }
+      }
+      await test.info().attach(`${viewport.name}-resources-contrast.json`, {
+        body: JSON.stringify(evidence, null, 2),
+        contentType: "application/json"
+      });
+    });
+  });
+}
+
+test.describe("compact navigation chrome while scrolling", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("keeps the fixed bottom bar opaque over long content in both themes", async ({ page }) => {
+    const evidence: Array<Record<string, string | number>> = [];
+    for (const theme of ["light", "dark"] as const) {
+      await page.goto("/");
+      await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+      await page.goto("/rules");
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+      const nav = appNavigation(page);
+      await expectOpaqueRoleBackground(nav, "--jt-surface-chrome", `${theme} scrolled compact navigation`);
+      const chrome = await nav.evaluate((element) => {
+        const style = getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return {
+          background: style.backgroundColor,
+          borderTopWidth: style.borderTopWidth,
+          borderTopStyle: style.borderTopStyle,
+          position: style.position,
+          bottom: Math.round(rect.bottom),
+          viewportHeight: window.innerHeight
+        };
+      });
+      expect(computedAlpha(chrome.background), `${theme} compact bar alpha`).toBe(1);
+      expect(chrome.borderTopWidth).toBe("1px");
+      expect(chrome.borderTopStyle).toBe("solid");
+      expect(chrome.position).toBe("fixed");
+      expect(chrome.bottom).toBe(chrome.viewportHeight);
+      evidence.push({ theme, ...chrome });
+      await test.info().attach(`390x844-${theme}-scrolled-bar.png`, {
+        body: await page.screenshot(),
+        contentType: "image/png"
+      });
+    }
+    await test.info().attach("390x844-scrolled-bar-evidence.json", {
+      body: JSON.stringify(evidence, null, 2),
+      contentType: "application/json"
+    });
+  });
+});
+
+test.describe("legacy color compatibility contrast", () => {
+  test("keeps selected controls and legacy accent ink readable in both themes", async ({ page }) => {
+    const surfaces = [
+      { route: "/challenge", selector: ".mode-card-count" },
+      { route: "/grammar", selector: ".gi-level-badge" },
+      { route: "/mock", selector: ".mock-section-head .eyebrow" }
+    ] as const;
+    const evidence: Array<Record<string, string | number>> = [];
+
+    for (const theme of ["light", "dark"] as const) {
+      await page.goto("/");
+      await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+      for (const surface of surfaces) {
+        await page.goto(surface.route);
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        if (surface.route === "/challenge") {
+          await expect(page.locator(".mode-card-count").first()).toBeVisible();
+        }
+        const target = page.locator(surface.selector).first();
+        await expect(target).toBeVisible();
+        evidence.push({
+          theme,
+          route: surface.route,
+          selector: surface.selector,
+          ...(await expectReadableForeground(target, `${theme} ${surface.route} ${surface.selector}`))
+        });
+      }
+      await page.goto("/challenge?mode=exam");
+      await page.locator(".session-length-custom input").fill("11");
+      const customLength = page.locator(".session-length-custom.selected input");
+      await expect(customLength).toBeVisible();
+      evidence.push({
+        theme,
+        route: "/challenge",
+        selector: ".session-length-custom.selected input",
+        ...(await expectReadableForeground(customLength, `${theme} custom session length`))
+      });
+      await page.locator(".tts-rate-custom input").fill("0.9");
+      const customRate = page.locator(".tts-rate-custom.selected input");
+      await expect(customRate).toBeVisible();
+      evidence.push({
+        theme,
+        route: "/challenge",
+        selector: ".tts-rate-custom.selected input",
+        ...(await expectReadableForeground(customRate, `${theme} custom speech rate`))
+      });
+
+      await page.getByRole("button", { name: /^基礎變化/ }).click();
+      const selectedSegment = page.locator(".segmented button.selected").first();
+      await expect(selectedSegment).toBeVisible();
+      await expectOpaqueRoleBackground(
+        selectedSegment,
+        "--jt-action-primary-background",
+        `${theme} selected practice segment`,
+        "--jt-action-primary-foreground"
+      );
+      evidence.push({
+        theme,
+        route: "/challenge",
+        selector: ".segmented button.selected",
+        ...(await expectReadableForeground(selectedSegment, `${theme} selected practice segment`))
+      });
+
+      await page.goto("/kanji");
+      await page.locator(".kanji-cell").first().click();
+      const reading = page.locator(".kanji-card-onyomi");
+      await expect(reading).toBeVisible();
+      evidence.push({
+        theme,
+        route: "/kanji",
+        selector: ".kanji-card-onyomi after selecting a kanji",
+        ...(await expectReadableForeground(reading, `${theme} selected kanji reading`))
+      });
+
+      await page.goto("/challenge");
+      await page.getByRole("button", { name: /^基礎變化/ }).click();
+      const choice = page.locator(".choice-option").first();
+      await choice.click();
+      const answeredChoice = page.locator('.choice-option[data-selected="true"]');
+      await expect(answeredChoice).toBeVisible();
+      const feedbackRole = await answeredChoice.evaluate((element) =>
+        element.classList.contains("correct")
+          ? "--feedback-correct-bg"
+          : "--feedback-incorrect-bg"
+      );
+      await expectOpaqueRoleBackground(
+        answeredChoice,
+        feedbackRole,
+        `${theme} selected answer feedback`,
+        "--jt-text-primary"
+      );
+      evidence.push({
+        theme,
+        route: "/challenge",
+        selector: ".choice-option[data-selected=true]",
+        ...(await expectReadableForeground(answeredChoice, `${theme} selected answer feedback`))
+      });
+    }
+    await test.info().attach("legacy-color-contrast.json", {
+      body: JSON.stringify(evidence, null, 2),
+      contentType: "application/json"
+    });
+  });
+
+  test("renders the Focus break primary action with readable colors in both themes", async ({ page }) => {
+    await page.clock.install({ time: new Date("2026-10-07T12:00:00.000Z") });
+    const evidence: Array<Record<string, string | number>> = [];
+    for (const theme of ["light", "dark"] as const) {
+      await page.goto("/");
+      await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+      await page.reload();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await page.getByRole("button", { name: "專注", exact: true }).click();
+      const configure = page.getByRole("dialog", { name: "專注設定" });
+      await configure.getByLabel("專注時間（分鐘）").fill("1");
+      await configure.getByLabel("休息時間（分鐘）").fill("1");
+      await configure.getByRole("button", { name: "開始", exact: true }).click();
+      await page.clock.runFor(60_000);
+      const pause = page.getByRole("dialog", { name: "休息一下" });
+      await expect(pause).toBeVisible();
+      const primary = pause.locator(".focus-break-primary");
+      await expectOpaqueRoleBackground(
+        primary,
+        "--jt-action-primary-background",
+        `${theme} Focus break primary action`,
+        "--jt-action-primary-foreground"
+      );
+      evidence.push({
+        theme,
+        route: "/",
+        selector: ".focus-break-primary",
+        ...(await expectReadableForeground(primary, `${theme} Focus break primary action`))
+      });
+      await pause.getByRole("button", { name: "結束專注模式" }).click();
+    }
+    await test.info().attach("focus-break-color-contrast.json", {
+      body: JSON.stringify(evidence, null, 2),
+      contentType: "application/json"
+    });
+  });
+});
+
+for (const viewport of [
+  { name: "390x844", width: 390, height: 844 },
+  { name: "1440x900", width: 1440, height: 900 }
+] as const) {
+  test.describe(`session exit at ${viewport.name}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } });
+
+    test("uses the accepted solid keyboard focus ring in both themes", async ({ page }) => {
+      const evidence: Array<Record<string, string | number | boolean>> = [];
+      for (const theme of ["light", "dark"] as const) {
+        await page.goto("/");
+        await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+        await page.goto("/challenge?mode=basic");
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+
+        const exit = page.getByRole("button", { name: "首頁", exact: true });
+        await expect(exit).toBeVisible();
+        let reachedExitByTab = false;
+        for (let tabCount = 0; tabCount < 120; tabCount += 1) {
+          await page.keyboard.press("Tab");
+          if (await exit.evaluate((element) => element === document.activeElement)) {
+            reachedExitByTab = true;
+            break;
+          }
+        }
+        expect(reachedExitByTab, `${theme}: Today exit is reachable by keyboard Tab`).toBe(true);
+
+        const drillPanel = page.locator(".drill-panel");
+        await expect(drillPanel).toHaveCSS("opacity", "1");
+        const background = await expectOpaqueRoleBackground(
+          drillPanel,
+          "--jt-surface-content",
+          `${theme} session exit parent surface`
+        );
+        await expect(exit).toHaveCSS("box-shadow", "none");
+        const focusState = await exit.evaluate((element) => {
+          const probe = document.createElement("span");
+          probe.style.cssText = "position:fixed;visibility:hidden;pointer-events:none;color:var(--jt-focus-ring)";
+          element.append(probe);
+          const ringColor = getComputedStyle(probe).color;
+          probe.remove();
+          const style = getComputedStyle(element);
+          return {
+            visibleFocus: element.matches(":focus-visible"),
+            outlineColor: style.outlineColor,
+            outlineStyle: style.outlineStyle,
+            outlineWidth: style.outlineWidth,
+            outlineOffset: style.outlineOffset,
+            boxShadow: style.boxShadow,
+            ringColor,
+            parentBackground: getComputedStyle(element.parentElement!).backgroundColor
+          };
+        });
+        expect(focusState.visibleFocus).toBe(true);
+        expect(focusState.outlineColor).toBe(focusState.ringColor);
+        expect(computedAlpha(focusState.outlineColor)).toBe(1);
+        expect(focusState.outlineStyle).toBe("solid");
+        expect(focusState.outlineWidth).toBe("3px");
+        expect(focusState.outlineOffset).toBe("2px");
+        expect(focusState.boxShadow).toBe("none");
+        expect(focusState.parentBackground).toBe(background);
+        const exitBounds = await exit.boundingBox();
+        const panelBounds = await drillPanel.boundingBox();
+        expect(exitBounds).not.toBeNull();
+        expect(panelBounds).not.toBeNull();
+        const outlineExtent = 5;
+        expect(exitBounds!.x - outlineExtent).toBeGreaterThanOrEqual(0);
+        expect(exitBounds!.y - outlineExtent).toBeGreaterThanOrEqual(0);
+        expect(exitBounds!.x + exitBounds!.width + outlineExtent).toBeLessThanOrEqual(viewport.width);
+        expect(exitBounds!.y + exitBounds!.height + outlineExtent).toBeLessThanOrEqual(viewport.height);
+        expect(exitBounds!.x - outlineExtent).toBeGreaterThanOrEqual(panelBounds!.x);
+        expect(exitBounds!.y - outlineExtent).toBeGreaterThanOrEqual(panelBounds!.y);
+        expect(exitBounds!.x + exitBounds!.width + outlineExtent).toBeLessThanOrEqual(
+          panelBounds!.x + panelBounds!.width
+        );
+        expect(exitBounds!.y + exitBounds!.height + outlineExtent).toBeLessThanOrEqual(
+          panelBounds!.y + panelBounds!.height
+        );
+        const contrast =
+          (Math.max(relativeLuminance(parseRgb(focusState.outlineColor)), relativeLuminance(parseRgb(background))) + 0.05) /
+          (Math.min(relativeLuminance(parseRgb(focusState.outlineColor)), relativeLuminance(parseRgb(background))) + 0.05);
+        expect(contrast, `${theme} focus ring against drill surface`).toBeGreaterThanOrEqual(3);
+        await exit.hover();
+        await expect(exit).toHaveCSS("box-shadow", "none");
+        const hoverFocusState = await exit.evaluate((element) => {
+          const style = getComputedStyle(element);
+          return {
+            visibleFocus: element.matches(":focus-visible"),
+            outlineColor: style.outlineColor,
+            outlineStyle: style.outlineStyle,
+            outlineWidth: style.outlineWidth,
+            outlineOffset: style.outlineOffset,
+            boxShadow: style.boxShadow
+          };
+        });
+        expect(hoverFocusState.visibleFocus).toBe(true);
+        expect(hoverFocusState.outlineColor).toBe(focusState.ringColor);
+        expect(computedAlpha(hoverFocusState.outlineColor)).toBe(1);
+        expect(hoverFocusState.outlineStyle).toBe("solid");
+        expect(hoverFocusState.outlineWidth).toBe("3px");
+        expect(hoverFocusState.outlineOffset).toBe("2px");
+        expect(hoverFocusState.boxShadow).toBe("none");
+        evidence.push({ theme, ...focusState, parentBackground: background, contrast: Number(contrast.toFixed(2)) });
+      }
+      await test.info().attach(`${viewport.name}-session-exit-focus-ring.json`, {
+        body: JSON.stringify(evidence, null, 2),
+        contentType: "application/json"
+      });
+    });
+
+    test("keeps the Today exit available when a normal basic filter matches no questions", async ({ page }) => {
+      const savedAttempt = {
+        questionId: "n1-grammar-yainaya",
+        vocabularyId: "n1-grammar-yainaya",
+        targetForm: "meaning",
+        prompt: "seed",
+        expectedAnswers: ["や否や"],
+        submittedAnswer: "x",
+        isCorrect: false,
+        timestamp: 1000,
+        responseTimeMs: 100
+      };
+      await page.addInitScript((attempt) => {
+        localStorage.setItem("jabiko:attempts", JSON.stringify([attempt]));
+      }, savedAttempt);
+      await page.goto("/challenge?mode=basic");
+      const n5Filter = page.getByRole("button", { name: "N5", exact: true });
+      await expect(n5Filter).toBeEnabled();
+      await n5Filter.click();
+      await n5Filter.click();
+
+      await expect(page.getByText("目前設定沒有可練習的題目。", { exact: true })).toBeVisible();
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+      const exit = page.getByRole("button", { name: "首頁", exact: true });
+      await expect(exit).toBeVisible();
+      const bounds = await exit.boundingBox();
+      expect(bounds).not.toBeNull();
+      expect(bounds!.y).toBeGreaterThanOrEqual(0);
+      expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height);
+      const storedProgress = await page.evaluate(() => localStorage.getItem("jabiko:attempts"));
+      const attempts = JSON.parse(storedProgress ?? "[]") as unknown[];
+      expect(attempts.length).toBeGreaterThan(0);
+
+      await exit.click();
+      await expect(page).toHaveURL(/\/$/);
+      await expect(page.getByRole("region", { name: "首頁" })).toBeVisible();
+      await expect.poll(() => page.evaluate(() => localStorage.getItem("jabiko:attempts"))).toBe(storedProgress);
+    });
+
+    test("exits by keyboard from revealed feedback without advancing or deleting the attempt", async ({ page }) => {
+      await page.goto("/challenge?mode=basic");
+      await page.getByRole("button", { name: "看答案", exact: true }).click();
+      await expect(page.locator(".feedback")).toBeVisible();
+      const storedProgress = await page.evaluate(() => localStorage.getItem("jabiko:attempts"));
+      const attempts = JSON.parse(storedProgress ?? "[]") as unknown[];
+      expect(attempts.length).toBeGreaterThan(0);
+
+      const exit = page.getByRole("button", { name: "首頁", exact: true });
+      await exit.focus();
+      await page.keyboard.press("Enter");
+
+      await expect(page).toHaveURL(/\/$/);
+      await expect(page.getByRole("region", { name: "首頁" })).toBeVisible();
+      await expect.poll(() => page.evaluate(() => localStorage.getItem("jabiko:attempts"))).toBe(storedProgress);
+    });
+
+    test("keeps a direct Today exit visible during active endless practice", async ({ page }) => {
+      const savedAttempt = {
+        questionId: "n1-grammar-yainaya",
+        vocabularyId: "n1-grammar-yainaya",
+        targetForm: "meaning",
+        prompt: "seed",
+        expectedAnswers: ["や否や"],
+        submittedAnswer: "x",
+        isCorrect: false,
+        timestamp: 1000,
+        responseTimeMs: 100
+      };
+      await page.addInitScript((attempt) => {
+        localStorage.setItem("jabiko:attempts", JSON.stringify([attempt]));
+        localStorage.setItem("jabiko.sessionLength", "all");
+      }, savedAttempt);
+      await page.goto("/challenge?mode=exam");
+      const exit = page.getByRole("button", { name: "首頁", exact: true });
+      await expect(exit).toBeVisible();
+      await expect(page.locator(".controls-panel")).toBeVisible();
+      await expect(page.locator(".drill-panel")).toBeVisible();
+      await expect(page.locator(".prompt-header span")).toHaveText(/^第 \d+ 題$/);
+      const exitBounds = await exit.boundingBox();
+      expect(exitBounds).not.toBeNull();
+      expect(exitBounds!.y).toBeGreaterThanOrEqual(0);
+      expect(exitBounds!.y + exitBounds!.height).toBeLessThanOrEqual(viewport.height);
+      const storedProgress = await page.evaluate(() => localStorage.getItem("jabiko:attempts"));
+
+      const endlessExitBounds = await exit.boundingBox();
+      expect(endlessExitBounds).not.toBeNull();
+      expect(endlessExitBounds!.y).toBeGreaterThanOrEqual(0);
+      expect(endlessExitBounds!.y + endlessExitBounds!.height).toBeLessThanOrEqual(viewport.height);
+      await exit.click();
+      await expect(page).toHaveURL(/\/$/);
+      await expect(page.getByRole("region", { name: "首頁" })).toBeVisible();
+      await expect.poll(() => page.evaluate(() => localStorage.getItem("jabiko:attempts"))).toBe(storedProgress);
+    });
+  });
+}
+
+for (const viewport of [
+  { name: "320x640", width: 320, height: 640 },
+  { name: "1280x800", width: 1280, height: 800 }
+] as const) {
+  test.describe(`JT-1 shell evidence at ${viewport.name}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } });
+
+    test("captures the themed kana shell at the requested viewport size", async ({ page }) => {
+      const compact = viewport.width < 1024;
+      for (const theme of ["light", "dark"] as const) {
+        await page.goto("/");
+        await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+        await page.goto("/kana");
+        await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        await expectRepresentativeRouteReady(page, "/kana");
+        await expectNoPageOverflow(page, `${viewport.name} ${theme} /kana shell`);
+
+        const heading = page.locator(".app-heading");
+        const nav = appNavigation(page);
+        await expect(heading).toBeVisible();
+        await expect(nav).toBeVisible();
+        await expectOpaqueRoleBackground(
+          compact ? nav : heading,
+          "--jt-surface-chrome",
+          `${viewport.name} ${theme} /kana shell ${compact ? "navigation" : "header"}`
+        );
+        await expect(nav.getByRole("link")).toHaveCount(compact ? 4 : 5);
+        if (compact) {
+          await expect(nav.locator(".nav-resources-compact")).toBeVisible();
+          await expect(nav.locator(".nav-resources-wide")).toBeHidden();
+        } else {
+          await expect(nav.locator(".nav-resources-wide")).toBeVisible();
+          await expect(nav.locator(".nav-resources-compact")).toBeHidden();
+        }
+
+        // Capture a synthetic static frame with finite transitions completed.
+        await test.info().attach(`${viewport.name}-${theme}-kana-shell.png`, {
+          body: await page.screenshot({ fullPage: false, animations: "disabled" }),
+          contentType: "image/png"
+        });
+      }
     });
   });
 }
@@ -258,11 +975,11 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
         path: "/grammar/n5",
         expected: grammarN5Breadcrumb,
         navigate: async () => {
-          await appNavigation(page).getByRole("button", { name: "文型" }).click();
+          await appNavigation(page).getByRole("link", { name: "文型" }).click();
           await page.getByRole("button", { name: "瀏覽 N5" }).click();
         },
         assertCurrent: async () => {
-          await expect(appNavigation(page).getByRole("button", { name: "文型" })).toHaveAttribute(
+          await expect(appNavigation(page).getByRole("link", { name: "文型" })).toHaveAttribute(
             "aria-current",
             "page"
           );
@@ -272,11 +989,11 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
         path: "/kana",
         expected: kanaBreadcrumb,
         navigate: async () => {
-          await appNavigation(page).getByRole("button", { name: "資源" }).click();
+          await appNavigation(page).getByRole("button", { name: "資料" }).click();
           await page.getByRole("menuitem", { name: "五十音表" }).click();
         },
         assertCurrent: async () => {
-          await expect(appNavigation(page).getByRole("button", { name: "學習" })).toHaveAttribute(
+          await expect(appNavigation(page).getByRole("link", { name: "學習" })).not.toHaveAttribute(
             "aria-current",
             "page"
           );
@@ -295,7 +1012,7 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
           await page.getByRole("link", { name: "隱私政策" }).click();
         },
         assertCurrent: async () => {
-          await expectDesktopResourceCurrent(page, "關於");
+          await expectHeaderMenuCurrent(page, "關於");
         }
       },
       {
@@ -310,7 +1027,7 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
           await page.getByRole("link", { name: "使用條款" }).click();
         },
         assertCurrent: async () => {
-          await expectDesktopResourceCurrent(page, "關於");
+          await expectHeaderMenuCurrent(page, "關於");
         }
       }
     ] as const;
@@ -364,31 +1081,31 @@ test.describe("route, breadcrumb, link, and history acceptance", () => {
 
   test("restores canonical navigation and breadcrumbs through Back and Forward without stale child state", async ({ page }) => {
     await page.goto("/");
-    await appNavigation(page).getByRole("button", { name: "文型" }).click();
+    await appNavigation(page).getByRole("link", { name: "文型" }).click();
     await page.getByRole("button", { name: "瀏覽 N5" }).click();
-    await appNavigation(page).getByRole("button", { name: "資源" }).click();
+    await appNavigation(page).getByRole("button", { name: "資料" }).click();
     await page.getByRole("menuitem", { name: "五十音表" }).click();
     await expect(page).toHaveURL(/\/kana$/);
 
     await page.goBack();
     await expect(page).toHaveURL(/\/grammar\/n5$/);
-    await expect(appNavigation(page).getByRole("button", { name: "文型" })).toHaveAttribute(
+    await expect(appNavigation(page).getByRole("link", { name: "文型" })).toHaveAttribute(
       "aria-current",
       "page"
     );
     expect(await breadcrumbSnapshot(page)).toEqual(grammarN5Breadcrumb);
-    await appNavigation(page).getByRole("button", { name: "資源" }).click();
+    await appNavigation(page).getByRole("button", { name: "資料" }).click();
     await expect(page.getByRole("menu").locator('[aria-current="page"]')).toHaveCount(0);
     await page.keyboard.press("Escape");
 
     await page.goForward();
     await expect(page).toHaveURL(/\/kana$/);
-    await expect(appNavigation(page).getByRole("button", { name: "學習" })).toHaveAttribute(
+    await expect(appNavigation(page).getByRole("link", { name: "學習" })).not.toHaveAttribute(
       "aria-current",
       "page"
     );
     expect(await breadcrumbSnapshot(page)).toEqual(kanaBreadcrumb);
-    const resources = appNavigation(page).getByRole("button", { name: "資源（目前：五十音表）" });
+    const resources = appNavigation(page).getByRole("button", { name: "資料（目前：五十音表）" });
     await resources.click();
     await expect(page.getByRole("menuitem", { name: "五十音表" })).toHaveAttribute(
       "aria-current",

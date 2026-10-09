@@ -50,8 +50,8 @@
   letter-spacing: 0.03em;
   padding: 0.22rem 0.6rem;
   border-radius: var(--radius-pill);
-  background: var(--matcha-dark);
-  color: var(--selected-text, #fff);
+  background: var(--jt-action-primary-background);
+  color: var(--jt-action-primary-foreground);
 }
 
 .gp-meaning {
@@ -257,9 +257,9 @@
 }
 
 .gi-filter-btn.active {
-  background: var(--matcha);
-  color: var(--selected-text, #fff);
-  border-color: var(--matcha);
+  background: var(--jt-action-primary-background);
+  color: var(--jt-action-primary-foreground);
+  border-color: var(--jt-action-primary-background);
 }
 
 .gi-filter-select {
@@ -318,8 +318,8 @@
   font-weight: 800;
   padding: 0.2rem 0.55rem;
   border-radius: var(--radius-pill);
-  background: var(--matcha-dark);
-  color: var(--selected-text, #fff);
+  background: var(--jt-action-primary-background);
+  color: var(--jt-action-primary-foreground);
 }
 
 .gi-level-stats {
@@ -334,8 +334,8 @@
   font-size: 0.78rem;
   padding: 0.15rem 0.6rem;
   border-radius: var(--radius-pill);
-  background: var(--matcha);
-  color: var(--selected-text, #fff);
+  background: var(--jt-action-primary-background);
+  color: var(--jt-action-primary-foreground);
   cursor: pointer;
   white-space: nowrap;
   margin-left: auto;

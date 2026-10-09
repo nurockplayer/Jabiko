@@ -36,6 +36,21 @@ async function reachResponses(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("ConversationPanel fixture selection (#814)", () => {
+  it("marks intro as navigable and every live or completed phase as a session surface", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<ConversationPanel language="zh-Hant" definitions={conversationSessionDefinitions} />);
+    const panel = container.querySelector(".conversation-panel");
+    expect(panel).toHaveAttribute("data-session-surface", "false");
+
+    await user.click(screen.getByRole("button", { name: /^短/ }));
+    await user.click(screen.getByRole("button", { name: t.conversationStart }));
+    expect(panel).toHaveAttribute("data-session-surface", "true");
+    await user.click(screen.getByRole("button", { name: t.conversationContinue }));
+    await user.click(screen.getAllByRole("button").find((button) => button.classList.contains("conversation-response"))!);
+    await user.click(screen.getByRole("button", { name: t.conversationContinue }));
+    expect(panel).toHaveAttribute("data-session-surface", "true");
+  });
+
   it("keeps the 21 evergreen choices separate from the bounded timely cards", () => {
     render(<ConversationPanel language="zh-Hant" referenceInstant={new Date("2026-12-31T14:30:00.000Z")} />);
 

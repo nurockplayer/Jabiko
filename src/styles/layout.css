@@ -150,10 +150,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1.1rem;
-  border: 1px solid var(--matcha);
+  border: 1px solid var(--jt-action-primary-background);
   border-radius: var(--radius-pill);
-  background: var(--matcha-dark);
-  color: var(--selected-text, #fff);
+  background: var(--jt-action-primary-background);
+  color: var(--jt-action-primary-foreground);
   font: inherit;
   font-weight: 700;
   font-size: 0.92rem;

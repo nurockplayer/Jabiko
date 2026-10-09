@@ -260,6 +260,31 @@ describe("MoreMenu (#608)", () => {
 
   // #693: the delete-history action lives in the signed-in auth block only --
   // signed out it is entirely absent (the account entries never offer it).
+  it("keeps auth actions visible when an authenticated user's display name is empty", async () => {
+    const user = userEvent.setup();
+    renderMenu(
+      makeItems(),
+      makeTools({
+        auth: {
+          signedInAs: "",
+          hint: "同步中…",
+          signInLabel: "登入",
+          signOutLabel: "登出",
+          onSignIn: vi.fn(),
+          onSignOut: vi.fn(),
+          deleteHistoryLabel: "刪除練習紀錄",
+          onDeleteHistory: vi.fn()
+        }
+      })
+    );
+
+    await user.click(screen.getByRole("button", { name: "更多" }));
+    const menu = screen.getByRole("menu");
+    expect(within(menu).getByRole("menuitem", { name: "登出" })).toBeInTheDocument();
+    expect(within(menu).getByRole("menuitem", { name: "刪除練習紀錄" })).toBeInTheDocument();
+    expect(within(menu).queryByRole("menuitem", { name: "登入" })).not.toBeInTheDocument();
+  });
+
   it("hides the delete-history action when signed out", async () => {
     const user = userEvent.setup();
     renderMenu();

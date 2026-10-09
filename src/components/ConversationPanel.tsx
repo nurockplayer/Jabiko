@@ -320,7 +320,11 @@ export function ConversationPanel({ language, definitions, referenceInstant }: {
   };
 
   return (
-    <section className="conversation-panel" aria-label={t.conversationTitle}>
+    <section
+      className="conversation-panel"
+      aria-label={t.conversationTitle}
+      data-session-surface={state.phase === "intro" ? "false" : "true"}
+    >
       <header className="conversation-header">
         <h2
           ref={state.phase === "intro" ? focusStage : undefined}

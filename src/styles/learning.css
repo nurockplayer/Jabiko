@@ -635,9 +635,9 @@
 }
 
 .inline-drill-button {
-  background: var(--matcha);
-  border-color: var(--matcha-dark);
-  color: var(--selected-text);
+  background: var(--jt-action-primary-background);
+  border-color: var(--jt-action-primary-pressed);
+  color: var(--jt-action-primary-foreground);
   font-weight: 800;
   justify-self: start;
   min-width: 9rem;

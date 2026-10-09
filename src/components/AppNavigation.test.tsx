@@ -3,22 +3,14 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { resolveNavigation } from "../domain/navigation";
 import { staticRoute } from "../domain/routes";
-import { AppNavigation } from "./AppNavigation";
+import { AppHeaderMenu, AppNavigation } from "./AppNavigation";
 import type { MoreMenuTools } from "./MoreMenu";
 
 const labels = {
-  home: "首頁",
-  learn: "學習",
-  challenge: "挑戰",
-  mockExam: "模擬考",
-  grammar: "文型",
-  rules: "規則表",
-  kanji: "漢字",
-  kanaPageTitle: "五十音",
-  about: "關於",
-  navPartnership: "合作推廣"
+  today: "今日", practice: "練習", learn: "學習", conversation: "會話", grammar: "文型",
+  mockExam: "模擬考", rules: "規則表", kanji: "漢字", kanaPageTitle: "五十音",
+  about: "關於", navPartnership: "合作推廣"
 } as const;
-
 const tools: MoreMenuTools = {
   heading: "設定與工具",
   furigana: { label: "顯示註音", pressed: false, onToggle: vi.fn() },
@@ -26,105 +18,95 @@ const tools: MoreMenuTools = {
   feedback: { label: "意見回饋", onOpen: vi.fn() }
 };
 
-function renderNavigation(view: "home" | "kana" | "kanji" = "home") {
+function renderNavigation(view: "home" | "challenge" | "mock" | "conversation" | "kana" = "home") {
   const onSelect = vi.fn();
-  render(
-    <AppNavigation
-      ariaLabel="學習流程"
-      navigation={resolveNavigation(staticRoute(view), "zh-Hant")}
-      labels={labels}
-      resourcesLabel="資源"
-      resourcesCurrentLabel={(page) => `資源（目前：${page}）`}
-      moreLabel="更多"
-      moreCurrentLabel={(page) => `更多（目前：${page}）`}
-      tools={tools}
-      onSelect={onSelect}
-    />
+  const navigation = resolveNavigation(staticRoute(view), "zh-Hant");
+  const result = render(
+    <>
+      <AppHeaderMenu
+        navigation={navigation} labels={labels} triggerLabel="更多"
+        triggerCurrentLabel={(page) => `更多（目前：${page}）`} tools={tools} onSelect={onSelect}
+      />
+      <AppNavigation
+        ariaLabel="學習流程" navigation={navigation} labels={labels} resourcesLabel="資料"
+        resourcesCurrentLabel={(page) => `資料（目前：${page}）`} onSelect={onSelect}
+      />
+    </>
   );
-  return onSelect;
+  return { onSelect, container: result.container, unmount: result.unmount };
 }
 
 describe("AppNavigation (#727)", () => {
-  it("renders five primary entries plus desktop Resources and mobile More", () => {
+  it("renders the five compact destinations in accepted desktop order", () => {
     renderNavigation();
     const nav = screen.getByRole("navigation", { name: "學習流程" });
-    for (const name of ["首頁", "學習", "挑戰", "模擬考", "文型"]) {
-      expect(within(nav).getByRole("button", { name })).toBeInTheDocument();
-    }
-    expect(within(nav).getByRole("button", { name: "資源" })).toBeInTheDocument();
-    expect(within(nav).getByRole("button", { name: "更多" })).toBeInTheDocument();
-    expect(within(nav).queryByRole("button", { name: "規則表" })).not.toBeInTheDocument();
-  });
-
-  it("derives both resource menus from the same labels, icons, order and visibility", async () => {
-    const user = userEvent.setup();
-    renderNavigation();
-    await user.click(screen.getByRole("button", { name: "資源" }));
-    const desktop = screen.getByRole("menu", { name: "資源" });
-    expect(within(desktop).getAllByRole("menuitem").map((item) => item.textContent)).toEqual([
-      "合作推廣", "規則表", "漢字", "五十音", "關於"
+    expect(within(nav).getAllByRole("link").map((link) => link.textContent)).toEqual([
+      "今日", "練習", "學習", "文型", "會話"
     ]);
-    fireEvent.keyDown(within(desktop).getByRole("menuitem", { name: "規則表" }), { key: "Escape" });
+    expect(within(nav).getByRole("link", { name: "文型" })).toHaveAttribute("data-wide-only", "true");
+    expect(nav.querySelectorAll(".nav-resources-wide, .nav-resources-compact")).toHaveLength(2);
+    const headerMenu = screen.getByRole("button", { name: "更多" });
+    expect(headerMenu.querySelector(".lucide-ellipsis")).toBeInTheDocument();
+    expect(headerMenu.querySelector(".jt1-visually-hidden")).toHaveTextContent("更多");
+  });
 
-    await user.click(screen.getByRole("button", { name: "更多" }));
-    const mobile = screen.getByRole("menu", { name: "更多" });
-    expect(within(mobile).getByText("資源")).toBeInTheDocument();
-    expect(within(mobile).getByText("設定與工具")).toBeInTheDocument();
-    expect(within(mobile).getAllByRole("menuitem").slice(0, 5).map((item) => item.textContent)).toEqual([
-      "合作推廣", "規則表", "漢字", "五十音", "關於"
+  it("keeps Grammar with references in compact Resources and Mock/About/Stay.D in header More", async () => {
+    const user = userEvent.setup();
+    const { container } = renderNavigation();
+    const compactTrigger = container.querySelector<HTMLButtonElement>(".nav-resources-compact button")!;
+    await user.click(compactTrigger);
+    const resources = screen.getByRole("menu", { name: "資料" });
+    expect(within(resources).getAllByRole("menuitem").map((item) => item.textContent)).toEqual([
+      "文型", "規則表", "漢字", "五十音"
     ]);
+    fireEvent.keyDown(within(resources).getByRole("menuitem", { name: "規則表" }), { key: "Escape" });
+
+    await user.click(container.querySelector<HTMLButtonElement>(".jt1-header-menu button")!);
+    const more = screen.getByRole("menu", { name: "更多" });
+    expect(within(more).getAllByRole("menuitem").slice(0, 3).map((item) => item.textContent)).toEqual([
+      "模擬考", "合作推廣", "關於"
+    ]);
+    expect(within(more).getByText("設定與工具")).toBeInTheDocument();
   });
 
-  it("marks Learn plus Kana, and Resources plus the exact resource", async () => {
-    const user = userEvent.setup();
-    renderNavigation("kana");
-    expect(screen.getByRole("button", { name: "學習" })).toHaveAttribute("aria-current", "page");
-    const resources = screen.getByRole("button", { name: "資源（目前：五十音）" });
-    expect(resources.className).toContain("selected");
-    await user.click(resources);
-    expect(screen.getByRole("menuitem", { name: "五十音" })).toHaveAttribute("aria-current", "page");
+  it("uses unchanged route anchors and intercepts only ordinary same-window clicks", () => {
+    const { onSelect } = renderNavigation();
+    const practice = screen.getByRole("link", { name: "練習" });
+    expect(practice).toHaveAttribute("href", "/challenge");
+    fireEvent.click(practice, { button: 0 });
+    expect(onSelect).toHaveBeenCalledWith("challenge");
+
+    onSelect.mockClear();
+    expect(fireEvent.click(practice, { button: 0, ctrlKey: true })).toBe(true);
+    expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it("routes primary and resource actions through one event API", async () => {
-    const user = userEvent.setup();
-    const onSelect = renderNavigation();
-    await user.click(screen.getByRole("button", { name: "學習" }));
-    expect(onSelect).toHaveBeenCalledWith("learn");
-    await user.click(screen.getByRole("button", { name: "資源" }));
-    await user.click(screen.getByRole("menuitem", { name: "漢字" }));
-    expect(onSelect).toHaveBeenCalledWith("kanji");
+  it("marks Practice current for Mock, and Conversation plus Learn ancestry correctly", () => {
+    const { container } = renderNavigation("mock");
+    expect(screen.getByRole("link", { name: "練習" })).toHaveAttribute("aria-current", "page");
+    expect(container.querySelector(".jt1-header-menu .nav-more-trigger")).toHaveAttribute("aria-label", "更多（目前：模擬考）");
   });
 
-  it("focuses an item inside the menu that was opened, not a sibling menu's twin", async () => {
-    const user = userEvent.setup();
-    renderNavigation();
+  it("marks Conversation current and preserves Learn plus Kana ancestry", () => {
+    const { unmount } = renderNavigation("conversation");
+    expect(screen.getByRole("link", { name: "會話" })).toHaveAttribute("aria-current", "page");
+    unmount();
 
-    const more = screen.getByRole("button", { name: "更多" });
-    more.focus();
+    const { container } = renderNavigation("kana");
+    expect(screen.getByRole("link", { name: "學習" })).not.toHaveAttribute("aria-current");
+    expect(container.querySelector(".nav-resources-compact .nav-more-trigger")).toHaveAttribute("aria-label", "資料（目前：五十音）");
+  });
+
+  it("opens header menus with focus in the correct panel and returns focus on Escape", async () => {
+    const user = userEvent.setup();
+    const { container } = renderNavigation();
+    const moreTrigger = container.querySelector<HTMLButtonElement>(".jt1-header-menu button")!;
+    moreTrigger.focus();
     await user.keyboard("{ArrowDown}");
-
-    const panel = await screen.findByRole("menu", { name: "更多" });
-    await waitFor(() =>
-      expect(panel).toContainElement(document.activeElement as HTMLElement | null)
-    );
-  });
-
-  it("supports keyboard-only resource selection from both folded navigation triggers", async () => {
-    const user = userEvent.setup();
-    const onSelect = renderNavigation();
-
-    const resources = screen.getByRole("button", { name: "資源" });
-    resources.focus();
-    await user.keyboard("{ArrowDown}");
-    await waitFor(() => expect(screen.getByRole("menuitem", { name: "合作推廣" })).toHaveFocus());
-    await user.keyboard("{ArrowDown}{ArrowDown}{Enter}");
-    expect(onSelect).toHaveBeenCalledWith("kanji");
-
-    const more = screen.getByRole("button", { name: "更多" });
-    more.focus();
-    await user.keyboard("{ArrowDown}");
-    await waitFor(() => expect(screen.getByRole("menuitem", { name: "合作推廣" })).toHaveFocus());
-    await user.keyboard("{ArrowDown}{ArrowDown}{Enter}");
-    expect(onSelect).toHaveBeenLastCalledWith("kanji");
+    const menu = await screen.findByRole("menu", { name: "更多" });
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: "模擬考" })).toHaveFocus());
+    await user.keyboard("{Escape}");
+    expect(moreTrigger).toHaveFocus();
+    expect(menu).not.toBeInTheDocument();
   });
 });

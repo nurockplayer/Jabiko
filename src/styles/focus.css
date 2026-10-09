@@ -239,10 +239,10 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.55rem 1rem;
-  border: 1px solid var(--teal);
+  border: 1px solid var(--jt-action-primary-background);
   border-radius: var(--radius-md);
-  background: var(--teal);
-  color: var(--selected-text);
+  background: var(--jt-action-primary-background);
+  color: var(--jt-action-primary-foreground);
   font-weight: 800;
   cursor: pointer;
 }

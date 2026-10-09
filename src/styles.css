@@ -18,6 +18,9 @@
 @import "./styles/conversation.css";
 @import "./styles/focus.css";
 @import "./styles/responsive.css";
+@import "./styles/jt1-tokens.css";
+@import "./styles/jt1-compat.css";
+@import "./styles/jt1-shell.css";
 
 /* #473: FeedbackPanel moved between .word-block and .choice-grid (a single
    DOM order for every viewport). The post-answer card now needs breathing

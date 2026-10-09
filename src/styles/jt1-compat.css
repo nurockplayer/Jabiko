@@ -1,0 +1,84 @@
+/* Legacy screen names mapped locally onto JT-1 roles while those screens migrate. */
+.app-shell {
+  --app-bg: var(--jt-surface-app);
+  --paper: var(--jt-surface-content);
+  --paper-deep: var(--jt-surface-inset);
+  --ink: var(--jt-text-primary);
+  --muted: var(--jt-text-secondary);
+  --rule: var(--jt-border-subtle);
+  --teal: var(--jt-accent-foreground);
+  --teal-dark: var(--jt-accent-foreground);
+  --matcha: var(--jt-accent-foreground);
+  --matcha-dark: var(--jt-accent-foreground);
+  --vermilion: var(--jt-assess-miss);
+  --indigo: var(--jt-accent-foreground);
+  --gold: var(--jt-status-warning-ink);
+  --green: var(--jt-assess-correct);
+  --font-ui: var(--jt-font-ui);
+  --font-title: var(--jt-font-ui);
+  --font-japanese-ui: var(--jt-font-cjk);
+  --font-japanese: var(--jt-font-cjk);
+  --font-japanese-display: var(--jt-font-ja-mincho);
+  --radius-sm: 4px;
+  --radius-md: var(--jt-radius-control);
+  --radius-lg: var(--jt-radius-overlay);
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+  --shadow: none;
+  --shadow-md: var(--jt-elevation-overlay);
+  --shadow-lg: var(--jt-elevation-overlay);
+  --overlay-bg: color-mix(in srgb, var(--jt-scrim) 32%, transparent);
+  --overlay-subtle: color-mix(in srgb, var(--jt-text-primary) 4%, transparent);
+  --panel-bg: var(--jt-surface-content);
+  --panel-border: var(--jt-border-subtle);
+  --button-border: var(--jt-border-control);
+  --button-text: var(--jt-text-primary);
+  --button-hover-shadow: none;
+  --selected-text: var(--jt-inverse-foreground);
+  --label-text: var(--jt-text-secondary);
+  --field-bg: var(--jt-surface-content);
+  --field-border: var(--jt-border-control);
+  --field-disabled-bg: var(--jt-surface-inset);
+  --field-disabled-text: var(--jt-text-disabled);
+  --focus-fill: var(--jt-surface-content);
+  --focus-outline: color-mix(in srgb, var(--jt-focus-ring) 36%, transparent);
+  --prompt-chip-border: var(--jt-border-control);
+  --prompt-chip-text: var(--jt-text-primary);
+  --target-chip-bg: var(--jt-status-warning-background);
+  --target-chip-border: var(--jt-status-warning-ink);
+  --target-chip-text: var(--jt-status-warning-ink);
+  --word-kind-bg: var(--jt-accent-background);
+  --word-kind-border: var(--jt-selection-edge);
+  --surface-ink: var(--jt-text-primary);
+  --surface-shadow: none;
+  --summary-bg: var(--jt-status-success-background);
+  --summary-border: var(--jt-status-success-ink);
+  --summary-text: var(--jt-status-success-ink);
+  --feedback-correct-bg: var(--jt-status-success-background);
+  --feedback-correct-border: var(--jt-status-success-ink);
+  --feedback-incorrect-bg: var(--jt-status-error-background);
+  --feedback-incorrect-border: var(--jt-status-error-ink);
+  --feedback-revealed-bg: var(--jt-status-warning-background);
+  --feedback-revealed-border: var(--jt-status-warning-ink);
+  --feedback-revealed-title: var(--jt-status-warning-ink);
+  --example-rule: var(--jt-border-subtle);
+  --review-row-text: var(--jt-text-primary);
+  --review-pill-bg: var(--jt-accent-background);
+  --review-pill-border: var(--jt-selection-edge);
+  --danger: var(--jt-status-error-ink);
+  --border: var(--jt-border-control);
+  --surface: var(--jt-surface-content);
+  --text: var(--jt-text-primary);
+  --shadow-soft: var(--jt-elevation-overlay);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] .app-shell {
+  --overlay-bg: color-mix(in srgb, var(--jt-scrim) 56%, transparent);
+  --focus-outline: color-mix(in srgb, var(--jt-focus-ring) 58%, transparent);
+  color-scheme: dark;
+}
+
+.app-shell .jt1-compat {
+  color: var(--jt-text-primary);
+}

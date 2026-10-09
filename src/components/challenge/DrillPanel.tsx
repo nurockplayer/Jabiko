@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ComponentType } from "react";
-import { ArrowRight, Eye, GraduationCap, MessageSquare, RotateCcw } from "lucide-react";
+import { ArrowRight, Eye, GraduationCap, House, MessageSquare, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
 import {
@@ -170,6 +170,8 @@ export function DrillPanel({
       : feedback.status === "revealed"
         ? "revealed"
         : "wrong";
+  const showDirectExit =
+    Boolean(currentQuestion) || (!sessionExhausted && !reviewEmpty && !bookmarksEmpty);
 
   return (
     <section
@@ -182,6 +184,17 @@ export function DrillPanel({
       data-result={drillResult}
       data-expected-answer={feedback ? currentQuestion?.expectedAnswers.join(" / ") : undefined}
     >
+      {showDirectExit ? (
+        <button
+          className="session-exit"
+          type="button"
+          onClick={onExit}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <House aria-hidden="true" size={16} />
+          {t.home}
+        </button>
+      ) : null}
       {currentQuestion ? (
         <>
           <div className="prompt-header">

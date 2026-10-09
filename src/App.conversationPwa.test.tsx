@@ -51,6 +51,6 @@ it("preserves an active conversation across background updates and applies the u
   expect(screen.getByRole("heading", { name: "回饋" })).toBeInTheDocument();
 
   setHidden(false);
-  await user.click(screen.getByRole("button", { name: "首頁" }));
+  await user.click(screen.getByRole("link", { name: "今日" }));
   expect(sw.update).toHaveBeenCalledExactlyOnceWith(true);
 });
