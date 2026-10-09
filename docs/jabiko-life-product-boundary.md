@@ -88,7 +88,8 @@ own explicit decision after the evidence exists.
   it is not a required Jabiko runtime service.
 - **Content artifact:** Jabiko consumes one deterministic, versioned,
   validated content pack; authored meaning has one runtime authority rather
-  than parallel Web/Godot/Tachiko owners.
+  than parallel Web/Godot/Tachiko owners. The first Web contract is specified
+  in [`jabiko-game-content-v1.md`](jabiko-game-content-v1.md).
 - **Hosts:** React/Web is the first validation host. Godot is deferred to a
   later host or adapter proof after the Web loop is proven.
 - **Progress:** Supabase may own authorized player/account progress later;
