@@ -76,13 +76,75 @@ test.describe("World home entry reflow", () => {
               const { left, right, top, bottom } = target.getBoundingClientRect();
               return { left, right, top, bottom };
             };
+            const documentWidth = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth);
+            const overflowDiagnostics = documentWidth > window.innerWidth ? (() => {
+              const pathFor = (element: Element) => {
+                const parts: string[] = [];
+                let current: Element | null = element;
+                while (current && current !== document.body && parts.length < 6) {
+                  const classes = typeof (current as HTMLElement).className === "string"
+                    ? (current as HTMLElement).className.trim().split(/\s+/).filter(Boolean).slice(0, 3)
+                    : [];
+                  parts.unshift(`${current.tagName.toLowerCase()}${classes.map((name) => `.${name}`).join("")}`);
+                  current = current.parentElement;
+                }
+                return parts.join(" > ");
+              };
+              const elementOutliers = [...document.body.querySelectorAll<HTMLElement>("*")]
+                .map((node) => {
+                  const bounds = node.getBoundingClientRect();
+                  const style = getComputedStyle(node);
+                  const text = node.textContent?.trim().replace(/\s+/g, " ") ?? "";
+                  return {
+                    path: pathFor(node),
+                    className: typeof node.className === "string" ? node.className : "",
+                    text: text.slice(0, 100),
+                    font: style.font,
+                    left: bounds.left,
+                    right: bounds.right,
+                    scrollWidth: node.scrollWidth,
+                    clientWidth: node.clientWidth,
+                    overflowBy: Math.max(bounds.right - window.innerWidth, -bounds.left, node.scrollWidth - node.clientWidth, 0)
+                  };
+                })
+                .filter((node) => node.overflowBy > 0.5)
+                .sort((left, right) => right.overflowBy - left.overflowBy)
+                .slice(0, 10);
+              const textRangeOutliers: Array<Record<string, unknown>> = [];
+              const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+              while (walker.nextNode() && textRangeOutliers.length < 20) {
+                const textNode = walker.currentNode as Text;
+                const text = textNode.textContent ?? "";
+                if (!text.trim()) continue;
+                const range = document.createRange();
+                range.setStart(textNode, 0);
+                range.setEnd(textNode, text.length);
+                const rects = [...range.getClientRects()]
+                  .filter((item) => item.left < -0.5 || item.right > window.innerWidth + 0.5)
+                  .map((item) => ({ left: item.left, right: item.right, top: item.top, bottom: item.bottom }));
+                if (!rects.length) continue;
+                const parent = textNode.parentElement;
+                const parentStyle = parent ? getComputedStyle(parent) : null;
+                textRangeOutliers.push({
+                  path: parent ? pathFor(parent) : "",
+                  className: parent && typeof (parent as HTMLElement).className === "string" ? (parent as HTMLElement).className : "",
+                  text: text.trim().replace(/\s+/g, " ").slice(0, 120),
+                  font: parentStyle?.font ?? "",
+                  scrollWidth: parent instanceof HTMLElement ? parent.scrollWidth : null,
+                  clientWidth: parent instanceof HTMLElement ? parent.clientWidth : null,
+                  rects
+                });
+              }
+              return { documentElement: document.documentElement.scrollWidth, body: document.body.scrollWidth, elementOutliers, textRangeOutliers };
+            })() : null;
             return {
               entry: { left: rect.left, right: rect.right, height: rect.height },
               label: box(labelElement),
               hint: box(hintElement),
               arrow: box(arrowElement),
               viewport: window.innerWidth,
-              document: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth)
+              document: documentWidth,
+              overflowDiagnostics
             };
           });
           expect(geometry.entry.left, `${locale} ${theme} ${viewport.width}px entry left`).toBeGreaterThanOrEqual(0);
@@ -112,7 +174,9 @@ test.describe("World home entry reflow", () => {
           await expect(dailyTitle).toBeVisible();
           expect(dailyBounds.title.left, `${locale} ${theme} ${viewport.width}px daily title left: ${JSON.stringify(dailyBounds)}`).toBeGreaterThanOrEqual(dailyBounds.button.left);
           expect(dailyBounds.title.right, `${locale} ${theme} ${viewport.width}px daily title right: ${JSON.stringify(dailyBounds)}`).toBeLessThanOrEqual(dailyBounds.button.right);
-          expect(geometry.document, `${locale} ${theme} ${viewport.width}px document`).toBeLessThanOrEqual(geometry.viewport);
+          const documentFailure = `${locale} ${theme} ${viewport.width}px document ${geometry.document}px > ${geometry.viewport}px; overflow=${JSON.stringify(geometry.overflowDiagnostics)}`;
+          if (geometry.document > geometry.viewport) console.error(`[World home entry reflow] ${documentFailure}`);
+          expect(geometry.document, documentFailure).toBeLessThanOrEqual(geometry.viewport);
         }
       }
     }
