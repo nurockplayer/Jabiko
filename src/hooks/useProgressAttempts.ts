@@ -308,6 +308,11 @@ export function useProgressAttempts(user: User | null) {
           releaseDeletionIntent(operation);
         }
       };
+      // A fresh failure before deletion is known to have succeeded preserves
+      // the existing request contract and releases only its new intent. Once
+      // remote deletion succeeds (or no client means local-only cleanup),
+      // later failures must retain the marker so cleanup can resume.
+      let cleanupMustResume = false;
 
       operation.promise = (async (): Promise<boolean> => {
         try {
@@ -351,6 +356,9 @@ export function useProgressAttempts(user: User | null) {
               }
               return false;
             }
+            cleanupMustResume = true;
+          } else {
+            cleanupMustResume = true;
           }
 
           // A successful remote delete (or no-client local cleanup) is not a
@@ -386,10 +394,13 @@ export function useProgressAttempts(user: User | null) {
           if (!isCurrent()) {
             return false;
           }
-          // A thrown operation is ambiguous: keep the durable intent so a
-          // later login can safely retry. Only an explicit fresh remote
-          // rejection above is allowed to discard the new marker.
+          // Before remote success, preserve the existing fresh-request
+          // failure contract. After remote success (or local-only cleanup
+          // starts), retain the intent so cleanup can safely resume.
           setError();
+          if (operation.fresh && !cleanupMustResume) {
+            removeFreshIntent();
+          }
           return false;
         } finally {
           operation.settled = true;

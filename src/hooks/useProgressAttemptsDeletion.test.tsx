@@ -186,7 +186,31 @@ describe("useProgressAttempts deletion durability and upload ordering", () => {
     expect(window.localStorage.getItem(deletionMarkerKey("delete-fresh-failure"))).toBeNull();
   });
 
-  it("keeps a fresh intent after an ambiguous thrown remote failure", async () => {
+  it("releases a fresh intent after getSupabase rejects before DELETE", async () => {
+    const stale = makeAttempt(8354);
+    const later = makeAttempt(8355);
+    const userId = "delete-fresh-sdk-failure";
+    window.localStorage.setItem(ATTEMPTS_KEY, JSON.stringify([stale]));
+    const { result } = renderHook(() => useProgressAttempts(makeUser(userId)));
+    await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
+    io.getSupabase.mockRejectedValueOnce(new Error("SDK unavailable"));
+
+    let deleted = true;
+    await act(async () => {
+      deleted = await result.current.deleteSyncedPracticeHistory();
+    });
+    expect(deleted).toBe(false);
+    expect(result.current.historyDeletionStatus).toBe("error");
+    expect(io.deleteRemoteAttempts).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem(deletionMarkerKey(userId))).toBeNull();
+    expect(diskAttempts()).toEqual([stale]);
+
+    io.pushAttempts.mockClear();
+    act(() => result.current.recordAttempt(later));
+    await waitFor(() => expect(io.pushAttempts).toHaveBeenCalledWith(fakeClient, userId, [later]));
+  });
+
+  it("releases a fresh intent after a thrown remote failure", async () => {
     const stale = makeAttempt(8356);
     const later = makeAttempt(8357);
     const userId = "delete-thrown-remote-failure";
@@ -201,22 +225,12 @@ describe("useProgressAttempts deletion durability and upload ordering", () => {
     });
     expect(deleted).toBe(false);
     expect(result.current.historyDeletionStatus).toBe("error");
-    expect(window.localStorage.getItem(deletionMarkerKey(userId))).not.toBeNull();
+    expect(window.localStorage.getItem(deletionMarkerKey(userId))).toBeNull();
     expect(diskAttempts()).toEqual([stale]);
 
     io.pushAttempts.mockClear();
     act(() => result.current.recordAttempt(later));
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    });
-    expect(io.pushAttempts).not.toHaveBeenCalledWith(fakeClient, userId, [later]);
-
-    io.deleteRemoteAttempts.mockResolvedValue({ ok: true });
-    await act(async () => {
-      deleted = await result.current.deleteSyncedPracticeHistory();
-    });
-    expect(deleted).toBe(true);
-    expect(window.localStorage.getItem(deletionMarkerKey(userId))).toBeNull();
+    await waitFor(() => expect(io.pushAttempts).toHaveBeenCalledWith(fakeClient, userId, [later]));
   });
 
   it("preserves retry intent after resume failure and uses it to block uploads if marker reads fail", async () => {
@@ -224,7 +238,7 @@ describe("useProgressAttempts deletion durability and upload ordering", () => {
     const later = makeAttempt(8362);
     window.localStorage.setItem(ATTEMPTS_KEY, JSON.stringify([stale]));
     window.localStorage.setItem(deletionMarkerKey("delete-retry-read-failure"), "1");
-    io.deleteRemoteAttempts.mockResolvedValue({ ok: false, message: "remote unavailable" });
+    io.deleteRemoteAttempts.mockRejectedValue(new Error("retry request failed"));
     const { result } = renderHook(() => useProgressAttempts(makeUser("delete-retry-read-failure")));
     await waitFor(() => expect(result.current.historyDeletionStatus).toBe("error"));
     expect(window.localStorage.getItem(deletionMarkerKey("delete-retry-read-failure"))).not.toBeNull();
