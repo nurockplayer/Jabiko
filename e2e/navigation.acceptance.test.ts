@@ -12,6 +12,242 @@ const viewportMatrix = [
 
 const representativeRoutes = ["/", "/grammar/n5", "/kana", "/privacy", "/terms"] as const;
 
+test.describe("World home entry reflow", () => {
+  test("keeps the existing World CTA and home text within responsive viewport bounds", async ({ page }) => {
+    for (const locale of ["zh-Hant", "ja", "en"] as const) {
+      for (const theme of ["light", "dark"] as const) {
+        for (const viewport of [
+          { width: 320, rootFontPercent: 200 },
+          { width: 390, rootFontPercent: 100 },
+          { width: 1440, rootFontPercent: 100 }
+        ]) {
+          await page.setViewportSize({ width: viewport.width, height: 900 });
+          await page.goto("/");
+          await page.evaluate(({ storedLocale, storedTheme }) => {
+            localStorage.setItem("jabiko.lang", storedLocale);
+            localStorage.setItem("jabiko.theme", storedTheme);
+          }, { storedLocale: locale, storedTheme: theme });
+          await page.reload();
+          await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+          if (viewport.rootFontPercent !== 100) {
+            await page.addStyleTag({ content: `:root { font-size: ${viewport.rootFontPercent}% !important; }` });
+          }
+
+          const options = page.locator(".home-level-card-options .home-level-option");
+          await expect(options).toHaveCount(5);
+          const optionLabels = await options.evaluateAll((elements) => elements.map((element) => {
+            const label = element.querySelector("strong")!;
+            const control = element.getBoundingClientRect();
+            const range = document.createRange();
+            range.selectNodeContents(label);
+            const text = range.getBoundingClientRect();
+            return {
+              text: label.textContent?.trim() ?? "",
+              control: { left: control.left, right: control.right, top: control.top, bottom: control.bottom },
+              label: { left: text.left, right: text.right, top: text.top, bottom: text.bottom }
+            };
+          }));
+          for (const [index, option] of optionLabels.entries()) {
+            expect(option.label.left, `${locale} ${theme} ${viewport.width}px ${option.text} label left: ${JSON.stringify(option)}`).toBeGreaterThanOrEqual(option.control.left);
+            expect(option.label.right, `${locale} ${theme} ${viewport.width}px ${option.text} label right`).toBeLessThanOrEqual(option.control.right);
+            expect(option.label.top, `${locale} ${theme} ${viewport.width}px ${option.text} label top`).toBeGreaterThanOrEqual(option.control.top);
+            expect(option.label.bottom, `${locale} ${theme} ${viewport.width}px ${option.text} label bottom`).toBeLessThanOrEqual(option.control.bottom);
+            for (const other of optionLabels.slice(index + 1)) {
+              const overlaps = option.label.left < other.label.right && option.label.right > other.label.left && option.label.top < other.label.bottom && option.label.bottom > other.label.top;
+              expect(overlaps, `${locale} ${theme} ${viewport.width}px level labels ${option.text} and ${other.text} do not overlap`).toBe(false);
+            }
+          }
+
+          const entry = page.locator(".home-game-preview-entry");
+          await expect(entry).toHaveAttribute("href", "/game");
+          await expect(entry).toBeVisible();
+          const label = entry.locator(".home-game-preview-label");
+          const hint = entry.locator(".home-game-preview-copy");
+          const arrow = entry.locator("svg");
+          await expect(label).toBeVisible();
+          await expect(hint).toBeVisible();
+          await expect(arrow).toBeVisible();
+          const geometry = await entry.evaluate((element) => {
+            const rect = element.getBoundingClientRect();
+            const labelElement = element.querySelector<HTMLElement>(".home-game-preview-label")!;
+            const hintElement = element.querySelector<HTMLElement>(".home-game-preview-copy")!;
+            const arrowElement = element.querySelector<SVGElement>("svg")!;
+            const box = (target: Element) => {
+              const { left, right, top, bottom } = target.getBoundingClientRect();
+              return { left, right, top, bottom };
+            };
+            const documentWidth = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth);
+            const overflowDiagnostics = documentWidth > window.innerWidth ? (() => {
+              const pathFor = (element: Element) => {
+                const parts: string[] = [];
+                let current: Element | null = element;
+                while (current && current !== document.body && parts.length < 6) {
+                  const classes = typeof (current as HTMLElement).className === "string"
+                    ? (current as HTMLElement).className.trim().split(/\s+/).filter(Boolean).slice(0, 3)
+                    : [];
+                  parts.unshift(`${current.tagName.toLowerCase()}${classes.map((name) => `.${name}`).join("")}`);
+                  current = current.parentElement;
+                }
+                return parts.join(" > ");
+              };
+              const elementOutliers = [...document.body.querySelectorAll<HTMLElement>("*")]
+                .map((node) => {
+                  const bounds = node.getBoundingClientRect();
+                  const style = getComputedStyle(node);
+                  const text = node.textContent?.trim().replace(/\s+/g, " ") ?? "";
+                  return {
+                    path: pathFor(node),
+                    className: typeof node.className === "string" ? node.className : "",
+                    text: text.slice(0, 100),
+                    font: style.font,
+                    left: bounds.left,
+                    right: bounds.right,
+                    scrollWidth: node.scrollWidth,
+                    clientWidth: node.clientWidth,
+                    overflowBy: Math.max(bounds.right - window.innerWidth, -bounds.left, node.scrollWidth - node.clientWidth, 0)
+                  };
+                })
+                .filter((node) => node.overflowBy > 0.5)
+                .sort((left, right) => right.overflowBy - left.overflowBy)
+                .slice(0, 10);
+              const textRangeOutliers: Array<Record<string, unknown>> = [];
+              const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+              while (walker.nextNode() && textRangeOutliers.length < 20) {
+                const textNode = walker.currentNode as Text;
+                const text = textNode.textContent ?? "";
+                if (!text.trim()) continue;
+                const range = document.createRange();
+                range.setStart(textNode, 0);
+                range.setEnd(textNode, text.length);
+                const rects = [...range.getClientRects()]
+                  .filter((item) => item.left < -0.5 || item.right > window.innerWidth + 0.5)
+                  .map((item) => ({ left: item.left, right: item.right, top: item.top, bottom: item.bottom }));
+                if (!rects.length) continue;
+                const parent = textNode.parentElement;
+                const parentStyle = parent ? getComputedStyle(parent) : null;
+                textRangeOutliers.push({
+                  path: parent ? pathFor(parent) : "",
+                  className: parent && typeof (parent as HTMLElement).className === "string" ? (parent as HTMLElement).className : "",
+                  text: text.trim().replace(/\s+/g, " ").slice(0, 120),
+                  font: parentStyle?.font ?? "",
+                  scrollWidth: parent instanceof HTMLElement ? parent.scrollWidth : null,
+                  clientWidth: parent instanceof HTMLElement ? parent.clientWidth : null,
+                  rects
+                });
+              }
+              return { documentElement: document.documentElement.scrollWidth, body: document.body.scrollWidth, elementOutliers, textRangeOutliers };
+            })() : null;
+            return {
+              entry: { left: rect.left, right: rect.right, height: rect.height },
+              label: box(labelElement),
+              hint: box(hintElement),
+              arrow: box(arrowElement),
+              viewport: window.innerWidth,
+              document: documentWidth,
+              overflowDiagnostics
+            };
+          });
+          expect(geometry.entry.left, `${locale} ${theme} ${viewport.width}px entry left`).toBeGreaterThanOrEqual(0);
+          expect(geometry.entry.right, `${locale} ${theme} ${viewport.width}px entry right`).toBeLessThanOrEqual(viewport.width);
+          expect(geometry.entry.height, `${locale} ${theme} ${viewport.width}px entry target height`).toBeGreaterThanOrEqual(44);
+          expect(geometry.label.left).toBeGreaterThanOrEqual(geometry.entry.left);
+          expect(geometry.label.right).toBeLessThanOrEqual(geometry.entry.right);
+          expect(geometry.hint.left).toBeGreaterThanOrEqual(geometry.entry.left);
+          expect(geometry.hint.right).toBeLessThanOrEqual(geometry.entry.right);
+          expect(geometry.arrow.left).toBeGreaterThanOrEqual(geometry.entry.left);
+          expect(geometry.arrow.right).toBeLessThanOrEqual(geometry.entry.right);
+
+          const daily = page.locator(".home-banner-daily");
+          const dailyTitle = daily.locator(".home-banner-text strong");
+          const dailyBounds = await daily.evaluate((element) => {
+            const button = element.getBoundingClientRect();
+            const title = element.querySelector<HTMLElement>(".home-banner-text strong")!;
+            const range = document.createRange();
+            range.selectNodeContents(title);
+            const text = range.getBoundingClientRect();
+            return {
+              button: { left: button.left, right: button.right, top: button.top, bottom: button.bottom },
+              title: { left: text.left, right: text.right, top: text.top, bottom: text.bottom }
+            };
+          });
+          await expect(daily).toBeVisible();
+          await expect(dailyTitle).toBeVisible();
+          expect(dailyBounds.title.left, `${locale} ${theme} ${viewport.width}px daily title left: ${JSON.stringify(dailyBounds)}`).toBeGreaterThanOrEqual(dailyBounds.button.left);
+          expect(dailyBounds.title.right, `${locale} ${theme} ${viewport.width}px daily title right: ${JSON.stringify(dailyBounds)}`).toBeLessThanOrEqual(dailyBounds.button.right);
+          const conjugationLaunch = page.locator(".home-conjugation-launch");
+          const conjugationBounds = await conjugationLaunch.evaluate((element) => {
+            const button = element.getBoundingClientRect();
+            const title = element.querySelector<HTMLElement>("span strong")!;
+            const support = element.querySelector<HTMLElement>("span small")!;
+            const rangeBounds = (target: Element) => {
+              const range = document.createRange();
+              range.selectNodeContents(target);
+              const rect = range.getBoundingClientRect();
+              return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
+            };
+            const icons = [...element.querySelectorAll<SVGElement>("svg")].map((icon) => {
+              const rect = icon.getBoundingClientRect();
+              return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
+            });
+            return {
+              button: { left: button.left, right: button.right, top: button.top, bottom: button.bottom },
+              title: rangeBounds(title),
+              support: rangeBounds(support),
+              icons
+            };
+          });
+          expect(conjugationBounds.title.left, `${locale} ${theme} ${viewport.width}px conjugation title left: ${JSON.stringify(conjugationBounds)}`).toBeGreaterThanOrEqual(conjugationBounds.button.left);
+          expect(conjugationBounds.title.right, `${locale} ${theme} ${viewport.width}px conjugation title right: ${JSON.stringify(conjugationBounds)}`).toBeLessThanOrEqual(conjugationBounds.button.right);
+          expect(conjugationBounds.support.left).toBeGreaterThanOrEqual(conjugationBounds.button.left);
+          expect(conjugationBounds.support.right, `${locale} ${theme} ${viewport.width}px conjugation support right: ${JSON.stringify(conjugationBounds)}`).toBeLessThanOrEqual(conjugationBounds.button.right);
+          const textRows = [conjugationBounds.title, conjugationBounds.support];
+          for (const text of textRows) {
+            for (const icon of conjugationBounds.icons) {
+              const overlaps = text.left < icon.right && text.right > icon.left && text.top < icon.bottom && text.bottom > icon.top;
+              expect(overlaps, `${locale} ${theme} ${viewport.width}px conjugation text and icon do not overlap`).toBe(false);
+            }
+          }
+          const titleSupportOverlap = conjugationBounds.title.left < conjugationBounds.support.right && conjugationBounds.title.right > conjugationBounds.support.left && conjugationBounds.title.top < conjugationBounds.support.bottom && conjugationBounds.title.bottom > conjugationBounds.support.top;
+          expect(titleSupportOverlap, `${locale} ${theme} ${viewport.width}px conjugation title and support do not overlap`).toBe(false);
+
+          const documentFailure = `${locale} ${theme} ${viewport.width}px document ${geometry.document}px > ${geometry.viewport}px; overflow=${JSON.stringify(geometry.overflowDiagnostics)}`;
+          if (geometry.document > geometry.viewport) console.error(`[World home entry reflow] ${documentFailure}`);
+          expect(geometry.document, documentFailure).toBeLessThanOrEqual(geometry.viewport);
+        }
+      }
+    }
+  });
+});
+
+test("keeps first-run level option text readable in both themes", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const theme of ["light", "dark"] as const) {
+    await page.goto("/");
+    await page.evaluate((storedTheme) => {
+      localStorage.setItem("jabiko.lang", "en");
+      localStorage.setItem("jabiko.theme", storedTheme);
+    }, theme);
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+    await page.waitForTimeout(500);
+    const options = page.locator(".home-level-card-options .home-level-option");
+    await expect(options).toHaveCount(5);
+    const colors = await options.evaluateAll((elements) => elements.map((option) => ({
+      name: option.querySelector("strong")?.textContent?.trim() ?? "",
+      background: getComputedStyle(option).backgroundColor,
+      title: getComputedStyle(option.querySelector("strong")!).color,
+      hint: getComputedStyle(option.querySelector("small")!).color
+    })));
+    for (const measured of colors) {
+      const titleRatio = contrastRatio(measured.title, measured.background);
+      const hintRatio = contrastRatio(measured.hint, measured.background);
+      const result = { ...measured, titleRatio, hintRatio };
+      expect(titleRatio, `${theme} ${measured.name} title contrast: ${JSON.stringify(result)}`).toBeGreaterThanOrEqual(4.5);
+      expect(hintRatio, `${theme} ${measured.name} hint contrast: ${JSON.stringify(result)}`).toBeGreaterThanOrEqual(4.5);
+    }
+  }
+});
+
 test.describe("Home share row reflow", () => {
   test("keeps all four share actions visible, in-bounds, and non-overlapping across scales and themes", async ({ page }) => {
     for (const theme of ["light", "dark"] as const) {
@@ -258,6 +494,12 @@ function relativeLuminance(rgb: number[]): number {
     return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
   });
   return linear[0]! * 0.2126 + linear[1]! * 0.7152 + linear[2]! * 0.0722;
+}
+
+function contrastRatio(foregroundColor: string, backgroundColor: string): number {
+  const foreground = relativeLuminance(parseRgb(foregroundColor));
+  const background = relativeLuminance(parseRgb(backgroundColor));
+  return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
 }
 
 function parseRgb(value: string): number[] {
