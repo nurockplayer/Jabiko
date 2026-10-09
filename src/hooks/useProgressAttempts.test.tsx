@@ -761,6 +761,14 @@ describe("useProgressAttempts -- deleteSyncedPracticeHistory", () => {
     // The stale local must not be pushed back while the marker is on.
     expect(pushAttempts).not.toHaveBeenCalled();
     expect(fetchRemoteAttempts).not.toHaveBeenCalled();
+
+    // This test uses a module-level in-memory intent alongside mocked marker
+    // storage. Finish its retry so the intent cannot leak into later tests.
+    deleteRemoteAttempts.mockResolvedValue({ ok: true });
+    removeDeletionMarker.mockReturnValue(true);
+    await act(async () => {
+      await result.current.deleteSyncedPracticeHistory();
+    });
   });
 
   it("recordAttempt while marker present -> no remote push; marker cleared -> push resumes", async () => {
@@ -840,14 +848,16 @@ describe("useProgressAttempts -- deleteSyncedPracticeHistory", () => {
     act(() => {
       result.current.recordAttempt(anonAttempt);
     });
-    rerender({ user: makeUser("user-A") });
+    rerender({ user: makeUser("logout-user-A") });
     await waitFor(() => expect(result.current.syncStatus).toBe("synced"));
 
     let aDelete!: Promise<boolean>;
     act(() => {
       aDelete = result.current.deleteSyncedPracticeHistory();
     });
-    await waitFor(() => expect(deleteRemoteAttempts).toHaveBeenCalledWith(fakeClient, "user-A"));
+    await waitFor(() =>
+      expect(deleteRemoteAttempts).toHaveBeenCalledWith(fakeClient, "logout-user-A")
+    );
 
     // Logout while A's delete is parked.
     rerender({ user: null });

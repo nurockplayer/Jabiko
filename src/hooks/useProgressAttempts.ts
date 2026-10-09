@@ -19,6 +19,105 @@ import type { Attempt } from "../domain/types";
 // One persistent attempt store for the app session.
 const attemptStore = createAttemptStore();
 
+type DeletionOwnerState = {
+  userId: string | null;
+  generation: number;
+  active: boolean;
+};
+
+type DeletionOperation = {
+  userId: string;
+  ownerState: DeletionOwnerState;
+  ownerGeneration: number;
+  token: symbol;
+  fresh: boolean;
+  predecessor: DeletionOperation | null;
+  promise: Promise<boolean>;
+  settled: boolean;
+};
+
+// The marker survives reloads; these module records extend its protection
+// across hook remounts in the same page lifetime. The operation map also
+// serializes an already-sent DELETE against a resumed DELETE for that user.
+const pendingDeletionIntents = new Set<string>();
+const deletionGateOwners = new Map<string, symbol>();
+const deletionOperations = new Map<string, DeletionOperation>();
+const pendingUploadsByUser = new Map<string, Set<Promise<void>>>();
+
+function markerExists(userId: string): boolean {
+  try {
+    return readDeletionMarker(userId);
+  } catch {
+    return false;
+  }
+}
+
+function hasPendingDeletionIntent(userId: string): boolean {
+  return pendingDeletionIntents.has(userId) || markerExists(userId);
+}
+
+function deletionOwnerIsLive(
+  userId: string,
+  ownerState: DeletionOwnerState,
+  ownerGeneration: number
+): boolean {
+  return (
+    ownerState.active &&
+    ownerState.userId === userId &&
+    ownerState.generation === ownerGeneration
+  );
+}
+
+function deletionOperationIsCurrent(operation: DeletionOperation): boolean {
+  return (
+    deletionOperations.get(operation.userId) === operation &&
+    deletionGateOwners.get(operation.userId) === operation.token &&
+    deletionOwnerIsLive(
+      operation.userId,
+      operation.ownerState,
+      operation.ownerGeneration
+    )
+  );
+}
+
+function releaseDeletionIntent(operation: DeletionOperation): boolean {
+  if (!deletionOperationIsCurrent(operation)) {
+    return false;
+  }
+  pendingDeletionIntents.delete(operation.userId);
+  deletionGateOwners.delete(operation.userId);
+  return true;
+}
+
+function trackUpload(userId: string, work: () => Promise<void>): Promise<void> {
+  let tasks = pendingUploadsByUser.get(userId);
+  if (!tasks) {
+    tasks = new Set();
+    pendingUploadsByUser.set(userId, tasks);
+  }
+
+  const task = Promise.resolve().then(work);
+  const tracked = task
+    .then(
+      () => undefined,
+      () => undefined
+    )
+    .finally(() => {
+      const current = pendingUploadsByUser.get(userId);
+      current?.delete(tracked);
+      if (current?.size === 0) {
+        pendingUploadsByUser.delete(userId);
+      }
+    });
+  tasks.add(tracked);
+  return task;
+}
+
+async function drainUploads(userId: string): Promise<void> {
+  const tasks = [...(pendingUploadsByUser.get(userId) ?? [])];
+  await Promise.allSettled(tasks);
+}
+
 // Status of cross-device sync (Phase 3, Part of #151):
 //   idle    -- no user / anon path (or before any login this session)
 //   syncing -- a login merge is in flight
@@ -50,17 +149,6 @@ export type HistoryDeletionStatus = "idle" | "deleting" | "deleted" | "error";
 type DeletionResult = {
   userId: string;
   status: "deleted" | "error";
-};
-
-// A single in-flight delete operation. Only one runs at a time per user;
-// repeated calls share the same promise (no parallel deletes). `active` goes
-// false when the captured user logs out / switches away, so a stale operation
-// bails before it can touch the current user's state or store.
-type DeletionOp = {
-  userId: string;
-  promise: Promise<boolean>;
-  settled: boolean;
-  active: boolean;
 };
 
 // Owns the lifetime attempt history (loaded from storage on mount,
@@ -130,135 +218,206 @@ export function useProgressAttempts(user: User | null) {
     userIdRef.current = userId;
   }, [userId]);
 
+  // Ownership survives StrictMode effect replay but expires on a real
+  // account transition or unmount. Generations prevent A→B→A from reviving
+  // an operation created for the first A lifetime.
+  const deletionOwnerRef = useRef<DeletionOwnerState>({
+    userId: null,
+    generation: 0,
+    active: false
+  });
+
   // Deletion protocol bookkeeping:
-  //   deletionOpRef    -- the in-flight user-initiated delete (dedup target)
   //   deletionGenRef   -- monotonic gen so a stale op's finally can't clear a
   //                       newer op's "deleting" status for the same user
   //   dataGenRef       -- bumped whenever a delete clears the store; a login
   //                       sync anchored to an older gen must not commit its
   //                       stale pre-delete merge (prevents resurrection)
-  const deletionOpRef = useRef<DeletionOp | null>(null);
   const deletionGenRef = useRef(0);
   const dataGenRef = useRef(0);
 
-  // Shared tail of the delete protocol: remote delete, then (only on success)
-  // clear the persistent store + React state, then remove the marker. Returns
-  // true only when the marker was actually removed (full cleanup confirmed).
-  // `dropMarkerOnRemoteFail`: the user-initiated flow drops the marker when
-  // the remote delete fails (nothing was deleted, so there is nothing to
-  // resume); the login-resume flow keeps it so the next login retries.
-  const runDeleteCleanup = useCallback(
-    async (
-      client: SupabaseClient,
-      userId: string,
-      isActive: () => boolean,
-      dropMarkerOnRemoteFail: boolean
+  // All deletion entry points share this owner-scoped operation. A new hook
+  // lifetime captures an inactive predecessor before replacing the map entry,
+  // then waits for that already-sent DELETE to settle before retrying it.
+  const startDeletionOperation = useCallback(
+    (
+      capturedUserId: string,
+      knownClient?: { client: SupabaseClient | null }
     ): Promise<boolean> => {
-      const remote = await deleteRemoteAttempts(client, userId);
-      // Stale (logout / user switch while parked on the remote delete): bail
-      // WITHOUT touching store/state -- A's late completion must never clear
-      // B's data or change B's status.
-      if (!isActive()) {
-        return false;
+      const ownerState = deletionOwnerRef.current;
+      const ownerGeneration = ownerState.generation;
+      const priorIntent = hasPendingDeletionIntent(capturedUserId);
+      const existing = deletionOperations.get(capturedUserId);
+
+      if (
+        existing &&
+        !existing.settled &&
+        existing.ownerState === ownerState &&
+        existing.ownerGeneration === ownerGeneration &&
+        deletionOperationIsCurrent(existing)
+      ) {
+        return existing.promise;
       }
-      if (!remote.ok) {
-        if (dropMarkerOnRemoteFail) {
-          removeDeletionMarker(userId);
+
+      // Capture the one predecessor before installing a replacement. This
+      // creates a same-user tail without making an operation wait on itself.
+      const predecessor = existing && !existing.settled ? existing : null;
+      let markerWritten = false;
+      try {
+        markerWritten = writeDeletionMarker(capturedUserId);
+      } catch {
+        markerWritten = false;
+      }
+      if (!markerWritten) {
+        return Promise.resolve(false);
+      }
+
+      const token = Symbol("history-delete-owner");
+      pendingDeletionIntents.add(capturedUserId);
+      deletionGateOwners.set(capturedUserId, token);
+      const operation: DeletionOperation = {
+        userId: capturedUserId,
+        ownerState,
+        ownerGeneration,
+        token,
+        fresh: !priorIntent,
+        predecessor,
+        promise: Promise.resolve(false),
+        settled: false
+      };
+      deletionOperations.set(capturedUserId, operation);
+      const gen = ++deletionGenRef.current;
+      setDeletionInFlight({ userId: capturedUserId, gen });
+
+      const ownerIsLive = () =>
+        deletionOwnerIsLive(capturedUserId, ownerState, ownerGeneration);
+      const isCurrent = () => deletionOperationIsCurrent(operation);
+      const setError = () => {
+        if (isCurrent()) {
+          setLastDeletionResult({ userId: capturedUserId, status: "error" });
         }
-        setLastDeletionResult({ userId, status: "error" });
-        return false;
-      }
-      // Remote succeeded: wipe local (persistent store first, then React),
-      // then commit the marker removal. The marker removal is the durable
-      // "cleanup confirmed" signal: when persistent storage is blocked it
-      // fails together with the attempts-key removal above, so a kept marker
-      // is the honest record that the local persistent copy may have survived
-      // and must not be re-pushed.
-      dataGenRef.current += 1;
-      attemptStore.clear();
-      setProgressAttempts([]);
-      const removed = removeDeletionMarker(userId);
-      setLastDeletionResult({ userId, status: removed ? "deleted" : "error" });
-      return removed;
+      };
+      const removeFreshIntent = () => {
+        let removed = false;
+        try {
+          removed = removeDeletionMarker(capturedUserId);
+        } catch {
+          removed = false;
+        }
+        if (removed) {
+          releaseDeletionIntent(operation);
+        }
+      };
+
+      operation.promise = (async (): Promise<boolean> => {
+        try {
+          if (predecessor) {
+            // The prior operation may have been invalidated by unmount or an
+            // account switch. Its result is irrelevant; its network tail is
+            // not, because DELETE must remain ordered after it.
+            try {
+              await predecessor.promise;
+            } catch {
+              // The operation wrapper is fail-closed; still wait for settle.
+            }
+          }
+          if (!isCurrent()) {
+            return false;
+          }
+
+          const client = knownClient ? knownClient.client : await getSupabase();
+          if (!isCurrent()) {
+            return false;
+          }
+
+          // The intent gate is already installed, so this snapshot contains
+          // every upload that could still reach the remote before the gate.
+          await drainUploads(capturedUserId);
+          if (!isCurrent()) {
+            return false;
+          }
+
+          if (client) {
+            const remote = await deleteRemoteAttempts(client, capturedUserId);
+            if (!isCurrent()) {
+              return false;
+            }
+            if (!remote.ok) {
+              // Preserve the accepted fresh-request failure behavior. A retry
+              // keeps the old marker/intent so stale local data stays gated.
+              setError();
+              if (operation.fresh) {
+                removeFreshIntent();
+              }
+              return false;
+            }
+          }
+
+          // A successful remote delete (or no-client local cleanup) is not a
+          // success until persistent attempts removal and marker removal are
+          // each independently confirmed.
+          dataGenRef.current += 1;
+          const attemptsCleared = attemptStore.clear();
+          setProgressAttempts([]);
+          if (!isCurrent()) {
+            return false;
+          }
+          if (!attemptsCleared) {
+            setError();
+            return false;
+          }
+
+          let markerRemoved = false;
+          try {
+            markerRemoved = removeDeletionMarker(capturedUserId);
+          } catch {
+            markerRemoved = false;
+          }
+          if (!markerRemoved) {
+            setError();
+            return false;
+          }
+          if (!releaseDeletionIntent(operation)) {
+            return false;
+          }
+          setLastDeletionResult({ userId: capturedUserId, status: "deleted" });
+          return true;
+        } catch {
+          if (!isCurrent()) {
+            return false;
+          }
+          // A thrown operation is ambiguous: keep the durable intent so a
+          // later login can safely retry. Only an explicit fresh remote
+          // rejection above is allowed to discard the new marker.
+          setError();
+          return false;
+        } finally {
+          operation.settled = true;
+          if (deletionOperations.get(capturedUserId) === operation) {
+            deletionOperations.delete(capturedUserId);
+          }
+          if (ownerIsLive()) {
+            setDeletionInFlight((previous) =>
+              previous && previous.gen === gen ? null : previous
+            );
+          }
+        }
+      })();
+      return operation.promise;
     },
     []
   );
 
   // Deletes the CURRENT user's synced practice history, remote-first. Returns
-  // true only when the whole protocol completed (remote rows gone AND local
-  // store + React cleared AND the marker removed). Never throws: failures are
-  // reported via the boolean and the terminal status.
+  // true only when remote deletion (if configured), persistent local removal,
+  // and marker removal all complete. Failures stay visible as false/error.
   const deleteSyncedPracticeHistory = useCallback((): Promise<boolean> => {
     const capturedUserId = userIdRef.current;
     if (!capturedUserId) {
-      // Not logged in: nothing to do, and no marker / supabase mutation.
       return Promise.resolve(false);
     }
-
-    // Single-flight: an in-flight delete for this same user is shared, never
-    // duplicated. A settled or stale (inactive) op is replaced by a fresh one.
-    const existing = deletionOpRef.current;
-    if (
-      existing &&
-      existing.userId === capturedUserId &&
-      !existing.settled &&
-      existing.active
-    ) {
-      return existing.promise;
-    }
-    if (existing) {
-      existing.active = false;
-    }
-
-    // The marker is the durable intent record; if we can't write it we must
-    // not touch remote at all.
-    if (!writeDeletionMarker(capturedUserId)) {
-      return Promise.resolve(false);
-    }
-
-    const gen = ++deletionGenRef.current;
-    setDeletionInFlight({ userId: capturedUserId, gen });
-
-    const op: DeletionOp = {
-      userId: capturedUserId,
-      settled: false,
-      active: true,
-      promise: Promise.resolve(false)
-    };
-    op.promise = (async (): Promise<boolean> => {
-      try {
-        const client = await getSupabase();
-        if (!op.active) {
-          // Logout / user switch invalidated this operation before it ran.
-          return false;
-        }
-        if (!client) {
-          // Supabase unconfigured: nothing remote to delete; complete the
-          // intent locally.
-          dataGenRef.current += 1;
-          attemptStore.clear();
-          setProgressAttempts([]);
-          removeDeletionMarker(capturedUserId);
-          setLastDeletionResult({ userId: capturedUserId, status: "deleted" });
-          return true;
-        }
-        return await runDeleteCleanup(client, capturedUserId, () => op.active, true);
-      } catch {
-        if (op.active) {
-          // Unexpected failure: leave local untouched, drop the marker (no
-          // confirmed cleanup), surface the error.
-          removeDeletionMarker(capturedUserId);
-          setLastDeletionResult({ userId: capturedUserId, status: "error" });
-        }
-        return false;
-      } finally {
-        op.settled = true;
-        setDeletionInFlight((prev) => (prev && prev.gen === gen ? null : prev));
-      }
-    })();
-    deletionOpRef.current = op;
-    return op.promise;
-  }, [runDeleteCleanup]);
+    return startDeletionOperation(capturedUserId);
+  }, [startDeletionOperation]);
 
   // Login sync: runs when the user id transitions to a non-null value.
   // NOTE: no synchronous setState in the effect body (react-hooks v7
@@ -266,13 +425,35 @@ export function useProgressAttempts(user: User | null) {
   // only the async terminal outcome writes state, and only while this
   // generation is still active.
   useEffect(() => {
+    const ownerState = deletionOwnerRef.current;
+    if (ownerState.userId !== userId) {
+      // The old user's operation becomes permanently stale. Incrementing the
+      // generation means a later A→B→A transition cannot revive that owner.
+      ownerState.active = false;
+      ownerState.userId = userId;
+      ownerState.generation += 1;
+    }
+    ownerState.active = true;
+    const ownerGeneration = ownerState.generation;
+    const ownerIsLive = () =>
+      deletionOwnerIsLive(userId ?? "", ownerState, ownerGeneration);
+
     if (!userId) {
       // Logout / anon: behaviour exactly as before -- local untouched.
       // No setState("idle") needed: derived syncStatus is naturally idle.
-      return;
+      return () => {
+        ownerState.active = false;
+      };
     }
 
     let active = true;
+    const isActive = () => active && ownerIsLive();
+    // A persisted marker is already admitted intent. Mirror it in module
+    // memory before the first SDK await so read failures later cannot open
+    // an upload path in this page lifetime.
+    if (hasPendingDeletionIntent(userId)) {
+      pendingDeletionIntents.add(userId);
+    }
 
     (async () => {
       // Re-check `active` after EVERY await: if the effect went stale
@@ -284,7 +465,7 @@ export function useProgressAttempts(user: User | null) {
       // continuation would upload the now-current local set to user A's
       // account (a cross-account data leak).
       const client = await getSupabase();
-      if (!active) {
+      if (!isActive()) {
         return;
       }
 
@@ -297,48 +478,19 @@ export function useProgressAttempts(user: User | null) {
       // requested but never confirmed. Complete it (remote delete + local
       // clear) BEFORE any normal fetch/merge, and only continue to sync once
       // the marker is gone.
-      if (readDeletionMarker(userId)) {
-        // Reuse an in-flight user-initiated delete for this user if one exists
-        // (never run two deletes in parallel).
-        const inFlight = deletionOpRef.current;
-        if (inFlight && inFlight.userId === userId && !inFlight.settled) {
-          await inFlight.promise;
-          if (!active) {
-            return;
-          }
+      if (hasPendingDeletionIntent(userId)) {
+        const done = await startDeletionOperation(userId, { client });
+        if (!isActive()) {
+          return;
         }
-        if (readDeletionMarker(userId)) {
-          const resumeGen = ++deletionGenRef.current;
-          setDeletionInFlight({ userId, gen: resumeGen });
-          try {
-            let done = false;
-            if (client) {
-              done = await runDeleteCleanup(client, userId, () => active, false);
-            } else {
-              dataGenRef.current += 1;
-              attemptStore.clear();
-              setProgressAttempts([]);
-              removeDeletionMarker(userId);
-              setLastDeletionResult({ userId, status: "deleted" });
-              done = true;
-            }
-            if (!active) {
-              return;
-            }
-            if (!done) {
-              // Marker stays: the local persistent copy may have survived, so
-              // do NOT fetch/merge/push stale local data back to remote.
-              return;
-            }
-          } finally {
-            setDeletionInFlight((prev) =>
-              prev && prev.gen === resumeGen ? null : prev
-            );
-          }
-          // Re-anchor after OUR OWN resume clear so the sync below is not
-          // (wrongly) treated as stale.
-          gen = dataGenRef.current;
+        if (!done || hasPendingDeletionIntent(userId)) {
+          // The marker and in-memory intent stay in force, so stale local
+          // attempts cannot be fetched, merged, or pushed back to remote.
+          return;
         }
+        // Re-anchor after our own resume clear so this sync is not treated as
+        // stale by the deletion generation guard.
+        gen = dataGenRef.current;
       }
 
       // fetch + push run BEFORE any local mutation, so a throw from either
@@ -350,19 +502,31 @@ export function useProgressAttempts(user: User | null) {
       }
       // A delete happened while we were fetching: never merge/push the stale
       // pre-delete history on top of the cleared store.
-      if (dataGenRef.current !== gen || readDeletionMarker(userId)) {
+      if (dataGenRef.current !== gen || hasPendingDeletionIntent(userId)) {
         return;
       }
       const { toUpload } = planLoginSync(attemptStore.list(), remote);
-      await pushAttempts(client, userId, toUpload);
+      // Register only the upload task (not this whole login/resume flow).
+      // Deletion can drain this task without waiting on its own caller. Keep
+      // the existing empty-delta push contract used by the sync path.
+      await trackUpload(userId, async () => {
+        if (
+          !isActive() ||
+          dataGenRef.current !== gen ||
+          hasPendingDeletionIntent(userId)
+        ) {
+          return;
+        }
+        await pushAttempts(client, userId, toUpload);
+      });
       // Only commit once the effect is still current: a stale run (unmount,
       // logout, or A->B user switch) bails here BEFORE touching local, so it
       // can never write a previous user's remote history into the now-anon
       // or new-user store.
-      if (!active) {
+      if (!isActive()) {
         return;
       }
-      if (dataGenRef.current !== gen || readDeletionMarker(userId)) {
+      if (dataGenRef.current !== gen || hasPendingDeletionIntent(userId)) {
         return;
       }
       // Re-read the live local set at commit time (rather than reusing the
@@ -377,24 +541,19 @@ export function useProgressAttempts(user: User | null) {
       // left untouched because mutation only happens after fetch + push both
       // succeed and the effect is still active. Nothing is lost; the next
       // login retries.
-      if (active) {
+      if (isActive()) {
         setLastSyncResult({ userId, status: "error" });
       }
     });
 
     return () => {
       active = false;
-      // A user-initiated delete for this user is abandoned on logout/switch:
-      // it must not clear the next user's store or change their status.
-      const op = deletionOpRef.current;
-      if (op && op.userId === userId && !op.settled) {
-        op.active = false;
-      }
+      ownerState.active = false;
       // Drop the "deleting" status entry for this user so a later re-login
       // of the same user doesn't read a stale in-flight flag as "deleting".
       setDeletionInFlight((prev) => (prev && prev.userId === userId ? null : prev));
     };
-  }, [userId, runDeleteCleanup]);
+  }, [userId, startDeletionOperation]);
 
   // Stable identity (setProgressAttempts is stable; attemptStore is a
   // module singleton; user id read via ref) so passing it down to the
@@ -409,12 +568,31 @@ export function useProgressAttempts(user: User | null) {
     const id = userIdRef.current;
     // While a pending-delete marker exists for this user, never push live
     // attempts back to remote (#692): the cleanup must leave history empty.
-    if (id && !readDeletionMarker(id)) {
-      void getSupabase()
-        .then((client) => pushAttempts(client, id, [attempt]))
-        .catch(() => {
-          /* best-effort; safe in local store */
-        });
+    const ownerState = deletionOwnerRef.current;
+    const ownerGeneration = ownerState.generation;
+    if (
+      id &&
+      deletionOwnerIsLive(id, ownerState, ownerGeneration) &&
+      !hasPendingDeletionIntent(id)
+    ) {
+      void trackUpload(id, async () => {
+        if (
+          !deletionOwnerIsLive(id, ownerState, ownerGeneration) ||
+          hasPendingDeletionIntent(id)
+        ) {
+          return;
+        }
+        const client = await getSupabase();
+        if (
+          !deletionOwnerIsLive(id, ownerState, ownerGeneration) ||
+          hasPendingDeletionIntent(id)
+        ) {
+          return;
+        }
+        await pushAttempts(client, id, [attempt]);
+      }).catch(() => {
+        // Live writes are best-effort; local history remains the retry source.
+      });
     }
   }, []);
 

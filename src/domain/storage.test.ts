@@ -73,4 +73,53 @@ describe("createAttemptStore", () => {
     expect(() => store.clear()).not.toThrow();
     expect(store.list()).toEqual([]);
   });
+
+  it("removes the persisted history after storage recovers from a failed write", () => {
+    const backing = new Map<string, string>([["jabiko:attempts", JSON.stringify([attempt])]]);
+    let failWrite = false;
+    const storage = {
+      getItem: (key: string) => backing.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        if (failWrite) throw new Error("temporary write failure");
+        backing.set(key, value);
+      },
+      removeItem: (key: string) => backing.delete(key)
+    };
+    const store = createAttemptStore(storage);
+
+    failWrite = true;
+    store.add({ ...attempt, timestamp: 2000 });
+    expect(JSON.parse(backing.get("jabiko:attempts")!)).toEqual([attempt]);
+
+    failWrite = false;
+    expect(store.clear()).toBe(true);
+    expect(backing.has("jabiko:attempts")).toBe(false);
+    expect(createAttemptStore(storage).list()).toEqual([]);
+  });
+
+  it("resumes persistence after a recovered clear confirms the key is absent", () => {
+    const backing = new Map<string, string>();
+    let failRemove = true;
+    const storage = {
+      getItem: (key: string) => backing.get(key) ?? null,
+      setItem: (key: string, value: string) => backing.set(key, value),
+      removeItem: (key: string) => {
+        if (failRemove) throw new Error("temporary remove failure");
+        backing.delete(key);
+      }
+    };
+    const store = createAttemptStore(storage);
+
+    store.add(attempt);
+    expect(store.clear()).toBe(false);
+    expect(store.list()).toEqual([]);
+
+    failRemove = false;
+    expect(store.clear()).toBe(true);
+    store.add({ ...attempt, timestamp: 2000 });
+
+    expect(JSON.parse(backing.get("jabiko:attempts")!)).toEqual([
+      { ...attempt, timestamp: 2000 }
+    ]);
+  });
 });
