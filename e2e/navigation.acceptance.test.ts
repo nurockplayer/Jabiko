@@ -127,6 +127,47 @@ test.describe("JT-1 Everyday preview shell (#834)", () => {
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByRole("heading", { name: /今天想練什麼/ })).toBeVisible();
   });
+
+  test("keeps the More menu within compact viewport bounds for each launched locale", async ({ page }) => {
+    for (const width of [320, 390]) {
+      for (const locale of ["zh-Hant", "ja", "en"] as const) {
+        await page.setViewportSize({ width, height: 844 });
+        await page.goto("/");
+        await page.evaluate((language) => localStorage.setItem("jabiko.lang", language), locale);
+        await page.goto("/game");
+
+        const trigger = page.locator(".jt1-header-menu .nav-more-trigger");
+        await trigger.click();
+        const panel = page.locator(".jt1-header-menu .nav-more-panel");
+        await expect(panel).toBeVisible();
+        const bounds = await panel.evaluate((element) => {
+          const { left, right } = element.getBoundingClientRect();
+          return { left, right, viewport: window.innerWidth };
+        });
+        expect(bounds.left, `${width}px ${locale} menu left edge`).toBeGreaterThanOrEqual(0);
+        expect(bounds.right, `${width}px ${locale} menu right edge`).toBeLessThanOrEqual(bounds.viewport);
+      }
+    }
+  });
+
+  test("wraps the preview title and keeps the document within 320px at 200% root text size", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.goto("/");
+    await page.evaluate(() => localStorage.setItem("jabiko.lang", "en"));
+    await page.goto("/game");
+    await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+
+    const measurements = await page.locator(".game-preview-content h1").evaluate((heading) => ({
+      rootFontSize: getComputedStyle(document.documentElement).fontSize,
+      headingScrollWidth: heading.scrollWidth,
+      headingClientWidth: heading.clientWidth,
+      documentScrollWidth: document.documentElement.scrollWidth,
+      viewport: window.innerWidth
+    }));
+    expect(measurements.rootFontSize).toBe("32px");
+    expect(measurements.headingScrollWidth).toBeLessThanOrEqual(measurements.headingClientWidth);
+    expect(measurements.documentScrollWidth).toBeLessThanOrEqual(measurements.viewport);
+  });
 });
 
 const grammarN5Breadcrumb = {

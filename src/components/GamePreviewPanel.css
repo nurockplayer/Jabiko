@@ -41,6 +41,7 @@
 .game-preview-content h1 {
   margin: 0.25rem 0 1rem;
   font-size: clamp(2rem, 6vw, 3.5rem);
+  overflow-wrap: anywhere;
 }
 
 .game-preview-content > a {
@@ -89,7 +90,4 @@
     flex-wrap: wrap;
   }
 
-  .game-preview-header > :last-child {
-    margin-left: 0;
-  }
 }
