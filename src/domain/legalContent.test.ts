@@ -13,6 +13,22 @@ describe("legal content", () => {
     }
   });
 
+  it("documents the local-only Everyday checkpoint and unsaved reply boundary in all launched locales", () => {
+    const documents = ["zh-Hant", "ja", "en"] as const;
+    const statements = [
+      "目前裝置的瀏覽器",
+      "現在の端末のブラウザ",
+      "current device's browser"
+    ];
+    documents.forEach((language, index) => {
+      const text = legalDocumentFor(language, "privacy").sections
+        .flatMap((section) => section.paragraphs ?? []).join("\n");
+      expect(text).toContain(statements[index]);
+      expect(text).toMatch(/未完成的對話|未完了の会話|unfinished conversation/);
+      expect(text).toMatch(/不會保存|保存しません|are not saved/);
+    });
+  });
+
   it("states the actual sync and analytics boundaries", () => {
     const privacy = legalDocumentFor("zh-Hant", "privacy");
     const text = privacy.sections

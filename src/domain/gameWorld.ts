@@ -542,6 +542,11 @@ interface GameWorldAnalysis extends GameWorldValidationResult {
   reachableStateKeys: ReadonlySet<string>;
 }
 
+export type GameWorldAvailability =
+  | { status: "invalid_world"; errors: readonly GameWorldValidationError[] }
+  | { status: "invalid_state" }
+  | { status: "ready"; availableMomentIds: readonly string[] };
+
 function analyzeGameWorld(world: GameWorldDefinition): GameWorldAnalysis {
   const errors: GameWorldValidationError[] = [];
   const locationIds = uniqueIds(world.locations, "duplicate_location_id", errors);
@@ -640,6 +645,22 @@ function analyzeGameWorld(world: GameWorldDefinition): GameWorldAnalysis {
 export function validateGameWorld(world: GameWorldDefinition): GameWorldValidationResult {
   const { valid, errors } = analyzeGameWorld(world);
   return { valid, errors };
+}
+
+/** Classify the world and persisted state without conflating a valid empty arc with failure. */
+export function getGameWorldAvailability(
+  world: GameWorldDefinition,
+  state: GameWorldState
+): GameWorldAvailability {
+  const analysis = analyzeGameWorld(world);
+  if (!analysis.valid) return { status: "invalid_world", errors: analysis.errors };
+  if (!isValidWorldState(world, state) || !analysis.reachableStateKeys.has(canonicalStateKey(state))) {
+    return { status: "invalid_state" };
+  }
+  return {
+    status: "ready",
+    availableMomentIds: selectAvailableWorldMoments(world, state).map(({ id }) => id)
+  };
 }
 
 function replayCompletedSession(

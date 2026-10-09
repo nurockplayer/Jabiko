@@ -1822,26 +1822,26 @@ describe("App", () => {
     expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
   });
 
-  it("keeps Training at / and exposes the localized Everyday preview entry", async () => {
+  it("keeps Training at / and exposes the localized Everyday story entry", async () => {
     const user = userEvent.setup();
     render(<App />);
 
     expect(screen.getByRole("heading", { name: /今天想練什麼/ })).toBeInTheDocument();
-    const gameEntry = screen.getByRole("link", { name: /日常.*預覽/ });
+    const gameEntry = screen.getByRole("link", { name: /日常.*故事/ });
     expect(gameEntry).toHaveAttribute("href", "/game");
     await user.click(gameEntry);
 
-    expect(await screen.findByRole("heading", { name: "日常" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "青葉站" })).toBeInTheDocument();
     expect(window.location.pathname).toBe("/game");
   });
 
-  it("renders an isolated truthful /game preview with a direct Small Talk and Training path", async () => {
+  it("renders the current World story with a direct Small Talk and Training path", async () => {
     window.history.replaceState({}, "", "/game");
     const user = userEvent.setup();
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: "日常" })).toBeInTheDocument();
-    expect(screen.getByText(/完整的日常世界.*尚未開放/)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "青葉站" })).toBeInTheDocument();
+    expect(screen.getByText(/常一起聊天的同事/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /日常會話/ })).toHaveAttribute("href", "/conversation");
     expect(screen.queryByRole("navigation", { name: "學習流程" })).not.toBeInTheDocument();
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
@@ -1859,17 +1859,63 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "顯示註音" })).toBeInTheDocument();
   });
 
-  it("switches language from the game shell tools and reflows the preview copy", async () => {
+  it("switches language from the game shell tools and reflows the current place", async () => {
     window.history.replaceState({}, "", "/game");
     const user = userEvent.setup();
     render(<App />);
 
-    await screen.findByRole("heading", { name: "日常" });
+    await screen.findByRole("heading", { name: "青葉站" });
+    await user.click(screen.getByRole("button", { name: "開始對話" }));
+    await user.click(screen.getByRole("button", { name: /開始這個情境/ }));
+    await user.click(screen.getByRole("button", { name: /繼續/ }));
+    const partnerLine = document.querySelector(".conversation-partner-line");
+    expect(partnerLine?.textContent).toContain("さっきより雨が強くなりましたね。");
+    await user.click(screen.getByRole("button", { name: "顯示註音" }));
+    expect(document.querySelector(".conversation-partner-line")?.textContent).toMatch(/さっきより雨(?:あめ)?が/);
+    await waitFor(() => expect(document.querySelector(".conversation-partner-line ruby rt")?.textContent).toBe("あめ"));
     await clickHeaderMenuItem(user, "切換語言");
     await user.click(screen.getByRole("button", { name: "English" }));
-    expect(await screen.findByRole("heading", { name: "Everyday" })).toBeInTheDocument();
-    expect(screen.getByText(/The Everyday world is not available yet/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Return to Training" })).toHaveAttribute("href", "/");
+    expect(await screen.findByRole("heading", { name: "Aoba Station" })).toBeInTheDocument();
+    expect(screen.getByText(/A coworker you often chat with/)).toBeInTheDocument();
+    expect(document.querySelector(".conversation-partner-line")?.textContent).toContain("さっきより雨あめが強つよくなりましたね。");
+    expect(screen.getAllByRole("link", { name: "Return to Training" })[0]).toHaveAttribute("href", "/");
+  });
+
+  it("confirms before header-menu navigation can discard an unconfirmed World checkpoint", async () => {
+    window.history.replaceState({}, "", "/game");
+    localStorage.setItem("jabiko.lang", "en");
+    const user = userEvent.setup();
+    const key = "jabiko-world-progress/v1:rainy-monday";
+    const originalSetItem = Storage.prototype.setItem.bind(localStorage);
+    const setSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation((itemKey, value) => {
+      if (itemKey === key) throw new Error("synthetic quota failure");
+      originalSetItem(itemKey, value);
+    });
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
+    render(<App />);
+
+    await user.click(await screen.findByRole("button", { name: /start conversation/i }));
+    await user.click(screen.getByRole("button", { name: /start this scene/i }));
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await user.click(screen.getByRole("button", { name: /本当ですね/ }));
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    expect(await screen.findByText(/not saved on this device yet/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "More" }));
+    await user.click(screen.getByRole("menuitem", { name: "About" }));
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(window.location.pathname).toBe("/game");
+    expect(screen.getByRole("button", { name: /retry saving scene/i })).toBeInTheDocument();
+    expect(localStorage.getItem(key)).toBeNull();
+
+    confirmSpy.mockReturnValue(true);
+    await user.click(screen.getByRole("button", { name: "More" }));
+    await user.click(screen.getByRole("menuitem", { name: "About" }));
+    await waitFor(() => expect(window.location.pathname).toBe("/about"));
+    expect(confirmSpy).toHaveBeenCalledTimes(2);
+    expect(localStorage.getItem(key)).toBeNull();
+    setSpy.mockRestore();
+    confirmSpy.mockRestore();
   });
 
 });

@@ -1,0 +1,157 @@
+.game-world-main {
+  padding-top: clamp(1.5rem, 5vw, 3.5rem);
+}
+
+.game-world-content h1 {
+  font-family: var(--jt-font-ja-mincho);
+}
+
+.game-world-content > p {
+  max-width: 42rem;
+  line-height: 1.65;
+}
+
+.game-world-progress,
+.game-world-arc-complete,
+.game-world-checkpoint {
+  border-inline-start: 3px solid var(--jt-border-control);
+  padding-inline-start: 0.75rem;
+}
+
+.game-world-locations {
+  display: grid;
+  gap: 1rem;
+  margin-block: 1.25rem 2rem;
+}
+
+.game-world-location {
+  border: 1px solid var(--jt-border-subtle);
+  border-radius: var(--jt-radius-overlay);
+  padding: 1rem;
+}
+
+.game-world-current {
+  border-inline-start: 3px solid var(--jt-border-control);
+  margin-block: 1rem 1.5rem;
+  padding-inline-start: 1rem;
+}
+
+.game-world-current-person {
+  color: var(--jt-text-secondary);
+  font-weight: 600;
+}
+
+.game-world-current-objective {
+  font-size: 1.08em;
+}
+
+.game-world-start {
+  background: var(--jt-action-primary-background);
+  border: 1px solid var(--jt-action-primary-background);
+  color: var(--jt-action-primary-foreground);
+  cursor: pointer;
+  max-width: 100%;
+  min-height: 44px;
+  padding-inline: 1rem;
+  text-align: start;
+  white-space: normal;
+}
+
+.game-world-location h3 {
+  margin-block: 0 0.25rem;
+}
+
+.game-world-location > p {
+  color: var(--jt-text-secondary);
+  margin-block: 0 0.75rem;
+}
+
+.game-world-moment {
+  align-items: flex-start;
+  background: var(--jt-surface-chrome);
+  border: 1px solid var(--jt-border-subtle);
+  border-radius: var(--jt-radius-control);
+  color: var(--jt-text-primary);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font: inherit;
+  gap: 0.35rem;
+  justify-content: center;
+  margin-block: 0.5rem;
+  min-height: 52px;
+  padding: 0.65rem 0.8rem;
+  text-align: start;
+  width: 100%;
+}
+
+.game-world-moment:hover {
+  border-color: var(--jt-border-control);
+}
+
+.game-world-moment small,
+.game-world-moment > span {
+  color: var(--jt-text-secondary);
+  font-size: 0.88em;
+}
+
+.game-world-trail {
+  display: grid;
+  gap: 0.4rem;
+  padding-inline-start: 1.4rem;
+}
+
+.game-world-privacy {
+  border-top: 1px solid var(--jt-border-subtle);
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+}
+
+.game-world-privacy summary {
+  cursor: pointer;
+  min-height: 44px;
+  width: fit-content;
+}
+
+.game-world-state-message,
+.game-world-save-error {
+  background: var(--jt-surface-chrome);
+  border: 1px solid var(--jt-border-subtle);
+  border-radius: var(--jt-radius-card);
+  margin-block: 1rem;
+  padding: 1rem;
+}
+
+.game-world-state-message h2,
+.game-world-state-message p,
+.game-world-save-error p {
+  margin-block-start: 0;
+}
+
+.game-world-save-error button,
+.game-world-product-links a,
+.game-world-state-message a {
+  color: var(--jt-text-link);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 0.5rem;
+}
+
+.game-world-product-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.game-world-shell :focus-visible {
+  outline: var(--jt-focus-ring-width) solid var(--jt-focus-ring);
+  outline-offset: var(--jt-focus-ring-offset);
+}
+
+@media (forced-colors: active) {
+  .game-world-shell :focus-visible {
+    outline-color: Highlight;
+  }
+}
