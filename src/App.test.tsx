@@ -1822,4 +1822,54 @@ describe("App", () => {
     expect(screen.queryByRole("dialog", { name: "刪除練習紀錄" })).not.toBeInTheDocument();
   });
 
+  it("keeps Training at / and exposes the localized Everyday preview entry", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(screen.getByRole("heading", { name: /今天想練什麼/ })).toBeInTheDocument();
+    const gameEntry = screen.getByRole("link", { name: /日常.*預覽/ });
+    expect(gameEntry).toHaveAttribute("href", "/game");
+    await user.click(gameEntry);
+
+    expect(await screen.findByRole("heading", { name: "日常" })).toBeInTheDocument();
+    expect(window.location.pathname).toBe("/game");
+  });
+
+  it("renders an isolated truthful /game preview with a direct Small Talk and Training path", async () => {
+    window.history.replaceState({}, "", "/game");
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "日常" })).toBeInTheDocument();
+    expect(screen.getByText(/完整的日常世界.*尚未開放/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /日常會話/ })).toHaveAttribute("href", "/conversation");
+    expect(screen.queryByRole("navigation", { name: "學習流程" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+
+    await user.click(screen.getAllByRole("link", { name: "回到練習" })[0]);
+    expect(window.location.pathname).toBe("/");
+    expect(await screen.findByRole("heading", { name: /今天想練什麼/ })).toBeInTheDocument();
+  });
+
+  it("keeps the shared furigana control and a direct Training return in the World header", async () => {
+    window.history.replaceState({}, "", "/game");
+    render(<App />);
+    expect(await screen.findByText("Jabiko · 日常")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "回到練習" })[0]).toHaveAttribute("href", "/");
+    expect(screen.getByRole("button", { name: "顯示註音" })).toBeInTheDocument();
+  });
+
+  it("switches language from the game shell tools and reflows the preview copy", async () => {
+    window.history.replaceState({}, "", "/game");
+    const user = userEvent.setup();
+    render(<App />);
+
+    await screen.findByRole("heading", { name: "日常" });
+    await clickHeaderMenuItem(user, "切換語言");
+    await user.click(screen.getByRole("button", { name: "English" }));
+    expect(await screen.findByRole("heading", { name: "Everyday" })).toBeInTheDocument();
+    expect(screen.getByText(/The Everyday world is not available yet/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Return to Training" })).toHaveAttribute("href", "/");
+  });
+
 });

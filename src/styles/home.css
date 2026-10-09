@@ -527,6 +527,40 @@
   height: 0.95rem;
 }
 
+.home-game-preview-entry {
+  align-items: center;
+  background: var(--jt-surface-chrome);
+  border: 1px solid var(--jt-border-subtle);
+  color: var(--jt-text-primary);
+  display: flex;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.65rem 0.9rem;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.home-game-preview-entry:focus-visible {
+  outline: var(--jt-focus-ring-width) solid var(--jt-focus-ring);
+  outline-offset: var(--jt-focus-ring-offset);
+}
+
+.home-game-preview-copy {
+  color: var(--jt-text-secondary);
+}
+
+.home-game-preview-entry svg {
+  height: 1rem;
+  width: 1rem;
+}
+
+@media (min-width: 48rem) {
+  .home-game-preview-entry {
+    justify-content: space-between;
+    width: 100%;
+  }
+}
+
 .home-banner {
   display: grid;
   grid-template-columns: auto 1fr auto;

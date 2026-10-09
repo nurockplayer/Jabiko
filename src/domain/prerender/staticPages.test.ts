@@ -115,7 +115,8 @@ describe("buildStaticPages", () => {
       "/terms",
       "/stay-d",
       "/grammar",
-      "/conversation"
+      "/conversation",
+      "/game"
     ]) {
       expect(byPath.has(route), route).toBe(true);
     }
@@ -127,6 +128,15 @@ describe("buildStaticPages", () => {
     expect(page!.title).toContain("日常會話");
     expect(page!.canonical).toBe("https://jabiko.app/conversation");
     expect(page!.bodyHtml).toContain("日常會話練習室");
+  });
+
+  it("prerenders an honest game preview with routes back to Training and Small Talk", () => {
+    const page = byPath.get("/game");
+    expect(page).toBeDefined();
+    expect(page!.canonical).toBe("https://jabiko.app/game");
+    expect(page!.bodyHtml).toContain("日常の世界はまだ公開されていません");
+    expect(page!.bodyHtml).toContain('<a href="/conversation">日常会話へ</a>');
+    expect(page!.bodyHtml).toContain('<a href="/">練習に戻る</a>');
   });
 
   it("prerenders editorial Stay.D copy and a crawler-visible Airbnb link", () => {

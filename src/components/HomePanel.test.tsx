@@ -27,6 +27,7 @@ function renderHome(overrides: Partial<Parameters<typeof HomePanel>[0]> = {}) {
     progressAttempts: [] as Attempt[],
     reviewCount: 0,
     onNavigate: vi.fn(),
+    onOpenGame: vi.fn(),
     onStartReview: noop,
     onStartVocab: noop,
     onStartBookmarks: vi.fn(),

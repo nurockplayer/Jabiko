@@ -53,6 +53,7 @@ import {
   type AppRoute
 } from "./domain/routes";
 import { resolveNavigation, type NavigationId } from "./domain/navigation";
+import { gamePreviewCopyFor } from "./domain/gamePreviewCopy";
 import packageJson from "../package.json";
 import "./styles.css";
 
@@ -77,6 +78,11 @@ const ConversationPanel = lazy(() =>
   import("./components/ConversationPanel").then((module) => ({
     default: module.ConversationPanel
   }))
+);
+// JT-1 World preview is a separate presentation shell. Keep its markup and CSS
+// out of the Training entry chunk until /game is opened.
+const GamePreviewPanel = lazy(() =>
+  import("./components/GamePreviewPanel").then((module) => ({ default: module.GamePreviewPanel }))
 );
 // 漢字音読み 速查 also pulls the vocab data (for example words), so it's
 // lazy too -- imported directly from its module, not the barrel.
@@ -524,6 +530,16 @@ export default function App() {
   };
 
   const routeResetKey = `${appView}:${grammarSurface ?? ""}`;
+  const gameHeaderMenu = (
+    <AppHeaderMenu
+      navigation={navigation}
+      labels={navigationLabels}
+      triggerLabel={t.navMore}
+      triggerCurrentLabel={t.navMoreWithCurrent}
+      tools={headerMenuTools}
+      onSelect={navigateFromAppNavigation}
+    />
+  );
 
   return (
     <div className="app-shell" data-session-route={appView === "challenge" ? "true" : undefined}>
@@ -653,6 +669,29 @@ export default function App() {
           advertisement: t.focusAdvertisement
         }}
       />
+      {appView === "game" ? (
+        <FuriganaContext.Provider value={{ enabled: furiganaEnabled }}>
+          <Suspense
+            fallback={
+              <GamePreviewFallback
+                language={language}
+                loadingLabel={t.loading}
+                onReturn={() => setRoute(staticRoute("home"))}
+              />
+            }
+          >
+            <GamePreviewPanel
+              language={language}
+              headerMenu={gameHeaderMenu}
+              furiganaLabel={furiganaToggleLabel}
+              furiganaEnabled={furiganaEnabled}
+              onToggleFurigana={toggleFurigana}
+              onNavigate={(view) => setRoute(staticRoute(view))}
+            />
+          </Suspense>
+        </FuriganaContext.Provider>
+      ) : (
+        <>
       <a className="jt1-skip-link" href="#main-content">{navigationCopy.skipToContent}</a>
       {/* #608: non-home views compress the heading to a one-line brand bar on
           phones (CSS-only; desktop and the home hero keep the full intro). */}
@@ -744,6 +783,7 @@ export default function App() {
             // otherwise reopen the last-viewed point instead of the index.
             setRoute(target === "grammar" ? grammarRoute() : staticRoute(target));
           }}
+          onOpenGame={() => setRoute(staticRoute("game"))}
           onStartReview={() => openChallenge({ mode: "review" })}
           onStartBookmarks={() => openChallenge({ mode: "bookmarks" })}
           onStartVocab={() =>
@@ -864,6 +904,8 @@ export default function App() {
       )}
       </FuriganaContext.Provider>
       </main>
+        </>
+      )}
       </RouteErrorBoundary>
     </div>
   );
@@ -876,6 +918,40 @@ function PanelFallback({ label }: { label: string }) {
   return (
     <div className="panel-loading" role="status" aria-live="polite">
       {label}
+    </div>
+  );
+}
+
+function GamePreviewFallback({
+  language,
+  loadingLabel,
+  onReturn
+}: {
+  language: Language;
+  loadingLabel: string;
+  onReturn: () => void;
+}) {
+  const copy = gamePreviewCopyFor(language);
+  return (
+    <div className="game-preview-shell">
+      <header className="game-preview-header">
+        <span className="game-preview-identity">{copy.identity}</span>
+        <span className="game-preview-status">{copy.preview}</span>
+        <a
+          className="game-preview-header-return"
+          href="/"
+          onClick={(event) => {
+            if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
+            onReturn();
+          }}
+        >
+          {copy.returnTraining}
+        </a>
+      </header>
+      <main id="main-content" className="game-preview-main" tabIndex={-1}>
+        <p role="status">{loadingLabel}</p>
+      </main>
     </div>
   );
 }
