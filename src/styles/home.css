@@ -613,6 +613,32 @@
   width: 1.45rem;
 }
 
+@media (max-width: 360px) {
+  .home-banner-daily {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .home-banner-daily .home-banner-text {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .home-banner-daily > svg:first-child {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .home-banner-daily > svg:last-child {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .home-banner-daily .home-banner-text strong {
+    overflow-wrap: anywhere;
+  }
+}
+
 .home-conjugation-launch {
   align-items: center;
   background: var(--paper);
@@ -1283,6 +1309,9 @@
 }
 
 .home-level-option {
+  background: var(--jt-surface-content);
+  border-color: var(--jt-border-control);
+  color: var(--jt-text-primary);
   display: flex;
   flex-direction: column;
   align-items: center;

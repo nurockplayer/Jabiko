@@ -94,11 +94,58 @@ test.describe("World home entry reflow", () => {
           expect(geometry.hint.right).toBeLessThanOrEqual(geometry.entry.right);
           expect(geometry.arrow.left).toBeGreaterThanOrEqual(geometry.entry.left);
           expect(geometry.arrow.right).toBeLessThanOrEqual(geometry.entry.right);
+
+          const daily = page.locator(".home-banner-daily");
+          const dailyTitle = daily.locator(".home-banner-text strong");
+          const dailyBounds = await daily.evaluate((element) => {
+            const button = element.getBoundingClientRect();
+            const title = element.querySelector<HTMLElement>(".home-banner-text strong")!;
+            const range = document.createRange();
+            range.selectNodeContents(title);
+            const text = range.getBoundingClientRect();
+            return {
+              button: { left: button.left, right: button.right, top: button.top, bottom: button.bottom },
+              title: { left: text.left, right: text.right, top: text.top, bottom: text.bottom }
+            };
+          });
+          await expect(daily).toBeVisible();
+          await expect(dailyTitle).toBeVisible();
+          expect(dailyBounds.title.left, `${locale} ${theme} ${viewport.width}px daily title left: ${JSON.stringify(dailyBounds)}`).toBeGreaterThanOrEqual(dailyBounds.button.left);
+          expect(dailyBounds.title.right, `${locale} ${theme} ${viewport.width}px daily title right: ${JSON.stringify(dailyBounds)}`).toBeLessThanOrEqual(dailyBounds.button.right);
           expect(geometry.document, `${locale} ${theme} ${viewport.width}px document`).toBeLessThanOrEqual(geometry.viewport);
         }
       }
     }
   });
+});
+
+test("keeps first-run level option text readable in both themes", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const theme of ["light", "dark"] as const) {
+    await page.goto("/");
+    await page.evaluate((storedTheme) => {
+      localStorage.setItem("jabiko.lang", "en");
+      localStorage.setItem("jabiko.theme", storedTheme);
+    }, theme);
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+    await page.waitForTimeout(500);
+    const options = page.locator(".home-level-card-options .home-level-option");
+    await expect(options).toHaveCount(5);
+    const colors = await options.evaluateAll((elements) => elements.map((option) => ({
+      name: option.querySelector("strong")?.textContent?.trim() ?? "",
+      background: getComputedStyle(option).backgroundColor,
+      title: getComputedStyle(option.querySelector("strong")!).color,
+      hint: getComputedStyle(option.querySelector("small")!).color
+    })));
+    for (const measured of colors) {
+      const titleRatio = contrastRatio(measured.title, measured.background);
+      const hintRatio = contrastRatio(measured.hint, measured.background);
+      const result = { ...measured, titleRatio, hintRatio };
+      expect(titleRatio, `${theme} ${measured.name} title contrast: ${JSON.stringify(result)}`).toBeGreaterThanOrEqual(4.5);
+      expect(hintRatio, `${theme} ${measured.name} hint contrast: ${JSON.stringify(result)}`).toBeGreaterThanOrEqual(4.5);
+    }
+  }
 });
 
 test.describe("Home share row reflow", () => {
@@ -347,6 +394,12 @@ function relativeLuminance(rgb: number[]): number {
     return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
   });
   return linear[0]! * 0.2126 + linear[1]! * 0.7152 + linear[2]! * 0.0722;
+}
+
+function contrastRatio(foregroundColor: string, backgroundColor: string): number {
+  const foreground = relativeLuminance(parseRgb(foregroundColor));
+  const background = relativeLuminance(parseRgb(backgroundColor));
+  return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
 }
 
 function parseRgb(value: string): number[] {
