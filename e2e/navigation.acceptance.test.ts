@@ -668,6 +668,29 @@ test.describe("compact navigation chrome while scrolling", () => {
 });
 
 test.describe("legacy color compatibility contrast", () => {
+  test("keeps the World start action text readable in both themes", async ({ page }) => {
+    const evidence: Array<Record<string, string | number>> = [];
+    for (const theme of ["light", "dark"] as const) {
+      await page.goto("/");
+      await page.evaluate((storedTheme) => localStorage.setItem("jabiko.theme", storedTheme), theme);
+      await page.reload();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      await page.goto("/game");
+      const start = page.locator(".game-world-start");
+      await expect(start).toBeVisible();
+      evidence.push({
+        theme,
+        route: "/game",
+        selector: ".game-world-start",
+        ...(await expectReadableForeground(start, `${theme} World start action`))
+      });
+    }
+    await test.info().attach("game-world-start-contrast.json", {
+      body: JSON.stringify(evidence, null, 2),
+      contentType: "application/json"
+    });
+  });
+
   test("keeps selected controls and legacy accent ink readable in both themes", async ({ page }) => {
     const surfaces = [
       { route: "/challenge", selector: ".mode-card-count" },

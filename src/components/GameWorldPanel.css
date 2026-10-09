@@ -46,6 +46,10 @@
 }
 
 .game-world-start {
+  background: var(--jt-action-primary-background);
+  border: 1px solid var(--jt-action-primary-background);
+  color: var(--jt-action-primary-foreground);
+  cursor: pointer;
   max-width: 100%;
   min-height: 44px;
   padding-inline: 1rem;
