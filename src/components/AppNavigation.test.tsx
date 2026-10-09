@@ -97,6 +97,59 @@ describe("AppNavigation (#727)", () => {
     expect(container.querySelector(".nav-resources-compact .nav-more-trigger")).toHaveAttribute("aria-label", "資料（目前：五十音）");
   });
 
+  it("publishes the compact bar's measured clearance and removes it with the observer", () => {
+    let callback: ResizeObserverCallback | undefined;
+    const disconnect = vi.fn();
+    class MockResizeObserver {
+      constructor(next: ResizeObserverCallback) { callback = next; }
+      observe() {}
+      unobserve() {}
+      disconnect = disconnect;
+    }
+    vi.stubGlobal("ResizeObserver", MockResizeObserver);
+    const navigation = resolveNavigation(staticRoute("home"), "zh-Hant");
+    const result = render(
+      <div className="app-shell">
+        <AppNavigation
+          ariaLabel="學習流程" navigation={navigation} labels={labels} resourcesLabel="資料"
+          resourcesCurrentLabel={(page) => `資料（目前：${page}）`} onSelect={vi.fn()}
+        />
+      </div>
+    );
+    const shell = result.container.querySelector<HTMLElement>(".app-shell")!;
+    const nav = result.container.querySelector<HTMLElement>(".jt1-primary-nav")!;
+
+    expect(callback).toBeDefined();
+    callback?.([{
+      target: nav,
+      borderBoxSize: [{ blockSize: 68, inlineSize: 320 }],
+      contentBoxSize: [{ blockSize: 68, inlineSize: 320 }],
+      contentRect: nav.getBoundingClientRect()
+    } as unknown as ResizeObserverEntry], {} as ResizeObserver);
+    expect(shell.style.getPropertyValue("--jt-compact-nav-occupied")).toBe("68px");
+
+    callback?.([{
+      target: nav,
+      borderBoxSize: [{ blockSize: 74, inlineSize: 320 }],
+      contentBoxSize: [{ blockSize: 74, inlineSize: 320 }],
+      contentRect: nav.getBoundingClientRect()
+    } as unknown as ResizeObserverEntry], {} as ResizeObserver);
+    expect(shell.style.getPropertyValue("--jt-compact-nav-occupied")).toBe("74px");
+
+    callback?.([{
+      target: nav,
+      borderBoxSize: [{ blockSize: 0, inlineSize: 320 }],
+      contentBoxSize: [{ blockSize: 0, inlineSize: 320 }],
+      contentRect: nav.getBoundingClientRect()
+    } as unknown as ResizeObserverEntry], {} as ResizeObserver);
+    expect(shell.style.getPropertyValue("--jt-compact-nav-occupied")).toBe("");
+
+    result.unmount();
+    expect(shell.style.getPropertyValue("--jt-compact-nav-occupied")).toBe("");
+    expect(disconnect).toHaveBeenCalledOnce();
+    vi.unstubAllGlobals();
+  });
+
   it("opens header menus with focus in the correct panel and returns focus on Escape", async () => {
     const user = userEvent.setup();
     const { container } = renderNavigation();

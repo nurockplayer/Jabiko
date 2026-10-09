@@ -10,7 +10,7 @@ const challengeCss = readFileSync(new URL("./challenge.css", import.meta.url), "
 describe("JT-1 shell contracts", () => {
   it("keeps the header and five-entry compact bar within the accepted geometry", () => {
     expect(css).toMatch(/\.app-heading\s*\{[^}]*height:\s*var\(--jt-bar-height\)/s);
-    expect(css).toMatch(/\.jt1-primary-nav\s*\{[^}]*height:\s*calc\(var\(--jt-tabbar-height\)\s*\+\s*env\(safe-area-inset-bottom\)\)/s);
+    expect(css).toMatch(/\.jt1-primary-nav\s*\{[^}]*height:\s*auto[^}]*min-height:\s*calc\(var\(--jt-tabbar-height\)\s*\+\s*env\(safe-area-inset-bottom\)\)/s);
     expect(css).toMatch(/\.jt1-primary-nav\s*\{[^}]*height:\s*var\(--jt-bar-height\)/s);
     expect(css).toMatch(/\.app-heading\s*\{[^}]*display:\s*grid[^}]*grid-template-columns:[^}]*minmax\(0,\s*1fr\)[^}]*height:\s*var\(--jt-bar-height\)/s);
     expect(css).not.toMatch(/\.jt1-primary-nav\s*\{[^}]*position:\s*sticky/s);
@@ -24,7 +24,10 @@ describe("JT-1 shell contracts", () => {
   });
 
   it("keeps PWA update notices above compact navigation and clears the session nav gap", () => {
-    expect(css).toMatch(/\.app-shell \.update-toast\s*\{[^}]*bottom:\s*calc\(var\(--jt-tabbar-height\) \+ env\(safe-area-inset-bottom\) \+ 1rem\)/s);
+    expect(css).toMatch(/\.app-shell\s*\{[^}]*padding-bottom:\s*var\(--jt-compact-nav-occupied, calc\(var\(--jt-tabbar-height\) \+ env\(safe-area-inset-bottom\)\)\)/s);
+    expect(css).toMatch(/\.app-shell \.update-toast\s*\{[^}]*bottom:\s*calc\(var\(--jt-compact-nav-occupied, calc\(var\(--jt-tabbar-height\) \+ env\(safe-area-inset-bottom\)\)\) \+ 1rem\)/s);
+    expect(css).toMatch(/\.jt1-primary-nav \.nav-resources-compact \.nav-more-panel\s*\{[^}]*bottom:\s*calc\(var\(--jt-compact-nav-occupied/s);
+    expect(css).toMatch(/\.jt1-primary-nav\s*\{[^}]*height:\s*auto[^}]*min-height:\s*calc\(var\(--jt-tabbar-height\)/s);
     expect(css).toMatch(/\.app-shell\[data-session-route="true"\][^{]*\{[^}]*padding-bottom:\s*1\.5rem/s);
     expect(css).toMatch(/:has\(\.conversation-panel\[data-session-surface="true"\]\)[^{]*\{[^}]*padding-bottom:\s*1\.5rem/s);
   });

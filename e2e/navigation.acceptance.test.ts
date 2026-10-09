@@ -12,6 +12,161 @@ const viewportMatrix = [
 
 const representativeRoutes = ["/", "/grammar/n5", "/kana", "/privacy", "/terms"] as const;
 
+test.describe("compact navigation text reflow", () => {
+  test("keeps every destination and its label inside the compact bar as text enlarges", async ({ page }) => {
+    for (const locale of ["zh-Hant", "ja", "en"] as const) {
+      for (const theme of ["light", "dark"] as const) {
+        for (const viewport of [
+          { width: 320, rootFontPercent: 200 },
+          { width: 390, rootFontPercent: 100 },
+          { width: 1440, rootFontPercent: 100 }
+        ]) {
+          await page.setViewportSize({ width: viewport.width, height: 900 });
+          await page.goto("/");
+          await page.evaluate(({ storedLocale, storedTheme }) => {
+            localStorage.setItem("jabiko.lang", storedLocale);
+            localStorage.setItem("jabiko.theme", storedTheme);
+          }, { storedLocale: locale, storedTheme: theme });
+          await page.reload();
+          await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+          if (viewport.rootFontPercent !== 100) {
+            await page.addStyleTag({ content: `:root { font-size: ${viewport.rootFontPercent}% !important; }` });
+          }
+
+          const nav = page.locator(".app-shell .jt1-primary-nav");
+          await expect(nav).toBeVisible();
+          const geometry = await nav.evaluate((element) => {
+            const navRect = element.getBoundingClientRect();
+            const controls = [...element.querySelectorAll<HTMLElement>("a[data-nav], .nav-resources-compact > .nav-more-trigger, .nav-resources-wide > .nav-more-trigger")]
+              .filter((control) => {
+                const rect = control.getBoundingClientRect();
+                return rect.width > 0 && rect.height > 0 && getComputedStyle(control).visibility !== "hidden";
+              });
+            const rows = controls.map((control) => {
+              const controlRect = control.getBoundingClientRect();
+              const textRects: DOMRect[] = [];
+              const walker = document.createTreeWalker(control, NodeFilter.SHOW_TEXT);
+              while (walker.nextNode()) {
+                const node = walker.currentNode;
+                const parent = node.parentElement;
+                if (!node.textContent?.trim() || parent?.closest(".jt1-visually-hidden")) continue;
+                const range = document.createRange();
+                range.selectNodeContents(node);
+                textRects.push(...[...range.getClientRects()].filter((rect) => rect.width > 0 && rect.height > 0));
+              }
+              return {
+                label: control.textContent?.trim().replace(/\s+/g, " ") ?? "",
+                control: { left: controlRect.left, right: controlRect.right, top: controlRect.top, bottom: controlRect.bottom, height: controlRect.height },
+                text: textRects.map(({ left, right, top, bottom }) => ({ left, right, top, bottom }))
+              };
+            });
+            return {
+              nav: { left: navRect.left, right: navRect.right, top: navRect.top, bottom: navRect.bottom, height: navRect.height },
+              rows,
+              viewport: { width: window.innerWidth, height: window.innerHeight },
+              documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth)
+            };
+          });
+
+          expect(geometry.rows, `${locale}/${theme}/${viewport.width}px visible navigation controls`).toHaveLength(viewport.width < 1024 ? 5 : 6);
+          for (const row of geometry.rows) {
+            expect(row.control.height, `${locale}/${theme}/${viewport.width}px ${row.label} target height`).toBeGreaterThanOrEqual(44);
+            expect(row.text.length, `${locale}/${theme}/${viewport.width}px ${row.label} visible text ranges`).toBeGreaterThan(0);
+            for (const text of row.text) {
+              expect(text.left, `${locale}/${theme}/${viewport.width}px ${row.label} text left`).toBeGreaterThanOrEqual(row.control.left);
+              expect(text.right, `${locale}/${theme}/${viewport.width}px ${row.label} text right`).toBeLessThanOrEqual(row.control.right);
+              expect(text.top, `${locale}/${theme}/${viewport.width}px ${row.label} text top`).toBeGreaterThanOrEqual(row.control.top);
+              expect(text.bottom, `${locale}/${theme}/${viewport.width}px ${row.label} text bottom`).toBeLessThanOrEqual(row.control.bottom);
+              if (viewport.width < 1024) {
+                expect(text.top, `${locale}/${theme}/${viewport.width}px ${row.label} text above bar`).toBeGreaterThanOrEqual(geometry.nav.top);
+                expect(text.bottom, `${locale}/${theme}/${viewport.width}px ${row.label} text within bar`).toBeLessThanOrEqual(geometry.nav.bottom);
+              }
+            }
+          }
+          if (viewport.width === 390) {
+            expect(geometry.nav.height, `${locale}/${theme}/390px compact bar stays at its normal height: ${JSON.stringify(geometry)}`).toBe(56);
+          }
+          expect(geometry.documentWidth, `${locale}/${theme}/${viewport.width}px document width`).toBeLessThanOrEqual(viewport.width);
+        }
+      }
+    }
+  });
+
+  test("tracks measured clearance through Resources, resize, locale change, and session return", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.goto("/");
+    await page.evaluate(() => {
+      localStorage.setItem("jabiko.lang", "en");
+      localStorage.setItem("jabiko.theme", "light");
+    });
+    await page.reload();
+    await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+
+    const nav = page.locator(".app-shell .jt1-primary-nav");
+    const shell = page.locator(".app-shell");
+    const clearance = async () => nav.evaluate((element) => {
+      const shellElement = element.closest<HTMLElement>(".app-shell")!;
+      return {
+        height: element.getBoundingClientRect().height,
+        occupied: Number.parseFloat(shellElement.style.getPropertyValue("--jt-compact-nav-occupied")),
+        padding: Number.parseFloat(getComputedStyle(shellElement).paddingBottom)
+      };
+    });
+    await expect.poll(async () => (await clearance()).occupied).toBeGreaterThan(56);
+    let measured = await clearance();
+    expect(Math.abs(measured.occupied - measured.height)).toBeLessThan(0.1);
+    expect(Math.abs(measured.padding - measured.occupied)).toBeLessThan(0.1);
+
+    const trigger = nav.locator(".nav-resources-compact > .nav-more-trigger");
+    await trigger.click();
+    const panel = page.getByRole("menu", { name: "Resources" });
+    await expect(panel).toBeVisible();
+    const popup = await panel.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const navRect = element.closest(".jt1-primary-nav")!.getBoundingClientRect();
+      return { bottom: rect.bottom, navTop: navRect.top, maxHeight: getComputedStyle(element).maxHeight };
+    });
+    expect(popup.bottom).toBeLessThanOrEqual(popup.navTop - 7);
+    expect(popup.maxHeight).not.toBe("none");
+    await page.keyboard.press("Escape");
+    await expect(panel).toBeHidden();
+    await expect(trigger).toBeFocused();
+
+    await page.evaluate(() => {
+      [...document.querySelectorAll("style")]
+        .find((style) => style.textContent?.includes("font-size: 200%"))
+        ?.remove();
+    });
+    await page.setViewportSize({ width: 390, height: 900 });
+    await expect.poll(async () => (await clearance()).occupied).toBe(56);
+    measured = await clearance();
+    expect(measured.occupied).toBe(56);
+    expect(measured.padding).toBe(56);
+
+    const headerMenuTrigger = page.locator(".jt1-header-menu > .nav-more-trigger");
+    await headerMenuTrigger.click();
+    const headerMenu = page.getByRole("menu", { name: "More" });
+    await headerMenu.getByRole("menuitem", { name: "Change language" }).click();
+    const languageDialog = page.getByRole("dialog", { name: "Choose your language / 選擇語言 / 言語を選択" });
+    await languageDialog.getByRole("button", { name: "日本語" }).click();
+    await expect(page.locator("html")).toHaveAttribute("lang", "ja");
+    await expect.poll(async () => (await clearance()).height).toBe(56);
+    measured = await clearance();
+    expect(Math.abs(measured.occupied - measured.height)).toBeLessThan(0.1);
+
+    await page.goto("/challenge");
+    await expect(nav).toBeHidden();
+    await expect.poll(() => shell.evaluate((element) => element.style.getPropertyValue("--jt-compact-nav-occupied"))).toBe("");
+    await expect(shell).toHaveCSS("padding-bottom", "24px");
+
+    await page.goto("/");
+    await expect(nav).toBeVisible();
+    await expect.poll(async () => nav.evaluate((element) => Number.parseFloat(
+      element.closest<HTMLElement>(".app-shell")!.style.getPropertyValue("--jt-compact-nav-occupied")
+    ))).toBe(56);
+  });
+});
+
 test.describe("World home entry reflow", () => {
   test("keeps the existing World CTA and home text within responsive viewport bounds", async ({ page }) => {
     for (const locale of ["zh-Hant", "ja", "en"] as const) {
