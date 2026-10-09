@@ -99,8 +99,8 @@ export const VIEW_SEO: Record<AppView, PageSeo> = {
     path: APP_VIEW_PATHS.conversation
   },
   game: {
-    title: "日常のプレビュー · Jabiko",
-    description: "Jabiko の日常プレビューをご案内します。日常の世界はまだ公開されていませんが、日常会話の練習はこちらから利用できます。",
+    title: "雨天星期一・日常世界 · Jabiko",
+    description: "在雨天星期一的日常世界，和熟悉的同事練習日語接話。完成的場景檢查點只保存在目前裝置的瀏覽器；未完成的對話不會保存。",
     path: APP_VIEW_PATHS.game
   }
 };

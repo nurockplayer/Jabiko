@@ -39,6 +39,7 @@ const LEGAL_COPY = {
           title: "1. 未登入時儲存在瀏覽器的資料",
           paragraphs: [
             "練習紀錄、作答內容、正誤、作答時間、收藏，以及語言、主題、注音、語速、目標級別等偏好，主要儲存在你目前瀏覽器的 localStorage。這些資料不會因為單純使用網站就自動變成 Jabiko 帳號資料。",
+            "日常世界只會把已完成的故事檢查點保存在目前裝置的瀏覽器。這些檢查點不會同步到帳號或其他裝置；對話中的回覆不會保存，未完成的對話在重新載入後會重新開始。",
             "你可以透過瀏覽器的網站資料設定清除本機資料。清除瀏覽器資料、使用無痕模式或更換裝置，可能讓未同步的進度永久消失。"
           ]
         },
@@ -166,6 +167,7 @@ const LEGAL_COPY = {
           title: "1. ログイン前にブラウザへ保存される情報",
           paragraphs: [
             "練習履歴、回答、正誤、回答時間、ブックマーク、言語・テーマ・ふりがな・読み上げ速度・目標レベルなどの設定は、主に現在のブラウザの localStorage に保存されます。閲覧しただけで Jabiko のアカウント情報になることはありません。",
+            "日常ワールドでは、完了した物語のチェックポイントだけを現在の端末のブラウザに保存します。アカウントや他の端末とは同期せず、会話中の返答も保存しません。未完了の会話は再読み込み後に最初からになります。",
             "ブラウザのサイトデータ設定から削除できます。サイトデータの削除、シークレットモードの利用、端末変更により、同期していない進捗が失われる場合があります。"
           ]
         },
@@ -293,6 +295,7 @@ const LEGAL_COPY = {
           title: "1. Data stored in your browser before sign-in",
           paragraphs: [
             "Practice history, submitted answers, correctness, response time, bookmarks, and preferences such as language, theme, furigana, speech rate, and target level are stored mainly in localStorage in your current browser. Simply using the site does not automatically turn this data into Jabiko account data.",
+            "The Everyday world stores only completed story checkpoints in the current device's browser. They are not synced to an account or other devices, and conversation replies are not saved. An unfinished conversation starts over after a reload.",
             "You can remove local data through your browser's site-data settings. Clearing browser data, using private browsing, or changing devices may permanently remove progress that has not been synced."
           ]
         },

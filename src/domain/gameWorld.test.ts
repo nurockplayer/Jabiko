@@ -9,6 +9,7 @@ import { createConversationSession, type ConversationSessionDefinition } from ".
 import {
   applyCompletedConversationSession,
   getAvailableWorldMoments,
+  getGameWorldAvailability,
   localizeGameWorldText,
   validateGameWorld,
   type GameWorldDefinition,
@@ -327,6 +328,16 @@ function makeCompletedSession(
 }
 
 describe("game world domain", () => {
+  it("distinguishes a valid empty/terminal state from invalid world and invalid saved state", () => {
+    const world = createWorld();
+    const ready = getGameWorldAvailability(world, world.initialState);
+    expect(ready.status).toBe("ready");
+    if (ready.status === "ready") expect(ready.availableMomentIds).toEqual(["station-meet"]);
+
+    const malformedState = { ...world.initialState, unlockedMomentIds: ["missing"] };
+    expect(getGameWorldAvailability(world, malformedState).status).toBe("invalid_state");
+    expect(getGameWorldAvailability({ ...world, moments: [] }, world.initialState).status).toBe("invalid_world");
+  });
   it("validates a finite world with two locations, two NPCs, and short/medium scenario bindings", () => {
     expect(validateGameWorld(createWorld())).toEqual({ valid: true, errors: [] });
   });

@@ -84,18 +84,18 @@ for (const width of [390, 1280]) {
   });
 }
 
-test.describe("JT-1 Everyday preview shell (#834)", () => {
+test.describe("Rainy Monday World shell (#835)", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("keeps the preview separate, operable, localized, and connected to Training", async ({ page }) => {
+  test("keeps the World separate, operable, localized, and connected to Training", async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem("jabiko.lang", "zh-Hant"));
     await page.goto("/");
-    const entry = page.getByRole("link", { name: "日常 預覽" });
+    const entry = page.getByRole("link", { name: "日常 故事" });
     await expect(entry).toHaveAttribute("href", "/game");
     await entry.click();
 
     await expect(page).toHaveURL(/\/game$/);
-    await expect(page.getByRole("heading", { level: 1, name: "日常" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "青葉站" })).toBeVisible();
     await expect(page.getByRole("navigation", { name: navigationName })).toHaveCount(0);
     await expect(page.getByRole("link", { name: /日常會話/ })).toHaveAttribute("href", "/conversation");
     const furigana = page.getByRole("button", { name: "顯示註音" });
@@ -112,7 +112,7 @@ test.describe("JT-1 Everyday preview shell (#834)", () => {
     await menuTrigger.focus();
     await menuTrigger.press("Enter");
     await expect(page.getByRole("menu")).toBeVisible();
-    await expectNoPageOverflow(page, "Everyday preview shell");
+    await expectNoPageOverflow(page, "Rainy Monday World shell");
     await page.keyboard.press("Escape");
     await expect(page.getByRole("menu")).toHaveCount(0);
     await expect(menuTrigger).toHaveAttribute("aria-expanded", "false");
@@ -122,7 +122,7 @@ test.describe("JT-1 Everyday preview shell (#834)", () => {
     await expect(page.getByRole("heading", { name: /今天想練什麼/ })).toBeVisible();
     await page.goBack();
     await expect(page).toHaveURL(/\/game$/);
-    await expect(page.getByRole("heading", { level: 1, name: "日常" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "青葉站" })).toBeVisible();
     await page.goForward();
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByRole("heading", { name: /今天想練什麼/ })).toBeVisible();
@@ -150,7 +150,7 @@ test.describe("JT-1 Everyday preview shell (#834)", () => {
     }
   });
 
-  test("wraps the preview title and keeps the document within 320px at 200% root text size", async ({ page }) => {
+  test("wraps the current place title and keeps the document within 320px at 200% root text size", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 844 });
     await page.goto("/");
     await page.evaluate(() => localStorage.setItem("jabiko.lang", "en"));

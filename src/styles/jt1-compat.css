@@ -1,5 +1,6 @@
 /* Legacy screen names mapped locally onto JT-1 roles while those screens migrate. */
-.app-shell {
+.app-shell,
+.game-world-shell {
   --app-bg: var(--jt-surface-app);
   --paper: var(--jt-surface-content);
   --paper-deep: var(--jt-surface-inset);
@@ -73,7 +74,8 @@
   color-scheme: light;
 }
 
-:root[data-theme="dark"] .app-shell {
+:root[data-theme="dark"] .app-shell,
+:root[data-theme="dark"] .game-world-shell {
   --overlay-bg: color-mix(in srgb, var(--jt-scrim) 56%, transparent);
   --focus-outline: color-mix(in srgb, var(--jt-focus-ring) 58%, transparent);
   color-scheme: dark;

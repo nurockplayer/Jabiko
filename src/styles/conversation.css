@@ -227,12 +227,6 @@
   color: var(--jt-action-primary-foreground);
 }
 
-.conversation-feedback.is-dead-end .conversation-primary {
-  background: var(--vermilion);
-  border-color: var(--vermilion);
-  color: #172126;
-}
-
 .conversation-secondary {
   background: transparent;
   border: 1px solid var(--button-border);

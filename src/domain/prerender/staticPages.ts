@@ -211,7 +211,7 @@ function homeBody(): string {
     `<li><a href="/learn">分章學習</a>：動詞變化到常用句型，一章一章打底</li>`,
     `<li><a href="/challenge">題庫練習</a>：N1〜N5 綜合題庫、備考模式與弱點複習</li>`,
     `<li><a href="/conversation">日常會話</a>：短／中／長的生活情境接話練習與人工整理回饋</li>`,
-    `<li><a href="/game">日常預覽</a>：日常世界目前尚未開放</li>`,
+    `<li><a href="/game">雨天星期一日常世界</a>：和熟悉的同事練習日語接話，完成場景後在目前裝置保存檢查點</li>`,
     `<li><a href="/mock">題型練習</a>：照 JLPT 官方題型分區逐區攻略</li>`,
     `<li><a href="/kanji">漢字音讀速查</a>、<a href="/rules">規則速查表</a></li>`
   ].join("");
@@ -224,10 +224,10 @@ function homeBody(): string {
   );
 }
 
-function gamePreviewBody(): string {
+function gameWorldBody(): string {
   return wrap(
-    "日常",
-    `${paragraph("日常の世界はまだ公開されていません。日常会話で日本語のやりとりを練習できます。")}<p><a href="/conversation">日常会話へ</a></p><p><a href="/">練習に戻る</a></p>`
+    "青葉站・雨天星期一",
+    `${paragraph("在雨天星期一，從青葉站開始，和熟悉的同事練習日語接話。完成的故事檢查點只保存在目前裝置的瀏覽器；未完成的對話不會保存，重新載入後會重新開始。")}${paragraph("依序造訪辦公室與員工餐廳，完成五個主要場景；更豐富的回答還會開放一段可選的通勤對話。")}<p><a href="/conversation">前往日常會話練習</a></p><p><a href="/">回到練習</a></p>`
   );
 }
 
@@ -342,7 +342,7 @@ export function buildStaticPages(): StaticPage[] {
   push("stayD", VIEW_SEO.stayD.path, partnersBody());
   push("kana", "/kana", kanaBody());
   push("conversation", VIEW_SEO.conversation.path, simpleViewBody("conversation"));
-  push("game", VIEW_SEO.game.path, gamePreviewBody());
+  push("game", VIEW_SEO.game.path, gameWorldBody());
   push("grammar", "/grammar", grammarIndexBody());
   for (const level of LEVELS) {
     push("grammar", `/grammar/${level.toLowerCase()}`, grammarIndexBody(level), level.toLowerCase());

@@ -53,6 +53,13 @@ describe("seo", () => {
     );
   });
 
+  it("describes the live Rainy Monday story without preview or unavailable claims", () => {
+    const game = seoForView("game");
+    expect(game.title).toContain("雨天星期一");
+    expect(game.description).toContain("熟悉的同事");
+    expect(game.description).not.toMatch(/預覽|尚未開放|not available/i);
+  });
+
   it("keeps descriptions within a sane SEO length (<=160 chars)", () => {
     const allViews: AppView[] = [...VIEWS, "grammar"];
     for (const view of allViews) {

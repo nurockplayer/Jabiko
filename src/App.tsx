@@ -81,8 +81,8 @@ const ConversationPanel = lazy(() =>
 );
 // JT-1 World preview is a separate presentation shell. Keep its markup and CSS
 // out of the Training entry chunk until /game is opened.
-const GamePreviewPanel = lazy(() =>
-  import("./components/GamePreviewPanel").then((module) => ({ default: module.GamePreviewPanel }))
+const GameWorldPanel = lazy(() =>
+  import("./components/GameWorldPanel").then((module) => ({ default: module.GameWorldPanel }))
 );
 // 漢字音読み 速查 also pulls the vocab data (for example words), so it's
 // lazy too -- imported directly from its module, not the barrel.
@@ -255,7 +255,7 @@ export default function App() {
   // mock / conversation own live session state a reload would wipe), where the toast stays
   // the only path.
   const { needRefresh, updateApp } = usePwaUpdate(
-    appView === "challenge" || appView === "mock" || appView === "conversation" ? null : appView
+    appView === "challenge" || appView === "mock" || appView === "conversation" || appView === "game" ? null : appView
   );
 
   const { theme, toggleTheme } = useTheme();
@@ -680,7 +680,7 @@ export default function App() {
               />
             }
           >
-            <GamePreviewPanel
+            <GameWorldPanel
               language={language}
               headerMenu={gameHeaderMenu}
               furiganaLabel={furiganaToggleLabel}

@@ -130,13 +130,15 @@ describe("buildStaticPages", () => {
     expect(page!.bodyHtml).toContain("日常會話練習室");
   });
 
-  it("prerenders an honest game preview with routes back to Training and Small Talk", () => {
+  it("prerenders the playable Rainy Monday story with routes back to Training and Small Talk", () => {
     const page = byPath.get("/game");
     expect(page).toBeDefined();
     expect(page!.canonical).toBe("https://jabiko.app/game");
-    expect(page!.bodyHtml).toContain("日常の世界はまだ公開されていません");
-    expect(page!.bodyHtml).toContain('<a href="/conversation">日常会話へ</a>');
-    expect(page!.bodyHtml).toContain('<a href="/">練習に戻る</a>');
+    expect(page!.bodyHtml).toContain("雨天星期一");
+    expect(page!.bodyHtml).toContain("完成五個主要場景");
+    expect(page!.bodyHtml).toContain('<a href="/conversation">前往日常會話練習</a>');
+    expect(page!.bodyHtml).toContain('<a href="/">回到練習</a>');
+    expect(page!.bodyHtml).not.toContain("尚未公開");
   });
 
   it("prerenders editorial Stay.D copy and a crawler-visible Airbnb link", () => {
