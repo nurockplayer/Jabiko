@@ -530,14 +530,14 @@ export default function App() {
   };
 
   const routeResetKey = `${appView}:${grammarSurface ?? ""}`;
-  const gameHeaderMenu = (
+  const gameHeaderMenu = (onSelect: (id: NavigationId) => void) => (
     <AppHeaderMenu
       navigation={navigation}
       labels={navigationLabels}
       triggerLabel={t.navMore}
       triggerCurrentLabel={t.navMoreWithCurrent}
       tools={headerMenuTools}
-      onSelect={navigateFromAppNavigation}
+      onSelect={onSelect}
     />
   );
 
@@ -683,6 +683,7 @@ export default function App() {
             <GameWorldPanel
               language={language}
               headerMenu={gameHeaderMenu}
+              onHeaderNavigate={navigateFromAppNavigation}
               furiganaLabel={furiganaToggleLabel}
               furiganaEnabled={furiganaEnabled}
               onToggleFurigana={toggleFurigana}

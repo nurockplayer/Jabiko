@@ -12,19 +12,22 @@ import { ConversationExperience } from "./ConversationExperience";
 import { LearningRubyText } from "./LearningRubyText";
 import { useLearningFuriganaMap } from "./useLearningFuriganaMap";
 import { useGameWorldProgress } from "./useGameWorldProgress";
+import type { NavigationId } from "../domain/navigation";
 import "./GamePreviewPanel.css";
 import "./GameWorldPanel.css";
 
 export function GameWorldPanel({
   language,
   headerMenu,
+  onHeaderNavigate,
   furiganaLabel,
   furiganaEnabled,
   onToggleFurigana,
   onNavigate
 }: {
   language: Language;
-  headerMenu: ReactNode;
+  headerMenu: (onSelect: (id: NavigationId) => void) => ReactNode;
+  onHeaderNavigate: (id: NavigationId) => void;
   furiganaLabel: string;
   furiganaEnabled: boolean;
   onToggleFurigana: () => void;
@@ -96,7 +99,10 @@ export function GameWorldPanel({
           >
             {furiganaLabel}
           </button>
-          {headerMenu}
+          {headerMenu((id) => {
+            if (pendingCandidate != null && !window.confirm(worldCopy.pendingLeaveConfirm)) return;
+            onHeaderNavigate(id);
+          })}
         </header>
         <main id="main-content" className="game-preview-main game-world-main" tabIndex={-1}>
           <section className="game-preview-content game-world-content" aria-labelledby="game-world-title">

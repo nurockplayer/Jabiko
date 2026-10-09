@@ -157,15 +157,24 @@ test.describe("Rainy Monday World shell (#835)", () => {
     await page.goto("/game");
     await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
 
-    const measurements = await page.locator(".game-preview-content h1").evaluate((heading) => ({
+    const measurements = await page.locator(".game-preview-content h1").evaluate((heading) => {
+      const start = document.querySelector<HTMLButtonElement>(".game-world-start");
+      const buttonBounds = start?.getBoundingClientRect();
+      return {
       rootFontSize: getComputedStyle(document.documentElement).fontSize,
       headingScrollWidth: heading.scrollWidth,
       headingClientWidth: heading.clientWidth,
+      startButtonRight: buttonBounds?.right ?? null,
+      startButtonHeight: buttonBounds?.height ?? null,
       documentScrollWidth: document.documentElement.scrollWidth,
       viewport: window.innerWidth
-    }));
+      };
+    });
     expect(measurements.rootFontSize).toBe("32px");
     expect(measurements.headingScrollWidth).toBeLessThanOrEqual(measurements.headingClientWidth);
+    expect(measurements.startButtonRight).not.toBeNull();
+    expect(measurements.startButtonRight).toBeLessThanOrEqual(measurements.viewport);
+    expect(measurements.startButtonHeight).toBeGreaterThanOrEqual(44);
     expect(measurements.documentScrollWidth).toBeLessThanOrEqual(measurements.viewport);
   });
 });

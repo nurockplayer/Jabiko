@@ -46,8 +46,11 @@
 }
 
 .game-world-start {
+  max-width: 100%;
   min-height: 44px;
   padding-inline: 1rem;
+  text-align: start;
+  white-space: normal;
 }
 
 .game-world-location h3 {

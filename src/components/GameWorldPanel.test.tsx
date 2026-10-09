@@ -10,7 +10,8 @@ function renderGame() {
   return render(
     <GameWorldPanel
       language="en"
-      headerMenu={<button type="button">Settings &amp; tools</button>}
+      headerMenu={(onSelect) => <button type="button" onClick={() => onSelect("about")}>Settings &amp; tools</button>}
+      onHeaderNavigate={() => undefined}
       furiganaLabel="Show furigana"
       furiganaEnabled={false}
       onToggleFurigana={() => undefined}

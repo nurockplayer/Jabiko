@@ -1881,4 +1881,41 @@ describe("App", () => {
     expect(screen.getAllByRole("link", { name: "Return to Training" })[0]).toHaveAttribute("href", "/");
   });
 
+  it("confirms before header-menu navigation can discard an unconfirmed World checkpoint", async () => {
+    window.history.replaceState({}, "", "/game");
+    localStorage.setItem("jabiko.lang", "en");
+    const user = userEvent.setup();
+    const key = "jabiko-world-progress/v1:rainy-monday";
+    const originalSetItem = Storage.prototype.setItem.bind(localStorage);
+    const setSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation((itemKey, value) => {
+      if (itemKey === key) throw new Error("synthetic quota failure");
+      originalSetItem(itemKey, value);
+    });
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
+    render(<App />);
+
+    await user.click(await screen.findByRole("button", { name: /start conversation/i }));
+    await user.click(screen.getByRole("button", { name: /start this scene/i }));
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await user.click(screen.getByRole("button", { name: /本当ですね/ }));
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+    expect(await screen.findByText(/not saved on this device yet/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "More" }));
+    await user.click(screen.getByRole("menuitem", { name: "About" }));
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(window.location.pathname).toBe("/game");
+    expect(screen.getByRole("button", { name: /retry saving scene/i })).toBeInTheDocument();
+    expect(localStorage.getItem(key)).toBeNull();
+
+    confirmSpy.mockReturnValue(true);
+    await user.click(screen.getByRole("button", { name: "More" }));
+    await user.click(screen.getByRole("menuitem", { name: "About" }));
+    await waitFor(() => expect(window.location.pathname).toBe("/about"));
+    expect(confirmSpy).toHaveBeenCalledTimes(2);
+    expect(localStorage.getItem(key)).toBeNull();
+    setSpy.mockRestore();
+    confirmSpy.mockRestore();
+  });
+
 });
