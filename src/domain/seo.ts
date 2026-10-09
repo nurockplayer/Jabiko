@@ -97,6 +97,11 @@ export const VIEW_SEO: Record<AppView, PageSeo> = {
     description:
       "用簡短的日常情境練習日語接話：短／中／長三種對話、人工整理的回饋與多個可選回應，離線即時、不呼叫 AI。",
     path: APP_VIEW_PATHS.conversation
+  },
+  game: {
+    title: "日常のプレビュー · Jabiko",
+    description: "Jabiko の日常プレビューをご案内します。日常の世界はまだ公開されていませんが、日常会話の練習はこちらから利用できます。",
+    path: APP_VIEW_PATHS.game
   }
 };
 

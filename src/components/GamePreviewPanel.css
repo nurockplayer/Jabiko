@@ -1,0 +1,93 @@
+.game-preview-shell {
+  min-height: 100vh;
+  background: var(--jt-surface-app);
+  color: var(--jt-text-primary);
+}
+
+.game-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 4rem;
+  padding: 0.75rem clamp(1rem, 4vw, 3rem);
+  border-bottom: 1px solid var(--jt-border-subtle);
+}
+
+.game-preview-identity {
+  color: var(--jt-text-primary);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.game-preview-status,
+.game-preview-eyebrow {
+  color: var(--jt-text-secondary);
+}
+
+.game-preview-header > :last-child {
+  margin-left: auto;
+}
+
+.game-preview-main {
+  width: min(100% - 2rem, 54rem);
+  margin: 0 auto;
+  padding: clamp(2rem, 7vw, 5rem) 0;
+}
+
+.game-preview-content {
+  max-width: 38rem;
+}
+
+.game-preview-content h1 {
+  margin: 0.25rem 0 1rem;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  overflow-wrap: anywhere;
+}
+
+.game-preview-content > a {
+  display: block;
+  width: fit-content;
+  min-height: 44px;
+  margin-top: 1rem;
+  color: var(--jt-text-link);
+}
+
+.game-preview-header-return {
+  align-items: center;
+  color: var(--jt-text-link);
+  display: inline-flex;
+  min-height: 44px;
+  padding: 0 0.5rem;
+}
+
+.game-preview-furigana {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--jt-radius-control);
+  color: var(--jt-text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 0.75rem;
+}
+
+.game-preview-shell :focus-visible {
+  outline: var(--jt-focus-ring-width) solid var(--jt-focus-ring);
+  outline-offset: var(--jt-focus-ring-offset);
+}
+
+@media (forced-colors: active) {
+  .game-preview-shell :focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+@media (max-width: 36rem) {
+  .game-preview-header {
+    flex-wrap: wrap;
+  }
+
+}

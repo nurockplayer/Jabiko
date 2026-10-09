@@ -20,6 +20,7 @@ import { LegalLinks } from "./LegalLinks";
 import type { FeedbackCategory } from "../domain/feedbackRemote";
 import { getBookmarkedIds } from "../domain/bookmarks";
 import { StayDHomeRecommendation } from "./StayDHomeRecommendation";
+import { gamePreviewCopyFor } from "../domain/gamePreviewCopy";
 
 // External walkthrough / 使用說明書: the author's blog post about Jabiko.
 // Surfaced in the hero so first-time visitors can read how to use the app.
@@ -97,6 +98,7 @@ export function HomePanel({
   progressAttempts,
   reviewCount,
   onNavigate,
+  onOpenGame,
   onStartReview,
   onStartVocab,
   onStartBookmarks,
@@ -114,6 +116,7 @@ export function HomePanel({
   onNavigate: (
     target: "learn" | "challenge" | "mock" | "grammar" | "kanji" | "rules" | "kana" | "conversation"
   ) => void;
+  onOpenGame: () => void;
   onStartReview: () => void;
   onStartVocab: () => void;
   // Starts the starred-questions pass (#470) from the new bookmarks card.
@@ -311,6 +314,16 @@ export function HomePanel({
           {t.levelOnboarding.chooseFirst}
         </p>
       ) : null}
+
+      <a className="home-game-preview-entry" href="/game" onClick={(event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        onOpenGame();
+      }}>
+        <span className="home-game-preview-label">{gamePreviewCopyFor(language).entry}</span>
+        <span className="home-game-preview-copy">{gamePreviewCopyFor(language).entryHint}</span>
+        <ArrowRight aria-hidden="true" />
+      </a>
 
       <button type="button" className="home-banner home-banner-daily" onClick={handleStartDaily}>
         <CalendarCheck aria-hidden="true" />

@@ -125,6 +125,7 @@ const NAV_LINKS: ReadonlyArray<{ href: string; label: string }> = [
   { href: "/grammar", label: "文型資料庫" },
   { href: "/challenge", label: "題庫練習" },
   { href: "/conversation", label: "日常會話" },
+  { href: "/game", label: "日常" },
   { href: "/mock", label: "題型練習" },
   { href: "/about", label: "關於" },
   { href: "/privacy", label: "隱私政策" },
@@ -210,6 +211,7 @@ function homeBody(): string {
     `<li><a href="/learn">分章學習</a>：動詞變化到常用句型，一章一章打底</li>`,
     `<li><a href="/challenge">題庫練習</a>：N1〜N5 綜合題庫、備考模式與弱點複習</li>`,
     `<li><a href="/conversation">日常會話</a>：短／中／長的生活情境接話練習與人工整理回饋</li>`,
+    `<li><a href="/game">日常預覽</a>：日常世界目前尚未開放</li>`,
     `<li><a href="/mock">題型練習</a>：照 JLPT 官方題型分區逐區攻略</li>`,
     `<li><a href="/kanji">漢字音讀速查</a>、<a href="/rules">規則速查表</a></li>`
   ].join("");
@@ -219,6 +221,13 @@ function homeBody(): string {
   return wrap(
     "Jabiko · JLPT 日檢自習室",
     `${paragraph(VIEW_SEO.home.description)}<ul>${sections}</ul><p>${levelLinks}</p>`
+  );
+}
+
+function gamePreviewBody(): string {
+  return wrap(
+    "日常",
+    `${paragraph("日常の世界はまだ公開されていません。日常会話で日本語のやりとりを練習できます。")}<p><a href="/conversation">日常会話へ</a></p><p><a href="/">練習に戻る</a></p>`
   );
 }
 
@@ -333,6 +342,7 @@ export function buildStaticPages(): StaticPage[] {
   push("stayD", VIEW_SEO.stayD.path, partnersBody());
   push("kana", "/kana", kanaBody());
   push("conversation", VIEW_SEO.conversation.path, simpleViewBody("conversation"));
+  push("game", VIEW_SEO.game.path, gamePreviewBody());
   push("grammar", "/grammar", grammarIndexBody());
   for (const level of LEVELS) {
     push("grammar", `/grammar/${level.toLowerCase()}`, grammarIndexBody(level), level.toLowerCase());

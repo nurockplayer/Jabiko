@@ -26,6 +26,7 @@ const ROUTES = [
   { path: "/terms", changefreq: "yearly", priority: "0.3" },
   { path: "/stay-d", changefreq: "monthly", priority: "0.7" },
   { path: "/conversation", changefreq: "weekly", priority: "0.7" },
+  { path: "/game", changefreq: "monthly", priority: "0.5" },
 ];
 
 const LEVEL_HUBS = ["n5", "n4", "n3", "n2", "n1"].map((level) => ({

@@ -43,6 +43,11 @@ describe("app route contract (#623)", () => {
     expect(serializeRoute(staticRoute("conversation"))).toBe("/conversation");
   });
 
+  it("treats /game as a separate public product route (#834)", () => {
+    expect(parseRoute("/game")).toEqual({ view: "game", grammarSurface: null });
+    expect(serializeRoute({ view: "game", grammarSurface: null } as AppRoute)).toBe("/game");
+  });
+
   it("round-trips an encoded grammar surface", () => {
     const route: AppRoute = {
       view: "grammar",
