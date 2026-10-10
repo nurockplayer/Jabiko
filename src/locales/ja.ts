@@ -322,6 +322,10 @@ export const ja: Copy = {
   practiceMode: "練習モード",
   levelRange: "出題範囲",
   levelRangeOptions: { all: "すべて", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "完全な初心者" },
+  session: {
+    switchSet: "練習を切り替え",
+    verdictLabels: { correct: "正解", yours: "あなたの答え", answer: "答え" }
+  },
   today: {
     gloss: {
       welcome: "ジャビ子です。日本語を一問ずつ、一緒に練習しよう。",

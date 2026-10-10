@@ -123,3 +123,49 @@ describe("learning-loop.css motion contract (#861)", () => {
     }
   });
 });
+
+// #866 extends the same motion language to Today (ジャビ子's greeting hop) and
+// the session (set switcher, verdict labels, the 花丸 stamp). Same contract.
+describe.each(["today.css", "session.css"])("%s follows the learning-loop motion contract (#866)", (file) => {
+  const source = readFileSync(new URL(`./${file}`, import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const parsed = blocks(source);
+
+  it("is loaded after the JT-1 shell", () => {
+    expect(entry.indexOf(`@import "./styles/${file}";`)).toBeGreaterThan(
+      entry.indexOf('@import "./styles/jt1-shell.css";')
+    );
+  });
+
+  it("only animates when the learner has not asked for reduced motion", () => {
+    for (const block of parsed) {
+      if (block.prelude.startsWith("@")) continue;
+      const animates = declarations(block.body).some(
+        ([property, value]) => (property === "animation" || property === "animation-name") && value !== "none"
+      );
+      if (animates) {
+        expect(block.parents.some((p) => /prefers-reduced-motion:\s*no-preference/.test(p)), block.prelude).toBe(true);
+      }
+    }
+  });
+
+  it("keyframes move only transform, opacity and stroke drawing", () => {
+    for (const frames of parsed.filter((block) => block.prelude.startsWith("@keyframes"))) {
+      for (const step of blocks(frames.body)) {
+        for (const [property] of declarations(step.body)) {
+          expect(["transform", "opacity", "stroke-dashoffset"], `${frames.prelude} ${property}`).toContain(property);
+        }
+      }
+    }
+  });
+
+  it("never transitions a geometry property", () => {
+    const layout = /\b(width|height|top|left|right|bottom|inset|margin|padding|gap|font-size|grid-template)/;
+    for (const block of parsed) {
+      for (const [property, value] of declarations(block.body)) {
+        if (property === "transition" || property === "transition-property") {
+          expect(layout.test(value), `${block.prelude}: ${value}`).toBe(false);
+        }
+      }
+    }
+  });
+});

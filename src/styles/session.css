@@ -1,0 +1,761 @@
+/* ---- Practice session (#866, JT-2 track) ---------------------------------
+   The question is the only job on screen.
+
+   - Layout: one reading column (≤ 720px) plus, on wide screens, the 本次
+     tally/settings aside. The set list is a popover under the session-bar
+     title at every width (it overlays the question instead of pushing it).
+   - Commands follow D-25: 下一題 is tonal until the verdict, then the one
+     violet primary; 看答案 is quiet. Nothing in the loop uses the miss red
+     except a miss.
+   - Assessment stays D-03/D-26: marks drawn on the options, plus #864's
+     margin labels on the option edge. No tinted verdict panels (D-23).
+   Loaded after learning-loop.css; values are JT-1 roles. */
+
+:root {
+  /* The teacher's red pen for the 花丸 stamp (C7-style brand art, not an
+     assessment or status role). ≥ 3:1 on both content surfaces. */
+  --jt-hanko: #c4402a;
+}
+
+:root[data-theme="dark"] {
+  --jt-hanko: #f08a6e;
+}
+
+/* ---- Layout ------------------------------------------------------------- */
+
+.practice-layout {
+  align-items: start;
+  display: grid;
+  gap: 1.5rem 2rem;
+  grid-template-columns: minmax(0, 720px);
+  justify-content: center;
+  max-width: 1080px;
+  position: relative;
+}
+
+@media (min-width: 981px) {
+  .practice-layout {
+    grid-template-columns: minmax(0, 720px) 280px;
+  }
+}
+
+.practice-layout > .drill-panel,
+.practice-layout > .practice-switcher {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.practice-layout > .review-panel {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+@media (min-width: 981px) {
+  .practice-layout > .review-panel {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: calc(var(--jt-bar-height) + 1rem);
+  }
+}
+
+/* ---- The set list: a popover under the session bar ---------------------- */
+
+.practice-switcher {
+  align-self: start;
+  display: none;
+  justify-self: start;
+  margin-top: 3.75rem;
+  max-width: 100%;
+  width: 24rem;
+  z-index: 30;
+}
+
+.practice-layout[data-switcher="open"] > .practice-switcher {
+  display: block;
+}
+
+.practice-switcher > .controls-panel {
+  animation: none;
+  background: var(--jt-surface-content);
+  border: 1px solid var(--jt-border-subtle);
+  border-radius: var(--jt-radius-overlay);
+  box-shadow: var(--jt-elevation-overlay);
+  max-height: min(70vh, 40rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.75rem;
+}
+
+.practice-switcher .mode-toggle {
+  gap: 0;
+}
+
+.practice-switcher .mode-group + .mode-group {
+  margin-top: 0.75rem;
+}
+
+.practice-switcher .mode-group-label {
+  color: var(--jt-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.25rem 0.5rem;
+  text-transform: none;
+}
+
+/* Sets are rows: name + line on the left, count on the right. */
+.practice-switcher .mode-card {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--jt-radius-control);
+  column-gap: 0.75rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 3rem;
+  padding: 0.5rem;
+}
+
+.practice-switcher .mode-card:hover {
+  background: var(--jt-surface-inset);
+  border-color: transparent;
+  transform: none;
+}
+
+.practice-switcher .mode-card:active {
+  transform: none;
+}
+
+.practice-switcher .mode-card strong {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  grid-column: 1;
+}
+
+.practice-switcher .mode-card small {
+  color: var(--jt-text-secondary);
+  font-size: 0.75rem;
+  grid-column: 1;
+}
+
+.practice-switcher .mode-card .mode-card-count {
+  align-self: center;
+  color: var(--jt-text-secondary);
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  margin: 0;
+}
+
+.practice-switcher .mode-card.selected {
+  background: var(--jt-accent-background);
+  box-shadow: inset 0 0 0 1px var(--jt-selection-edge);
+}
+
+.practice-switcher .mode-card.selected strong,
+.practice-switcher .mode-card.selected .mode-card-count {
+  color: var(--jt-accent-foreground);
+}
+
+.practice-switcher .focus-summary {
+  background: var(--jt-surface-inset);
+  border: 0;
+  color: var(--jt-text-secondary);
+  font-weight: 500;
+}
+
+/* ---- The drill column ----------------------------------------------------- */
+
+.practice-layout > .drill-panel {
+  border-color: var(--jt-border-subtle);
+  border-radius: 16px;
+  min-height: 0;
+  padding: 0.75rem 1.5rem 1.5rem;
+}
+
+@media (max-width: 599px) {
+  .practice-layout > .drill-panel {
+    border-color: transparent;
+    border-radius: 0;
+    margin-inline: -0.25rem;
+    padding: 0.25rem 0.25rem 1rem;
+  }
+}
+
+/* Session bar: exit · set · n / N, the meter as a hairline underneath. */
+.session-bar {
+  --session-row: 3.25rem;
+  align-items: center;
+  /* Same surface as the drill, so the focus ring is measured against it. */
+  background: var(--jt-surface-content);
+  column-gap: 0.25rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: var(--session-row);
+  margin-bottom: 0.25rem;
+  position: relative;
+}
+
+/* The bar's edge: a hairline under the first row that the meter fills. */
+.session-bar::after {
+  background: var(--jt-border-subtle);
+  content: "";
+  height: 1px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: calc(var(--session-row) - 1px);
+}
+
+.drill-panel .session-bar .session-exit {
+  margin: 0;
+}
+
+/* Narrow phones: the exit is the house icon alone (its name stays 首頁),
+   so the set title has room. */
+@media (max-width: 399px) {
+  .drill-panel .session-bar .session-exit {
+    min-width: 2.75rem;
+    padding-inline: 0.75rem;
+  }
+
+  .session-exit-label {
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+}
+
+.session-title {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--jt-text-primary);
+  display: inline-flex;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  gap: 0.25rem;
+  justify-content: flex-start;
+  justify-self: start;
+  max-width: 100%;
+  min-height: 2.75rem;
+  min-width: 0;
+  padding: 0 0.5rem;
+}
+
+button.session-title:hover:not(:disabled) {
+  background: var(--jt-action-tonal-background);
+  border-color: transparent;
+  transform: none;
+}
+
+button.session-title[aria-expanded="true"] {
+  background: var(--jt-action-tonal-background);
+}
+
+.session-title-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-title > svg {
+  color: var(--jt-text-secondary);
+  transition: transform 160ms ease;
+}
+
+.session-title[aria-expanded="true"] > svg {
+  transform: rotate(180deg);
+}
+
+/* n / N on the right; the meter becomes the bar's bottom edge. The question
+   type moves under it into the prompt area (see .prompt-header strong). */
+.drill-panel .session-bar .prompt-header {
+  display: contents;
+}
+
+.drill-panel .session-bar .prompt-header > span:first-child {
+  background: transparent;
+  border: 0;
+  color: var(--jt-text-secondary);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  grid-column: 3;
+  padding: 0 0.25rem;
+  white-space: nowrap;
+}
+
+.drill-panel .session-bar .prompt-header .session-meter {
+  background: transparent;
+  border-radius: 0;
+  height: 3px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: calc(var(--session-row) - 2px);
+  z-index: 1;
+}
+
+/* The question type ("漢字読み", "文法形式選擇") reads as the prompt's eyebrow. */
+.drill-panel .session-bar .prompt-header > strong {
+  background: transparent;
+  border: 0;
+  color: var(--jt-accent-foreground);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-self: start;
+  letter-spacing: 0.02em;
+  padding: 0.75rem 0 0;
+}
+
+/* ---- Prompt ------------------------------------------------------------- */
+
+.drill-panel .word-block {
+  min-height: 0;
+  padding: 1.25rem 0 1.5rem;
+}
+
+/* D-23: no glow behind the prompt. */
+.drill-panel .word-block::before {
+  content: none;
+}
+
+.drill-panel .word-kind {
+  background: transparent;
+  border: 0;
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  padding: 0;
+}
+
+.drill-panel .hint-toggle {
+  border: 1px solid transparent;
+  color: var(--jt-text-link);
+  font-weight: 600;
+  min-height: 2.25rem;
+}
+
+.drill-panel .hint-toggle:hover,
+.drill-panel .hint-toggle[aria-expanded="true"] {
+  background: var(--jt-action-tonal-background);
+  border-color: transparent;
+}
+
+/* ---- Options: choices are outlines (D-25), keycaps on the left ---------- */
+
+.drill-panel .choice-grid {
+  gap: 0.75rem;
+}
+
+.drill-panel .choice-option {
+  background: var(--jt-surface-content);
+  border: 1px solid var(--jt-border-control);
+  border-radius: 10px;
+  box-shadow: none;
+  color: var(--jt-text-primary);
+  font-size: 1.125rem;
+  font-weight: 600;
+  min-height: 3.5rem;
+}
+
+.drill-panel .choice-option:hover:not(:disabled) {
+  background: var(--jt-surface-content);
+  border-color: var(--jt-selection-edge);
+  box-shadow: inset 0 0 0 1px var(--jt-selection-edge);
+}
+
+.drill-panel .choice-option:active:not(:disabled) {
+  background: var(--jt-accent-background);
+}
+
+/* The 1–4 shortcut as a keycap (decorative; empty alt text keeps it out of
+   the name -- see feedback.css). Fine pointers only: a phone has no keys. */
+.drill-panel .choice-option::before {
+  align-items: center;
+  background: var(--jt-surface-sunken);
+  border-radius: var(--jt-radius-mark);
+  color: var(--jt-text-secondary);
+  display: flex;
+  font-size: 0.75rem;
+  height: 1.375rem;
+  justify-content: center;
+  left: 0.6rem;
+  opacity: 1;
+  top: calc(50% - 0.6875rem);
+  width: 1.375rem;
+}
+
+@media (pointer: coarse), (max-width: 599px) {
+  .drill-panel .choice-option::before {
+    display: none;
+  }
+}
+
+/* After the verdict, unmarked options step back (DESIGN §5 "idle"). */
+.drill-panel[data-result]:not([data-result="unanswered"]) .choice-option:not([data-mark]) {
+  color: var(--jt-text-secondary);
+}
+
+/* #864: the verdict word on the option's top edge, like a margin note. It is
+   generated content with empty alt text, so it never enters the option's
+   text or accessible name (the live region announces the verdict). */
+.drill-panel .choice-option[data-verdict-label]::after {
+  background: var(--jt-surface-content);
+  border-radius: var(--jt-radius-mark);
+  content: attr(data-verdict-label) / "";
+  font-family: var(--jt-font-ui);
+  font-size: 0.75rem;
+  font-weight: 700;
+  inset-inline-end: 0.75rem;
+  line-height: 1.35;
+  padding: 0 0.35rem;
+  pointer-events: none;
+  position: absolute;
+  top: -0.6rem;
+  white-space: nowrap;
+}
+
+.drill-panel .choice-option[data-mark="correct"]::after,
+.drill-panel .choice-option[data-mark="revealed"]::after {
+  color: var(--jt-assess-correct);
+}
+
+.drill-panel .choice-option[data-mark="miss"]::after {
+  color: var(--jt-assess-miss);
+}
+
+/* ---- Commands (D-25) ---------------------------------------------------- */
+
+/* .next-button is the primary (feedback.css). Before a verdict the options
+   are the job: 下一題 is tonal. */
+.next-button[data-emphasis="tonal"] {
+  background: var(--jt-action-tonal-background);
+  color: var(--jt-text-primary);
+  font-weight: 600;
+}
+
+.next-button[data-emphasis="tonal"]:hover:not(:disabled) {
+  background: var(--jt-action-tonal-hover);
+}
+
+.next-button[data-emphasis="tonal"]:active:not(:disabled) {
+  background: var(--jt-action-tonal-pressed);
+}
+
+.drill-panel .ghost-button,
+.practice-layout .ghost-button {
+  background: transparent;
+  border-color: transparent;
+  color: var(--jt-text-primary);
+  font-weight: 500;
+}
+
+.drill-panel .ghost-button:hover:not(:disabled),
+.practice-layout .ghost-button:hover:not(:disabled) {
+  background: var(--jt-action-tonal-background);
+  border-color: transparent;
+}
+
+.drill-panel .ghost-button svg {
+  color: var(--jt-text-secondary);
+}
+
+.drill-panel .action-row:not(.action-row--dock) {
+  margin-top: 1.25rem;
+}
+
+.drill-panel .action-row > button {
+  min-height: 3rem;
+  min-width: 7.5rem;
+}
+
+/* ジャビ子's remark: an intentional floating bubble (accent fill, overlay
+   elevation), so passing over the explanation reads as speech, not a glitch. */
+.verdict-chip .buddy-bubble {
+  background: var(--jt-accent-foreground);
+  border-color: transparent;
+  box-shadow: var(--jt-elevation-overlay);
+  color: var(--jt-inverse-foreground);
+}
+
+:root[data-theme="dark"] .verdict-chip .buddy-bubble {
+  color: var(--jt-surface-app);
+}
+
+.verdict-chip .buddy-bubble::after {
+  border-color: transparent;
+}
+
+/* ---- Explanation: neutral surface, the verdict carried by its title ----- */
+
+.drill-panel .feedback,
+.drill-panel .feedback.correct,
+.drill-panel .feedback.incorrect,
+.drill-panel .feedback.revealed {
+  background: var(--jt-surface-inset);
+  border: 0;
+  border-inline-start: 3px solid var(--jt-assess-correct);
+  border-radius: 4px 12px 12px 4px;
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.drill-panel .feedback.incorrect {
+  border-inline-start-color: var(--jt-assess-miss);
+}
+
+.drill-panel .feedback.revealed {
+  border-inline-start-color: var(--jt-text-secondary);
+}
+
+.drill-panel .feedback.correct .feedback-title {
+  color: var(--jt-assess-correct);
+}
+
+.drill-panel .feedback.incorrect .feedback-title {
+  color: var(--jt-assess-miss);
+}
+
+.drill-panel .feedback.revealed .feedback-title {
+  color: var(--jt-text-primary);
+}
+
+.drill-panel .your-answer {
+  color: var(--jt-assess-miss);
+}
+
+.drill-panel .feedback-level {
+  background: var(--jt-surface-content);
+  border-color: var(--jt-border-subtle);
+}
+
+/* Bookmark + report: quiet commands that wrap instead of overflowing. */
+.drill-panel .report-question-block {
+  border-top: 1px solid var(--jt-border-subtle);
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  justify-content: flex-start;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+}
+
+.drill-panel .report-question-block > button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--jt-radius-control);
+  color: var(--jt-text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  min-height: 2.75rem;
+  padding: 0 0.6rem;
+}
+
+.drill-panel .report-question-block > button:hover:not(:disabled) {
+  background: var(--jt-action-tonal-background);
+  border-color: transparent;
+  transform: none;
+}
+
+.drill-panel .report-question-block > button svg {
+  color: var(--jt-text-secondary);
+}
+
+.drill-panel .report-question-block > button[aria-pressed="true"] {
+  background: var(--jt-accent-background);
+  box-shadow: inset 0 0 0 1px var(--jt-selection-edge);
+  color: var(--jt-accent-foreground);
+}
+
+/* ---- Completion: the 花丸 ------------------------------------------------ */
+
+/* Stamped on the card's corner, tilted, the way a teacher stamps a paper. */
+.session-done {
+  position: relative;
+}
+
+.done-stamp {
+  align-items: center;
+  display: grid;
+  gap: 0.15rem;
+  inset-block-start: 0.5rem;
+  inset-inline-start: 0.25rem;
+  justify-items: center;
+  position: absolute;
+  rotate: -10deg;
+  z-index: 1;
+}
+
+/* Too narrow for a corner: the stamp sits in the flow under ジャビ子. */
+@media (max-width: 479px) {
+  .done-stamp {
+    margin-top: -0.5rem;
+    position: static;
+    rotate: -6deg;
+  }
+
+  .hanamaru {
+    height: 4.5rem;
+    width: 4.5rem;
+  }
+}
+
+.hanamaru {
+  color: var(--jt-hanko);
+  fill: none;
+  height: 5.5rem;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+  width: 5.5rem;
+}
+
+.hanamaru path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.done-stamp .done-perfect-badge {
+  background: transparent;
+  border: 0;
+  color: var(--jt-hanko);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0;
+}
+
+.drill-panel .review-done-actions .next-button {
+  min-height: 3rem;
+}
+
+/* ---- The aside: 本次 tally and settings, quiet ------------------------- */
+
+.practice-layout > .review-panel {
+  animation: none;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0.25rem 0;
+}
+
+@media (max-width: 980px) {
+  .practice-layout > .review-panel {
+    border-top: 1px solid var(--jt-border-subtle);
+    padding-top: 1.25rem;
+  }
+}
+
+/* Settings are secondary: a hairline above, compact controls. */
+.session-settings {
+  border-top: 1px solid var(--jt-border-subtle);
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+}
+
+.session-settings fieldset {
+  margin-bottom: 0.5rem;
+}
+
+.session-settings legend {
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.session-settings .segmented {
+  gap: 0.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(3rem, 1fr));
+}
+
+.session-settings .segmented button {
+  font-size: 0.875rem;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
+@media (pointer: coarse) {
+  .session-settings .segmented button {
+    min-height: 2.75rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .practice-switcher > .controls-panel {
+    border: 1px solid CanvasText;
+  }
+
+  .drill-panel .choice-option[data-verdict-label]::after {
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .hanamaru {
+    color: CanvasText;
+  }
+}
+
+/* ---- Motion ---------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .practice-layout[data-switcher="open"] > .practice-switcher > .controls-panel {
+    animation: jl-switcher-in 180ms var(--jl-ease-settle) both;
+  }
+
+  .drill-panel .choice-option[data-verdict-label]::after {
+    animation: jl-fade 200ms ease 260ms both;
+  }
+
+  .hanamaru .hanamaru-spiral {
+    animation: jl-draw 560ms var(--jl-ease-draw) 260ms both;
+  }
+
+  .hanamaru .hanamaru-petals {
+    animation: jl-draw 720ms var(--jl-ease-draw) 760ms both;
+  }
+
+  .done-stamp {
+    animation: jl-stamp-press 420ms var(--jl-ease-settle) 120ms both;
+  }
+
+  .done-stamp .done-perfect-badge {
+    animation: jl-fade 240ms ease 1380ms both;
+  }
+}
+
+@keyframes jl-switcher-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A rubber stamp meeting paper: a touch large and tilted, then pressed flat. */
+@keyframes jl-stamp-press {
+  from {
+    opacity: 0;
+    transform: scale(1.18) rotate(-8deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.97) rotate(1deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

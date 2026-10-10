@@ -314,6 +314,10 @@ export const en: Copy = {
   practiceMode: "Practice mode",
   levelRange: "Question pool",
   levelRangeOptions: { all: "All", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "Starter" },
+  session: {
+    switchSet: "Switch set",
+    verdictLabels: { correct: "Correct", yours: "Your answer", answer: "Answer" }
+  },
   today: {
     gloss: {
       welcome: "I'm Jabiko. Let's practice Japanese together, one question at a time.",

@@ -314,6 +314,10 @@ export const id: Copy = {
   practiceMode: "Mode latihan",
   levelRange: "Cakupan bank soal",
   levelRangeOptions: { all: "Semua", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "Pemula total" },
+  session: {
+    switchSet: "Ganti latihan",
+    verdictLabels: { correct: "Benar", yours: "Jawabanmu", answer: "Jawaban" }
+  },
   today: {
     gloss: {
       welcome: "Aku Jabiko. Ayo latihan bahasa Jepang bersama, satu soal demi satu soal.",

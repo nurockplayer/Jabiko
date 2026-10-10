@@ -315,6 +315,10 @@ export const th: Copy = {
   practiceMode: "โหมดการฝึก",
   levelRange: "ขอบเขตคลังข้อสอบ",
   levelRangeOptions: { all: "ทั้งหมด", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "มือใหม่สุด ๆ" },
+  session: {
+    switchSet: "เปลี่ยนชุดฝึก",
+    verdictLabels: { correct: "ถูกต้อง", yours: "คำตอบของคุณ", answer: "คำตอบ" }
+  },
   today: {
     gloss: {
       welcome: "ฉันคือจาบิโกะ มาฝึกภาษาญี่ปุ่นด้วยกันทีละข้อนะ",

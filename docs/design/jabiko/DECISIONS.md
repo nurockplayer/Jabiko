@@ -630,3 +630,67 @@ returning gate, hero readouts, review-not-alert, page order),
 `todayGreeting.test.ts` (local-day streak incl. a UTC-boundary case, in both
 the runner's zone and UTC), navigation acceptance reflow at 320px/200% text
 in zh-Hant/ja/en × light/dark.
+
+## D-28 — The practice session: one column, phase-following command, 花丸 (JT-2, implements D-18/D-25, closes #864) **REVIEW-CONFIRM** {#d-28}
+
+**What was wrong.** On phones the 13-set picker, session length, speech rate
+and score panels rendered *under the question*; on desktop they filled two
+side columns. 下一題 (and 再來一組) were filled with the miss red — the legacy
+`--vermilion` maps to `assess.miss` in `jt1-compat.css` — so the session's
+main action looked like an error and was the loudest control before the
+learner answered. The question had three stacked headers (首頁, 第 n/N pill +
+type chip, meter) and a radial glow behind the prompt (D-23). The picker's
+heading said 今日練習 for every set.
+
+**Decision.**
+
+1. **Session bar** (D-18, inside the drill): 首頁 exit (icon-only < 400px,
+   name kept) · the *current* set's name as a button that opens the set
+   list · n / N. The meter fills the bar's bottom hairline; the JLPT section
+   (漢字読み, 文法形式選擇…) is the prompt's eyebrow under it. The button is
+   named by its action (換練習) and described by the set, so it never
+   collides with the set's own button in the list.
+2. **The set list is a popover at every width**, anchored under the bar and
+   overlaying the question (not pushing it); choose, Esc or an outside tap
+   closes it and focus returns to the bar. Sets are rows (name + line +
+   count), the current one in the selection grammar.
+3. **One column + aside.** The drill is a ≤ 720px column; on ≥ 981px a
+   280px sticky aside holds 本次 (tally, accuracy, this pass's mistakes) and,
+   below a hairline, the compact settings. Below 981px the aside follows the
+   drill.
+4. **Phase-following primary (D-25 made real).** `.next-button` is the
+   violet primary everywhere (fixes the miss-red mapping at its source);
+   in the drill 下一題 is tonal before a verdict and primary after
+   (`data-emphasis`). 看答案 is quiet.
+5. **Options per JT-1 §5**: content surface, 1px control border, 10px radius,
+   1–4 keycaps on fine pointers, no tint after the verdict (the edge, the
+   D-26 mark and the label carry it); unmarked options step back to
+   secondary ink. **#864:** each judged option gets its word on the top edge
+   — 正解 / 你的答案 / 答案 (8 locales) — like a teacher's margin note. It is
+   CSS generated content with empty alt text from `data-verdict-label`, so it
+   takes no room (nothing moves) and the option's text and accessible name
+   stay the choice (#862 contract); the live region already announces the
+   verdict.
+6. **Explanation**: neutral inset surface with a 3px assessment rule on the
+   leading edge (no tinted panel); bookmark/report are quiet commands that
+   wrap.
+7. **花丸.** A perfect set is stamped with a 花丸 — spiral + petals drawn as
+   two pen strokes, then pressed like a rubber stamp onto the card's corner
+   (in the flow < 480px), in a teacher's red (`--jt-hanko`, brand art like
+   C7, not an assessment or status role). It completes the 丸付け language
+   of D-26 with something every Japanese learner recognises, instead of
+   confetti. Reduced motion: the finished stamp, no drawing.
+8. ジャビ子's passing remark in the dock is an accent-filled floating bubble,
+   so crossing the explanation reads as speech rather than a rendering bug.
+
+**Rejected.** A bottom sheet with a scrim for the set list (heavier than the
+job; a popover keeps the question visible behind it); keeping the desktop
+left column (two always-visible columns compete with the question);
+tinted option fills (JT-1 §5, D-23); putting the verdict word inside the
+option text (breaks #862's text/name contract and re-wraps long options).
+
+**Evidence.** DrillPanel tests (bar, switcher a11y, `data-emphasis`, labels for
+miss/correct/reveal in zh-Hant/en/ja, 花丸 only on a perfect set), the motion
+contract extended to `today.css` and `session.css`, navigation acceptance
+41/41 (e2e now opens 換練習 before touching set controls; the answered
+option is measured on the content surface).

@@ -314,6 +314,10 @@ export const my: Copy = {
   practiceMode: "လေ့ကျင့်မှု မုဒ်",
   levelRange: "မေးခွန်း အစုအဝေး",
   levelRangeOptions: { all: "အားလုံး", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "လုံးဝ အစပြုသူ" },
+  session: {
+    switchSet: "လေ့ကျင့်ခန်း ပြောင်းရန်",
+    verdictLabels: { correct: "မှန်သည်", yours: "သင့်အဖြေ", answer: "အဖြေ" }
+  },
   today: {
     gloss: {
       welcome: "ငါက ဂျာဘီကိုပါ။ ဂျပန်စာကို တစ်ပုဒ်ချင်း အတူလေ့ကျင့်ကြရအောင်။",

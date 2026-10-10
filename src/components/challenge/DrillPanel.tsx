@@ -70,6 +70,27 @@ function VerdictMark({ kind }: { kind: VerdictMarkKind }) {
   );
 }
 
+// #866: a perfect set is stamped with a 花丸 (hanamaru) -- the teacher's
+// flower-circle that crowns full marks, completing the 丸付け language of the
+// loop. A spiral and a ring of petals, drawn as two pen strokes (pathLength
+// = 1 so learning-loop.css can draw them); static without motion.
+const HANAMARU_SPIRAL =
+  "M32 30.50L32.26 30.32L32.57 30.21L32.91 30.16L33.28 30.18L33.66 30.28L34.03 30.46L34.38 30.71L34.70 31.04L34.96 31.43L35.17 31.89L35.29 32.39L35.33 32.93L35.27 33.49L35.12 34.04L34.87 34.59L34.53 35.10L34.09 35.56L33.56 35.95L32.97 36.26L32.31 36.47L31.62 36.58L30.89 36.58L30.16 36.46L29.45 36.22L28.76 35.86L28.13 35.38L27.58 34.81L27.11 34.14L26.74 33.39L26.49 32.58L26.37 31.72L26.38 30.85L26.53 29.97L26.83 29.11L27.25 28.29L27.81 27.54L28.48 26.87L29.27 26.30L30.14 25.85L31.09 25.54L32.09 25.37L33.12 25.36L34.16 25.50L35.18 25.81L36.16 26.28L37.06 26.90L37.88 27.67L38.58 28.56L39.14 29.57L39.55 30.67L39.79 31.84L39.85 33.05L39.72 34.27L39.40 35.48L38.89 36.65L38.20 37.74L37.33 38.73L36.31 39.59L35.15 40.29L33.87 40.81L32.51 41.13L31.09 41.24L29.66 41.13L28.23 40.79L26.86 40.23L25.57 39.45L24.40 38.47L23.38 37.30L22.54 35.98L21.92 34.51L21.52 32.95L21.36 31.33L21.47 29.68L21.83 28.05L22.44 26.48L23.30 25.01L24.40 23.67L25.70 22.51L27.17 21.55L28.80 20.83L30.53 20.37L32.33 20.17L34.15 20.26L35.96 20.63L37.70 21.28L39.33 22.20L40.81 23.37L42.10 24.77L43.17 26.36L43.99 28.11";
+const HANAMARU_PETALS =
+  "M35.28 15.83C38.52 5.28 54.31 15.92 45.75 22.88C55.50 17.72 59.15 36.40 48.17 35.28C58.72 38.52 48.08 54.31 41.12 45.75C46.28 55.50 27.60 59.15 28.72 48.17C25.48 58.72 9.69 48.08 18.25 41.12C8.50 46.28 4.85 27.60 15.83 28.72C5.28 25.48 15.92 9.69 22.88 18.25C17.72 8.50 36.40 4.85 35.28 15.83";
+
+function HanamaruStamp({ label }: { label: string }) {
+  return (
+    <div className="done-stamp" data-stamp="hanamaru">
+      <svg className="hanamaru" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <path className="hanamaru-spiral" pathLength={1} d={HANAMARU_SPIRAL} />
+        <path className="hanamaru-petals" pathLength={1} d={HANAMARU_PETALS} />
+      </svg>
+      <span className="done-perfect-badge">{label}</span>
+    </div>
+  );
+}
+
 function verdictMarkFor(
   choice: string,
   selectedChoice: string | null,
@@ -125,7 +146,9 @@ export function DrillPanel({
   isQuestionBookmarked,
   onToggleBookmark,
   onExit,
-  onOpenFeedback
+  onOpenFeedback,
+  modeTitle,
+  switcher
 }: Pick<
   PracticeSession,
   | "questionIndex"
@@ -156,6 +179,11 @@ export function DrillPanel({
 > & {
   language: Language;
   onExit: () => void;
+  // #866 session bar: the current set's name (the real mode, not a fixed
+  // "今日練習") and, where the set list is collapsed (compact widths), the
+  // switcher it opens.
+  modeTitle?: string;
+  switcher?: { open: boolean; onToggle: () => void; controlsId: string };
   // Opens the in-app feedback form (#456) from the completion card, so a
   // learner who just spotted a bad question can report it in context.
   onOpenFeedback?: () => void;
@@ -290,19 +318,46 @@ export function DrillPanel({
       data-result={drillResult}
       data-expected-answer={feedback ? currentQuestion?.expectedAnswers.join(" / ") : undefined}
     >
-      {showDirectExit ? (
-        <button
-          className="session-exit"
-          type="button"
-          onClick={onExit}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
-          <House aria-hidden="true" size={16} />
-          {t.home}
-        </button>
-      ) : null}
-      {currentQuestion ? (
-        <>
+      {showDirectExit || currentQuestion ? (
+        // #866 session bar: exit · set title (the switcher on compact widths)
+        // · n / N with the meter. One row instead of three stacked headers.
+        <div className="session-bar">
+          {showDirectExit ? (
+            <button
+              className="session-exit"
+              type="button"
+              onClick={onExit}
+              onKeyDown={(event) => event.stopPropagation()}
+            >
+              <House aria-hidden="true" size={16} />
+              <span className="session-exit-label">{t.home}</span>
+            </button>
+          ) : null}
+          {modeTitle && switcher ? (
+            // Named by its action, described by the current set: the set
+            // list has a button with the set's own name, and two buttons with
+            // one name would be ambiguous to a screen reader.
+            <button
+              className="session-title"
+              type="button"
+              aria-label={t.session.switchSet}
+              aria-describedby="session-title-text"
+              aria-expanded={switcher.open}
+              aria-controls={switcher.controlsId}
+              onClick={switcher.onToggle}
+              onKeyDown={(event) => event.stopPropagation()}
+            >
+              <span id="session-title-text" className="session-title-text">
+                {modeTitle}
+              </span>
+              <ChevronDown aria-hidden="true" />
+            </button>
+          ) : modeTitle ? (
+            <span className="session-title">
+              <span className="session-title-text">{modeTitle}</span>
+            </span>
+          ) : null}
+          {currentQuestion ? (
           <div className="prompt-header">
             <span>
               {sessionTotal != null
@@ -320,7 +375,11 @@ export function DrillPanel({
               </span>
             ) : null}
           </div>
-
+          ) : null}
+        </div>
+      ) : null}
+      {currentQuestion ? (
+        <>
           <div className="word-block" key={`word:${stepKey}`}>
             {currentQuestion.promptText ? (
               <ExamPrompt question={currentQuestion} language={language} />
@@ -414,6 +473,19 @@ export function DrillPanel({
                 }
               }
               const mark = verdictMarkFor(choice, selectedChoice, feedback, currentQuestion.expectedAnswers);
+              // #864 / D-03: the mark's word, written on the option's edge
+              // like a teacher's margin note (on the border, so it takes no
+              // room and moves nothing). CSS draws it from data-verdict-label
+              // with empty alt text, so the option's text and accessible name
+              // stay the choice itself (#862); the live region announces it.
+              const verdictLabel =
+                mark === "miss"
+                  ? t.session.verdictLabels.yours
+                  : mark === "revealed"
+                    ? t.session.verdictLabels.answer
+                    : mark === "correct"
+                      ? t.session.verdictLabels.correct
+                      : null;
               return (
                 <button
                   key={choice}
@@ -421,8 +493,11 @@ export function DrillPanel({
                   className={choiceOptionClass(choice, selectedChoice, feedback)}
                   disabled={Boolean(feedback)}
                   onClick={() => handleChoiceSubmit(choice)}
+                  data-choice={choice}
                   data-selected={isSelected ? "true" : undefined}
                   data-result={dataResult}
+                  data-mark={mark ?? undefined}
+                  data-verdict-label={verdictLabel ?? undefined}
                 >
                   <Ruby
                     text={choice}
@@ -471,7 +546,15 @@ export function DrillPanel({
                 {t.revealAnswer}
               </button>
             )}
-            <button className="next-button" type="button" ref={nextButtonRef} onClick={nextQuestion}>
+            {/* D-25: before a verdict the options are the job, so 下一題
+                stays tonal; after it, 下一題 is the one primary. */}
+            <button
+              className="next-button"
+              type="button"
+              ref={nextButtonRef}
+              onClick={nextQuestion}
+              data-emphasis={feedback ? "primary" : "tonal"}
+            >
               <ArrowRight aria-hidden="true" />
               {t.nextQuestion}
             </button>
@@ -497,9 +580,7 @@ export function DrillPanel({
               {buddyLine("cheer", doneEnergy)}
             </span>
           </div>
-          {isPerfectSession ? (
-            <span className="done-perfect-badge">{t.donePerfectBadge}</span>
-          ) : null}
+          {isPerfectSession ? <HanamaruStamp label={t.donePerfectBadge} /> : null}
           <h2>{doneTitle}</h2>
           <dl className="done-stats" aria-label={t.scoreReportLabel}>
             <div className="done-stat">

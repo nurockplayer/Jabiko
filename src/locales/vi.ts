@@ -314,6 +314,10 @@ export const vi: Copy = {
   practiceMode: "Chế độ luyện tập",
   levelRange: "Phạm vi đề",
   levelRangeOptions: { all: "Tất cả", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "Người mới hoàn toàn" },
+  session: {
+    switchSet: "Đổi bài luyện",
+    verdictLabels: { correct: "Đúng", yours: "Câu bạn chọn", answer: "Đáp án" }
+  },
   today: {
     gloss: {
       welcome: "Mình là Jabiko. Cùng luyện tiếng Nhật từng câu một nhé.",

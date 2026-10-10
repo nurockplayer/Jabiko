@@ -352,12 +352,23 @@
   color: color-mix(in srgb, var(--ink) 55%, transparent);
 }
 
+/* The primary command (D-25). It used the legacy --vermilion, which the JT-1
+   compat layer maps to assess.miss -- the main action looked like an error. */
 .next-button {
-  background: var(--vermilion);
-  border-color: var(--vermilion);
-  color: var(--selected-text);
-  font-weight: 800;
+  background: var(--jt-action-primary-background);
+  border-color: transparent;
+  color: var(--jt-action-primary-foreground);
+  font-weight: 700;
   min-width: 5.7rem;
+}
+
+.next-button:hover:not(:disabled) {
+  background: var(--jt-action-primary-hover);
+  border-color: transparent;
+}
+
+.next-button:active:not(:disabled) {
+  background: var(--jt-action-primary-pressed);
 }
 
 .action-row {

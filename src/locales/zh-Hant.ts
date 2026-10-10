@@ -314,6 +314,10 @@ export const zhHant: Copy = {
   practiceMode: "練習模式",
   levelRange: "題庫範圍",
   levelRangeOptions: { all: "全部", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "完全新手" },
+  session: {
+    switchSet: "換練習",
+    verdictLabels: { correct: "正解", yours: "你的答案", answer: "答案" }
+  },
   today: {
     gloss: {
       welcome: "我是ジャビ子，陪你把日文一題一題練起來。",

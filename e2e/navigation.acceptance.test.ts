@@ -1164,6 +1164,9 @@ test.describe("legacy color compatibility contrast", () => {
         await page.goto(surface.route);
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
         if (surface.route === "/challenge") {
+          // #866: the set list opens from the session bar's 換練習 title.
+          await page.getByRole("button", { name: "換練習" }).click();
+          await expect(page.locator(".practice-switcher .controls-panel")).toHaveCSS("opacity", "1");
           await expect(page.locator(".mode-card-count").first()).toBeVisible();
         }
         const target = page.locator(surface.selector).first();
@@ -1195,8 +1198,13 @@ test.describe("legacy color compatibility contrast", () => {
         ...(await expectReadableForeground(customRate, `${theme} custom speech rate`))
       });
 
+      // Choosing a set closes the switcher; reopen it to read the set's own
+      // segmented controls.
+      await page.getByRole("button", { name: "換練習" }).click();
       await page.getByRole("button", { name: /^基礎變化/ }).click();
-      const selectedSegment = page.locator(".segmented button.selected").first();
+      await page.getByRole("button", { name: "換練習" }).click();
+      await expect(page.locator(".practice-switcher .controls-panel")).toHaveCSS("opacity", "1");
+      const selectedSegment = page.locator(".practice-switcher .segmented button.selected").first();
       await expect(selectedSegment).toBeVisible();
       await expectOpaqueRoleBackground(
         selectedSegment,
@@ -1223,22 +1231,24 @@ test.describe("legacy color compatibility contrast", () => {
       });
 
       await page.goto("/challenge");
+      await page.getByRole("button", { name: "換練習" }).click();
       await page.getByRole("button", { name: /^基礎變化/ }).click();
       const choice = page.locator(".choice-option").first();
       await choice.click();
       const answeredChoice = page.locator('.choice-option[data-selected="true"]');
       await expect(answeredChoice).toBeVisible();
-      const feedbackRole = await answeredChoice.evaluate((element) =>
-        element.classList.contains("correct")
-          ? "--feedback-correct-bg"
-          : "--feedback-incorrect-bg"
-      );
+      // #866 / JT-1 §5: a judged option keeps the content surface; the verdict
+      // is its assessment edge, the drawn mark and the margin label (no tint).
+      // Measure once the question's turn-in (D-26) has settled.
+      await expect(page.locator(".drill-panel")).toHaveCSS("opacity", "1");
+      await expect(answeredChoice).toHaveCSS("opacity", "1");
       await expectOpaqueRoleBackground(
         answeredChoice,
-        feedbackRole,
+        "--jt-surface-content",
         `${theme} selected answer feedback`,
         "--jt-text-primary"
       );
+      await expect(answeredChoice).toHaveAttribute("data-verdict-label", /.+/);
       evidence.push({
         theme,
         route: "/challenge",
@@ -1416,6 +1426,7 @@ for (const viewport of [
         localStorage.setItem("jabiko:attempts", JSON.stringify([attempt]));
       }, savedAttempt);
       await page.goto("/challenge?mode=basic");
+      await page.getByRole("button", { name: "換練習" }).click();
       const n5Filter = page.getByRole("button", { name: "N5", exact: true });
       await expect(n5Filter).toBeEnabled();
       await n5Filter.click();
@@ -1476,7 +1487,12 @@ for (const viewport of [
       await page.goto("/challenge?mode=exam");
       const exit = page.getByRole("button", { name: "首頁", exact: true });
       await expect(exit).toBeVisible();
+      // #866: the set list is one tap away from the session bar, and Esc
+      // puts it away again.
+      await page.getByRole("button", { name: "換練習" }).click();
       await expect(page.locator(".controls-panel")).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(page.locator(".controls-panel")).toBeHidden();
       await expect(page.locator(".drill-panel")).toBeVisible();
       await expect(page.locator(".prompt-header span")).toHaveText(/^第 \d+ 題$/);
       const exitBounds = await exit.boundingBox();

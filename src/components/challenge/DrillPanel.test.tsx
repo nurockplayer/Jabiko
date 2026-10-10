@@ -411,8 +411,7 @@ describe("DrillPanel", () => {
       const { container } = renderAnswered();
       expect(container.querySelector(".drill-panel .feedback")).toBeNull();
       expect(childBlocks(container)).toEqual([
-        "session-exit",
-        "prompt-header",
+        "session-bar",
         "word-block",
         "choice-grid",
         "action-row",
@@ -433,8 +432,7 @@ describe("DrillPanel", () => {
       (_label, { selectedChoice, feedback }, title) => {
         const { container } = renderAnswered({ selectedChoice, feedback });
         expect(childBlocks(container)).toEqual([
-          "session-exit",
-          "prompt-header",
+          "session-bar",
           "word-block",
           "choice-grid",
           "action-row",
@@ -534,7 +532,7 @@ describe("DrillPanel", () => {
         window.innerWidth = 390;
         const mobile = renderAnswered(answeredCorrect);
         const mobileBlocks = childBlocks(mobile.container);
-        expect(mobileBlocks).toEqual(["session-exit", "prompt-header", "word-block", "choice-grid", "action-row", "feedback"]);
+        expect(mobileBlocks).toEqual(["session-bar", "word-block", "choice-grid", "action-row", "feedback"]);
         mobile.unmount();
 
         window.innerWidth = 1280;
@@ -925,5 +923,116 @@ describe("DrillPanel", () => {
         expect(scrollIntoView).not.toHaveBeenCalled();
       });
     });
+  });
+});
+
+describe("DrillPanel session bar (#866)", () => {
+  it("names the current set in the session bar and toggles the set switcher", () => {
+    const onToggle = vi.fn();
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        sessionTotal={20}
+        modeTitle="N3 備考"
+        switcher={{ open: false, onToggle, controlsId: "practice-switcher" }}
+      />
+    );
+    const title = screen.getByRole("button", { name: "換練習" });
+    expect(title).toHaveAccessibleDescription("N3 備考");
+    expect(title).toHaveTextContent("N3 備考");
+    expect(title).toHaveAttribute("aria-expanded", "false");
+    expect(title).toHaveAttribute("aria-controls", "practice-switcher");
+    fireEvent.click(title);
+    expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the Today exit and the n / N count in the same bar", () => {
+    const { container } = render(
+      <DrillPanel {...baseProps} language="zh-Hant" sessionTotal={20} modeTitle="今日練習" />
+    );
+    const bar = container.querySelector(".session-bar");
+    expect(bar).not.toBeNull();
+    expect(bar!.querySelector(".session-exit")).not.toBeNull();
+    expect(bar!.querySelector(".prompt-header")).not.toBeNull();
+  });
+});
+
+describe("DrillPanel phase-following Next (#866, D-25)", () => {
+  it("keeps 下一題 quiet before a verdict and makes it the primary after", () => {
+    const { rerender } = render(<DrillPanel {...baseProps} language="zh-Hant" />);
+    const next = () => screen.getByRole("button", { name: "下一題" });
+    expect(next()).toHaveAttribute("data-emphasis", "tonal");
+    rerender(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        selectedChoice="書いて"
+        feedback={{ status: "correct", question, submittedAnswer: "書いて" }}
+      />
+    );
+    expect(next()).toHaveAttribute("data-emphasis", "primary");
+  });
+});
+
+// The label is drawn from `data-verdict-label` by CSS generated content with
+// empty alt text, so the option's textContent and accessible name stay the
+// choice itself (the #862 contract above); the live region announces the verdict.
+describe("DrillPanel per-option verdict labels (#864, D-03)", () => {
+  const label = (choice: string) =>
+    document.querySelector(`.choice-option[data-choice="${choice}"]`)?.getAttribute("data-verdict-label") ?? null;
+
+  it("labels the learner's miss and the right answer", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        selectedChoice="書いた"
+        feedback={{ status: "incorrect", question, submittedAnswer: "書いた" }}
+      />
+    );
+    expect(label("書いた")).toBe("你的答案");
+    expect(label("書いて")).toBe("正解");
+    expect(label("書かない")).toBeNull();
+  });
+
+  it("labels a correct pick", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="en"
+        selectedChoice="書いて"
+        feedback={{ status: "correct", question, submittedAnswer: "書いて" }}
+      />
+    );
+    expect(label("書いて")).toBe("Correct");
+  });
+
+  it("labels the answer shown by 看答案", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="ja"
+        feedback={{ status: "revealed", question, submittedAnswer: null }}
+      />
+    );
+    expect(label("書いて")).toBe("答え");
+  });
+
+  it("shows no labels before answering", () => {
+    render(<DrillPanel {...baseProps} language="zh-Hant" />);
+    expect(document.querySelectorAll("[data-verdict-label]")).toHaveLength(0);
+  });
+});
+
+describe("DrillPanel completion stamp (#866)", () => {
+  it("stamps a 花丸 on a perfect set", () => {
+    renderDone({ total: 5, correct: 5, accuracy: 100 });
+    expect(document.querySelector('[data-stamp="hanamaru"]')).not.toBeNull();
+  });
+
+  it("does not stamp a 花丸 on a set with misses", () => {
+    renderDone({ total: 5, correct: 3, accuracy: 60 });
+    expect(document.querySelector('[data-stamp="hanamaru"]')).toBeNull();
   });
 });

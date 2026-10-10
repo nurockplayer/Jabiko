@@ -314,6 +314,10 @@ export const ko: Copy = {
   practiceMode: "연습 모드",
   levelRange: "문제 풀(pool)",
   levelRangeOptions: { all: "전체", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "완전 초보" },
+  session: {
+    switchSet: "연습 바꾸기",
+    verdictLabels: { correct: "정답", yours: "내 답", answer: "답" }
+  },
   today: {
     gloss: {
       welcome: "나는 자비코! 일본어를 한 문제씩 같이 연습하자.",

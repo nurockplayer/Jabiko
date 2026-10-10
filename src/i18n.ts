@@ -337,6 +337,12 @@ export type Copy = {
     /** Daily-CTA gate (#532): shown when 今日練習 is tapped with no level set. */
     chooseFirst: string;
   };
+  /** Practice session bar and per-option verdict labels (#866, #864). */
+  session: {
+    /** Visually hidden hint on the set-title button that opens the switcher. */
+    switchSet: string;
+    verdictLabels: { correct: string; yours: string; answer: string };
+  };
   /** Today hero (#866): the localized gloss under ジャビ子's Japanese line
    *  (domain/todayGreeting.ts) and the real-momentum readouts. */
   today: {
