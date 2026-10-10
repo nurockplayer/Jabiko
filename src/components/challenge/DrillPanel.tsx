@@ -1,4 +1,4 @@
-import { useEffect, useRef, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { ArrowRight, ChevronDown, Eye, GraduationCap, House, MessageSquare, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
@@ -273,13 +273,19 @@ export function DrillPanel({
   const answeredCount = questionIndex + (feedback ? 1 : 0);
 
   // While the set list is open the learner is choosing settings: a recall
-  // question appearing behind it must not take focus from the list (#866).
+  // question appearing behind it must not take focus from the list. Read
+  // through a ref so the list CLOSING never re-runs the autofocus -- each
+  // close path (choose, Esc, focus leaving) has already placed focus (#866).
   const switcherOpen = switcher?.open ?? false;
+  const switcherOpenRef = useRef(switcherOpen);
+  useLayoutEffect(() => {
+    switcherOpenRef.current = switcherOpen;
+  }, [switcherOpen]);
   useEffect(() => {
-    if (isRecallQuestion && currentQuestion && !feedback && !switcherOpen) {
+    if (isRecallQuestion && currentQuestion && !feedback && !switcherOpenRef.current) {
       recallInputRef.current?.focus({ preventScroll: true });
     }
-  }, [currentQuestion, feedback, isRecallQuestion, sessionSeed, switcherOpen]);
+  }, [currentQuestion, feedback, isRecallQuestion, sessionSeed]);
 
   // Completion-screen copy: daily / review have their own wording; every
   // other (capped, #154) finite session uses the generic "這組完成" set.

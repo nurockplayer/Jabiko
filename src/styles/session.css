@@ -716,7 +716,12 @@ button.session-title[aria-expanded="true"] {
 .session-settings .segmented button {
   font-size: 0.875rem;
   min-height: 2.25rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 0.25rem 0.5rem;
+  /* Long labels (ja 「もっとゆっくり」 at 200% text) wrap inside the button
+     instead of widening the page (#872 review, pre-existing). */
+  white-space: normal;
 }
 
 @media (pointer: coarse) {

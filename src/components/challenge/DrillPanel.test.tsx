@@ -962,6 +962,32 @@ describe("DrillPanel session bar (#866)", () => {
     expect(document.querySelector("#recall-answer")).not.toHaveFocus();
   });
 
+  // Astra review round 4: closing the list must not pull focus into the
+  // typed answer -- the learner (or the close path) already chose a target.
+  it("does not steal focus into the typed answer when the set list closes", () => {
+    const props = {
+      ...baseProps,
+      language: "zh-Hant" as const,
+      isRecallQuestion: true,
+      modeTitle: "基礎變化"
+    };
+    const { rerender } = render(
+      <>
+        <button type="button">outside</button>
+        <DrillPanel {...props} switcher={{ open: true, onToggle: vi.fn(), controlsId: "practice-switcher" }} />
+      </>
+    );
+    const outside = screen.getByRole("button", { name: "outside" });
+    outside.focus();
+    rerender(
+      <>
+        <button type="button">outside</button>
+        <DrillPanel {...props} switcher={{ open: false, onToggle: vi.fn(), controlsId: "practice-switcher" }} />
+      </>
+    );
+    expect(outside).toHaveFocus();
+  });
+
   it("still focuses the typed answer when the set list is closed", () => {
     render(
       <DrillPanel
