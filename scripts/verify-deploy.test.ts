@@ -58,7 +58,7 @@ describe("deployment smoke header contracts", () => {
     ["cache", "no-store=false"],
     ["cache", 'private="no-store"'],
     ["cache", 'private="field,no-store,other"'],
-    ["cache", 'extension="escaped\\\",no-store,other"'],
+    ["cache", 'extension="escaped\\",no-store,other"'],
     ["cache", 'extension="unterminated, no-store'],
     ["cache", "\u00a0no-store"],
     ["css", ""], ["js", ""], ["spa", ""], ["cache", ""]
@@ -94,7 +94,7 @@ describe("deployment smoke header contracts", () => {
 
   for (const cache of [
     'private="field,other", no-store',
-    'extension="escaped\\\",still quoted", no-store',
+    'extension="escaped\\",still quoted", no-store',
     'no-store, extension="field,other"',
     "max-age=0, no-store, no-cache"
   ]) {

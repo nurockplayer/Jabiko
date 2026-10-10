@@ -28,11 +28,12 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Wait for Cloudflare deployment before main validation
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Wait for Cloudflare deployment before validation
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
         timeout-minutes: 16
         env:
           GH_TOKEN: ${{ github.token }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: node scripts/wait-cloudflare-check.mjs
 
       - name: Set up pnpm

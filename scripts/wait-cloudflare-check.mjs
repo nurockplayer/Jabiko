@@ -1,8 +1,10 @@
-// Keep main-push validation behind the independently triggered Pages build.
+// Keep validation behind the independently triggered Pages build for its source commit.
 // This runs before dependency installation and uses only Node built-ins.
 async function main() {
-  const { GITHUB_REPOSITORY: repository, GITHUB_SHA: sha, GH_TOKEN: token } = process.env;
-  if (!/^[A-Za-z0-9][A-Za-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(repository ?? "") ||
+  const { GITHUB_REPOSITORY: repository, GITHUB_SHA: workflowSha, GH_TOKEN: token,
+    GITHUB_EVENT_NAME: event, PR_HEAD_SHA: prHead } = process.env;
+  const sha = event === "pull_request" ? prHead : workflowSha;
+  if (!["push", "pull_request"].includes(event) || !/^[A-Za-z0-9][A-Za-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(repository ?? "") ||
       !/^[a-f0-9]{40}$/.test(sha ?? "") || !token) {
     throw new Error("Missing or invalid repository, commit SHA, or job token");
   }

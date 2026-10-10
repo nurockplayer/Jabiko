@@ -17,7 +17,7 @@ async function runGate(replies: Reply[], env: Record<string, string> = {}) {
   let now = 0;
   const lines: string[] = [];
   const requests: { url: string; init: RequestInit }[] = [];
-  const process = { env: { GITHUB_REPOSITORY: "nurockplayer/Jabiko", GITHUB_SHA: sha, GH_TOKEN: "test-only-token", ...env }, exitCode: 0 };
+  const process = { env: { GITHUB_REPOSITORY: "nurockplayer/Jabiko", GITHUB_SHA: sha, GITHUB_EVENT_NAME: "push", GH_TOKEN: "test-only-token", ...env }, exitCode: 0 };
   await runInNewContext(source, {
     process, URL, AbortSignal, Date: { now: () => now },
     setTimeout: (callback: () => void, milliseconds: number) => { now += milliseconds; callback(); },
@@ -41,6 +41,36 @@ describe("Cloudflare deployment wait gate", () => {
     assert.equal(result.requests[0].url, `https://api.github.com/repos/nurockplayer/Jabiko/commits/${sha}/check-runs?check_name=Cloudflare%20Pages&filter=latest&per_page=100`);
     assert.equal(new Headers(result.requests[0].init.headers).get("authorization"), "Bearer test-only-token");
     assert.ok(result.requests[0].init.signal);
+  });
+
+  it("uses the PR head rather than the workflow merge or base SHA", async () => {
+    const prHead = "b".repeat(40);
+    const result = await runGate([{ body: payload([{ ...complete, head_sha: prHead }]) }], {
+      GITHUB_EVENT_NAME: "pull_request", PR_HEAD_SHA: prHead, GITHUB_BASE_SHA: "c".repeat(40)
+    });
+    assert.equal(result.code, 0);
+    assert.equal(result.requests.length, 1);
+    assert.ok(result.requests[0].url.includes(`/commits/${prHead}/`));
+    assert.ok(!result.requests[0].url.includes(`/commits/${sha}/`));
+  });
+
+  it("does not fall back to the merge SHA when a PR head is missing", async () => {
+    const result = await runGate([{ body: payload([complete]) }], { GITHUB_EVENT_NAME: "pull_request", PR_HEAD_SHA: "" });
+    assert.equal(result.code, 1);
+    assert.equal(result.requests.length, 0);
+  });
+
+  it("keeps push validation bound to the workflow SHA despite an unrelated PR head", async () => {
+    const result = await runGate([{ body: payload([complete]) }], { PR_HEAD_SHA: "b".repeat(40) });
+    assert.equal(result.code, 0);
+    assert.equal(result.requests.length, 1);
+    assert.ok(result.requests[0].url.includes(`/commits/${sha}/`));
+  });
+
+  it("rejects an unsupported event before reading checks", async () => {
+    const result = await runGate([{ body: payload([complete]) }], { GITHUB_EVENT_NAME: "workflow_dispatch" });
+    assert.equal(result.code, 1);
+    assert.equal(result.requests.length, 0);
   });
 
   it("waits through absence and a running check before success", async () => {
