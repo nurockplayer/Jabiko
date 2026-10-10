@@ -694,3 +694,56 @@ miss/correct/reveal in zh-Hant/en/ja, 花丸 only on a perfect set), the motion
 contract extended to `today.css` and `session.css`, navigation acceptance
 41/41 (e2e now opens 換練習 before touching set controls; the answered
 option is measured on the content surface).
+
+## D-29 — Conversations read as conversations; the World leads with a person (JT-2, implements D-19/D-22) **REVIEW-CONFIRM** {#d-29}
+
+**What was wrong.** The Small Talk list was ~21 bordered boxes whose text
+started at a different x on every row (a grid inside a `button`, whose global
+`justify-content: center` centred the whole text block). Choosing a scene put
+its brief and Start button *after the entire list*. A run showed only the
+current line under a generic 對方的話, so it never read as a conversation;
+feedback said 達成 in link colour; commands were pills outside D-25. The 日常
+World header wrapped into two ragged rows of underlined links, the person was
+a grey line, and 可開始的場景 headed an empty space.
+
+**Decision.**
+
+1. **Scene rows** (hairlines, like Today): a 短 / 中 / 長 Mincho keycap, the
+   situation, and "對象：{partner role}" — who you will talk to. The brief opens
+   **directly under the chosen row** (a stable keyed fragment, so the row
+   keeps its identity and focus), in the accent field, with the roles as a
+   two-column list, the objective in weight, and Start. A seasonal card's
+   brief opens under the cards; a single World scene keeps it at the end.
+2. **A script** (D-19 made real): lines already said stay above the current
+   turn — speaker, then the Japanese line; the learner's in accent ink under
+   「你」. A line joins the script only when the conversation moves past it (a
+   partner line followed by another, or a reply the learner continues with);
+   a retried reply never does, and the current line is never repeated. On
+   completion the whole exchange is there to reread. Presentation state only
+   — the engine is untouched.
+3. **The partner is named**: the current line is headed by the partner's role,
+   with the 對方的話 caption kept; the line is set in Mincho at reading size.
+4. **Feedback** marks each dimension 〇 (met, `assess.correct`) or △ (could be
+   stronger, `assess.partial`) as a glyph plus the word (A4), never ×.
+5. **Commands** follow D-25: Start / 換個說法再試一次 / 再跑一次 are primary
+   fills, the alternative beside them is quiet; a lone alternative is tonal.
+6. **Completion**: ジャビ子 cheers 「おつかれさま！」, the closing a friend would
+   say, consistent with the practice completion (D-28).
+7. **World home**: a one-line quiet toolbar (two rows on phones; the day label
+   moves to the page eyebrow there); the current moment is the page's one
+   filled panel — the person first (a monogram of their name, name, who they
+   are, the relationship stage), the place, the objective, one Start; the
+   main story as five stops on a line (filled when done, the text keeps the
+   count). 可開始的場景 only appears when there are scenes under it.
+
+**Rejected.** Chat bubbles (D-19); a length filter (the 21 rows scan well with
+keycaps, and 短/中/長 buttons would collide with the rows' accessible names);
+inventing scene titles (the catalog has none in learner language — the
+situation is the honest title); an avatar illustration per NPC (D-23; the
+monogram carries identity).
+
+**Evidence.** ConversationPanel tests (brief follows its row, partner on rows,
+script order and no-repeat, retry not scripted, 〇/△ glyphs aria-hidden with
+the word), World/App suites green, reflow stress 48/48 (`/`, `/challenge`,
+`/conversation`, `/game` at 320px/200% text, system + wide fallback font,
+zh-Hant/ja/en, new + returning).

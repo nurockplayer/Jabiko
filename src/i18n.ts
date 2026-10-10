@@ -544,6 +544,12 @@ export type Copy = {
   conversationRetry: string;
   conversationReset: string;
   conversationChangeScenario: string;
+  /** #866: who the learner talks to, on each scene row. */
+  conversationWithPartner: (role: string) => string;
+  /** #866: the accessible name of the running script of earlier lines. */
+  conversationScriptLabel: string;
+  /** #866: the learner's speaker name in the script. */
+  conversationYou: string;
   conversationPartnerLabel: string;
   conversationLearnerRole: string;
   conversationPartnerRole: string;

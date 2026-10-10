@@ -547,3 +547,59 @@ describe("ConversationPanel keyboard and locale honesty (#814)", () => {
     expect(screen.queryByText(/月台上的電子看板/)).not.toBeInTheDocument();
   });
 });
+
+describe("ConversationPanel reads as a conversation (#866, D-29)", () => {
+  it("opens the brief right under the chosen scene, so its Start is next to it", async () => {
+    const user = renderPanel();
+    const scene = screen.getByRole("button", { name: new RegExp(`^${t.conversationLengths.medium}`) });
+    await user.click(scene);
+    const brief = screen.getByRole("article");
+    expect(scene.nextElementSibling).toBe(brief);
+  });
+
+  it("names who the learner talks to on each scene row", () => {
+    renderPanel();
+    const scene = screen.getByRole("button", { name: new RegExp(`^${t.conversationLengths.short}`) });
+    expect(scene).toHaveTextContent(t.conversationWithPartner("同事"));
+  });
+
+  it("keeps earlier lines visible as a script while the conversation goes on", async () => {
+    const user = renderPanel();
+    await startScenario(user, t.conversationLengths.medium);
+    await reachResponses(user);
+    await user.click(screen.getByRole("button", { name: /まだです。今日は軽いものがいい気分です。/ }));
+    await user.click(screen.getByRole("button", { name: t.conversationContinue }));
+
+    const script = screen.getByRole("list", { name: t.conversationScriptLabel });
+    const lines = Array.from(script.querySelectorAll("li"));
+    expect(lines.map((line) => line.getAttribute("data-speaker"))).toEqual(["partner", "learner"]);
+    expect(lines[0]).toHaveTextContent("お昼、何食べるか決めました？");
+    expect(lines[1]).toHaveTextContent("まだです。今日は軽いものがいい気分です。");
+    expect(lines[1]).toHaveTextContent(t.conversationYou);
+    // The current line is not repeated in the script.
+    expect(document.querySelector(".conversation-partner-line")).toHaveTextContent("そうなんですね。");
+  });
+
+  it("does not add a retried reply to the script", async () => {
+    const user = renderPanel();
+    await startScenario(user, t.conversationLengths.medium);
+    await reachResponses(user);
+    await user.click(screen.getByRole("button", { name: /まだです。今日は軽いものがいい気分です。/ }));
+    await user.click(screen.getByRole("button", { name: t.conversationRetry }));
+    expect(screen.queryByRole("list", { name: t.conversationScriptLabel })).not.toBeInTheDocument();
+  });
+
+  it("marks each feedback dimension with 〇 or △, never colour alone", async () => {
+    const user = renderPanel();
+    await startScenario(user, t.conversationLengths.short);
+    await reachResponses(user);
+    await user.click(screen.getByRole("button", { name: "そうですね。" }));
+    const marks = Array.from(document.querySelectorAll(".conversation-dimension dd .conversation-status-mark"));
+    expect(marks.length).toBeGreaterThan(0);
+    for (const mark of marks) {
+      const status = mark.closest("dd")!.getAttribute("data-status");
+      expect(mark.textContent).toBe(status === "met" ? "〇" : "△");
+      expect(mark).toHaveAttribute("aria-hidden", "true");
+    }
+  });
+});
