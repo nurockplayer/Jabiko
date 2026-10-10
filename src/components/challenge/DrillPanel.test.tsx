@@ -947,6 +947,34 @@ describe("DrillPanel session bar (#866)", () => {
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
 
+  // Astra review #872: choosing 自己輸入 inside the open set list autofocused
+  // the answer field behind the list.
+  it("does not pull focus into the typed answer while the set list is open", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        modeTitle="基礎變化"
+        switcher={{ open: true, onToggle: vi.fn(), controlsId: "practice-switcher" }}
+      />
+    );
+    expect(document.querySelector("#recall-answer")).not.toHaveFocus();
+  });
+
+  it("still focuses the typed answer when the set list is closed", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        modeTitle="基礎變化"
+        switcher={{ open: false, onToggle: vi.fn(), controlsId: "practice-switcher" }}
+      />
+    );
+    expect(document.querySelector("#recall-answer")).toHaveFocus();
+  });
+
   it("keeps the Today exit and the n / N count in the same bar", () => {
     const { container } = render(
       <DrillPanel {...baseProps} language="zh-Hant" sessionTotal={20} modeTitle="今日練習" />

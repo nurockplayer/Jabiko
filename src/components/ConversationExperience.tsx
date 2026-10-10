@@ -157,9 +157,10 @@ export function ConversationExperience({
     const spoken = state.step?.kind === "partner_line" ? state.step.japanese : null;
     session.advance();
     const next = sync();
-    // Two partner lines in a row: the first one is now part of the script.
-    // (Before a reply it stays in the turn as the line being answered.)
-    if (spoken && next.step?.kind === "partner_line") {
+    // Two partner lines in a row, or the partner's closing line before the
+    // completion: the line just said is now part of the script. (Before a
+    // reply it stays in the turn as the line being answered.)
+    if (spoken && (next.step?.kind === "partner_line" || next.phase === "complete")) {
       setScript((lines) => [...lines, { speaker: "partner", japanese: spoken }]);
     }
   };

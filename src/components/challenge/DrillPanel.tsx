@@ -265,11 +265,14 @@ export function DrillPanel({
   // Truthful session progress: questions answered out of the pass total.
   const answeredCount = questionIndex + (feedback ? 1 : 0);
 
+  // While the set list is open the learner is choosing settings: a recall
+  // question appearing behind it must not take focus from the list (#866).
+  const switcherOpen = switcher?.open ?? false;
   useEffect(() => {
-    if (isRecallQuestion && currentQuestion && !feedback) {
+    if (isRecallQuestion && currentQuestion && !feedback && !switcherOpen) {
       recallInputRef.current?.focus({ preventScroll: true });
     }
-  }, [currentQuestion, feedback, isRecallQuestion, sessionSeed]);
+  }, [currentQuestion, feedback, isRecallQuestion, sessionSeed, switcherOpen]);
 
   // Completion-screen copy: daily / review have their own wording; every
   // other (capped, #154) finite session uses the generic "這組完成" set.

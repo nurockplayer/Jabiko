@@ -580,6 +580,25 @@ describe("ConversationPanel reads as a conversation (#866, D-29)", () => {
     expect(document.querySelector(".conversation-partner-line")).toHaveTextContent("そうなんですね。");
   });
 
+  // Astra review #872: the partner's closing line (partner_line → complete)
+  // was dropped, so the completed script lost its last line.
+  it("keeps the whole exchange, including the partner's closing line, on completion", async () => {
+    const user = userEvent.setup();
+    render(<ConversationPanel language="zh-Hant" />);
+    await user.click(screen.getByRole("button", { name: /早上通勤時/ }));
+    await user.click(screen.getByRole("button", { name: t.conversationStart }));
+    await user.click(screen.getByRole("button", { name: t.conversationContinue }));
+    await user.click(screen.getByRole("button", { name: /そうですね。どちらの駅から乗っていらっしゃるんですか？/ }));
+    await user.click(screen.getByRole("button", { name: t.conversationContinue }));
+    await user.click(screen.getByRole("button", { name: t.conversationContinue }));
+
+    expect(screen.getByRole("heading", { name: t.conversationCompleteTitle })).toBeInTheDocument();
+    const script = screen.getByRole("list", { name: t.conversationScriptLabel });
+    const lines = Array.from(script.querySelectorAll("li"));
+    expect(lines.map((line) => line.getAttribute("data-speaker"))).toEqual(["partner", "learner", "partner"]);
+    expect(lines[2]).toHaveTextContent("普段は桜町駅からこの路線に乗っています。");
+  });
+
   it("does not add a retried reply to the script", async () => {
     const user = renderPanel();
     await startScenario(user, t.conversationLengths.medium);

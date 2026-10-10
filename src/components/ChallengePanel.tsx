@@ -70,7 +70,7 @@ export function ChallengePanel({
         layout.querySelector<HTMLElement>(`#${SWITCHER_ID} .mode-card.selected`) ??
         layout.querySelector<HTMLElement>(`#${SWITCHER_ID} button`);
       current?.focus({ preventScroll: true });
-      layout.querySelector(`#${SWITCHER_ID}`)?.scrollIntoView({ block: "nearest" });
+      layout.querySelector(`#${SWITCHER_ID}`)?.scrollIntoView?.({ block: "nearest" });
     } else {
       layout.querySelector<HTMLElement>(".session-title")?.focus({ preventScroll: true });
     }
@@ -90,8 +90,20 @@ export function ChallengePanel({
       if (list?.contains(target) || title?.contains(target)) return;
       setSwitcherOpen(false);
     };
+    // Esc closes the open list wherever focus is (a setting change can move
+    // focus out of it) and puts focus back on the bar's title.
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      event.preventDefault();
+      lastToggleRef.current = "close";
+      setSwitcherOpen(false);
+    };
     document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [switcherOpen]);
 
   const toggleSwitcher = () => {
@@ -115,12 +127,6 @@ export function ChallengePanel({
       <div
         id={SWITCHER_ID}
         className="practice-switcher"
-        onKeyDown={(event) => {
-          if (event.key === "Escape" && switcherOpen) {
-            event.stopPropagation();
-            closeSwitcher();
-          }
-        }}
       >
         <ModePicker
           language={language}

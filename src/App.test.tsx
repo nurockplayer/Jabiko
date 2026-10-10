@@ -1380,6 +1380,23 @@ describe("App", () => {
     expect(screen.getAllByText(/N3＋N4 綜合題/).length).toBeGreaterThanOrEqual(2);
   });
 
+  // Astra review #872: Esc must close the open set list wherever focus is
+  // (a setting change could move focus outside the list).
+  it("closes the open set list with Esc even when focus has left it (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    await screen.findByRole("region", { name: "目前題目" });
+
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+    expect(switcher).toHaveAttribute("aria-expanded", "true");
+    (document.activeElement as HTMLElement | null)?.blur();
+    await user.keyboard("{Escape}");
+    expect(switcher).toHaveAttribute("aria-expanded", "false");
+    expect(switcher).toHaveFocus();
+  });
+
   it("opens 今日練習 by default when entering the challenge tab", async () => {
     const user = userEvent.setup();
     render(<App />);

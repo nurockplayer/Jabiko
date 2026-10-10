@@ -75,6 +75,13 @@
   display: block;
 }
 
+/* While the learner is choosing a set, 看答案 / 下一題 are not the job: the
+   phone dock steps aside so it can never cover the end of the list (#872
+   review: with enlarged text a tap on the last control hit 看答案). */
+.practice-layout[data-switcher="open"] .action-row--dock {
+  visibility: hidden;
+}
+
 .practice-switcher > .controls-panel {
   animation: none;
   background: var(--jt-surface-content);

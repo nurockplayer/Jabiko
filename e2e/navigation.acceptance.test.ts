@@ -1513,6 +1513,28 @@ for (const viewport of [
   });
 }
 
+// #866 (Astra review of #872): on a phone with enlarged text the docked
+// action row covered the end of the open set list, so a tap on its last
+// control landed on 看答案 underneath.
+test("keeps every control of the open set list tappable above the phone dock at 200% text", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.evaluate(() => localStorage.setItem("jabiko.lang", "zh-Hant"));
+  await page.goto("/challenge?mode=exam");
+  await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+  await page.getByRole("button", { name: "換練習" }).click();
+  const list = page.locator(".practice-switcher .controls-panel");
+  await expect(list).toHaveCSS("opacity", "1");
+  const last = list.locator("button").last();
+  await last.scrollIntoViewIfNeeded();
+  const hit = await last.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const top = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    return { onTarget: top === element || element.contains(top), inViewport: rect.bottom <= window.innerHeight };
+  });
+  expect(hit).toEqual({ onTarget: true, inViewport: true });
+});
+
 for (const viewport of [
   { name: "320x640", width: 320, height: 640 },
   { name: "1280x800", width: 1280, height: 800 }
