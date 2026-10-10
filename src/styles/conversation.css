@@ -590,9 +590,15 @@
   width: 4.5rem;
 }
 
+/* The base bubble is a one-line pill; here it may shrink and wrap so the
+   closing line never widens the page at 200% text (#872 review). */
 .conversation-done-buddy .buddy-bubble {
   align-self: start;
+  border-radius: 1rem;
+  line-height: 1.3;
   margin-top: 0.5rem;
+  min-width: 0;
+  white-space: normal;
 }
 
 .conversation-complete-summary {

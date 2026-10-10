@@ -464,6 +464,36 @@ test.describe("Home share row reflow", () => {
   });
 });
 
+// #872 Astra review round 7: ジャビ子's おつかれさま！ bubble on the completion
+// screen kept its one-line pill and pushed the page to 354px.
+test("keeps the Small Talk completion within 320px at 200% root text", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.goto("/conversation");
+  await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+  const productionScene = page.getByRole("button", { name: /早上通勤時/ });
+  await productionScene.focus();
+  await productionScene.press("Enter");
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "開始這個情境" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("今朝は気持ちのいい天気ですね。通勤中も少し楽です。")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("選一個回應", { exact: true })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("heading", { name: "回饋" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "繼續", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("heading", { name: "完成", exact: true })).toBeFocused();
+  await expectNoPageOverflow(page, "conversation completion at 320px / 200% text");
+});
+
 for (const width of [390, 1280]) {
   test.describe(`conversation keyboard flow at ${width}px`, () => {
     test.use({ viewport: { width, height: 844 } });
