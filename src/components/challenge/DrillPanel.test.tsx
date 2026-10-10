@@ -1,8 +1,9 @@
 import type { ComponentProps, KeyboardEvent as ReactKeyboardEvent } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DrillPanel } from "./DrillPanel";
+import { usePracticeSession } from "../../hooks/usePracticeSession";
 import { FuriganaContext } from "../furiganaContext";
 import type { Attempt, PracticeQuestion } from "../../domain/types";
 import type { Language } from "../../i18n";
@@ -64,12 +65,17 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+beforeEach(() => {
+  window.localStorage.clear();
+});
+
 function renderPanel(language: Language) {
   return render(<DrillPanel {...baseProps} language={language} />);
 }
 
 function makeAttempts(total: number, correct: number): Attempt[] {
   return Array.from({ length: total }, (_, i) => ({
+    questionId: question.id,
     vocabularyId: "kaku",
     targetForm: "te",
     prompt: "書く",
@@ -106,6 +112,92 @@ function renderDone(opts: {
 }
 
 describe("DrillPanel", () => {
+  function renderLiveDrillPanel(mode: "basic" | "daily" = "basic") {
+    let session: ReturnType<typeof usePracticeSession> | undefined;
+
+    function Harness() {
+      session = usePracticeSession({
+        language: "zh-Hant",
+        init:
+          mode === "basic"
+            ? { mode, partOfSpeech: "verb", verbGroup: "godan", targetForm: "te" }
+            : { mode },
+        progressAttempts: [],
+        recordAttempt: vi.fn()
+      });
+      return <DrillPanel {...session} language="zh-Hant" onExit={vi.fn()} />;
+    }
+
+    const view = render(<Harness />);
+    return {
+      ...view,
+      getSession() {
+        if (!session) throw new Error("Practice session has not mounted");
+        return session;
+      }
+    };
+  }
+
+  function answerCurrentQuestion(container: HTMLElement) {
+    fireEvent.click(container.querySelector(".choice-option")!);
+  }
+
+  function skipCurrentQuestion(container: HTMLElement) {
+    fireEvent.click(container.querySelector(".next-button")!);
+  }
+
+  function expectProgress(container: HTMLElement, answered: number, ordinal: number) {
+    expect(container.querySelector(".session-meter")).toHaveAttribute("data-answered", String(answered));
+    expect(container.querySelector(".prompt-header > span")).toHaveTextContent(`第 ${ordinal} /`);
+  }
+
+  it.each(["basic", "daily"] as const)("excludes a skipped %s-mode question from answered progress", (mode) => {
+    const { container, getSession } = renderLiveDrillPanel(mode);
+
+    skipCurrentQuestion(container);
+    expect(getSession().attempts).toHaveLength(0);
+    expectProgress(container, 0, 2);
+    answerCurrentQuestion(container);
+
+    expect(getSession().attempts).toHaveLength(1);
+    expectProgress(container, 1, 2);
+  });
+
+  it("counts answers around a skipped question while keeping the question ordinal", () => {
+    const { container, getSession } = renderLiveDrillPanel();
+
+    answerCurrentQuestion(container);
+    expectProgress(container, 1, 1);
+    skipCurrentQuestion(container);
+    expectProgress(container, 1, 2);
+    skipCurrentQuestion(container);
+    expect(getSession().attempts).toHaveLength(1);
+    expectProgress(container, 1, 3);
+    answerCurrentQuestion(container);
+
+    expect(getSession().attempts).toHaveLength(2);
+    expectProgress(container, 2, 3);
+  });
+
+  it("counts a revealed answer once and clears progress when a new pass starts", () => {
+    const { container, getSession } = renderLiveDrillPanel();
+
+    fireEvent.click(container.querySelector(".ghost-button")!);
+    expect(getSession().attempts).toHaveLength(1);
+    expectProgress(container, 1, 1);
+    act(() => getSession().revealAnswer());
+    act(() => getSession().revealAnswer());
+    expect(getSession().attempts).toHaveLength(1);
+    expectProgress(container, 1, 1);
+    skipCurrentQuestion(container);
+    expectProgress(container, 1, 2);
+
+    act(() => getSession().resetSession());
+
+    expect(getSession().attempts).toHaveLength(0);
+    expectProgress(container, 0, 1);
+  });
+
   it("offers a direct Today exit before an active endless question without resetting session data", async () => {
     const user = userEvent.setup();
     const onExit = vi.fn();
@@ -619,13 +711,26 @@ describe("DrillPanel", () => {
     });
 
     it("fills a truthful session meter: answered / total, advancing on the answer", () => {
-      const { container, rerender } = renderLoop({ sessionTotal: 4, questionIndex: 1 });
+      const { container, rerender } = renderLoop({
+        sessionTotal: 4,
+        questionIndex: 1,
+        attempts: makeAttempts(1, 1)
+      });
       const meter = container.querySelector(".session-meter")!;
       expect(meter).toHaveAttribute("aria-hidden", "true");
       expect(meter).toHaveAttribute("data-answered", "1");
       expect(meter.querySelector<HTMLElement>(".session-meter-fill")!.style.getPropertyValue("--progress")).toBe("0.25");
 
-      rerender(<DrillPanel {...baseProps} language="zh-Hant" sessionTotal={4} questionIndex={1} {...correct} />);
+      rerender(
+        <DrillPanel
+          {...baseProps}
+          language="zh-Hant"
+          sessionTotal={4}
+          questionIndex={1}
+          attempts={makeAttempts(2, 2)}
+          {...correct}
+        />
+      );
       expect(container.querySelector(".session-meter")).toBe(meter);
       expect(meter).toHaveAttribute("data-answered", "2");
       expect(meter.querySelector<HTMLElement>(".session-meter-fill")!.style.getPropertyValue("--progress")).toBe("0.5");
