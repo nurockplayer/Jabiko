@@ -17,6 +17,44 @@
 
 const BASE = (process.env.DEPLOY_URL || "https://jabiko.app").replace(/\/$/, "");
 
+function headerToken(value) {
+  return value.replace(/^[ \t]+|[ \t]+$/g, "").toLowerCase();
+}
+
+function mediaType(value) {
+  return headerToken(value.split(";", 1)[0]);
+}
+
+// Exact browser-supported essences, not a substring in another type/parameter.
+// https://mimesniff.spec.whatwg.org/#javascript-mime-type
+const JAVASCRIPT_TYPES = new Set([
+  "application/ecmascript", "application/javascript", "application/x-ecmascript", "application/x-javascript",
+  "text/ecmascript", "text/javascript", "text/javascript1.0", "text/javascript1.1", "text/javascript1.2",
+  "text/javascript1.3", "text/javascript1.4", "text/javascript1.5", "text/jscript", "text/livescript",
+  "text/x-ecmascript", "text/x-javascript"
+]);
+
+function hasNoStore(value) {
+  // RFC 9111: match a directive, not an extension name or a quoted argument.
+  const directives = [];
+  let current = "";
+  let quoted = false;
+  let escaped = false;
+  for (const char of value) {
+    if (char === "," && !quoted) {
+      directives.push(headerToken(current));
+      current = "";
+      continue;
+    }
+    current += char;
+    if (escaped) escaped = false;
+    else if (quoted && char === "\\") escaped = true;
+    else if (char === '"') quoted = !quoted;
+  }
+  directives.push(headerToken(current));
+  return !quoted && !escaped && directives.includes("no-store");
+}
+
 const results = [];
 function record(name, ok, detail) {
   results.push({ name, ok, detail });
@@ -38,7 +76,7 @@ async function main() {
   if (cssPath) {
     const res = await fetch(BASE + cssPath);
     const type = res.headers.get("content-type") ?? "";
-    record("entry CSS is text/css", res.status === 200 && type.includes("text/css"),
+    record("entry CSS is text/css", res.status === 200 && mediaType(type) === "text/css",
       `status=${res.status} type=${type}`);
   }
 
@@ -46,7 +84,7 @@ async function main() {
   if (jsPath) {
     const res = await fetch(BASE + jsPath);
     const type = res.headers.get("content-type") ?? "";
-    record("entry JS is javascript", res.status === 200 && type.includes("javascript"),
+    record("entry JS is javascript", res.status === 200 && JAVASCRIPT_TYPES.has(mediaType(type)),
       `status=${res.status} type=${type}`);
   }
 
@@ -56,13 +94,13 @@ async function main() {
   const missType = missing.headers.get("content-type") ?? "";
   const missCache = missing.headers.get("cache-control") ?? "";
   record("missing /assets/* -> 404 + no-store",
-    missing.status === 404 && missCache.includes("no-store"),
+    missing.status === 404 && hasNoStore(missCache),
     `status=${missing.status} type=${missType} cache=${missCache}`);
 
   // 5. SPA routes still fall back to the app shell
   const spa = await fetch(`${BASE}/challenge?verify=${Date.now()}`);
   const spaType = spa.headers.get("content-type") ?? "";
-  record("SPA route serves app shell", spa.status === 200 && spaType.includes("text/html"),
+  record("SPA route serves app shell", spa.status === 200 && mediaType(spaType) === "text/html",
     `status=${spa.status} type=${spaType}`);
 
   const failed = results.filter((r) => !r.ok);
