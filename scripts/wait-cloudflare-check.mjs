@@ -2,11 +2,19 @@
 // This runs before dependency installation and uses only Node built-ins.
 async function main() {
   const { GITHUB_REPOSITORY: repository, GITHUB_SHA: workflowSha, GH_TOKEN: token,
-    GITHUB_EVENT_NAME: event, PR_HEAD_SHA: prHead } = process.env;
+    GITHUB_EVENT_NAME: event, PR_HEAD_SHA: prHead, PR_HEAD_REPOSITORY: prRepository } = process.env;
   const sha = event === "pull_request" ? prHead : workflowSha;
-  if (!["push", "pull_request"].includes(event) || !/^[A-Za-z0-9][A-Za-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(repository ?? "") ||
+  const repositoryName = /^[A-Za-z0-9][A-Za-z0-9-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*$/;
+  if (!["push", "pull_request"].includes(event) || !repositoryName.test(repository ?? "") ||
+      (event === "pull_request" && !repositoryName.test(prRepository ?? "")) ||
       !/^[a-f0-9]{40}$/.test(sha ?? "") || !token) {
     throw new Error("Missing or invalid repository, commit SHA, or job token");
+  }
+  // Cloudflare Pages does not create previews for commits from fork repositories.
+  // Validate identity first; unknown PR metadata must not silently skip the gate.
+  if (event === "pull_request" && prRepository.toLowerCase() !== repository.toLowerCase()) {
+    console.log("Fork PR has no Pages preview; continuing with all existing validation");
+    return;
   }
   const url = `https://api.github.com/repos/${repository}/commits/${sha}/check-runs?check_name=Cloudflare%20Pages&filter=latest&per_page=100`;
   const deadline = Date.now() + 15 * 60 * 1000;

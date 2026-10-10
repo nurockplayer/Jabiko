@@ -17,7 +17,7 @@ async function runGate(replies: Reply[], env: Record<string, string> = {}) {
   let now = 0;
   const lines: string[] = [];
   const requests: { url: string; init: RequestInit }[] = [];
-  const process = { env: { GITHUB_REPOSITORY: "nurockplayer/Jabiko", GITHUB_SHA: sha, GITHUB_EVENT_NAME: "push", GH_TOKEN: "test-only-token", ...env }, exitCode: 0 };
+  const process = { env: { GITHUB_REPOSITORY: "nurockplayer/Jabiko", GITHUB_SHA: sha, GITHUB_EVENT_NAME: "push", PR_HEAD_REPOSITORY: "nurockplayer/Jabiko", GH_TOKEN: "test-only-token", ...env }, exitCode: 0 };
   await runInNewContext(source, {
     process, URL, AbortSignal, Date: { now: () => now },
     setTimeout: (callback: () => void, milliseconds: number) => { now += milliseconds; callback(); },
@@ -58,6 +58,67 @@ describe("Cloudflare deployment wait gate", () => {
     const result = await runGate([{ body: payload([complete]) }], { GITHUB_EVENT_NAME: "pull_request", PR_HEAD_SHA: "" });
     assert.equal(result.code, 1);
     assert.equal(result.requests.length, 0);
+  });
+
+  it("does not wait for an unavailable Pages preview on a verified fork PR", async () => {
+    const result = await runGate([{ body: payload([]) }], {
+      GITHUB_EVENT_NAME: "pull_request", PR_HEAD_SHA: sha, PR_HEAD_REPOSITORY: "contributor/Jabiko"
+    });
+    assert.equal(result.code, 0);
+    assert.equal(result.requests.length, 0);
+    assert.equal(result.now, 0);
+    assert.match(result.lines.join("\n"), /Fork PR.*no Pages preview/);
+    assert.ok(!result.lines.join("\n").includes("Pages succeeded"));
+  });
+
+  for (const prRepository of ["", "../wrong"]) {
+    it(`rejects missing or malformed PR repository identity ${JSON.stringify(prRepository)}`, async () => {
+      const result = await runGate([{ body: payload([complete]) }], {
+        GITHUB_EVENT_NAME: "pull_request", PR_HEAD_SHA: sha, PR_HEAD_REPOSITORY: prRepository
+      });
+      assert.equal(result.code, 1);
+      assert.equal(result.requests.length, 0);
+    });
+  }
+
+  it("retains the check for the same PR repository with case differences", async () => {
+    const result = await runGate([{ body: payload([complete]) }], {
+      GITHUB_EVENT_NAME: "pull_request", PR_HEAD_SHA: sha, PR_HEAD_REPOSITORY: "NUROCKPLAYER/jabiko"
+    });
+    assert.equal(result.code, 0);
+    assert.equal(result.requests.length, 1);
+  });
+
+  it("still fails when a same-repository PR has no Pages check", async () => {
+    const result = await runGate([{ body: payload([]) }], {
+      GITHUB_EVENT_NAME: "pull_request", PR_HEAD_SHA: sha
+    });
+    assert.equal(result.code, 1);
+    assert.equal(result.now, 15 * 60 * 1000);
+    assert.match(result.lines.join("\n"), /Timed out/);
+  });
+
+  it("does not allow fork detection to conceal a missing PR head", async () => {
+    const result = await runGate([{ body: payload([complete]) }], {
+      GITHUB_EVENT_NAME: "pull_request", PR_HEAD_SHA: "", PR_HEAD_REPOSITORY: "contributor/Jabiko"
+    });
+    assert.equal(result.code, 1);
+    assert.equal(result.requests.length, 0);
+  });
+
+  it("wires PR repository identity into both workflow gates", () => {
+    for (const file of ["ci.yml", "browser-acceptance.yml"]) {
+      const workflow = readFileSync(new URL(`../.github/workflows/${file}`, import.meta.url), "utf8");
+      assert.ok(workflow.includes("PR_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}"));
+    }
+  });
+
+  it("preserves the original browser validation budget in addition to the gate budget", () => {
+    const workflow = readFileSync(new URL("../.github/workflows/browser-acceptance.yml", import.meta.url), "utf8");
+    const jobMinutes = Number(workflow.match(/^    timeout-minutes: (\d+)$/m)?.[1]);
+    const gateMinutes = Number(workflow.match(/^        timeout-minutes: (\d+)$/m)?.[1]);
+    assert.equal(gateMinutes, 16);
+    assert.ok(jobMinutes >= 20 + gateMinutes);
   });
 
   it("keeps push validation bound to the workflow SHA despite an unrelated PR head", async () => {
