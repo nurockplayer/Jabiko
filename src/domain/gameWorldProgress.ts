@@ -113,7 +113,7 @@ export function writeConfirmedGameWorldProgress(
   contentRevision: number,
   state: GameWorldState
 ): GameWorldProgressWrite {
-  if (!isContentRevision(contentRevision) || getGameWorldAvailability(world, state).status !== "ready") {
+  if (!isContentRevision(contentRevision) || !isProgressStateShape(state)) {
     return { status: "invalid_state" };
   }
   const envelope: GameWorldProgressEnvelope = {
@@ -123,7 +123,16 @@ export function writeConfirmedGameWorldProgress(
     state
   };
   const key = gameWorldProgressKey(world.id);
-  const encoded = JSON.stringify(envelope);
+  let encoded: string;
+  try {
+    encoded = JSON.stringify(envelope);
+    // Validate the actual bytes before they can replace the last confirmed checkpoint.
+    if (decodeEnvelope(JSON.parse(encoded) as unknown, world, contentRevision).status !== "ready") {
+      return { status: "invalid_state" };
+    }
+  } catch {
+    return { status: "invalid_state" };
+  }
   try {
     storage.setItem(key, encoded);
     const readback = storage.getItem(key);

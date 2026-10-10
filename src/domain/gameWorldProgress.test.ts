@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { GameWorldDefinition } from "./gameWorld";
+import type { GameWorldDefinition, GameWorldState } from "./gameWorld";
 import {
   gameWorldProgressKey,
   readGameWorldProgress,
@@ -82,5 +82,66 @@ describe("device-local game world progress", () => {
     const missingReadback = { getItem: () => null, setItem: () => undefined };
     expect(writeConfirmedGameWorldProgress(missingReadback, world, contentRevision, world.initialState))
       .toEqual({ status: "readback_mismatch" });
+  });
+
+  it("rejects extra state fields before they can replace a confirmed checkpoint", () => {
+    const storage = memoryStorage();
+    const { world } = rainyMondayContent;
+    const contentRevision = rainyMondayContentRevision;
+    expect(writeConfirmedGameWorldProgress(storage, world, contentRevision, world.initialState))
+      .toEqual({ status: "confirmed" });
+    const key = gameWorldProgressKey(world.id);
+    const before = storage.getItem(key);
+    const candidate = { ...world.initialState, learnerReply: "must not be persisted" };
+
+    expect(writeConfirmedGameWorldProgress(storage, world, contentRevision, candidate))
+      .toEqual({ status: "invalid_state" });
+    expect(storage.getItem(key)).toBe(before);
+    expect(readGameWorldProgress(storage, world, contentRevision))
+      .toEqual({ status: "ready", state: world.initialState });
+  });
+
+  it("validates serialized state before any storage write", () => {
+    const { world } = rainyMondayContent;
+    const candidate = { ...world.initialState };
+    Object.defineProperty(candidate, "toJSON", {
+      value: () => ({ ...world.initialState, learnerReply: "must not be persisted" })
+    });
+    let writes = 0;
+    const storage = {
+      getItem: () => null,
+      setItem: () => { writes += 1; }
+    };
+
+    expect(writeConfirmedGameWorldProgress(storage, world, rainyMondayContentRevision, candidate))
+      .toEqual({ status: "invalid_state" });
+    expect(writes).toBe(0);
+  });
+
+  it("reports serialization failure without throwing or touching storage", () => {
+    const { world } = rainyMondayContent;
+    const candidate = { ...world.initialState };
+    Object.defineProperty(candidate, "toJSON", {
+      value: () => { throw new Error("cannot serialize"); }
+    });
+    let writes = 0;
+    const storage = {
+      getItem: () => null,
+      setItem: () => { writes += 1; }
+    };
+
+    expect(writeConfirmedGameWorldProgress(storage, world, rainyMondayContentRevision, candidate))
+      .toEqual({ status: "invalid_state" });
+    expect(writes).toBe(0);
+  });
+
+  it("rejects malformed runtime state before calling the reachability validator", () => {
+    const { world } = rainyMondayContent;
+    const candidate = { ...world.initialState, completedMomentIds: undefined } as unknown as GameWorldState;
+    const storage = memoryStorage();
+
+    expect(writeConfirmedGameWorldProgress(storage, world, rainyMondayContentRevision, candidate))
+      .toEqual({ status: "invalid_state" });
+    expect(storage.values.size).toBe(0);
   });
 });
