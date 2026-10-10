@@ -486,7 +486,7 @@ export const th: Copy = {
   homeBannerNextExamSub: "ฝึกข้อสอบรวมตามระดับเป้าหมายของคุณ",
   dashboardEyebrow: "เรียนต่อ",
   dashboardReviewPending: (count) => `คุณยังมี ${count} ข้อรอทบทวน`,
-  dashboardReviewEmpty: "ไม่มีข้อที่ผิดรอทบทวนแล้ว 🎉",
+  dashboardReviewEmpty: "ไม่มีข้อที่ผิดรอทบทวนแล้ว",
   dashboardReviewCta: "ทบทวนทันที",
   dashboardNextChapterLabel: "บทถัดไปที่แนะนำ",
   dashboardStatsAttempts: (count) => `ฝึกไปแล้ว ${count} ข้อ`,

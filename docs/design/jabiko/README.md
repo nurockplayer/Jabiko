@@ -23,7 +23,7 @@ all surfaces on the second in labelled rows (VERIFICATION.md §2).
 | File | What it is |
 | --- | --- |
 | [DESIGN.md](DESIGN.md) | The specification: tokens and usage rules, layout, the assessment system, components with states, every surface, localization, accessibility, implementation guidance and acceptance checklist |
-| [DECISIONS.md](DECISIONS.md) | Decisions D-00 … D-29 with reasons and rejected alternatives; dispositions of #832 and PR #849; REVIEW-CONFIRM items |
+| [DECISIONS.md](DECISIONS.md) | Decisions D-00 … D-30 with reasons and rejected alternatives; dispositions of #832 and PR #849; REVIEW-CONFIRM items |
 | [FOUNDATION.md](FOUNDATION.md) | Exactly which Tachiko authority is consumed (sources, values, rules), what Jabiko specializes, what is excluded as spreadsheet-only |
 | [CAPABILITIES.md](CAPABILITIES.md) | Every existing capability → its JT-1 location on wide and compact, with board evidence; protected contracts |
 | [tokens.json](tokens.json) | Canonical values: colors (light, dark) with source per role, contrast requirements, type, space, geometry, layers, motion, breakpoints |

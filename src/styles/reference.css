@@ -1,0 +1,367 @@
+/* ---- Reference & mock surfaces (#866 Phase 4, JT-2 track) ----------------
+   The same composition as Today and the session: a named page, rows with
+   hairlines, quiet commands, JT-1 roles. Learning content is set as
+   content (Japanese at reading sizes); status colours stay for status. */
+
+/* ---- 題型分區練習 (/mock) ------------------------------------------------ */
+
+.mock-panel {
+  gap: 1.5rem;
+  max-width: 760px;
+}
+
+.mock-section-head {
+  gap: 0.35rem;
+}
+
+/* The page title (was a small eyebrow under decorative art). */
+.mock-section-head .mock-title {
+  color: var(--jt-text-primary);
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.mock-section-intro {
+  color: var(--jt-text-secondary);
+}
+
+.mock-section-rows {
+  border-top: 1px solid var(--jt-border-subtle);
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mock-section-rows > li {
+  border-bottom: 1px solid var(--jt-border-subtle);
+}
+
+:is(.app-shell, .game-world-shell) .mock-section-card {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: var(--jt-text-primary);
+  column-gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  min-height: 4rem;
+  padding: 0.75rem 0.25rem;
+}
+
+:is(.app-shell, .game-world-shell) .mock-section-card:hover:not(:disabled) {
+  background: var(--jt-surface-inset);
+  box-shadow: none;
+  transform: none;
+}
+
+.mock-section-card:focus-visible {
+  outline-offset: -3px;
+}
+
+.mock-section-meta strong {
+  font-family: var(--jt-font-ja);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.mock-section-meta small {
+  color: var(--jt-text-secondary);
+}
+
+.mock-section-count {
+  color: var(--jt-accent-foreground);
+  font-size: 0.8125rem;
+}
+
+.mock-section-arrow {
+  color: var(--jt-text-secondary);
+}
+
+/* D-15: a section without questions yet is information -- secondary ink, no
+   warning colour or icon, no command look. */
+:is(.app-shell, .game-world-shell) .mock-section-card.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.mock-section-card.empty .mock-section-meta strong {
+  color: var(--jt-text-secondary);
+}
+
+.mock-section-warn {
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding-inline-end: 0.25rem;
+}
+
+/* ---- 漢字音讀 (/kanji) ------------------------------------------------- */
+
+/* The level filter is a grid inside a flex row; without a basis it took its
+   min-content width and stacked N5…N1 into a tall column beside the search. */
+.kanji-controls {
+  gap: 0.5rem 0.75rem;
+}
+
+.kanji-controls .kanji-search {
+  border-color: var(--jt-border-control);
+  border-radius: var(--jt-radius-control);
+  flex: 1 1 100%;
+  min-height: 2.75rem;
+}
+
+@media (min-width: 720px) {
+  .kanji-controls .kanji-search {
+    flex-basis: 16rem;
+  }
+}
+
+.kanji-controls > .segmented {
+  flex: 1 1 9rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 100%;
+  min-width: 0;
+}
+
+.kanji-controls > .segmented.level-segmented {
+  flex: 1 1 20rem;
+  grid-template-columns: repeat(auto-fit, minmax(3.25rem, 1fr));
+}
+
+.kanji-controls > .segmented button {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding-inline: 0.25rem;
+  white-space: normal;
+}
+
+.kanji-head h2 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+/* ---- Learn lessons (/learn) --------------------------------------------- */
+
+/* The chapter's key line (あ・い・う・え・お, a formula): Japanese content in
+   Mincho at reading size, on a neutral field -- not a status colour. */
+.chapter-content .focus-formula {
+  background: var(--jt-surface-inset);
+  border: 0;
+  border-radius: 12px;
+  color: var(--jt-text-primary);
+  font-family: var(--jt-font-ja-mincho);
+  font-size: 1.5rem;
+  font-weight: 600;
+  justify-content: center;
+  letter-spacing: 0.04em;
+  padding: 0.85rem 1rem;
+}
+
+/* Examples: calm cards whose content is the Japanese itself. They were
+   green "success" boxes, which told the eye something had been passed. */
+.chapter-lesson .pipeline-grid {
+  gap: 0.6rem;
+}
+
+.chapter-lesson .pipeline-card {
+  background: var(--jt-surface-content);
+  border: 1px solid var(--jt-border-subtle);
+  border-radius: 12px;
+  gap: 0.35rem;
+  padding: 0.85rem 1rem;
+}
+
+.chapter-lesson .pipeline-card code {
+  background: transparent;
+  border: 0;
+  color: var(--jt-text-primary);
+  font-family: var(--jt-font-ja);
+  font-size: 1.1875rem;
+  font-weight: 600;
+  line-height: 1.7;
+  padding: 0;
+}
+
+.chapter-lesson .pipeline-card p {
+  color: var(--jt-text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Pitfalls are learning advice, not an error: neutral note, accent label. */
+.chapter-lesson .block-pitfalls {
+  background: var(--jt-surface-inset);
+  border: 0;
+  border-inline-start: 3px solid var(--jt-selection-edge);
+  border-radius: 4px 12px 12px 4px;
+  padding: 0.85rem 1rem;
+}
+
+.chapter-lesson .block-pitfalls-title {
+  color: var(--jt-accent-foreground);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.chapter-lesson .block-drill-note {
+  background: var(--jt-surface-inset);
+  border: 0;
+  border-radius: 10px;
+  color: var(--jt-text-secondary);
+}
+
+/* One primary per lesson (D-25): the first drill; the others are tonal. */
+.chapter-lesson .inline-action-row {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+:is(.app-shell, .game-world-shell) .chapter-lesson .inline-drill-button {
+  border-color: transparent;
+  border-radius: var(--jt-radius-control);
+  font-weight: 700;
+  max-width: 100%;
+  min-height: 3rem;
+  overflow-wrap: anywhere;
+}
+
+:is(.app-shell, .game-world-shell) .chapter-lesson .inline-action-row ~ .inline-action-row .inline-drill-button,
+:is(.app-shell, .game-world-shell) .chapter-lesson .inline-drill-button + .inline-drill-button {
+  background: var(--jt-action-tonal-background);
+  color: var(--jt-text-primary);
+  font-weight: 600;
+}
+
+:is(.app-shell, .game-world-shell) .chapter-lesson .inline-action-row ~ .inline-action-row .inline-drill-button:hover:not(:disabled),
+:is(.app-shell, .game-world-shell) .chapter-lesson .inline-drill-button + .inline-drill-button:hover:not(:disabled) {
+  background: var(--jt-action-tonal-hover);
+}
+
+/* Chapter list: left-aligned rows (the global button centring pushed every
+   label to a different x), the current chapter in the selection grammar --
+   it was tinted with the miss red via the legacy --vermilion. */
+:is(.app-shell, .game-world-shell) .chapter-list-button {
+  background: var(--jt-surface-content);
+  border-color: var(--jt-border-subtle);
+  border-radius: 10px;
+  justify-content: stretch;
+  position: relative;
+  text-align: start;
+}
+
+:is(.app-shell, .game-world-shell) .chapter-list-button:hover:not(:disabled) {
+  background: var(--jt-surface-inset);
+  border-color: var(--jt-border-subtle);
+  transform: none;
+}
+
+:is(.app-shell, .game-world-shell) .chapter-list-button.selected {
+  background: var(--jt-accent-background);
+  border-color: var(--jt-selection-edge);
+  box-shadow: inset 0 0 0 1px var(--jt-selection-edge);
+}
+
+.chapter-list-button.selected strong {
+  color: var(--jt-accent-foreground);
+}
+
+/* Completed: a 〇 in the corner (a shape, not only a green border). Generated
+   content with empty alt text keeps the button's name unchanged. */
+:is(.app-shell, .game-world-shell) .chapter-list-button.complete {
+  border-color: var(--jt-border-subtle);
+  padding-inline-end: 2.25rem;
+}
+
+.chapter-list-button.complete::after {
+  color: var(--jt-assess-correct);
+  content: "〇" / "";
+  font-family: var(--jt-font-ja);
+  font-weight: 700;
+  inset-inline-end: 0.75rem;
+  position: absolute;
+  top: 0.75rem;
+}
+
+.chapter-list-button.selected.complete {
+  border-color: var(--jt-selection-edge);
+}
+
+/* "Nothing to review" is information, not a success alert. */
+.dashboard-review-empty {
+  background: var(--jt-surface-inset);
+  border: 0;
+  color: var(--jt-text-secondary);
+}
+
+/* ---- Compact tab bar ---------------------------------------------------- */
+
+/* English "Conversation" was ~1px wider than a 390px phone's tab and broke
+   as "Conversatio / n". A half-pixel smaller label with slightly tighter
+   tracking fits; enlarged text still wraps as #859 allows. */
+@media (max-width: 1023px) {
+  :root:lang(en) .jt1-primary-nav > a,
+  :root:lang(en) .jt1-primary-nav .nav-resources-compact > .nav-more-trigger {
+    font-size: 0.71875rem;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* The Resources tab: icon above the label, like its neighbours. */
+@media (max-width: 1023px) {
+  .jt1-primary-nav .nav-resources-compact > .nav-more-trigger > svg {
+    order: -1;
+  }
+}
+
+/* Drill commands keep a comfortable width but never exceed the column (they
+   wrapped off-screen with enlarged text). */
+:is(.app-shell, .game-world-shell) .inline-drill-button {
+  max-width: 100%;
+  min-width: min(9rem, 100%);
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* Learn on phones: no card inside the page gutter (it doubled the margins),
+   and titles / chapter-bar labels wrap instead of widening the page. */
+@media (max-width: 599px) {
+  .learning-panel {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+}
+
+.chapter-content-head h3,
+.chapter-mobile-bar strong,
+.chapter-mobile-nav button,
+.dashboard-review-cta,
+.dashboard-review-cta span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.chapter-mobile-nav button {
+  white-space: normal;
+}
+
+.dashboard-review-cta {
+  flex-wrap: wrap;
+}
+
+/* Safety net for enlarged text: long words in headings and copy may break
+   rather than widen the page (a phone at 200% text has ~10 characters per
+   line for some headings). Tables keep their own horizontal scrollers. */
+main :is(h1, h2, h3, h4) {
+  overflow-wrap: anywhere;
+}
+
+.about-panel :is(p, li),
+.rules-panel :is(p, li) {
+  overflow-wrap: anywhere;
+}

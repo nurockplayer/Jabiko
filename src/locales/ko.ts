@@ -485,7 +485,7 @@ export const ko: Copy = {
   homeBannerNextExamSub: "목표 레벨에 맞춰 종합 문제를 연습하세요.",
   dashboardEyebrow: "이어서 학습",
   dashboardReviewPending: (count) => `아직 복습할 문제가 ${count}개 남았어요`,
-  dashboardReviewEmpty: "복습할 오답이 남지 않았어요 🎉",
+  dashboardReviewEmpty: "복습할 오답이 남지 않았어요",
   dashboardReviewCta: "지금 복습",
   dashboardNextChapterLabel: "다음 챕터 추천",
   dashboardStatsAttempts: (count) => `${count}문제 완료`,

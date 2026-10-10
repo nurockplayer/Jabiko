@@ -485,7 +485,7 @@ export const en: Copy = {
   homeBannerNextExamSub: "Practice mixed questions at your target level.",
   dashboardEyebrow: "Keep learning",
   dashboardReviewPending: (count) => `You still have ${count} questions due for review`,
-  dashboardReviewEmpty: "No mistakes left to review 🎉",
+  dashboardReviewEmpty: "No mistakes left to review",
   dashboardReviewCta: "Review now",
   dashboardNextChapterLabel: "Suggested next chapter",
   dashboardStatsAttempts: (count) => `${count} questions done`,

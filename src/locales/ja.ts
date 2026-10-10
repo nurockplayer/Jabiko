@@ -493,7 +493,7 @@ export const ja: Copy = {
   homeBannerNextExamSub: "目標レベルに合わせて総合問題を練習。",
   dashboardEyebrow: "学習を続ける",
   dashboardReviewPending: (count) => `復習待ちの問題がまだ ${count} 問あります`,
-  dashboardReviewEmpty: "復習待ちの間違いはもうありません 🎉",
+  dashboardReviewEmpty: "復習待ちの間違いはもうありません",
   dashboardReviewCta: "今すぐ復習",
   dashboardNextChapterLabel: "次の章のおすすめ",
   dashboardStatsAttempts: (count) => `${count} 問 練習済み`,

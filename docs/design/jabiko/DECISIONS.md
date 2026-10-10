@@ -747,3 +747,47 @@ script order and no-repeat, retry not scripted, 〇/△ glyphs aria-hidden with
 the word), World/App suites green, reflow stress 48/48 (`/`, `/challenge`,
 `/conversation`, `/game` at 320px/200% text, system + wide fallback font,
 zh-Hant/ja/en, new + returning).
+
+## D-30 — Reference, lessons and mock join the system; status colours stay status (JT-2) {#d-30}
+
+**What was wrong.** Outside the reworked surfaces the legacy panels still
+spoke a different language: the Learn lesson set its kana and formulas as
+small UI text inside **green success boxes**, pitfalls in a **red error
+box**, the current chapter tinted with the miss red (`--vermilion`), list
+labels centred at random x (the same `justify-content: center` grid bug as
+D-29), two equal violet primaries per lesson and an emoji in UI copy (D-20).
+/mock had no page title (an eyebrow under decorative art) and showed
+準備中 with red warning triangles (D-15). /kanji's level filter collapsed to a
+tall column beside the search. The compact tab bar broke English
+"Conversation" mid-word on a 390px phone, and its Resources tab was the only
+one with label-above-chevron instead of icon-above-label. A reflow stress
+(below) found pages wider than a 320px screen at 200% text on /learn, /kanji,
+/kana, /rules and /about.
+
+**Decision.**
+
+1. **Lessons**: the chapter's key line in Mincho at 1.5rem on a neutral
+   inset; examples are calm cards whose content *is* the Japanese (1.19rem,
+   Japanese face); pitfalls are a neutral note with an accent rule; one primary
+   drill per lesson, the rest tonal; the chapter list uses the selection
+   grammar and marks completed chapters with a 〇 (shape, not only colour);
+   "nothing to review" is information, not a success alert; no emoji. On
+   phones the Learn panel is flat (no card inside the gutter).
+2. **/mock**: a real heading, rows like Today, 準備中 in secondary ink with no
+   icon and no command look.
+3. **/kanji**: search, reading type and level filter share one wrapping row
+   with explicit flex bases; decorative header art removed (as on /mock —
+   ジャビ子 carries the personality now).
+4. **Compact tab bar**: English labels at 11.5px with slightly tighter
+   tracking so "Conversation" fits a 390px phone (enlarged text still wraps,
+   #859); Resources gets an icon above its label like its neighbours (the
+   menu is announced by `aria-haspopup`).
+5. **Reflow safety net**: headings and long copy may break long words; drill
+   commands never exceed their column.
+
+**Evidence.** MockExamPanel tests (heading; 準備中 row has no icon and no
+button), Learning/Kanji/Mock suites, navigation acceptance 41/41, and a
+reflow stress of **144/144**: `/`, `/learn`, `/mock`, `/kanji`, `/grammar`,
+`/kana`, `/rules`, `/about`, `/conversation`, `/game`, `/challenge?mode=exam`
+and `?mode=basic` at 320px with 200% root text, system and wide fallback
+fonts, zh-Hant/ja/en, new and returning learners.

@@ -7,6 +7,7 @@ import {
   Handshake,
   Home,
   Info,
+  Library,
   MessageCircle,
   Table,
   Target,
@@ -157,10 +158,13 @@ export function AppNavigation({
         triggerCurrentLabel={resourcesCurrentLabel}
         items={desktopResourceItems}
       />
+      {/* #866: an icon above the label like the other four tabs (the
+          popup is announced by aria-haspopup). */}
       <MoreMenu
         className="nav-resources-compact"
         triggerLabel={resourcesLabel}
         triggerCurrentLabel={resourcesCurrentLabel}
+        triggerIcon={<Library aria-hidden="true" size={20} />}
         items={compactResourceItems}
       />
     </nav>

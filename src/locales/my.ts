@@ -485,7 +485,7 @@ export const my: Copy = {
   homeBannerNextExamSub: "သင့်ပန်းတိုင်အဆင့်အတိုင်း ပေါင်းစုံမေးခွန်း လေ့ကျင့်ပါ။",
   dashboardEyebrow: "ဆက်လေ့လာရန်",
   dashboardReviewPending: (count) => `ပြန်လည်လေ့ကျင့်ရန် မေးခွန်း ${count} ခု ကျန်ရှိသေးသည်`,
-  dashboardReviewEmpty: "ပြန်လေ့ကျင့်ရန် အမှား မကျန်တော့ပါ 🎉",
+  dashboardReviewEmpty: "ပြန်လေ့ကျင့်ရန် အမှား မကျန်တော့ပါ",
   dashboardReviewCta: "ယခု ပြန်လေ့ကျင့်ရန်",
   dashboardNextChapterLabel: "အကြံပြု နောက်အခန်း",
   dashboardStatsAttempts: (count) => `မေးခွန်း ${count} ခု ပြီးစီးပြီ`,

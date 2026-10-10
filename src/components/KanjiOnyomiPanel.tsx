@@ -11,7 +11,7 @@ import {
 import { kanjiMeaning } from "../domain/kanjiOnyomi.i18n";
 import { pickLocalized } from "../domain/localizedContent";
 import { SpeakButton } from "./SpeakButton";
-import { InkstoneSpot, MagnifierKanjiSpot } from "../illustrations";
+import { MagnifierKanjiSpot } from "../illustrations";
 
 const LEVELS: Array<JlptLevel | "all"> = ["all", "N5", "N4", "N3", "N2", "N1"];
 const KANJI_BANK = new Set(kanjiOnyomi.map((entry) => entry.kanji));
@@ -269,7 +269,6 @@ export function KanjiOnyomiPanel({
   return (
     <section className="kanji-panel" aria-label={t.kanjiTitle}>
       <header className="kanji-head">
-        <InkstoneSpot className="panel-header-spot" />
         <h2>{t.kanjiTitle}</h2>
         <p>{t.kanjiIntro}</p>
       </header>

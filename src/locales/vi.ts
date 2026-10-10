@@ -485,7 +485,7 @@ export const vi: Copy = {
   homeBannerNextExamSub: "Luyện đề tổng hợp theo cấp độ mục tiêu của bạn.",
   dashboardEyebrow: "Học tiếp",
   dashboardReviewPending: (count) => `Bạn vẫn còn ${count} câu cần ôn tập`,
-  dashboardReviewEmpty: "Không còn câu sai nào để ôn 🎉",
+  dashboardReviewEmpty: "Không còn câu sai nào để ôn",
   dashboardReviewCta: "Ôn ngay",
   dashboardNextChapterLabel: "Chương tiếp theo gợi ý",
   dashboardStatsAttempts: (count) => `Đã làm ${count} câu`,

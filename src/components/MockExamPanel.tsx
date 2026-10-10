@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { AlertTriangle, ArrowRight, ClipboardList } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import { getMockExamBlueprint, sectionSubtitle, type MockExamLevel } from "../domain/mockExam";
 import { buildExamQuestionPool } from "../domain/examBlocks";
-import { BooksSpot } from "../illustrations";
 
 // 模擬考 mode: a section picker. The learner taps a JLPT section and
 // drills just that section in the normal challenge view (the parent
@@ -31,12 +30,10 @@ export function MockExamPanel({
 
   return (
     <section className="mock-panel" aria-label={t.mockExam}>
+      {/* #866: the page is named by a heading (it was a small eyebrow under
+          decorative art); `.eyebrow` stays as the automation hook. */}
       <header className="mock-section-head">
-        <BooksSpot className="panel-header-spot" />
-        <p className="eyebrow">
-          <ClipboardList aria-hidden="true" />
-          {t.mockSectionTitle}
-        </p>
+        <h2 className="eyebrow mock-title">{t.mockSectionTitle}</h2>
         <p className="mock-section-intro">{t.mockSectionIntro}</p>
       </header>
 
@@ -72,10 +69,8 @@ export function MockExamPanel({
                     <strong>{section.labelJa}</strong>
                     {subtitle ? <small>{subtitle}</small> : null}
                   </div>
-                  <span className="mock-section-warn">
-                    <AlertTriangle aria-hidden="true" />
-                    {t.mockSectionEmpty}
-                  </span>
+                  {/* D-15: unavailable is information, not a warning. */}
+                  <span className="mock-section-warn">{t.mockSectionEmpty}</span>
                 </div>
               </li>
             );
@@ -92,7 +87,7 @@ export function MockExamPanel({
                   {subtitle ? <small>{subtitle}</small> : null}
                 </div>
                 <span className="mock-section-count">{t.mockSectionCount(count)}</span>
-                <ArrowRight className="mock-section-arrow" aria-hidden="true" />
+                <ChevronRight className="mock-section-arrow" aria-hidden="true" />
               </button>
             </li>
           );

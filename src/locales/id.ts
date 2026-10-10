@@ -485,7 +485,7 @@ export const id: Copy = {
   homeBannerNextExamSub: "Latihan soal campuran sesuai level targetmu.",
   dashboardEyebrow: "Lanjut belajar",
   dashboardReviewPending: (count) => `Kamu masih punya ${count} soal menunggu untuk diulang`,
-  dashboardReviewEmpty: "Tidak ada lagi soal salah yang perlu diulang 🎉",
+  dashboardReviewEmpty: "Tidak ada lagi soal salah yang perlu diulang",
   dashboardReviewCta: "Ulang sekarang",
   dashboardNextChapterLabel: "Saran bab berikutnya",
   dashboardStatsAttempts: (count) => `Sudah ${count} soal dilatih`,

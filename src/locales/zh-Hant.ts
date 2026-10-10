@@ -485,7 +485,7 @@ export const zhHant: Copy = {
   homeBannerNextExamSub: "照你的目標級別，直接練綜合題。",
   dashboardEyebrow: "繼續學習",
   dashboardReviewPending: (count) => `你還有 ${count} 題等待複習`,
-  dashboardReviewEmpty: "沒有待複習錯題了 🎉",
+  dashboardReviewEmpty: "沒有待複習錯題了",
   dashboardReviewCta: "立刻複習",
   dashboardNextChapterLabel: "下一章建議",
   dashboardStatsAttempts: (count) => `已練 ${count} 題`,
