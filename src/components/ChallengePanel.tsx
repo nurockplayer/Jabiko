@@ -112,11 +112,25 @@ export function ChallengePanel({
       lastToggleRef.current = "close";
       setSwitcherOpen(false);
     };
+    // A popover closes when keyboard focus moves outside it (other than to its
+    // own 換練習 toggle): Tab can never reach -- or answer -- the question
+    // hidden behind it, and a menu or dialog taking focus owns the next Esc.
+    const onFocusIn = (event: FocusEvent) => {
+      const target = event.target as Node | null;
+      const layout = layoutRef.current;
+      if (!layout || !target || target === document.body) return;
+      const list = layout.querySelector(`#${SWITCHER_ID}`);
+      const title = layout.querySelector(".session-title");
+      if (list?.contains(target) || title?.contains(target)) return;
+      setSwitcherOpen(false);
+    };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("focusin", onFocusIn);
     return () => {
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("focusin", onFocusIn);
     };
   }, [switcherOpen]);
 

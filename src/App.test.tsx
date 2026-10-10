@@ -1427,7 +1427,9 @@ describe("App", () => {
     expect(switcher).toHaveAttribute("aria-expanded", "false");
   });
 
-  it("leaves the set list open when Esc belongs to a dialog on top of it (#866)", async () => {
+  // Round 3 refined this: a dialog taking focus closes the list first, so
+  // the dialog's Esc can only ever close the dialog.
+  it("lets a dialog on top own Esc: the list closes as the dialog takes focus (#866)", async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("link", { name: "練習" }));
@@ -1441,9 +1443,39 @@ describe("App", () => {
     dialog.append(field);
     document.body.append(dialog);
     field.focus();
+    await waitFor(() => expect(switcher).toHaveAttribute("aria-expanded", "false"));
     await user.keyboard("{Escape}");
-    expect(switcher).toHaveAttribute("aria-expanded", "true");
+    expect(field).toHaveFocus();
     dialog.remove();
+  });
+
+  // Astra review round 3: the list is a popover -- when keyboard focus leaves
+  // it, it closes, so Tab can never reach (and answer) the hidden question.
+  it("closes the set list when keyboard focus moves past it (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+    const list = document.querySelector("#practice-switcher")!;
+    for (let step = 0; step < 80 && list.contains(document.activeElement); step += 1) {
+      await user.tab();
+    }
+    expect(list.contains(document.activeElement)).toBe(false);
+    expect(switcher).toHaveAttribute("aria-expanded", "false");
+    expect(panel).toHaveAttribute("data-result", "unanswered");
+  });
+
+  it("closes the set list when the header menu takes focus, so its Esc stays its own (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+    document.querySelector<HTMLButtonElement>(".jt1-header-menu button")!.focus();
+    await waitFor(() => expect(switcher).toHaveAttribute("aria-expanded", "false"));
   });
 
   it("opens 今日練習 by default when entering the challenge tab", async () => {
