@@ -13,6 +13,39 @@ import { TtsRatePicker } from "./challenge/TtsRatePicker";
 
 const SWITCHER_ID = "practice-switcher";
 
+// Cancels the click that completes the current press. A touch tap's click
+// arrives in a later task than its pointerup, so the guard waits for it, but
+// is dropped when the press ends without one (cancelled, a scroll, or the
+// next press begins), so a later, deliberate click is never lost.
+function swallowNextClick() {
+  let timer = 0;
+  let released = false;
+  const swallow = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    release();
+  };
+  const releaseSoon = () => {
+    timer = window.setTimeout(release, 500);
+  };
+  function release() {
+    released = true;
+    window.clearTimeout(timer);
+    document.removeEventListener("click", swallow, true);
+    document.removeEventListener("pointerup", releaseSoon, true);
+    document.removeEventListener("pointercancel", release, true);
+    document.removeEventListener("pointerdown", release, true);
+  }
+  document.addEventListener("click", swallow, true);
+  document.addEventListener("pointerup", releaseSoon, true);
+  document.addEventListener("pointercancel", release, true);
+  // Registered after the current press has reached the document, so only
+  // the next press releases the guard.
+  window.setTimeout(() => {
+    if (!released) document.addEventListener("pointerdown", release, true);
+  }, 0);
+}
+
 // The challenge workspace: the set list (mode/setup controls), the active
 // drill, and the running tally + mistake list. This is the
 // lazily-loaded view that owns the practice session -- usePracticeSession
@@ -101,6 +134,10 @@ export function ChallengePanel({
       const title = layout.querySelector(".session-title");
       if (list?.contains(target) || title?.contains(target)) return;
       setSwitcherOpen(false);
+      // A press on the practice surface beside the list only dismisses it:
+      // its click must not also answer the question (#872 review). Presses
+      // elsewhere (header, navigation) keep their click.
+      if (layout.contains(target)) swallowNextClick();
     };
     // Esc closes the open list from anywhere in the practice surface (or with
     // focus nowhere -- a setting change can drop it) and puts focus back on

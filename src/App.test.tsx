@@ -1415,6 +1415,26 @@ describe("App", () => {
     expect(panel).not.toHaveAttribute("data-result", "unanswered");
   });
 
+  // #872 review thread: a tap on an answer beside the open list must only
+  // dismiss the list -- it must not also record an attempt.
+  it("dismisses the open set list without answering when an option is tapped (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+
+    await user.click(switcher);
+    expect(switcher).toHaveAttribute("aria-expanded", "true");
+    const option = panel.querySelector<HTMLElement>(".choice-option")!;
+    await user.click(option);
+    expect(switcher).toHaveAttribute("aria-expanded", "false");
+    expect(panel).toHaveAttribute("data-result", "unanswered");
+
+    await user.click(option);
+    expect(panel).not.toHaveAttribute("data-result", "unanswered");
+  });
+
   it("closes the open set list with Esc from the bar's own buttons (#866)", async () => {
     const user = userEvent.setup();
     render(<App />);

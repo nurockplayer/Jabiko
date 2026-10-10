@@ -1384,6 +1384,29 @@ test.describe("practice session at the edges (#866)", () => {
     });
   }
 
+  for (const input of ["mouse", "touch"] as const) {
+    test(`dismisses the open set list without answering when an option is pressed (${input})`, async ({ browser }) => {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, hasTouch: input === "touch" });
+      const page = await context.newPage();
+      await page.goto("/challenge?mode=basic");
+      const panel = page.locator(".drill-panel");
+      const option = page.locator(".choice-option").last();
+      await page.getByRole("button", { name: "換練習" }).click();
+      await expect(page.locator("[data-switcher=open]")).toBeVisible();
+      // The list overlaps the options' start; press the part still showing.
+      const box = (await option.boundingBox())!;
+      const position = { x: box.width - 24, y: box.height / 2 };
+      const press = () => (input === "touch" ? option.tap({ position }) : option.click({ position }));
+      await press();
+      await expect(page.locator("[data-switcher=closed]")).toBeVisible();
+      await page.waitForTimeout(700);
+      await expect(panel).toHaveAttribute("data-result", "unanswered");
+      await press();
+      await expect(panel).not.toHaveAttribute("data-result", "unanswered");
+      await context.close();
+    });
+  }
+
   test("keeps 換練習 on the empty review screen, with Esc returning focus to it", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/challenge?mode=review");
