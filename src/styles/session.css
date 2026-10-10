@@ -320,6 +320,21 @@ button.session-title[aria-expanded="true"] {
   padding: 1.25rem 0 1.5rem;
 }
 
+/* Sentence questions read left to right: the instruction, the sentence and
+   the hint share one start edge (a single word stays centred). */
+.drill-panel .word-block:has(.exam-prompt) {
+  justify-items: start;
+}
+
+.drill-panel .word-block:has(.exam-prompt) .hint-block {
+  align-items: flex-start;
+  justify-self: start;
+}
+
+.drill-panel .word-block:has(.exam-prompt) .hint-toggle {
+  margin-inline-start: -0.5rem;
+}
+
 /* D-23: no glow behind the prompt. */
 .drill-panel .word-block::before {
   content: none;
@@ -655,6 +670,7 @@ button.session-title[aria-expanded="true"] {
   animation: none;
   background: transparent;
   border: 0;
+  border-radius: 0;
   box-shadow: none;
   padding: 0.25rem 0;
 }
