@@ -796,6 +796,16 @@ export function usePracticeSession({
   };
 
   const handleDrillKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    // Enter belongs to the control that has focus: a form field, a dialog
+    // (the question report form) or any button other than 下一題 keeps it.
+    // Otherwise Enter skipped the question and lost a typed report (#866).
+    const target = event.target as HTMLElement;
+    if (
+      target.closest("input, textarea, select, [contenteditable='true'], [role='dialog'], a") ||
+      (target.closest("button") && !target.closest(".next-button"))
+    ) {
+      return;
+    }
     if (event.key === "Enter" && feedback) {
       event.preventDefault();
       nextQuestion();

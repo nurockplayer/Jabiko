@@ -1478,6 +1478,28 @@ describe("App", () => {
     await waitFor(() => expect(switcher).toHaveAttribute("aria-expanded", "false"));
   });
 
+  // Astra review round 6 (pre-existing on main): Enter inside the question
+  // report form -- or on its button -- was caught by the drill's
+  // Enter-to-next, which skipped the question and lost the typed report.
+  it("keeps Enter inside the question report form instead of skipping the question (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    const questionId = panel.getAttribute("data-question-id");
+    await user.keyboard("1");
+    await screen.findByRole("button", { name: "回報此題" });
+
+    screen.getByRole("button", { name: "回報此題" }).focus();
+    await user.keyboard("{Enter}");
+    expect(panel.getAttribute("data-question-id")).toBe(questionId);
+
+    const field = await screen.findByRole("textbox");
+    await user.type(field, "第一行{Enter}第二行");
+    expect(panel.getAttribute("data-question-id")).toBe(questionId);
+    expect(field).toHaveValue("第一行\n第二行");
+  });
+
   it("opens 今日練習 by default when entering the challenge tab", async () => {
     const user = userEvent.setup();
     render(<App />);
