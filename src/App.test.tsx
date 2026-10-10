@@ -1095,7 +1095,10 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: /基礎變化/ }));
     await user.click(screen.getByRole("button", { name: "書って" }));
 
-    expect(screen.getByText("再想一下")).toBeInTheDocument();
+    // The verdict is both the explanation heading and the action-row verdict
+    // button (#861), so address the heading.
+    expect(screen.getByRole("heading", { name: "再想一下" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "再想一下 看解說" })).toBeInTheDocument();
     expect(screen.getByText("正解：書いて / かいて")).toBeInTheDocument();
     expect(screen.getByText(/一類動詞/)).toBeInTheDocument();
   });

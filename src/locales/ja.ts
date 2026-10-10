@@ -393,6 +393,7 @@ export const ja: Copy = {
   correct: "正解",
   incorrect: "もう一度考えてみよう",
   revealed: "この問題はチェックしておこう",
+  seeExplanation: "解説を見る",
   answerKey: "正解",
   feedbackOtherOptions: "ほかの選択肢",
   feedbackNoWord: "対応する語なし",

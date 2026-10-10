@@ -298,6 +298,10 @@ Only layer enter/exit (160/120ms) and hover/pressed fills (120ms) animate. No
 verdict stroke animation, confetti, bounce or celebration. Reduced motion
 renders everything final.
 
+*Amended by [D-26](#d-26) (#861) for the Training loop:* verdict marks are
+drawn, feedback settles, questions turn, the meter fills, and ジャビ子 acts
+out each verdict. Confetti, idle loops and press-scale on controls stay out.
+
 ## D-18 — Session surfaces
 
 An active practice session, Small Talk run and World moment replace the global
@@ -379,7 +383,8 @@ navigation; centered marketing heroes inside the app; decorative illustration
 or stock Japan motifs; emoji in UI copy; sparkle/"magic" iconography; tinted
 verdict panels; shadows on in-flow content; more than one accent hue outside
 assessment; English eyebrows in non-English locales; confetti or celebration
-motion. Review should treat any of these surviving in #838/#834 as a
+motion (the one-shot completion arrival and ジャビ子 beat of D-26 are the
+bounded exception). Review should treat any of these surviving in #838/#834 as a
 conformance defect.
 
 ## D-24 — Scope boundary
@@ -458,3 +463,109 @@ tonal roles are added, the large size is 48px with 22px padding, and the
 default padding/icon gap are 16/8 (quiet 10). Unchanged: every shared role
 value, the 7px radius, the focus ring, and the behavioral contract (states,
 busy, one primary) (FOUNDATION.md §4).
+
+## D-26 — Learning-loop motion language (amends D-17) **REVIEW-CONFIRM** {#d-26}
+
+Owner directive #861 (2026-10-10): make the real Training loop feel alive
+and rewarding, inspired by Duolingo's *principles* (immediate
+acknowledgement, clear feedback, earned celebration) without copying its
+assets, characters or choreography. Opus 5.5 holds the motion-design call
+for this slice.
+
+**Decision.** The Training loop (`DrillPanel`) gets one motion vocabulary
+taken from a Japanese study desk instead of a game: press → **acknowledge**
+(the pressed fill, ≤ 90ms); answer → **丸付け**, the D-03 verdict drawn on the
+option itself the way a teacher marks a paper (〇 stroke drawn in 320ms on
+the right answer; on a miss a × on the pick, then the 〇 on the answer 220ms
+later, leading the eye from "yours" to "the answer"; a dashed 〇 fades in for
+a reveal), then the explanation **settles** in below it (240ms, 140ms
+behind the mark); ジャビ子 **reacts once in its own app-mark tile** (D-10): a
+small hop with happy eyes for 正解, a thoughtful head tilt for a miss, a
+double hop on completion; Next → **turn**: the new prompt and options rise
+6px into place (260ms, options staggered 30ms) and are brought into view if
+the learner is scrolled away; a 4px **meter** under "n / N" fills to the
+true answered / total (420ms); completion → **arrival**: the result rows
+settle in one after another, and a perfect run's badge is stamped.
+
+Constraints, enforced by `src/styles/learning-loop.test.ts` and the
+DrillPanel tests: keyframes touch only `transform`, `opacity` and
+`stroke-dashoffset`, nothing transitions a layout property, and every
+animation sits behind `prefers-reduced-motion: no-preference`. With reduced
+motion every state renders final (complete marks, visible feedback, instant
+scroll). Nothing loops, blocks input or waits on an animation. The meaning
+never rides on motion or colour alone (glyph shape + the existing polite
+live region).
+
+**Also made real in the same slice.** D-07 (feedback below the options and
+the action row; the row docked to the viewport bottom below 600px for
+multiple choice, in flow for typed recall) and D-03's marks on the judged
+options. Measured on the same seeded run: on `main` all four answers moved
+the options/Next and each new prompt opened 77–945px above the viewport; on
+this slice none move, and each new step opens in view. Two browser behaviours
+had to be neutralised to keep that promise: scroll anchoring (off while the
+drill is shown, otherwise the page jumps by the feedback's height) and the
+panel's mount transform (removed where the dock lives, otherwise the
+`position: fixed` row is fixed to the panel).
+
+**Why amend D-17.** D-17 allowed only layer and fill transitions and named
+"verdict stroke animation" and "celebration" as out. That protected JT-1
+from template motion, but it also left the loop mute: the verdict was a
+silent colour swap and the moment of getting it right felt the same as a
+page reload. The amendment keeps D-17/D-23's intent: no confetti,
+particles, glows, bounce loops, sound, overlays, or press-scale on controls
+(D-25). It allows motion that *carries the learning message* (which option
+is right, where to look next, how far along you are) and one restrained
+character beat.
+
+**Rejected.** Duolingo-style bottom verdict sheet with sound and full-width
+colour flood (copies a distinctive layout; also moves Next); shaking the
+wrong option (punitive, a geometry jiggle under the finger); option scale on
+press or verdict (D-25 geometry rule); confetti/sparkles on completion
+(D-23); a count-up on the score (the number would be wrong for a moment,
+and a screen reader can catch a partial value); brush-textured 花丸 (D-03:
+decorative, fragile at small sizes; the 〇 here is a plain 2.2px vector
+stroke that only overshoots its start slightly and turns `CanvasText` in
+forced colours); invented streak/XP feedback (#861: no invented progress).
+
+**Revision 2 (owner review of PR #862, 2026-10-10).** The owner kept the
+direction, asked that the explanation never hide behind the dock, and asked
+for ジャビ子 with more personality, emotion and life — "Duolingo-level
+liveliness, without holding the animation back". So:
+
+- *Explanation peek.* After the mark lands (420ms), the view scrolls just
+  enough to show the first 120px of the explanation above the dock, but never
+  so far that the marked options slide under the header. Measured: 120px
+  shown at every step (mobile and desktop); option and Next boxes still move
+  0px in layout. The view scroll is deliberate and happens after the
+  options are disabled, so it cannot cause a mis-tap. It is instant under
+  reduced motion.
+- *Verdict button.* After answering, the 看答案 slot (always disabled at that
+  point) becomes the verdict: ジャビ子 + 正解 / 再想一下 / 先記這題 + 看解說. It
+  opens the full explanation and moves focus there; Enter on it never skips
+  the question. Same cell, so Next does not move.
+- *ジャビ子 as a character* (`JabikoBuddy`, the brand figure without its
+  badge): a face per mood (happy ^ ^ with an open smile, oops > < with a
+  sweat drop, thinking eyes-up), and acting in squash-and-stretch.
+  - 正解: anticipation squash, jump with stretch, squash landing; the
+    book-hat pages flap like wings and the shadow shrinks.
+  - Miss: head shake and slump, then a determined bounce.
+  - Reveal: a long curious tilt.
+  - Energy follows the *real* run of correct answers in this session (never
+    shown as a number): 3 in a row adds a spin, 5 a double jump.
+  - ジャビ子 speaks Japanese interjections, which are learning content and
+    are not localized: いいね！ → すごい！ → さすが！, どんまい！ on a miss,
+    なるほど… on a reveal. The action-row bubble is a passing remark (pops,
+    holds 1.3s, leaves).
+  - Completion replaces the retired spot art (D-10) with ジャビ子 cheering,
+    scaled by the set's real accuracy: かんぺき！ / よくできました！ /
+    がんばったね！
+  This extends D-10 for the Training loop: the mascot now appears in the
+  action row and on the completion card, besides the app-mark tile.
+- Reduced motion keeps every face and the completion line, and drops the
+  acting and the passing bubble.
+
+**Limits.** Typed recall gets the turn, meter, verdict button and peek, but
+no marks (it has no options). A long verdict title (ja "この問題は
+チェックしておこう") is ellipsized in the button; the full text is in the
+explanation heading and in the button's accessible name. Founder visual
+acceptance of this amendment is pending.

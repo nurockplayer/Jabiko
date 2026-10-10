@@ -385,6 +385,7 @@ export const ko: Copy = {
   correct: "정답",
   incorrect: "다시 생각해 봐요",
   revealed: "이 문제 기억해 두기",
+  seeExplanation: "해설 보기",
   answerKey: "정답",
   feedbackOtherOptions: "다른 선택지",
   feedbackNoWord: "해당 단어 없음",

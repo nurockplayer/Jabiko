@@ -385,6 +385,7 @@ export const my: Copy = {
   correct: "မှန်ပါသည်",
   incorrect: "ထပ်ကြိုးစားပါ",
   revealed: "ဒါကို မှတ်ထားပါ",
+  seeExplanation: "ရှင်းလင်းချက် ကြည့်ရန်",
   answerKey: "အဖြေ",
   feedbackOtherOptions: "အခြား ရွေးချယ်စရာများ",
   feedbackNoWord: "ကိုက်ညီသော စကားလုံး မရှိပါ",

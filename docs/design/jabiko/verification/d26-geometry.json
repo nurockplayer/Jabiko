@@ -1,0 +1,485 @@
+{
+ "about": "#861 / D-26 (PR #862). Seeded Playwright runs (Chrome). layoutDelta = largest change (px) of any option box (document coordinates) or Next (viewport coordinates when docked) between just before the action and 1.9s after it. viewScroll = deliberate scroll (px) in that window (the explanation peek). feedbackShown = px of the explanation visible above the dock / viewport bottom 1.9s after the action (before: the panel sits above the options, so this is not comparable). promptTopAfterNext = viewport top (px) of the next prompt header / completion card 0.9s after 下一題; negative = above the viewport; the sticky header is 56px.",
+ "before": {
+  "build": "main 1bf0df39",
+  "runs": {
+   "mobile-no-preference": {
+    "steps": [
+     {
+      "question": "n4-order-tekuru",
+      "result": "correct",
+      "layoutDelta": 527.57,
+      "viewScroll": 0,
+      "feedbackShown": 385
+     },
+     {
+      "question": "n5-grammar-mashou-issho-kaeru",
+      "result": "wrong",
+      "layoutDelta": 521.57,
+      "viewScroll": -402,
+      "feedbackShown": 955
+     },
+     {
+      "question": "n4-usage-okiru",
+      "result": "revealed",
+      "layoutDelta": 589.4,
+      "viewScroll": 588,
+      "feedbackShown": 1597
+     },
+     {
+      "question": "n4-kanji-gyuunyuu",
+      "result": "correct",
+      "layoutDelta": 562.64,
+      "viewScroll": 562,
+      "feedbackShown": 1316
+     }
+    ],
+    "promptTopAfterNext": [
+     -827,
+     -479,
+     -224,
+     -174
+    ]
+   },
+   "mobile-reduce": {
+    "steps": [
+     {
+      "question": "n4-order-tekuru",
+      "result": "correct",
+      "layoutDelta": 527.57,
+      "viewScroll": 0,
+      "feedbackShown": 385
+     },
+     {
+      "question": "n5-grammar-mashou-issho-kaeru",
+      "result": "wrong",
+      "layoutDelta": 521.57,
+      "viewScroll": -402,
+      "feedbackShown": 955
+     },
+     {
+      "question": "n4-usage-okiru",
+      "result": "revealed",
+      "layoutDelta": 589.4,
+      "viewScroll": 588,
+      "feedbackShown": 1597
+     },
+     {
+      "question": "n4-kanji-gyuunyuu",
+      "result": "correct",
+      "layoutDelta": 562.64,
+      "viewScroll": 562,
+      "feedbackShown": 1316
+     }
+    ],
+    "promptTopAfterNext": [
+     -827,
+     -479,
+     -224,
+     -174
+    ]
+   },
+   "desktop-no-preference": {
+    "steps": [
+     {
+      "question": "n4-order-tekuru",
+      "result": "correct",
+      "layoutDelta": 417.56,
+      "viewScroll": 0,
+      "feedbackShown": 331
+     },
+     {
+      "question": "n5-grammar-mashou-issho-kaeru",
+      "result": "wrong",
+      "layoutDelta": 455.57,
+      "viewScroll": -586,
+      "feedbackShown": 413
+     },
+     {
+      "question": "n4-usage-okiru",
+      "result": "revealed",
+      "layoutDelta": 434.39,
+      "viewScroll": -669,
+      "feedbackShown": 331
+     },
+     {
+      "question": "n4-kanji-gyuunyuu",
+      "result": "correct",
+      "layoutDelta": 495.64,
+      "viewScroll": -603,
+      "feedbackShown": 413
+     }
+    ],
+    "promptTopAfterNext": [
+     -513,
+     -514,
+     -530,
+     -610
+    ]
+   },
+   "desktop-reduce": {
+    "steps": [
+     {
+      "question": "n4-order-tekuru",
+      "result": "correct",
+      "layoutDelta": 417.56,
+      "viewScroll": 0,
+      "feedbackShown": 331
+     },
+     {
+      "question": "n5-grammar-mashou-issho-kaeru",
+      "result": "wrong",
+      "layoutDelta": 455.57,
+      "viewScroll": -586,
+      "feedbackShown": 413
+     },
+     {
+      "question": "n4-usage-okiru",
+      "result": "revealed",
+      "layoutDelta": 434.39,
+      "viewScroll": -669,
+      "feedbackShown": 331
+     },
+     {
+      "question": "n4-kanji-gyuunyuu",
+      "result": "correct",
+      "layoutDelta": 495.64,
+      "viewScroll": -603,
+      "feedbackShown": 413
+     }
+    ],
+    "promptTopAfterNext": [
+     -513,
+     -514,
+     -530,
+     -610
+    ]
+   }
+  }
+ },
+ "after": {
+  "build": "PR #862 b875265",
+  "runs": {
+   "mobile-no-preference": {
+    "steps": [
+     {
+      "question": "n4-grammar-teageru-otouto",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 72,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n5-usage-matsu",
+      "result": "wrong",
+      "layoutDelta": 0,
+      "viewScroll": 139,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n5-vocab-jikan-nai",
+      "result": "revealed",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n4-grammar-kotonisuru-yameru-osake",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     }
+    ],
+    "promptTopAfterNext": [
+     137,
+     137,
+     137,
+     73
+    ]
+   },
+   "mobile-reduce": {
+    "steps": [
+     {
+      "question": "n4-grammar-teageru-otouto",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 72,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n5-usage-matsu",
+      "result": "wrong",
+      "layoutDelta": 0,
+      "viewScroll": 139,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n5-vocab-jikan-nai",
+      "result": "revealed",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n4-grammar-kotonisuru-yameru-osake",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     }
+    ],
+    "promptTopAfterNext": [
+     137,
+     137,
+     137,
+     73
+    ]
+   },
+   "desktop-no-preference": {
+    "steps": [
+     {
+      "question": "n4-grammar-teageru-otouto",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 0,
+      "feedbackShown": 135
+     },
+     {
+      "question": "n5-usage-matsu",
+      "result": "wrong",
+      "layoutDelta": 0,
+      "viewScroll": 74,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n5-vocab-jikan-nai",
+      "result": "revealed",
+      "layoutDelta": 0,
+      "viewScroll": 0,
+      "feedbackShown": 151
+     },
+     {
+      "question": "n4-grammar-kotonisuru-yameru-osake",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 0,
+      "feedbackShown": 151
+     }
+    ],
+    "promptTopAfterNext": [
+     155,
+     139,
+     139,
+     83
+    ]
+   },
+   "desktop-reduce": {
+    "steps": [
+     {
+      "question": "n4-grammar-teageru-otouto",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 0,
+      "feedbackShown": 135
+     },
+     {
+      "question": "n5-usage-matsu",
+      "result": "wrong",
+      "layoutDelta": 0,
+      "viewScroll": 74,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n5-vocab-jikan-nai",
+      "result": "revealed",
+      "layoutDelta": 0,
+      "viewScroll": 0,
+      "feedbackShown": 151
+     },
+     {
+      "question": "n4-grammar-kotonisuru-yameru-osake",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 0,
+      "feedbackShown": 151
+     }
+    ],
+    "promptTopAfterNext": [
+     155,
+     139,
+     139,
+     83
+    ]
+   }
+  }
+ },
+ "afterStreak": {
+  "build": "PR #862 b875265",
+  "plan": "6 correct in a row",
+  "runs": {
+   "mobile-no-preference": {
+    "steps": [
+     {
+      "question": "n4-grammar-teageru-otouto",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 72,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n5-usage-matsu",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 139,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n5-vocab-jikan-nai",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n4-grammar-kotonisuru-yameru-osake",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n4-kanji-kazoku",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n4-syn-mousugu",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     }
+    ],
+    "promptTopAfterNext": [
+     137,
+     137,
+     137,
+     137,
+     137,
+     73
+    ]
+   },
+   "mobile-reduce": {
+    "steps": [
+     {
+      "question": "n4-grammar-teageru-otouto",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 72,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n5-usage-matsu",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 139,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n5-vocab-jikan-nai",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n4-grammar-kotonisuru-yameru-osake",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n4-kanji-kazoku",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n4-syn-mousugu",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 64,
+      "feedbackShown": 120
+     }
+    ],
+    "promptTopAfterNext": [
+     137,
+     137,
+     137,
+     137,
+     137,
+     73
+    ]
+   },
+   "desktop-no-preference": {
+    "steps": [
+     {
+      "question": "n4-grammar-teageru-otouto",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 0,
+      "feedbackShown": 135
+     },
+     {
+      "question": "n5-usage-matsu",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 74,
+      "feedbackShown": 120
+     },
+     {
+      "question": "n5-vocab-jikan-nai",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 0,
+      "feedbackShown": 151
+     },
+     {
+      "question": "n4-grammar-kotonisuru-yameru-osake",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 0,
+      "feedbackShown": 151
+     },
+     {
+      "question": "n4-kanji-kazoku",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 0,
+      "feedbackShown": 151
+     },
+     {
+      "question": "n4-syn-mousugu",
+      "result": "correct",
+      "layoutDelta": 0,
+      "viewScroll": 0,
+      "feedbackShown": 151
+     }
+    ],
+    "promptTopAfterNext": [
+     155,
+     139,
+     139,
+     139,
+     139,
+     83
+    ]
+   }
+  }
+ }
+}

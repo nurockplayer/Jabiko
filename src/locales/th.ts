@@ -386,6 +386,7 @@ export const th: Copy = {
   correct: "ถูกต้อง",
   incorrect: "ลองคิดอีกที",
   revealed: "จำข้อนี้ไว้ก่อน",
+  seeExplanation: "ดูคำอธิบาย",
   answerKey: "เฉลย",
   feedbackOtherOptions: "ตัวเลือกอื่น",
   feedbackNoWord: "ไม่มีคำที่ตรงกัน",

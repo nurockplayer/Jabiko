@@ -388,6 +388,8 @@ export type Copy = {
   correct: string;
   incorrect: string;
   revealed: string;
+  /** Verdict button in the drill's action row: jumps to the explanation (#861). */
+  seeExplanation: string;
   answerKey: string;
   feedbackOtherOptions: string;
   feedbackNoWord: string;

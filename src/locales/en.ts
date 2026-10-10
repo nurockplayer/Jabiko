@@ -385,6 +385,7 @@ export const en: Copy = {
   correct: "Correct",
   incorrect: "Try again",
   revealed: "Note this one",
+  seeExplanation: "See explanation",
   answerKey: "Answer",
   feedbackOtherOptions: "Other options",
   feedbackNoWord: "No matching word",

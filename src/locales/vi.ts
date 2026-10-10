@@ -385,6 +385,7 @@ export const vi: Copy = {
   correct: "Đúng",
   incorrect: "Thử lại nhé",
   revealed: "Ghi nhớ câu này",
+  seeExplanation: "Xem giải thích",
   answerKey: "Đáp án",
   feedbackOtherOptions: "Các phương án khác",
   feedbackNoWord: "Không có từ tương ứng",
