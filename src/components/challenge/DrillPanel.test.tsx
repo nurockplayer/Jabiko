@@ -1106,6 +1106,30 @@ describe("DrillPanel session bar (#866)", () => {
     expect(document.querySelector("#recall-answer")).toHaveFocus();
   });
 
+  // #872 review threads: D-28 removed the permanent set column, so the end
+  // and empty screens must keep 換練習 or the learner can only go home.
+  it.each([
+    ["a finished set", { sessionExhausted: true, attempts: makeAttempts(5, 5), correctCount: 5, accuracy: 100 }],
+    ["an empty review queue", { practiceMode: "review" as const, reviewEmpty: true }],
+    ["no bookmarks", { practiceMode: "bookmarks" as const, bookmarksEmpty: true }]
+  ])("keeps the set switcher on %s, without a second Today exit", (_label, state) => {
+    const onToggle = vi.fn();
+    render(
+      <DrillPanel
+        {...baseProps}
+        {...state}
+        language="zh-Hant"
+        currentQuestion={null}
+        modeTitle="N3 備考"
+        switcher={{ open: false, onToggle, controlsId: "practice-switcher" }}
+      />
+    );
+    fireEvent.click(screen.getByRole("button", { name: "換練習" }));
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(document.querySelector(".session-exit")).toBeNull();
+    expect(document.querySelector(".prompt-header")).toBeNull();
+  });
+
   it("keeps the Today exit and the n / N count in the same bar", () => {
     const { container } = render(
       <DrillPanel {...baseProps} language="zh-Hant" sessionTotal={20} modeTitle="今日練習" />

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { HomePanel } from "./HomePanel";
 import type { Attempt } from "../domain/types";
@@ -412,6 +412,25 @@ describe("HomePanel Today hero (#866)", () => {
     expect(within(hero).getByText("連續 3 天")).toBeInTheDocument();
     expect(within(hero).getByText("今天 2 題")).toBeInTheDocument();
     expect(within(hero).getByText("その調子！")).toBeInTheDocument();
+  });
+
+  // #872 review thread: a Today left open (tab or installed PWA) across local
+  // midnight kept yesterday's count until the page was reloaded.
+  it("moves to the new local day when Today becomes visible again", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date(2026, 9, 10, 23, 50));
+      renderHome({ targetLevel: "n3n4", progressAttempts: [{ ...sampleAttempt, timestamp: Date.now() }] });
+      const hero = screen.getByRole("region", { name: "今天想練什麼？" });
+      expect(within(hero).getByText("今天 1 題")).toBeInTheDocument();
+      vi.setSystemTime(new Date(2026, 9, 11, 7, 30));
+      act(() => {
+        document.dispatchEvent(new Event("visibilitychange"));
+      });
+      expect(within(hero).queryByText("今天 1 題")).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("does not show a streak readout when there is no live streak", () => {

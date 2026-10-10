@@ -1384,6 +1384,19 @@ test.describe("practice session at the edges (#866)", () => {
     });
   }
 
+  test("keeps 換練習 on the empty review screen, with Esc returning focus to it", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/challenge?mode=review");
+    const toggle = page.getByRole("button", { name: "換練習" });
+    await expect(toggle).toBeVisible();
+    await toggle.click();
+    await expect(page.locator("[data-switcher=open]")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.locator("[data-switcher=closed]")).toBeVisible();
+    await expect(toggle).toBeFocused();
+    await expectNoPageOverflow(page, "empty review with the session bar");
+  });
+
   for (const locale of ["zh-Hant", "ja", "en"] as const) {
     test(`keeps every Small Talk length label inside its keycap on one shared column (${locale})`, async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 844 });

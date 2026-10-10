@@ -334,9 +334,11 @@ export function DrillPanel({
       data-result={drillResult}
       data-expected-answer={feedback ? currentQuestion?.expectedAnswers.join(" / ") : undefined}
     >
-      {showDirectExit || currentQuestion ? (
+      {showDirectExit || currentQuestion || (modeTitle && switcher) ? (
         // #866 session bar: exit · set title (the switcher on compact widths)
         // · n / N with the meter. One row instead of three stacked headers.
+        // End and empty screens keep the switcher: it is the only way to
+        // another set now that the list is a popover (D-28).
         <div className="session-bar">
         <div className="session-bar-row">
           {showDirectExit ? (

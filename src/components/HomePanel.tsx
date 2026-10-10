@@ -201,8 +201,17 @@ export function HomePanel({
 
   const totalAttempts = progressAttempts.length;
   // ジャビ子's greeting and the hero readouts, from the real history (#866).
-  // The clock is read once per visit to Today (render must stay pure).
-  const [openedAt] = useState(() => Date.now());
+  // The clock is read once per visit to Today (render must stay pure), and
+  // again whenever the page comes back into view, so a Today left open
+  // overnight (a tab or the installed PWA) moves to the new local day.
+  const [openedAt, setOpenedAt] = useState(() => Date.now());
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") setOpenedAt(Date.now());
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
   const greeting = todayGreeting(progressAttempts, openedAt);
 
   // Only count "trackable" basic chapters towards the X / Y badge --
