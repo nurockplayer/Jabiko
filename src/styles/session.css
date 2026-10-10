@@ -181,29 +181,28 @@
   }
 }
 
-/* Session bar: exit · set · n / N, the meter as a hairline underneath. */
+/* Session bar: exit · set · n / N on row 1, the meter as the bar's edge on
+   row 2 (a real grid row, so enlarged text can grow row 1 freely), the
+   question type on row 3. */
 .session-bar {
-  --session-row: 3.25rem;
   align-items: center;
   /* Same surface as the drill, so the focus ring is measured against it. */
   background: var(--jt-surface-content);
   column-gap: 0.25rem;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-rows: var(--session-row);
+  grid-template-columns: auto minmax(0, 1fr) fit-content(45%);
+  grid-template-rows: minmax(3.25rem, auto) 3px auto;
   margin-bottom: 0.25rem;
-  position: relative;
 }
 
-/* The bar's edge: a hairline under the first row that the meter fills. */
+/* The hairline the meter fills (also the edge in endless sessions). */
 .session-bar::after {
+  align-self: end;
   background: var(--jt-border-subtle);
   content: "";
+  grid-column: 1 / -1;
+  grid-row: 2;
   height: 1px;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: calc(var(--session-row) - 1px);
 }
 
 .drill-panel .session-bar .session-exit {
@@ -285,18 +284,18 @@ button.session-title[aria-expanded="true"] {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   grid-column: 3;
+  grid-row: 1;
+  overflow-wrap: anywhere;
   padding: 0 0.25rem;
-  white-space: nowrap;
+  text-align: end;
 }
 
 .drill-panel .session-bar .prompt-header .session-meter {
   background: transparent;
   border-radius: 0;
+  grid-column: 1 / -1;
+  grid-row: 2;
   height: 3px;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: calc(var(--session-row) - 2px);
   z-index: 1;
 }
 
@@ -308,7 +307,7 @@ button.session-title[aria-expanded="true"] {
   font-size: 0.8125rem;
   font-weight: 700;
   grid-column: 1 / -1;
-  grid-row: 2;
+  grid-row: 3;
   justify-self: start;
   letter-spacing: 0.02em;
   padding: 0.75rem 0 0;
@@ -474,7 +473,20 @@ button.session-title[aria-expanded="true"] {
 
 .drill-panel .action-row > button {
   min-height: 3rem;
-  min-width: 7.5rem;
+}
+
+/* In-flow row (wide screens, typed recall): comfortable command widths that
+   still give way to the column. The phone dock splits its width in half. */
+@media (min-width: 600px) {
+  .drill-panel .action-row > button {
+    max-width: 100%;
+    min-width: min(7.5rem, 45%);
+  }
+}
+
+.drill-panel .action-row--dock > button {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 /* ジャビ子's remark: an intentional floating bubble (accent fill, overlay
