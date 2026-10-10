@@ -12,6 +12,11 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: jabiko-heavy-validation
+  queue: max
+  cancel-in-progress: false
+
 jobs:
   navigation:
     name: Chromium navigation acceptance

@@ -8,6 +8,11 @@ on:
     branches:
       - main
 
+concurrency:
+  group: jabiko-heavy-validation
+  queue: max
+  cancel-in-progress: false
+
 jobs:
   test:
     name: Test and build
