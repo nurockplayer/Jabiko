@@ -168,15 +168,22 @@
   height: 2.5rem;
   justify-content: center;
   line-height: 1;
-  overflow-wrap: anywhere;
+  min-width: 2.5rem;
   text-align: center;
-  width: 2.5rem;
+  white-space: nowrap;
 }
 
-:root:lang(en) .conversation-scene-length,
-.conversation-scene-length:lang(en) {
+/* Latin labels ("Medium") get one wider keycap column instead of breaking
+   mid-word (#872 review) -- the same width on every row, so the situations
+   still share one start edge. Single CJK characters keep the 2.5rem square. */
+:root:lang(en) :is(.app-shell, .game-world-shell) .conversation-scene {
+  grid-template-columns: 4rem minmax(0, 1fr);
+}
+
+:root:lang(en) .conversation-scene-length {
   font-family: var(--jt-font-ui);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
+  width: 4rem;
 }
 
 .conversation-scene[aria-pressed="true"] .conversation-scene-length {

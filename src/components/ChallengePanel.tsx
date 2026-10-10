@@ -50,13 +50,22 @@ export function ChallengePanel({
   onOpenFeedback?: () => void;
 }) {
   const t = copy[language];
-  const session = usePracticeSession({ language, init, progressAttempts, recordAttempt, targetLevel });
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+  // The 1–9 answer shortcuts pause while the set list is open, so a digit
+  // never answers the question hidden behind it.
+  const session = usePracticeSession({
+    language,
+    init,
+    progressAttempts,
+    recordAttempt,
+    targetLevel,
+    shortcutsPaused: switcherOpen
+  });
   // Global 語速 preference for the 讀出來 buttons (#527); shown in the settings
   // sidebar. SpeakButton reads the stored value on click, so this applies to
   // every audio button, not just the ones in this panel.
   const { rate: ttsRate, setRate: setTtsRate } = useTtsRate();
 
-  const [switcherOpen, setSwitcherOpen] = useState(false);
   const layoutRef = useRef<HTMLElement>(null);
   const lastToggleRef = useRef<"open" | "close" | null>(null);
 
@@ -90,10 +99,15 @@ export function ChallengePanel({
       if (list?.contains(target) || title?.contains(target)) return;
       setSwitcherOpen(false);
     };
-    // Esc closes the open list wherever focus is (a setting change can move
-    // focus out of it) and puts focus back on the bar's title.
+    // Esc closes the open list from anywhere in the practice surface (or with
+    // focus nowhere -- a setting change can drop it) and puts focus back on
+    // the bar's title. A dialog or menu elsewhere owns its own Esc.
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || event.defaultPrevented) return;
+      const target = event.target as Element | null;
+      const layout = layoutRef.current;
+      const inSurface = target === document.body || (layout != null && target != null && layout.contains(target));
+      if (!inSurface || target?.closest("[role='dialog'], [role='menu']")) return;
       event.preventDefault();
       lastToggleRef.current = "close";
       setSwitcherOpen(false);

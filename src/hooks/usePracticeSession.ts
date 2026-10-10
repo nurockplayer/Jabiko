@@ -330,7 +330,8 @@ export function usePracticeSession({
   init,
   progressAttempts,
   recordAttempt,
-  targetLevel = null
+  targetLevel = null,
+  shortcutsPaused = false
 }: {
   language: Language;
   init?: SessionInit;
@@ -340,6 +341,9 @@ export function usePracticeSession({
   // range for the daily / 綜合 / 単字 pools when the launch request doesn't
   // pin one; a per-session picker change still overrides it.
   targetLevel?: LevelRange | null;
+  // #866: the 1–9 answer shortcuts pause while something else has the
+  // learner's attention on top of the question (the open set list).
+  shortcutsPaused?: boolean;
 }) {
   // Config is ONE immutable object holding every static knob that defines a
   // pass. A new pass is started only by startNewPass, which builds a fresh
@@ -808,7 +812,7 @@ export function usePracticeSession({
   // (Enter/Space-to-advance after feedback stays on handleDrillKeyDown,
   // which works because the next button is auto-focused once answered.)
   useEffect(() => {
-    if (!currentQuestion || feedback || isRecallQuestion) {
+    if (!currentQuestion || feedback || isRecallQuestion || shortcutsPaused) {
       return;
     }
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
@@ -832,7 +836,7 @@ export function usePracticeSession({
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [currentQuestion, feedback, isRecallQuestion, choiceOptions, handleChoiceSubmit]);
+  }, [currentQuestion, feedback, isRecallQuestion, choiceOptions, handleChoiceSubmit, shortcutsPaused]);
 
   return {
     partOfSpeech,

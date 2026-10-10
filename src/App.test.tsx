@@ -1397,6 +1397,55 @@ describe("App", () => {
     expect(switcher).toHaveFocus();
   });
 
+  // Astra review round 2: digit shortcuts must not answer the question behind
+  // the open list, and must work again once it is closed.
+  it("pauses the 1–9 answer shortcuts while the set list is open (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+
+    await user.click(screen.getByRole("button", { name: "換練習" }));
+    await user.keyboard("1");
+    expect(panel).toHaveAttribute("data-result", "unanswered");
+
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("button", { name: "換練習" })).toHaveFocus();
+    await user.keyboard("1");
+    expect(panel).not.toHaveAttribute("data-result", "unanswered");
+  });
+
+  it("closes the open set list with Esc from the bar's own buttons (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+    screen.getByRole("button", { name: "首頁" }).focus();
+    await user.keyboard("{Escape}");
+    expect(switcher).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("leaves the set list open when Esc belongs to a dialog on top of it (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+
+    const dialog = document.createElement("div");
+    dialog.setAttribute("role", "dialog");
+    const field = document.createElement("textarea");
+    dialog.append(field);
+    document.body.append(dialog);
+    field.focus();
+    await user.keyboard("{Escape}");
+    expect(switcher).toHaveAttribute("aria-expanded", "true");
+    dialog.remove();
+  });
+
   it("opens 今日練習 by default when entering the challenge tab", async () => {
     const user = userEvent.setup();
     render(<App />);

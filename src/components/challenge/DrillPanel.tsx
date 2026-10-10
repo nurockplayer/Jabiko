@@ -1,4 +1,4 @@
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { ArrowRight, ChevronDown, Eye, GraduationCap, House, MessageSquare, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
@@ -105,6 +105,13 @@ function verdictMarkFor(
     return expectedAnswers.includes(choice) ? "correct" : null;
   }
   return expectedAnswers.includes(choice) ? "revealed" : null;
+}
+
+// Enter / Space on a bar button or the verdict button activate THAT button;
+// they must not also reach the drill's Enter-to-next. Every other key
+// (digits, Esc) still bubbles to the session's shortcuts (#866 review).
+function keepActivationKeys(event: ReactKeyboardEvent<HTMLElement>) {
+  if (event.key === "Enter" || event.key === " ") event.stopPropagation();
 }
 
 function partOfSpeechLabel(partOfSpeech: PartOfSpeech, language: Language): string {
@@ -330,7 +337,7 @@ export function DrillPanel({
               className="session-exit"
               type="button"
               onClick={onExit}
-              onKeyDown={(event) => event.stopPropagation()}
+              onKeyDown={keepActivationKeys}
             >
               <House aria-hidden="true" size={16} />
               <span className="session-exit-label">{t.home}</span>
@@ -348,7 +355,7 @@ export function DrillPanel({
               aria-expanded={switcher.open}
               aria-controls={switcher.controlsId}
               onClick={switcher.onToggle}
-              onKeyDown={(event) => event.stopPropagation()}
+              onKeyDown={keepActivationKeys}
             >
               <span id="session-title-text" className="session-title-text">
                 {modeTitle}
@@ -532,7 +539,7 @@ export function DrillPanel({
                 type="button"
                 data-verdict={drillResult}
                 onClick={showExplanation}
-                onKeyDown={(event) => event.stopPropagation()}
+                onKeyDown={keepActivationKeys}
               >
                 <JabikoBuddy mood={buddyMood} energy={energy} />
                 <span className="buddy-bubble" lang="ja" aria-hidden="true">
