@@ -173,11 +173,17 @@
   white-space: nowrap;
 }
 
-/* Latin labels ("Medium") get one wider keycap column instead of breaking
-   mid-word (#872 review) -- the same width on every row, so the situations
-   still share one start edge. Single CJK characters keep the 2.5rem square. */
-:root:lang(en) :is(.app-shell, .game-world-shell) .conversation-scene {
+/* Multi-character labels ("Medium", 中くらい) get one wider keycap column
+   instead of breaking or overflowing (#872 review) -- the same width on every
+   row, so the situations still share one start edge. zh-Hant's single
+   characters (短 / 中 / 長) keep the 2.5rem square. */
+:is(:root:lang(en), :root:lang(ja)) :is(.app-shell, .game-world-shell) .conversation-scene {
   grid-template-columns: 4rem minmax(0, 1fr);
+}
+
+:root:lang(ja) .conversation-scene-length {
+  font-size: 0.8125rem;
+  width: 4rem;
 }
 
 :root:lang(en) .conversation-scene-length {

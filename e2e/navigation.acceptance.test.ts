@@ -1354,6 +1354,28 @@ test.describe("practice session at the edges (#866)", () => {
     });
   }
 
+  for (const locale of ["zh-Hant", "ja", "en"] as const) {
+    test(`keeps every Small Talk length label inside its keycap on one shared column (${locale})`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/");
+      await page.evaluate((stored) => localStorage.setItem("jabiko.lang", stored), locale);
+      await page.goto("/conversation");
+      const keycaps = page.locator(".conversation-scene-length");
+      await expect(keycaps.first()).toBeVisible();
+      const boxes = await keycaps.evaluateAll((elements) =>
+        elements.map((element) => ({
+          fits: element.scrollWidth <= element.clientWidth + 1,
+          left: Math.round(element.getBoundingClientRect().left),
+          text: element.textContent,
+          width: Math.round(element.getBoundingClientRect().width)
+        }))
+      );
+      for (const box of boxes) expect(box.fits, `${locale} keycap "${box.text}" fits`).toBe(true);
+      expect(new Set(boxes.map((box) => box.width)).size, `${locale} keycaps share one width`).toBe(1);
+      expect(new Set(boxes.map((box) => box.left)).size, `${locale} keycaps share one start edge`).toBe(1);
+    });
+  }
+
   test("answers and moves on by keyboard right after closing the list, with reduced motion", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width: 390, height: 844 });
