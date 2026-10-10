@@ -134,10 +134,12 @@ export function ChallengePanel({
       const title = layout.querySelector(".session-title");
       if (list?.contains(target) || title?.contains(target)) return;
       setSwitcherOpen(false);
-      // A press on the practice surface beside the list only dismisses it:
-      // its click must not also answer the question (#872 review). Presses
-      // elsewhere (header, navigation) keep their click.
-      if (layout.contains(target)) swallowNextClick();
+      // A press on the question beside the list only dismisses it: its click
+      // must not also answer (#872 review). The session bar (首頁), the aside
+      // and the header keep their click.
+      const pressed = target instanceof Element ? target : target.parentElement;
+      const onQuestion = pressed?.closest(".drill-panel") && !pressed.closest(".session-bar");
+      if (onQuestion && layout.contains(pressed)) swallowNextClick();
     };
     // Esc closes the open list from anywhere in the practice surface (or with
     // focus nowhere -- a setting change can drop it) and puts focus back on
