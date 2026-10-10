@@ -11,16 +11,32 @@ on:
 
 permissions:
   contents: read
+  checks: read
+
+concurrency:
+  group: jabiko-heavy-validation
+  queue: max
+  cancel-in-progress: false
 
 jobs:
   navigation:
     name: Chromium navigation acceptance
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Preserve the original 20-minute validation budget plus the 16-minute gate.
+    timeout-minutes: 36
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Wait for Cloudflare deployment before validation
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        timeout-minutes: 16
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+        run: node scripts/wait-cloudflare-check.mjs
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
