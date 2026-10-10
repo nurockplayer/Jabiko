@@ -270,7 +270,7 @@ export function DrillPanel({
   const energy = buddyEnergy(trailingCorrect(attempts));
 
   // Truthful session progress: questions answered out of the pass total.
-  const answeredCount = questionIndex + (feedback ? 1 : 0);
+  const answeredCount = attempts.length;
 
   // While the set list is open the learner is choosing settings: a recall
   // question appearing behind it must not take focus from the list. Read
