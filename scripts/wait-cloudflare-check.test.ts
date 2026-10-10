@@ -115,8 +115,8 @@ describe("Cloudflare deployment wait gate", () => {
 
   it("preserves the original browser validation budget in addition to the gate budget", () => {
     const workflow = readFileSync(new URL("../.github/workflows/browser-acceptance.yml", import.meta.url), "utf8");
-    const jobMinutes = Number(workflow.match(/^    timeout-minutes: (\d+)$/m)?.[1]);
-    const gateMinutes = Number(workflow.match(/^        timeout-minutes: (\d+)$/m)?.[1]);
+    const jobMinutes = Number(workflow.match(/^ {4}timeout-minutes: (\d+)$/m)?.[1]);
+    const gateMinutes = Number(workflow.match(/^ {8}timeout-minutes: (\d+)$/m)?.[1]);
     assert.equal(gateMinutes, 16);
     assert.ok(jobMinutes >= 20 + gateMinutes);
   });
