@@ -1,0 +1,249 @@
+{
+ "about": "#861 / D-26. Seeded Playwright runs (Chrome), same plan per build: correct → miss → reveal → correct → completion. maxDelta = largest change in px of scrollY or any option/Next box (viewport coordinates) between just before the action and 1.7s after it. promptTopAfterNext = viewport top (px) of the next prompt header / completion card 0.9s after 下一題; negative = above the viewport.",
+ "before": {
+  "build": "main a72729e8",
+  "mobile-no-preference": {
+   "steps": [
+    {
+     "question": "n4-order-tekuru",
+     "result": "correct",
+     "maxDelta": 527.57
+    },
+    {
+     "question": "n5-grammar-mashou-issho-kaeru",
+     "result": "wrong",
+     "maxDelta": 923.57
+    },
+    {
+     "question": "n4-usage-okiru",
+     "result": "revealed",
+     "maxDelta": 588
+    },
+    {
+     "question": "n4-kanji-gyuunyuu",
+     "result": "correct",
+     "maxDelta": 562
+    }
+   ],
+   "promptTopAfterNext": [
+    -827,
+    -479,
+    -224,
+    -174
+   ]
+  },
+  "mobile-reduce": {
+   "steps": [
+    {
+     "question": "n4-order-tekuru",
+     "result": "correct",
+     "maxDelta": 527.57
+    },
+    {
+     "question": "n5-grammar-mashou-issho-kaeru",
+     "result": "wrong",
+     "maxDelta": 923.57
+    },
+    {
+     "question": "n4-usage-okiru",
+     "result": "revealed",
+     "maxDelta": 588
+    },
+    {
+     "question": "n4-kanji-gyuunyuu",
+     "result": "correct",
+     "maxDelta": 562
+    }
+   ],
+   "promptTopAfterNext": [
+    -827,
+    -479,
+    -224,
+    -174
+   ]
+  },
+  "desktop-no-preference": {
+   "steps": [
+    {
+     "question": "n4-order-tekuru",
+     "result": "correct",
+     "maxDelta": 417.56
+    },
+    {
+     "question": "n5-grammar-mashou-issho-kaeru",
+     "result": "wrong",
+     "maxDelta": 1041.57
+    },
+    {
+     "question": "n4-usage-okiru",
+     "result": "revealed",
+     "maxDelta": 1103.39
+    },
+    {
+     "question": "n4-kanji-gyuunyuu",
+     "result": "correct",
+     "maxDelta": 1098.64
+    }
+   ],
+   "promptTopAfterNext": [
+    -513,
+    -514,
+    -530,
+    -610
+   ]
+  },
+  "desktop-reduce": {
+   "steps": [
+    {
+     "question": "n4-order-tekuru",
+     "result": "correct",
+     "maxDelta": 417.56
+    },
+    {
+     "question": "n5-grammar-mashou-issho-kaeru",
+     "result": "wrong",
+     "maxDelta": 1041.57
+    },
+    {
+     "question": "n4-usage-okiru",
+     "result": "revealed",
+     "maxDelta": 1103.39
+    },
+    {
+     "question": "n4-kanji-gyuunyuu",
+     "result": "correct",
+     "maxDelta": 1098.64
+    }
+   ],
+   "promptTopAfterNext": [
+    -513,
+    -514,
+    -530,
+    -610
+   ]
+  }
+ },
+ "after": {
+  "build": "claude/issue-861-learning-motion",
+  "mobile-no-preference": {
+   "steps": [
+    {
+     "question": "n4-grammar-teageru-otouto",
+     "result": "correct",
+     "maxDelta": 0
+    },
+    {
+     "question": "n5-usage-matsu",
+     "result": "wrong",
+     "maxDelta": 0
+    },
+    {
+     "question": "n5-vocab-jikan-nai",
+     "result": "revealed",
+     "maxDelta": 0
+    },
+    {
+     "question": "n4-grammar-kotonisuru-yameru-osake",
+     "result": "correct",
+     "maxDelta": 0
+    }
+   ],
+   "promptTopAfterNext": [
+    137,
+    137,
+    137,
+    73
+   ]
+  },
+  "mobile-reduce": {
+   "steps": [
+    {
+     "question": "n4-grammar-teageru-otouto",
+     "result": "correct",
+     "maxDelta": 0
+    },
+    {
+     "question": "n5-usage-matsu",
+     "result": "wrong",
+     "maxDelta": 0
+    },
+    {
+     "question": "n5-vocab-jikan-nai",
+     "result": "revealed",
+     "maxDelta": 0
+    },
+    {
+     "question": "n4-grammar-kotonisuru-yameru-osake",
+     "result": "correct",
+     "maxDelta": 0
+    }
+   ],
+   "promptTopAfterNext": [
+    137,
+    137,
+    137,
+    73
+   ]
+  },
+  "desktop-no-preference": {
+   "steps": [
+    {
+     "question": "n4-grammar-teageru-otouto",
+     "result": "correct",
+     "maxDelta": 0
+    },
+    {
+     "question": "n5-usage-matsu",
+     "result": "wrong",
+     "maxDelta": 0
+    },
+    {
+     "question": "n5-vocab-jikan-nai",
+     "result": "revealed",
+     "maxDelta": 0
+    },
+    {
+     "question": "n4-grammar-kotonisuru-yameru-osake",
+     "result": "correct",
+     "maxDelta": 0
+    }
+   ],
+   "promptTopAfterNext": [
+    155,
+    155,
+    155,
+    99
+   ]
+  },
+  "desktop-reduce": {
+   "steps": [
+    {
+     "question": "n4-grammar-teageru-otouto",
+     "result": "correct",
+     "maxDelta": 0
+    },
+    {
+     "question": "n5-usage-matsu",
+     "result": "wrong",
+     "maxDelta": 0
+    },
+    {
+     "question": "n5-vocab-jikan-nai",
+     "result": "revealed",
+     "maxDelta": 0
+    },
+    {
+     "question": "n4-grammar-kotonisuru-yameru-osake",
+     "result": "correct",
+     "maxDelta": 0
+    }
+   ],
+   "promptTopAfterNext": [
+    155,
+    155,
+    155,
+    99
+   ]
+  }
+ }
+}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ComponentType } from "react";
+import { useEffect, useRef, type ComponentType, type CSSProperties } from "react";
 import { ArrowRight, Eye, GraduationCap, House, MessageSquare, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
@@ -52,6 +52,43 @@ function choiceOptionClass(choice: string, selectedChoice: string | null, feedba
   }
 
   return classes.join(" ");
+}
+
+// #861 / D-03: the verdict is marked ON the judged option, the way a teacher
+// marks a paper (丸付け). 〇 = the right answer, × = the learner's wrong pick,
+// dashed 〇 = shown without answering. The glyph shape carries the meaning
+// (never colour alone); it is aria-hidden because the feedback live region
+// already announces the verdict. `pathLength` = 1 lets CSS draw the stroke
+// (learning-loop.css); without motion the mark is simply complete.
+type VerdictMarkKind = "correct" | "miss" | "revealed";
+
+// A hand-drawn maru: starts at ~10 o'clock and runs clockwise a little past a
+// full turn, tightening so the tail tucks inside its own start.
+const MARU_PATH =
+  "M4.03 7.40C4.28 7.08 4.93 6.03 5.50 5.45C6.06 4.88 6.73 4.36 7.43 3.95C8.13 3.55 8.91 3.23 9.69 3.02C10.47 2.82 11.32 2.72 12.12 2.73C12.93 2.74 13.77 2.87 14.55 3.10C15.32 3.33 16.09 3.68 16.77 4.11C17.45 4.53 18.10 5.08 18.64 5.67C19.17 6.26 19.64 6.95 20.00 7.66C20.35 8.38 20.61 9.16 20.76 9.93C20.91 10.71 20.95 11.52 20.89 12.30C20.83 13.07 20.65 13.86 20.38 14.58C20.12 15.30 19.74 16.00 19.30 16.62C18.86 17.23 18.32 17.80 17.74 18.27C17.17 18.74 16.51 19.13 15.84 19.43C15.17 19.73 14.44 19.94 13.73 20.05C13.02 20.16 12.27 20.17 11.56 20.09C10.86 20.02 10.15 19.84 9.49 19.59C8.84 19.34 8.20 19.00 7.64 18.59C7.08 18.19 6.56 17.70 6.12 17.17C5.69 16.64 5.31 16.04 5.02 15.43C4.73 14.81 4.52 14.14 4.40 13.47C4.28 12.81 4.24 12.10 4.29 11.43C4.35 10.76 4.49 10.07 4.71 9.43C4.93 8.79 5.25 8.16 5.63 7.60C6.01 7.04 6.47 6.51 6.99 6.06C7.50 5.62 8.42 5.12 8.70 4.93";
+
+function VerdictMark({ kind }: { kind: VerdictMarkKind }) {
+  return (
+    <svg className="verdict-mark" data-mark={kind} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path pathLength={1} d={kind === "miss" ? "M7 7 17 17M17 7 7 17" : MARU_PATH} />
+    </svg>
+  );
+}
+
+function verdictMarkFor(
+  choice: string,
+  selectedChoice: string | null,
+  feedback: Feedback,
+  expectedAnswers: string[]
+): VerdictMarkKind | null {
+  if (!feedback) return null;
+  const isSelected = selectedChoice === choice;
+  if (feedback.status === "correct") return isSelected ? "correct" : null;
+  if (feedback.status === "incorrect") {
+    if (isSelected) return "miss";
+    return expectedAnswers.includes(choice) ? "correct" : null;
+  }
+  return expectedAnswers.includes(choice) ? "revealed" : null;
 }
 
 function partOfSpeechLabel(partOfSpeech: PartOfSpeech, language: Language): string {
@@ -130,6 +167,33 @@ export function DrillPanel({
 }) {
   const t = copy[language];
   const recallInputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+
+  // #861: one key per step of the loop (a question, or the completion card).
+  // Keying the prompt and options by it remounts them on Next, so CSS can
+  // play the "turn" in; answering keeps the same key, so nothing replays
+  // (or moves) when the verdict lands.
+  const stepKey = currentQuestion
+    ? `${sessionSeed}:${questionIndex}:${currentQuestion.id}`
+    : sessionExhausted
+      ? `${sessionSeed}:done`
+      : "idle";
+  const lastStepRef = useRef(stepKey);
+
+  // Bring a new step into view when the learner would otherwise land
+  // mid-page (the previous question's feedback left the page scrolled).
+  // Never on first render or when feedback appears -- only on a new step.
+  useEffect(() => {
+    if (lastStepRef.current === stepKey) return;
+    lastStepRef.current = stepKey;
+    const panel = panelRef.current;
+    if (!panel || panel.getBoundingClientRect().top >= 0) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    panel.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+  }, [stepKey]);
+
+  // Truthful session progress: questions answered out of the pass total.
+  const answeredCount = questionIndex + (feedback ? 1 : 0);
 
   useEffect(() => {
     if (isRecallQuestion && currentQuestion && !feedback) {
@@ -175,6 +239,7 @@ export function DrillPanel({
 
   return (
     <section
+      ref={panelRef}
       className="drill-panel"
       aria-label={t.currentQuestion}
       onKeyDown={handleDrillKeyDown}
@@ -204,9 +269,18 @@ export function DrillPanel({
                 : t.questionNumber(questionIndex + 1)}
             </span>
             <strong>{currentQuestion.promptLabel ?? t.targetForms[currentQuestion.targetForm]}</strong>
+            {sessionTotal != null ? (
+              // Visual echo of the "n / N" text above, so aria-hidden.
+              <span className="session-meter" aria-hidden="true" data-answered={answeredCount}>
+                <span
+                  className="session-meter-fill"
+                  style={{ "--progress": String(Math.min(1, answeredCount / sessionTotal)) } as CSSProperties}
+                />
+              </span>
+            ) : null}
           </div>
 
-          <div className="word-block">
+          <div className="word-block" key={`word:${stepKey}`}>
             {currentQuestion.promptText ? (
               <ExamPrompt question={currentQuestion} language={language} />
             ) : (
@@ -241,22 +315,9 @@ export function DrillPanel({
             )}
           </div>
 
-          {/* Post-answer feedback sits right under the prompt (and above the
-              choice grid), so a phone learner can compare the answer /
-              explanation without scrolling back up (#473). Rendered only
-              after answering -- the pre-answer DOM is unchanged. */}
-          {feedback ? (
-            <FeedbackPanel
-              feedback={feedback}
-              language={language}
-              options={choiceOptions}
-              bookmarked={isQuestionBookmarked(feedback.question.id)}
-              onToggleBookmark={() => onToggleBookmark(feedback.question.id)}
-            />
-          ) : null}
-
           {isRecallQuestion ? (
             <form
+              key={`recall:${stepKey}`}
               className="recall-form"
               onSubmit={(event) => {
                 event.preventDefault();
@@ -292,7 +353,7 @@ export function DrillPanel({
               </div>
             </form>
           ) : (
-          <div className="choice-grid" aria-label={t.answerOptions}>
+          <div className="choice-grid" key={`choices:${stepKey}`} aria-label={t.answerOptions}>
             {choiceOptions.map((choice) => {
               // Expose selection + result as DOM data attributes for AI /
               // browser-automation testability. Derived purely from existing
@@ -311,6 +372,7 @@ export function DrillPanel({
                   dataResult = "target";
                 }
               }
+              const mark = verdictMarkFor(choice, selectedChoice, feedback, currentQuestion.expectedAnswers);
               return (
                 <button
                   key={choice}
@@ -328,17 +390,20 @@ export function DrillPanel({
                       !allowsOptionFurigana(currentQuestion.promptLabel)
                     }
                   />
+                  {mark ? <VerdictMark kind={mark} /> : null}
                 </button>
               );
             })}
           </div>
           )}
 
-          {!feedback ? (
-            <p className="kbd-hint">{isRecallQuestion ? t.recallKeyboardHint : t.keyboardHint}</p>
-          ) : null}
-
-          <div className="action-row">
+          {/* D-07: the action row sits directly under the options (docked to
+              the viewport bottom on compact widths for multiple choice), and
+              everything that changes after answering comes AFTER it -- the
+              hint disappears and the feedback appears below, so the options
+              and Next keep their exact boxes. Typed recall stays in flow so
+              the row never fights the software keyboard. */}
+          <div className={isRecallQuestion ? "action-row" : "action-row action-row--dock"}>
             <button className="ghost-button" type="button" onClick={revealAnswer} disabled={Boolean(feedback)}>
               <Eye aria-hidden="true" />
               {t.revealAnswer}
@@ -348,6 +413,18 @@ export function DrillPanel({
               {t.nextQuestion}
             </button>
           </div>
+
+          {!feedback ? (
+            <p className="kbd-hint">{isRecallQuestion ? t.recallKeyboardHint : t.keyboardHint}</p>
+          ) : (
+            <FeedbackPanel
+              feedback={feedback}
+              language={language}
+              options={choiceOptions}
+              bookmarked={isQuestionBookmarked(feedback.question.id)}
+              onToggleBookmark={() => onToggleBookmark(feedback.question.id)}
+            />
+          )}
         </>
       ) : sessionExhausted ? (
         <div className="empty-state review-done session-done">

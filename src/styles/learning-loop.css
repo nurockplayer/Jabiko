@@ -1,0 +1,365 @@
+/* ---- Learning loop: marks, progress and motion (#861, D-26) --------------
+   Jabiko's motion language for the Training loop. It borrows its gestures
+   from a Japanese study desk, not from a game:
+
+     press  → acknowledge   the option takes the pressed fill at once (≤ 90ms)
+     answer → 丸付け         the verdict is drawn ON the option the way a
+                            teacher marks a paper: 〇 on the right answer,
+                            × on a wrong pick, then 〇 on the right one, so
+                            the eye travels from "yours" to "the answer"
+              settle        the explanation settles in below, after the mark
+              ジャビ子       the app mark reacts once in its own tile: a hop
+                            for 正解, a thoughtful head tilt for a miss
+     Next   → turn          the new prompt and options come up like a turned
+                            page; the meter shows real answered / total
+     done   → arrival       the result rows settle in; ジャビ子 cheers once
+
+   Rules (tested by learning-loop.test.ts):
+   - Motion never changes geometry: keyframes touch only transform, opacity
+     and stroke-dashoffset, and nothing transitions a layout property. The
+     options and Next keep their boxes when the verdict lands (UQC §1.2, D-07).
+   - Every animation lives inside `prefers-reduced-motion: no-preference`.
+     With reduced motion each state is simply rendered final and complete;
+     the meaning (glyph shape, text, live region) never depends on motion.
+   - Quick and non-blocking: nothing waits on an animation, nothing loops,
+     no confetti, particles, sound or overlay. */
+
+:root {
+  --jl-ack: 90ms;
+  --jl-mark: 320ms;
+  --jl-mark-quick: 200ms;
+  --jl-settle: 240ms;
+  --jl-turn: 260ms;
+  --jl-meter: 420ms;
+  /* settle: fast out, long soft landing; draw: a pen that hesitates, then commits */
+  --jl-ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --jl-ease-draw: cubic-bezier(0.6, 0, 0.25, 1);
+  --jl-dock-height: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* ---- Options: room for the mark, reserved before answering -------------- */
+
+.drill-panel .choice-option {
+  /* The mark sits in padding that exists from the first paint, so drawing
+     it can never re-wrap the option text or grow its box. */
+  padding-inline: 2.6rem;
+}
+
+/* base.css lifts every hovered button by 1px. In the loop that made the
+   option or Next hop as the pointer left it; acknowledgement is a fill,
+   never movement (D-25). */
+.drill-panel .choice-option:hover,
+.drill-panel .action-row button:hover {
+  transform: none;
+}
+
+.drill-panel .choice-option:active:not(:disabled) {
+  background: var(--jt-action-tonal-pressed);
+}
+
+.drill-panel .choice-option[data-result="correct"],
+.drill-panel .choice-option[data-result="target"] {
+  border-color: var(--jt-assess-correct);
+  box-shadow: inset 0 0 0 1px var(--jt-assess-correct);
+}
+
+.drill-panel .choice-option[data-result="wrong"] {
+  border-color: var(--jt-assess-miss);
+  box-shadow: inset 0 0 0 1px var(--jt-assess-miss);
+}
+
+.drill-panel .choice-option:has(.verdict-mark[data-mark="revealed"]) {
+  box-shadow: none;
+  outline: 2px dashed var(--jt-assess-correct);
+  outline-offset: -4px;
+}
+
+.verdict-mark {
+  fill: none;
+  height: 2rem;
+  inset-inline-end: 0.5rem;
+  pointer-events: none;
+  position: absolute;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+  top: calc(50% - 1rem);
+  width: 2rem;
+}
+
+.verdict-mark[data-mark="correct"],
+.verdict-mark[data-mark="revealed"] {
+  color: var(--jt-assess-correct);
+}
+
+.verdict-mark[data-mark="miss"] {
+  color: var(--jt-assess-miss);
+  stroke-width: 2.6;
+}
+
+.verdict-mark path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.verdict-mark[data-mark="revealed"] path {
+  stroke-dasharray: 0.06 0.045;
+  stroke-width: 2;
+}
+
+/* ---- Session meter: a visual echo of "n / N" ---------------------------- */
+
+.drill-panel .prompt-header {
+  flex-wrap: wrap;
+  row-gap: 0.6rem;
+}
+
+.drill-panel .prompt-header .session-meter {
+  background: var(--jt-surface-sunken);
+  border: 0;
+  border-radius: 2px;
+  display: block;
+  flex: 1 0 100%;
+  height: 4px;
+  order: 3;
+  overflow: hidden;
+  padding: 0;
+}
+
+.drill-panel .prompt-header .session-meter-fill {
+  background: var(--jt-action-primary-background);
+  border: 0;
+  border-radius: 0;
+  display: block;
+  height: 100%;
+  padding: 0;
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+}
+
+/* Feedback is inserted below the options. If the browser's scroll anchor is
+   anything further down (the practice picker under the drill on compact
+   widths, the footer), scroll anchoring moves the page by the feedback's
+   height the moment the learner answers. Nothing on the practice route
+   needs anchoring, so it is off while the drill is shown. */
+:root:has(.drill-panel) {
+  overflow-anchor: none;
+}
+
+/* ---- Compact widths: Next docked to the viewport bottom (D-07) ----------- */
+
+.drill-panel {
+  scroll-margin-top: calc(var(--jt-bar-height) + 0.5rem);
+}
+
+@media (max-width: 599px) {
+  /* A transformed ancestor turns the docked row's `position: fixed` into
+     "fixed to the panel", so the panel's mount rise (panel-rise) would park
+     Next mid-page until it finished. The question's own turn-in replaces it. */
+  .drill-panel:has(.action-row--dock) {
+    animation: none;
+  }
+
+  .drill-panel .action-row--dock {
+    background: var(--jt-surface-chrome);
+    border-top: 1px solid var(--jt-border-subtle);
+    bottom: 0;
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    left: 0;
+    margin: 0;
+    padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    position: fixed;
+    right: 0;
+    z-index: 40;
+  }
+
+  .drill-panel .action-row--dock > button {
+    min-height: 48px;
+    width: 100%;
+  }
+
+  /* Keep the end of the page (feedback, the practice picker) reachable
+     above the dock, and lift the update toast over it. */
+  .app-shell:has(.action-row--dock) {
+    padding-bottom: calc(var(--jl-dock-height) + 1rem);
+  }
+
+  .app-shell:has(.action-row--dock) .update-toast {
+    bottom: calc(var(--jl-dock-height) + 0.75rem);
+  }
+}
+
+@media (forced-colors: active) {
+  .drill-panel .prompt-header .session-meter {
+    border: 1px solid CanvasText;
+  }
+
+  .drill-panel .prompt-header .session-meter-fill {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+
+  .verdict-mark[data-mark] {
+    color: CanvasText;
+  }
+}
+
+/* ---- Motion (only when the learner has not asked for less) -------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .drill-panel .choice-option {
+    transition:
+      background-color var(--jl-ack) ease-out,
+      border-color 160ms ease-out,
+      box-shadow 160ms ease-out;
+  }
+
+  /* 丸付け: the 〇 is drawn like a pen stroke and lands with a slight press. */
+  .verdict-mark[data-mark="correct"] {
+    animation: jl-mark-land var(--jl-mark) var(--jl-ease-settle) both;
+  }
+
+  .verdict-mark[data-mark="correct"] path {
+    animation: jl-draw var(--jl-mark) var(--jl-ease-draw) both;
+  }
+
+  .verdict-mark[data-mark="miss"] path {
+    animation: jl-draw var(--jl-mark-quick) var(--jl-ease-draw) both;
+  }
+
+  /* On a miss the right answer is marked just after the ×, leading the eye
+     from the learner's pick to the answer. */
+  .choice-option[data-result="target"] .verdict-mark[data-mark="correct"],
+  .choice-option[data-result="target"] .verdict-mark[data-mark="correct"] path {
+    animation-delay: 220ms;
+  }
+
+  .verdict-mark[data-mark="revealed"] {
+    animation: jl-fade var(--jl-settle) ease-out both;
+  }
+
+  /* The explanation follows the mark instead of competing with it. */
+  .drill-panel > .feedback {
+    animation: jl-rise var(--jl-settle) var(--jl-ease-settle) 140ms both;
+  }
+
+  .drill-panel .prompt-header .session-meter-fill {
+    transition: transform var(--jl-meter) var(--jl-ease-settle);
+  }
+
+  /* Turn: a new question comes up like the next page of a workbook. */
+  .drill-panel .word-block {
+    animation: jl-rise var(--jl-turn) var(--jl-ease-settle) both;
+  }
+
+  .drill-panel .choice-grid > .choice-option,
+  .drill-panel .recall-form {
+    animation: jl-rise var(--jl-turn) var(--jl-ease-settle) 60ms both;
+  }
+
+  .drill-panel .choice-grid > .choice-option:nth-child(2) { animation-delay: 90ms; }
+  .drill-panel .choice-grid > .choice-option:nth-child(3) { animation-delay: 120ms; }
+  .drill-panel .choice-grid > .choice-option:nth-child(n + 4) { animation-delay: 150ms; }
+
+  /* Arrival: the result card settles in row by row; a perfect run is
+     stamped. */
+  .session-done > * {
+    animation: jl-rise 300ms var(--jl-ease-settle) both;
+  }
+
+  .session-done > :nth-child(2) { animation-delay: 60ms; }
+  .session-done > :nth-child(3) { animation-delay: 120ms; }
+  .session-done > :nth-child(4) { animation-delay: 180ms; }
+  .session-done > :nth-child(n + 5) { animation-delay: 240ms; }
+
+  .session-done .done-perfect-badge {
+    animation: jl-stamp 360ms var(--jl-ease-settle) 200ms both;
+  }
+
+  /* ジャビ子 reacts in its own app-mark tile (D-10), once per verdict. */
+  .app-brand-mark .jabiko-mark-figure,
+  .app-brand-mark .jabiko-mark-eyes {
+    transform-box: fill-box;
+  }
+
+  .app-brand-mark .jabiko-mark-figure {
+    transform-origin: 50% 100%;
+  }
+
+  .app-brand-mark .jabiko-mark-eyes {
+    transform-origin: 50% 50%;
+  }
+
+  .app-shell:has(.drill-panel[data-result="correct"]) .app-brand-mark .jabiko-mark-figure {
+    animation: jl-hop 560ms var(--jl-ease-settle) 120ms both;
+  }
+
+  .app-shell:has(.drill-panel[data-result="correct"]) .app-brand-mark .jabiko-mark-eyes,
+  .app-shell:has(.session-done) .app-brand-mark .jabiko-mark-eyes {
+    animation: jl-smile 560ms ease-in-out 120ms both;
+  }
+
+  .app-shell:has(.drill-panel[data-result="wrong"]) .app-brand-mark .jabiko-mark-figure {
+    animation: jl-tilt 760ms var(--jl-ease-settle) 180ms both;
+  }
+
+  .app-shell:has(.session-done) .app-brand-mark .jabiko-mark-figure {
+    animation: jl-cheer 900ms var(--jl-ease-settle) 240ms both;
+  }
+}
+
+@keyframes jl-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes jl-mark-land {
+  0% { opacity: 0; transform: scale(1.18) rotate(-8deg); }
+  35% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes jl-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes jl-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes jl-stamp {
+  0% { opacity: 0; transform: scale(1.35) rotate(-6deg); }
+  60% { opacity: 1; transform: scale(0.97) rotate(-2deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes jl-hop {
+  0% { transform: none; }
+  30% { transform: translateY(-14%); }
+  55% { transform: translateY(0) scaleY(0.96); }
+  75%, 100% { transform: none; }
+}
+
+@keyframes jl-smile {
+  0%, 100% { transform: none; }
+  25%, 70% { transform: scaleY(0.25); }
+}
+
+@keyframes jl-tilt {
+  0% { transform: none; }
+  30%, 65% { transform: rotate(-9deg) translateX(-2%); }
+  100% { transform: none; }
+}
+
+@keyframes jl-cheer {
+  0%, 100% { transform: none; }
+  18% { transform: translateY(-14%); }
+  34% { transform: none; }
+  52% { transform: translateY(-9%) rotate(4deg); }
+  70% { transform: none; }
+}
