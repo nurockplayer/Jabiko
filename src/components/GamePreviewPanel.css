@@ -20,7 +20,8 @@
   color: var(--jt-text-primary);
   font-weight: 700;
   text-decoration: none;
-  white-space: nowrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .game-preview-status,
@@ -121,7 +122,7 @@
 
   /* Row 1: identity · menu. Row 2: return · furigana, from the start. */
   .game-preview-header .game-preview-identity {
-    flex: 1 0 calc(100% - 4rem);
+    flex: 1 1 calc(100% - 4rem);
   }
 
   .game-preview-header > :last-child {
