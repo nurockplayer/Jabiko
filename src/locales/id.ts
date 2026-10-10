@@ -60,8 +60,6 @@ export const id: Copy = {
   homeHeroIntro: "Dari konjugasi dasar sampai feeling soal N1. Tata bahasa, kanji, kosakata, dan latihan per jenis soal — semua di satu tempat.",
   homeGuideLink: "Panduan pemakaian",
   homeHeroKicker: "Gratis · Tanpa daftar · N5〜N1",
-  homeHowText: "Baru pertama kali? ① Pilih level → ② Latihan hari ini → ③ Jawaban salah otomatis diulang",
-  homeHowDismiss: "Mengerti",
   homeFooterWish: "Selangkah demi selangkah, semoga kamu lulus ujian dengan lancar.",
   feedbackWish: "Usulkan fitur",
   feedbackBug: "Laporkan masalah",
@@ -179,7 +177,6 @@ export const id: Copy = {
   quickLinkGrammar: "Basis data pola kalimat",
   quickLinkKanji: "Bacaan kanji",
   quickLinkRules: "Tabel rujukan cepat",
-  homeGridLabel: "Pilih area latihan",
   mockExamLevelLabel: "Level",
   mockSectionTitle: "Latihan per jenis soal",
   mockSectionIntro: "Pilih satu jenis soal JLPT, lalu langsung latih bagian itu. Pembahasan muncul seketika setelah menjawab; soal salah otomatis masuk ke ulangan kelemahan.",
@@ -317,6 +314,21 @@ export const id: Copy = {
   practiceMode: "Mode latihan",
   levelRange: "Cakupan bank soal",
   levelRangeOptions: { all: "Semua", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "Pemula total" },
+  today: {
+    gloss: {
+      welcome: "Aku Jabiko. Ayo latihan bahasa Jepang bersama, satu soal demi satu soal.",
+      keepGoing: (days) => `${days} hari berturut-turut, hari ini juga sudah!`,
+      practicedToday: (count) => `Hari ini sudah ${count} soal. Satu putaran lagi?`,
+      streakWaiting: (days) => `Latihan hari ini untuk menjaga ${days} hari berturut-turut.`,
+      returning: "Ayo latihan sedikit hari ini."
+    },
+    streak: (days) => `${days} hari berturut-turut`,
+    answeredToday: (count) => `Hari ini ${count} soal`,
+    firstVisitLead: "Pilih level dan mulai putaran pertamamu. Soal yang salah otomatis masuk ke daftar ulasan.",
+    practiceSection: "Latihan",
+    talkSection: "Percakapan & cerita",
+    aboutSection: "Tentang Jabiko"
+  },
   levelOnboarding: {
     title: "Pilih tingkatmu",
     subtitle: "Atur tingkat kesulitan default untuk latihan hari ini dan tiap bank soal; bisa diubah kapan saja nanti.",

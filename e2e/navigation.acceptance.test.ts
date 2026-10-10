@@ -192,6 +192,7 @@ test.describe("World home entry reflow", () => {
           await page.evaluate(({ storedLocale, storedTheme }) => {
             localStorage.setItem("jabiko.lang", storedLocale);
             localStorage.setItem("jabiko.theme", storedTheme);
+            localStorage.removeItem("jabiko:targetLevel");
           }, { storedLocale: locale, storedTheme: theme });
           await page.reload();
           await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
@@ -322,6 +323,15 @@ test.describe("World home entry reflow", () => {
           expect(geometry.hint.right).toBeLessThanOrEqual(geometry.entry.right);
           expect(geometry.arrow.left).toBeGreaterThanOrEqual(geometry.entry.left);
           expect(geometry.arrow.right).toBeLessThanOrEqual(geometry.entry.right);
+
+          // #866: a brand-new visitor starts from the level choices (checked
+          // above); the daily CTA appears once a level is set.
+          await expect(page.locator(".home-banner-daily")).toHaveCount(0);
+          await page.evaluate(() => localStorage.setItem("jabiko:targetLevel", "n3n4"));
+          await page.reload();
+          if (viewport.rootFontPercent !== 100) {
+            await page.addStyleTag({ content: `:root { font-size: ${viewport.rootFontPercent}% !important; }` });
+          }
 
           const daily = page.locator(".home-banner-daily");
           const dailyTitle = daily.locator(".home-banner-text strong");

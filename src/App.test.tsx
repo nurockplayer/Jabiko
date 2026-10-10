@@ -105,6 +105,20 @@ async function gotoResource(user: ReturnType<typeof userEvent.setup>, label: str
   await user.click(screen.getByRole("menuitem", { name: label }));
 }
 
+// One stored answer, so the learner counts as returning (not brand-new).
+function seedAttempt(): Attempt {
+  return {
+    vocabularyId: "seed",
+    targetForm: "reading",
+    prompt: "seed",
+    expectedAnswers: ["seed"],
+    submittedAnswer: "seed",
+    isCorrect: true,
+    timestamp: 1,
+    responseTimeMs: 100
+  };
+}
+
 describe("App", () => {
 
   // The challenge / mock / kanji views are React.lazy in App, and
@@ -846,18 +860,30 @@ describe("App", () => {
     expect(screen.queryByText(/やいなや/)).not.toBeInTheDocument();
   });
 
-  it("gates the home 今日練習 CTA on a level choice, then auto-continues (#532)", async () => {
+  it("a brand-new visitor's level choice starts today's practice in one tap (#532, #866)", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    // A brand-new visitor taps the CTA with no level chosen: the session
-    // must NOT start (the old behaviour fell back to the N1/N2-heavy "all"
-    // pool). Instead the level ask appears...
+    // No level-less CTA for a brand-new visitor (the old fallback served the
+    // N1/N2-heavy "all" pool, and the later gate was a CTA that said no)...
+    expect(screen.queryByRole("button", { name: /開始今日練習/ })).not.toBeInTheDocument();
+
+    // ...the level choice itself starts the daily session.
+    await user.click(screen.getByRole("button", { name: /^初級N4・N5$/ }));
+    await screen.findByRole("region", { name: "目前題目" });
+    expect(localStorage.getItem("jabiko:targetLevel")).toBe("n4n5");
+    expect(screen.getByRole("button", { name: /今日練習/ })).toHaveClass("selected");
+  });
+
+  it("gates the 今日練習 CTA for a returning learner without a level, then auto-continues (#532)", async () => {
+    localStorage.setItem("jabiko:attempts", JSON.stringify([seedAttempt()]));
+    const user = userEvent.setup();
+    render(<App />);
+
     await user.click(screen.getByRole("button", { name: /開始今日練習/ }));
     expect(screen.queryByRole("region", { name: "目前題目" })).not.toBeInTheDocument();
     expect(screen.getByText(/先選擇你的程度/)).toBeInTheDocument();
 
-    // ...and answering it continues straight into the daily session.
     await user.click(screen.getByRole("button", { name: /^初級N4・N5$/ }));
     await screen.findByRole("region", { name: "目前題目" });
     expect(screen.getByRole("button", { name: /今日練習/ })).toHaveClass("selected");
@@ -892,11 +918,13 @@ describe("App", () => {
   });
 
   it("gate -> 完全新手: honours the practice intent (starter daily, furigana on) (#532)", async () => {
-    // Combined path: a brand-new visitor taps the daily CTA FIRST (gated),
-    // THEN answers with 完全新手. The pick must continue into the starter
-    // daily session -- they asked to practise, and the starter daily serves
-    // 入門 questions -- NOT detour to the chapter list. Furigana still
-    // turns on. (The learn-landing applies to the non-gated card path.)
+    // Combined path: a returning learner without a level taps the daily CTA
+    // FIRST (gated), THEN answers with 完全新手. The pick must continue into
+    // the starter daily session -- they asked to practise, and the starter
+    // daily serves 入門 questions -- NOT detour to the chapter list.
+    // Furigana still turns on. (The learn-landing applies to the brand-new
+    // first-visit choice.)
+    localStorage.setItem("jabiko:attempts", JSON.stringify([seedAttempt()]));
     const user = userEvent.setup();
     render(<App />);
 

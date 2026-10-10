@@ -65,8 +65,6 @@ export type Copy = {
   homeHeroIntro: string;
   homeGuideLink: string;
   homeHeroKicker: string;
-  homeHowText: string;
-  homeHowDismiss: string;
   homeFooterWish: string;
   feedbackWish: string;
   feedbackBug: string;
@@ -173,7 +171,6 @@ export type Copy = {
   quickLinkGrammar: string;
   quickLinkKanji: string;
   quickLinkRules: string;
-  homeGridLabel: string;
   mockExam: string;
   about: string;
   aboutTitle: string;
@@ -339,6 +336,24 @@ export type Copy = {
     notSet: string;
     /** Daily-CTA gate (#532): shown when 今日練習 is tapped with no level set. */
     chooseFirst: string;
+  };
+  /** Today hero (#866): the localized gloss under ジャビ子's Japanese line
+   *  (domain/todayGreeting.ts) and the real-momentum readouts. */
+  today: {
+    gloss: {
+      welcome: string;
+      keepGoing: (days: number) => string;
+      practicedToday: (count: number) => string;
+      streakWaiting: (days: number) => string;
+      returning: string;
+    };
+    streak: (days: number) => string;
+    answeredToday: (count: number) => string;
+    /** First visit: the level choices start the first round directly. */
+    firstVisitLead: string;
+    practiceSection: string;
+    talkSection: string;
+    aboutSection: string;
   };
   sessionLength: string;
   sessionLengthAll: string;

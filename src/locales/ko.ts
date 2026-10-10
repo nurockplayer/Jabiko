@@ -60,8 +60,6 @@ export const ko: Copy = {
   homeHeroIntro: "기초 활용부터 N1 감각까지. 문법, 한자, 어휘, 유형별 연습 — 모두 한자리에.",
   homeGuideLink: "사용 설명서",
   homeHeroKicker: "무료 · 회원가입 없이 · N5〜N1",
-  homeHowText: "처음이신가요? ① 레벨 선택 → ② 오늘의 학습 → ③ 오답 자동 복습",
-  homeHowDismiss: "확인",
   homeFooterWish: "한 걸음씩 천천히. 행운을 빌어요 — 멋지게 합격하시길.",
   feedbackWish: "기능 요청",
   feedbackBug: "문제 신고",
@@ -179,7 +177,6 @@ export const ko: Copy = {
   quickLinkGrammar: "문형 데이터베이스",
   quickLinkKanji: "한자 읽기",
   quickLinkRules: "활용 빠른 참조표",
-  homeGridLabel: "연습할 영역 선택",
   mockExamLevelLabel: "레벨",
   mockSectionTitle: "섹션별 연습",
   mockSectionIntro: "JLPT 문제 유형을 골라 그 섹션만 집중 연습하세요. 답을 고른 직후 바로 해설을 볼 수 있고, 오답은 곧장 약점 복습으로 들어갑니다.",
@@ -317,6 +314,21 @@ export const ko: Copy = {
   practiceMode: "연습 모드",
   levelRange: "문제 풀(pool)",
   levelRangeOptions: { all: "전체", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "완전 초보" },
+  today: {
+    gloss: {
+      welcome: "나는 자비코! 일본어를 한 문제씩 같이 연습하자.",
+      keepGoing: (days) => `${days}일 연속, 오늘도 해냈어!`,
+      practicedToday: (count) => `오늘 벌써 ${count}문제. 한 번 더 할까?`,
+      streakWaiting: (days) => `오늘 연습하면 ${days}일 연속이 이어져.`,
+      returning: "오늘도 조금 연습해 보자."
+    },
+    streak: (days) => `${days}일 연속`,
+    answeredToday: (count) => `오늘 ${count}문제`,
+    firstVisitLead: "레벨을 고르고 바로 첫 라운드를 시작하세요. 틀린 문제는 자동으로 복습에 들어갑니다.",
+    practiceSection: "연습",
+    talkSection: "회화와 스토리",
+    aboutSection: "Jabiko 소개"
+  },
   levelOnboarding: {
     title: "레벨을 선택하세요",
     subtitle: "오늘의 연습과 각 문제 풀의 기본 난이도를 정합니다 — 언제든 바꿀 수 있어요.",

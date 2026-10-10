@@ -569,3 +569,64 @@ no marks (it has no options). A long verdict title (ja "この問題は
 チェックしておこう") is ellipsized in the button; the full text is in the
 explanation heading and in the button's accessible name. Founder visual
 acceptance of this amendment is pending.
+
+## D-27 — Today leads with ジャビ子 and one job (JT-2, amends D-04, D-10, D-13) **REVIEW-CONFIRM** {#d-27}
+
+Owner directive #866 (2026-10-10): Opus 5.5 leads UI/UX for the whole
+product, may revise JT-1 where it blocks a better learner experience, and
+must keep learning, data and accessibility contracts.
+
+**What was wrong.** Today stacked two design languages: JT-1 rows on top,
+then the legacy marketing page (illustration, a second headline, a seven-card
+grid, pill links). The primary action refused to start for a new visitor
+("先選擇你的程度…"), the review queue was rendered as a red error alert with
+a warning triangle (it is learning, not system state — D-03, C4), and the
+real momentum (streak, today's count) was at the very bottom.
+
+**Decision.**
+
+1. **One hero, one job.** Today opens with a single filled panel
+   (`accent.background`, 16px radius — the only filled panel on the page):
+   ジャビ子 greets in Japanese with a localized gloss, the h2 "今天想練什麼？",
+   the real momentum (local-day streak, answered today — readouts, only when
+   non-zero), the one primary command 開始今日練習 (56px, ≤ 30rem wide), a
+   quiet second action (review queue → continue chapter → next step, the old
+   banner priority) and the target-level line with 變更.
+2. **No CTA that says no.** A brand-new visitor sees the five level choices
+   in the hero instead of the CTA, under "選一個程度，馬上開始第一輪。答錯的題目會自動
+   排進複習。" (the old dismissible strip, folded in). A choice starts the
+   first round in one tap — except 完全新手, who lands on lesson 1 (五十音)
+   because nobody can answer kana questions before learning kana (#532
+   learn-landing kept). A returning learner without a level keeps the #532
+   gate (the picker opens, the choice continues into the session).
+3. **ジャビ子 speaks** (`domain/todayGreeting.ts`): はじめまして！ (new),
+   その調子！ (practised today, streak > 1), おかえり！ (practised today),
+   おはよう／こんにちは／こんばんは (otherwise; the gloss nudges a live streak
+   that still needs today). Lines are Japanese learning content and are not
+   localized, like D-26's interjections. "Today" is the learner's local
+   calendar day, not UTC; the stats strip shows the same local streak so the
+   page never shows two different numbers. Extends D-10: the mascot appears
+   on Today. It hops once on arrival (D-26 keyframes); static with reduced
+   motion.
+4. **Rows with kanji keycaps.** Practice and Conversation & story are row
+   lists (hairlines, 64px rows, title + one line + count + chevron). Each row
+   leads with a 40px keycap holding one Mincho kanji the learner can read
+   (学 活 読 試 復 栞 練 / 話 町) — wayfinding that is itself Japanese, not an
+   icon in a tinted circle (D-23 kept). The keycap takes the accent on
+   hover/focus.
+5. **Order of the page.** Hero → 練習 rows → Stay.D partner line (still after
+   the primary learning controls, #745) → 會話與故事 rows → 查資料 links (words,
+   not pills) → 學習進度 dashboard → 關於 Jabiko (the illustration, the free/
+   no-signup kicker, intro, content counts, guide link) → footer.
+
+**Rejected.** A daily-goal ring (no such goal exists in the data; #861 bans
+invented progress); keeping the marketing hero above the fold for SEO (the
+prerendered h2 and intro remain on the page, below the job); a mascot
+illustration banner (D-23); defaulting a new visitor to a level so the CTA
+can always start (#532: the wrong pool for most visitors).
+
+**Evidence.** HomePanel/App tests (one-tap start, starter learn-landing,
+returning gate, hero readouts, review-not-alert, page order),
+`todayGreeting.test.ts` (local-day streak incl. a UTC-boundary case, in both
+the runner's zone and UTC), navigation acceptance reflow at 320px/200% text
+in zh-Hant/ja/en × light/dark.

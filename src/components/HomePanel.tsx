@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { AlertTriangle, ArrowRight, BookOpen, Bug, CalendarCheck, ChevronDown, Heart, Sparkles, Target, X } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { ArrowRight, BookOpen, Bug, ChevronDown, ChevronRight, Heart, RotateCcw, Sparkles, Target } from "lucide-react";
 import { copy, type Language } from "../i18n";
 import type { Attempt } from "../domain/types";
 import type { LevelRange } from "../domain/levelRange";
@@ -10,6 +10,8 @@ import { computeProgressStats } from "../domain/stats";
 import { computeEarnedPoints } from "../domain/points";
 import { computeActivityTrend } from "../domain/analytics/trend";
 import { computeErrorsByQuestionType } from "../domain/analytics/weakness";
+import { greetingLine, todayGreeting, type TodayGreeting } from "../domain/todayGreeting";
+import { buddyEnergy } from "../domain/buddyReaction";
 import { AccuracyRing } from "./dashboard/AccuracyRing";
 import { LevelBars } from "./dashboard/LevelBars";
 import { ActivityTrend } from "./dashboard/ActivityTrend";
@@ -17,27 +19,18 @@ import { TypeBars } from "./dashboard/TypeBars";
 import { FeedbackForm } from "./FeedbackForm";
 import { ShareButtons } from "./challenge/ShareButtons";
 import { LegalLinks } from "./LegalLinks";
+import { JabikoBuddy } from "./JabikoBuddy";
 import type { FeedbackCategory } from "../domain/feedbackRemote";
 import { getBookmarkedIds } from "../domain/bookmarks";
 import { StayDHomeRecommendation } from "./StayDHomeRecommendation";
 import { gamePreviewCopyFor } from "../domain/gamePreviewCopy";
+import { ToriiSpot, OmamoriSpot, LanternSpot } from "../illustrations";
 
 // External walkthrough / 使用說明書: the author's blog post about Jabiko.
-// Surfaced in the hero so first-time visitors can read how to use the app.
+// Surfaced in the about section so first-time visitors can read how to use the app.
 const GUIDE_URL = "https://hanayukii.dev/blog/jabiko-jlpt-app";
-import {
-  ToriiSpot,
-  OmamoriSpot,
-  LanternSpot,
-  BooksSpot,
-  BrushSpot,
-  SpeechSpot,
-  ExamPaperSpot,
-  TargetSpot,
-  TeaCupSpot
-} from "../illustrations";
 
-// Content-volume snapshot rendered above the entry cards. The exam /
+// Content-volume snapshot rendered in the about section. The exam /
 // pattern / vocab counts come from CONTENT_STATS (hardcoded, drift-
 // guarded by contentStats.test.ts) so the eager home view never has to
 // import the heavy question-pool / vocabulary data modules -- that data
@@ -70,25 +63,63 @@ const TREND_DAYS = 14;
 // is the soft spots, not an exhaustive list of every type practised.
 const TYPE_WEAKNESS_ROWS = 5;
 
-// Dismissible "how it works" strip (mobile onboarding): a one-time,
-// newcomer-only orientation line. The dismiss is remembered locally so it
-// doesn't nag on the next visit.
-const HOW_IT_WORKS_DISMISS_KEY = "jabiko:howItWorksDismissed";
-
-function readHowItWorksDismissed(): boolean {
-  try {
-    return localStorage.getItem(HOW_IT_WORKS_DISMISS_KEY) === "1";
-  } catch {
-    return false;
+function greetingGloss(greeting: TodayGreeting, t: (typeof copy)[Language]): string {
+  switch (greeting.kind) {
+    case "welcome":
+      return t.today.gloss.welcome;
+    case "keepGoing":
+      return t.today.gloss.keepGoing(greeting.streakDays);
+    case "practicedToday":
+      return t.today.gloss.practicedToday(greeting.answeredToday);
+    case "streakWaiting":
+      return t.today.gloss.streakWaiting(greeting.streakDays);
+    default:
+      return t.today.gloss.returning;
   }
 }
 
-// First view the learner lands on. Three layers:
-//   1. Context-aware banner ("review N items" if any, else "continue
-//      chapter XX" if there's an incomplete one). Suppressed entirely
-//      when nothing meaningful to surface, to avoid noise.
-//   2. Lifetime stats strip (only shown after the first attempt).
-//   3. Five entry cards.
+// One practice destination in a Today list (#866). The leading kanji keycap
+// is Jabiko's wayfinding mark (a word the learner can read, not an icon in a
+// tinted circle); it is decorative, so the row's name is its title + line.
+function TodayRow({
+  glyph,
+  title,
+  sub,
+  meta,
+  onClick,
+  className
+}: {
+  glyph: string;
+  title: ReactNode;
+  sub: ReactNode;
+  meta?: ReactNode;
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <li>
+      <button type="button" className={className ? `today-row ${className}` : "today-row"} onClick={onClick}>
+        <span className="today-row-glyph" lang="ja" aria-hidden="true">
+          {glyph}
+        </span>
+        <span className="today-row-text">
+          <strong>{title}</strong>
+          <small>{sub}</small>
+        </span>
+        {meta != null ? <span className="today-row-meta">{meta}</span> : null}
+        <ChevronRight className="today-row-chevron" aria-hidden="true" />
+      </button>
+    </li>
+  );
+}
+
+// Today (#866): the first view the learner lands on, in the order of the
+// learner's job --
+//   1. The Today hero: ジャビ子's greeting, the real momentum (streak, today's
+//      count), one primary action and one quiet suggestion. A brand-new
+//      visitor sees the level choices instead; each choice starts the round.
+//   2. Practice rows, then conversation & story rows.
+//   3. Reference links, the progress dashboard, then "about Jabiko".
 //
 // HomePanel is intentionally read-only of the learner state -- mutating
 // callbacks (onNavigate, onStartReview) live on the parent so the panel
@@ -112,34 +143,33 @@ export function HomePanel({
   progressAttempts: Attempt[];
   reviewCount: number;
   // 2026-07 grid refresh: the picker block also links the reference views
-  // (grammar / kanji / rules / kana) via the quick-links row below the cards.
+  // (grammar / kanji / rules / kana) via the quick-links row.
   onNavigate: (
     target: "learn" | "challenge" | "mock" | "grammar" | "kanji" | "rules" | "kana" | "conversation"
   ) => void;
   onOpenGame: () => void;
   onStartReview: () => void;
   onStartVocab: () => void;
-  // Starts the starred-questions pass (#470) from the new bookmarks card.
+  // Starts the starred-questions pass (#470) from the bookmarks row.
   onStartBookmarks: () => void;
   onStartDaily: () => void;
   onStartConjugation: () => void;
-  // Launches the 綜合/備考 exam session for a band -- the 下一步 banner's
+  // Launches the 綜合/備考 exam session for a band -- the 下一步 suggestion's
   // target for non-starter learners (level-aware funnel).
   onStartExamPreset: (range: LevelRange) => void;
   // Global target-level preference (#199): null = not chosen yet. Drives the
-  // first-run onboarding card; selecting a band persists it via onChooseLevel.
+  // first-run level choice; selecting a band persists it via onChooseLevel.
   targetLevel: LevelRange | null;
   onChooseLevel: (range: LevelRange) => void;
 }) {
   const t = copy[language];
-  // Render-time snapshot (same semantics as the review count): the card's
-  // number refreshes when home re-renders, which is enough for an entry card.
+  // Render-time snapshot (same semantics as the review count): the row's
+  // number refreshes when home re-renders, which is enough for an entry row.
   const bookmarkCount = getBookmarkedIds().length;
-
-  // Chapter-title translations live in the heavy learningBlocks.i18n chunk,
+  // Chapter titles are localized via the learningBlocks.i18n overlay chunk,
   // so it's dynamically imported (same pattern as LearningPanel) to keep the
-  // eager home bundle light. Until it resolves, the continue banner shows the
-  // zh source title and re-renders on arrival (#427).
+  // eager home bundle light. Until it resolves, the continue suggestion shows
+  // the zh source title and re-renders on arrival (#427).
   const [chapterOverlays, setChapterOverlays] = useState<LearningBlockOverlays>({});
   useEffect(() => {
     let alive = true;
@@ -151,10 +181,8 @@ export function HomePanel({
     };
   }, []);
 
-  // First-run "choose your level" card: only for a brand-new learner -- no
-  // saved preference AND no answer history -- so it's a one-time nudge, never
-  // shown to returning learners. Selecting a band stores it and the card
-  // disappears (targetLevel becomes non-null). Each label maps to an existing
+  // First-run level choice: only for a brand-new learner -- no saved
+  // preference AND no answer history. Each label maps to an existing
   // LevelRange band; options stay in easy → hard order.
   const showLevelOnboarding = targetLevel === null && progressAttempts.length === 0;
   const onboardingOptions: { range: LevelRange; label: string; hint: string }[] = [
@@ -172,6 +200,10 @@ export function HomePanel({
   ];
 
   const totalAttempts = progressAttempts.length;
+  // ジャビ子's greeting and the hero readouts, from the real history (#866).
+  // The clock is read once per visit to Today (render must stay pure).
+  const [openedAt] = useState(() => Date.now());
+  const greeting = todayGreeting(progressAttempts, openedAt);
 
   // Only count "trackable" basic chapters towards the X / Y badge --
   // reference chapters (verb-types + the four sentence-pattern reading
@@ -187,9 +219,9 @@ export function HomePanel({
     (block) => !isLearningBlockComplete(progressAttempts, block)
   );
 
-  // Progress / mastery overview (#133): streak + due + mastered + per-level
-  // accuracy, all aggregated from attempts (+ SRS state) with no heavy bank
-  // import. Only shown once the learner has a history.
+  // Progress / mastery overview (#133): due + mastered + per-level accuracy,
+  // all aggregated from attempts (+ SRS state) with no heavy bank import.
+  // Only shown once the learner has a history.
   const progress = computeProgressStats(progressAttempts);
   // Daily practice volume for the last fortnight (dashboard v1, #243).
   const activityTrend = computeActivityTrend(progressAttempts, TREND_DAYS);
@@ -200,28 +232,14 @@ export function HomePanel({
   // footer buttons; the form submits anonymously to Supabase.
   const [feedbackKind, setFeedbackKind] = useState<FeedbackCategory | null>(null);
 
-  // Dismissible newcomer "how it works" strip -- shown only to brand-new
-  // visitors (same gate as the level card) and remembered once dismissed.
-  const [howItWorksDismissed, setHowItWorksDismissed] = useState(readHowItWorksDismissed);
-  const dismissHowItWorks = () => {
-    setHowItWorksDismissed(true);
-    try {
-      localStorage.setItem(HOW_IT_WORKS_DISMISS_KEY, "1");
-    } catch {
-      /* ignore: private mode / storage disabled */
-    }
-  };
-  const showHowItWorks = showLevelOnboarding && !howItWorksDismissed;
-
-  // Level-aware funnel: the 背 card's destination content. 完全新手 (starter)
+  // Level-aware funnel: the vocab row's destination content. 完全新手 (starter)
   // drills the 入門 deck (kana + starter vocab), never JLPT 単字. The n4n5
-  // band keeps the same 基礎詞彙 home card for now -- its real N4/N5 単字讀音
-  // entry is the challenge mode picker (#668); flipping the home card itself
-  // back to 単字讀音 is a separate funnel decision.
+  // band keeps the same 基礎詞彙 entry for now -- its real N4/N5 単字讀音
+  // entry is the challenge mode picker (#668).
   const vocabCardIsStarter = targetLevel === "starter" || targetLevel === "n4n5";
 
-  // 你的下一步 (level-aware funnel): the third banner layer. Review and
-  // continue-chapter keep priority; when neither applies but a band IS
+  // 你的下一步 (level-aware funnel): the hero's quiet second action. Review
+  // and continue-chapter keep priority; when neither applies but a band IS
   // chosen, suggest the band's natural next stop -- 入門 chapters for a
   // starter, the band's 備考 pool for everyone else.
   const showNextStep =
@@ -229,19 +247,19 @@ export function HomePanel({
     targetLevel !== null &&
     !(totalAttempts > 0 && nextIncompleteChapter);
 
-  // Persistent "目標級別" control (#526): once the first-run card is gone, this
-  // compact chip is the only way to see and re-pick the target level. Shown to
-  // everyone who is NOT a brand-new visitor (i.e. whenever the big card isn't),
-  // so returning learners who set a level -- or older ones who never had the
-  // card -- can still change it. Collapsed by default; 變更 expands the picker.
+  // Persistent "目標級別" control (#526): once the first-run choice is gone,
+  // this compact control is the only way to see and re-pick the target level.
+  // Collapsed by default; 變更 expands the picker.
   const [levelEditing, setLevelEditing] = useState(false);
   const currentLevelOption = onboardingOptions.find((option) => option.range === targetLevel);
 
   // Daily CTA level gate (#532): without a target level the daily session
   // used to fall back to the "all" (N1/N2-heavy) pool -- a brand-new
-  // visitor's first tap served questions they couldn't read. Now the CTA
-  // asks for a level first, and the choice that answers the ask CONTINUES
-  // into the daily session (one flow, no second tap).
+  // visitor's first tap served questions they couldn't read. A brand-new
+  // visitor therefore never sees a level-less CTA (#866): the level choices
+  // start the round. A returning learner without a preference who taps the
+  // CTA gets the band picker opened, and the choice CONTINUES into the daily
+  // session (one flow, no second tap).
   const [dailyPending, setDailyPending] = useState(false);
   const handleStartDaily = () => {
     if (targetLevel !== null) {
@@ -249,9 +267,7 @@ export function HomePanel({
       return;
     }
     setDailyPending(true);
-    // Returning learners without a preference have no onboarding card --
-    // open the #526 chip's band picker for them.
-    if (!showLevelOnboarding) setLevelEditing(true);
+    setLevelEditing(true);
   };
 
   const chooseLevel = (range: LevelRange) => {
@@ -263,335 +279,282 @@ export function HomePanel({
     }
   };
 
-  return (
-    <section className="home-panel" aria-label={t.home}>
-      {/* First-time orientation: a single "how it works" line shown only to
-          brand-new visitors (in-app, so they don't have to leave for the
-          blog). Dismissible and remembered. */}
-      {showHowItWorks ? (
-        <div className="home-howto" role="note">
-          <span className="home-howto-text">{t.homeHowText}</span>
-          <button
-            type="button"
-            className="home-howto-dismiss"
-            onClick={dismissHowItWorks}
-            aria-label={t.homeHowDismiss}
-          >
-            <X aria-hidden="true" />
-            <span>{t.homeHowDismiss}</span>
-          </button>
-        </div>
-      ) : null}
+  // A brand-new visitor's level choice starts the first round -- except
+  // 完全新手: nobody can answer kana questions before learning kana, so the
+  // app lands them on lesson 1 (五十音) instead (#532 learn-landing).
+  const chooseFirstLevel = (range: LevelRange) => {
+    onChooseLevel(range);
+    if (range !== "starter") onStartDaily();
+  };
 
-      {showLevelOnboarding ? (
-        <div className="home-level-card" role="group" aria-label={t.levelOnboarding.title}>
-          <div className="home-level-card-copy">
-            <strong>{t.levelOnboarding.title}</strong>
-            <small>{t.levelOnboarding.subtitle}</small>
-          </div>
-          <div className="home-level-card-options">
-            {onboardingOptions.map((option) => (
-              <button
-                key={option.range}
-                type="button"
-                className="home-level-option"
-                onClick={() => chooseLevel(option.range)}
-              >
-                <strong>{option.label}</strong>
-                <small>{option.hint}</small>
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      {/* Primary daily entry: the one-tap "今日練習" that builds a
-          due-reviews-first + mixed-section session. Hoisted above the hero
-          art so the one honest primary action is the first thing a visitor
-          reaches on the first screen (mobile onboarding). */}
-      {dailyPending ? (
-        <p className="home-level-gate-hint" role="alert">
-          {t.levelOnboarding.chooseFirst}
-        </p>
-      ) : null}
-
-      <a className="home-game-preview-entry" href="/game" onClick={(event) => {
-        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        event.preventDefault();
-        onOpenGame();
-      }}>
-        <span className="home-game-preview-label">{gamePreviewCopyFor(language).entry}</span>
-        <span className="home-game-preview-copy">{gamePreviewCopyFor(language).entryHint}</span>
-        <ArrowRight aria-hidden="true" />
-      </a>
-
-      <button type="button" className="home-banner home-banner-daily" onClick={handleStartDaily}>
-        <CalendarCheck aria-hidden="true" />
-        <span className="home-banner-text">
-          <strong>{t.homeDailyMain}</strong>
-          <small>{t.homeDailySub}</small>
-        </span>
-        <ArrowRight aria-hidden="true" />
-      </button>
-
-      <button
-        type="button"
-        className="home-conjugation-launch"
-        onClick={onStartConjugation}
-      >
-        <Sparkles aria-hidden="true" />
-        <span>
-          <strong>{t.homeConjugationMain}</strong>
-          <small>{t.homeConjugationSub}</small>
-        </span>
-        <ArrowRight aria-hidden="true" />
-      </button>
-
-      {/* Persistent target-level control (#526): reflects the current band and,
-          when expanded, re-uses the same level picker as the first-run
-          card so the level can be changed at any time. Not rendered for a
-          brand-new visitor -- they get the big onboarding card above instead. */}
-      {!showLevelOnboarding ? (
-        <div className="home-level-manage" role="group" aria-label={t.levelOnboarding.manageTitle}>
-          <button
-            type="button"
-            className="home-level-chip"
-            aria-expanded={levelEditing}
-            onClick={() => setLevelEditing((open) => !open)}
-          >
-            <Target aria-hidden="true" />
-            <span className="home-level-chip-label">{t.levelOnboarding.manageTitle}</span>
-            <span className="home-level-chip-value">
-              {currentLevelOption ? (
-                <>
-                  <strong>{currentLevelOption.label}</strong>
-                  <small>{currentLevelOption.hint}</small>
-                </>
-              ) : (
-                <em>{t.levelOnboarding.notSet}</em>
-              )}
-            </span>
-            <span className="home-level-chip-action">{t.levelOnboarding.change}</span>
-            <ChevronDown className="home-level-chip-caret" aria-hidden="true" />
-          </button>
-          {levelEditing ? (
-            <div className="home-level-card-options">
-              {onboardingOptions.map((option) => (
-                <button
-                  key={option.range}
-                  type="button"
-                  className="home-level-option"
-                  aria-pressed={option.range === targetLevel}
-                  onClick={() => chooseLevel(option.range)}
-                >
-                  <strong>{option.label}</strong>
-                  <small>{option.hint}</small>
-                </button>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
-      <StayDHomeRecommendation language={language} />
-
-      <header className="home-hero">
-        {/* Decorative hero -- the heading below carries the actual
-            message, so alt is intentionally empty (avoids the screen
-            reader saying "image, hero" which adds nothing). */}
-        <img
-          className="home-hero-image"
-          src="/hero.webp"
-          alt=""
-          width={1600}
-          height={900}
-        />
-        <div className="home-hero-text">
-          <p className="home-hero-kicker">{t.homeHeroKicker}</p>
-          <h2>{t.homeHeroTitle}</h2>
-          <p>{t.homeHeroIntro}</p>
-          <a
-            className="home-hero-guide"
-            href={GUIDE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <BookOpen aria-hidden="true" />
-            {t.homeGuideLink}
-          </a>
-        </div>
-      </header>
-
-      {/* Content-volume strip: tells first-time visitors what they're
-          walking into without resorting to SaaS-style metric tiles.
-          Counts are derived live from the data modules so this stays
-          honest whenever a content batch lands. */}
-      <p className="home-content-stats">
-        {t.homeContentStats(
-          HOME_CONTENT_TOTAL,
-          HOME_CONTENT_STATS.examItems,
-          HOME_CONTENT_STATS.vocab,
-          HOME_CONTENT_STATS.kanjiReadings,
-          HOME_CONTENT_STATS.patternChecks,
-          HOME_CONTENT_STATS.chapters
-        )}
-      </p>
-
-      {reviewCount > 0 ? (
-        <button type="button" className="home-banner home-banner-review" onClick={onStartReview}>
-          <AlertTriangle aria-hidden="true" />
-          <span className="home-banner-text">
-            <strong>{t.homeBannerReviewMain(reviewCount)}</strong>
-            <small>{t.homeBannerReviewSub}</small>
-          </span>
-          <ArrowRight aria-hidden="true" />
+  const nextStep = (() => {
+    if (reviewCount > 0) {
+      return (
+        <button type="button" className="today-next today-next-review" onClick={onStartReview}>
+          <RotateCcw aria-hidden="true" />
+          <span>{t.homeBannerReviewMain(reviewCount)}</span>
         </button>
-      ) : totalAttempts > 0 && nextIncompleteChapter ? (
+      );
+    }
+    if (totalAttempts > 0 && nextIncompleteChapter) {
+      return (
         <button
           type="button"
-          className="home-banner home-banner-continue"
+          className="today-next home-banner-continue"
           onClick={() => onNavigate("learn")}
+          aria-describedby="today-next-note"
         >
           <BookOpen aria-hidden="true" />
-          <span className="home-banner-text">
-            <strong>
-              {t.homeBannerContinueMain(
-                localizeLearningBlock(nextIncompleteChapter, language, chapterOverlays).title
-              )}
-            </strong>
-            <small>{t.homeBannerContinueSub}</small>
+          <span>
+            {t.homeBannerContinueMain(
+              localizeLearningBlock(nextIncompleteChapter, language, chapterOverlays).title
+            )}
           </span>
-          <ArrowRight aria-hidden="true" />
+          <small id="today-next-note">{t.homeBannerContinueSub}</small>
         </button>
-      ) : showNextStep && targetLevel === "starter" ? (
-        <button
-          type="button"
-          className="home-banner home-banner-continue"
-          onClick={() => onNavigate("learn")}
-        >
+      );
+    }
+    if (showNextStep && targetLevel === "starter") {
+      return (
+        <button type="button" className="today-next home-banner-continue" onClick={() => onNavigate("learn")}>
           <BookOpen aria-hidden="true" />
-          <span className="home-banner-text">
-            <strong>{t.homeBannerNextLearnMain}</strong>
-            <small>{t.homeBannerNextLearnSub}</small>
-          </span>
-          <ArrowRight aria-hidden="true" />
+          <span>{t.homeBannerNextLearnMain}</span>
         </button>
-      ) : showNextStep && targetLevel !== null ? (
+      );
+    }
+    if (showNextStep && targetLevel !== null) {
+      return (
         <button
           type="button"
-          className="home-banner home-banner-continue"
+          className="today-next home-banner-continue"
           onClick={() => onStartExamPreset(targetLevel)}
         >
           <Target aria-hidden="true" />
-          <span className="home-banner-text">
-            <strong>
-              {targetLevel === "all"
-                ? t.homeBannerNextExamAllMain
-                : t.homeBannerNextExamMain(t.levelRangeOptions[targetLevel])}
-            </strong>
-            <small>{t.homeBannerNextExamSub}</small>
+          <span>
+            {targetLevel === "all"
+              ? t.homeBannerNextExamAllMain
+              : t.homeBannerNextExamMain(t.levelRangeOptions[targetLevel])}
           </span>
-          <ArrowRight aria-hidden="true" />
         </button>
-      ) : null}
+      );
+    }
+    return null;
+  })();
 
-      {/* Names the entry-card grid as a self-serve section (a plain,
-          non-anaphoric label -- no "or" -- so it can't dangle in any of the
-          8 locales). Reuses the muted .home-progress-title treatment so it
-          stays secondary to the primary 今日練習 CTA above (#360). */}
-      <h2 className="home-progress-title">{t.homeGridLabel}</h2>
+  const gameCopy = gamePreviewCopyFor(language);
 
-      <div className="home-grid">
-        {/* Each card carries a single-CJK "stage badge" (學 / 練 / 背 /
-            考 / 補) instead of a lucide-react icon. The icons read as
-            tech-product chrome; the kanji read as editorial. Stages
-            suggest a natural progression but the cards stay
-            independently entry-able -- a returning learner who only
-            wants today's mock exam can still jump straight to 考. */}
-        <button type="button" className="home-card" onClick={() => onNavigate("learn")}>
-          <BooksSpot className="home-card-spot" />
-          <h2>{t.homeCardLearnTitle}</h2>
-          <p>{t.homeCardLearnSub}</p>
-          <span className="home-card-meta">
-            {t.homeCardLearnMeta(completedChapters, trackableChapters.length)}
-          </span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-        <button type="button" className="home-card" onClick={() => onNavigate("challenge")}>
-          <BrushSpot className="home-card-spot" />
-          <h2>{t.homeCardChallengeTitle}</h2>
-          <p>{t.homeCardChallengeSub}</p>
-          <span className="home-card-meta">{t.homeCardChallengeMeta}</span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-        <button type="button" className="home-card" onClick={onStartVocab}>
-          <SpeechSpot className="home-card-spot" />
-          <h2>{vocabCardIsStarter ? t.homeCardVocabTitleStarter : t.homeCardVocabTitle}</h2>
-          <p>{vocabCardIsStarter ? t.homeCardVocabSubStarter : t.homeCardVocabSub}</p>
-          <span className="home-card-meta">
-            {vocabCardIsStarter ? t.homeCardVocabMetaStarter : t.homeCardVocabMeta}
-          </span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-        <button type="button" className="home-card" onClick={() => onNavigate("mock")}>
-          <ExamPaperSpot className="home-card-spot" />
-          <h2>{t.homeCardMockTitle}</h2>
-          <p>{t.homeCardMockSub}</p>
-          <span className="home-card-meta">{t.homeCardMockMeta}</span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-        <button type="button" className="home-card" onClick={onStartReview}>
-          <TargetSpot className="home-card-spot" />
-          <h2>{t.homeCardReviewTitle}</h2>
-          <p>
-            {reviewCount > 0 ? t.homeCardReviewSubActive(reviewCount) : t.homeCardReviewSubEmpty}
+  return (
+    <section className="home-panel today" aria-label={t.home}>
+      <section className="today-hero" aria-labelledby="today-title" data-greeting={greeting.kind}>
+        <div className="today-hero-voice">
+          <JabikoBuddy mood="happy" energy={buddyEnergy(greeting.streakDays)} className="today-buddy" />
+          <p className="today-hero-greeting">
+            <span className="today-hero-line" lang="ja">
+              {greetingLine(greeting)}
+            </span>
+            <span className="today-hero-gloss">{greetingGloss(greeting, t)}</span>
           </p>
-          <span className="home-card-meta">{t.homeCardReviewMeta}</span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-        <button type="button" className="home-card" onClick={onStartBookmarks}>
-          <OmamoriSpot className="home-card-spot" />
-          <h2>{t.homeCardBookmarksTitle}</h2>
-          <p>
-            {bookmarkCount > 0
-              ? t.homeCardBookmarksSubActive(bookmarkCount)
-              : t.homeCardBookmarksSubEmpty}
-          </p>
-          <span className="home-card-meta">{t.homeCardBookmarksMeta}</span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-        {/* #814 Small Talk Lab: a separate short-conversation practice path
-            (everyday scenes, curated feedback) -- deliberately NOT another
-            JLPT card, so it sits after the exam-oriented grid entries. */}
-        <button
-          type="button"
-          className="home-card home-card-conversation"
-          onClick={() => onNavigate("conversation")}
-        >
-          <TeaCupSpot className="home-card-spot" />
-          <h2>{t.homeCardConversationTitle}</h2>
-          <p>{t.homeCardConversationSub}</p>
-          <span className="home-card-meta">{t.homeCardConversationMeta}</span>
-          <ArrowRight className="home-card-arrow" aria-hidden="true" />
-        </button>
-      </div>
+        </div>
+        <h2 id="today-title" className="today-hero-title">
+          {t.homeHeroTitle}
+        </h2>
 
-      {/* Reference views (no session to start, just look things up). A light
-          pill row instead of more cards, so the grid stays practice-first
-          while the newer lookup surfaces are still one tap from home. */}
+        {showLevelOnboarding ? (
+          <>
+            <p className="today-hero-lead">{t.today.firstVisitLead}</p>
+            <div className="home-level-card" role="group" aria-label={t.levelOnboarding.title}>
+              <p className="today-level-label">{t.levelOnboarding.title}</p>
+              <div className="home-level-card-options">
+                {onboardingOptions.map((option) => (
+                  <button
+                    key={option.range}
+                    type="button"
+                    className="home-level-option"
+                    onClick={() => chooseFirstLevel(option.range)}
+                  >
+                    <strong>{option.label}</strong>
+                    <small>{option.hint}</small>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {greeting.streakDays > 0 || greeting.answeredToday > 0 ? (
+              <p className="today-momentum">
+                {greeting.streakDays > 0 ? (
+                  <span className="today-momentum-streak">{t.today.streak(greeting.streakDays)}</span>
+                ) : null}
+                {greeting.answeredToday > 0 ? <span>{t.today.answeredToday(greeting.answeredToday)}</span> : null}
+              </p>
+            ) : null}
+
+            <button type="button" className="home-banner home-banner-daily today-start" onClick={handleStartDaily}>
+              <span className="home-banner-text">
+                <strong>{t.homeDailyMain}</strong>
+                <small>{t.homeDailySub}</small>
+              </span>
+              <ArrowRight aria-hidden="true" />
+            </button>
+            {dailyPending ? (
+              <p className="home-level-gate-hint" role="status">
+                {t.levelOnboarding.chooseFirst}
+              </p>
+            ) : null}
+
+            {nextStep}
+
+            {/* Persistent target-level control (#526): reflects the current
+                band and, when expanded, re-uses the level picker so the
+                level can be changed at any time. */}
+            <div className="home-level-manage" role="group" aria-label={t.levelOnboarding.manageTitle}>
+              <button
+                type="button"
+                className="home-level-chip"
+                aria-expanded={levelEditing}
+                onClick={() => setLevelEditing((open) => !open)}
+              >
+                <span className="home-level-chip-label">{t.levelOnboarding.manageTitle}</span>
+                <span className="home-level-chip-value">
+                  {currentLevelOption ? (
+                    <>
+                      <strong>{currentLevelOption.label}</strong>
+                      <small>{currentLevelOption.hint}</small>
+                    </>
+                  ) : (
+                    <em>{t.levelOnboarding.notSet}</em>
+                  )}
+                </span>
+                <span className="home-level-chip-action">{t.levelOnboarding.change}</span>
+                <ChevronDown className="home-level-chip-caret" aria-hidden="true" />
+              </button>
+              {levelEditing ? (
+                <div className="home-level-card-options">
+                  {onboardingOptions.map((option) => (
+                    <button
+                      key={option.range}
+                      type="button"
+                      className="home-level-option"
+                      aria-pressed={option.range === targetLevel}
+                      onClick={() => chooseLevel(option.range)}
+                    >
+                      <strong>{option.label}</strong>
+                      <small>{option.hint}</small>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </>
+        )}
+      </section>
+
+      <section className="today-section" aria-labelledby="today-practice-title">
+        <h2 id="today-practice-title" className="today-section-title">
+          {t.today.practiceSection}
+        </h2>
+        <ul className="today-rows">
+          <TodayRow
+            glyph="学"
+            title={t.homeCardLearnTitle}
+            sub={t.homeCardLearnSub}
+            meta={`${completedChapters} / ${trackableChapters.length}`}
+            onClick={() => onNavigate("learn")}
+          />
+          <TodayRow
+            glyph="活"
+            className="home-conjugation-launch"
+            title={t.homeConjugationMain}
+            sub={t.homeConjugationSub}
+            onClick={onStartConjugation}
+          />
+          <TodayRow
+            glyph={vocabCardIsStarter ? "語" : "読"}
+            title={vocabCardIsStarter ? t.homeCardVocabTitleStarter : t.homeCardVocabTitle}
+            sub={vocabCardIsStarter ? t.homeCardVocabSubStarter : t.homeCardVocabSub}
+            onClick={onStartVocab}
+          />
+          <TodayRow
+            glyph="試"
+            title={t.homeCardMockTitle}
+            sub={t.homeCardMockSub}
+            onClick={() => onNavigate("mock")}
+          />
+          <TodayRow
+            glyph="復"
+            title={t.homeCardReviewTitle}
+            sub={reviewCount > 0 ? t.homeCardReviewSubActive(reviewCount) : t.homeCardReviewSubEmpty}
+            meta={reviewCount > 0 ? reviewCount : undefined}
+            onClick={onStartReview}
+          />
+          <TodayRow
+            glyph="栞"
+            title={t.homeCardBookmarksTitle}
+            sub={bookmarkCount > 0 ? t.homeCardBookmarksSubActive(bookmarkCount) : t.homeCardBookmarksSubEmpty}
+            meta={bookmarkCount > 0 ? bookmarkCount : undefined}
+            onClick={onStartBookmarks}
+          />
+          <TodayRow
+            glyph="練"
+            title={t.homeCardChallengeTitle}
+            sub={t.homeCardChallengeSub}
+            onClick={() => onNavigate("challenge")}
+          />
+        </ul>
+      </section>
+
+      <StayDHomeRecommendation language={language} />
+
+      <section className="today-section" aria-labelledby="today-talk-title">
+        <h2 id="today-talk-title" className="today-section-title">
+          {t.today.talkSection}
+        </h2>
+        <ul className="today-rows">
+          {/* #814 Small Talk Lab: a separate short-conversation practice path
+              (everyday scenes, curated feedback), not another JLPT entry. */}
+          <TodayRow
+            glyph="話"
+            title={t.homeCardConversationTitle}
+            sub={t.homeCardConversationSub}
+            meta={t.homeCardConversationMeta}
+            onClick={() => onNavigate("conversation")}
+          />
+          <li>
+            <a
+              className="today-row home-game-preview-entry"
+              href="/game"
+              onClick={(event) => {
+                if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                onOpenGame();
+              }}
+            >
+              <span className="today-row-glyph" lang="ja" aria-hidden="true">
+                町
+              </span>
+              <span className="today-row-text">
+                <strong className="home-game-preview-label">{gameCopy.entry}</strong>
+                <small className="home-game-preview-copy">{gameCopy.entryHint}</small>
+              </span>
+              <ChevronRight className="today-row-chevron" aria-hidden="true" />
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      {/* Reference views (no session to start, just look things up). Labels
+          are deliberately DISTINCT from the nav tabs (文型資料庫 vs 文型 …) --
+          two identically-named buttons on one page would be an
+          accessible-name collision. kana reuses its page title (not a tab). */}
       <nav className="home-quicklinks" aria-label={t.homeQuickLinksLabel}>
         <span className="home-quicklinks-label">{t.homeQuickLinksLabel}</span>
-        {/* Labels are deliberately DISTINCT from the nav tabs (文型資料庫 vs
-            文型 …) -- two identically-named buttons on one page would be an
-            accessible-name collision. kana reuses its page title (not a tab). */}
         <button type="button" onClick={() => onNavigate("grammar")}>{t.quickLinkGrammar}</button>
         <button type="button" onClick={() => onNavigate("kanji")}>{t.quickLinkKanji}</button>
         <button type="button" onClick={() => onNavigate("rules")}>{t.quickLinkRules}</button>
         <button type="button" onClick={() => onNavigate("kana")}>{t.kanaPageTitle}</button>
       </nav>
 
-      {/* Stats sit BELOW the entry cards: the actionable cards are the
-          headline; the progress dashboard is a glance-down afterthought. */}
       {totalAttempts > 0 ? (
         <section className="home-progress">
           {/* One headed stats group: overall accuracy lives in the ring below,
@@ -608,8 +571,10 @@ export function HomePanel({
               </strong>
               <small>{t.homeStatsChapters}</small>
             </div>
+            {/* Same local-day streak as the hero, so the page never shows
+                two different streaks (#866). */}
             <div className="home-stats-cell">
-              <strong>{progress.streakDays}</strong>
+              <strong>{greeting.streakDays}</strong>
               <small>{t.homeStatsStreak}</small>
             </div>
             <div className="home-stats-cell">
@@ -621,8 +586,7 @@ export function HomePanel({
               <small>{t.homeStatsMastered}</small>
             </div>
             {/* Points economy foundation: 1 point per correct answer, derived
-                from the same attempt history as the other tiles (points.ts).
-                A future shop spends against this via a separate spend ledger. */}
+                from the same attempt history as the other tiles (points.ts). */}
             <div className="home-stats-cell home-stats-cell-points">
               <strong>{computeEarnedPoints(progressAttempts)}</strong>
               <small>{t.homeStatsPoints}</small>
@@ -656,6 +620,34 @@ export function HomePanel({
         </section>
       ) : null}
 
+      <section className="today-about" aria-labelledby="today-about-title">
+        {/* Decorative art -- the heading and text carry the message, so alt
+            is intentionally empty. */}
+        <img className="home-hero-image" src="/hero.webp" alt="" width={1600} height={900} loading="lazy" />
+        <div className="today-about-text">
+          <h2 id="today-about-title" className="today-section-title">
+            {t.today.aboutSection}
+          </h2>
+          <p className="home-hero-kicker">{t.homeHeroKicker}</p>
+          <p>{t.homeHeroIntro}</p>
+          {/* Content-volume line: counts are derived from the data modules
+              so it stays honest whenever a content batch lands. */}
+          <p className="home-content-stats">
+            {t.homeContentStats(
+              HOME_CONTENT_TOTAL,
+              HOME_CONTENT_STATS.examItems,
+              HOME_CONTENT_STATS.vocab,
+              HOME_CONTENT_STATS.kanjiReadings,
+              HOME_CONTENT_STATS.patternChecks,
+              HOME_CONTENT_STATS.chapters
+            )}
+          </p>
+          <a className="home-hero-guide" href={GUIDE_URL} target="_blank" rel="noopener noreferrer">
+            <BookOpen aria-hidden="true" />
+            {t.homeGuideLink}
+          </a>
+        </div>
+      </section>
 
       <footer className="home-footer">
         <div className="home-footer-spots" aria-hidden="true">

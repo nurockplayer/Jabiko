@@ -60,8 +60,6 @@ export const vi: Copy = {
   homeHeroIntro: "Từ chia động từ cơ bản đến phản xạ N1. Ngữ pháp, kanji, từ vựng, luyện theo dạng đề — tất cả ở một nơi.",
   homeGuideLink: "Hướng dẫn sử dụng",
   homeHeroKicker: "Miễn phí · Không cần đăng ký · N5〜N1",
-  homeHowText: "Lần đầu ghé thăm? ① Chọn trình độ → ② Luyện tập hôm nay → ③ Tự động ôn câu sai",
-  homeHowDismiss: "Đã hiểu",
   homeFooterWish: "Từng bước một. Chúc bạn may mắn — mong bạn đậu với điểm số rực rỡ.",
   feedbackWish: "Đề xuất tính năng",
   feedbackBug: "Báo lỗi",
@@ -179,7 +177,6 @@ export const vi: Copy = {
   quickLinkGrammar: "Kho mẫu câu",
   quickLinkKanji: "Cách đọc kanji",
   quickLinkRules: "Bảng tra nhanh",
-  homeGridLabel: "Chọn phần để luyện tập",
   mockExamLevelLabel: "Cấp độ",
   mockSectionTitle: "Luyện theo từng phần",
   mockSectionIntro: "Chọn một dạng câu JLPT và chỉ luyện riêng phần đó. Xem giải thích ngay sau mỗi câu trả lời; câu sai đi thẳng vào phần ôn điểm yếu.",
@@ -317,6 +314,21 @@ export const vi: Copy = {
   practiceMode: "Chế độ luyện tập",
   levelRange: "Phạm vi đề",
   levelRangeOptions: { all: "Tất cả", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "Người mới hoàn toàn" },
+  today: {
+    gloss: {
+      welcome: "Mình là Jabiko. Cùng luyện tiếng Nhật từng câu một nhé.",
+      keepGoing: (days) => `${days} ngày liên tiếp, hôm nay cũng xong rồi!`,
+      practicedToday: (count) => `Hôm nay đã làm ${count} câu. Thêm một lượt nữa không?`,
+      streakWaiting: (days) => `Luyện hôm nay để giữ chuỗi ${days} ngày.`,
+      returning: "Hôm nay cùng luyện một chút nhé."
+    },
+    streak: (days) => `${days} ngày liên tiếp`,
+    answeredToday: (count) => `Hôm nay ${count} câu`,
+    firstVisitLead: "Chọn trình độ và bắt đầu lượt đầu tiên. Câu sai sẽ tự động được đưa vào ôn tập.",
+    practiceSection: "Luyện tập",
+    talkSection: "Hội thoại và câu chuyện",
+    aboutSection: "Về Jabiko"
+  },
   levelOnboarding: {
     title: "Chọn cấp độ của bạn",
     subtitle: "Đặt độ khó mặc định cho luyện tập hôm nay và từng kho đề — có thể đổi bất cứ lúc nào.",
