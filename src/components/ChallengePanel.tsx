@@ -79,7 +79,10 @@ export function ChallengePanel({
         layout.querySelector<HTMLElement>(`#${SWITCHER_ID} .mode-card.selected`) ??
         layout.querySelector<HTMLElement>(`#${SWITCHER_ID} button`);
       current?.focus({ preventScroll: true });
+      // Bring the list, then the focused set inside the list's own scroller,
+      // into view -- focus must never sit on something you cannot see.
       layout.querySelector(`#${SWITCHER_ID}`)?.scrollIntoView?.({ block: "nearest" });
+      current?.scrollIntoView?.({ block: "nearest" });
     } else {
       layout.querySelector<HTMLElement>(".session-title")?.focus({ preventScroll: true });
     }

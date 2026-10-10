@@ -338,6 +338,7 @@ export function DrillPanel({
         // #866 session bar: exit · set title (the switcher on compact widths)
         // · n / N with the meter. One row instead of three stacked headers.
         <div className="session-bar">
+        <div className="session-bar-row">
           {showDirectExit ? (
             <button
               className="session-exit"
@@ -392,6 +393,7 @@ export function DrillPanel({
             ) : null}
           </div>
           ) : null}
+        </div>
         </div>
       ) : null}
       {currentQuestion ? (

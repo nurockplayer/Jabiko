@@ -1300,6 +1300,80 @@ test.describe("legacy color compatibility contrast", () => {
   });
 });
 
+// #866 Astra review round 5: enlarged text, the set list's inner scroll and
+// reduced motion at the edges of the session bar and phone dock.
+test.describe("practice session at the edges (#866)", () => {
+  test("keeps the phone dock compact at 320px / 200% text so the question stays reachable", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto("/");
+    await page.evaluate(() => localStorage.setItem("jabiko.lang", "en"));
+    await page.goto("/challenge?mode=basic");
+    await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+    const dock = page.locator(".action-row--dock");
+    await expect(dock).toBeVisible();
+    const dockHeight = await dock.evaluate((element) => element.getBoundingClientRect().height);
+    expect(dockHeight, "dock height at 320x640, 200% text").toBeLessThanOrEqual(640 * 0.35);
+    const option = page.locator(".choice-option").first();
+    await option.scrollIntoViewIfNeeded();
+    const reachable = await option.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const top = document.elementFromPoint(rect.left + rect.width / 2, rect.top + Math.min(rect.height / 2, 20));
+      return top === element || element.contains(top);
+    });
+    expect(reachable).toBe(true);
+  });
+
+  test("brings the focused current set into the list's visible area when it opens", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    await page.evaluate(() => localStorage.setItem("jabiko.lang", "zh-Hant"));
+    await page.goto("/challenge?mode=basic");
+    await page.getByRole("button", { name: "換練習" }).click();
+    const list = page.locator(".practice-switcher .controls-panel");
+    await expect(list).toHaveCSS("opacity", "1");
+    const visible = await page.evaluate(() => {
+      const focused = document.activeElement!.getBoundingClientRect();
+      const box = document.querySelector(".practice-switcher .controls-panel")!.getBoundingClientRect();
+      return focused.top >= box.top - 1 && focused.bottom <= box.bottom + 1 && focused.bottom <= window.innerHeight;
+    });
+    expect(visible).toBe(true);
+  });
+
+  for (const locale of ["zh-Hant", "ja", "en"] as const) {
+    test(`keeps the current set's name readable in the session bar at 200% text (${locale})`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/");
+      await page.evaluate((stored) => localStorage.setItem("jabiko.lang", stored), locale);
+      await page.goto("/challenge?mode=basic");
+      await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+      const title = page.locator(".session-title-text");
+      const width = await title.evaluate((element) => element.getBoundingClientRect().width);
+      const fontSize = await title.evaluate((element) => parseFloat(getComputedStyle(element).fontSize));
+      expect(width, `${locale} title width`).toBeGreaterThanOrEqual(fontSize * 2);
+      expect(await title.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+    });
+  }
+
+  test("answers and moves on by keyboard right after closing the list, with reduced motion", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    await page.evaluate(() => localStorage.setItem("jabiko.lang", "zh-Hant"));
+    await page.goto("/challenge?mode=basic");
+    await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+    const panel = page.locator(".drill-panel");
+    const firstQuestion = await panel.getAttribute("data-question-id");
+    await page.getByRole("button", { name: "換練習" }).click();
+    await page.locator(".practice-switcher .controls-panel button").last().scrollIntoViewIfNeeded();
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("1");
+    await expect(panel).not.toHaveAttribute("data-result", "unanswered");
+    await page.keyboard.press("Enter");
+    await expect(page.locator(".practice-layout")).toHaveAttribute("data-switcher", "closed");
+    await expect.poll(() => panel.getAttribute("data-question-id")).not.toBe(firstQuestion);
+  });
+});
+
 for (const viewport of [
   { name: "390x844", width: 390, height: 844 },
   { name: "1440x900", width: 1440, height: 900 }
