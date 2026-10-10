@@ -385,6 +385,7 @@ export const zhHant: Copy = {
   correct: "正解",
   incorrect: "再想一下",
   revealed: "先記這題",
+  seeExplanation: "看解說",
   answerKey: "正解",
   feedbackOtherOptions: "其他選項",
   feedbackNoWord: "無對應詞",

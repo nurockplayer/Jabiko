@@ -385,6 +385,7 @@ export const id: Copy = {
   correct: "Benar",
   incorrect: "Coba pikirkan lagi",
   revealed: "Ingat soal ini dulu",
+  seeExplanation: "Lihat penjelasan",
   answerKey: "Kunci jawaban",
   feedbackOtherOptions: "Pilihan lain",
   feedbackNoWord: "Tidak ada padanan kata",

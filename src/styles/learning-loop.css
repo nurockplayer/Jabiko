@@ -108,6 +108,188 @@
   stroke-width: 2;
 }
 
+/* ---- Verdict button: the reveal slot turns into ジャビ子 + the verdict ----- */
+
+.drill-panel .verdict-chip {
+  align-items: center;
+  border: 1px solid transparent;
+  display: grid;
+  font-weight: 700;
+  gap: 0.5rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  justify-content: stretch;
+  max-width: 18rem;
+  min-height: 44px;
+  overflow: visible;
+  padding: 0 0.6rem 0 0.4rem;
+  text-align: start;
+}
+
+.drill-panel .verdict-chip[data-verdict="correct"] {
+  background: var(--jt-status-success-background);
+  color: var(--jt-assess-correct);
+}
+
+.drill-panel .verdict-chip[data-verdict="wrong"] {
+  background: var(--jt-status-error-background);
+  color: var(--jt-assess-miss);
+}
+
+.drill-panel .verdict-chip[data-verdict="revealed"] {
+  background: var(--jt-status-warning-background);
+  color: var(--jt-status-warning-ink);
+}
+
+.drill-panel .verdict-chip:hover {
+  border-color: currentColor;
+}
+
+.drill-panel .verdict-chip > svg:last-child {
+  height: 1.1rem;
+  width: 1.1rem;
+}
+
+.verdict-chip-text {
+  display: grid;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.verdict-chip-text strong,
+.verdict-chip-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.verdict-chip-text strong {
+  font-size: 1rem;
+}
+
+.verdict-chip-text small {
+  color: var(--jt-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ジャビ子 stands on the slot's floor and hops out above it. */
+.drill-panel .verdict-chip {
+  position: relative;
+}
+
+.verdict-chip .jabiko-buddy {
+  align-self: end;
+  height: 3.2rem;
+  margin-block: -1.2rem -0.2rem;
+  width: 3.2rem;
+}
+
+/* Narrow phones: the verdict word wins over the chevron. */
+@media (max-width: 359px) {
+  .drill-panel .verdict-chip {
+    gap: 0.25rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    padding-inline: 0.25rem 0.4rem;
+  }
+
+  .drill-panel .verdict-chip > svg:last-child {
+    display: none;
+  }
+
+  .verdict-chip .jabiko-buddy {
+    height: 2.7rem;
+    width: 2.7rem;
+  }
+}
+
+/* ジャビ子's line: a small Japanese speech bubble. In the action row it is a
+   passing remark (it pops, holds, and leaves), so it never covers content
+   for long; without motion it is not shown there (the face stays). */
+.buddy-bubble {
+  background: var(--jt-surface-content);
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  color: inherit;
+  font-family: var(--font-japanese-ui);
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0.35rem 0.65rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.verdict-chip .buddy-bubble {
+  bottom: calc(100% + 0.9rem);
+  display: none;
+  left: 2.2rem;
+  position: absolute;
+  z-index: 1;
+}
+
+.verdict-chip .buddy-bubble::after,
+.done-buddy-stage .buddy-bubble::after {
+  background: inherit;
+  border-bottom: 1.5px solid currentColor;
+  border-left: 1.5px solid currentColor;
+  bottom: -0.3rem;
+  content: "";
+  height: 0.5rem;
+  left: 0.7rem;
+  position: absolute;
+  transform: rotate(-45deg);
+  width: 0.5rem;
+}
+
+.done-buddy-stage {
+  align-items: end;
+  color: var(--jt-accent-foreground);
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.done-buddy-stage .buddy-bubble {
+  align-self: start;
+  margin-top: 0.6rem;
+  position: relative;
+}
+
+.done-buddy-stage .buddy-bubble::after {
+  left: -0.2rem;
+  top: 55%;
+  bottom: auto;
+}
+
+.jabiko-buddy {
+  overflow: visible;
+}
+
+.jabiko-buddy .buddy-jump,
+.jabiko-buddy .buddy-spin,
+.jabiko-buddy .buddy-head,
+.jabiko-buddy .buddy-page-left,
+.jabiko-buddy .buddy-page-right,
+.jabiko-buddy .buddy-shadow,
+.jabiko-buddy .buddy-sweat {
+  transform-box: fill-box;
+}
+
+.jabiko-buddy .buddy-jump { transform-origin: 50% 100%; }
+.jabiko-buddy .buddy-spin { transform-origin: 50% 55%; }
+.jabiko-buddy .buddy-head { transform-origin: 50% 92%; }
+.jabiko-buddy .buddy-page-left { transform-origin: 100% 60%; }
+.jabiko-buddy .buddy-page-right { transform-origin: 0% 60%; }
+.jabiko-buddy .buddy-shadow,
+.jabiko-buddy .buddy-sweat { transform-origin: 50% 50%; }
+
+.session-done .done-buddy {
+  display: block;
+  height: 6.5rem;
+  margin: 0.5rem auto 0.25rem;
+  width: 6.5rem;
+}
+
 /* ---- Session meter: a visual echo of "n / N" ---------------------------- */
 
 .drill-panel .prompt-header {
@@ -149,8 +331,14 @@
 
 /* ---- Compact widths: Next docked to the viewport bottom (D-07) ----------- */
 
-.drill-panel {
+.drill-panel,
+.drill-panel > .feedback {
   scroll-margin-top: calc(var(--jt-bar-height) + 0.5rem);
+}
+
+/* Focus arrives here from the verdict button; the panel is not a control. */
+.drill-panel > .feedback:focus {
+  outline: none;
 }
 
 @media (max-width: 599px) {
@@ -362,4 +550,162 @@
   34% { transform: none; }
   52% { transform: translateY(-9%) rotate(4deg); }
   70% { transform: none; }
+}
+
+/* ---- ジャビ子's acting (D-26) ---------------------------------------------
+   One beat per verdict, sized by what actually happened:
+     正解        anticipation squash → jump with stretch → squash landing,
+                 the book-hat pages flap like wings, the shadow shrinks
+     3 in a row  …plus a full spin in the air
+     5 in a row  …a double jump, pages flapping twice
+     miss        eyes squeeze (> <), a sweat drop slides, the head shakes,
+                 a slump — then a small determined bounce: "again!"
+     reveal      a long, curious head tilt
+     completion  the cheer, scaled by the set's real accuracy
+   Reduced motion keeps the face (the emotion) and drops the acting. */
+@media (prefers-reduced-motion: no-preference) {
+  .drill-panel .verdict-chip {
+    animation: jl-chip-in 280ms var(--jl-ease-settle) both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"]) .buddy-jump {
+    animation: jl-buddy-hop 720ms var(--jl-ease-settle) 160ms both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"]) .buddy-shadow {
+    animation: jl-buddy-shadow 720ms var(--jl-ease-settle) 160ms both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"]) .buddy-page-left {
+    animation: jl-page-left 720ms ease-in-out 160ms both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"]) .buddy-page-right {
+    animation: jl-page-right 720ms ease-in-out 160ms both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"]):not([data-energy="1"]) .buddy-spin {
+    animation: jl-buddy-flip 720ms var(--jl-ease-settle) 160ms both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"])[data-energy="3"] :is(.buddy-jump, .buddy-shadow, .buddy-page-left, .buddy-page-right) {
+    animation-iteration-count: 2;
+  }
+
+  .jabiko-buddy[data-mood="oops"] .buddy-jump {
+    animation: jl-buddy-slump 1000ms var(--jl-ease-settle) 160ms both;
+  }
+
+  .jabiko-buddy[data-mood="oops"] .buddy-head {
+    animation: jl-buddy-shake 820ms ease-out 160ms both;
+  }
+
+  .jabiko-buddy[data-mood="oops"] .buddy-sweat {
+    animation: jl-sweat 1000ms ease-in 280ms both;
+  }
+
+  .jabiko-buddy[data-mood="thinking"] .buddy-head {
+    animation: jl-buddy-ponder 1300ms var(--jl-ease-settle) 160ms both;
+  }
+
+  .session-done .done-buddy :is(.buddy-jump, .buddy-shadow, .buddy-page-left, .buddy-page-right, .buddy-spin) {
+    animation-delay: 380ms;
+  }
+
+  .verdict-chip .buddy-bubble {
+    animation: jl-bubble 1700ms var(--jl-ease-settle) 260ms both;
+    display: block;
+    transform-origin: 0 100%;
+  }
+
+  .done-buddy-stage .buddy-bubble {
+    animation: jl-bubble-stay 420ms var(--jl-ease-settle) 700ms both;
+    transform-origin: 0 60%;
+  }
+}
+
+@keyframes jl-bubble {
+  0% { opacity: 0; transform: translateY(6px) scale(0.5) rotate(-8deg); }
+  14% { opacity: 1; transform: translateY(-2px) scale(1.08) rotate(2deg); }
+  24% { opacity: 1; transform: none; }
+  78% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+}
+
+@keyframes jl-bubble-stay {
+  0% { opacity: 0; transform: scale(0.5) rotate(-8deg); }
+  60% { opacity: 1; transform: scale(1.08) rotate(2deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes jl-chip-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes jl-buddy-hop {
+  0% { transform: none; }
+  16% { transform: translateY(0) scale(1.12, 0.86); }
+  42% { transform: translateY(-34%) scale(0.92, 1.1); }
+  62% { transform: translateY(0) scale(1.14, 0.84); }
+  78% { transform: scale(0.96, 1.05); }
+  90% { transform: scale(1.02, 0.98); }
+  100% { transform: none; }
+}
+
+@keyframes jl-buddy-shadow {
+  0%, 100% { opacity: 1; transform: none; }
+  42% { opacity: 0.4; transform: scale(0.55, 0.7); }
+  62% { opacity: 1; transform: scale(1.15, 1); }
+}
+
+@keyframes jl-buddy-flip {
+  0%, 18% { transform: rotate(0deg); }
+  60%, 100% { transform: rotate(-360deg); }
+}
+
+@keyframes jl-page-left {
+  0%, 100% { transform: none; }
+  20% { transform: rotate(14deg); }
+  42% { transform: rotate(-30deg); }
+  60% { transform: rotate(12deg); }
+  78% { transform: rotate(-10deg); }
+}
+
+@keyframes jl-page-right {
+  0%, 100% { transform: none; }
+  20% { transform: rotate(-14deg); }
+  42% { transform: rotate(30deg); }
+  60% { transform: rotate(-12deg); }
+  78% { transform: rotate(10deg); }
+}
+
+@keyframes jl-buddy-slump {
+  0% { transform: none; }
+  20%, 55% { transform: translateY(5%) scale(1.05, 0.93); }
+  72% { transform: translateY(-12%) scale(0.96, 1.05); }
+  86% { transform: translateY(0) scale(1.03, 0.97); }
+  100% { transform: none; }
+}
+
+@keyframes jl-buddy-shake {
+  0% { transform: none; }
+  14% { transform: rotate(-11deg); }
+  30% { transform: rotate(10deg); }
+  46% { transform: rotate(-7deg); }
+  62% { transform: rotate(4deg); }
+  78%, 100% { transform: none; }
+}
+
+@keyframes jl-sweat {
+  0% { opacity: 0; transform: translateY(-40%) scale(0.6); }
+  25% { opacity: 1; transform: none; }
+  80% { opacity: 1; transform: translateY(70%); }
+  100% { opacity: 0; transform: translateY(110%); }
+}
+
+@keyframes jl-buddy-ponder {
+  0% { transform: none; }
+  30%, 70% { transform: rotate(13deg) translateX(3%); }
+  100% { transform: rotate(7deg); }
 }

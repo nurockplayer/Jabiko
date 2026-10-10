@@ -299,8 +299,8 @@ verdict stroke animation, confetti, bounce or celebration. Reduced motion
 renders everything final.
 
 *Amended by [D-26](#d-26) (#861) for the Training loop:* verdict marks are
-drawn, feedback settles, questions turn, the meter fills, and ジャビ子 reacts
-once. Confetti, loops, bounce and press-scale stay out.
+drawn, feedback settles, questions turn, the meter fills, and ジャビ子 acts
+out each verdict. Confetti, idle loops and press-scale on controls stay out.
 
 ## D-18 — Session surfaces
 
@@ -527,8 +527,45 @@ decorative, fragile at small sizes; the 〇 here is a plain 2.2px vector
 stroke that only overshoots its start slightly and turns `CanvasText` in
 forced colours); invented streak/XP feedback (#861: no invented progress).
 
-**Limits.** At 390×844 a long four-option item can push the feedback block
-fully below the dock; the marks show the verdict at once, the live region
-announces it, and the explanation is one scroll away. Typed recall gets the
-turn motion and meter but no marks (it has no options). Founder visual
+**Revision 2 (owner review of PR #862, 2026-10-10).** The owner kept the
+direction, asked that the explanation never hide behind the dock, and asked
+for ジャビ子 with more personality, emotion and life — "Duolingo-level
+liveliness, without holding the animation back". So:
+
+- *Explanation peek.* After the mark lands (420ms), the view scrolls just
+  enough to show the first 120px of the explanation above the dock, but never
+  so far that the marked options slide under the header. Measured: 120px
+  shown at every step (mobile and desktop); option and Next boxes still move
+  0px in layout. The view scroll is deliberate and happens after the
+  options are disabled, so it cannot cause a mis-tap. It is instant under
+  reduced motion.
+- *Verdict button.* After answering, the 看答案 slot (always disabled at that
+  point) becomes the verdict: ジャビ子 + 正解 / 再想一下 / 先記這題 + 看解說. It
+  opens the full explanation and moves focus there; Enter on it never skips
+  the question. Same cell, so Next does not move.
+- *ジャビ子 as a character* (`JabikoBuddy`, the brand figure without its
+  badge): a face per mood (happy ^ ^ with an open smile, oops > < with a
+  sweat drop, thinking eyes-up), and acting in squash-and-stretch.
+  - 正解: anticipation squash, jump with stretch, squash landing; the
+    book-hat pages flap like wings and the shadow shrinks.
+  - Miss: head shake and slump, then a determined bounce.
+  - Reveal: a long curious tilt.
+  - Energy follows the *real* run of correct answers in this session (never
+    shown as a number): 3 in a row adds a spin, 5 a double jump.
+  - ジャビ子 speaks Japanese interjections, which are learning content and
+    are not localized: いいね！ → すごい！ → さすが！, どんまい！ on a miss,
+    なるほど… on a reveal. The action-row bubble is a passing remark (pops,
+    holds 1.3s, leaves).
+  - Completion replaces the retired spot art (D-10) with ジャビ子 cheering,
+    scaled by the set's real accuracy: かんぺき！ / よくできました！ /
+    がんばったね！
+  This extends D-10 for the Training loop: the mascot now appears in the
+  action row and on the completion card, besides the app-mark tile.
+- Reduced motion keeps every face and the completion line, and drops the
+  acting and the passing bubble.
+
+**Limits.** Typed recall gets the turn, meter, verdict button and peek, but
+no marks (it has no options). A long verdict title (ja "この問題は
+チェックしておこう") is ellipsized in the button; the full text is in the
+explanation heading and in the button's accessible name. Founder visual
 acceptance of this amendment is pending.

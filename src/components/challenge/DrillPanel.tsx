@@ -1,40 +1,35 @@
-import { useEffect, useRef, type ComponentType, type CSSProperties } from "react";
-import { ArrowRight, Eye, GraduationCap, House, MessageSquare, RotateCcw } from "lucide-react";
+import { useEffect, useRef, type CSSProperties } from "react";
+import { ArrowRight, ChevronDown, Eye, GraduationCap, House, MessageSquare, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
-import {
-  DarumaDoneSpot,
-  LanternSpot,
-  OmamoriSpot,
-  PaperNoteSpot,
-  SproutSpot,
-  TargetSpot,
-  TeaCupSpot,
-  ToriiSpot
-} from "../../illustrations";
+import { PaperNoteSpot, TeaCupSpot } from "../../illustrations";
 import { allowsOptionFurigana, isReadingPrompt } from "../../domain/furigana";
-import { pickDoneSpot, type DoneSpotKey } from "../../domain/doneSpot";
 import { pickLocalized } from "../../domain/localizedContent";
 import { ExamPrompt } from "../ExamPrompt";
 import { FeedbackPanel } from "../FeedbackPanel";
+import { JabikoBuddy } from "../JabikoBuddy";
+import {
+  buddyEnergy,
+  buddyLine,
+  completionEnergy,
+  trailingCorrect,
+  type BuddyMood
+} from "../../domain/buddyReaction";
 import { Ruby } from "../Ruby";
 import { ShareButtons } from "./ShareButtons";
 import { SpeakButton } from "../SpeakButton";
 import type { Feedback } from "../types";
 import type { PracticeSession } from "../../hooks/usePracticeSession";
 
-// The completion card's illustration key -> component. Lives here (not in the
-// domain) so doneSpot.ts stays JSX-free. "daruma" is the open-eye perfect-run
-// spot; the rest rotate for ordinary finishes.
-const DONE_SPOTS: Record<DoneSpotKey, ComponentType<{ size?: number; className?: string }>> = {
-  daruma: DarumaDoneSpot,
-  sprout: SproutSpot,
-  omamori: OmamoriSpot,
-  lantern: LanternSpot,
-  torii: ToriiSpot,
-  teacup: TeaCupSpot,
-  target: TargetSpot
-};
+// How much of the explanation (verdict title + answer line + a first line of
+// text) must show above the docked action row once the mark has landed.
+const FEEDBACK_PEEK_PX = 120;
+// Let the 〇/× land before the view moves.
+const FEEDBACK_PEEK_DELAY_MS = 420;
+
+function prefersReducedMotion(): boolean {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+}
 
 function choiceOptionClass(choice: string, selectedChoice: string | null, feedback: Feedback): string {
   const classes = ["choice-option"];
@@ -187,10 +182,57 @@ export function DrillPanel({
     if (lastStepRef.current === stepKey) return;
     lastStepRef.current = stepKey;
     const panel = panelRef.current;
-    if (!panel || panel.getBoundingClientRect().top >= 0) return;
-    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    panel.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+    if (!panel) return;
+    // In view = its top clears the sticky header (the panel's scroll margin).
+    const headerClearance = parseFloat(getComputedStyle(panel).scrollMarginTop) || 0;
+    if (panel.getBoundingClientRect().top >= headerClearance) return;
+    panel.scrollIntoView({ block: "start", behavior: prefersReducedMotion() ? "auto" : "smooth" });
   }, [stepKey]);
+
+  // Once the verdict mark has landed, make sure the start of the explanation
+  // is not hidden behind the docked action row: scroll just enough to show it,
+  // but never so far that the marked options slide under the header. Only on
+  // the answer itself -- not when a page is rendered already answered.
+  const lastFeedbackRef = useRef(feedback);
+  useEffect(() => {
+    const previous = lastFeedbackRef.current;
+    lastFeedbackRef.current = feedback;
+    if (!feedback || previous) return;
+    const reduce = prefersReducedMotion();
+    const peek = () => {
+      const panel = panelRef.current;
+      const explanation = panel?.querySelector<HTMLElement>(".feedback");
+      if (!panel || !explanation) return;
+      const dock = panel.querySelector<HTMLElement>(".action-row--dock")?.getBoundingClientRect();
+      // Docked = the row sits on the viewport's bottom edge (compact widths).
+      const visibleBottom = dock && dock.bottom >= window.innerHeight - 1 ? dock.top : window.innerHeight;
+      const needed = explanation.getBoundingClientRect().top + FEEDBACK_PEEK_PX - visibleBottom;
+      if (needed <= 0) return;
+      const marks = Array.from(panel.querySelectorAll<HTMLElement>(".choice-grid button[data-result], .recall-form"));
+      const marksTop = Math.min(...marks.map((mark) => mark.getBoundingClientRect().top));
+      const headerClearance = parseFloat(getComputedStyle(panel).scrollMarginTop) || 0;
+      const room = Number.isFinite(marksTop) ? marksTop - headerClearance : needed;
+      const top = Math.round(Math.min(needed, room));
+      if (top > 4) window.scrollBy({ top, behavior: reduce ? "auto" : "smooth" });
+    };
+    const timer = window.setTimeout(peek, reduce ? 0 : FEEDBACK_PEEK_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
+  const showExplanation = () => {
+    const explanation = panelRef.current?.querySelector<HTMLElement>(".feedback");
+    if (!explanation) return;
+    explanation.scrollIntoView({ block: "start", behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    explanation.focus({ preventScroll: true });
+  };
+
+  // ジャビ子's mood follows the verdict; a real run of correct answers in this
+  // session raises the energy of the reaction (never shown as a number).
+  const buddyMood: BuddyMood =
+    feedback?.status === "correct" ? "happy" : feedback?.status === "incorrect" ? "oops" : "thinking";
+  const verdictTitle =
+    feedback?.status === "correct" ? t.correct : feedback?.status === "incorrect" ? t.incorrect : t.revealed;
+  const energy = buddyEnergy(trailingCorrect(attempts));
 
   // Truthful session progress: questions answered out of the pass total.
   const answeredCount = questionIndex + (feedback ? 1 : 0);
@@ -217,11 +259,10 @@ export function DrillPanel({
   const doneAgain = doneCopy.again;
   const doneExit = doneCopy.exit;
 
-  // A flawless run earns the open-eye daruma + a badge; every other finish
-  // rotates a celebratory spot keyed off the session counter, so the picture
-  // is stable while the card shows but varies session to session.
+  // A flawless run earns a badge and ジャビ子's biggest cheer; the cheer scales
+  // with the real accuracy of the set (D-10 retired the rotating spot art).
   const isPerfectSession = attempts.length > 0 && wrongCount === 0;
-  const DoneSpot = DONE_SPOTS[pickDoneSpot(sessionSeed, isPerfectSession)];
+  const doneEnergy = completionEnergy(isPerfectSession, accuracy);
 
   // Container-level answer state for embedded AI / browser automation:
   // collapse feedback into one result string so .drill-panel exposes the
@@ -404,10 +445,32 @@ export function DrillPanel({
               and Next keep their exact boxes. Typed recall stays in flow so
               the row never fights the software keyboard. */}
           <div className={isRecallQuestion ? "action-row" : "action-row action-row--dock"}>
-            <button className="ghost-button" type="button" onClick={revealAnswer} disabled={Boolean(feedback)}>
-              <Eye aria-hidden="true" />
-              {t.revealAnswer}
-            </button>
+            {feedback ? (
+              // The reveal slot becomes the verdict: ジャビ子 reacts right by
+              // the learner's thumb, and the button opens the explanation.
+              // Enter here must open it, not skip to the next question.
+              <button
+                className="verdict-chip"
+                type="button"
+                data-verdict={drillResult}
+                onClick={showExplanation}
+                onKeyDown={(event) => event.stopPropagation()}
+              >
+                <JabikoBuddy mood={buddyMood} energy={energy} />
+                <span className="buddy-bubble" lang="ja" aria-hidden="true">
+                  {buddyLine(buddyMood, energy)}
+                </span>
+                <span className="verdict-chip-text">
+                  <strong>{verdictTitle}</strong> <small>{t.seeExplanation}</small>
+                </span>
+                <ChevronDown aria-hidden="true" />
+              </button>
+            ) : (
+              <button className="ghost-button" type="button" onClick={revealAnswer}>
+                <Eye aria-hidden="true" />
+                {t.revealAnswer}
+              </button>
+            )}
             <button className="next-button" type="button" ref={nextButtonRef} onClick={nextQuestion}>
               <ArrowRight aria-hidden="true" />
               {t.nextQuestion}
@@ -428,7 +491,12 @@ export function DrillPanel({
         </>
       ) : sessionExhausted ? (
         <div className="empty-state review-done session-done">
-          <DoneSpot />
+          <div className="done-buddy-stage">
+            <JabikoBuddy mood="cheer" energy={doneEnergy} className="done-buddy" />
+            <span className="buddy-bubble" lang="ja" aria-hidden="true">
+              {buddyLine("cheer", doneEnergy)}
+            </span>
+          </div>
           {isPerfectSession ? (
             <span className="done-perfect-badge">{t.donePerfectBadge}</span>
           ) : null}
