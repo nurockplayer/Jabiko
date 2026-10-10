@@ -31,9 +31,12 @@
   }
 }
 
+/* ジャビ子 and her bubble side by side; when text is enlarged or the screen is
+   narrow, the bubble wraps under her instead of being squeezed. */
 .today-hero-voice {
   align-items: flex-end;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
   min-width: 0;
 }
@@ -56,8 +59,10 @@
   background: var(--jt-surface-content);
   border-radius: 14px;
   display: grid;
+  flex: 1 1 11rem;
   gap: 0.15rem;
   margin: 0 0 0.6rem;
+  max-width: 100%;
   min-width: 0;
   padding: 0.6rem 0.9rem 0.65rem;
   position: relative;
@@ -81,6 +86,7 @@
   font-size: 1.125rem;
   font-weight: 800;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .today-hero-gloss {
@@ -253,8 +259,11 @@
   justify-content: flex-start;
   justify-self: start;
   margin-left: -0.5rem;
+  max-width: calc(100% + 0.5rem);
   min-height: 2.75rem;
+  min-width: 0;
   padding: 0.35rem 0.5rem;
+  text-align: start;
 }
 
 .app-shell .home-level-chip:hover:not(:disabled) {
@@ -265,7 +274,10 @@
 .home-level-chip-value {
   align-items: baseline;
   display: inline-flex;
-  gap: 0.35rem;
+  flex-wrap: wrap;
+  gap: 0 0.35rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .home-level-chip-value strong {
@@ -391,6 +403,7 @@
 
 .today-rows {
   border-top: 1px solid var(--jt-border-subtle);
+  container-type: inline-size;
   display: grid;
   list-style: none;
   margin: 0;
@@ -486,6 +499,31 @@
   width: 1.125rem;
 }
 
+/* A narrow list (a small phone, or enlarged text): the count moves under the
+   title so the title keeps the width. */
+@container (max-width: 20rem) {
+  .app-shell .today-row {
+    column-gap: 0.6rem;
+    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  }
+
+  .today-row-meta {
+    grid-column: 2;
+    grid-row: 2;
+    max-width: none;
+    text-align: start;
+  }
+
+  .today-row-glyph {
+    grid-row: 1 / span 2;
+  }
+
+  .app-shell .today-row .today-row-chevron {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+}
+
 /* Reference links: words, not pills. */
 .home-quicklinks {
   align-items: center;
@@ -516,6 +554,60 @@
   text-decoration: underline;
   text-underline-offset: 4px;
   transform: none;
+}
+
+/* ---- Progress dashboard reflow ----------------------------------------- */
+
+/* The dashboard cards keep their content inside on small phones and with
+   enlarged text: bar values move under their track, heads wrap. */
+.home-overview-row,
+.activity-trend,
+.type-bars {
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.level-bars {
+  min-width: 0;
+}
+
+.activity-trend-head {
+  flex-wrap: wrap;
+  gap: 0 0.75rem;
+}
+
+.activity-trend-head > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.home-stay-recommendation,
+.home-stay-recommendation-link {
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.home-stay-recommendation-link {
+  white-space: normal;
+}
+
+@container (max-width: 22rem) {
+  .level-bar-row,
+  .type-bar-row {
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    row-gap: 0.15rem;
+  }
+
+  .level-bar-value,
+  .type-bar-value {
+    flex-wrap: wrap;
+    grid-column: 1 / -1;
+  }
+
+  .type-bar-tag {
+    overflow-wrap: anywhere;
+  }
 }
 
 /* ---- About Jabiko ------------------------------------------------------- */
