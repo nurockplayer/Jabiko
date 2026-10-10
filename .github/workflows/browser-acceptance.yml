@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  checks: read
 
 concurrency:
   group: jabiko-heavy-validation
@@ -26,6 +27,13 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Wait for Cloudflare deployment before main validation
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        timeout-minutes: 16
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/wait-cloudflare-check.mjs
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
