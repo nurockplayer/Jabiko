@@ -235,7 +235,7 @@ export function DrillPanel({
   const energy = buddyEnergy(trailingCorrect(attempts));
 
   // Truthful session progress: questions answered out of the pass total.
-  const answeredCount = questionIndex + (feedback ? 1 : 0);
+  const answeredCount = attempts.length;
 
   useEffect(() => {
     if (isRecallQuestion && currentQuestion && !feedback) {
