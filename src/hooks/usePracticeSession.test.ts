@@ -1,11 +1,13 @@
-import { createElement, StrictMode } from "react";
+import { createElement, StrictMode, useState } from "react";
 import type { ReactNode } from "react";
-import { act, fireEvent, renderHook } from "@testing-library/react";
+import { act, fireEvent, render, renderHook, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BOOKMARKS_KEY } from "../domain/bookmarks";
 import { buildAllKnownQuestions } from "../domain/sessionPools";
 import type { SentencePatternId } from "../domain/sentencePatterns";
 import type { Attempt, JlptLevel, PracticeQuestion, VerbGroup } from "../domain/types";
+import { FeedbackForm } from "../components/FeedbackForm";
+import { MoreMenu } from "../components/MoreMenu";
 import {
   createPracticePoolSnapshot,
   initialLevelRange,
@@ -20,6 +22,111 @@ const baseHookArgs = {
   progressAttempts: [],
   recordAttempt: () => {}
 };
+
+describe("practice numeric shortcut isolation", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  function renderChoiceSession() {
+    const recordAttempt = vi.fn();
+    const hook = renderHook(() =>
+      usePracticeSession({
+        ...baseHookArgs,
+        recordAttempt,
+        init: { mode: "basic", partOfSpeech: "verb", targetForm: "te" }
+      })
+    );
+    expect(hook.result.current.choiceOptions.length).toBeGreaterThan(0);
+    return { ...hook, recordAttempt };
+  }
+
+  function digitEvent() {
+    return new KeyboardEvent("keydown", { key: "1", bubbles: true, cancelable: true });
+  }
+
+  it("still submits the first choice when the digit targets the document", () => {
+    const { result, recordAttempt } = renderChoiceSession();
+    const firstChoice = result.current.choiceOptions[0];
+    const event = digitEvent();
+
+    fireEvent(document, event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(recordAttempt).toHaveBeenCalledOnce();
+    expect(recordAttempt).toHaveBeenCalledWith(expect.objectContaining({ submittedAnswer: firstChoice }));
+    expect(result.current.attempts).toHaveLength(1);
+  });
+
+  it("leaves feedback-dialog digits unconsumed and resumes after the dialog closes", () => {
+    const { result, recordAttempt } = renderChoiceSession();
+    const firstChoice = result.current.choiceOptions[0];
+    function FeedbackOverlay() {
+      const [open, setOpen] = useState(true);
+      return open ? createElement(FeedbackForm, {
+        language: "en",
+        category: "bug",
+        onClose: () => setOpen(false),
+        submit: vi.fn()
+      }) : null;
+    }
+    render(createElement(FeedbackOverlay));
+    const closeButton = screen.getByRole("button", { name: "Close" });
+    closeButton.focus();
+    const event = digitEvent();
+
+    fireEvent(closeButton, event);
+
+    expect({ consumed: event.defaultPrevented, recorded: recordAttempt.mock.calls.length })
+      .toEqual({ consumed: false, recorded: 0 });
+    expect(result.current.attempts).toEqual([]);
+    expect(result.current.feedback).toBeNull();
+
+    fireEvent.click(closeButton);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    fireEvent(document, digitEvent());
+
+    expect(recordAttempt).toHaveBeenCalledOnce();
+    expect(recordAttempt).toHaveBeenCalledWith(expect.objectContaining({ submittedAnswer: firstChoice }));
+    expect(result.current.attempts).toHaveLength(1);
+  });
+
+  it("leaves digits forwarded by an open MoreMenu unconsumed without answering", () => {
+    const { result, recordAttempt } = renderChoiceSession();
+    const onSelect = vi.fn();
+    render(createElement(MoreMenu, {
+      triggerLabel: "More",
+      triggerCurrentLabel: (page: string) => `More (${page})`,
+      items: [{ key: "rules", label: "Rules", icon: null, selected: false, onSelect }]
+    }));
+    fireEvent.click(screen.getByRole("button", { name: "More" }));
+    const menuItem = screen.getByRole("menuitem", { name: "Rules" });
+    expect(menuItem).toHaveFocus();
+    const event = digitEvent();
+
+    fireEvent(menuItem, event);
+
+    expect({ consumed: event.defaultPrevented, recorded: recordAttempt.mock.calls.length })
+      .toEqual({ consumed: false, recorded: 0 });
+    expect(result.current.attempts).toEqual([]);
+    expect(result.current.feedback).toBeNull();
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+  });
+
+  it("does not answer when an earlier handler has already prevented the digit event", () => {
+    const { result, recordAttempt } = renderChoiceSession();
+    const event = digitEvent();
+    event.preventDefault();
+
+    fireEvent(document, event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(recordAttempt).not.toHaveBeenCalled();
+    expect(result.current.attempts).toEqual([]);
+    expect(result.current.feedback).toBeNull();
+  });
+});
 
 describe("core conjugation recall launch (#809)", () => {
   it("resolves the named quick-launch focus to the six core production forms", () => {

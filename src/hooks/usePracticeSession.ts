@@ -826,6 +826,14 @@ export function usePracticeSession({
       return;
     }
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      // Overlays and controls that already handled the key own the event;
+      // their digits must not answer the practice question behind them.
+      if (
+        event.defaultPrevented ||
+        (event.target instanceof Element && event.target.closest("[role='dialog'], [role='menu']"))
+      ) {
+        return;
+      }
       const target = event.target as HTMLElement | null;
       const tag = target?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable) {
