@@ -503,8 +503,7 @@ describe("DrillPanel", () => {
       const { container } = renderAnswered();
       expect(container.querySelector(".drill-panel .feedback")).toBeNull();
       expect(childBlocks(container)).toEqual([
-        "session-exit",
-        "prompt-header",
+        "session-bar",
         "word-block",
         "choice-grid",
         "action-row",
@@ -525,8 +524,7 @@ describe("DrillPanel", () => {
       (_label, { selectedChoice, feedback }, title) => {
         const { container } = renderAnswered({ selectedChoice, feedback });
         expect(childBlocks(container)).toEqual([
-          "session-exit",
-          "prompt-header",
+          "session-bar",
           "word-block",
           "choice-grid",
           "action-row",
@@ -626,7 +624,7 @@ describe("DrillPanel", () => {
         window.innerWidth = 390;
         const mobile = renderAnswered(answeredCorrect);
         const mobileBlocks = childBlocks(mobile.container);
-        expect(mobileBlocks).toEqual(["session-exit", "prompt-header", "word-block", "choice-grid", "action-row", "feedback"]);
+        expect(mobileBlocks).toEqual(["session-bar", "word-block", "choice-grid", "action-row", "feedback"]);
         mobile.unmount();
 
         window.innerWidth = 1280;
@@ -1030,5 +1028,194 @@ describe("DrillPanel", () => {
         expect(scrollIntoView).not.toHaveBeenCalled();
       });
     });
+  });
+});
+
+describe("DrillPanel session bar (#866)", () => {
+  it("names the current set in the session bar and toggles the set switcher", () => {
+    const onToggle = vi.fn();
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        sessionTotal={20}
+        modeTitle="N3 備考"
+        switcher={{ open: false, onToggle, controlsId: "practice-switcher" }}
+      />
+    );
+    const title = screen.getByRole("button", { name: "換練習" });
+    expect(title).toHaveAccessibleDescription("N3 備考");
+    expect(title).toHaveTextContent("N3 備考");
+    expect(title).toHaveAttribute("aria-expanded", "false");
+    expect(title).toHaveAttribute("aria-controls", "practice-switcher");
+    fireEvent.click(title);
+    expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
+  // Astra review #872: choosing 自己輸入 inside the open set list autofocused
+  // the answer field behind the list.
+  it("does not pull focus into the typed answer while the set list is open", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        modeTitle="基礎變化"
+        switcher={{ open: true, onToggle: vi.fn(), controlsId: "practice-switcher" }}
+      />
+    );
+    expect(document.querySelector("#recall-answer")).not.toHaveFocus();
+  });
+
+  // Astra review round 4: closing the list must not pull focus into the
+  // typed answer -- the learner (or the close path) already chose a target.
+  it("does not steal focus into the typed answer when the set list closes", () => {
+    const props = {
+      ...baseProps,
+      language: "zh-Hant" as const,
+      isRecallQuestion: true,
+      modeTitle: "基礎變化"
+    };
+    const { rerender } = render(
+      <>
+        <button type="button">outside</button>
+        <DrillPanel {...props} switcher={{ open: true, onToggle: vi.fn(), controlsId: "practice-switcher" }} />
+      </>
+    );
+    const outside = screen.getByRole("button", { name: "outside" });
+    outside.focus();
+    rerender(
+      <>
+        <button type="button">outside</button>
+        <DrillPanel {...props} switcher={{ open: false, onToggle: vi.fn(), controlsId: "practice-switcher" }} />
+      </>
+    );
+    expect(outside).toHaveFocus();
+  });
+
+  it("still focuses the typed answer when the set list is closed", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        modeTitle="基礎變化"
+        switcher={{ open: false, onToggle: vi.fn(), controlsId: "practice-switcher" }}
+      />
+    );
+    expect(document.querySelector("#recall-answer")).toHaveFocus();
+  });
+
+  // #872 review threads: D-28 removed the permanent set column, so the end
+  // and empty screens must keep 換練習 or the learner can only go home.
+  it.each([
+    ["a finished set", { sessionExhausted: true, attempts: makeAttempts(5, 5), correctCount: 5, accuracy: 100 }],
+    ["an empty review queue", { practiceMode: "review" as const, reviewEmpty: true }],
+    ["no bookmarks", { practiceMode: "bookmarks" as const, bookmarksEmpty: true }]
+  ])("keeps the set switcher on %s, without a second Today exit", (_label, state) => {
+    const onToggle = vi.fn();
+    render(
+      <DrillPanel
+        {...baseProps}
+        {...state}
+        language="zh-Hant"
+        currentQuestion={null}
+        modeTitle="N3 備考"
+        switcher={{ open: false, onToggle, controlsId: "practice-switcher" }}
+      />
+    );
+    fireEvent.click(screen.getByRole("button", { name: "換練習" }));
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(document.querySelector(".session-exit")).toBeNull();
+    expect(document.querySelector(".prompt-header")).toBeNull();
+  });
+
+  it("keeps the Today exit and the n / N count in the same bar", () => {
+    const { container } = render(
+      <DrillPanel {...baseProps} language="zh-Hant" sessionTotal={20} modeTitle="今日練習" />
+    );
+    const bar = container.querySelector(".session-bar");
+    expect(bar).not.toBeNull();
+    expect(bar!.querySelector(".session-exit")).not.toBeNull();
+    expect(bar!.querySelector(".prompt-header")).not.toBeNull();
+  });
+});
+
+describe("DrillPanel phase-following Next (#866, D-25)", () => {
+  it("keeps 下一題 quiet before a verdict and makes it the primary after", () => {
+    const { rerender } = render(<DrillPanel {...baseProps} language="zh-Hant" />);
+    const next = () => screen.getByRole("button", { name: "下一題" });
+    expect(next()).toHaveAttribute("data-emphasis", "tonal");
+    rerender(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        selectedChoice="書いて"
+        feedback={{ status: "correct", question, submittedAnswer: "書いて" }}
+      />
+    );
+    expect(next()).toHaveAttribute("data-emphasis", "primary");
+  });
+});
+
+// The label is drawn from `data-verdict-label` by CSS generated content with
+// empty alt text, so the option's textContent and accessible name stay the
+// choice itself (the #862 contract above); the live region announces the verdict.
+describe("DrillPanel per-option verdict labels (#864, D-03)", () => {
+  const label = (choice: string) =>
+    document.querySelector(`.choice-option[data-choice="${choice}"]`)?.getAttribute("data-verdict-label") ?? null;
+
+  it("labels the learner's miss and the right answer", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        selectedChoice="書いた"
+        feedback={{ status: "incorrect", question, submittedAnswer: "書いた" }}
+      />
+    );
+    expect(label("書いた")).toBe("你的答案");
+    expect(label("書いて")).toBe("正解");
+    expect(label("書かない")).toBeNull();
+  });
+
+  it("labels a correct pick", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="en"
+        selectedChoice="書いて"
+        feedback={{ status: "correct", question, submittedAnswer: "書いて" }}
+      />
+    );
+    expect(label("書いて")).toBe("Correct");
+  });
+
+  it("labels the answer shown by 看答案", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="ja"
+        feedback={{ status: "revealed", question, submittedAnswer: null }}
+      />
+    );
+    expect(label("書いて")).toBe("答え");
+  });
+
+  it("shows no labels before answering", () => {
+    render(<DrillPanel {...baseProps} language="zh-Hant" />);
+    expect(document.querySelectorAll("[data-verdict-label]")).toHaveLength(0);
+  });
+});
+
+describe("DrillPanel completion stamp (#866)", () => {
+  it("stamps a 花丸 on a perfect set", () => {
+    renderDone({ total: 5, correct: 5, accuracy: 100 });
+    expect(document.querySelector('[data-stamp="hanamaru"]')).not.toBeNull();
+  });
+
+  it("does not stamp a 花丸 on a set with misses", () => {
+    renderDone({ total: 5, correct: 3, accuracy: 60 });
+    expect(document.querySelector('[data-stamp="hanamaru"]')).toBeNull();
   });
 });

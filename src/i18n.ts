@@ -65,8 +65,6 @@ export type Copy = {
   homeHeroIntro: string;
   homeGuideLink: string;
   homeHeroKicker: string;
-  homeHowText: string;
-  homeHowDismiss: string;
   homeFooterWish: string;
   feedbackWish: string;
   feedbackBug: string;
@@ -173,7 +171,6 @@ export type Copy = {
   quickLinkGrammar: string;
   quickLinkKanji: string;
   quickLinkRules: string;
-  homeGridLabel: string;
   mockExam: string;
   about: string;
   aboutTitle: string;
@@ -339,6 +336,30 @@ export type Copy = {
     notSet: string;
     /** Daily-CTA gate (#532): shown when 今日練習 is tapped with no level set. */
     chooseFirst: string;
+  };
+  /** Practice session bar and per-option verdict labels (#866, #864). */
+  session: {
+    /** Visually hidden hint on the set-title button that opens the switcher. */
+    switchSet: string;
+    verdictLabels: { correct: string; yours: string; answer: string };
+  };
+  /** Today hero (#866): the localized gloss under ジャビ子's Japanese line
+   *  (domain/todayGreeting.ts) and the real-momentum readouts. */
+  today: {
+    gloss: {
+      welcome: string;
+      keepGoing: (days: number) => string;
+      practicedToday: (count: number) => string;
+      streakWaiting: (days: number) => string;
+      returning: string;
+    };
+    streak: (days: number) => string;
+    answeredToday: (count: number) => string;
+    /** First visit: the level choices start the first round directly. */
+    firstVisitLead: string;
+    practiceSection: string;
+    talkSection: string;
+    aboutSection: string;
   };
   sessionLength: string;
   sessionLengthAll: string;
@@ -523,6 +544,12 @@ export type Copy = {
   conversationRetry: string;
   conversationReset: string;
   conversationChangeScenario: string;
+  /** #866: who the learner talks to, on each scene row. */
+  conversationWithPartner: (role: string) => string;
+  /** #866: the accessible name of the running script of earlier lines. */
+  conversationScriptLabel: string;
+  /** #866: the learner's speaker name in the script. */
+  conversationYou: string;
   conversationPartnerLabel: string;
   conversationLearnerRole: string;
   conversationPartnerRole: string;

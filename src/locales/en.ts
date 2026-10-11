@@ -60,8 +60,6 @@ export const en: Copy = {
   homeHeroIntro: "From basic conjugation to N1 instinct. Grammar, kanji, vocabulary, question-type practice — all in one place.",
   homeGuideLink: "User guide",
   homeHeroKicker: "Free · No sign-up · N5〜N1",
-  homeHowText: "First time here? ① Pick your level → ② Today's practice → ③ Wrong answers auto-review",
-  homeHowDismiss: "Got it",
   homeFooterWish: "One step at a time. Good luck — may you pass with flying colors.",
   feedbackWish: "Request a feature",
   feedbackBug: "Report a problem",
@@ -179,7 +177,6 @@ export const en: Copy = {
   quickLinkGrammar: "Grammar database",
   quickLinkKanji: "Kanji readings",
   quickLinkRules: "Conjugation cheat sheet",
-  homeGridLabel: "Pick an area to practice",
   mockExamLevelLabel: "Level",
   mockSectionTitle: "Practice by section",
   mockSectionIntro: "Pick a JLPT question type and drill just that section. See the explanation right after each answer; mistakes go straight into weakness review.",
@@ -317,6 +314,25 @@ export const en: Copy = {
   practiceMode: "Practice mode",
   levelRange: "Question pool",
   levelRangeOptions: { all: "All", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "Starter" },
+  session: {
+    switchSet: "Switch set",
+    verdictLabels: { correct: "Correct", yours: "Your answer", answer: "Answer" }
+  },
+  today: {
+    gloss: {
+      welcome: "I'm Jabiko. Let's practice Japanese together, one question at a time.",
+      keepGoing: (days) => `${days} days in a row, and today is done!`,
+      practicedToday: (count) => `${count} answered today. One more round?`,
+      streakWaiting: (days) => `Practice today to keep your ${days}-day streak.`,
+      returning: "Let's do a little practice today."
+    },
+    streak: (days) => `${days}-day streak`,
+    answeredToday: (count) => `${count} today`,
+    firstVisitLead: "Pick a level and start your first round. Missed questions go to review automatically.",
+    practiceSection: "Practice",
+    talkSection: "Conversation & story",
+    aboutSection: "About Jabiko"
+  },
   levelOnboarding: {
     title: "Choose your level",
     subtitle: "Sets the default difficulty for today's practice and each question pool — change it anytime.",
@@ -469,7 +485,7 @@ export const en: Copy = {
   homeBannerNextExamSub: "Practice mixed questions at your target level.",
   dashboardEyebrow: "Keep learning",
   dashboardReviewPending: (count) => `You still have ${count} questions due for review`,
-  dashboardReviewEmpty: "No mistakes left to review 🎉",
+  dashboardReviewEmpty: "No mistakes left to review",
   dashboardReviewCta: "Review now",
   dashboardNextChapterLabel: "Suggested next chapter",
   dashboardStatsAttempts: (count) => `${count} questions done`,
@@ -530,6 +546,9 @@ export const en: Copy = {
   conversationRetry: "Try a different phrasing",
   conversationReset: "Run it again",
   conversationChangeScenario: "Change scene",
+  conversationWithPartner: (role) => `With: ${role}`,
+  conversationScriptLabel: "Conversation so far",
+  conversationYou: "You",
   conversationPartnerLabel: "Partner",
   conversationLearnerRole: "Your role",
   conversationPartnerRole: "Partner's role",

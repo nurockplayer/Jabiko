@@ -1,6 +1,5 @@
 import { RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
-import { JabikoMark } from "../JabikoMark";
 import type { JlptLevel, PartOfSpeech, TargetForm, VerbGroup } from "../../domain/types";
 import { VOCAB_LEVEL_RANGE_OPTIONS } from "../../domain/levelRange";
 import { MODE_GROUPS } from "../../domain/practiceMode";
@@ -110,14 +109,8 @@ export function ModePicker({
 
   return (
     <aside className="controls-panel" aria-label={t.settingsLabel}>
-      <div className="brand-lockup">
-        <JabikoMark />
-        <div>
-          <p>Jabiko</p>
-          <h2>{t.todayPractice}</h2>
-        </div>
-      </div>
-
+      {/* #866: no fixed "今日練習" title here -- it mislabelled every other
+          set. The session bar names the current set. */}
       <fieldset>
         <legend>{t.practiceMode}</legend>
         {MODE_GROUPS.map((group) => (

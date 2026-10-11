@@ -14,7 +14,7 @@ type GamePreviewCopy = {
 const localizedGamePreviewCopy: Record<"zh-Hant" | "ja" | "en", GamePreviewCopy> = {
   "zh-Hant": {
     entry: "日常",
-    entryHint: "故事",
+    entryHint: "故事・雨天星期一，用日文陪同事聊一整天",
     skip: "跳到主要內容",
     identity: "Jabiko · 日常",
     preview: "故事",
@@ -24,7 +24,7 @@ const localizedGamePreviewCopy: Record<"zh-Hant" | "ja" | "en", GamePreviewCopy>
   },
   ja: {
     entry: "日常",
-    entryHint: "物語",
+    entryHint: "物語・雨の月曜日、同僚と一日じゅう日本語で話そう",
     skip: "メインコンテンツへ",
     identity: "Jabiko · 日常",
     preview: "物語",
@@ -34,7 +34,7 @@ const localizedGamePreviewCopy: Record<"zh-Hant" | "ja" | "en", GamePreviewCopy>
   },
   en: {
     entry: "Everyday",
-    entryHint: "Story",
+    entryHint: "Story · a rainy Monday of small talk with a coworker",
     skip: "Skip to main content",
     identity: "Jabiko · Everyday",
     preview: "Story",

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { HomePanel } from "./HomePanel";
 import type { Attempt } from "../domain/types";
@@ -78,19 +78,19 @@ describe("HomePanel level onboarding (#199)", () => {
 describe("HomePanel level-aware entry cards (funnel design)", () => {
   it("the vocab card reads 基礎詞彙 for starter/n4n5 learners (their floor), 単字讀音 for the rest", () => {
     renderHome({ targetLevel: "starter", progressAttempts: [sampleAttempt] });
-    expect(screen.getByRole("heading", { name: "基礎詞彙" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "単字讀音" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /基礎詞彙/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /単字讀音/ })).not.toBeInTheDocument();
   });
 
   it("n4n5 also gets the 基礎詞彙 card (jlptVocabulary has no N4/N5 -- the old card was a dead end)", () => {
     renderHome({ targetLevel: "n4n5", progressAttempts: [sampleAttempt] });
-    expect(screen.getByRole("heading", { name: "基礎詞彙" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /基礎詞彙/ })).toBeInTheDocument();
   });
 
   it("mid/high bands keep the original 単字讀音 card unchanged", () => {
     renderHome({ targetLevel: "n2n3", progressAttempts: [sampleAttempt] });
-    expect(screen.getByRole("heading", { name: "単字讀音" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "基礎詞彙" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /単字讀音/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /基礎詞彙/ })).not.toBeInTheDocument();
   });
 
   it("the 単字讀音 card copy spans the full N1–N5 reading pool (#668)", () => {
@@ -166,19 +166,27 @@ describe("HomePanel daily CTA level gate (#532)", () => {
     expect(props.onStartDaily).toHaveBeenCalledTimes(1);
   });
 
-  it("without a level, the CTA does NOT start daily -- it asks for a level first", () => {
-    const props = renderHome({ targetLevel: null });
-    fireEvent.click(screen.getByRole("button", { name: /開始今日練習/ }));
-    expect(props.onStartDaily).not.toHaveBeenCalled();
-    expect(screen.getByText(/先選擇你的程度/)).toBeInTheDocument();
+  // #866: a brand-new visitor is never shown a CTA that refuses to start.
+  // The level choices ARE the start: one tap sets the band and begins the
+  // first round (the #532 "ask for a level first" rule, without the dead end).
+  it("a brand-new visitor gets no level-less CTA -- the level choices start the round", () => {
+    renderHome({ targetLevel: null });
+    expect(screen.queryByRole("button", { name: /開始今日練習/ })).not.toBeInTheDocument();
+    expect(screen.getByText(copy["zh-Hant"].today.firstVisitLead)).toBeInTheDocument();
   });
 
-  it("after the gated ask, choosing a band from the onboarding card auto-continues into daily", () => {
+  it("a brand-new visitor's level choice sets the band and starts today's practice", () => {
     const props = renderHome({ targetLevel: null });
-    fireEvent.click(screen.getByRole("button", { name: /開始今日練習/ }));
     fireEvent.click(screen.getByRole("button", { name: /^初級N4・N5$/ }));
     expect(props.onChooseLevel).toHaveBeenCalledWith("n4n5");
     expect(props.onStartDaily).toHaveBeenCalledTimes(1);
+  });
+
+  it("a brand-new 完全新手 is not dropped into a quiz -- the app lands them on lesson 1 instead", () => {
+    const props = renderHome({ targetLevel: null });
+    fireEvent.click(screen.getByRole("button", { name: /完全新手/ }));
+    expect(props.onChooseLevel).toHaveBeenCalledWith("starter");
+    expect(props.onStartDaily).not.toHaveBeenCalled();
   });
 
   it("a returning learner without a preference gets the chip picker expanded by the gate", () => {
@@ -191,8 +199,9 @@ describe("HomePanel daily CTA level gate (#532)", () => {
     expect(props.onStartDaily).toHaveBeenCalledTimes(1);
   });
 
-  it("a level choice made WITHOUT the gated ask does not auto-start daily", () => {
-    const props = renderHome({ targetLevel: null });
+  it("changing the level from the 變更 picker WITHOUT the gated ask does not auto-start daily", () => {
+    const props = renderHome({ targetLevel: "n4n5", progressAttempts: [sampleAttempt] });
+    fireEvent.click(screen.getByRole("button", { name: /變更/ }));
     fireEvent.click(screen.getByRole("button", { name: /高級/ }));
     expect(props.onChooseLevel).toHaveBeenCalledWith("n1n2");
     expect(props.onStartDaily).not.toHaveBeenCalled();
@@ -361,44 +370,95 @@ describe("HomePanel newcomer first-screen (onboarding)", () => {
     expect(screen.getByText("上次還沒完成的章節。")).toBeInTheDocument();
   });
 
-  it("shows a first-time 'how it works' strip only for brand-new visitors", () => {
+  // The old dismissible "how it works" strip is folded into the first-visit
+  // hero lead (#866): same message, no extra banner to dismiss.
+  it("explains the loop to a brand-new visitor inside the hero, not in a separate strip", () => {
     renderHome();
-    expect(screen.getByText(/第一次來/)).toBeInTheDocument();
-  });
-
-  it("hides the 'how it works' strip for returning learners", () => {
-    renderHome({ progressAttempts: [sampleAttempt] });
+    const hero = screen.getByRole("region", { name: "今天想練什麼？" });
+    expect(within(hero).getByText(copy["zh-Hant"].today.firstVisitLead)).toBeInTheDocument();
     expect(screen.queryByText(/第一次來/)).not.toBeInTheDocument();
   });
 
-  it("lets a newcomer dismiss the 'how it works' strip", () => {
+  it("renders the free / no-signup kicker in the about section", () => {
     renderHome();
-    fireEvent.click(screen.getByRole("button", { name: /知道了/ }));
-    expect(screen.queryByText(/第一次來/)).not.toBeInTheDocument();
+    const about = screen.getByRole("region", { name: "關於 Jabiko" });
+    expect(within(about).getByText(/免註冊/)).toBeInTheDocument();
   });
 
-  it("renders the free / no-signup kicker above the hero", () => {
-    renderHome();
-    expect(screen.getByText(/免註冊/)).toBeInTheDocument();
-  });
-
-  it("places the primary 開始今日練習 CTA before the hero heading in DOM order", () => {
-    renderHome();
+  it("leads with the Today hero, then the primary action, then the about section", () => {
+    renderHome({ targetLevel: "n4n5", progressAttempts: [sampleAttempt] });
+    const heroHeading = screen.getByRole("heading", { name: "今天想練什麼？" });
     const cta = screen.getByRole("button", { name: /開始今日練習/ });
-    const heroHeading = screen.getByText("今天想練什麼？");
-    expect(cta.compareDocumentPosition(heroHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const aboutHeading = screen.getByRole("heading", { name: "關於 Jabiko" });
+    expect(heroHeading.compareDocumentPosition(cta) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(cta.compareDocumentPosition(aboutHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
 
-describe("HomePanel grid label", () => {
-  it("labels the entry-card grid with a section heading", () => {
+describe("HomePanel Today hero (#866)", () => {
+  const DAY = 86_400_000;
+  const at = (daysAgo: number) => ({ ...sampleAttempt, timestamp: Date.now() - daysAgo * DAY });
+
+  it("ジャビ子 introduces herself to a brand-new visitor", () => {
     renderHome();
-    expect(screen.getByRole("heading", { name: "自己挑一區練習" })).toBeInTheDocument();
+    const hero = screen.getByRole("region", { name: "今天想練什麼？" });
+    expect(within(hero).getByText("はじめまして！")).toHaveAttribute("lang", "ja");
+    expect(within(hero).getByText(copy["zh-Hant"].today.gloss.welcome)).toBeInTheDocument();
   });
 
-  it("shows the grid label for returning learners too", () => {
+  it("shows the real streak and today's answered count for a returning learner", () => {
+    renderHome({ targetLevel: "n3n4", progressAttempts: [at(2), at(1), at(0), at(0)] });
+    const hero = screen.getByRole("region", { name: "今天想練什麼？" });
+    expect(within(hero).getByText("連續 3 天")).toBeInTheDocument();
+    expect(within(hero).getByText("今天 2 題")).toBeInTheDocument();
+    expect(within(hero).getByText("その調子！")).toBeInTheDocument();
+  });
+
+  // #872 review thread: a Today left open (tab or installed PWA) across local
+  // midnight kept yesterday's count until the page was reloaded.
+  it("moves to the new local day when Today becomes visible again", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date(2026, 9, 10, 23, 50));
+      renderHome({ targetLevel: "n3n4", progressAttempts: [{ ...sampleAttempt, timestamp: Date.now() }] });
+      const hero = screen.getByRole("region", { name: "今天想練什麼？" });
+      expect(within(hero).getByText("今天 1 題")).toBeInTheDocument();
+      vi.setSystemTime(new Date(2026, 9, 11, 7, 30));
+      act(() => {
+        document.dispatchEvent(new Event("visibilitychange"));
+      });
+      expect(within(hero).queryByText("今天 1 題")).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("does not show a streak readout when there is no live streak", () => {
+    renderHome({ targetLevel: "n3n4", progressAttempts: [at(9)] });
+    const hero = screen.getByRole("region", { name: "今天想練什麼？" });
+    expect(within(hero).queryByText(/連續/)).not.toBeInTheDocument();
+  });
+
+  it("offers the review queue as the hero's second action, never as an alert", () => {
+    const onStartReview = vi.fn();
+    renderHome({ targetLevel: "n3n4", progressAttempts: [sampleAttempt], reviewCount: 4, onStartReview });
+    const hero = screen.getByRole("region", { name: "今天想練什麼？" });
+    const review = within(hero).getByRole("button", { name: /你有 4 題等待複習/ });
+    expect(review.closest("[role='alert']")).toBeNull();
+    fireEvent.click(review);
+    expect(onStartReview).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("HomePanel practice section", () => {
+  it("labels the practice rows with a section heading", () => {
+    renderHome();
+    expect(screen.getByRole("heading", { name: "練習" })).toBeInTheDocument();
+  });
+
+  it("shows the practice section for returning learners too", () => {
     renderHome({ progressAttempts: [sampleAttempt] });
-    expect(screen.getByRole("heading", { name: "自己挑一區練習" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "練習" })).toBeInTheDocument();
   });
 });
 
@@ -446,7 +506,7 @@ describe("HomePanel continue banner i18n (#427)", () => {
 });
 
 describe("HomePanel promotion placement", () => {
-  it("places the Stay.D recommendation after the primary learning controls and before the hero", () => {
+  it("places the Stay.D recommendation after the primary learning controls and before the about section", () => {
     renderHome({ language: "zh-Hant", targetLevel: "n4n5" });
 
     const dailyPractice = screen.getByRole("button", { name: /開始今日練習/ });
@@ -454,11 +514,11 @@ describe("HomePanel promotion placement", () => {
     const recommendation = screen.getByRole("complementary", {
       name: "JABIKO 推薦 · 合作夥伴"
     });
-    const heroHeading = screen.getByRole("heading", { name: "今天想練什麼？" });
+    const aboutHeading = screen.getByRole("heading", { name: "關於 Jabiko" });
 
     expect(dailyPractice.compareDocumentPosition(levelControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(levelControl.compareDocumentPosition(recommendation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(recommendation.compareDocumentPosition(heroHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(recommendation.compareDocumentPosition(aboutHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
 

@@ -124,3 +124,18 @@ describe("MockExamPanel level switching (#703)", () => {
     expect(screen.queryByText("表記")).not.toBeInTheDocument();
   });
 });
+
+describe("MockExamPanel page structure (#866)", () => {
+  it("names the page with a heading", () => {
+    renderPanel();
+    expect(screen.getByRole("heading", { level: 2, name: "題型分區練習" })).toBeInTheDocument();
+  });
+
+  it("shows a section without questions yet as information, not a warning (D-15)", () => {
+    renderPanel();
+    fireEvent.click(screen.getByRole("button", { name: "N1" }));
+    const pending = screen.getAllByText("準備中")[0].closest("li")!;
+    expect(pending.querySelector("svg")).toBeNull();
+    expect(pending.querySelector("button")).toBeNull();
+  });
+});

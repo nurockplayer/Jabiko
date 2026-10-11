@@ -61,8 +61,6 @@ export const ja: Copy = {
   homeHeroIntro: "基礎の活用から N1 の問題感覚まで。文法・漢字・単語・問題形式別の練習を、ここでまとめて。",
   homeGuideLink: "使い方ガイド",
   homeHeroKicker: "無料 · 登録不要 · N5〜N1",
-  homeHowText: "初めての方へ ① レベルを選ぶ → ② 今日の練習 → ③ 間違いは自動復習",
-  homeHowDismiss: "閉じる",
   homeFooterWish: "一歩ずつ進めて、試験の合格を祈っています。",
   feedbackWish: "機能リクエスト",
   feedbackBug: "不具合の報告",
@@ -180,7 +178,6 @@ export const ja: Copy = {
   quickLinkGrammar: "文型データベース",
   quickLinkKanji: "漢字の読み",
   quickLinkRules: "活用早見表",
-  homeGridLabel: "好きな分野で練習",
   mockExamLevelLabel: "レベル",
   mockSectionTitle: "問題タイプ別の練習",
   mockSectionIntro:
@@ -325,6 +322,25 @@ export const ja: Copy = {
   practiceMode: "練習モード",
   levelRange: "出題範囲",
   levelRangeOptions: { all: "すべて", n1n2: "N1＋N2", n2n3: "N2＋N3", n3n4: "N3＋N4", n4n5: "N4＋N5", starter: "完全な初心者" },
+  session: {
+    switchSet: "練習を切り替え",
+    verdictLabels: { correct: "正解", yours: "あなたの答え", answer: "答え" }
+  },
+  today: {
+    gloss: {
+      welcome: "ジャビ子です。日本語を一問ずつ、一緒に練習しよう。",
+      keepGoing: (days) => `${days}日連続、今日もできたね！`,
+      practicedToday: (count) => `今日はもう${count}問。もう一回やる？`,
+      streakWaiting: (days) => `今日やれば${days}日連続がつながるよ。`,
+      returning: "今日も少しだけ練習しよう。"
+    },
+    streak: (days) => `${days}日連続`,
+    answeredToday: (count) => `今日 ${count}問`,
+    firstVisitLead: "レベルを選んで、さっそく1回目を始めよう。間違えた問題は自動で復習に入ります。",
+    practiceSection: "練習",
+    talkSection: "会話とストーリー",
+    aboutSection: "Jabikoについて"
+  },
   levelOnboarding: {
     title: "あなたのレベルを選択",
     subtitle: "今日の練習と各問題集の初期難易度を設定します。あとからいつでも変更できます。",
@@ -477,7 +493,7 @@ export const ja: Copy = {
   homeBannerNextExamSub: "目標レベルに合わせて総合問題を練習。",
   dashboardEyebrow: "学習を続ける",
   dashboardReviewPending: (count) => `復習待ちの問題がまだ ${count} 問あります`,
-  dashboardReviewEmpty: "復習待ちの間違いはもうありません 🎉",
+  dashboardReviewEmpty: "復習待ちの間違いはもうありません",
   dashboardReviewCta: "今すぐ復習",
   dashboardNextChapterLabel: "次の章のおすすめ",
   dashboardStatsAttempts: (count) => `${count} 問 練習済み`,
@@ -537,6 +553,9 @@ export const ja: Copy = {
   conversationRetry: "言い方を変えてやり直す",
   conversationReset: "もう一度",
   conversationChangeScenario: "場面を変える",
+  conversationWithPartner: (role) => `相手：${role}`,
+  conversationScriptLabel: "ここまでの会話",
+  conversationYou: "あなた",
   conversationPartnerLabel: "相手のひとこと",
   conversationLearnerRole: "あなたの役割",
   conversationPartnerRole: "相手の役割",
