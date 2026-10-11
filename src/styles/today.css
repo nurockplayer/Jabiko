@@ -1,0 +1,696 @@
+/* ---- Today (#866, JT-2 track) ----------------------------------------------
+   One job per screen: the hero says hello, shows the learner's real momentum
+   and offers ONE primary action; everything else is a calm list below it.
+
+   - The hero is the only filled panel on the page (accent field). ジャビ子
+     speaks in Japanese with a localized gloss -- the voice of the product,
+     not decoration.
+   - Practice destinations are rows separated by hairlines, each led by a
+     kanji keycap: a word the learner can read, set in Mincho.
+   - Values come from JT-1 roles (jt1-tokens.css); no new hues. */
+
+.home-panel.today {
+  gap: 2rem;
+  max-width: 760px;
+}
+
+/* ---- Hero ------------------------------------------------------------- */
+
+.today-hero {
+  background: var(--jt-accent-background);
+  border-radius: 16px;
+  color: var(--jt-text-primary);
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 1rem 1rem;
+}
+
+@media (min-width: 600px) {
+  .today-hero {
+    padding: 1.75rem 2rem 1.5rem;
+  }
+}
+
+/* ジャビ子 and her bubble side by side; when text is enlarged or the screen is
+   narrow, the bubble wraps under her instead of being squeezed. */
+.today-hero-voice {
+  align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.today-buddy {
+  flex: none;
+  height: 4.25rem;
+  width: 4.25rem;
+}
+
+@media (min-width: 600px) {
+  .today-buddy {
+    height: 5.25rem;
+    width: 5.25rem;
+  }
+}
+
+/* A speech bubble whose tail points at ジャビ子. */
+.today-hero-greeting {
+  background: var(--jt-surface-content);
+  border-radius: 14px;
+  display: grid;
+  flex: 1 1 11rem;
+  gap: 0.15rem;
+  margin: 0 0 0.6rem;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0.6rem 0.9rem 0.65rem;
+  position: relative;
+}
+
+.today-hero-greeting::before {
+  background: inherit;
+  border-radius: 0 0 0 4px;
+  bottom: 0.55rem;
+  content: "";
+  height: 0.8rem;
+  left: -0.35rem;
+  position: absolute;
+  transform: skewY(-35deg);
+  width: 0.8rem;
+}
+
+.today-hero-line {
+  color: var(--jt-accent-foreground);
+  font-family: var(--jt-font-ja);
+  font-size: 1.125rem;
+  font-weight: 800;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.today-hero-gloss {
+  color: var(--jt-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.today-hero-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.3;
+  margin: 0;
+}
+
+@media (min-width: 600px) {
+  .today-hero-title {
+    font-size: 1.75rem;
+  }
+}
+
+.today-hero-lead {
+  color: var(--jt-text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: -0.5rem 0 0;
+}
+
+/* Real momentum only: streak + answered today, as quiet readouts. */
+.today-momentum {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: -0.4rem 0 0;
+}
+
+.today-momentum span {
+  background: var(--jt-surface-content);
+  border-radius: var(--jt-radius-mark);
+  color: var(--jt-text-primary);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1.5;
+  padding: 0.2rem 0.55rem;
+}
+
+.today-momentum .today-momentum-streak {
+  color: var(--jt-accent-foreground);
+}
+
+/* The one primary action: a 56px violet command with its promise under it. */
+.app-shell .today-start {
+  align-items: center;
+  background: var(--jt-action-primary-background);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--jt-action-primary-foreground);
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  justify-content: stretch;
+  min-height: 3.5rem;
+  padding: 0.75rem 1rem 0.75rem 1.1rem;
+  text-align: left;
+  width: 100%;
+}
+
+@media (min-width: 600px) {
+  .app-shell .today-start {
+    max-width: 30rem;
+  }
+}
+
+.app-shell .today-start:hover:not(:disabled) {
+  background: var(--jt-action-primary-hover);
+  border-color: transparent;
+}
+
+.app-shell .today-start:active {
+  background: var(--jt-action-primary-pressed);
+  transform: none;
+}
+
+.today-start .home-banner-text {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.today-start .home-banner-text strong {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.today-start .home-banner-text small {
+  color: color-mix(in srgb, var(--jt-action-primary-foreground) 90%, var(--jt-action-primary-background));
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.app-shell .today-start > svg {
+  height: 1.375rem;
+  width: 1.375rem;
+}
+
+/* The hero's quiet second action (review, continue, next step). */
+.app-shell .today-next {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--jt-radius-control);
+  color: var(--jt-text-primary);
+  column-gap: 0.5rem;
+  display: grid;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  grid-template-columns: auto minmax(0, 1fr);
+  justify-content: start;
+  justify-self: start;
+  margin: -0.35rem 0 0 -0.5rem;
+  max-width: calc(100% + 0.5rem);
+  min-height: 2.75rem;
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+}
+
+.app-shell .today-next:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--jt-surface-content) 70%, transparent);
+  border-color: transparent;
+}
+
+.app-shell .today-next > svg {
+  color: var(--jt-accent-foreground);
+  height: 1.125rem;
+  width: 1.125rem;
+}
+
+.today-next span {
+  overflow-wrap: anywhere;
+}
+
+.today-next small {
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  grid-column: 2;
+}
+
+/* Target level: a quiet line at the foot of the hero, 變更 opens the picker. */
+.home-level-manage {
+  border-top: 1px solid color-mix(in srgb, var(--jt-selection-edge) 22%, transparent);
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 0.6rem;
+}
+
+.app-shell .home-level-chip {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--jt-text-secondary);
+  flex-wrap: wrap;
+  font-size: 0.8125rem;
+  gap: 0.25rem 0.5rem;
+  justify-content: flex-start;
+  justify-self: start;
+  margin-left: -0.5rem;
+  max-width: calc(100% + 0.5rem);
+  min-height: 2.75rem;
+  min-width: 0;
+  padding: 0.35rem 0.5rem;
+  text-align: start;
+}
+
+.app-shell .home-level-chip:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--jt-surface-content) 70%, transparent);
+  border-color: transparent;
+}
+
+.home-level-chip-value {
+  align-items: baseline;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 0.35rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.home-level-chip-value strong {
+  color: var(--jt-text-primary);
+  font-weight: 600;
+}
+
+.home-level-chip-value small,
+.home-level-chip-value em {
+  font-style: normal;
+}
+
+.home-level-chip-action {
+  color: var(--jt-text-link);
+  font-weight: 600;
+}
+
+.home-level-chip-caret {
+  transition: transform 160ms ease;
+}
+
+.home-level-chip[aria-expanded="true"] .home-level-chip-caret {
+  transform: rotate(180deg);
+}
+
+.home-level-gate-hint {
+  color: var(--jt-accent-foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: -0.4rem 0 0;
+}
+
+/* First visit: the level choices are the start buttons. */
+.home-level-card {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.today-level-label {
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.home-level-card-options {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.home-level-card-options .home-level-option:first-child {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 720px) {
+  .home-level-card-options {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .home-level-card-options .home-level-option:first-child {
+    grid-column: auto;
+  }
+}
+
+.app-shell .home-level-option {
+  background: var(--jt-surface-content);
+  border: 1px solid var(--jt-border-control);
+  border-radius: 10px;
+  color: var(--jt-text-primary);
+  display: grid;
+  gap: 0.1rem;
+  justify-items: center;
+  min-height: 4rem;
+  padding: 0.6rem 0.5rem;
+  text-align: center;
+}
+
+.app-shell .home-level-option:hover:not(:disabled) {
+  border-color: var(--jt-selection-edge);
+  box-shadow: inset 0 0 0 1px var(--jt-selection-edge);
+}
+
+.home-level-option strong {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.home-level-option small {
+  color: var(--jt-text-secondary);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+
+.app-shell .home-level-option[aria-pressed="true"] {
+  background: var(--jt-accent-background);
+  border-color: var(--jt-selection-edge);
+  box-shadow: inset 0 0 0 1px var(--jt-selection-edge);
+}
+
+.home-level-option[aria-pressed="true"] strong {
+  color: var(--jt-accent-foreground);
+}
+
+/* ---- Sections and rows -------------------------------------------------- */
+
+.today-section {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.today-section-title {
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.today-rows {
+  border-top: 1px solid var(--jt-border-subtle);
+  container-type: inline-size;
+  display: grid;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.app-shell .today-row {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--jt-border-subtle);
+  border-radius: 0;
+  color: var(--jt-text-primary);
+  column-gap: 0.85rem;
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto auto;
+  justify-content: stretch;
+  min-height: 4rem;
+  padding: 0.75rem 0.25rem;
+  text-align: left;
+  text-decoration: none;
+  width: 100%;
+}
+
+.app-shell .today-row:hover:not(:disabled) {
+  background: var(--jt-surface-inset);
+  transform: none;
+}
+
+.today-row:focus-visible {
+  outline-offset: -3px;
+}
+
+.today-row-glyph {
+  align-items: center;
+  background: var(--jt-surface-sunken);
+  border-radius: 10px;
+  color: var(--jt-text-primary);
+  display: flex;
+  font-family: var(--jt-font-ja-mincho);
+  font-size: 1.375rem;
+  font-weight: 600;
+  height: 2.5rem;
+  justify-content: center;
+  line-height: 1;
+  transition: background 160ms ease, color 160ms ease;
+  width: 2.5rem;
+}
+
+.today-row:hover .today-row-glyph,
+.today-row:focus-visible .today-row-glyph {
+  background: var(--jt-accent-background);
+  color: var(--jt-accent-foreground);
+}
+
+.today-row-text {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.today-row-text strong {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.today-row-text small {
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Short counts sit on one line; longer words ("Short / medium / long")
+   wrap inside their column instead of widening the page. */
+.today-row-meta {
+  color: var(--jt-accent-foreground);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  max-width: 6.5rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: end;
+}
+
+.app-shell .today-row .today-row-chevron {
+  color: var(--jt-text-secondary);
+  grid-column: 4;
+  height: 1.125rem;
+  width: 1.125rem;
+}
+
+/* A narrow list (a small phone, or enlarged text): the count moves under the
+   title so the title keeps the width. */
+@container (max-width: 20rem) {
+  .app-shell .today-row {
+    column-gap: 0.6rem;
+    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  }
+
+  .today-row-meta {
+    grid-column: 2;
+    grid-row: 2;
+    max-width: none;
+    text-align: start;
+  }
+
+  .today-row-glyph {
+    grid-row: 1 / span 2;
+  }
+
+  .app-shell .today-row .today-row-chevron {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+}
+
+/* Reference links: words, not pills. */
+.home-quicklinks {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.75rem;
+}
+
+.home-quicklinks-label {
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-right: 0.25rem;
+}
+
+.app-shell .home-quicklinks button {
+  background: transparent;
+  border: 0;
+  color: var(--jt-text-link);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  min-height: 2.75rem;
+  padding: 0 0.25rem;
+}
+
+.app-shell .home-quicklinks button:hover:not(:disabled) {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transform: none;
+}
+
+/* ---- Progress dashboard reflow ----------------------------------------- */
+
+/* The dashboard cards keep their content inside on small phones and with
+   enlarged text: bar values move under their track, heads wrap. */
+.home-overview-row,
+.activity-trend,
+.type-bars {
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.level-bars {
+  min-width: 0;
+}
+
+.activity-trend-head {
+  flex-wrap: wrap;
+  gap: 0 0.75rem;
+}
+
+.activity-trend-head > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.home-stay-recommendation,
+.home-stay-recommendation-link {
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.home-stay-recommendation-link {
+  white-space: normal;
+}
+
+@container (max-width: 22rem) {
+  .level-bar-row,
+  .type-bar-row {
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    row-gap: 0.15rem;
+  }
+
+  .level-bar-value,
+  .type-bar-value {
+    flex-wrap: wrap;
+    grid-column: 1 / -1;
+  }
+
+  .type-bar-tag {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ---- About Jabiko ------------------------------------------------------- */
+
+.today-about {
+  border-top: 1px solid var(--jt-border-subtle);
+  display: grid;
+  gap: 1rem;
+  padding-top: 1.5rem;
+}
+
+@media (min-width: 720px) {
+  .today-about {
+    align-items: center;
+    gap: 1.5rem;
+    grid-template-columns: 15rem minmax(0, 1fr);
+  }
+}
+
+.today-about .home-hero-image {
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  display: block;
+  height: auto;
+  object-fit: cover;
+  width: 100%;
+}
+
+.today-about-text {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.today-about-text p {
+  color: var(--jt-text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.today-about-text .home-hero-kicker {
+  color: var(--jt-text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.today-about-text .home-content-stats {
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-hero-guide {
+  align-items: center;
+  color: var(--jt-text-link);
+  display: inline-flex;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  gap: 0.4rem;
+  justify-self: start;
+  min-height: 2.75rem;
+  text-decoration: none;
+}
+
+.home-hero-guide:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.home-hero-guide svg {
+  height: 1rem;
+  width: 1rem;
+}
+
+/* ---- Forced colors ------------------------------------------------------ */
+
+@media (forced-colors: active) {
+  .today-hero,
+  .today-hero-greeting {
+    border: 1px solid CanvasText;
+  }
+
+  .today-row-glyph {
+    border: 1px solid CanvasText;
+  }
+}

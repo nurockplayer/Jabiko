@@ -1,8 +1,9 @@
 import type { ComponentProps, KeyboardEvent as ReactKeyboardEvent } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DrillPanel } from "./DrillPanel";
+import { usePracticeSession } from "../../hooks/usePracticeSession";
 import { FuriganaContext } from "../furiganaContext";
 import type { Attempt, PracticeQuestion } from "../../domain/types";
 import type { Language } from "../../i18n";
@@ -64,12 +65,17 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+beforeEach(() => {
+  window.localStorage.clear();
+});
+
 function renderPanel(language: Language) {
   return render(<DrillPanel {...baseProps} language={language} />);
 }
 
 function makeAttempts(total: number, correct: number): Attempt[] {
   return Array.from({ length: total }, (_, i) => ({
+    questionId: question.id,
     vocabularyId: "kaku",
     targetForm: "te",
     prompt: "書く",
@@ -106,6 +112,92 @@ function renderDone(opts: {
 }
 
 describe("DrillPanel", () => {
+  function renderLiveDrillPanel(mode: "basic" | "daily" = "basic") {
+    let session: ReturnType<typeof usePracticeSession> | undefined;
+
+    function Harness() {
+      session = usePracticeSession({
+        language: "zh-Hant",
+        init:
+          mode === "basic"
+            ? { mode, partOfSpeech: "verb", verbGroup: "godan", targetForm: "te" }
+            : { mode },
+        progressAttempts: [],
+        recordAttempt: vi.fn()
+      });
+      return <DrillPanel {...session} language="zh-Hant" onExit={vi.fn()} />;
+    }
+
+    const view = render(<Harness />);
+    return {
+      ...view,
+      getSession() {
+        if (!session) throw new Error("Practice session has not mounted");
+        return session;
+      }
+    };
+  }
+
+  function answerCurrentQuestion(container: HTMLElement) {
+    fireEvent.click(container.querySelector(".choice-option")!);
+  }
+
+  function skipCurrentQuestion(container: HTMLElement) {
+    fireEvent.click(container.querySelector(".next-button")!);
+  }
+
+  function expectProgress(container: HTMLElement, answered: number, ordinal: number) {
+    expect(container.querySelector(".session-meter")).toHaveAttribute("data-answered", String(answered));
+    expect(container.querySelector(".prompt-header > span")).toHaveTextContent(`第 ${ordinal} /`);
+  }
+
+  it.each(["basic", "daily"] as const)("excludes a skipped %s-mode question from answered progress", (mode) => {
+    const { container, getSession } = renderLiveDrillPanel(mode);
+
+    skipCurrentQuestion(container);
+    expect(getSession().attempts).toHaveLength(0);
+    expectProgress(container, 0, 2);
+    answerCurrentQuestion(container);
+
+    expect(getSession().attempts).toHaveLength(1);
+    expectProgress(container, 1, 2);
+  });
+
+  it("counts answers around a skipped question while keeping the question ordinal", () => {
+    const { container, getSession } = renderLiveDrillPanel();
+
+    answerCurrentQuestion(container);
+    expectProgress(container, 1, 1);
+    skipCurrentQuestion(container);
+    expectProgress(container, 1, 2);
+    skipCurrentQuestion(container);
+    expect(getSession().attempts).toHaveLength(1);
+    expectProgress(container, 1, 3);
+    answerCurrentQuestion(container);
+
+    expect(getSession().attempts).toHaveLength(2);
+    expectProgress(container, 2, 3);
+  });
+
+  it("counts a revealed answer once and clears progress when a new pass starts", () => {
+    const { container, getSession } = renderLiveDrillPanel();
+
+    fireEvent.click(container.querySelector(".ghost-button")!);
+    expect(getSession().attempts).toHaveLength(1);
+    expectProgress(container, 1, 1);
+    act(() => getSession().revealAnswer());
+    act(() => getSession().revealAnswer());
+    expect(getSession().attempts).toHaveLength(1);
+    expectProgress(container, 1, 1);
+    skipCurrentQuestion(container);
+    expectProgress(container, 1, 2);
+
+    act(() => getSession().resetSession());
+
+    expect(getSession().attempts).toHaveLength(0);
+    expectProgress(container, 0, 1);
+  });
+
   it("offers a direct Today exit before an active endless question without resetting session data", async () => {
     const user = userEvent.setup();
     const onExit = vi.fn();
@@ -367,13 +459,13 @@ describe("DrillPanel", () => {
     });
   });
 
-  // #473: after answering, FeedbackPanel must sit immediately AFTER the word
-  // block and BEFORE the choice grid (prompt header → word block → feedback
-  // → choice grid → action row), so a phone learner can compare the answer
-  // and explanation without scrolling back up. The pre-answer DOM is
-  // unchanged (no feedback at all), and the same order is used on every
-  // viewport -- only CSS may tune spacing.
-  describe("post-answer feedback ordering (#473)", () => {
+  // D-07 (#850, replaces #473): answering must not move the options or Next.
+  // The verdict is drawn on the options themselves (D-03 marks) and the
+  // feedback block appears BELOW the action row (prompt header → word block
+  // → choice grid → action row → feedback), so nothing above it shifts. The
+  // pre-answer keyboard hint also sits below the action row, so its removal
+  // after answering cannot pull Next upward. Same order on every viewport.
+  describe("post-answer feedback ordering (D-07)", () => {
     const questionWithExample: PracticeQuestion = {
       ...question,
       vocabulary: {
@@ -407,11 +499,16 @@ describe("DrillPanel", () => {
       );
     }
 
-    it("keeps word-block directly above choice-grid with no feedback before answering", () => {
+    it("keeps word-block → choice-grid → action-row → hint with no feedback before answering", () => {
       const { container } = renderAnswered();
       expect(container.querySelector(".drill-panel .feedback")).toBeNull();
-      const blocks = childBlocks(container);
-      expect(blocks.indexOf("choice-grid")).toBe(blocks.indexOf("word-block") + 1);
+      expect(childBlocks(container)).toEqual([
+        "session-bar",
+        "word-block",
+        "choice-grid",
+        "action-row",
+        "kbd-hint"
+      ]);
       // Bookmark / report entries live on the feedback panel only -- nothing
       // post-answer leaks into the pre-answer view.
       expect(screen.queryByRole("button", { name: "收藏此題" })).not.toBeInTheDocument();
@@ -423,18 +520,16 @@ describe("DrillPanel", () => {
       ["incorrect", answeredIncorrect, "再想一下"],
       ["revealed", revealed, "先記這題"]
     ] as const)(
-      "orders word-block → feedback → choice-grid → action-row when %s",
+      "orders word-block → choice-grid → action-row → feedback when %s",
       (_label, { selectedChoice, feedback }, title) => {
         const { container } = renderAnswered({ selectedChoice, feedback });
-        const blocks = childBlocks(container);
-        const word = blocks.indexOf("word-block");
-        const fb = blocks.indexOf("feedback");
-        const grid = blocks.indexOf("choice-grid");
-        const action = blocks.indexOf("action-row");
-        expect(word).toBeGreaterThanOrEqual(0);
-        expect(fb).toBe(word + 1);
-        expect(grid).toBe(fb + 1);
-        expect(action).toBe(grid + 1);
+        expect(childBlocks(container)).toEqual([
+          "session-bar",
+          "word-block",
+          "choice-grid",
+          "action-row",
+          "feedback"
+        ]);
         expect(screen.getByRole("heading", { name: title })).toBeInTheDocument();
       }
     );
@@ -529,7 +624,7 @@ describe("DrillPanel", () => {
         window.innerWidth = 390;
         const mobile = renderAnswered(answeredCorrect);
         const mobileBlocks = childBlocks(mobile.container);
-        expect(mobileBlocks).toEqual(["session-exit", "prompt-header", "word-block", "feedback", "choice-grid", "action-row"]);
+        expect(mobileBlocks).toEqual(["session-bar", "word-block", "choice-grid", "action-row", "feedback"]);
         mobile.unmount();
 
         window.innerWidth = 1280;
@@ -559,5 +654,568 @@ describe("DrillPanel", () => {
         focusSpy.mockRestore();
       }
     });
+  });
+
+  // #861 learning loop: the verdict is drawn ON the judged options (D-03),
+  // progress is truthful, and a new question / the completion card is brought
+  // into view. Motion itself is CSS (learning-loop.css); these tests pin the
+  // markup and behavior it hangs on, which must be identical under reduced
+  // motion.
+  describe("learning loop (#861)", () => {
+    const correct = {
+      selectedChoice: "書いて",
+      feedback: { status: "correct", question, submittedAnswer: "書いて" }
+    } as const;
+    const incorrect = {
+      selectedChoice: "書いた",
+      feedback: { status: "incorrect", question, submittedAnswer: "書いた" }
+    } as const;
+    const revealed = {
+      selectedChoice: null,
+      feedback: { status: "revealed", question, submittedAnswer: null }
+    } as const;
+
+    function renderLoop(overrides: Partial<ComponentProps<typeof DrillPanel>> = {}) {
+      return render(<DrillPanel {...baseProps} language="zh-Hant" {...overrides} />);
+    }
+
+    function marks(container: HTMLElement): Array<[string, string | null]> {
+      return Array.from(container.querySelectorAll(".choice-grid button")).flatMap((button) => {
+        const mark = button.querySelector(".verdict-mark");
+        return mark ? [[button.textContent ?? "", mark.getAttribute("data-mark")] as [string, string | null]] : [];
+      });
+    }
+
+    it("draws no verdict mark before answering", () => {
+      const { container } = renderLoop();
+      expect(container.querySelectorAll(".verdict-mark")).toHaveLength(0);
+    });
+
+    it.each([
+      ["correct", correct, [["書いて", "correct"]]],
+      ["incorrect", incorrect, [["書いて", "correct"], ["書いた", "miss"]]],
+      ["revealed", revealed, [["書いて", "revealed"]]]
+    ] as const)("marks the judged options when %s", (_label, state, expected) => {
+      const { container } = renderLoop(state);
+      expect(marks(container)).toEqual(expected);
+    });
+
+    it("keeps marks out of the option's text and accessible name", () => {
+      const { container } = renderLoop(incorrect);
+      const mark = container.querySelector(".verdict-mark")!;
+      expect(mark).toHaveAttribute("aria-hidden", "true");
+      expect(screen.getByRole("button", { name: "書いた" })).toBeDisabled();
+      expect(screen.getByRole("button", { name: "書いて" })).toBeDisabled();
+    });
+
+    it("fills a truthful session meter: answered / total, advancing on the answer", () => {
+      const { container, rerender } = renderLoop({
+        sessionTotal: 4,
+        questionIndex: 1,
+        attempts: makeAttempts(1, 1)
+      });
+      const meter = container.querySelector(".session-meter")!;
+      expect(meter).toHaveAttribute("aria-hidden", "true");
+      expect(meter).toHaveAttribute("data-answered", "1");
+      expect(meter.querySelector<HTMLElement>(".session-meter-fill")!.style.getPropertyValue("--progress")).toBe("0.25");
+
+      rerender(
+        <DrillPanel
+          {...baseProps}
+          language="zh-Hant"
+          sessionTotal={4}
+          questionIndex={1}
+          attempts={makeAttempts(2, 2)}
+          {...correct}
+        />
+      );
+      expect(container.querySelector(".session-meter")).toBe(meter);
+      expect(meter).toHaveAttribute("data-answered", "2");
+      expect(meter.querySelector<HTMLElement>(".session-meter-fill")!.style.getPropertyValue("--progress")).toBe("0.5");
+    });
+
+    it("shows no meter for an open-ended session", () => {
+      const { container } = renderLoop({ sessionTotal: null });
+      expect(container.querySelector(".session-meter")).toBeNull();
+    });
+
+    it("keeps the question in place when answering but turns to a fresh one on Next", () => {
+      const { container, rerender } = renderLoop();
+      const word = container.querySelector(".word-block");
+      const grid = container.querySelector(".choice-grid");
+
+      rerender(<DrillPanel {...baseProps} language="zh-Hant" {...correct} />);
+      expect(container.querySelector(".word-block")).toBe(word);
+      expect(container.querySelector(".choice-grid")).toBe(grid);
+
+      rerender(
+        <DrillPanel
+          {...baseProps}
+          language="zh-Hant"
+          questionIndex={1}
+          currentQuestion={{ ...question, id: "kiku:te" }}
+        />
+      );
+      expect(container.querySelector(".word-block")).not.toBe(word);
+      expect(container.querySelector(".choice-grid")).not.toBe(grid);
+    });
+
+    it("docks the multiple-choice action row but leaves typed recall in flow", () => {
+      const { container, rerender } = renderLoop();
+      expect(container.querySelector(".action-row")).toHaveClass("action-row--dock");
+      rerender(<DrillPanel {...baseProps} language="zh-Hant" isRecallQuestion />);
+      expect(container.querySelector(".action-row")).not.toHaveClass("action-row--dock");
+    });
+
+    function attemptsEndingWith(pattern: boolean[]): Attempt[] {
+      return pattern.map((isCorrect, i) => ({ ...makeAttempts(1, 1)[0], isCorrect, timestamp: i }));
+    }
+
+    describe("verdict button with ジャビ子 (dock slot)", () => {
+      it("offers 看答案 before answering and no verdict button", () => {
+        const { container } = renderLoop();
+        expect(screen.getByRole("button", { name: "看答案" })).toBeEnabled();
+        expect(container.querySelector(".verdict-chip")).toBeNull();
+      });
+
+      it.each([
+        ["correct", correct, "正解", "happy"],
+        ["incorrect", incorrect, "再想一下", "oops"],
+        ["revealed", revealed, "先記這題", "thinking"]
+      ] as const)("turns the reveal slot into the verdict when %s", (_label, state, title, mood) => {
+        const { container } = renderLoop(state);
+        expect(screen.queryByRole("button", { name: "看答案" })).not.toBeInTheDocument();
+        const chip = container.querySelector(".action-row > .verdict-chip")!;
+        expect(chip).toBe(container.querySelector(".action-row")!.firstElementChild);
+        expect(screen.getByRole("button", { name: `${title} 看解說` })).toBe(chip);
+        expect(chip.querySelector(".jabiko-buddy")).toHaveAttribute("data-mood", mood);
+      });
+
+      it("lets ジャビ子 say a Japanese line that stays out of the button's name", () => {
+        const { container } = renderLoop({ ...incorrect, attempts: attemptsEndingWith([false]) });
+        const bubble = container.querySelector(".verdict-chip .buddy-bubble")!;
+        expect(bubble).toHaveTextContent("どんまい！");
+        expect(bubble).toHaveAttribute("lang", "ja");
+        expect(bubble).toHaveAttribute("aria-hidden", "true");
+        expect(screen.getByRole("button", { name: "再想一下 看解說" })).toBeInTheDocument();
+      });
+
+      it.each([
+        [[true], "1"],
+        [[false, true, true, true], "2"],
+        [[true, true, true, true, true], "3"],
+        [[true, true, true, true, false, true], "1"]
+      ] as const)("lets a real in-session run (%j) set ジャビ子's energy %s", (pattern, energy) => {
+        const { container } = renderLoop({ ...correct, attempts: attemptsEndingWith([...pattern]) });
+        expect(container.querySelector(".verdict-chip .jabiko-buddy")).toHaveAttribute("data-energy", energy);
+      });
+
+      it("opens the full explanation and moves focus there", () => {
+        const scrollIntoView = vi.fn();
+        Object.defineProperty(window.HTMLElement.prototype, "scrollIntoView", {
+          configurable: true,
+          writable: true,
+          value: scrollIntoView
+        });
+        const { container } = renderLoop(incorrect);
+        fireEvent.click(container.querySelector(".verdict-chip")!);
+        const feedback = container.querySelector(".feedback")!;
+        expect(scrollIntoView).toHaveBeenCalledOnce();
+        expect(scrollIntoView.mock.contexts[0]).toBe(feedback);
+        expect(document.activeElement).toBe(feedback);
+      });
+
+      it("keeps Enter on the verdict button from skipping to the next question", () => {
+        const handleDrillKeyDown = vi.fn();
+        const { container } = renderLoop({ ...correct, handleDrillKeyDown });
+        fireEvent.keyDown(container.querySelector(".verdict-chip")!, { key: "Enter" });
+        expect(handleDrillKeyDown).not.toHaveBeenCalled();
+      });
+
+      it("lets ジャビ子 cheer on the completion card, hardest for a perfect run", () => {
+        const { container } = renderDone({ total: 4, correct: 4, accuracy: 100 });
+        const buddy = container.querySelector(".session-done .jabiko-buddy")!;
+        expect(buddy).toHaveAttribute("data-mood", "cheer");
+        expect(buddy).toHaveAttribute("data-energy", "3");
+        expect(container.querySelector(".session-done .buddy-bubble")).toHaveTextContent("かんぺき！");
+        const { container: modest } = renderDone({ total: 4, correct: 1, accuracy: 25 });
+        expect(modest.querySelector(".session-done .jabiko-buddy")).toHaveAttribute("data-energy", "1");
+        expect(modest.querySelector(".session-done .buddy-bubble")).toHaveTextContent("がんばったね！");
+      });
+    });
+
+    describe("peeking the explanation above the dock", () => {
+      const scrollBy = vi.fn();
+      const rects: Record<string, number> = {};
+
+      function stubPeekLayout({ feedbackTop, dockTop, markTop, reduce = false }: {
+        feedbackTop: number;
+        dockTop: number;
+        markTop: number;
+        reduce?: boolean;
+      }) {
+        vi.useFakeTimers();
+        scrollBy.mockClear();
+        vi.stubGlobal("scrollBy", scrollBy);
+        vi.stubGlobal("innerHeight", 844);
+        Object.assign(rects, { feedbackTop, dockTop, markTop });
+        vi.spyOn(window.HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+          const at = (top: number, height: number) =>
+            ({ top, bottom: top + height, left: 0, right: 0, width: 0, height, x: 0, y: top, toJSON: () => ({}) }) as DOMRect;
+          if (this.classList.contains("feedback")) return at(rects.feedbackTop, 400);
+          if (this.classList.contains("action-row--dock")) return at(rects.dockTop, 844 - rects.dockTop);
+          if (this.matches(".choice-grid button[data-result]")) return at(rects.markTop, 60);
+          return at(500, 60);
+        });
+        vi.stubGlobal(
+          "matchMedia",
+          vi.fn((query: string) => ({
+            matches: reduce && query.includes("reduce"),
+            media: query,
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn()
+          }))
+        );
+      }
+
+      afterEach(() => {
+        vi.restoreAllMocks();
+      });
+
+      function answer(overrides: Partial<ComponentProps<typeof DrillPanel>> = incorrect) {
+        const { rerender } = renderLoop();
+        rerender(<DrillPanel {...baseProps} language="zh-Hant" {...overrides} />);
+        vi.runAllTimers();
+      }
+
+      it("scrolls just enough to show the explanation's start above the dock, after the mark lands", () => {
+        stubPeekLayout({ feedbackTop: 800, dockTop: 780, markTop: 450 });
+        const { rerender } = renderLoop();
+        rerender(<DrillPanel {...baseProps} language="zh-Hant" {...incorrect} />);
+        expect(scrollBy).not.toHaveBeenCalled();
+        vi.runAllTimers();
+        // 800 + 120 (peek) - 780 = 140
+        expect(scrollBy).toHaveBeenCalledWith({ top: 140, behavior: "smooth" });
+      });
+
+      it("never scrolls the judged options up under the header", () => {
+        stubPeekLayout({ feedbackTop: 1300, dockTop: 780, markTop: 300 });
+        answer();
+        // room = 300 - 0 (no scroll-margin in jsdom) = 300 < needed 640
+        expect(scrollBy).toHaveBeenCalledWith({ top: 300, behavior: "smooth" });
+      });
+
+      it("jumps instantly with reduced motion", () => {
+        stubPeekLayout({ feedbackTop: 800, dockTop: 780, markTop: 450, reduce: true });
+        answer();
+        expect(scrollBy).toHaveBeenCalledWith({ top: 140, behavior: "auto" });
+      });
+
+      it("leaves the page alone when the explanation already shows", () => {
+        stubPeekLayout({ feedbackTop: 500, dockTop: 780, markTop: 300 });
+        answer(correct);
+        expect(scrollBy).not.toHaveBeenCalled();
+      });
+
+      it("does not peek when the page is rendered already answered", () => {
+        stubPeekLayout({ feedbackTop: 800, dockTop: 780, markTop: 450 });
+        renderLoop(incorrect);
+        vi.runAllTimers();
+        expect(scrollBy).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("bringing the next step into view", () => {
+      const scrollIntoView = vi.fn();
+      let top = -400;
+
+      function stubLayout(reduce: boolean) {
+        scrollIntoView.mockClear();
+        Object.defineProperty(window.HTMLElement.prototype, "scrollIntoView", {
+          configurable: true,
+          writable: true,
+          value: scrollIntoView
+        });
+        vi.spyOn(window.HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+          () => ({ top, bottom: top + 600, left: 0, right: 0, width: 0, height: 600, x: 0, y: top, toJSON: () => ({}) })
+        );
+        vi.stubGlobal(
+          "matchMedia",
+          vi.fn((query: string) => ({
+            matches: reduce && query.includes("reduce"),
+            media: query,
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn()
+          }))
+        );
+      }
+
+      afterEach(() => {
+        vi.restoreAllMocks();
+        top = -400;
+      });
+
+      it("does not scroll on first render or when feedback appears", () => {
+        stubLayout(false);
+        const { rerender } = renderLoop();
+        rerender(<DrillPanel {...baseProps} language="zh-Hant" {...correct} />);
+        expect(scrollIntoView).not.toHaveBeenCalled();
+      });
+
+      it.each([
+        [false, "smooth"],
+        [true, "auto"]
+      ] as const)("scrolls an off-screen new question into view (reduced motion: %s)", (reduce, behavior) => {
+        stubLayout(reduce);
+        const { rerender } = renderLoop(correct);
+        rerender(
+          <DrillPanel
+            {...baseProps}
+            language="zh-Hant"
+            questionIndex={1}
+            currentQuestion={{ ...question, id: "kiku:te" }}
+          />
+        );
+        expect(scrollIntoView).toHaveBeenCalledOnce();
+        expect(scrollIntoView).toHaveBeenCalledWith({ block: "start", behavior });
+      });
+
+      it("scrolls the completion card into view when the session ends", () => {
+        stubLayout(false);
+        const { rerender } = renderLoop(correct);
+        rerender(
+          <DrillPanel
+            {...baseProps}
+            language="zh-Hant"
+            currentQuestion={null}
+            sessionExhausted
+            attempts={makeAttempts(4, 4)}
+            correctCount={4}
+            accuracy={100}
+          />
+        );
+        expect(scrollIntoView).toHaveBeenCalledOnce();
+      });
+
+      it("also scrolls when the new step starts under the sticky header", () => {
+        top = 25;
+        stubLayout(false);
+        const { container, rerender } = renderLoop(correct);
+        (container.querySelector(".drill-panel") as HTMLElement).style.scrollMarginTop = "64px";
+        rerender(
+          <DrillPanel
+            {...baseProps}
+            language="zh-Hant"
+            questionIndex={1}
+            currentQuestion={{ ...question, id: "kiku:te" }}
+          />
+        );
+        expect(scrollIntoView).toHaveBeenCalledOnce();
+      });
+
+      it("leaves the page alone when the new question is already in view", () => {
+        top = 80;
+        stubLayout(false);
+        const { rerender } = renderLoop(correct);
+        rerender(
+          <DrillPanel
+            {...baseProps}
+            language="zh-Hant"
+            questionIndex={1}
+            currentQuestion={{ ...question, id: "kiku:te" }}
+          />
+        );
+        expect(scrollIntoView).not.toHaveBeenCalled();
+      });
+    });
+  });
+});
+
+describe("DrillPanel session bar (#866)", () => {
+  it("names the current set in the session bar and toggles the set switcher", () => {
+    const onToggle = vi.fn();
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        sessionTotal={20}
+        modeTitle="N3 備考"
+        switcher={{ open: false, onToggle, controlsId: "practice-switcher" }}
+      />
+    );
+    const title = screen.getByRole("button", { name: "換練習" });
+    expect(title).toHaveAccessibleDescription("N3 備考");
+    expect(title).toHaveTextContent("N3 備考");
+    expect(title).toHaveAttribute("aria-expanded", "false");
+    expect(title).toHaveAttribute("aria-controls", "practice-switcher");
+    fireEvent.click(title);
+    expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
+  // Astra review #872: choosing 自己輸入 inside the open set list autofocused
+  // the answer field behind the list.
+  it("does not pull focus into the typed answer while the set list is open", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        modeTitle="基礎變化"
+        switcher={{ open: true, onToggle: vi.fn(), controlsId: "practice-switcher" }}
+      />
+    );
+    expect(document.querySelector("#recall-answer")).not.toHaveFocus();
+  });
+
+  // Astra review round 4: closing the list must not pull focus into the
+  // typed answer -- the learner (or the close path) already chose a target.
+  it("does not steal focus into the typed answer when the set list closes", () => {
+    const props = {
+      ...baseProps,
+      language: "zh-Hant" as const,
+      isRecallQuestion: true,
+      modeTitle: "基礎變化"
+    };
+    const { rerender } = render(
+      <>
+        <button type="button">outside</button>
+        <DrillPanel {...props} switcher={{ open: true, onToggle: vi.fn(), controlsId: "practice-switcher" }} />
+      </>
+    );
+    const outside = screen.getByRole("button", { name: "outside" });
+    outside.focus();
+    rerender(
+      <>
+        <button type="button">outside</button>
+        <DrillPanel {...props} switcher={{ open: false, onToggle: vi.fn(), controlsId: "practice-switcher" }} />
+      </>
+    );
+    expect(outside).toHaveFocus();
+  });
+
+  it("still focuses the typed answer when the set list is closed", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        isRecallQuestion
+        modeTitle="基礎變化"
+        switcher={{ open: false, onToggle: vi.fn(), controlsId: "practice-switcher" }}
+      />
+    );
+    expect(document.querySelector("#recall-answer")).toHaveFocus();
+  });
+
+  // #872 review threads: D-28 removed the permanent set column, so the end
+  // and empty screens must keep 換練習 or the learner can only go home.
+  it.each([
+    ["a finished set", { sessionExhausted: true, attempts: makeAttempts(5, 5), correctCount: 5, accuracy: 100 }],
+    ["an empty review queue", { practiceMode: "review" as const, reviewEmpty: true }],
+    ["no bookmarks", { practiceMode: "bookmarks" as const, bookmarksEmpty: true }]
+  ])("keeps the set switcher on %s, without a second Today exit", (_label, state) => {
+    const onToggle = vi.fn();
+    render(
+      <DrillPanel
+        {...baseProps}
+        {...state}
+        language="zh-Hant"
+        currentQuestion={null}
+        modeTitle="N3 備考"
+        switcher={{ open: false, onToggle, controlsId: "practice-switcher" }}
+      />
+    );
+    fireEvent.click(screen.getByRole("button", { name: "換練習" }));
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(document.querySelector(".session-exit")).toBeNull();
+    expect(document.querySelector(".prompt-header")).toBeNull();
+  });
+
+  it("keeps the Today exit and the n / N count in the same bar", () => {
+    const { container } = render(
+      <DrillPanel {...baseProps} language="zh-Hant" sessionTotal={20} modeTitle="今日練習" />
+    );
+    const bar = container.querySelector(".session-bar");
+    expect(bar).not.toBeNull();
+    expect(bar!.querySelector(".session-exit")).not.toBeNull();
+    expect(bar!.querySelector(".prompt-header")).not.toBeNull();
+  });
+});
+
+describe("DrillPanel phase-following Next (#866, D-25)", () => {
+  it("keeps 下一題 quiet before a verdict and makes it the primary after", () => {
+    const { rerender } = render(<DrillPanel {...baseProps} language="zh-Hant" />);
+    const next = () => screen.getByRole("button", { name: "下一題" });
+    expect(next()).toHaveAttribute("data-emphasis", "tonal");
+    rerender(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        selectedChoice="書いて"
+        feedback={{ status: "correct", question, submittedAnswer: "書いて" }}
+      />
+    );
+    expect(next()).toHaveAttribute("data-emphasis", "primary");
+  });
+});
+
+// The label is drawn from `data-verdict-label` by CSS generated content with
+// empty alt text, so the option's textContent and accessible name stay the
+// choice itself (the #862 contract above); the live region announces the verdict.
+describe("DrillPanel per-option verdict labels (#864, D-03)", () => {
+  const label = (choice: string) =>
+    document.querySelector(`.choice-option[data-choice="${choice}"]`)?.getAttribute("data-verdict-label") ?? null;
+
+  it("labels the learner's miss and the right answer", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="zh-Hant"
+        selectedChoice="書いた"
+        feedback={{ status: "incorrect", question, submittedAnswer: "書いた" }}
+      />
+    );
+    expect(label("書いた")).toBe("你的答案");
+    expect(label("書いて")).toBe("正解");
+    expect(label("書かない")).toBeNull();
+  });
+
+  it("labels a correct pick", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="en"
+        selectedChoice="書いて"
+        feedback={{ status: "correct", question, submittedAnswer: "書いて" }}
+      />
+    );
+    expect(label("書いて")).toBe("Correct");
+  });
+
+  it("labels the answer shown by 看答案", () => {
+    render(
+      <DrillPanel
+        {...baseProps}
+        language="ja"
+        feedback={{ status: "revealed", question, submittedAnswer: null }}
+      />
+    );
+    expect(label("書いて")).toBe("答え");
+  });
+
+  it("shows no labels before answering", () => {
+    render(<DrillPanel {...baseProps} language="zh-Hant" />);
+    expect(document.querySelectorAll("[data-verdict-label]")).toHaveLength(0);
+  });
+});
+
+describe("DrillPanel completion stamp (#866)", () => {
+  it("stamps a 花丸 on a perfect set", () => {
+    renderDone({ total: 5, correct: 5, accuracy: 100 });
+    expect(document.querySelector('[data-stamp="hanamaru"]')).not.toBeNull();
+  });
+
+  it("does not stamp a 花丸 on a set with misses", () => {
+    renderDone({ total: 5, correct: 3, accuracy: 60 });
+    expect(document.querySelector('[data-stamp="hanamaru"]')).toBeNull();
   });
 });

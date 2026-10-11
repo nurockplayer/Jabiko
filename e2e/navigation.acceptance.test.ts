@@ -192,6 +192,7 @@ test.describe("World home entry reflow", () => {
           await page.evaluate(({ storedLocale, storedTheme }) => {
             localStorage.setItem("jabiko.lang", storedLocale);
             localStorage.setItem("jabiko.theme", storedTheme);
+            localStorage.removeItem("jabiko:targetLevel");
           }, { storedLocale: locale, storedTheme: theme });
           await page.reload();
           await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
@@ -323,6 +324,15 @@ test.describe("World home entry reflow", () => {
           expect(geometry.arrow.left).toBeGreaterThanOrEqual(geometry.entry.left);
           expect(geometry.arrow.right).toBeLessThanOrEqual(geometry.entry.right);
 
+          // #866: a brand-new visitor starts from the level choices (checked
+          // above); the daily CTA appears once a level is set.
+          await expect(page.locator(".home-banner-daily")).toHaveCount(0);
+          await page.evaluate(() => localStorage.setItem("jabiko:targetLevel", "n3n4"));
+          await page.reload();
+          if (viewport.rootFontPercent !== 100) {
+            await page.addStyleTag({ content: `:root { font-size: ${viewport.rootFontPercent}% !important; }` });
+          }
+
           const daily = page.locator(".home-banner-daily");
           const dailyTitle = daily.locator(".home-banner-text strong");
           const dailyBounds = await daily.evaluate((element) => {
@@ -452,6 +462,36 @@ test.describe("Home share row reflow", () => {
       }
     }
   });
+});
+
+// #872 Astra review round 7: ジャビ子's おつかれさま！ bubble on the completion
+// screen kept its one-line pill and pushed the page to 354px.
+test("keeps the Small Talk completion within 320px at 200% root text", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.goto("/conversation");
+  await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+  const productionScene = page.getByRole("button", { name: /早上通勤時/ });
+  await productionScene.focus();
+  await productionScene.press("Enter");
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "開始這個情境" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("今朝は気持ちのいい天気ですね。通勤中も少し楽です。")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("選一個回應", { exact: true })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("heading", { name: "回饋" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "繼續", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("heading", { name: "完成", exact: true })).toBeFocused();
+  await expectNoPageOverflow(page, "conversation completion at 320px / 200% text");
 });
 
 for (const width of [390, 1280]) {
@@ -1154,6 +1194,9 @@ test.describe("legacy color compatibility contrast", () => {
         await page.goto(surface.route);
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
         if (surface.route === "/challenge") {
+          // #866: the set list opens from the session bar's 換練習 title.
+          await page.getByRole("button", { name: "換練習" }).click();
+          await expect(page.locator(".practice-switcher .controls-panel")).toHaveCSS("opacity", "1");
           await expect(page.locator(".mode-card-count").first()).toBeVisible();
         }
         const target = page.locator(surface.selector).first();
@@ -1185,8 +1228,13 @@ test.describe("legacy color compatibility contrast", () => {
         ...(await expectReadableForeground(customRate, `${theme} custom speech rate`))
       });
 
+      // Choosing a set closes the switcher; reopen it to read the set's own
+      // segmented controls.
+      await page.getByRole("button", { name: "換練習" }).click();
       await page.getByRole("button", { name: /^基礎變化/ }).click();
-      const selectedSegment = page.locator(".segmented button.selected").first();
+      await page.getByRole("button", { name: "換練習" }).click();
+      await expect(page.locator(".practice-switcher .controls-panel")).toHaveCSS("opacity", "1");
+      const selectedSegment = page.locator(".practice-switcher .segmented button.selected").first();
       await expect(selectedSegment).toBeVisible();
       await expectOpaqueRoleBackground(
         selectedSegment,
@@ -1213,22 +1261,24 @@ test.describe("legacy color compatibility contrast", () => {
       });
 
       await page.goto("/challenge");
+      await page.getByRole("button", { name: "換練習" }).click();
       await page.getByRole("button", { name: /^基礎變化/ }).click();
       const choice = page.locator(".choice-option").first();
       await choice.click();
       const answeredChoice = page.locator('.choice-option[data-selected="true"]');
       await expect(answeredChoice).toBeVisible();
-      const feedbackRole = await answeredChoice.evaluate((element) =>
-        element.classList.contains("correct")
-          ? "--feedback-correct-bg"
-          : "--feedback-incorrect-bg"
-      );
+      // #866 / JT-1 §5: a judged option keeps the content surface; the verdict
+      // is its assessment edge, the drawn mark and the margin label (no tint).
+      // Measure once the question's turn-in (D-26) has settled.
+      await expect(page.locator(".drill-panel")).toHaveCSS("opacity", "1");
+      await expect(answeredChoice).toHaveCSS("opacity", "1");
       await expectOpaqueRoleBackground(
         answeredChoice,
-        feedbackRole,
+        "--jt-surface-content",
         `${theme} selected answer feedback`,
         "--jt-text-primary"
       );
+      await expect(answeredChoice).toHaveAttribute("data-verdict-label", /.+/);
       evidence.push({
         theme,
         route: "/challenge",
@@ -1277,6 +1327,138 @@ test.describe("legacy color compatibility contrast", () => {
       body: JSON.stringify(evidence, null, 2),
       contentType: "application/json"
     });
+  });
+});
+
+// #866 Astra review round 5: enlarged text, the set list's inner scroll and
+// reduced motion at the edges of the session bar and phone dock.
+test.describe("practice session at the edges (#866)", () => {
+  test("keeps the phone dock compact at 320px / 200% text so the question stays reachable", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto("/");
+    await page.evaluate(() => localStorage.setItem("jabiko.lang", "en"));
+    await page.goto("/challenge?mode=basic");
+    await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+    const dock = page.locator(".action-row--dock");
+    await expect(dock).toBeVisible();
+    const dockHeight = await dock.evaluate((element) => element.getBoundingClientRect().height);
+    expect(dockHeight, "dock height at 320x640, 200% text").toBeLessThanOrEqual(640 * 0.35);
+    const option = page.locator(".choice-option").first();
+    await option.scrollIntoViewIfNeeded();
+    const reachable = await option.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const top = document.elementFromPoint(rect.left + rect.width / 2, rect.top + Math.min(rect.height / 2, 20));
+      return top === element || element.contains(top);
+    });
+    expect(reachable).toBe(true);
+  });
+
+  test("brings the focused current set into the list's visible area when it opens", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    await page.evaluate(() => localStorage.setItem("jabiko.lang", "zh-Hant"));
+    await page.goto("/challenge?mode=basic");
+    await page.getByRole("button", { name: "換練習" }).click();
+    const list = page.locator(".practice-switcher .controls-panel");
+    await expect(list).toHaveCSS("opacity", "1");
+    const visible = await page.evaluate(() => {
+      const focused = document.activeElement!.getBoundingClientRect();
+      const box = document.querySelector(".practice-switcher .controls-panel")!.getBoundingClientRect();
+      return focused.top >= box.top - 1 && focused.bottom <= box.bottom + 1 && focused.bottom <= window.innerHeight;
+    });
+    expect(visible).toBe(true);
+  });
+
+  for (const locale of ["zh-Hant", "ja", "en"] as const) {
+    test(`keeps the current set's name readable in the session bar at 200% text (${locale})`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/");
+      await page.evaluate((stored) => localStorage.setItem("jabiko.lang", stored), locale);
+      await page.goto("/challenge?mode=basic");
+      await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+      const title = page.locator(".session-title-text");
+      const width = await title.evaluate((element) => element.getBoundingClientRect().width);
+      const fontSize = await title.evaluate((element) => parseFloat(getComputedStyle(element).fontSize));
+      expect(width, `${locale} title width`).toBeGreaterThanOrEqual(fontSize * 2);
+      expect(await title.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+    });
+  }
+
+  for (const input of ["mouse", "touch"] as const) {
+    test(`dismisses the open set list without answering when an option is pressed (${input})`, async ({ browser }) => {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, hasTouch: input === "touch" });
+      const page = await context.newPage();
+      await page.goto("/challenge?mode=basic");
+      const panel = page.locator(".drill-panel");
+      const option = page.locator(".choice-option").last();
+      await page.getByRole("button", { name: "換練習" }).click();
+      await expect(page.locator("[data-switcher=open]")).toBeVisible();
+      // The list overlaps the options' start; press the part still showing.
+      const box = (await option.boundingBox())!;
+      const position = { x: box.width - 24, y: box.height / 2 };
+      const press = () => (input === "touch" ? option.tap({ position }) : option.click({ position }));
+      await press();
+      await expect(page.locator("[data-switcher=closed]")).toBeVisible();
+      await page.waitForTimeout(700);
+      await expect(panel).toHaveAttribute("data-result", "unanswered");
+      await press();
+      await expect(panel).not.toHaveAttribute("data-result", "unanswered");
+      await context.close();
+    });
+  }
+
+  test("keeps 換練習 on the empty review screen, with Esc returning focus to it", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/challenge?mode=review");
+    const toggle = page.getByRole("button", { name: "換練習" });
+    await expect(toggle).toBeVisible();
+    await toggle.click();
+    await expect(page.locator("[data-switcher=open]")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.locator("[data-switcher=closed]")).toBeVisible();
+    await expect(toggle).toBeFocused();
+    await expectNoPageOverflow(page, "empty review with the session bar");
+  });
+
+  for (const locale of ["zh-Hant", "ja", "en"] as const) {
+    test(`keeps every Small Talk length label inside its keycap on one shared column (${locale})`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/");
+      await page.evaluate((stored) => localStorage.setItem("jabiko.lang", stored), locale);
+      await page.goto("/conversation");
+      const keycaps = page.locator(".conversation-scene-length");
+      await expect(keycaps.first()).toBeVisible();
+      const boxes = await keycaps.evaluateAll((elements) =>
+        elements.map((element) => ({
+          fits: element.scrollWidth <= element.clientWidth + 1,
+          left: Math.round(element.getBoundingClientRect().left),
+          text: element.textContent,
+          width: Math.round(element.getBoundingClientRect().width)
+        }))
+      );
+      for (const box of boxes) expect(box.fits, `${locale} keycap "${box.text}" fits`).toBe(true);
+      expect(new Set(boxes.map((box) => box.width)).size, `${locale} keycaps share one width`).toBe(1);
+      expect(new Set(boxes.map((box) => box.left)).size, `${locale} keycaps share one start edge`).toBe(1);
+    });
+  }
+
+  test("answers and moves on by keyboard right after closing the list, with reduced motion", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    await page.evaluate(() => localStorage.setItem("jabiko.lang", "zh-Hant"));
+    await page.goto("/challenge?mode=basic");
+    await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+    const panel = page.locator(".drill-panel");
+    const firstQuestion = await panel.getAttribute("data-question-id");
+    await page.getByRole("button", { name: "換練習" }).click();
+    await page.locator(".practice-switcher .controls-panel button").last().scrollIntoViewIfNeeded();
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("1");
+    await expect(panel).not.toHaveAttribute("data-result", "unanswered");
+    await page.keyboard.press("Enter");
+    await expect(page.locator(".practice-layout")).toHaveAttribute("data-switcher", "closed");
+    await expect.poll(() => panel.getAttribute("data-question-id")).not.toBe(firstQuestion);
   });
 });
 
@@ -1406,6 +1588,7 @@ for (const viewport of [
         localStorage.setItem("jabiko:attempts", JSON.stringify([attempt]));
       }, savedAttempt);
       await page.goto("/challenge?mode=basic");
+      await page.getByRole("button", { name: "換練習" }).click();
       const n5Filter = page.getByRole("button", { name: "N5", exact: true });
       await expect(n5Filter).toBeEnabled();
       await n5Filter.click();
@@ -1466,7 +1649,12 @@ for (const viewport of [
       await page.goto("/challenge?mode=exam");
       const exit = page.getByRole("button", { name: "首頁", exact: true });
       await expect(exit).toBeVisible();
+      // #866: the set list is one tap away from the session bar, and Esc
+      // puts it away again.
+      await page.getByRole("button", { name: "換練習" }).click();
       await expect(page.locator(".controls-panel")).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(page.locator(".controls-panel")).toBeHidden();
       await expect(page.locator(".drill-panel")).toBeVisible();
       await expect(page.locator(".prompt-header span")).toHaveText(/^第 \d+ 題$/);
       const exitBounds = await exit.boundingBox();
@@ -1486,6 +1674,28 @@ for (const viewport of [
     });
   });
 }
+
+// #866 (Astra review of #872): on a phone with enlarged text the docked
+// action row covered the end of the open set list, so a tap on its last
+// control landed on 看答案 underneath.
+test("keeps every control of the open set list tappable above the phone dock at 200% text", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.evaluate(() => localStorage.setItem("jabiko.lang", "zh-Hant"));
+  await page.goto("/challenge?mode=exam");
+  await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+  await page.getByRole("button", { name: "換練習" }).click();
+  const list = page.locator(".practice-switcher .controls-panel");
+  await expect(list).toHaveCSS("opacity", "1");
+  const last = list.locator("button").last();
+  await last.scrollIntoViewIfNeeded();
+  const hit = await last.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const top = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    return { onTarget: top === element || element.contains(top), inViewport: rect.bottom <= window.innerHeight };
+  });
+  expect(hit).toEqual({ onTarget: true, inViewport: true });
+});
 
 for (const viewport of [
   { name: "320x640", width: 320, height: 640 },

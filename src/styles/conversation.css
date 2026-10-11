@@ -1,7 +1,12 @@
-/* Small Talk Lab (#814): the curated short-conversation practice runtime.
-   Presentation only -- the panel state machine lives in
-   src/domain/conversationSession.ts. Focus visibility comes from the global
-   button:focus-visible rule in challenge.css. */
+/* Small Talk Lab (#814) and World moments: the curated short-conversation
+   runtime. Presentation only -- the state machine lives in
+   src/domain/conversationSession.ts.
+
+   #866 / D-29: a run reads as a conversation. Earlier lines stay as a script
+   (speaker · Japanese line, the learner's in accent ink, D-19), the partner is
+   named by their role, feedback marks each dimension 〇 / △, and commands
+   follow D-25 (primary fill, quiet alternative). JT-1 roles throughout. */
+
 .conversation-panel {
   display: grid;
   gap: 1.25rem;
@@ -9,12 +14,26 @@
   max-width: 44rem;
 }
 
+.conversation-header {
+  display: grid;
+  gap: 0.35rem;
+}
+
 .conversation-title {
-  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  margin: 0;
+}
+
+/* Programmatic focus target for screen readers (tabindex -1, not a control):
+   no ring, or the page opens looking broken. */
+.conversation-title:focus {
+  outline: none;
 }
 
 .conversation-intro {
-  color: var(--muted);
+  color: var(--jt-text-secondary);
+  line-height: 1.6;
   margin: 0;
 }
 
@@ -24,125 +43,356 @@
   gap: 1rem;
 }
 
+/* ---- Seasonal topics ---------------------------------------------------- */
+
 .conversation-seasonal-discovery {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.5rem;
   min-width: 0;
 }
 
-.conversation-seasonal-discovery h3,
+.conversation-seasonal-discovery h3 {
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
 .conversation-seasonal-empty {
+  color: var(--jt-text-secondary);
   margin: 0;
 }
 
 .conversation-seasonal-cards {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.5rem;
 }
 
-.conversation-seasonal-card {
-  background: var(--paper);
-  border: 1px solid var(--button-border);
-  border-radius: var(--radius-md);
-  color: var(--ink);
-  cursor: pointer;
+@media (min-width: 600px) {
+  .conversation-seasonal-cards {
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+}
+
+:is(.app-shell, .game-world-shell) .conversation-seasonal-card {
+  align-content: start;
+  background: var(--jt-accent-background);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--jt-text-primary);
   display: grid;
-  gap: 0.35rem;
+  gap: 0.25rem;
+  justify-content: stretch;
+  justify-items: start;
   min-width: 0;
   overflow-wrap: anywhere;
   padding: 0.85rem 1rem;
-  text-align: left;
+  text-align: start;
+}
+
+:is(.app-shell, .game-world-shell) .conversation-seasonal-card:hover:not(:disabled) {
+  border-color: var(--jt-selection-edge);
+  transform: none;
 }
 
 .conversation-seasonal-card[aria-pressed="true"] {
-  border-color: var(--teal);
-  box-shadow: inset 0 0 0 1px var(--teal);
+  border-color: var(--jt-selection-edge);
+  box-shadow: inset 0 0 0 1px var(--jt-selection-edge);
+}
+
+.conversation-seasonal-card > span:last-child {
+  color: var(--jt-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .conversation-seasonal-phase {
-  color: var(--teal-dark);
-  font-size: 0.8rem;
+  color: var(--jt-accent-foreground);
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
-.conversation-brief-seasonal {
-  border-bottom: 1px solid var(--panel-border);
-  display: grid;
-  gap: 0.35rem;
-  padding-bottom: 0.6rem;
-}
-
-.conversation-brief-seasonal p {
-  color: var(--muted);
-  margin: 0;
-}
+/* ---- Scene list: rows, the brief opens under the chosen one ------------- */
 
 .conversation-scenes {
+  border-top: 1px solid var(--jt-border-subtle);
+  display: grid;
+}
+
+/* button sets justify-content: center globally; in a grid that centred the
+   whole text block, so every row started at a different x (#866 audit). */
+:is(.app-shell, .game-world-shell) .conversation-scene {
+  align-items: start;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--jt-border-subtle);
+  border-radius: 0;
+  color: var(--jt-text-primary);
+  column-gap: 0.85rem;
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  justify-content: stretch;
+  min-height: 4rem;
+  padding: 0.85rem 0.25rem;
+  row-gap: 0.2rem;
+  text-align: start;
+  width: 100%;
+}
+
+:is(.app-shell, .game-world-shell) .conversation-scene:hover:not(:disabled) {
+  background: var(--jt-surface-inset);
+  transform: none;
+}
+
+.conversation-scene:focus-visible {
+  outline-offset: -3px;
+}
+
+:is(.app-shell, .game-world-shell) .conversation-scene[aria-pressed="true"] {
+  background: var(--jt-accent-background);
+  border-bottom-color: transparent;
+}
+
+/* 短 / 中 / 長 as a keycap, like Today's rows. */
+.conversation-scene-length {
+  align-items: center;
+  background: var(--jt-surface-sunken);
+  border-radius: 10px;
+  color: var(--jt-text-primary);
+  display: flex;
+  font-family: var(--jt-font-ja-mincho);
+  font-size: 1.125rem;
+  font-weight: 600;
+  grid-row: 1 / span 2;
+  height: 2.5rem;
+  justify-content: center;
+  line-height: 1;
+  min-width: 2.5rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Multi-character labels ("Medium", 中くらい) get one wider keycap column
+   instead of breaking or overflowing (#872 review) -- the same width on every
+   row, so the situations still share one start edge. zh-Hant's single
+   characters (短 / 中 / 長) keep the 2.5rem square. */
+:is(:root:lang(en), :root:lang(ja)) :is(.app-shell, .game-world-shell) .conversation-scene {
+  grid-template-columns: 4rem minmax(0, 1fr);
+}
+
+:root:lang(ja) .conversation-scene-length {
+  font-size: 0.8125rem;
+  width: 4rem;
+}
+
+:root:lang(en) .conversation-scene-length {
+  font-family: var(--jt-font-ui);
+  font-size: 0.75rem;
+  width: 4rem;
+}
+
+.conversation-scene[aria-pressed="true"] .conversation-scene-length {
+  background: var(--jt-surface-content);
+  color: var(--jt-accent-foreground);
+}
+
+.conversation-scene-situation {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.conversation-scene-partner {
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  grid-column: 2;
+  overflow-wrap: anywhere;
+}
+
+/* The brief: the chosen scene's who / goal / how, and Start. */
+.conversation-brief {
+  background: var(--jt-accent-background);
+  border-radius: 0 0 12px 12px;
   display: grid;
   gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.25rem 1rem 1rem 3.6rem;
 }
 
-.conversation-scene {
-  background: var(--paper);
-  border: 1px solid var(--button-border);
-  border-radius: var(--radius-md);
-  color: var(--ink);
-  cursor: pointer;
-  display: grid;
-  gap: 0.35rem;
-  padding: 0.9rem 1rem;
-  text-align: left;
+.conversation-brief:focus {
+  outline: none;
 }
 
-.conversation-scene[aria-pressed="true"] {
-  border-color: var(--teal);
-  box-shadow: inset 0 0 0 1px var(--teal);
+.conversation-brief:focus-visible {
+  outline: var(--jt-focus-ring-width) solid var(--jt-focus-ring);
+  outline-offset: var(--jt-focus-ring-offset);
 }
 
-.conversation-scene-length {
-  color: var(--teal-dark);
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
+/* Not under a row (seasonal card, World moment): a panel of its own. */
+.conversation-seasonal-discovery > .conversation-brief,
+.conversation-intro-body > .conversation-brief {
+  border-radius: 12px;
+  padding: 1rem;
 }
 
-.conversation-brief {
-  border-left: 3px solid var(--teal);
-  display: grid;
-  gap: 0.5rem;
-  padding-left: 0.9rem;
+@media (max-width: 599px) {
+  .conversation-brief {
+    padding-left: 1rem;
+  }
 }
 
 .conversation-brief p {
   margin: 0;
 }
 
+.conversation-brief dl {
+  column-gap: 1rem;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  margin: 0;
+  row-gap: 0.35rem;
+}
+
+.conversation-brief dt {
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.conversation-brief dd {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 399px) {
+  .conversation-brief dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .conversation-brief dd {
+    margin-bottom: 0.25rem;
+  }
+}
+
+.conversation-brief-objective {
+  font-weight: 600;
+  line-height: 1.6;
+}
+
 .conversation-brief-instruction {
-  color: var(--muted);
+  color: var(--jt-text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.conversation-brief .conversation-primary {
+  justify-self: start;
+}
+
+.conversation-brief-seasonal {
+  border-bottom: 1px solid var(--jt-border-subtle);
+  display: grid;
+  gap: 0.35rem;
+  padding-bottom: 0.6rem;
+}
+
+.conversation-brief-seasonal p {
+  color: var(--jt-text-secondary);
+}
+
+/* ---- The run: script, current turn ------------------------------------ */
+
+/* Lines already said, typeset as a script (D-19): speaker, then the line. */
+.conversation-script {
+  border-inline-start: 2px solid var(--jt-border-subtle);
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+}
+
+.conversation-script-line {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.conversation-script-speaker {
+  color: var(--jt-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.conversation-script-line > span[lang="ja"] {
+  font-family: var(--jt-font-ja);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.conversation-script-line[data-speaker="learner"] > span[lang="ja"],
+.conversation-script-line[data-speaker="learner"] .conversation-script-speaker {
+  color: var(--jt-accent-foreground);
 }
 
 .conversation-turn {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius-lg);
+  background: var(--jt-surface-content);
+  border: 1px solid var(--jt-border-subtle);
+  border-radius: 16px;
   display: grid;
   gap: 0.85rem;
-  padding: 1.1rem 1.2rem;
+  padding: 1.25rem;
 }
 
-.conversation-partner-label,
+@media (max-width: 599px) {
+  .conversation-turn {
+    padding: 1rem;
+  }
+}
+
+.conversation-partner-label {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+  margin: 0;
+}
+
+.conversation-speaker-name {
+  color: var(--jt-text-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.conversation-partner-caption,
 .conversation-choose-label {
-  color: var(--muted);
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
+  color: var(--jt-text-secondary);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
   margin: 0;
 }
 
 .conversation-partner-line {
-  font-size: 1.15rem;
+  font-family: var(--jt-font-ja-mincho);
+  font-size: 1.375rem;
+  line-height: 1.6;
   margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.conversation-partner-line:focus {
+  outline: none;
 }
 
 .conversation-prompt {
+  color: var(--jt-text-secondary);
+  line-height: 1.6;
   margin: 0;
 }
 
@@ -151,95 +401,221 @@
   gap: 0.6rem;
 }
 
-.conversation-response {
-  background: var(--paper);
-  border: 1px solid var(--button-border);
-  border-radius: var(--radius-md);
-  color: var(--ink);
-  cursor: pointer;
+/* Replies are choices: outlines (D-25), like answer options. */
+:is(.app-shell, .game-world-shell) .conversation-response {
+  align-content: start;
+  background: var(--jt-surface-content);
+  border: 1px solid var(--jt-border-control);
+  border-radius: 10px;
+  color: var(--jt-text-primary);
   display: grid;
   gap: 0.3rem;
-  padding: 0.8rem 0.9rem;
-  text-align: left;
+  justify-content: stretch;
+  justify-items: start;
+  min-height: 3.5rem;
+  padding: 0.75rem 1rem;
+  text-align: start;
+}
+
+:is(.app-shell, .game-world-shell) .conversation-response:hover:not(:disabled) {
+  border-color: var(--jt-selection-edge);
+  box-shadow: inset 0 0 0 1px var(--jt-selection-edge);
+  transform: none;
+}
+
+:is(.app-shell, .game-world-shell) .conversation-response:active:not(:disabled) {
+  background: var(--jt-accent-background);
+}
+
+.conversation-response > span[lang="ja"] {
+  font-family: var(--jt-font-ja);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .conversation-response small {
-  color: var(--muted);
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.5;
 }
 
+/* ---- Feedback --------------------------------------------------------- */
+
 .conversation-section-title {
+  font-size: 1.125rem;
   margin: 0;
+}
+
+.conversation-section-title:focus {
+  outline: none;
 }
 
 .conversation-response-echo {
-  font-size: 1.1rem;
+  border-inline-start: 3px solid var(--jt-selection-edge);
+  color: var(--jt-accent-foreground);
+  font-family: var(--jt-font-ja);
+  font-size: 1.0625rem;
+  line-height: 1.6;
   margin: 0;
+  padding-inline-start: 0.75rem;
 }
 
 .conversation-dimensions {
+  border-top: 1px solid var(--jt-border-subtle);
   display: grid;
-  gap: 0.4rem;
   margin: 0;
 }
 
 .conversation-dimension {
+  align-items: center;
+  border-bottom: 1px solid var(--jt-border-subtle);
   display: flex;
-  gap: 0.6rem;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
   justify-content: space-between;
+  min-height: 2.5rem;
+  padding: 0.35rem 0;
 }
 
 .conversation-dimension dt {
-  color: var(--label-text);
+  color: var(--jt-text-primary);
 }
 
 .conversation-dimension dd {
+  align-items: center;
+  display: inline-flex;
+  font-weight: 600;
+  gap: 0.35rem;
   margin: 0;
+}
+
+.conversation-status-mark {
+  font-family: var(--jt-font-ja);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .conversation-dimension dd[data-status="met"] {
-  color: var(--teal-dark);
+  color: var(--jt-assess-correct);
 }
 
 .conversation-dimension dd[data-status="needs_work"] {
-  color: var(--danger);
+  color: var(--jt-assess-partial);
 }
 
 .conversation-composition {
+  color: var(--jt-text-secondary);
   margin: 0;
 }
+
+.conversation-attempt-comparison {
+  background: var(--jt-surface-inset);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+/* ---- Commands (D-25) --------------------------------------------------- */
 
 .conversation-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: 0.5rem;
 }
 
-.conversation-primary,
-.conversation-secondary {
-  border-radius: var(--radius-pill);
+:is(.app-shell, .game-world-shell) .conversation-primary,
+:is(.app-shell, .game-world-shell) .conversation-secondary {
+  border-radius: var(--jt-radius-control);
   cursor: pointer;
-  padding: 0.6rem 1.1rem;
+  font-weight: 600;
+  max-width: 100%;
+  min-height: 3rem;
+  overflow-wrap: anywhere;
+  padding: 0.6rem 1.25rem;
 }
 
-.conversation-primary {
+:is(.app-shell, .game-world-shell) .conversation-primary {
   background: var(--jt-action-primary-background);
-  border: 1px solid var(--jt-action-primary-background);
+  border: 1px solid transparent;
   color: var(--jt-action-primary-foreground);
+  font-weight: 700;
 }
 
-.conversation-secondary {
+:is(.app-shell, .game-world-shell) .conversation-primary:hover:not(:disabled) {
+  background: var(--jt-action-primary-hover);
+  border-color: transparent;
+}
+
+:is(.app-shell, .game-world-shell) .conversation-primary:active:not(:disabled) {
+  background: var(--jt-action-primary-pressed);
+}
+
+/* The quiet alternative beside a primary; tonal when it stands alone. */
+:is(.app-shell, .game-world-shell) .conversation-secondary {
   background: transparent;
-  border: 1px solid var(--button-border);
-  color: var(--ink);
+  border: 1px solid transparent;
+  color: var(--jt-text-primary);
+}
+
+:is(.app-shell, .game-world-shell) .conversation-secondary:hover:not(:disabled) {
+  background: var(--jt-action-tonal-background);
+  border-color: transparent;
+}
+
+.conversation-footer .conversation-secondary,
+.conversation-actions .conversation-secondary:only-child {
+  background: var(--jt-action-tonal-background);
 }
 
 .conversation-note {
-  color: var(--muted);
-  font-size: 0.85rem;
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.6;
   margin: 0;
 }
 
+/* ---- Completion -------------------------------------------------------- */
+
+.conversation-done-buddy {
+  align-items: end;
+  color: var(--jt-accent-foreground);
+  display: flex;
+  gap: 0.25rem;
+}
+
+.conversation-done-buddy .jabiko-buddy {
+  height: 4.5rem;
+  width: 4.5rem;
+}
+
+/* The base bubble is a one-line pill; here it may shrink and wrap so the
+   closing line never widens the page at 200% text (#872 review). */
+.conversation-done-buddy .buddy-bubble {
+  align-self: start;
+  border-radius: 1rem;
+  line-height: 1.3;
+  margin-top: 0.5rem;
+  min-width: 0;
+  white-space: normal;
+}
+
+.conversation-complete-summary {
+  line-height: 1.7;
+  margin: 0;
+}
+
+.conversation-summary {
+  background: var(--jt-surface-inset);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
 .conversation-summary-title {
+  color: var(--jt-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
   margin: 0;
 }
 
@@ -249,5 +625,13 @@
 
 .conversation-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
+}
+
+@media (forced-colors: active) {
+  .conversation-turn,
+  .conversation-brief,
+  .conversation-seasonal-card {
+    border: 1px solid CanvasText;
+  }
 }

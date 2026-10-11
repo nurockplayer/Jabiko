@@ -21,6 +21,10 @@
 @import "./styles/jt1-tokens.css";
 @import "./styles/jt1-compat.css";
 @import "./styles/jt1-shell.css";
+@import "./styles/today.css";
+@import "./styles/learning-loop.css";
+@import "./styles/session.css";
+@import "./styles/reference.css";
 
 /* #473: FeedbackPanel moved between .word-block and .choice-grid (a single
    DOM order for every viewport). The post-answer card now needs breathing

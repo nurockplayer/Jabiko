@@ -103,7 +103,12 @@ export function FeedbackPanel({
   }
 
   return (
-    <section className={`feedback ${isCorrect ? "correct" : isRevealed ? "revealed" : "incorrect"}`} aria-live="polite">
+    // tabIndex -1: the drill's verdict button moves focus here (#861).
+    <section
+      className={`feedback ${isCorrect ? "correct" : isRevealed ? "revealed" : "incorrect"}`}
+      aria-live="polite"
+      tabIndex={-1}
+    >
       <div className="feedback-title">
         <Icon aria-hidden="true" />
         <h2>{title}</h2>

@@ -1,40 +1,35 @@
-import { useEffect, useRef, type ComponentType } from "react";
-import { ArrowRight, Eye, GraduationCap, House, MessageSquare, RotateCcw } from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { ArrowRight, ChevronDown, Eye, GraduationCap, House, MessageSquare, RotateCcw } from "lucide-react";
 import { copy, type Language } from "../../i18n";
 import type { PartOfSpeech } from "../../domain/types";
-import {
-  DarumaDoneSpot,
-  LanternSpot,
-  OmamoriSpot,
-  PaperNoteSpot,
-  SproutSpot,
-  TargetSpot,
-  TeaCupSpot,
-  ToriiSpot
-} from "../../illustrations";
+import { PaperNoteSpot, TeaCupSpot } from "../../illustrations";
 import { allowsOptionFurigana, isReadingPrompt } from "../../domain/furigana";
-import { pickDoneSpot, type DoneSpotKey } from "../../domain/doneSpot";
 import { pickLocalized } from "../../domain/localizedContent";
 import { ExamPrompt } from "../ExamPrompt";
 import { FeedbackPanel } from "../FeedbackPanel";
+import { JabikoBuddy } from "../JabikoBuddy";
+import {
+  buddyEnergy,
+  buddyLine,
+  completionEnergy,
+  trailingCorrect,
+  type BuddyMood
+} from "../../domain/buddyReaction";
 import { Ruby } from "../Ruby";
 import { ShareButtons } from "./ShareButtons";
 import { SpeakButton } from "../SpeakButton";
 import type { Feedback } from "../types";
 import type { PracticeSession } from "../../hooks/usePracticeSession";
 
-// The completion card's illustration key -> component. Lives here (not in the
-// domain) so doneSpot.ts stays JSX-free. "daruma" is the open-eye perfect-run
-// spot; the rest rotate for ordinary finishes.
-const DONE_SPOTS: Record<DoneSpotKey, ComponentType<{ size?: number; className?: string }>> = {
-  daruma: DarumaDoneSpot,
-  sprout: SproutSpot,
-  omamori: OmamoriSpot,
-  lantern: LanternSpot,
-  torii: ToriiSpot,
-  teacup: TeaCupSpot,
-  target: TargetSpot
-};
+// How much of the explanation (verdict title + answer line + a first line of
+// text) must show above the docked action row once the mark has landed.
+const FEEDBACK_PEEK_PX = 120;
+// Let the 〇/× land before the view moves.
+const FEEDBACK_PEEK_DELAY_MS = 420;
+
+function prefersReducedMotion(): boolean {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+}
 
 function choiceOptionClass(choice: string, selectedChoice: string | null, feedback: Feedback): string {
   const classes = ["choice-option"];
@@ -52,6 +47,71 @@ function choiceOptionClass(choice: string, selectedChoice: string | null, feedba
   }
 
   return classes.join(" ");
+}
+
+// #861 / D-03: the verdict is marked ON the judged option, the way a teacher
+// marks a paper (丸付け). 〇 = the right answer, × = the learner's wrong pick,
+// dashed 〇 = shown without answering. The glyph shape carries the meaning
+// (never colour alone); it is aria-hidden because the feedback live region
+// already announces the verdict. `pathLength` = 1 lets CSS draw the stroke
+// (learning-loop.css); without motion the mark is simply complete.
+type VerdictMarkKind = "correct" | "miss" | "revealed";
+
+// A hand-drawn maru: starts at ~10 o'clock and runs clockwise a little past a
+// full turn, tightening so the tail tucks inside its own start.
+const MARU_PATH =
+  "M4.03 7.40C4.28 7.08 4.93 6.03 5.50 5.45C6.06 4.88 6.73 4.36 7.43 3.95C8.13 3.55 8.91 3.23 9.69 3.02C10.47 2.82 11.32 2.72 12.12 2.73C12.93 2.74 13.77 2.87 14.55 3.10C15.32 3.33 16.09 3.68 16.77 4.11C17.45 4.53 18.10 5.08 18.64 5.67C19.17 6.26 19.64 6.95 20.00 7.66C20.35 8.38 20.61 9.16 20.76 9.93C20.91 10.71 20.95 11.52 20.89 12.30C20.83 13.07 20.65 13.86 20.38 14.58C20.12 15.30 19.74 16.00 19.30 16.62C18.86 17.23 18.32 17.80 17.74 18.27C17.17 18.74 16.51 19.13 15.84 19.43C15.17 19.73 14.44 19.94 13.73 20.05C13.02 20.16 12.27 20.17 11.56 20.09C10.86 20.02 10.15 19.84 9.49 19.59C8.84 19.34 8.20 19.00 7.64 18.59C7.08 18.19 6.56 17.70 6.12 17.17C5.69 16.64 5.31 16.04 5.02 15.43C4.73 14.81 4.52 14.14 4.40 13.47C4.28 12.81 4.24 12.10 4.29 11.43C4.35 10.76 4.49 10.07 4.71 9.43C4.93 8.79 5.25 8.16 5.63 7.60C6.01 7.04 6.47 6.51 6.99 6.06C7.50 5.62 8.42 5.12 8.70 4.93";
+
+function VerdictMark({ kind }: { kind: VerdictMarkKind }) {
+  return (
+    <svg className="verdict-mark" data-mark={kind} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path pathLength={1} d={kind === "miss" ? "M7 7 17 17M17 7 7 17" : MARU_PATH} />
+    </svg>
+  );
+}
+
+// #866: a perfect set is stamped with a 花丸 (hanamaru) -- the teacher's
+// flower-circle that crowns full marks, completing the 丸付け language of the
+// loop. A spiral and a ring of petals, drawn as two pen strokes (pathLength
+// = 1 so learning-loop.css can draw them); static without motion.
+const HANAMARU_SPIRAL =
+  "M32 30.50L32.26 30.32L32.57 30.21L32.91 30.16L33.28 30.18L33.66 30.28L34.03 30.46L34.38 30.71L34.70 31.04L34.96 31.43L35.17 31.89L35.29 32.39L35.33 32.93L35.27 33.49L35.12 34.04L34.87 34.59L34.53 35.10L34.09 35.56L33.56 35.95L32.97 36.26L32.31 36.47L31.62 36.58L30.89 36.58L30.16 36.46L29.45 36.22L28.76 35.86L28.13 35.38L27.58 34.81L27.11 34.14L26.74 33.39L26.49 32.58L26.37 31.72L26.38 30.85L26.53 29.97L26.83 29.11L27.25 28.29L27.81 27.54L28.48 26.87L29.27 26.30L30.14 25.85L31.09 25.54L32.09 25.37L33.12 25.36L34.16 25.50L35.18 25.81L36.16 26.28L37.06 26.90L37.88 27.67L38.58 28.56L39.14 29.57L39.55 30.67L39.79 31.84L39.85 33.05L39.72 34.27L39.40 35.48L38.89 36.65L38.20 37.74L37.33 38.73L36.31 39.59L35.15 40.29L33.87 40.81L32.51 41.13L31.09 41.24L29.66 41.13L28.23 40.79L26.86 40.23L25.57 39.45L24.40 38.47L23.38 37.30L22.54 35.98L21.92 34.51L21.52 32.95L21.36 31.33L21.47 29.68L21.83 28.05L22.44 26.48L23.30 25.01L24.40 23.67L25.70 22.51L27.17 21.55L28.80 20.83L30.53 20.37L32.33 20.17L34.15 20.26L35.96 20.63L37.70 21.28L39.33 22.20L40.81 23.37L42.10 24.77L43.17 26.36L43.99 28.11";
+const HANAMARU_PETALS =
+  "M35.28 15.83C38.52 5.28 54.31 15.92 45.75 22.88C55.50 17.72 59.15 36.40 48.17 35.28C58.72 38.52 48.08 54.31 41.12 45.75C46.28 55.50 27.60 59.15 28.72 48.17C25.48 58.72 9.69 48.08 18.25 41.12C8.50 46.28 4.85 27.60 15.83 28.72C5.28 25.48 15.92 9.69 22.88 18.25C17.72 8.50 36.40 4.85 35.28 15.83";
+
+function HanamaruStamp({ label }: { label: string }) {
+  return (
+    <div className="done-stamp" data-stamp="hanamaru">
+      <svg className="hanamaru" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <path className="hanamaru-spiral" pathLength={1} d={HANAMARU_SPIRAL} />
+        <path className="hanamaru-petals" pathLength={1} d={HANAMARU_PETALS} />
+      </svg>
+      <span className="done-perfect-badge">{label}</span>
+    </div>
+  );
+}
+
+function verdictMarkFor(
+  choice: string,
+  selectedChoice: string | null,
+  feedback: Feedback,
+  expectedAnswers: string[]
+): VerdictMarkKind | null {
+  if (!feedback) return null;
+  const isSelected = selectedChoice === choice;
+  if (feedback.status === "correct") return isSelected ? "correct" : null;
+  if (feedback.status === "incorrect") {
+    if (isSelected) return "miss";
+    return expectedAnswers.includes(choice) ? "correct" : null;
+  }
+  return expectedAnswers.includes(choice) ? "revealed" : null;
+}
+
+// Enter / Space on a bar button or the verdict button activate THAT button;
+// they must not also reach the drill's Enter-to-next. Every other key
+// (digits, Esc) still bubbles to the session's shortcuts (#866 review).
+function keepActivationKeys(event: ReactKeyboardEvent<HTMLElement>) {
+  if (event.key === "Enter" || event.key === " ") event.stopPropagation();
 }
 
 function partOfSpeechLabel(partOfSpeech: PartOfSpeech, language: Language): string {
@@ -93,7 +153,9 @@ export function DrillPanel({
   isQuestionBookmarked,
   onToggleBookmark,
   onExit,
-  onOpenFeedback
+  onOpenFeedback,
+  modeTitle,
+  switcher
 }: Pick<
   PracticeSession,
   | "questionIndex"
@@ -124,15 +186,103 @@ export function DrillPanel({
 > & {
   language: Language;
   onExit: () => void;
+  // #866 session bar: the current set's name (the real mode, not a fixed
+  // "今日練習") and, where the set list is collapsed (compact widths), the
+  // switcher it opens.
+  modeTitle?: string;
+  switcher?: { open: boolean; onToggle: () => void; controlsId: string };
   // Opens the in-app feedback form (#456) from the completion card, so a
   // learner who just spotted a bad question can report it in context.
   onOpenFeedback?: () => void;
 }) {
   const t = copy[language];
   const recallInputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
 
+  // #861: one key per step of the loop (a question, or the completion card).
+  // Keying the prompt and options by it remounts them on Next, so CSS can
+  // play the "turn" in; answering keeps the same key, so nothing replays
+  // (or moves) when the verdict lands.
+  const stepKey = currentQuestion
+    ? `${sessionSeed}:${questionIndex}:${currentQuestion.id}`
+    : sessionExhausted
+      ? `${sessionSeed}:done`
+      : "idle";
+  const lastStepRef = useRef(stepKey);
+
+  // Bring a new step into view when the learner would otherwise land
+  // mid-page (the previous question's feedback left the page scrolled).
+  // Never on first render or when feedback appears -- only on a new step.
   useEffect(() => {
-    if (isRecallQuestion && currentQuestion && !feedback) {
+    if (lastStepRef.current === stepKey) return;
+    lastStepRef.current = stepKey;
+    const panel = panelRef.current;
+    if (!panel) return;
+    // In view = its top clears the sticky header (the panel's scroll margin).
+    const headerClearance = parseFloat(getComputedStyle(panel).scrollMarginTop) || 0;
+    if (panel.getBoundingClientRect().top >= headerClearance) return;
+    panel.scrollIntoView({ block: "start", behavior: prefersReducedMotion() ? "auto" : "smooth" });
+  }, [stepKey]);
+
+  // Once the verdict mark has landed, make sure the start of the explanation
+  // is not hidden behind the docked action row: scroll just enough to show it,
+  // but never so far that the marked options slide under the header. Only on
+  // the answer itself -- not when a page is rendered already answered.
+  const lastFeedbackRef = useRef(feedback);
+  useEffect(() => {
+    const previous = lastFeedbackRef.current;
+    lastFeedbackRef.current = feedback;
+    if (!feedback || previous) return;
+    const reduce = prefersReducedMotion();
+    const peek = () => {
+      const panel = panelRef.current;
+      const explanation = panel?.querySelector<HTMLElement>(".feedback");
+      if (!panel || !explanation) return;
+      const dock = panel.querySelector<HTMLElement>(".action-row--dock")?.getBoundingClientRect();
+      // Docked = the row sits on the viewport's bottom edge (compact widths).
+      const visibleBottom = dock && dock.bottom >= window.innerHeight - 1 ? dock.top : window.innerHeight;
+      const needed = explanation.getBoundingClientRect().top + FEEDBACK_PEEK_PX - visibleBottom;
+      if (needed <= 0) return;
+      const marks = Array.from(panel.querySelectorAll<HTMLElement>(".choice-grid button[data-result], .recall-form"));
+      const marksTop = Math.min(...marks.map((mark) => mark.getBoundingClientRect().top));
+      const headerClearance = parseFloat(getComputedStyle(panel).scrollMarginTop) || 0;
+      const room = Number.isFinite(marksTop) ? marksTop - headerClearance : needed;
+      const top = Math.round(Math.min(needed, room));
+      if (top > 4) window.scrollBy({ top, behavior: reduce ? "auto" : "smooth" });
+    };
+    const timer = window.setTimeout(peek, reduce ? 0 : FEEDBACK_PEEK_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
+  const showExplanation = () => {
+    const explanation = panelRef.current?.querySelector<HTMLElement>(".feedback");
+    if (!explanation) return;
+    explanation.scrollIntoView({ block: "start", behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    explanation.focus({ preventScroll: true });
+  };
+
+  // ジャビ子's mood follows the verdict; a real run of correct answers in this
+  // session raises the energy of the reaction (never shown as a number).
+  const buddyMood: BuddyMood =
+    feedback?.status === "correct" ? "happy" : feedback?.status === "incorrect" ? "oops" : "thinking";
+  const verdictTitle =
+    feedback?.status === "correct" ? t.correct : feedback?.status === "incorrect" ? t.incorrect : t.revealed;
+  const energy = buddyEnergy(trailingCorrect(attempts));
+
+  // Truthful session progress: questions answered out of the pass total.
+  const answeredCount = attempts.length;
+
+  // While the set list is open the learner is choosing settings: a recall
+  // question appearing behind it must not take focus from the list. Read
+  // through a ref so the list CLOSING never re-runs the autofocus -- each
+  // close path (choose, Esc, focus leaving) has already placed focus (#866).
+  const switcherOpen = switcher?.open ?? false;
+  const switcherOpenRef = useRef(switcherOpen);
+  useLayoutEffect(() => {
+    switcherOpenRef.current = switcherOpen;
+  }, [switcherOpen]);
+  useEffect(() => {
+    if (isRecallQuestion && currentQuestion && !feedback && !switcherOpenRef.current) {
       recallInputRef.current?.focus({ preventScroll: true });
     }
   }, [currentQuestion, feedback, isRecallQuestion, sessionSeed]);
@@ -153,11 +303,10 @@ export function DrillPanel({
   const doneAgain = doneCopy.again;
   const doneExit = doneCopy.exit;
 
-  // A flawless run earns the open-eye daruma + a badge; every other finish
-  // rotates a celebratory spot keyed off the session counter, so the picture
-  // is stable while the card shows but varies session to session.
+  // A flawless run earns a badge and ジャビ子's biggest cheer; the cheer scales
+  // with the real accuracy of the set (D-10 retired the rotating spot art).
   const isPerfectSession = attempts.length > 0 && wrongCount === 0;
-  const DoneSpot = DONE_SPOTS[pickDoneSpot(sessionSeed, isPerfectSession)];
+  const doneEnergy = completionEnergy(isPerfectSession, accuracy);
 
   // Container-level answer state for embedded AI / browser automation:
   // collapse feedback into one result string so .drill-panel exposes the
@@ -175,6 +324,7 @@ export function DrillPanel({
 
   return (
     <section
+      ref={panelRef}
       className="drill-panel"
       aria-label={t.currentQuestion}
       onKeyDown={handleDrillKeyDown}
@@ -184,19 +334,49 @@ export function DrillPanel({
       data-result={drillResult}
       data-expected-answer={feedback ? currentQuestion?.expectedAnswers.join(" / ") : undefined}
     >
-      {showDirectExit ? (
-        <button
-          className="session-exit"
-          type="button"
-          onClick={onExit}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
-          <House aria-hidden="true" size={16} />
-          {t.home}
-        </button>
-      ) : null}
-      {currentQuestion ? (
-        <>
+      {showDirectExit || currentQuestion || (modeTitle && switcher) ? (
+        // #866 session bar: exit · set title (the switcher on compact widths)
+        // · n / N with the meter. One row instead of three stacked headers.
+        // End and empty screens keep the switcher: it is the only way to
+        // another set now that the list is a popover (D-28).
+        <div className="session-bar">
+        <div className="session-bar-row">
+          {showDirectExit ? (
+            <button
+              className="session-exit"
+              type="button"
+              onClick={onExit}
+              onKeyDown={keepActivationKeys}
+            >
+              <House aria-hidden="true" size={16} />
+              <span className="session-exit-label">{t.home}</span>
+            </button>
+          ) : null}
+          {modeTitle && switcher ? (
+            // Named by its action, described by the current set: the set
+            // list has a button with the set's own name, and two buttons with
+            // one name would be ambiguous to a screen reader.
+            <button
+              className="session-title"
+              type="button"
+              aria-label={t.session.switchSet}
+              aria-describedby="session-title-text"
+              aria-expanded={switcher.open}
+              aria-controls={switcher.controlsId}
+              onClick={switcher.onToggle}
+              onKeyDown={keepActivationKeys}
+            >
+              <span id="session-title-text" className="session-title-text">
+                {modeTitle}
+              </span>
+              <ChevronDown aria-hidden="true" />
+            </button>
+          ) : modeTitle ? (
+            <span className="session-title">
+              <span className="session-title-text">{modeTitle}</span>
+            </span>
+          ) : null}
+          {currentQuestion ? (
           <div className="prompt-header">
             <span>
               {sessionTotal != null
@@ -204,9 +384,23 @@ export function DrillPanel({
                 : t.questionNumber(questionIndex + 1)}
             </span>
             <strong>{currentQuestion.promptLabel ?? t.targetForms[currentQuestion.targetForm]}</strong>
+            {sessionTotal != null ? (
+              // Visual echo of the "n / N" text above, so aria-hidden.
+              <span className="session-meter" aria-hidden="true" data-answered={answeredCount}>
+                <span
+                  className="session-meter-fill"
+                  style={{ "--progress": String(Math.min(1, answeredCount / sessionTotal)) } as CSSProperties}
+                />
+              </span>
+            ) : null}
           </div>
-
-          <div className="word-block">
+          ) : null}
+        </div>
+        </div>
+      ) : null}
+      {currentQuestion ? (
+        <>
+          <div className="word-block" key={`word:${stepKey}`}>
             {currentQuestion.promptText ? (
               <ExamPrompt question={currentQuestion} language={language} />
             ) : (
@@ -241,22 +435,9 @@ export function DrillPanel({
             )}
           </div>
 
-          {/* Post-answer feedback sits right under the prompt (and above the
-              choice grid), so a phone learner can compare the answer /
-              explanation without scrolling back up (#473). Rendered only
-              after answering -- the pre-answer DOM is unchanged. */}
-          {feedback ? (
-            <FeedbackPanel
-              feedback={feedback}
-              language={language}
-              options={choiceOptions}
-              bookmarked={isQuestionBookmarked(feedback.question.id)}
-              onToggleBookmark={() => onToggleBookmark(feedback.question.id)}
-            />
-          ) : null}
-
           {isRecallQuestion ? (
             <form
+              key={`recall:${stepKey}`}
               className="recall-form"
               onSubmit={(event) => {
                 event.preventDefault();
@@ -292,7 +473,7 @@ export function DrillPanel({
               </div>
             </form>
           ) : (
-          <div className="choice-grid" aria-label={t.answerOptions}>
+          <div className="choice-grid" key={`choices:${stepKey}`} aria-label={t.answerOptions}>
             {choiceOptions.map((choice) => {
               // Expose selection + result as DOM data attributes for AI /
               // browser-automation testability. Derived purely from existing
@@ -311,6 +492,20 @@ export function DrillPanel({
                   dataResult = "target";
                 }
               }
+              const mark = verdictMarkFor(choice, selectedChoice, feedback, currentQuestion.expectedAnswers);
+              // #864 / D-03: the mark's word, written on the option's edge
+              // like a teacher's margin note (on the border, so it takes no
+              // room and moves nothing). CSS draws it from data-verdict-label
+              // with empty alt text, so the option's text and accessible name
+              // stay the choice itself (#862); the live region announces it.
+              const verdictLabel =
+                mark === "miss"
+                  ? t.session.verdictLabels.yours
+                  : mark === "revealed"
+                    ? t.session.verdictLabels.answer
+                    : mark === "correct"
+                      ? t.session.verdictLabels.correct
+                      : null;
               return (
                 <button
                   key={choice}
@@ -318,8 +513,11 @@ export function DrillPanel({
                   className={choiceOptionClass(choice, selectedChoice, feedback)}
                   disabled={Boolean(feedback)}
                   onClick={() => handleChoiceSubmit(choice)}
+                  data-choice={choice}
                   data-selected={isSelected ? "true" : undefined}
                   data-result={dataResult}
+                  data-mark={mark ?? undefined}
+                  data-verdict-label={verdictLabel ?? undefined}
                 >
                   <Ruby
                     text={choice}
@@ -328,33 +526,81 @@ export function DrillPanel({
                       !allowsOptionFurigana(currentQuestion.promptLabel)
                     }
                   />
+                  {mark ? <VerdictMark kind={mark} /> : null}
                 </button>
               );
             })}
           </div>
           )}
 
-          {!feedback ? (
-            <p className="kbd-hint">{isRecallQuestion ? t.recallKeyboardHint : t.keyboardHint}</p>
-          ) : null}
-
-          <div className="action-row">
-            <button className="ghost-button" type="button" onClick={revealAnswer} disabled={Boolean(feedback)}>
-              <Eye aria-hidden="true" />
-              {t.revealAnswer}
-            </button>
-            <button className="next-button" type="button" ref={nextButtonRef} onClick={nextQuestion}>
+          {/* D-07: the action row sits directly under the options (docked to
+              the viewport bottom on compact widths for multiple choice), and
+              everything that changes after answering comes AFTER it -- the
+              hint disappears and the feedback appears below, so the options
+              and Next keep their exact boxes. Typed recall stays in flow so
+              the row never fights the software keyboard. */}
+          <div className={isRecallQuestion ? "action-row" : "action-row action-row--dock"}>
+            {feedback ? (
+              // The reveal slot becomes the verdict: ジャビ子 reacts right by
+              // the learner's thumb, and the button opens the explanation.
+              // Enter here must open it, not skip to the next question.
+              <button
+                className="verdict-chip"
+                type="button"
+                data-verdict={drillResult}
+                onClick={showExplanation}
+                onKeyDown={keepActivationKeys}
+              >
+                <JabikoBuddy mood={buddyMood} energy={energy} />
+                <span className="buddy-bubble" lang="ja" aria-hidden="true">
+                  {buddyLine(buddyMood, energy)}
+                </span>
+                <span className="verdict-chip-text">
+                  <strong>{verdictTitle}</strong> <small>{t.seeExplanation}</small>
+                </span>
+                <ChevronDown aria-hidden="true" />
+              </button>
+            ) : (
+              <button className="ghost-button" type="button" onClick={revealAnswer}>
+                <Eye aria-hidden="true" />
+                {t.revealAnswer}
+              </button>
+            )}
+            {/* D-25: before a verdict the options are the job, so 下一題
+                stays tonal; after it, 下一題 is the one primary. */}
+            <button
+              className="next-button"
+              type="button"
+              ref={nextButtonRef}
+              onClick={nextQuestion}
+              data-emphasis={feedback ? "primary" : "tonal"}
+            >
               <ArrowRight aria-hidden="true" />
               {t.nextQuestion}
             </button>
           </div>
+
+          {!feedback ? (
+            <p className="kbd-hint">{isRecallQuestion ? t.recallKeyboardHint : t.keyboardHint}</p>
+          ) : (
+            <FeedbackPanel
+              feedback={feedback}
+              language={language}
+              options={choiceOptions}
+              bookmarked={isQuestionBookmarked(feedback.question.id)}
+              onToggleBookmark={() => onToggleBookmark(feedback.question.id)}
+            />
+          )}
         </>
       ) : sessionExhausted ? (
         <div className="empty-state review-done session-done">
-          <DoneSpot />
-          {isPerfectSession ? (
-            <span className="done-perfect-badge">{t.donePerfectBadge}</span>
-          ) : null}
+          <div className="done-buddy-stage">
+            <JabikoBuddy mood="cheer" energy={doneEnergy} className="done-buddy" />
+            <span className="buddy-bubble" lang="ja" aria-hidden="true">
+              {buddyLine("cheer", doneEnergy)}
+            </span>
+          </div>
+          {isPerfectSession ? <HanamaruStamp label={t.donePerfectBadge} /> : null}
           <h2>{doneTitle}</h2>
           <dl className="done-stats" aria-label={t.scoreReportLabel}>
             <div className="done-stat">

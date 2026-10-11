@@ -11,11 +11,39 @@
   line-height: 1.65;
 }
 
-.game-world-progress,
 .game-world-arc-complete,
 .game-world-checkpoint {
   border-inline-start: 3px solid var(--jt-border-control);
   padding-inline-start: 0.75rem;
+}
+
+/* The main story as stops on a line (#866): filled 〇 = scene done. */
+.game-world-progress {
+  align-items: center;
+  color: var(--jt-text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  gap: 0.5rem 0.75rem;
+}
+
+.game-world-progress-track {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.375rem;
+}
+
+.game-world-progress-track > span {
+  border: 2px solid var(--jt-border-control);
+  border-radius: 50%;
+  height: 0.75rem;
+  width: 0.75rem;
+}
+
+.game-world-progress-track > span[data-done] {
+  background: var(--jt-accent-foreground);
+  border-color: var(--jt-accent-foreground);
 }
 
 .game-world-locations {
@@ -30,31 +58,98 @@
   padding: 1rem;
 }
 
+/* The current moment (D-22 "現在"): the one filled panel, like Today's hero --
+   who, where, what you will do, one start. */
 .game-world-current {
-  border-inline-start: 3px solid var(--jt-border-control);
+  background: var(--jt-accent-background);
+  border-radius: 16px;
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: minmax(0, 1fr);
   margin-block: 1rem 1.5rem;
-  padding-inline-start: 1rem;
+  overflow-wrap: anywhere;
+  padding: 1.25rem;
+}
+
+@media (max-width: 36rem) {
+  .game-world-current {
+    padding: 1rem;
+  }
+}
+
+.game-world-current > p {
+  line-height: 1.65;
+  margin: 0;
+}
+
+.game-world-person {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+  min-width: 0;
+}
+
+.game-world-monogram {
+  align-items: center;
+  background: var(--jt-surface-content);
+  border: 2px solid var(--jt-selection-edge);
+  border-radius: 50%;
+  color: var(--jt-accent-foreground);
+  display: flex;
+  flex: none;
+  font-family: var(--jt-font-ja-mincho);
+  font-size: 1.375rem;
+  font-weight: 700;
+  height: 3rem;
+  justify-content: center;
+  width: 3rem;
 }
 
 .game-world-current-person {
-  color: var(--jt-text-secondary);
-  font-weight: 600;
+  display: grid;
+  gap: 0.1rem;
+  margin: 0;
+  min-width: 0;
 }
 
-.game-world-current-objective {
-  font-size: 1.08em;
+.game-world-current-person strong {
+  font-size: 1.0625rem;
+}
+
+.game-world-current-person > span {
+  color: var(--jt-text-secondary);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.game-world-current-stage > span {
+  color: var(--jt-text-secondary);
+  font-size: 0.875rem;
+}
+
+.game-world-current .game-world-current-objective {
+  font-size: 1.0625rem;
+  font-weight: 600;
 }
 
 .game-world-start {
   background: var(--jt-action-primary-background);
-  border: 1px solid var(--jt-action-primary-background);
+  border: 1px solid transparent;
+  border-radius: 12px;
   color: var(--jt-action-primary-foreground);
   cursor: pointer;
+  font-weight: 700;
+  justify-self: start;
   max-width: 100%;
-  min-height: 44px;
-  padding-inline: 1rem;
+  min-height: 3rem;
+  padding-inline: 1.5rem;
   text-align: start;
   white-space: normal;
+}
+
+.game-world-start:hover {
+  background: var(--jt-action-primary-hover);
 }
 
 .game-world-location h3 {
@@ -117,7 +212,7 @@
 .game-world-save-error {
   background: var(--jt-surface-chrome);
   border: 1px solid var(--jt-border-subtle);
-  border-radius: var(--jt-radius-card);
+  border-radius: var(--jt-radius-overlay);
   margin-block: 1rem;
   padding: 1rem;
 }
@@ -134,8 +229,18 @@
   color: var(--jt-text-link);
   display: inline-flex;
   align-items: center;
+  font-weight: 600;
   min-height: 44px;
   padding-inline: 0.5rem;
+  text-underline-offset: 4px;
+}
+
+.game-world-product-links a {
+  text-decoration: none;
+}
+
+.game-world-product-links a:hover {
+  text-decoration: underline;
 }
 
 .game-world-product-links {

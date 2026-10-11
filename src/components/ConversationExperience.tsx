@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   CONVERSATION_FEEDBACK_DIMENSIONS,
   type ConversationFeedbackResult
@@ -15,6 +15,7 @@ import {
 import type { SeasonalConversationFamily } from "../domain/seasonalConversationContent/catalog";
 import type { SeasonalConversationDiscoveryCard } from "../domain/seasonalConversationDiscovery";
 import { copy, type Language } from "../i18n";
+import { JabikoBuddy } from "./JabikoBuddy";
 
 // Small Talk Lab runtime (#814): drives the finite conversation kernel
 // (createConversationSession) over the explicit curated conversation catalog.
@@ -114,12 +115,19 @@ export function ConversationExperience({
   // partner line, remember it so the following learner_response step can show
   // the line it answers without re-walking the scenario graph.
   const [partnerLine, setPartnerLine] = useState<string | null>(null);
+  // #866 / D-19: the lines already said stay on the page as a script, so the
+  // run reads as a conversation. Presentation only: a line enters the script
+  // when the conversation moves past it (a partner line followed by another
+  // partner line, or a reply the learner continues with); a retried reply
+  // never does.
+  const [script, setScript] = useState<{ speaker: "partner" | "learner"; japanese: string }[]>([]);
   const sync = () => {
     const next = session.getState();
     setState(next);
     if (next.phase === "interaction" && next.step?.kind === "partner_line") {
       setPartnerLine(next.step.japanese);
     }
+    return next;
   };
 
   // Which response example the learner picked for the pending feedback. The
@@ -137,15 +145,24 @@ export function ConversationExperience({
     session.select(scenarioId);
     setPartnerLine(null);
     setSelectedResponseId(null);
+    setScript([]);
     sync();
   };
   const handleStart = () => {
     session.start();
+    setScript([]);
     sync();
   };
   const handleAdvance = () => {
+    const spoken = state.step?.kind === "partner_line" ? state.step.japanese : null;
     session.advance();
-    sync();
+    const next = sync();
+    // Two partner lines in a row, or the partner's closing line before the
+    // completion: the line just said is now part of the script. (Before a
+    // reply it stays in the turn as the line being answered.)
+    if (spoken && (next.step?.kind === "partner_line" || next.phase === "complete")) {
+      setScript((lines) => [...lines, { speaker: "partner", japanese: spoken }]);
+    }
   };
   const handleRespond = (responseExampleId: string) => {
     if (session.submitResponse(responseExampleId) != null) {
@@ -167,9 +184,22 @@ export function ConversationExperience({
     sync();
   };
   const handleContinue = () => {
+    const reply = state.step?.kind === "learner_response"
+      ? state.step.responseExamples.find(({ id }) => id === selectedResponseId)?.japanese
+      : undefined;
+    const answered = partnerLine;
     session.continue();
     setSelectedResponseId(null);
     setPreviousAttempt(null);
+    // The line answered and the reply are now said: both join the script.
+    if (reply) {
+      setScript((lines) => [
+        ...lines,
+        ...(answered ? [{ speaker: "partner" as const, japanese: answered }] : []),
+        { speaker: "learner", japanese: reply }
+      ]);
+      setPartnerLine(null);
+    }
     sync();
   };
   const handleChangeScenario = () => {
@@ -181,6 +211,7 @@ export function ConversationExperience({
     if (referenceInstant === undefined) onRefreshDiscovery?.();
     setPartnerLine(null);
     setSelectedResponseId(null);
+    setScript([]);
     sync();
   };
   const handleRunAgain = () => {
@@ -190,14 +221,81 @@ export function ConversationExperience({
     session.start();
     setPartnerLine(null);
     setSelectedResponseId(null);
+    setScript([]);
     sync();
   };
+
+  const partnerName = state.scenario ? roleLabel(state.scenario.relationship.partnerRole) : null;
+
+  // The script of lines already said (never the current one).
+  const renderScript = () => script.length > 0 ? (
+    <ol className="conversation-script" aria-label={t.conversationScriptLabel}>
+      {script.map((line, index) => (
+        <li key={index} className="conversation-script-line" data-speaker={line.speaker}>
+          <span className="conversation-script-speaker">
+            {line.speaker === "learner" ? t.conversationYou : partnerName}
+          </span>
+          <JapaneseText text={line.japanese} />
+        </li>
+      ))}
+    </ol>
+  ) : null;
+
+  // Where the chosen scene's brief goes: under its row in the list, under the
+  // seasonal cards when a seasonal card chose it, or at the end (a single
+  // world-bound scene with no list).
+  const briefPlacement: "scenes" | "seasonal" | "end" | null = !state.scenario
+    ? null
+    : allowBrowse && chooserDefinitions.some(({ scenario }) => scenario.id === state.scenario?.id)
+      ? "scenes"
+      : allowBrowse && showSeasonalDiscovery && discoveryCards.some((card) => card.scenarioId === state.scenario?.id)
+        ? "seasonal"
+        : "end";
+
+  const renderBrief = () => state.scenario ? (
+    <article ref={briefRef} tabIndex={-1} className="conversation-brief">
+      {selectedSeasonalFamily ? (
+        <div className="conversation-brief-seasonal">
+          <strong>{localized(selectedSeasonalFamily.title)}</strong>
+          <p>{localized(selectedSeasonalFamily.note)}</p>
+        </div>
+      ) : null}
+      <dl>
+        <dt>{t.conversationLearnerRole}</dt>
+        <dd>{roleLabel(state.scenario.relationship.learnerRole)}</dd>
+        <dt>{t.conversationPartnerRole}</dt>
+        <dd>{roleLabel(state.scenario.relationship.partnerRole)}</dd>
+        <dt>{t.conversationRelationship}</dt>
+        <dd>{localized(state.scenario.relationship.context)}</dd>
+      </dl>
+      <p className="conversation-brief-objective">{localized(state.scenario.objective)}</p>
+      <p className="conversation-brief-instruction">
+        {localized(state.scenario.instruction)}
+      </p>
+      <button
+        type="button"
+        className="conversation-primary"
+        onClick={handleStart}
+      >
+        {t.conversationStart}
+      </button>
+    </article>
+  ) : null;
+
+  // Who is speaking the current line: the partner's role, with the
+  // "對方的話" caption kept for orientation.
+  const renderSpeaker = () => (
+    <p className="conversation-partner-label">
+      {partnerName ? <span className="conversation-speaker-name">{partnerName}</span> : null}
+      <span className="conversation-partner-caption">{t.conversationPartnerLabel}</span>
+    </p>
+  );
 
   const renderPartnerLine = () => {
     if (state.step?.kind !== "partner_line") return null;
     return (
       <>
-        <p className="conversation-partner-label">{t.conversationPartnerLabel}</p>
+        {renderSpeaker()}
         <p ref={focusStage} tabIndex={-1} className="conversation-partner-line" lang="ja">
           {renderJapanese ? renderJapanese(state.step.japanese) : state.step.japanese}
         </p>
@@ -244,7 +342,12 @@ export function ConversationExperience({
           {CONVERSATION_FEEDBACK_DIMENSIONS.map((dimension) => (
             <div key={dimension} className="conversation-dimension">
               <dt>{t.conversationDimensions[dimension]}</dt>
+              {/* D-19 / A4: 〇 met, △ could be stronger -- a glyph as well
+                  as the word, never colour alone, never ×. */}
               <dd data-status={feedback.dimensions[dimension]}>
+                <span className="conversation-status-mark" aria-hidden="true">
+                  {feedback.dimensions[dimension] === "met" ? "〇" : "△"}
+                </span>
                 {t.conversationStatus[feedback.dimensions[dimension]]}
               </dd>
             </div>
@@ -285,6 +388,12 @@ export function ConversationExperience({
 
     return (
       <div className="conversation-turn conversation-complete">
+        {/* ジャビ子 closes the chat the way a friend would (decorative; the
+            heading carries the state). */}
+        <div className="conversation-done-buddy" aria-hidden="true">
+          <JabikoBuddy mood="cheer" energy={2} />
+          <span className="buddy-bubble" lang="ja">おつかれさま！</span>
+        </div>
         <h3 ref={focusStage} tabIndex={-1} className="conversation-section-title">
           {t.conversationCompleteTitle}
         </h3>
@@ -343,7 +452,7 @@ export function ConversationExperience({
         <div className="conversation-turn">
           {partnerLine ? (
             <>
-              <p className="conversation-partner-label">{t.conversationPartnerLabel}</p>
+              {renderSpeaker()}
               <p className="conversation-partner-line" lang="ja">
                 {renderJapanese ? renderJapanese(partnerLine) : partnerLine}
               </p>
@@ -430,15 +539,15 @@ export function ConversationExperience({
               ) : (
                 <p className="conversation-seasonal-empty">{t.conversationSeasonalEmpty}</p>
               )}
+              {briefPlacement === "seasonal" ? renderBrief() : null}
             </section>
           ) : null}
           {allowBrowse ? (
             <div className="conversation-scenes">
               {chooserDefinitions.map(({ scenario }) => {
               const selected = state.scenario?.id === scenario.id;
-              return (
+              const row = (
                 <button
-                  key={scenario.id}
                   type="button"
                   className="conversation-scene"
                   aria-pressed={selected}
@@ -453,46 +562,33 @@ export function ConversationExperience({
                   >
                     {localized(scenario.situation)}
                   </span>
+                  <small className="conversation-scene-partner">
+                    {t.conversationWithPartner(roleLabel(scenario.relationship.partnerRole))}
+                  </small>
                 </button>
+              );
+              // #866: the brief opens right under the chosen row (and in the
+              // side column on wide screens), so Start is next to the choice
+              // instead of after the whole list.
+              // One stable keyed fragment per row, so choosing a scene never
+              // remounts its button (focus and identity stay put).
+              return (
+                <Fragment key={scenario.id}>
+                  {row}
+                  {selected && briefPlacement === "scenes" ? renderBrief() : null}
+                </Fragment>
               );
               })}
             </div>
           ) : null}
 
-          {state.scenario ? (
-            <article ref={briefRef} tabIndex={-1} className="conversation-brief">
-              {selectedSeasonalFamily ? (
-                <div className="conversation-brief-seasonal">
-                  <strong>{localized(selectedSeasonalFamily.title)}</strong>
-                  <p>{localized(selectedSeasonalFamily.note)}</p>
-                </div>
-              ) : null}
-              <dl>
-                <dt>{t.conversationLearnerRole}</dt>
-                <dd>{roleLabel(state.scenario.relationship.learnerRole)}</dd>
-                <dt>{t.conversationPartnerRole}</dt>
-                <dd>{roleLabel(state.scenario.relationship.partnerRole)}</dd>
-                <dt>{t.conversationRelationship}</dt>
-                <dd>{localized(state.scenario.relationship.context)}</dd>
-              </dl>
-              <p>{localized(state.scenario.objective)}</p>
-              <p className="conversation-brief-instruction">
-                {localized(state.scenario.instruction)}
-              </p>
-              <button
-                type="button"
-                className="conversation-primary"
-                onClick={handleStart}
-              >
-                {t.conversationStart}
-              </button>
-            </article>
-          ) : null}
+          {briefPlacement === "end" ? renderBrief() : null}
 
           <p className="conversation-note">{t.conversationCuratedNote}</p>
         </div>
       ) : (
         <div className="conversation-run">
+          {renderScript()}
           {renderTurn()}
           {/* The complete view carries its own run-again / change-scene
               actions; every other live phase gets the single bail-out here. */}

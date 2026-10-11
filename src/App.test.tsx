@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import App from "./App";
@@ -103,6 +103,20 @@ async function gotoResource(user: ReturnType<typeof userEvent.setup>, label: str
   const moreMenu = document.querySelector<HTMLButtonElement>(".jt1-header-menu button");
   await user.click(label === "合作推廣" || label === "關於" || label === "模擬考" || label === "題型練習" ? moreMenu! : compactResources!);
   await user.click(screen.getByRole("menuitem", { name: label }));
+}
+
+// One stored answer, so the learner counts as returning (not brand-new).
+function seedAttempt(): Attempt {
+  return {
+    vocabularyId: "seed",
+    targetForm: "reading",
+    prompt: "seed",
+    expectedAnswers: ["seed"],
+    submittedAnswer: "seed",
+    isCorrect: true,
+    timestamp: 1,
+    responseTimeMs: 100
+  };
 }
 
 describe("App", () => {
@@ -846,18 +860,30 @@ describe("App", () => {
     expect(screen.queryByText(/やいなや/)).not.toBeInTheDocument();
   });
 
-  it("gates the home 今日練習 CTA on a level choice, then auto-continues (#532)", async () => {
+  it("a brand-new visitor's level choice starts today's practice in one tap (#532, #866)", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    // A brand-new visitor taps the CTA with no level chosen: the session
-    // must NOT start (the old behaviour fell back to the N1/N2-heavy "all"
-    // pool). Instead the level ask appears...
+    // No level-less CTA for a brand-new visitor (the old fallback served the
+    // N1/N2-heavy "all" pool, and the later gate was a CTA that said no)...
+    expect(screen.queryByRole("button", { name: /開始今日練習/ })).not.toBeInTheDocument();
+
+    // ...the level choice itself starts the daily session.
+    await user.click(screen.getByRole("button", { name: /^初級N4・N5$/ }));
+    await screen.findByRole("region", { name: "目前題目" });
+    expect(localStorage.getItem("jabiko:targetLevel")).toBe("n4n5");
+    expect(screen.getByRole("button", { name: /今日練習/ })).toHaveClass("selected");
+  });
+
+  it("gates the 今日練習 CTA for a returning learner without a level, then auto-continues (#532)", async () => {
+    localStorage.setItem("jabiko:attempts", JSON.stringify([seedAttempt()]));
+    const user = userEvent.setup();
+    render(<App />);
+
     await user.click(screen.getByRole("button", { name: /開始今日練習/ }));
     expect(screen.queryByRole("region", { name: "目前題目" })).not.toBeInTheDocument();
     expect(screen.getByText(/先選擇你的程度/)).toBeInTheDocument();
 
-    // ...and answering it continues straight into the daily session.
     await user.click(screen.getByRole("button", { name: /^初級N4・N5$/ }));
     await screen.findByRole("region", { name: "目前題目" });
     expect(screen.getByRole("button", { name: /今日練習/ })).toHaveClass("selected");
@@ -892,11 +918,13 @@ describe("App", () => {
   });
 
   it("gate -> 完全新手: honours the practice intent (starter daily, furigana on) (#532)", async () => {
-    // Combined path: a brand-new visitor taps the daily CTA FIRST (gated),
-    // THEN answers with 完全新手. The pick must continue into the starter
-    // daily session -- they asked to practise, and the starter daily serves
-    // 入門 questions -- NOT detour to the chapter list. Furigana still
-    // turns on. (The learn-landing applies to the non-gated card path.)
+    // Combined path: a returning learner without a level taps the daily CTA
+    // FIRST (gated), THEN answers with 完全新手. The pick must continue into
+    // the starter daily session -- they asked to practise, and the starter
+    // daily serves 入門 questions -- NOT detour to the chapter list.
+    // Furigana still turns on. (The learn-landing applies to the brand-new
+    // first-visit choice.)
+    localStorage.setItem("jabiko:attempts", JSON.stringify([seedAttempt()]));
     const user = userEvent.setup();
     render(<App />);
 
@@ -1095,7 +1123,10 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: /基礎變化/ }));
     await user.click(screen.getByRole("button", { name: "書って" }));
 
-    expect(screen.getByText("再想一下")).toBeInTheDocument();
+    // The verdict is both the explanation heading and the action-row verdict
+    // button (#861), so address the heading.
+    expect(screen.getByRole("heading", { name: "再想一下" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "再想一下 看解說" })).toBeInTheDocument();
     expect(screen.getByText("正解：書いて / かいて")).toBeInTheDocument();
     expect(screen.getByText(/一類動詞/)).toBeInTheDocument();
   });
@@ -1347,6 +1378,169 @@ describe("App", () => {
     expect(n3).toHaveAttribute("aria-pressed", "true");
     expect(n2).toHaveAttribute("aria-pressed", "false");
     expect(screen.getAllByText(/N3＋N4 綜合題/).length).toBeGreaterThanOrEqual(2);
+  });
+
+  // Astra review #872: Esc must close the open set list wherever focus is
+  // (a setting change could move focus outside the list).
+  it("closes the open set list with Esc even when focus has left it (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    await screen.findByRole("region", { name: "目前題目" });
+
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+    expect(switcher).toHaveAttribute("aria-expanded", "true");
+    (document.activeElement as HTMLElement | null)?.blur();
+    await user.keyboard("{Escape}");
+    expect(switcher).toHaveAttribute("aria-expanded", "false");
+    expect(switcher).toHaveFocus();
+  });
+
+  // Astra review round 2: digit shortcuts must not answer the question behind
+  // the open list, and must work again once it is closed.
+  it("pauses the 1–9 answer shortcuts while the set list is open (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+
+    await user.click(screen.getByRole("button", { name: "換練習" }));
+    await user.keyboard("1");
+    expect(panel).toHaveAttribute("data-result", "unanswered");
+
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("button", { name: "換練習" })).toHaveFocus();
+    await user.keyboard("1");
+    expect(panel).not.toHaveAttribute("data-result", "unanswered");
+  });
+
+  // #872 review thread: a tap on an answer beside the open list must only
+  // dismiss the list -- it must not also record an attempt.
+  it("dismisses the open set list without answering when an option is tapped (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+
+    await user.click(switcher);
+    expect(switcher).toHaveAttribute("aria-expanded", "true");
+    const option = panel.querySelector<HTMLElement>(".choice-option")!;
+    await user.click(option);
+    expect(switcher).toHaveAttribute("aria-expanded", "false");
+    expect(panel).toHaveAttribute("data-result", "unanswered");
+
+    await user.click(option);
+    expect(panel).not.toHaveAttribute("data-result", "unanswered");
+  });
+
+  // #872 review round 10: the dismiss guard must never eat a keyboard
+  // activation, and a secondary-button press must not arm it.
+  it.each([
+    ["a secondary-button press", { button: 2, pointerType: "mouse" }],
+    ["a primary press that produced no click", { button: 0, pointerType: "mouse" }]
+  ])("still answers by keyboard right after %s dismissed the list (#866)", async (_label, init) => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+    const option = panel.querySelector<HTMLElement>(".choice-option")!;
+
+    fireEvent.pointerDown(option, init);
+    fireEvent.pointerUp(option, init);
+    expect(switcher).toHaveAttribute("aria-expanded", "false");
+    option.focus();
+    // A keyboard activation is a click with detail 0.
+    fireEvent.click(option, { detail: 0 });
+    expect(panel).not.toHaveAttribute("data-result", "unanswered");
+  });
+
+  it("closes the open set list with Esc from the bar's own buttons (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+    screen.getByRole("button", { name: "首頁" }).focus();
+    await user.keyboard("{Escape}");
+    expect(switcher).toHaveAttribute("aria-expanded", "false");
+  });
+
+  // Round 3 refined this: a dialog taking focus closes the list first, so
+  // the dialog's Esc can only ever close the dialog.
+  it("lets a dialog on top own Esc: the list closes as the dialog takes focus (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+
+    const dialog = document.createElement("div");
+    dialog.setAttribute("role", "dialog");
+    const field = document.createElement("textarea");
+    dialog.append(field);
+    document.body.append(dialog);
+    field.focus();
+    await waitFor(() => expect(switcher).toHaveAttribute("aria-expanded", "false"));
+    await user.keyboard("{Escape}");
+    expect(field).toHaveFocus();
+    dialog.remove();
+  });
+
+  // Astra review round 3: the list is a popover -- when keyboard focus leaves
+  // it, it closes, so Tab can never reach (and answer) the hidden question.
+  it("closes the set list when keyboard focus moves past it (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+    const list = document.querySelector("#practice-switcher")!;
+    for (let step = 0; step < 80 && list.contains(document.activeElement); step += 1) {
+      await user.tab();
+    }
+    expect(list.contains(document.activeElement)).toBe(false);
+    expect(switcher).toHaveAttribute("aria-expanded", "false");
+    expect(panel).toHaveAttribute("data-result", "unanswered");
+  });
+
+  it("closes the set list when the header menu takes focus, so its Esc stays its own (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+    document.querySelector<HTMLButtonElement>(".jt1-header-menu button")!.focus();
+    await waitFor(() => expect(switcher).toHaveAttribute("aria-expanded", "false"));
+  });
+
+  // Astra review round 6 (pre-existing on main): Enter inside the question
+  // report form -- or on its button -- was caught by the drill's
+  // Enter-to-next, which skipped the question and lost the typed report.
+  it("keeps Enter inside the question report form instead of skipping the question (#866)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    const questionId = panel.getAttribute("data-question-id");
+    await user.keyboard("1");
+    await screen.findByRole("button", { name: "回報此題" });
+
+    screen.getByRole("button", { name: "回報此題" }).focus();
+    await user.keyboard("{Enter}");
+    expect(panel.getAttribute("data-question-id")).toBe(questionId);
+
+    const field = await screen.findByRole("textbox");
+    await user.type(field, "第一行{Enter}第二行");
+    expect(panel.getAttribute("data-question-id")).toBe(questionId);
+    expect(field).toHaveValue("第一行\n第二行");
   });
 
   it("opens 今日練習 by default when entering the challenge tab", async () => {

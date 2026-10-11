@@ -298,6 +298,10 @@ Only layer enter/exit (160/120ms) and hover/pressed fills (120ms) animate. No
 verdict stroke animation, confetti, bounce or celebration. Reduced motion
 renders everything final.
 
+*Amended by [D-26](#d-26) (#861) for the Training loop:* verdict marks are
+drawn, feedback settles, questions turn, the meter fills, and ジャビ子 acts
+out each verdict. Confetti, idle loops and press-scale on controls stay out.
+
 ## D-18 — Session surfaces
 
 An active practice session, Small Talk run and World moment replace the global
@@ -379,7 +383,8 @@ navigation; centered marketing heroes inside the app; decorative illustration
 or stock Japan motifs; emoji in UI copy; sparkle/"magic" iconography; tinted
 verdict panels; shadows on in-flow content; more than one accent hue outside
 assessment; English eyebrows in non-English locales; confetti or celebration
-motion. Review should treat any of these surviving in #838/#834 as a
+motion (the one-shot completion arrival and ジャビ子 beat of D-26 are the
+bounded exception). Review should treat any of these surviving in #838/#834 as a
 conformance defect.
 
 ## D-24 — Scope boundary
@@ -458,3 +463,331 @@ tonal roles are added, the large size is 48px with 22px padding, and the
 default padding/icon gap are 16/8 (quiet 10). Unchanged: every shared role
 value, the 7px radius, the focus ring, and the behavioral contract (states,
 busy, one primary) (FOUNDATION.md §4).
+
+## D-26 — Learning-loop motion language (amends D-17) **REVIEW-CONFIRM** {#d-26}
+
+Owner directive #861 (2026-10-10): make the real Training loop feel alive
+and rewarding, inspired by Duolingo's *principles* (immediate
+acknowledgement, clear feedback, earned celebration) without copying its
+assets, characters or choreography. Opus 5.5 holds the motion-design call
+for this slice.
+
+**Decision.** The Training loop (`DrillPanel`) gets one motion vocabulary
+taken from a Japanese study desk instead of a game: press → **acknowledge**
+(the pressed fill, ≤ 90ms); answer → **丸付け**, the D-03 verdict drawn on the
+option itself the way a teacher marks a paper (〇 stroke drawn in 320ms on
+the right answer; on a miss a × on the pick, then the 〇 on the answer 220ms
+later, leading the eye from "yours" to "the answer"; a dashed 〇 fades in for
+a reveal), then the explanation **settles** in below it (240ms, 140ms
+behind the mark); ジャビ子 **reacts once in its own app-mark tile** (D-10): a
+small hop with happy eyes for 正解, a thoughtful head tilt for a miss, a
+double hop on completion; Next → **turn**: the new prompt and options rise
+6px into place (260ms, options staggered 30ms) and are brought into view if
+the learner is scrolled away; a 4px **meter** under "n / N" fills to the
+true answered / total (420ms); completion → **arrival**: the result rows
+settle in one after another, and a perfect run's badge is stamped.
+
+Constraints, enforced by `src/styles/learning-loop.test.ts` and the
+DrillPanel tests: keyframes touch only `transform`, `opacity` and
+`stroke-dashoffset`, nothing transitions a layout property, and every
+animation sits behind `prefers-reduced-motion: no-preference`. With reduced
+motion every state renders final (complete marks, visible feedback, instant
+scroll). Nothing loops, blocks input or waits on an animation. The meaning
+never rides on motion or colour alone (glyph shape + the existing polite
+live region).
+
+**Also made real in the same slice.** D-07 (feedback below the options and
+the action row; the row docked to the viewport bottom below 600px for
+multiple choice, in flow for typed recall) and D-03's marks on the judged
+options. Measured on the same seeded run: on `main` all four answers moved
+the options/Next and each new prompt opened 77–945px above the viewport; on
+this slice none move, and each new step opens in view. Two browser behaviours
+had to be neutralised to keep that promise: scroll anchoring (off while the
+drill is shown, otherwise the page jumps by the feedback's height) and the
+panel's mount transform (removed where the dock lives, otherwise the
+`position: fixed` row is fixed to the panel).
+
+**Why amend D-17.** D-17 allowed only layer and fill transitions and named
+"verdict stroke animation" and "celebration" as out. That protected JT-1
+from template motion, but it also left the loop mute: the verdict was a
+silent colour swap and the moment of getting it right felt the same as a
+page reload. The amendment keeps D-17/D-23's intent: no confetti,
+particles, glows, bounce loops, sound, overlays, or press-scale on controls
+(D-25). It allows motion that *carries the learning message* (which option
+is right, where to look next, how far along you are) and one restrained
+character beat.
+
+**Rejected.** Duolingo-style bottom verdict sheet with sound and full-width
+colour flood (copies a distinctive layout; also moves Next); shaking the
+wrong option (punitive, a geometry jiggle under the finger); option scale on
+press or verdict (D-25 geometry rule); confetti/sparkles on completion
+(D-23); a count-up on the score (the number would be wrong for a moment,
+and a screen reader can catch a partial value); brush-textured 花丸 (D-03:
+decorative, fragile at small sizes; the 〇 here is a plain 2.2px vector
+stroke that only overshoots its start slightly and turns `CanvasText` in
+forced colours); invented streak/XP feedback (#861: no invented progress).
+
+**Revision 2 (owner review of PR #862, 2026-10-10).** The owner kept the
+direction, asked that the explanation never hide behind the dock, and asked
+for ジャビ子 with more personality, emotion and life — "Duolingo-level
+liveliness, without holding the animation back". So:
+
+- *Explanation peek.* After the mark lands (420ms), the view scrolls just
+  enough to show the first 120px of the explanation above the dock, but never
+  so far that the marked options slide under the header. Measured: 120px
+  shown at every step (mobile and desktop); option and Next boxes still move
+  0px in layout. The view scroll is deliberate and happens after the
+  options are disabled, so it cannot cause a mis-tap. It is instant under
+  reduced motion.
+- *Verdict button.* After answering, the 看答案 slot (always disabled at that
+  point) becomes the verdict: ジャビ子 + 正解 / 再想一下 / 先記這題 + 看解說. It
+  opens the full explanation and moves focus there; Enter on it never skips
+  the question. Same cell, so Next does not move.
+- *ジャビ子 as a character* (`JabikoBuddy`, the brand figure without its
+  badge): a face per mood (happy ^ ^ with an open smile, oops > < with a
+  sweat drop, thinking eyes-up), and acting in squash-and-stretch.
+  - 正解: anticipation squash, jump with stretch, squash landing; the
+    book-hat pages flap like wings and the shadow shrinks.
+  - Miss: head shake and slump, then a determined bounce.
+  - Reveal: a long curious tilt.
+  - Energy follows the *real* run of correct answers in this session (never
+    shown as a number): 3 in a row adds a spin, 5 a double jump.
+  - ジャビ子 speaks Japanese interjections, which are learning content and
+    are not localized: いいね！ → すごい！ → さすが！, どんまい！ on a miss,
+    なるほど… on a reveal. The action-row bubble is a passing remark (pops,
+    holds 1.3s, leaves).
+  - Completion replaces the retired spot art (D-10) with ジャビ子 cheering,
+    scaled by the set's real accuracy: かんぺき！ / よくできました！ /
+    がんばったね！
+  This extends D-10 for the Training loop: the mascot now appears in the
+  action row and on the completion card, besides the app-mark tile.
+- Reduced motion keeps every face and the completion line, and drops the
+  acting and the passing bubble.
+
+**Limits.** Typed recall gets the turn, meter, verdict button and peek, but
+no marks (it has no options). A long verdict title (ja "この問題は
+チェックしておこう") is ellipsized in the button; the full text is in the
+explanation heading and in the button's accessible name. Founder visual
+acceptance of this amendment is pending.
+
+## D-27 — Today leads with ジャビ子 and one job (JT-2, amends D-04, D-10, D-13) **REVIEW-CONFIRM** {#d-27}
+
+Owner directive #866 (2026-10-10): Opus 5.5 leads UI/UX for the whole
+product, may revise JT-1 where it blocks a better learner experience, and
+must keep learning, data and accessibility contracts.
+
+**What was wrong.** Today stacked two design languages: JT-1 rows on top,
+then the legacy marketing page (illustration, a second headline, a seven-card
+grid, pill links). The primary action refused to start for a new visitor
+("先選擇你的程度…"), the review queue was rendered as a red error alert with
+a warning triangle (it is learning, not system state — D-03, C4), and the
+real momentum (streak, today's count) was at the very bottom.
+
+**Decision.**
+
+1. **One hero, one job.** Today opens with a single filled panel
+   (`accent.background`, 16px radius — the only filled panel on the page):
+   ジャビ子 greets in Japanese with a localized gloss, the h2 "今天想練什麼？",
+   the real momentum (local-day streak, answered today — readouts, only when
+   non-zero), the one primary command 開始今日練習 (56px, ≤ 30rem wide), a
+   quiet second action (review queue → continue chapter → next step, the old
+   banner priority) and the target-level line with 變更.
+2. **No CTA that says no.** A brand-new visitor sees the five level choices
+   in the hero instead of the CTA, under "選一個程度，馬上開始第一輪。答錯的題目會自動
+   排進複習。" (the old dismissible strip, folded in). A choice starts the
+   first round in one tap — except 完全新手, who lands on lesson 1 (五十音)
+   because nobody can answer kana questions before learning kana (#532
+   learn-landing kept). A returning learner without a level keeps the #532
+   gate (the picker opens, the choice continues into the session).
+3. **ジャビ子 speaks** (`domain/todayGreeting.ts`): はじめまして！ (new),
+   その調子！ (practised today, streak > 1), おかえり！ (practised today),
+   おはよう／こんにちは／こんばんは (otherwise; the gloss nudges a live streak
+   that still needs today). Lines are Japanese learning content and are not
+   localized, like D-26's interjections. "Today" is the learner's local
+   calendar day, not UTC; the stats strip shows the same local streak so the
+   page never shows two different numbers. Extends D-10: the mascot appears
+   on Today. It hops once on arrival (D-26 keyframes); static with reduced
+   motion.
+4. **Rows with kanji keycaps.** Practice and Conversation & story are row
+   lists (hairlines, 64px rows, title + one line + count + chevron). Each row
+   leads with a 40px keycap holding one Mincho kanji the learner can read
+   (学 活 読 試 復 栞 練 / 話 町) — wayfinding that is itself Japanese, not an
+   icon in a tinted circle (D-23 kept). The keycap takes the accent on
+   hover/focus.
+5. **Order of the page.** Hero → 練習 rows → Stay.D partner line (still after
+   the primary learning controls, #745) → 會話與故事 rows → 查資料 links (words,
+   not pills) → 學習進度 dashboard → 關於 Jabiko (the illustration, the free/
+   no-signup kicker, intro, content counts, guide link) → footer.
+
+**Rejected.** A daily-goal ring (no such goal exists in the data; #861 bans
+invented progress); keeping the marketing hero above the fold for SEO (the
+prerendered h2 and intro remain on the page, below the job); a mascot
+illustration banner (D-23); defaulting a new visitor to a level so the CTA
+can always start (#532: the wrong pool for most visitors).
+
+**Evidence.** HomePanel/App tests (one-tap start, starter learn-landing,
+returning gate, hero readouts, review-not-alert, page order),
+`todayGreeting.test.ts` (local-day streak incl. a UTC-boundary case, in both
+the runner's zone and UTC), navigation acceptance reflow at 320px/200% text
+in zh-Hant/ja/en × light/dark.
+
+## D-28 — The practice session: one column, phase-following command, 花丸 (JT-2, implements D-18/D-25, closes #864) **REVIEW-CONFIRM** {#d-28}
+
+**What was wrong.** On phones the 13-set picker, session length, speech rate
+and score panels rendered *under the question*; on desktop they filled two
+side columns. 下一題 (and 再來一組) were filled with the miss red — the legacy
+`--vermilion` maps to `assess.miss` in `jt1-compat.css` — so the session's
+main action looked like an error and was the loudest control before the
+learner answered. The question had three stacked headers (首頁, 第 n/N pill +
+type chip, meter) and a radial glow behind the prompt (D-23). The picker's
+heading said 今日練習 for every set.
+
+**Decision.**
+
+1. **Session bar** (D-18, inside the drill): 首頁 exit (icon-only < 400px,
+   name kept) · the *current* set's name as a button that opens the set
+   list · n / N. The meter fills the bar's bottom hairline; the JLPT section
+   (漢字読み, 文法形式選擇…) is the prompt's eyebrow under it. The button is
+   named by its action (換練習) and described by the set, so it never
+   collides with the set's own button in the list.
+2. **The set list is a popover at every width**, anchored under the bar and
+   overlaying the question (not pushing it); choose, Esc or an outside tap
+   closes it and focus returns to the bar. Sets are rows (name + line +
+   count), the current one in the selection grammar.
+3. **One column + aside.** The drill is a ≤ 720px column; on ≥ 981px a
+   280px sticky aside holds 本次 (tally, accuracy, this pass's mistakes) and,
+   below a hairline, the compact settings. Below 981px the aside follows the
+   drill.
+4. **Phase-following primary (D-25 made real).** `.next-button` is the
+   violet primary everywhere (fixes the miss-red mapping at its source);
+   in the drill 下一題 is tonal before a verdict and primary after
+   (`data-emphasis`). 看答案 is quiet.
+5. **Options per JT-1 §5**: content surface, 1px control border, 10px radius,
+   1–4 keycaps on fine pointers, no tint after the verdict (the edge, the
+   D-26 mark and the label carry it); unmarked options step back to
+   secondary ink. **#864:** each judged option gets its word on the top edge
+   — 正解 / 你的答案 / 答案 (8 locales) — like a teacher's margin note. It is
+   CSS generated content with empty alt text from `data-verdict-label`, so it
+   takes no room (nothing moves) and the option's text and accessible name
+   stay the choice (#862 contract); the live region already announces the
+   verdict.
+6. **Explanation**: neutral inset surface with a 3px assessment rule on the
+   leading edge (no tinted panel); bookmark/report are quiet commands that
+   wrap.
+7. **花丸.** A perfect set is stamped with a 花丸 — spiral + petals drawn as
+   two pen strokes, then pressed like a rubber stamp onto the card's corner
+   (in the flow < 480px), in a teacher's red (`--jt-hanko`, brand art like
+   C7, not an assessment or status role). It completes the 丸付け language
+   of D-26 with something every Japanese learner recognises, instead of
+   confetti. Reduced motion: the finished stamp, no drawing.
+8. ジャビ子's passing remark in the dock is an accent-filled floating bubble,
+   so crossing the explanation reads as speech rather than a rendering bug.
+
+**Rejected.** A bottom sheet with a scrim for the set list (heavier than the
+job; a popover keeps the question visible behind it); keeping the desktop
+left column (two always-visible columns compete with the question);
+tinted option fills (JT-1 §5, D-23); putting the verdict word inside the
+option text (breaks #862's text/name contract and re-wraps long options).
+
+**Evidence.** DrillPanel tests (bar, switcher a11y, `data-emphasis`, labels for
+miss/correct/reveal in zh-Hant/en/ja, 花丸 only on a perfect set), the motion
+contract extended to `today.css` and `session.css`, navigation acceptance
+41/41 (e2e now opens 換練習 before touching set controls; the answered
+option is measured on the content surface).
+
+## D-29 — Conversations read as conversations; the World leads with a person (JT-2, implements D-19/D-22) **REVIEW-CONFIRM** {#d-29}
+
+**What was wrong.** The Small Talk list was ~21 bordered boxes whose text
+started at a different x on every row (a grid inside a `button`, whose global
+`justify-content: center` centred the whole text block). Choosing a scene put
+its brief and Start button *after the entire list*. A run showed only the
+current line under a generic 對方的話, so it never read as a conversation;
+feedback said 達成 in link colour; commands were pills outside D-25. The 日常
+World header wrapped into two ragged rows of underlined links, the person was
+a grey line, and 可開始的場景 headed an empty space.
+
+**Decision.**
+
+1. **Scene rows** (hairlines, like Today): a 短 / 中 / 長 Mincho keycap, the
+   situation, and "對象：{partner role}" — who you will talk to. The brief opens
+   **directly under the chosen row** (a stable keyed fragment, so the row
+   keeps its identity and focus), in the accent field, with the roles as a
+   two-column list, the objective in weight, and Start. A seasonal card's
+   brief opens under the cards; a single World scene keeps it at the end.
+2. **A script** (D-19 made real): lines already said stay above the current
+   turn — speaker, then the Japanese line; the learner's in accent ink under
+   「你」. A line joins the script only when the conversation moves past it (a
+   partner line followed by another, or a reply the learner continues with);
+   a retried reply never does, and the current line is never repeated. On
+   completion the whole exchange is there to reread. Presentation state only
+   — the engine is untouched.
+3. **The partner is named**: the current line is headed by the partner's role,
+   with the 對方的話 caption kept; the line is set in Mincho at reading size.
+4. **Feedback** marks each dimension 〇 (met, `assess.correct`) or △ (could be
+   stronger, `assess.partial`) as a glyph plus the word (A4), never ×.
+5. **Commands** follow D-25: Start / 換個說法再試一次 / 再跑一次 are primary
+   fills, the alternative beside them is quiet; a lone alternative is tonal.
+6. **Completion**: ジャビ子 cheers 「おつかれさま！」, the closing a friend would
+   say, consistent with the practice completion (D-28).
+7. **World home**: a one-line quiet toolbar (two rows on phones; the day label
+   moves to the page eyebrow there); the current moment is the page's one
+   filled panel — the person first (a monogram of their name, name, who they
+   are, the relationship stage), the place, the objective, one Start; the
+   main story as five stops on a line (filled when done, the text keeps the
+   count). 可開始的場景 only appears when there are scenes under it.
+
+**Rejected.** Chat bubbles (D-19); a length filter (the 21 rows scan well with
+keycaps, and 短/中/長 buttons would collide with the rows' accessible names);
+inventing scene titles (the catalog has none in learner language — the
+situation is the honest title); an avatar illustration per NPC (D-23; the
+monogram carries identity).
+
+**Evidence.** ConversationPanel tests (brief follows its row, partner on rows,
+script order and no-repeat, retry not scripted, 〇/△ glyphs aria-hidden with
+the word), World/App suites green, reflow stress 48/48 (`/`, `/challenge`,
+`/conversation`, `/game` at 320px/200% text, system + wide fallback font,
+zh-Hant/ja/en, new + returning).
+
+## D-30 — Reference, lessons and mock join the system; status colours stay status (JT-2) {#d-30}
+
+**What was wrong.** Outside the reworked surfaces the legacy panels still
+spoke a different language: the Learn lesson set its kana and formulas as
+small UI text inside **green success boxes**, pitfalls in a **red error
+box**, the current chapter tinted with the miss red (`--vermilion`), list
+labels centred at random x (the same `justify-content: center` grid bug as
+D-29), two equal violet primaries per lesson and an emoji in UI copy (D-20).
+/mock had no page title (an eyebrow under decorative art) and showed
+準備中 with red warning triangles (D-15). /kanji's level filter collapsed to a
+tall column beside the search. The compact tab bar broke English
+"Conversation" mid-word on a 390px phone, and its Resources tab was the only
+one with label-above-chevron instead of icon-above-label. A reflow stress
+(below) found pages wider than a 320px screen at 200% text on /learn, /kanji,
+/kana, /rules and /about.
+
+**Decision.**
+
+1. **Lessons**: the chapter's key line in Mincho at 1.5rem on a neutral
+   inset; examples are calm cards whose content *is* the Japanese (1.19rem,
+   Japanese face); pitfalls are a neutral note with an accent rule; one primary
+   drill per lesson, the rest tonal; the chapter list uses the selection
+   grammar and marks completed chapters with a 〇 (shape, not only colour);
+   "nothing to review" is information, not a success alert; no emoji. On
+   phones the Learn panel is flat (no card inside the gutter).
+2. **/mock**: a real heading, rows like Today, 準備中 in secondary ink with no
+   icon and no command look.
+3. **/kanji**: search, reading type and level filter share one wrapping row
+   with explicit flex bases; decorative header art removed (as on /mock —
+   ジャビ子 carries the personality now).
+4. **Compact tab bar**: English labels at 11.5px with slightly tighter
+   tracking so "Conversation" fits a 390px phone (enlarged text still wraps,
+   #859); Resources gets an icon above its label like its neighbours (the
+   menu is announced by `aria-haspopup`).
+5. **Reflow safety net**: headings and long copy may break long words; drill
+   commands never exceed their column.
+
+**Evidence.** MockExamPanel tests (heading; 準備中 row has no icon and no
+button), Learning/Kanji/Mock suites, navigation acceptance 41/41, and a
+reflow stress of **144/144**: `/`, `/learn`, `/mock`, `/kanji`, `/grammar`,
+`/kana`, `/rules`, `/about`, `/conversation`, `/game`, `/challenge?mode=exam`
+and `?mode=basic` at 320px with 200% root text, system and wide fallback
+fonts, zh-Hant/ja/en, new and returning learners.

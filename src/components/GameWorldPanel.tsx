@@ -72,6 +72,11 @@ export function GameWorldPanel({
   const leadNpc = world.npcs.find(({ id }) => id === leadMoment?.npcId);
   const leadStageId = leadNpc && confirmedState ? confirmedState.relationshipStages[leadNpc.id] : leadMoment?.relationshipStageId;
   const leadStage = world.relationshipStages.find(({ id }) => id === leadStageId);
+  const hasOtherMoments = confirmedState != null && world.moments.some(({ id, locationId }) =>
+    id !== leadMoment?.id &&
+    availableMomentIds.includes(id) &&
+    confirmedState.unlockedLocationIds.includes(locationId)
+  );
   const currentPlaceHeadingRef = useRef<HTMLHeadingElement | null>(null);
   const previousActiveMomentId = useRef<string | null>(null);
   useEffect(() => {
@@ -114,8 +119,18 @@ export function GameWorldPanel({
 
             {leadMoment && leadLocation && leadNpc && leadStage ? (
               <section className="game-world-current" aria-label={worldCopy.currentMoment}>
-                <p className="game-world-current-person">{renderLocalized(leadNpc.displayName)} · {renderLocalized(leadNpc.presentation)}</p>
-                <p>{renderLocalized(leadStage.context)}</p>
+                {/* #866: the person you are about to talk to, first -- a
+                    monogram of their name, then name and who they are (D-22). */}
+                <div className="game-world-person">
+                  <span className="game-world-monogram" aria-hidden="true" lang="ja">
+                    {Array.from(text(leadNpc.displayName))[0]}
+                  </span>
+                  <p className="game-world-current-person">
+                    <strong>{renderLocalized(leadNpc.displayName)}</strong>
+                    <span>{renderLocalized(leadNpc.presentation)}</span>
+                  </p>
+                </div>
+                <p className="game-world-current-stage">{renderLocalized(leadStage.context)}</p>
                 <p>{renderLocalized(leadLocation.description)}</p>
                 <p className="game-world-current-objective">{renderLocalized(leadMoment.objective)}</p>
                 {activeMoment == null && availableMomentIds.includes(leadMoment.id) ? (
@@ -177,7 +192,16 @@ export function GameWorldPanel({
               </>
             ) : confirmedState != null ? (
               <>
-                <p className="game-world-progress">{worldCopy.progress(completedRequiredCount, requiredMomentCount)}</p>
+                {/* The main story as stops on a line: one 〇 per required scene,
+                    filled when it is done (the text carries the count). */}
+                <p className="game-world-progress">
+                  <span className="game-world-progress-track" aria-hidden="true">
+                    {Array.from({ length: requiredMomentCount }, (_, index) => (
+                      <span key={index} data-done={index < completedRequiredCount ? "true" : undefined} />
+                    ))}
+                  </span>
+                  <span>{worldCopy.progress(completedRequiredCount, requiredMomentCount)}</span>
+                </p>
                 {arcComplete ? <p className="game-world-arc-complete">{worldCopy.arcComplete}</p> : null}
                 {lastCompletedMomentId ? (
                   <p className="game-world-checkpoint" role="status">
@@ -198,7 +222,9 @@ export function GameWorldPanel({
                     {worldCopy.relationshipContext}{" "}{renderLocalized(currentRelationshipStage.context)}
                   </p>
                 ) : null}
-                <h2>{worldCopy.available}</h2>
+                {/* Only announce "available scenes" when there are some
+                    besides the current moment above. */}
+                {hasOtherMoments ? <h2>{worldCopy.available}</h2> : null}
                 <div className="game-world-locations">
                   {world.locations.filter(({ id }) => confirmedState.unlockedLocationIds.includes(id)).map((location) => {
                     const moments = world.moments.filter(({ id, locationId }) =>

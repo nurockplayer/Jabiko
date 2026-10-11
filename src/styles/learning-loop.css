@@ -1,0 +1,711 @@
+/* ---- Learning loop: marks, progress and motion (#861, D-26) --------------
+   Jabiko's motion language for the Training loop. It borrows its gestures
+   from a Japanese study desk, not from a game:
+
+     press  → acknowledge   the option takes the pressed fill at once (≤ 90ms)
+     answer → 丸付け         the verdict is drawn ON the option the way a
+                            teacher marks a paper: 〇 on the right answer,
+                            × on a wrong pick, then 〇 on the right one, so
+                            the eye travels from "yours" to "the answer"
+              settle        the explanation settles in below, after the mark
+              ジャビ子       the app mark reacts once in its own tile: a hop
+                            for 正解, a thoughtful head tilt for a miss
+     Next   → turn          the new prompt and options come up like a turned
+                            page; the meter shows real answered / total
+     done   → arrival       the result rows settle in; ジャビ子 cheers once
+
+   Rules (tested by learning-loop.test.ts):
+   - Motion never changes geometry: keyframes touch only transform, opacity
+     and stroke-dashoffset, and nothing transitions a layout property. The
+     options and Next keep their boxes when the verdict lands (UQC §1.2, D-07).
+   - Every animation lives inside `prefers-reduced-motion: no-preference`.
+     With reduced motion each state is simply rendered final and complete;
+     the meaning (glyph shape, text, live region) never depends on motion.
+   - Quick and non-blocking: nothing waits on an animation, nothing loops,
+     no confetti, particles, sound or overlay. */
+
+:root {
+  --jl-ack: 90ms;
+  --jl-mark: 320ms;
+  --jl-mark-quick: 200ms;
+  --jl-settle: 240ms;
+  --jl-turn: 260ms;
+  --jl-meter: 420ms;
+  /* settle: fast out, long soft landing; draw: a pen that hesitates, then commits */
+  --jl-ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --jl-ease-draw: cubic-bezier(0.6, 0, 0.25, 1);
+  --jl-dock-height: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* ---- Options: room for the mark, reserved before answering -------------- */
+
+.drill-panel .choice-option {
+  /* The mark sits in padding that exists from the first paint, so drawing
+     it can never re-wrap the option text or grow its box. */
+  padding-inline: 2.6rem;
+}
+
+/* base.css lifts every hovered button by 1px. In the loop that made the
+   option or Next hop as the pointer left it; acknowledgement is a fill,
+   never movement (D-25). */
+.drill-panel .choice-option:hover,
+.drill-panel .action-row button:hover {
+  transform: none;
+}
+
+.drill-panel .choice-option:active:not(:disabled) {
+  background: var(--jt-action-tonal-pressed);
+}
+
+.drill-panel .choice-option[data-result="correct"],
+.drill-panel .choice-option[data-result="target"] {
+  border-color: var(--jt-assess-correct);
+  box-shadow: inset 0 0 0 1px var(--jt-assess-correct);
+}
+
+.drill-panel .choice-option[data-result="wrong"] {
+  border-color: var(--jt-assess-miss);
+  box-shadow: inset 0 0 0 1px var(--jt-assess-miss);
+}
+
+.drill-panel .choice-option:has(.verdict-mark[data-mark="revealed"]) {
+  box-shadow: none;
+  outline: 2px dashed var(--jt-assess-correct);
+  outline-offset: -4px;
+}
+
+.verdict-mark {
+  fill: none;
+  height: 2rem;
+  inset-inline-end: 0.5rem;
+  pointer-events: none;
+  position: absolute;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+  top: calc(50% - 1rem);
+  width: 2rem;
+}
+
+.verdict-mark[data-mark="correct"],
+.verdict-mark[data-mark="revealed"] {
+  color: var(--jt-assess-correct);
+}
+
+.verdict-mark[data-mark="miss"] {
+  color: var(--jt-assess-miss);
+  stroke-width: 2.6;
+}
+
+.verdict-mark path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.verdict-mark[data-mark="revealed"] path {
+  stroke-dasharray: 0.06 0.045;
+  stroke-width: 2;
+}
+
+/* ---- Verdict button: the reveal slot turns into ジャビ子 + the verdict ----- */
+
+.drill-panel .verdict-chip {
+  align-items: center;
+  border: 1px solid transparent;
+  display: grid;
+  font-weight: 700;
+  gap: 0.5rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  justify-content: stretch;
+  max-width: 18rem;
+  min-height: 44px;
+  overflow: visible;
+  padding: 0 0.6rem 0 0.4rem;
+  text-align: start;
+}
+
+.drill-panel .verdict-chip[data-verdict="correct"] {
+  background: var(--jt-status-success-background);
+  color: var(--jt-assess-correct);
+}
+
+.drill-panel .verdict-chip[data-verdict="wrong"] {
+  background: var(--jt-status-error-background);
+  color: var(--jt-assess-miss);
+}
+
+.drill-panel .verdict-chip[data-verdict="revealed"] {
+  background: var(--jt-status-warning-background);
+  color: var(--jt-status-warning-ink);
+}
+
+.drill-panel .verdict-chip:hover {
+  border-color: currentColor;
+}
+
+.drill-panel .verdict-chip > svg:last-child {
+  height: 1.1rem;
+  width: 1.1rem;
+}
+
+.verdict-chip-text {
+  display: grid;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.verdict-chip-text strong,
+.verdict-chip-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.verdict-chip-text strong {
+  font-size: 1rem;
+}
+
+.verdict-chip-text small {
+  color: var(--jt-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ジャビ子 stands on the slot's floor and hops out above it. */
+.drill-panel .verdict-chip {
+  position: relative;
+}
+
+.verdict-chip .jabiko-buddy {
+  align-self: end;
+  height: 3.2rem;
+  margin-block: -1.2rem -0.2rem;
+  width: 3.2rem;
+}
+
+/* Narrow phones: the verdict word wins over the chevron. */
+@media (max-width: 359px) {
+  .drill-panel .verdict-chip {
+    gap: 0.25rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    padding-inline: 0.25rem 0.4rem;
+  }
+
+  .drill-panel .verdict-chip > svg:last-child {
+    display: none;
+  }
+
+  .verdict-chip .jabiko-buddy {
+    height: 2.7rem;
+    width: 2.7rem;
+  }
+}
+
+/* ジャビ子's line: a small Japanese speech bubble. In the action row it is a
+   passing remark (it pops, holds, and leaves), so it never covers content
+   for long; without motion it is not shown there (the face stays). */
+.buddy-bubble {
+  background: var(--jt-surface-content);
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  color: inherit;
+  font-family: var(--font-japanese-ui);
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0.35rem 0.65rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.verdict-chip .buddy-bubble {
+  bottom: calc(100% + 0.9rem);
+  display: none;
+  left: 2.2rem;
+  position: absolute;
+  z-index: 1;
+}
+
+.verdict-chip .buddy-bubble::after,
+.done-buddy-stage .buddy-bubble::after {
+  background: inherit;
+  border-bottom: 1.5px solid currentColor;
+  border-left: 1.5px solid currentColor;
+  bottom: -0.3rem;
+  content: "";
+  height: 0.5rem;
+  left: 0.7rem;
+  position: absolute;
+  transform: rotate(-45deg);
+  width: 0.5rem;
+}
+
+.done-buddy-stage {
+  align-items: end;
+  color: var(--jt-accent-foreground);
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.done-buddy-stage .buddy-bubble {
+  align-self: start;
+  margin-top: 0.6rem;
+  position: relative;
+}
+
+.done-buddy-stage .buddy-bubble::after {
+  left: -0.2rem;
+  top: 55%;
+  bottom: auto;
+}
+
+.jabiko-buddy {
+  overflow: visible;
+}
+
+.jabiko-buddy .buddy-jump,
+.jabiko-buddy .buddy-spin,
+.jabiko-buddy .buddy-head,
+.jabiko-buddy .buddy-page-left,
+.jabiko-buddy .buddy-page-right,
+.jabiko-buddy .buddy-shadow,
+.jabiko-buddy .buddy-sweat {
+  transform-box: fill-box;
+}
+
+.jabiko-buddy .buddy-jump { transform-origin: 50% 100%; }
+.jabiko-buddy .buddy-spin { transform-origin: 50% 55%; }
+.jabiko-buddy .buddy-head { transform-origin: 50% 92%; }
+.jabiko-buddy .buddy-page-left { transform-origin: 100% 60%; }
+.jabiko-buddy .buddy-page-right { transform-origin: 0% 60%; }
+.jabiko-buddy .buddy-shadow,
+.jabiko-buddy .buddy-sweat { transform-origin: 50% 50%; }
+
+.session-done .done-buddy {
+  display: block;
+  height: 6.5rem;
+  margin: 0.5rem auto 0.25rem;
+  width: 6.5rem;
+}
+
+/* ---- Session meter: a visual echo of "n / N" ---------------------------- */
+
+.drill-panel .prompt-header {
+  flex-wrap: wrap;
+  row-gap: 0.6rem;
+}
+
+.drill-panel .prompt-header .session-meter {
+  background: var(--jt-surface-sunken);
+  border: 0;
+  border-radius: 2px;
+  display: block;
+  flex: 1 0 100%;
+  height: 4px;
+  order: 3;
+  overflow: hidden;
+  padding: 0;
+}
+
+.drill-panel .prompt-header .session-meter-fill {
+  background: var(--jt-action-primary-background);
+  border: 0;
+  border-radius: 0;
+  display: block;
+  height: 100%;
+  padding: 0;
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+}
+
+/* Feedback is inserted below the options. If the browser's scroll anchor is
+   anything further down (the practice picker under the drill on compact
+   widths, the footer), scroll anchoring moves the page by the feedback's
+   height the moment the learner answers. Nothing on the practice route
+   needs anchoring, so it is off while the drill is shown. */
+:root:has(.drill-panel) {
+  overflow-anchor: none;
+}
+
+/* ---- Compact widths: Next docked to the viewport bottom (D-07) ----------- */
+
+.drill-panel,
+.drill-panel > .feedback {
+  scroll-margin-top: calc(var(--jt-bar-height) + 0.5rem);
+}
+
+/* Focus arrives here from the verdict button; the panel is not a control. */
+.drill-panel > .feedback:focus {
+  outline: none;
+}
+
+@media (max-width: 599px) {
+  /* A transformed ancestor turns the docked row's `position: fixed` into
+     "fixed to the panel", so the panel's mount rise (panel-rise) would park
+     Next mid-page until it finished. The question's own turn-in replaces it. */
+  .drill-panel:has(.action-row--dock) {
+    animation: none;
+  }
+
+  .drill-panel .action-row--dock {
+    background: var(--jt-surface-chrome);
+    border-top: 1px solid var(--jt-border-subtle);
+    bottom: 0;
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    left: 0;
+    margin: 0;
+    padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    position: fixed;
+    right: 0;
+    z-index: 40;
+  }
+
+  .drill-panel .action-row--dock > button {
+    min-height: 48px;
+    width: 100%;
+  }
+
+  /* Keep the end of the page (feedback, the practice picker) reachable
+     above the dock, and lift the update toast over it. */
+  .app-shell:has(.action-row--dock) {
+    padding-bottom: calc(var(--jl-dock-height) + 1rem);
+  }
+
+  .app-shell:has(.action-row--dock) .update-toast {
+    bottom: calc(var(--jl-dock-height) + 0.75rem);
+  }
+}
+
+@media (forced-colors: active) {
+  .drill-panel .prompt-header .session-meter {
+    border: 1px solid CanvasText;
+  }
+
+  .drill-panel .prompt-header .session-meter-fill {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+
+  .verdict-mark[data-mark] {
+    color: CanvasText;
+  }
+}
+
+/* ---- Motion (only when the learner has not asked for less) -------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .drill-panel .choice-option {
+    transition:
+      background-color var(--jl-ack) ease-out,
+      border-color 160ms ease-out,
+      box-shadow 160ms ease-out;
+  }
+
+  /* 丸付け: the 〇 is drawn like a pen stroke and lands with a slight press. */
+  .verdict-mark[data-mark="correct"] {
+    animation: jl-mark-land var(--jl-mark) var(--jl-ease-settle) both;
+  }
+
+  .verdict-mark[data-mark="correct"] path {
+    animation: jl-draw var(--jl-mark) var(--jl-ease-draw) both;
+  }
+
+  .verdict-mark[data-mark="miss"] path {
+    animation: jl-draw var(--jl-mark-quick) var(--jl-ease-draw) both;
+  }
+
+  /* On a miss the right answer is marked just after the ×, leading the eye
+     from the learner's pick to the answer. */
+  .choice-option[data-result="target"] .verdict-mark[data-mark="correct"],
+  .choice-option[data-result="target"] .verdict-mark[data-mark="correct"] path {
+    animation-delay: 220ms;
+  }
+
+  .verdict-mark[data-mark="revealed"] {
+    animation: jl-fade var(--jl-settle) ease-out both;
+  }
+
+  /* The explanation follows the mark instead of competing with it. */
+  .drill-panel > .feedback {
+    animation: jl-rise var(--jl-settle) var(--jl-ease-settle) 140ms both;
+  }
+
+  .drill-panel .prompt-header .session-meter-fill {
+    transition: transform var(--jl-meter) var(--jl-ease-settle);
+  }
+
+  /* Turn: a new question comes up like the next page of a workbook. */
+  .drill-panel .word-block {
+    animation: jl-rise var(--jl-turn) var(--jl-ease-settle) both;
+  }
+
+  .drill-panel .choice-grid > .choice-option,
+  .drill-panel .recall-form {
+    animation: jl-rise var(--jl-turn) var(--jl-ease-settle) 60ms both;
+  }
+
+  .drill-panel .choice-grid > .choice-option:nth-child(2) { animation-delay: 90ms; }
+  .drill-panel .choice-grid > .choice-option:nth-child(3) { animation-delay: 120ms; }
+  .drill-panel .choice-grid > .choice-option:nth-child(n + 4) { animation-delay: 150ms; }
+
+  /* Arrival: the result card settles in row by row; a perfect run is
+     stamped. */
+  .session-done > * {
+    animation: jl-rise 300ms var(--jl-ease-settle) both;
+  }
+
+  .session-done > :nth-child(2) { animation-delay: 60ms; }
+  .session-done > :nth-child(3) { animation-delay: 120ms; }
+  .session-done > :nth-child(4) { animation-delay: 180ms; }
+  .session-done > :nth-child(n + 5) { animation-delay: 240ms; }
+
+  .session-done .done-perfect-badge {
+    animation: jl-stamp 360ms var(--jl-ease-settle) 200ms both;
+  }
+
+  /* ジャビ子 reacts in its own app-mark tile (D-10), once per verdict. */
+  .app-brand-mark .jabiko-mark-figure,
+  .app-brand-mark .jabiko-mark-eyes {
+    transform-box: fill-box;
+  }
+
+  .app-brand-mark .jabiko-mark-figure {
+    transform-origin: 50% 100%;
+  }
+
+  .app-brand-mark .jabiko-mark-eyes {
+    transform-origin: 50% 50%;
+  }
+
+  .app-shell:has(.drill-panel[data-result="correct"]) .app-brand-mark .jabiko-mark-figure {
+    animation: jl-hop 560ms var(--jl-ease-settle) 120ms both;
+  }
+
+  .app-shell:has(.drill-panel[data-result="correct"]) .app-brand-mark .jabiko-mark-eyes,
+  .app-shell:has(.session-done) .app-brand-mark .jabiko-mark-eyes {
+    animation: jl-smile 560ms ease-in-out 120ms both;
+  }
+
+  .app-shell:has(.drill-panel[data-result="wrong"]) .app-brand-mark .jabiko-mark-figure {
+    animation: jl-tilt 760ms var(--jl-ease-settle) 180ms both;
+  }
+
+  .app-shell:has(.session-done) .app-brand-mark .jabiko-mark-figure {
+    animation: jl-cheer 900ms var(--jl-ease-settle) 240ms both;
+  }
+}
+
+@keyframes jl-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes jl-mark-land {
+  0% { opacity: 0; transform: scale(1.18) rotate(-8deg); }
+  35% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes jl-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes jl-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes jl-stamp {
+  0% { opacity: 0; transform: scale(1.35) rotate(-6deg); }
+  60% { opacity: 1; transform: scale(0.97) rotate(-2deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes jl-hop {
+  0% { transform: none; }
+  30% { transform: translateY(-14%); }
+  55% { transform: translateY(0) scaleY(0.96); }
+  75%, 100% { transform: none; }
+}
+
+@keyframes jl-smile {
+  0%, 100% { transform: none; }
+  25%, 70% { transform: scaleY(0.25); }
+}
+
+@keyframes jl-tilt {
+  0% { transform: none; }
+  30%, 65% { transform: rotate(-9deg) translateX(-2%); }
+  100% { transform: none; }
+}
+
+@keyframes jl-cheer {
+  0%, 100% { transform: none; }
+  18% { transform: translateY(-14%); }
+  34% { transform: none; }
+  52% { transform: translateY(-9%) rotate(4deg); }
+  70% { transform: none; }
+}
+
+/* ---- ジャビ子's acting (D-26) ---------------------------------------------
+   One beat per verdict, sized by what actually happened:
+     正解        anticipation squash → jump with stretch → squash landing,
+                 the book-hat pages flap like wings, the shadow shrinks
+     3 in a row  …plus a full spin in the air
+     5 in a row  …a double jump, pages flapping twice
+     miss        eyes squeeze (> <), a sweat drop slides, the head shakes,
+                 a slump — then a small determined bounce: "again!"
+     reveal      a long, curious head tilt
+     completion  the cheer, scaled by the set's real accuracy
+   Reduced motion keeps the face (the emotion) and drops the acting. */
+@media (prefers-reduced-motion: no-preference) {
+  .drill-panel .verdict-chip {
+    animation: jl-chip-in 280ms var(--jl-ease-settle) both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"]) .buddy-jump {
+    animation: jl-buddy-hop 720ms var(--jl-ease-settle) 160ms both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"]) .buddy-shadow {
+    animation: jl-buddy-shadow 720ms var(--jl-ease-settle) 160ms both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"]) .buddy-page-left {
+    animation: jl-page-left 720ms ease-in-out 160ms both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"]) .buddy-page-right {
+    animation: jl-page-right 720ms ease-in-out 160ms both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"]):not([data-energy="1"]) .buddy-spin {
+    animation: jl-buddy-flip 720ms var(--jl-ease-settle) 160ms both;
+  }
+
+  .jabiko-buddy:is([data-mood="happy"], [data-mood="cheer"])[data-energy="3"] :is(.buddy-jump, .buddy-shadow, .buddy-page-left, .buddy-page-right) {
+    animation-iteration-count: 2;
+  }
+
+  .jabiko-buddy[data-mood="oops"] .buddy-jump {
+    animation: jl-buddy-slump 1000ms var(--jl-ease-settle) 160ms both;
+  }
+
+  .jabiko-buddy[data-mood="oops"] .buddy-head {
+    animation: jl-buddy-shake 820ms ease-out 160ms both;
+  }
+
+  .jabiko-buddy[data-mood="oops"] .buddy-sweat {
+    animation: jl-sweat 1000ms ease-in 280ms both;
+  }
+
+  .jabiko-buddy[data-mood="thinking"] .buddy-head {
+    animation: jl-buddy-ponder 1300ms var(--jl-ease-settle) 160ms both;
+  }
+
+  .session-done .done-buddy :is(.buddy-jump, .buddy-shadow, .buddy-page-left, .buddy-page-right, .buddy-spin) {
+    animation-delay: 380ms;
+  }
+
+  .verdict-chip .buddy-bubble {
+    animation: jl-bubble 1700ms var(--jl-ease-settle) 260ms both;
+    display: block;
+    transform-origin: 0 100%;
+  }
+
+  .done-buddy-stage .buddy-bubble {
+    animation: jl-bubble-stay 420ms var(--jl-ease-settle) 700ms both;
+    transform-origin: 0 60%;
+  }
+}
+
+@keyframes jl-bubble {
+  0% { opacity: 0; transform: translateY(6px) scale(0.5) rotate(-8deg); }
+  14% { opacity: 1; transform: translateY(-2px) scale(1.08) rotate(2deg); }
+  24% { opacity: 1; transform: none; }
+  78% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+}
+
+@keyframes jl-bubble-stay {
+  0% { opacity: 0; transform: scale(0.5) rotate(-8deg); }
+  60% { opacity: 1; transform: scale(1.08) rotate(2deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes jl-chip-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes jl-buddy-hop {
+  0% { transform: none; }
+  16% { transform: translateY(0) scale(1.12, 0.86); }
+  42% { transform: translateY(-34%) scale(0.92, 1.1); }
+  62% { transform: translateY(0) scale(1.14, 0.84); }
+  78% { transform: scale(0.96, 1.05); }
+  90% { transform: scale(1.02, 0.98); }
+  100% { transform: none; }
+}
+
+@keyframes jl-buddy-shadow {
+  0%, 100% { opacity: 1; transform: none; }
+  42% { opacity: 0.4; transform: scale(0.55, 0.7); }
+  62% { opacity: 1; transform: scale(1.15, 1); }
+}
+
+@keyframes jl-buddy-flip {
+  0%, 18% { transform: rotate(0deg); }
+  60%, 100% { transform: rotate(-360deg); }
+}
+
+@keyframes jl-page-left {
+  0%, 100% { transform: none; }
+  20% { transform: rotate(14deg); }
+  42% { transform: rotate(-30deg); }
+  60% { transform: rotate(12deg); }
+  78% { transform: rotate(-10deg); }
+}
+
+@keyframes jl-page-right {
+  0%, 100% { transform: none; }
+  20% { transform: rotate(-14deg); }
+  42% { transform: rotate(30deg); }
+  60% { transform: rotate(-12deg); }
+  78% { transform: rotate(10deg); }
+}
+
+@keyframes jl-buddy-slump {
+  0% { transform: none; }
+  20%, 55% { transform: translateY(5%) scale(1.05, 0.93); }
+  72% { transform: translateY(-12%) scale(0.96, 1.05); }
+  86% { transform: translateY(0) scale(1.03, 0.97); }
+  100% { transform: none; }
+}
+
+@keyframes jl-buddy-shake {
+  0% { transform: none; }
+  14% { transform: rotate(-11deg); }
+  30% { transform: rotate(10deg); }
+  46% { transform: rotate(-7deg); }
+  62% { transform: rotate(4deg); }
+  78%, 100% { transform: none; }
+}
+
+@keyframes jl-sweat {
+  0% { opacity: 0; transform: translateY(-40%) scale(0.6); }
+  25% { opacity: 1; transform: none; }
+  80% { opacity: 1; transform: translateY(70%); }
+  100% { opacity: 0; transform: translateY(110%); }
+}
+
+@keyframes jl-buddy-ponder {
+  0% { transform: none; }
+  30%, 70% { transform: rotate(13deg) translateX(3%); }
+  100% { transform: rotate(7deg); }
+}
