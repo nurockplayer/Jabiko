@@ -494,6 +494,115 @@ test("keeps the Small Talk completion within 320px at 200% root text", async ({ 
   await expectNoPageOverflow(page, "conversation completion at 320px / 200% text");
 });
 
+// #874: session and World completion cards must reflow at the narrowest
+// supported viewport when the learner enlarges root text to 200%.
+for (const locale of ["zh-Hant", "ja", "en"] as const) {
+  test(`reflows practice completion at 320px / 200% root text (${locale})`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    await page.evaluate((language) => {
+      localStorage.setItem("jabiko.lang", language);
+      localStorage.setItem("jabiko.sessionLength", "1");
+    }, locale);
+    await page.goto("/challenge?mode=basic");
+    await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+
+    const option = page.locator(".choice-option").first();
+    await expect(option).toBeVisible();
+    await option.click();
+    await page.locator(".next-button").click();
+
+    const card = page.locator(".session-done");
+    await expect(card).toBeVisible();
+    await expect(card.locator(".done-stats")).toBeVisible();
+    await test.info().attach(`practice-completion-${locale}.png`, {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: "image/png"
+    });
+    const geometry = await page.evaluate(() => {
+      const card = document.querySelector<HTMLElement>(".session-done")!;
+      const stats = card.querySelector<HTMLElement>(".done-stats")!;
+      const buddy = card.querySelector<HTMLElement>(".done-buddy-stage")!;
+      const bubble = buddy.querySelector<HTMLElement>(".buddy-bubble")!;
+      return {
+        viewport: window.innerWidth,
+        document: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
+        card: { left: card.getBoundingClientRect().left, right: card.getBoundingClientRect().right },
+        stats: {
+          clientWidth: stats.clientWidth,
+          scrollWidth: stats.scrollWidth,
+          columns: getComputedStyle(stats).gridTemplateColumns.split(" ")
+        },
+        tiles: [...stats.querySelectorAll<HTMLElement>(".done-stat")].map((tile) => {
+          const rect = tile.getBoundingClientRect();
+          return { left: rect.left, right: rect.right };
+        }),
+        buddy: { left: buddy.getBoundingClientRect().left, right: buddy.getBoundingClientRect().right },
+        bubble: { clientWidth: bubble.clientWidth, scrollWidth: bubble.scrollWidth }
+      };
+    });
+    expect(geometry.document, `${locale} practice completion document width`).toBeLessThanOrEqual(geometry.viewport);
+    expect(geometry.card.left, `${locale} practice completion left edge`).toBeGreaterThanOrEqual(0);
+    expect(geometry.card.right, `${locale} practice completion right edge`).toBeLessThanOrEqual(geometry.viewport);
+    expect(geometry.stats.scrollWidth, `${locale} stats fit their grid`).toBeLessThanOrEqual(geometry.stats.clientWidth);
+    expect(geometry.stats.columns, `${locale} stats use one narrow column`).toHaveLength(1);
+    for (const [index, tile] of geometry.tiles.entries()) {
+      expect(tile.left, `${locale} stat tile ${index} left edge`).toBeGreaterThanOrEqual(0);
+      expect(tile.right, `${locale} stat tile ${index} right edge`).toBeLessThanOrEqual(geometry.viewport);
+    }
+    expect(geometry.buddy.left, `${locale} completion buddy left edge`).toBeGreaterThanOrEqual(0);
+    expect(geometry.buddy.right, `${locale} completion buddy right edge`).toBeLessThanOrEqual(geometry.viewport);
+    expect(geometry.bubble.scrollWidth, `${locale} completion bubble wraps`).toBeLessThanOrEqual(geometry.bubble.clientWidth);
+
+    const firstAction = card.locator(".review-done-actions button").first();
+    await expect(firstAction).toBeVisible();
+    await firstAction.focus();
+    await expect(firstAction).toBeFocused();
+  });
+}
+
+for (const locale of ["zh-Hant", "ja", "en"] as const) {
+  test(`reflows World save-failure completion at 320px / 200% root text (${locale})`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.addInitScript(() => {
+      const originalSetItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (key: string, value: string) {
+        if (key === "jabiko-world-progress/v1:rainy-monday") {
+          throw new DOMException("Quota exceeded", "QuotaExceededError");
+        }
+        originalSetItem.call(this, key, value);
+      };
+    });
+    await page.goto("/");
+    await page.evaluate((language) => localStorage.setItem("jabiko.lang", language), locale);
+    await page.goto("/game");
+    await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
+    await page.locator(".game-world-start").click();
+    await page.locator(".conversation-primary").click();
+    await page.locator(".conversation-primary").click();
+    await page.locator(".conversation-response").first().click();
+    await page.locator(".conversation-actions .conversation-secondary").click();
+
+    const completion = page.locator(".conversation-complete");
+    await expect(completion).toBeVisible();
+    await expect(page.locator(".game-world-save-error[role=alert]")).toBeVisible();
+    await test.info().attach(`world-save-failure-completion-${locale}.png`, {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: "image/png"
+    });
+    await expect(completion.locator(".conversation-section-title")).toBeFocused();
+    const bounds = await completion.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return { left: rect.left, right: rect.right, viewport: window.innerWidth };
+    });
+    expect(bounds.left, `${locale} World completion left edge`).toBeGreaterThanOrEqual(0);
+    expect(bounds.right, `${locale} World completion right edge`).toBeLessThanOrEqual(bounds.viewport);
+    await expectNoPageOverflow(page, `${locale} World save-failure completion at 320px / 200% text`);
+  });
+}
+
 for (const width of [390, 1280]) {
   test.describe(`conversation keyboard flow at ${width}px`, () => {
     test.use({ viewport: { width, height: 844 } });

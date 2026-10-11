@@ -110,6 +110,16 @@
   color: var(--teal-dark);
 }
 
+@media (max-width: 399px) {
+  .done-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .done-stat {
+    min-width: 0;
+  }
+}
+
 /* Share panel on the card: a hairline divider sets it off from the actions. */
 .session-done .share-panel {
   width: 100%;
