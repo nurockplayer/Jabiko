@@ -1439,6 +1439,68 @@ test.describe("legacy color compatibility contrast", () => {
   });
 });
 
+test.describe("practice digit shortcuts behind overlays", () => {
+  for (const overlay of ["FeedbackForm dialog", "MoreMenu"] as const) {
+    test(`leaves digits to ${overlay} and resumes practice after closing it`, async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.addInitScript(() => localStorage.setItem("jabiko.lang", "en"));
+      await page.goto("/challenge?mode=basic");
+      const firstChoice = page.locator(".choice-option").first();
+      const question = page.locator(".word-block");
+      await expect(firstChoice).toBeVisible();
+      await expect(firstChoice).toBeEnabled();
+      const questionText = await question.innerText();
+      const attemptCount = () => page.evaluate(() =>
+        (JSON.parse(localStorage.getItem("jabiko:attempts") ?? "[]") as unknown[]).length
+      );
+      await expect.poll(attemptCount).toBe(0);
+      await expect(page.locator(".choice-option.chosen")).toHaveCount(0);
+
+      // Observe after the document shortcut handler without replacing events
+      // or invoking app internals; the key itself comes from Playwright.
+      await page.evaluate(() => {
+        window.addEventListener("keydown", (event) => {
+          if (event.key === "1") {
+            document.documentElement.setAttribute("data-practice-digit-prevented", String(event.defaultPrevented));
+          }
+        });
+      });
+      await page.locator(".jt1-header-menu > .nav-more-trigger").click();
+      const menu = page.getByRole("menu", { name: "More", exact: true });
+      const feedbackItem = menu.getByRole("menuitem", { name: "Feedback", exact: true });
+      await expect(menu).toBeVisible();
+      if (overlay === "FeedbackForm dialog") {
+        await feedbackItem.click();
+        const close = page.getByRole("dialog", { name: "Feedback", exact: true })
+          .getByRole("button", { name: "Close", exact: true });
+        await close.focus();
+        await expect(close).toBeFocused();
+      } else {
+        await feedbackItem.focus();
+        await expect(feedbackItem).toBeFocused();
+      }
+
+      await page.keyboard.press("1");
+      await expect(page.locator("html")).toHaveAttribute("data-practice-digit-prevented", "false");
+      await expect(question).toHaveText(questionText, { useInnerText: true });
+      await expect(firstChoice).toBeEnabled();
+      await expect(page.locator(".choice-option.chosen")).toHaveCount(0);
+      await expect.poll(attemptCount).toBe(0);
+
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("dialog", { name: "Feedback", exact: true })).toHaveCount(0);
+      await expect(menu).toHaveCount(0);
+      await firstChoice.focus();
+      await expect(firstChoice).toBeFocused();
+      await page.keyboard.press("1");
+      await expect(page.locator("html")).toHaveAttribute("data-practice-digit-prevented", "true");
+      await expect(firstChoice).toHaveClass(/\bchosen\b/);
+      await expect(page.locator(".choice-option.chosen")).toHaveCount(1);
+      await expect.poll(attemptCount).toBe(1);
+    });
+  }
+});
+
 // #866 Astra review round 5: enlarged text, the set list's inner scroll and
 // reduced motion at the edges of the session bar and phone dock.
 test.describe("practice session at the edges (#866)", () => {
