@@ -13,7 +13,7 @@ import { TtsRatePicker } from "./challenge/TtsRatePicker";
 
 const SWITCHER_ID = "practice-switcher";
 
-// Cancels the click that completes the current press. A touch tap's click
+// Cancels the pointer click that completes the current press. A touch tap's click
 // arrives in a later task than its pointerup, so the guard waits for it, but
 // is dropped when the press ends without one (cancelled, a scroll, or the
 // next press begins), so a later, deliberate click is never lost.
@@ -21,6 +21,9 @@ function swallowNextClick() {
   let timer = 0;
   let released = false;
   const swallow = (event: MouseEvent) => {
+    // detail 0 = a keyboard or assistive-technology activation, never the
+    // press being dismissed.
+    if (event.detail === 0) return;
     event.preventDefault();
     event.stopPropagation();
     release();
@@ -139,7 +142,8 @@ export function ChallengePanel({
       // and the header keep their click.
       const pressed = target instanceof Element ? target : target.parentElement;
       const onQuestion = pressed?.closest(".drill-panel") && !pressed.closest(".session-bar");
-      if (onQuestion && layout.contains(pressed)) swallowNextClick();
+      // Only a primary press ends in a click; others must not arm the guard.
+      if (onQuestion && event.button === 0 && layout.contains(pressed)) swallowNextClick();
     };
     // Esc closes the open list from anywhere in the practice surface (or with
     // focus nowhere -- a setting change can drop it) and puts focus back on

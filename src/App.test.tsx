@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import App from "./App";
@@ -1432,6 +1432,29 @@ describe("App", () => {
     expect(panel).toHaveAttribute("data-result", "unanswered");
 
     await user.click(option);
+    expect(panel).not.toHaveAttribute("data-result", "unanswered");
+  });
+
+  // #872 review round 10: the dismiss guard must never eat a keyboard
+  // activation, and a secondary-button press must not arm it.
+  it.each([
+    ["a secondary-button press", { button: 2, pointerType: "mouse" }],
+    ["a primary press that produced no click", { button: 0, pointerType: "mouse" }]
+  ])("still answers by keyboard right after %s dismissed the list (#866)", async (_label, init) => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("link", { name: "練習" }));
+    const panel = await screen.findByRole("region", { name: "目前題目" });
+    const switcher = screen.getByRole("button", { name: "換練習" });
+    await user.click(switcher);
+    const option = panel.querySelector<HTMLElement>(".choice-option")!;
+
+    fireEvent.pointerDown(option, init);
+    fireEvent.pointerUp(option, init);
+    expect(switcher).toHaveAttribute("aria-expanded", "false");
+    option.focus();
+    // A keyboard activation is a click with detail 0.
+    fireEvent.click(option, { detail: 0 });
     expect(panel).not.toHaveAttribute("data-result", "unanswered");
   });
 
