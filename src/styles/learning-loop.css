@@ -261,6 +261,20 @@
   bottom: auto;
 }
 
+@media (max-width: 399px) {
+  .done-buddy-stage {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .done-buddy-stage .buddy-bubble {
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}
+
 .jabiko-buddy {
   overflow: visible;
 }

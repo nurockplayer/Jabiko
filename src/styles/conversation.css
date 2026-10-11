@@ -601,6 +601,24 @@
   white-space: normal;
 }
 
+@media (max-width: 399px) {
+  .game-world-shell .conversation-panel,
+  .game-world-shell .conversation-run,
+  .game-world-shell .conversation-turn {
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+  }
+
+  .game-world-shell .conversation-complete > * {
+    min-width: 0;
+  }
+
+  .game-world-shell .conversation-done-buddy .jabiko-buddy {
+    flex: 0 1 4.5rem;
+    max-width: 100%;
+  }
+}
+
 .conversation-complete-summary {
   line-height: 1.7;
   margin: 0;
