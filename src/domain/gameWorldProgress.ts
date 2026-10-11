@@ -70,6 +70,93 @@ function isProgressStateShape(value: unknown): value is GameWorldState {
   );
 }
 
+function ownDataValue(value: object, key: string): unknown {
+  const descriptor = Object.getOwnPropertyDescriptor(value, key);
+  return descriptor != null && "value" in descriptor ? descriptor.value : undefined;
+}
+
+function copyStringArray(value: unknown): readonly string[] | null {
+  if (!Array.isArray(value)) return null;
+  const copy: string[] = [];
+  for (let index = 0; index < value.length; index += 1) {
+    const item = ownDataValue(value, String(index));
+    if (typeof item !== "string") return null;
+    copy.push(item);
+  }
+  return Object.freeze(copy);
+}
+
+function copyOutcomeReferences(value: unknown): GameWorldState["outcomeReferences"] | null {
+  if (!Array.isArray(value)) return null;
+  const copy: { momentId: string; outcomeId: string }[] = [];
+  for (let index = 0; index < value.length; index += 1) {
+    const reference = ownDataValue(value, String(index));
+    if (!isRecord(reference) || !hasExactKeys(reference, ["momentId", "outcomeId"])) return null;
+    const momentId = ownDataValue(reference, "momentId");
+    const outcomeId = ownDataValue(reference, "outcomeId");
+    if (typeof momentId !== "string" || typeof outcomeId !== "string") return null;
+    copy.push(Object.freeze({ momentId, outcomeId }));
+  }
+  return Object.freeze(copy);
+}
+
+/** Copy only declared data fields so candidate hooks cannot alter the validated state. */
+function captureProgressState(value: unknown): GameWorldState | null {
+  try {
+    if (!isRecord(value) || !hasExactKeys(value, [
+      "completedMomentIds", "relationshipStages", "unlockedLocationIds", "unlockedMomentIds", "outcomeReferences"
+    ])) return null;
+
+    const completedMomentIds = copyStringArray(ownDataValue(value, "completedMomentIds"));
+    const relationshipStagesValue = ownDataValue(value, "relationshipStages");
+    const unlockedLocationIds = copyStringArray(ownDataValue(value, "unlockedLocationIds"));
+    const unlockedMomentIds = copyStringArray(ownDataValue(value, "unlockedMomentIds"));
+    const outcomeReferences = copyOutcomeReferences(ownDataValue(value, "outcomeReferences"));
+    if (
+      completedMomentIds == null || !isRecord(relationshipStagesValue) ||
+      unlockedLocationIds == null || unlockedMomentIds == null || outcomeReferences == null
+    ) return null;
+
+    const stageEntries: [string, string][] = [];
+    for (const npcId of Object.keys(relationshipStagesValue)) {
+      const stageId = ownDataValue(relationshipStagesValue, npcId);
+      if (typeof stageId !== "string") return null;
+      stageEntries.push([npcId, stageId]);
+    }
+
+    const projection: GameWorldState = Object.freeze({
+      completedMomentIds,
+      relationshipStages: Object.freeze(Object.fromEntries(stageEntries)),
+      unlockedLocationIds,
+      unlockedMomentIds,
+      outcomeReferences
+    });
+    return isProgressStateShape(projection) ? projection : null;
+  } catch {
+    return null;
+  }
+}
+
+function sameProgressState(left: GameWorldState, right: GameWorldState): boolean {
+  const sameStringArray = (first: readonly string[], second: readonly string[]): boolean =>
+    first.length === second.length && first.every((value, index) => value === second[index]);
+  const leftNpcIds = Object.keys(left.relationshipStages);
+  const rightNpcIds = Object.keys(right.relationshipStages);
+  return sameStringArray(left.completedMomentIds, right.completedMomentIds) &&
+    sameStringArray(left.unlockedLocationIds, right.unlockedLocationIds) &&
+    sameStringArray(left.unlockedMomentIds, right.unlockedMomentIds) &&
+    leftNpcIds.length === rightNpcIds.length &&
+    leftNpcIds.every((npcId) =>
+      Object.prototype.hasOwnProperty.call(right.relationshipStages, npcId) &&
+      left.relationshipStages[npcId] === right.relationshipStages[npcId]
+    ) &&
+    left.outcomeReferences.length === right.outcomeReferences.length &&
+    left.outcomeReferences.every((reference, index) =>
+      reference.momentId === right.outcomeReferences[index]?.momentId &&
+      reference.outcomeId === right.outcomeReferences[index]?.outcomeId
+    );
+}
+
 function decodeEnvelope(value: unknown, world: GameWorldDefinition, contentRevision: number): GameWorldProgressRead {
   if (!isRecord(value) || !hasExactKeys(value, ["profile", "worldId", "contentRevision", "state"])) {
     return { status: "invalid" };
@@ -113,17 +200,35 @@ export function writeConfirmedGameWorldProgress(
   contentRevision: number,
   state: GameWorldState
 ): GameWorldProgressWrite {
-  if (!isContentRevision(contentRevision) || getGameWorldAvailability(world, state).status !== "ready") {
+  if (!isContentRevision(contentRevision)) {
     return { status: "invalid_state" };
   }
-  const envelope: GameWorldProgressEnvelope = {
-    profile: GAME_WORLD_PROGRESS_PROFILE,
-    worldId: world.id,
-    contentRevision,
-    state
-  };
   const key = gameWorldProgressKey(world.id);
-  const encoded = JSON.stringify(envelope);
+  let encoded: string;
+  try {
+    const candidate = captureProgressState(state);
+    if (candidate == null || getGameWorldAvailability(world, candidate).status !== "ready") {
+      return { status: "invalid_state" };
+    }
+    const envelope: GameWorldProgressEnvelope = {
+      profile: GAME_WORLD_PROGRESS_PROFILE,
+      worldId: world.id,
+      contentRevision,
+      state
+    };
+    encoded = JSON.stringify(envelope);
+    // Validate the actual bytes before they can replace the last confirmed checkpoint.
+    const serialized = decodeEnvelope(JSON.parse(encoded) as unknown, world, contentRevision);
+    if (serialized.status !== "ready") {
+      return { status: "invalid_state" };
+    }
+    const serializedState = captureProgressState(serialized.state);
+    if (serializedState == null || !sameProgressState(candidate, serializedState)) {
+      return { status: "invalid_state" };
+    }
+  } catch {
+    return { status: "invalid_state" };
+  }
   try {
     storage.setItem(key, encoded);
     const readback = storage.getItem(key);
